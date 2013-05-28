@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@ enum Text
     EMOTE_ONE_STACK                 = 0,
     EMOTE_TEN_STACK                 = 1,
     EMOTE_FREE_OF_BONDS             = 2,
-    YELL_FREE_OF_BONDS              = 3,
+    YELL_FREE_OF_BONDS              = 3
 };
 
 enum Spells
@@ -37,14 +37,14 @@ enum Spells
     SPELL_EMBERSEER_FULL_STRENGTH   = 16047, // Emberseer Full Strength
     SPELL_FIRENOVA                  = 23462, // Combat
     SPELL_FLAMEBUFFET               = 23341, // Combat
-    SPELL_PYROBLAST                 = 17274, // Combat
+    SPELL_PYROBLAST                 = 17274  // Combat
 };
 
 enum Events
 {
     EVENT_FIRENOVA                  = 1,
     EVENT_FLAMEBUFFET               = 2,
-    EVENT_PYROBLAST                 = 3,
+    EVENT_PYROBLAST                 = 3
 };
 
 
@@ -66,7 +66,6 @@ public:
         {
             if (instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
                 OpenDoors(false);
-            instance->SetBossState(DATA_PYROGAURD_EMBERSEER,NOT_STARTED);
             // respawn any dead Blackhand Incarcerators
             DoCast(me, SPELL_ENCAGED_EMBERSEER);
             //DoCast(me, SPELL_FIRE_SHIELD_TRIGGER);
@@ -83,7 +82,6 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            instance->SetBossState(DATA_PYROGAURD_EMBERSEER,DONE);
             OpenDoors(true);
             _JustDied();
         }
@@ -99,10 +97,9 @@ public:
                     door3->SetGoState(GO_STATE_ACTIVE);
        }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
-
                 return;
 
             events.Update(diff);
@@ -115,11 +112,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FIRENOVA:
-                        DoCast(me->getVictim(), SPELL_FIRENOVA);
+                        DoCastVictim(SPELL_FIRENOVA);
                         events.ScheduleEvent(EVENT_FIRENOVA, 6 * IN_MILLISECONDS);
                         break;
                     case EVENT_FLAMEBUFFET:
-                        DoCast(me->getVictim(), SPELL_FLAMEBUFFET);
+                        DoCastVictim(SPELL_FLAMEBUFFET);
                         events.ScheduleEvent(EVENT_FLAMEBUFFET, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_PYROBLAST:
@@ -129,6 +126,7 @@ public:
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
     };

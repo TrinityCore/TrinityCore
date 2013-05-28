@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,13 +94,13 @@ class boss_elder_nadox : public CreatureScript
                 if (instance)
                     instance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
 
-                events.ScheduleEvent(EVENT_PLAGUE, 13*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_PLAGUE, 13 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10 * IN_MILLISECONDS);
 
                 if (IsHeroic())
                 {
-                    events.ScheduleEvent(EVENT_RAGE, 12*IN_MILLISECONDS);
-                    events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_RAGE, 12 * IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5 * IN_MILLISECONDS);
                 }
             }
 
@@ -139,7 +139,7 @@ class boss_elder_nadox : public CreatureScript
                     instance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -151,25 +151,25 @@ class boss_elder_nadox : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_PLAGUE:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_BROOD_PLAGUE,true);
-                            events.ScheduleEvent(EVENT_PLAGUE, 15*IN_MILLISECONDS);
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_BROOD_PLAGUE, true);
+                            events.ScheduleEvent(EVENT_PLAGUE, 15 * IN_MILLISECONDS);
                             break;
                         case EVENT_RAGE:
                             DoCast(H_SPELL_BROOD_RAGE);
-                            events.ScheduleEvent(EVENT_RAGE, urand(10*IN_MILLISECONDS, 50*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_RAGE, urand(10 * IN_MILLISECONDS, 50 * IN_MILLISECONDS));
                             break;
                         case EVENT_SUMMON_SWARMER:
                             DoCast(me, SPELL_SUMMON_SWARMERS);
                             if (urand(1, 3) == 3) // 33% chance of dialog
                                 Talk(SAY_EGG_SAC);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10 * IN_MILLISECONDS);
                             break;
                         case EVENT_CHECK_ENRAGE:
                             if (me->HasAura(SPELL_ENRAGE))
                                 return;
                             if (me->GetPositionZ() < 24.0f)
                                 DoCast(me, SPELL_ENRAGE, true);
-                            events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5 * IN_MILLISECONDS);
                             break;
                         default:
                             break;
@@ -209,7 +209,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
                 if (me->GetEntry() == NPC_AHNKAHAR_GUARDIAN)
                     DoCast(me, SPELL_GUARDIAN_AURA, true);
 
-                events.ScheduleEvent(EVENT_SPRINT, 13*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SPRINT, 13 * IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -218,7 +218,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -234,7 +234,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
                     {
                     case EVENT_SPRINT:
                         DoCast(me, SPELL_SPRINT);
-                        events.ScheduleEvent(EVENT_SPRINT, 20*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SPRINT, 20 * IN_MILLISECONDS);
                         break;
                     }
                 }
@@ -254,9 +254,9 @@ class mob_nadox_eggs : public CreatureScript
 public:
     mob_nadox_eggs() : CreatureScript("mob_nadox_eggs") { }
 
-    struct mob_nadox_eggsAI : public Scripted_NoMovementAI
+    struct mob_nadox_eggsAI : public ScriptedAI
     {
-        mob_nadox_eggsAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        mob_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             creature->UpdateAllStats();
@@ -266,7 +266,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void AttackStart(Unit* /*victim*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/) {}
+        void UpdateAI(uint32 /*diff*/) {}
     };
 
     CreatureAI* GetAI(Creature* creature) const

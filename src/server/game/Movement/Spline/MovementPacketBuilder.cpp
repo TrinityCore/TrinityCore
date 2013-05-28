@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -70,7 +71,7 @@ namespace Movement
 
         // add fake Enter_Cycle flag - needed for client-side cyclic movement (client will erase first spline vertex after first cycle done)
         splineflags.enter_cycle = move_spline.isCyclic();
-        data << uint32(splineflags & ~MoveSplineFlag::Mask_No_Monster_Move);
+        data << uint32(splineflags & uint32(~MoveSplineFlag::Mask_No_Monster_Move));
 
         if (splineflags.animation)
         {
@@ -141,11 +142,11 @@ namespace Movement
 
     void PacketBuilder::WriteCreate(const MoveSpline& move_spline, ByteBuffer& data)
     {
-        //WriteClientStatus(mov,data);
+        //WriteClientStatus(mov, data);
         //data.append<float>(&mov.m_float_values[SpeedWalk], SpeedMaxCount);
         //if (mov.SplineEnabled())
         {
-            MoveSplineFlag splineFlags = move_spline.splineflags;
+            MoveSplineFlag const& splineFlags = move_spline.splineflags;
 
             data << splineFlags.raw();
 

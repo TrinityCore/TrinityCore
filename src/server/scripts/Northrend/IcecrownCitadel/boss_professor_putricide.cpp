@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@
 #include "Vehicle.h"
 #include "GridNotifiers.h"
 
-enum ScriptTexts
+enum Say
 {
     // Festergut
     SAY_FESTERGUT_GASEOUS_BLIGHT    = 0,
@@ -45,68 +45,71 @@ enum ScriptTexts
     EMOTE_CHOKING_GAS_BOMB          = 10,
     SAY_KILL                        = 11,
     SAY_BERSERK                     = 12,
-    SAY_DEATH                       = 13,
+    SAY_DEATH                       = 13
 };
 
 enum Spells
 {
     // Festergut
-    SPELL_RELEASE_GAS_VISUAL            = 69125,
-    SPELL_GASEOUS_BLIGHT_LARGE          = 69157,
-    SPELL_GASEOUS_BLIGHT_MEDIUM         = 69162,
-    SPELL_GASEOUS_BLIGHT_SMALL          = 69164,
-    SPELL_MALLABLE_GOO_H                = 70852,
+    SPELL_RELEASE_GAS_VISUAL                = 69125,
+    SPELL_GASEOUS_BLIGHT_LARGE              = 69157,
+    SPELL_GASEOUS_BLIGHT_MEDIUM             = 69162,
+    SPELL_GASEOUS_BLIGHT_SMALL              = 69164,
+    SPELL_MALLABLE_GOO_H                    = 70852,
 
     // Rotface
-    SPELL_VILE_GAS_H                    = 69240,
+    SPELL_VILE_GAS_H                        = 69240,
 
     // Professor Putricide
-    SPELL_SLIME_PUDDLE_TRIGGER          = 70341,
-    SPELL_MALLEABLE_GOO                 = 70852,
-    SPELL_UNSTABLE_EXPERIMENT           = 70351,
-    SPELL_TEAR_GAS                      = 71617,    // phase transition
-    SPELL_TEAR_GAS_CREATURE             = 71618,
-    SPELL_TEAR_GAS_CANCEL               = 71620,
-    SPELL_TEAR_GAS_PERIODIC_TRIGGER     = 73170,
-    SPELL_CREATE_CONCOCTION             = 71621,
-    SPELL_GUZZLE_POTIONS                = 71893,
-    SPELL_OOZE_TANK_PROTECTION          = 71770,    // protects the tank
-    SPELL_CHOKING_GAS_BOMB              = 71255,
-    SPELL_OOZE_VARIABLE                 = 74118,
-    SPELL_GAS_VARIABLE                  = 74119,
-    SPELL_UNBOUND_PLAGUE                = 70911,
-    SPELL_UNBOUND_PLAGUE_SEARCHER       = 70917,
-    SPELL_PLAGUE_SICKNESS               = 70953,
-    SPELL_UNBOUND_PLAGUE_PROTECTION     = 70955,
-    SPELL_MUTATED_PLAGUE                = 72451,
-    SPELL_MUTATED_PLAGUE_CLEAR          = 72618,
+    SPELL_SLIME_PUDDLE_TRIGGER              = 70341,
+    SPELL_MALLEABLE_GOO                     = 70852,
+    SPELL_UNSTABLE_EXPERIMENT               = 70351,
+    SPELL_TEAR_GAS                          = 71617,    // phase transition
+    SPELL_TEAR_GAS_CREATURE                 = 71618,
+    SPELL_TEAR_GAS_CANCEL                   = 71620,
+    SPELL_TEAR_GAS_PERIODIC_TRIGGER         = 73170,
+    SPELL_CREATE_CONCOCTION                 = 71621,
+    SPELL_GUZZLE_POTIONS                    = 71893,
+    SPELL_OOZE_TANK_PROTECTION              = 71770,    // protects the tank
+    SPELL_CHOKING_GAS_BOMB                  = 71255,
+    SPELL_OOZE_VARIABLE                     = 74118,
+    SPELL_GAS_VARIABLE                      = 74119,
+    SPELL_UNBOUND_PLAGUE                    = 70911,
+    SPELL_UNBOUND_PLAGUE_SEARCHER           = 70917,
+    SPELL_PLAGUE_SICKNESS                   = 70953,
+    SPELL_UNBOUND_PLAGUE_PROTECTION         = 70955,
+    SPELL_MUTATED_PLAGUE                    = 72451,
+    SPELL_MUTATED_PLAGUE_CLEAR              = 72618,
 
     // Slime Puddle
-    SPELL_GROW_STACKER                  = 70345,
-    SPELL_GROW                          = 70347,
-    SPELL_SLIME_PUDDLE_AURA             = 70343,
+    SPELL_GROW_STACKER                      = 70345,
+    SPELL_GROW                              = 70347,
+    SPELL_SLIME_PUDDLE_AURA                 = 70343,
 
     // Gas Cloud
-    SPELL_GASEOUS_BLOAT_PROC            = 70215,
-    SPELL_GASEOUS_BLOAT                 = 70672,
-    SPELL_GASEOUS_BLOAT_PROTECTION      = 70812,
-    SPELL_EXPUNGED_GAS                  = 70701,
+    SPELL_GASEOUS_BLOAT_PROC                = 70215,
+    SPELL_GASEOUS_BLOAT                     = 70672,
+    SPELL_GASEOUS_BLOAT_PROTECTION          = 70812,
+    SPELL_EXPUNGED_GAS                      = 70701,
 
     // Volatile Ooze
-    SPELL_OOZE_ERUPTION                 = 70492,
-    SPELL_VOLATILE_OOZE_ADHESIVE        = 70447,
-    SPELL_OOZE_ERUPTION_SEARCH_PERIODIC = 70457,
-    SPELL_VOLATILE_OOZE_PROTECTION      = 70530,
+    SPELL_OOZE_ERUPTION                     = 70492,
+    SPELL_VOLATILE_OOZE_ADHESIVE            = 70447,
+    SPELL_OOZE_ERUPTION_SEARCH_PERIODIC     = 70457,
+    SPELL_VOLATILE_OOZE_PROTECTION          = 70530,
 
     // Choking Gas Bomb
-    SPELL_CHOKING_GAS_BOMB_PERIODIC     = 71259,
-    SPELL_CHOKING_GAS_EXPLOSION_TRIGGER = 71280,
+    SPELL_CHOKING_GAS_BOMB_PERIODIC         = 71259,
+    SPELL_CHOKING_GAS_EXPLOSION_TRIGGER     = 71280,
 
     // Mutated Abomination vehicle
-    SPELL_ABOMINATION_VEHICLE_POWER_DRAIN = 70385,
-    SPELL_MUTATED_TRANSFORMATION          = 70311,
-    SPELL_MUTATED_TRANSFORMATION_DAMAGE   = 70405,
-    SPELL_MUTATED_TRANSFORMATION_NAME     = 72401,
+    SPELL_ABOMINATION_VEHICLE_POWER_DRAIN   = 70385,
+    SPELL_MUTATED_TRANSFORMATION            = 70311,
+    SPELL_MUTATED_TRANSFORMATION_DAMAGE     = 70405,
+    SPELL_MUTATED_TRANSFORMATION_NAME       = 72401,
+
+    // Unholy Infusion
+    SPELL_UNHOLY_INFUSION_CREDIT            = 71518
 };
 
 #define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672, 72455, 72832, 72833)
@@ -132,7 +135,7 @@ enum Events
     EVENT_CHOKING_GAS_BOMB      = 12,
     EVENT_UNBOUND_PLAGUE        = 13,
     EVENT_MUTATED_PLAGUE        = 14,
-    EVENT_PHASE_TRANSITION      = 15,
+    EVENT_PHASE_TRANSITION      = 15
 };
 
 enum Phases
@@ -142,17 +145,14 @@ enum Phases
     PHASE_ROTFACE       = 2,
     PHASE_COMBAT_1      = 4,
     PHASE_COMBAT_2      = 5,
-    PHASE_COMBAT_3      = 6,
-
-    PHASE_MASK_COMBAT   = (1 << PHASE_COMBAT_1) | (1 << PHASE_COMBAT_2) | (1 << PHASE_COMBAT_3),
-    PHASE_MASK_NOT_SELF = (1 << PHASE_FESTERGUT) | (1 << PHASE_ROTFACE),
+    PHASE_COMBAT_3      = 6
 };
 
 enum Points
 {
     POINT_FESTERGUT = 366260,
     POINT_ROTFACE   = 366270,
-    POINT_TABLE     = 366780,
+    POINT_TABLE     = 366780
 };
 
 Position const festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
@@ -166,7 +166,7 @@ enum PutricideData
 {
     DATA_EXPERIMENT_STAGE   = 1,
     DATA_PHASE              = 2,
-    DATA_ABOMINATION        = 3,
+    DATA_ABOMINATION        = 3
 };
 
 #define EXPERIMENT_STATE_OOZE   false
@@ -230,7 +230,7 @@ class boss_professor_putricide : public CreatureScript
 
             void Reset()
             {
-                if (!(events.GetPhaseMask() & PHASE_MASK_NOT_SELF))
+                if (!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)))
                     instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, NOT_STARTED);
                 instance->SetData(DATA_NAUSEA_ACHIEVEMENT, uint32(true));
 
@@ -249,7 +249,7 @@ class boss_professor_putricide : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (events.GetPhaseMask() & PHASE_MASK_NOT_SELF)
+                if (events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT))
                     return;
 
                 if (!instance->CheckRequiredBosses(DATA_PROFESSOR_PUTRICIDE, who->ToPlayer()))
@@ -279,7 +279,7 @@ class boss_professor_putricide : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetWalk(false);
-                if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
+                if (events.IsInPhase(PHASE_COMBAT_1) || events.IsInPhase(PHASE_COMBAT_2) || events.IsInPhase(PHASE_COMBAT_3))
                     instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, FAIL);
             }
 
@@ -293,6 +293,10 @@ class boss_professor_putricide : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+
+                if (Is25ManRaid() && me->HasAura(SPELL_SHADOWS_FATE))
+                    DoCastAOE(SPELL_UNHOLY_INFUSION_CREDIT, true);
+
                 DoCast(SPELL_MUTATED_PLAGUE_CLEAR);
             }
 
@@ -409,7 +413,7 @@ class boss_professor_putricide : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -559,9 +563,9 @@ class boss_professor_putricide : public CreatureScript
                     _experimentState = bool(data);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
-                if ((!(events.GetPhaseMask() & PHASE_MASK_NOT_SELF) && !UpdateVictim()) || !CheckInRoom())
+                if ((!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim()) || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -683,7 +687,7 @@ class boss_professor_putricide : public CreatureScript
                                         me->SetFacingToObject(face);
                                     me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
                                     Talk(SAY_TRANSFORM_2);
-                                    summons.remove_if(AbominationDespawner(me));
+                                    summons.DespawnIf(AbominationDespawner(me));
                                     events.ScheduleEvent(EVENT_RESUME_ATTACK, 8500, 0, PHASE_COMBAT_3);
                                     break;
                                 default:
@@ -738,7 +742,7 @@ class npc_putricide_oozeAI : public ScriptedAI
                 _newTargetSelectTimer = 1000;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !_newTargetSelectTimer)
                 return;

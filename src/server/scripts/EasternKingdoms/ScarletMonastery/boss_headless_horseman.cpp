@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@ EndScriptData */
 #include "scarlet_monastery.h"
 #include "LFGMgr.h"
 #include "Player.h"
+#include "Group.h"
 #include "SpellInfo.h"
 
 //this texts are already used by 3975 and 3976
@@ -203,7 +204,7 @@ public:
                 DoCast(who, SPELL_SQUASH_SOUL);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (delay)
             {
@@ -324,7 +325,7 @@ public:
         }
 
         void Disappear();
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!withbody)
             {
@@ -576,10 +577,7 @@ public:
 
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
-                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                    if (Player* player = i->getSource())
-                        if (player->IsAtGroupRewardDistance(me))
-                            sLFGMgr->RewardDungeonDoneFor(285, player);
+                sLFGMgr->FinishDungeon(players.begin()->getSource()->GetGroup()->GetGUID(), 285);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -641,7 +639,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (withhead)
             {
@@ -860,7 +858,7 @@ public:
                 DoStartMovement(who);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (sprouted && UpdateVictim())
                 DoMeleeAttackIfReady();

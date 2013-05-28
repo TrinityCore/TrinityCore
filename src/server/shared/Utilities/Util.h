@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <ace/INET_Addr.h>
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder
@@ -39,7 +40,7 @@ template<typename T, class S> struct Finder
 class Tokenizer
 {
 public:
-    typedef std::vector<char const *> StorageType;
+    typedef std::vector<char const*> StorageType;
 
     typedef StorageType::size_type size_type;
 
@@ -343,6 +344,13 @@ void utf8printf(FILE* out, const char *str, ...);
 void vutf8printf(FILE* out, const char *str, va_list* ap);
 
 bool IsIPAddress(char const* ipaddress);
+
+/// Checks if address belongs to the a network with specified submask
+bool IsIPAddrInNetwork(ACE_INET_Addr const& net, ACE_INET_Addr const& addr, ACE_INET_Addr const& subnetMask);
+
+/// Transforms ACE_INET_Addr address into string format "dotted_ip:port"
+std::string GetAddressString(ACE_INET_Addr const& addr);
+
 uint32 CreatePIDFile(const std::string& filename);
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
@@ -351,11 +359,6 @@ std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = 
 //handler for operations on large flags
 #ifndef _FLAG96
 #define _FLAG96
-
-#ifndef PAIR64_HIPART
-#define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
-#define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
-#endif
 
 // simple class for not-modifyable list
 template <typename T>
@@ -404,8 +407,8 @@ public:
 
     flag96(uint64 p1, uint32 p2)
     {
-        part[0] = PAIR64_LOPART(p1);
-        part[1] = PAIR64_HIPART(p1);
+        part[0] = (uint32)(p1 & UI64LIT(0x00000000FFFFFFFF));
+        part[1] = (uint32)((p1 >> 32) & UI64LIT(0x00000000FFFFFFFF));
         part[2] = p2;
     }
 

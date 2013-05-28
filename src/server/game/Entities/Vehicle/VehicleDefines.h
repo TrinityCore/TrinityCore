@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -77,12 +77,16 @@ typedef std::map<int8, VehicleSeat> SeatMap;
 
 class TransportBase
 {
-    public:
-        /// This method transforms supplied transport offsets into global coordinates
-        virtual void CalculatePassengerPosition(float& x, float& y, float& z, float& o) = 0;
+protected:
+    TransportBase() { }
+    virtual ~TransportBase() { }
 
-        /// This method transforms supplied global coordinates into local offsets
-        virtual void CalculatePassengerOffset(float& x, float& y, float& z, float& o) = 0;
+public:
+    /// This method transforms supplied transport offsets into global coordinates
+    virtual void CalculatePassengerPosition(float& x, float& y, float& z, float& o) const = 0;
+
+    /// This method transforms supplied global coordinates into local offsets
+    virtual void CalculatePassengerOffset(float& x, float& y, float& z, float& o) const = 0;
 };
 
 #endif

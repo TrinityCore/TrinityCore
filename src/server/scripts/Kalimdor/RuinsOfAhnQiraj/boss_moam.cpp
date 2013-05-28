@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,8 +21,8 @@
 
 enum Texts
 {
-    EMOTE_AGGRO             = -1509000,
-    EMOTE_MANA_FULL         = -1509001
+    EMOTE_AGGRO             = 0,
+    EMOTE_MANA_FULL         = 1
 };
 
 enum Spells
@@ -80,7 +80,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -105,7 +105,7 @@ class boss_moam : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

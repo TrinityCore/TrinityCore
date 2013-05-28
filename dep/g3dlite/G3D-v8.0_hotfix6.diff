@@ -1,0 +1,103 @@
+diff --git a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+index 614c0ed..65616f0 100644
+--- a/dep/g3dlite/include/G3D/platform.h
++++ b/dep/g3dlite/include/G3D/platform.h
+@@ -51,6 +51,11 @@
+ 
+ #ifdef _MSC_VER 
+     #define G3D_WIN32
++#elif defined(__MINGW32__)
++    #define G3D_WIN32
++    #undef __MSVCRT_VERSION__
++    #define __MSVCRT_VERSION__ 0x0601
++    #include <windows.h>
+ #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
+     #define G3D_FREEBSD
+     #define G3D_LINUX
+diff --git a/dep/g3dlite/source/FileSystem.cpp b/dep/g3dlite/source/FileSystem.cpp
+index 76a3611..f082937 100644
+--- a/dep/g3dlite/source/FileSystem.cpp
++++ b/dep/g3dlite/source/FileSystem.cpp
+@@ -25,8 +25,11 @@
+ 
+     // Needed for _findfirst
+ #   include <io.h>
+-
+-#define stat64 _stat64
++#  ifdef __MINGW32__
++#    define stat64 stat
++#  else
++#    define stat64 _stat64
++#  endif
+ #else
+ #   include <dirent.h>
+ #   include <fnmatch.h>
+diff --git a/dep/g3dlite/source/RegistryUtil.cpp b/dep/g3dlite/source/RegistryUtil.cpp
+index fc4cebc..7c9e56f 100644
+--- a/dep/g3dlite/source/RegistryUtil.cpp
++++ b/dep/g3dlite/source/RegistryUtil.cpp
+@@ -16,6 +16,15 @@
+ #include "G3D/RegistryUtil.h"
+ #include "G3D/System.h"
+ 
++#ifdef __MINGW32__
++#  ifndef HKEY_PERFORMANCE_TEXT
++#    define HKEY_PERFORMANCE_TEXT ((HKEY)((LONG)0x80000050))
++#  endif
++#  ifndef HKEY_PERFORMANCE_NLSTEXT
++#    define HKEY_PERFORMANCE_NLSTEXT ((HKEY)((LONG)0x80000060))
++#  endif
++#endif
++
+ namespace G3D {
+ 
+ // static helpers
+diff --git a/dep/g3dlite/source/System.cpp b/dep/g3dlite/source/System.cpp
+index f6b0e03..281104d 100644
+--- a/dep/g3dlite/source/System.cpp
++++ b/dep/g3dlite/source/System.cpp
+@@ -564,7 +564,7 @@ void System::getStandardProcessorExtensions() {
+ #endif
+ }
+ 
+-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
+     #pragma message("Port System::memcpy SIMD to all platforms")
+ /** Michael Herf's fast memcpy */
+ void memcpyMMX(void* dst, const void* src, int nbytes) {
+@@ -615,7 +615,7 @@ void memcpyMMX(void* dst, const void* src, int nbytes) {
+ #endif
+ 
+ void System::memcpy(void* dst, const void* src, size_t numBytes) {
+-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
+     memcpyMMX(dst, src, numBytes);
+ #else
+     ::memcpy(dst, src, numBytes);
+@@ -625,7 +625,7 @@ void System::memcpy(void* dst, const void* src, size_t numBytes) {
+ 
+ /** Michael Herf's fastest memset. n32 must be filled with the same
+     character repeated. */
+-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
+     #pragma message("Port System::memfill SIMD to all platforms")
+ 
+ // On x86 processors, use MMX
+@@ -664,7 +664,7 @@ void memfill(void *dst, int n32, unsigned long i) {
+ 
+ 
+ void System::memset(void* dst, uint8 value, size_t numBytes) {
+-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
+     uint32 v = value;
+     v = v + (v << 8) + (v << 16) + (v << 24); 
+     G3D::memfill(dst, v, numBytes);
+@@ -1696,7 +1696,7 @@ std::string System::currentDateString() {
+ 
+ // VC on Intel
+ void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
+-#if !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit platform */
++#if !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit platforms or using MinGW */
+     // Can't copy from assembler direct to a function argument (which is on the stack) in VC.
+     uint32 a,b,c,d;
+ 

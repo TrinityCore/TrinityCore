@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -167,7 +167,7 @@ public:
             else
             {
                 //Madrigosa not found, end intro
-                sLog->outError(LOG_FILTER_TSCR, "Madrigosa was not found");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "Madrigosa was not found");
                 EndIntro();
             }
         }
@@ -277,7 +277,7 @@ public:
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IsIntro)
             {

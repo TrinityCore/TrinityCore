@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -98,7 +98,7 @@ void AddItemsSetItem(Player* player, Item* item)
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
                 if (!spellInfo)
                 {
-                    sLog->outError(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    TC_LOG_ERROR(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
                     break;
                 }
 
@@ -119,7 +119,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     if (!set)
     {
-        sLog->outError(LOG_FILTER_SQL, "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
         return;
     }
 
@@ -295,7 +295,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (!GetUInt32Value(ITEM_FIELD_DURATION))
         return;
 
-    sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
+    TC_LOG_DEBUG(LOG_FILTER_PLAYER_ITEMS, "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
 
     if (GetUInt32Value(ITEM_FIELD_DURATION) <= diff)
     {
@@ -377,6 +377,10 @@ void Item::SaveToDB(SQLTransaction& trans)
 
             if (!isInTransaction)
                 CharacterDatabase.CommitTransaction(trans);
+
+            // Delete the items if this is a container
+            if (!loot.isLooted())
+                ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 
             delete this;
             return;
@@ -483,6 +487,10 @@ void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid)
 void Item::DeleteFromDB(SQLTransaction& trans)
 {
     DeleteFromDB(trans, GetGUIDLow());
+
+    // Delete the items if this is a container
+    if (!loot.isLooted())
+        ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 }
 
 /*static*/
@@ -599,7 +607,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // item can have not null only one from field values
     if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
     {
-        sLog->outError(LOG_FILTER_SQL, "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
         return 0;
     }
 
@@ -610,7 +618,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            sLog->outError(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
             return 0;
         }
 
@@ -623,7 +631,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            sLog->outError(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
             return 0;
         }
 
@@ -713,7 +721,7 @@ void Item::AddToUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
+        TC_LOG_DEBUG(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
 
@@ -729,11 +737,11 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
     if (!IsInUpdateQueue())
         return;
 
-    ASSERT(player != NULL)
+    ASSERT(player != NULL);
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
+        TC_LOG_DEBUG(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
 
@@ -869,16 +877,26 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     return true;
 }
 
-void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges)
+void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, uint64 caster /*= 0*/)
 {
     // Better lost small time at check in comparison lost time at item save to DB.
     if ((GetEnchantmentId(slot) == id) && (GetEnchantmentDuration(slot) == duration) && (GetEnchantmentCharges(slot) == charges))
         return;
 
+    Player* owner = GetOwner();
+    if (slot < MAX_INSPECTED_ENCHANTMENT_SLOT)
+    {
+        if (uint32 oldEnchant = GetEnchantmentId(slot))
+            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), 0, GetEntry(), oldEnchant);
+
+        if (id)
+            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetEntry(), id);
+    }
+
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET, charges);
-    SetState(ITEM_CHANGED, GetOwner());
+    SetState(ITEM_CHANGED, owner);
 }
 
 void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner)
@@ -995,6 +1013,16 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
     return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
 }
 
+void Item::SendUpdateSockets()
+{
+    WorldPacket data(SMSG_SOCKET_GEMS_RESULT, 8+4+4+4+4);
+    data << uint64(GetGUID());
+    for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
+        data << uint32(GetEnchantmentId(EnchantmentSlot(i)));
+
+    GetOwner()->GetSession()->SendPacket(&data);
+}
+
 // Though the client has the information in the item's data field,
 // we have to send SMSG_ITEM_TIME_UPDATE to display the remaining
 // time.
@@ -1010,27 +1038,27 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(&data);
 }
 
-Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
 {
     if (count < 1)
         return NULL;                                        //don't create item at zero count
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto)
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
+    if (proto)
     {
-        if (count > pProto->GetMaxStackSize())
-            count = pProto->GetMaxStackSize();
+        if (count > proto->GetMaxStackSize())
+            count = proto->GetMaxStackSize();
 
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
-        Item* pItem = NewItemOrBag(pProto);
-        if (pItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
+        Item* item = NewItemOrBag(proto);
+        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, player))
         {
-            pItem->SetCount(count);
-            return pItem;
+            item->SetCount(count);
+            return item;
         }
         else
-            delete pItem;
+            delete item;
     }
     else
         ASSERT(false);
@@ -1168,7 +1196,7 @@ bool Item::IsRefundExpired()
     return (GetPlayedTime() > 2*HOUR);
 }
 
-void Item::SetSoulboundTradeable(AllowedLooterSet& allowedLooters)
+void Item::SetSoulboundTradeable(AllowedLooterSet const& allowedLooters)
 {
     SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;
@@ -1197,4 +1225,184 @@ bool Item::CheckSoulboundTradeExpire()
     }
 
     return false;
+}
+
+void Item::ItemContainerSaveLootToDB()
+{
+    // Saves the money and item loot associated with an openable item to the DB
+    if (loot.isLooted()) // no money and no loot
+        return;
+
+    uint32 container_id = GetGUIDLow();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    loot.containerID = container_id; // Save this for when a LootItem is removed
+
+    // Save money
+    if (loot.gold > 0)
+    {
+        PreparedStatement* stmt_money = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
+        stmt_money->setUInt32(0, container_id);
+        trans->Append(stmt_money);
+
+        stmt_money = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_MONEY);
+        stmt_money->setUInt32(0, container_id);
+        stmt_money->setUInt32(1, loot.gold);
+        trans->Append(stmt_money);
+    }
+
+    // Save items
+    if (!loot.isLooted())
+    {
+        PreparedStatement* stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
+        stmt_items->setUInt32(0, container_id);
+        trans->Append(stmt_items);
+
+        // Now insert the items
+        for (LootItemList::const_iterator _li = loot.items.begin(); _li != loot.items.end(); _li++)
+        {
+            // When an item is looted, it doesn't get removed from the items collection
+            //  but we don't want to resave it.
+            if (!_li->canSave)
+                continue;
+
+            stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
+
+            // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
+            stmt_items->setUInt32(0, container_id);
+            stmt_items->setUInt32(1, _li->itemid);
+            stmt_items->setUInt32(2, _li->count);
+            stmt_items->setBool(3, _li->follow_loot_rules);
+            stmt_items->setBool(4, _li->freeforall);
+            stmt_items->setBool(5, _li->is_blocked);
+            stmt_items->setBool(6, _li->is_counted);
+            stmt_items->setBool(7, _li->is_underthreshold);
+            stmt_items->setBool(8, _li->needs_quest);
+            stmt_items->setUInt32(9, _li->randomPropertyId);
+            stmt_items->setUInt32(10, _li->randomSuffix);
+            trans->Append(stmt_items);
+        }
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+bool Item::ItemContainerLoadLootFromDB()
+{
+    // Loads the money and item loot associated with an openable item from the DB
+    // Default. If there are no records for this item then it will be rolled for in Player::SendLoot()
+    m_lootGenerated = false;
+
+    uint32 container_id = GetGUIDLow();
+
+    // Save this for later use
+    loot.containerID = container_id;
+
+    // First, see if there was any money loot. This gets added directly to the container.
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_MONEY);
+    stmt->setUInt32(0, container_id);
+    PreparedQueryResult money_result = CharacterDatabase.Query(stmt);
+
+    if (money_result)
+    {
+        Field* fields = money_result->Fetch();
+        loot.gold = fields[0].GetUInt32();
+    }
+
+    // Next, load any items that were saved
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
+    stmt->setUInt32(0, container_id);
+    PreparedQueryResult item_result = CharacterDatabase.Query(stmt);
+
+    if (item_result)
+    {
+        // Get a LootTemplate for the container item. This is where
+        //  the saved loot was originally rolled from, we will copy conditions from it
+        LootTemplate const* lt = LootTemplates_Item.GetLootFor(GetEntry());
+        if (lt)
+        {
+            do
+            {
+                // Create an empty LootItem
+                LootItem loot_item = LootItem();
+
+                // Fill in the rest of the LootItem from the DB
+                Field* fields = item_result->Fetch();
+
+                // item_id, itm_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
+                loot_item.itemid = fields[0].GetUInt32();
+                loot_item.count = fields[1].GetUInt32();
+                loot_item.follow_loot_rules = fields[2].GetBool();
+                loot_item.freeforall = fields[3].GetBool();
+                loot_item.is_blocked = fields[4].GetBool();
+                loot_item.is_counted = fields[5].GetBool();
+                loot_item.canSave = true;
+                loot_item.is_underthreshold = fields[6].GetBool();
+                loot_item.needs_quest = fields[7].GetBool();
+                loot_item.randomPropertyId = fields[8].GetUInt32();
+                loot_item.randomSuffix = fields[9].GetUInt32();
+
+                // Copy the extra loot conditions from the item in the loot template
+                lt->CopyConditions(&loot_item);
+
+                // If container item is in a bag, add that player as an allowed looter
+                if (GetBagSlot())
+                    loot_item.allowedGUIDs.insert(GetOwner()->GetGUIDLow());
+
+                // Finally add the LootItem to the container
+                loot.items.push_back(loot_item);
+
+                // Increment unlooted count
+                loot.unlootedCount++;
+
+            }
+            while (item_result->NextRow());
+        }
+    }
+
+    // Mark the item if it has loot so it won't be generated again on open
+    m_lootGenerated = !loot.isLooted();
+
+    return m_lootGenerated;
+}
+
+void Item::ItemContainerDeleteLootItemsFromDB()
+{
+    // Deletes items associated with an openable item from the DB
+    uint32 containerId = GetGUIDLow();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
+    stmt->setUInt32(0, containerId);
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void Item::ItemContainerDeleteLootItemFromDB(uint32 itemID)
+{
+    // Deletes a single item associated with an openable item from the DB
+    uint32 containerId = GetGUIDLow();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
+    stmt->setUInt32(0, containerId);
+    stmt->setUInt32(1, itemID);
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void Item::ItemContainerDeleteLootMoneyFromDB()
+{
+    // Deletes the money loot associated with an openable item from the DB
+    uint32 containerId = GetGUIDLow();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
+    stmt->setUInt32(0, containerId);
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
+{
+    // Deletes money and items associated with an openable item from the DB
+    ItemContainerDeleteLootMoneyFromDB();
+    ItemContainerDeleteLootItemsFromDB();
 }

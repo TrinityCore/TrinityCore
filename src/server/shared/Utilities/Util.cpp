@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,27 +20,27 @@
 #include "Common.h"
 #include "utf8.h"
 #include "SFMT.h"
+#include "Errors.h" // for ASSERT
 #include <ace/TSS_T.h>
-#include <ace/INET_Addr.h>
 
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
 int32 irand(int32 min, int32 max)
 {
-    assert(max >= min);
+    ASSERT(max >= min);
     return int32(sfmtRand->IRandom(min, max));
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
-    assert(max >= min);
+    ASSERT(max >= min);
     return sfmtRand->URandom(min, max);
 }
 
 float frand(float min, float max)
 {
-    assert(max >= min);
+    ASSERT(max >= min);
     return float(sfmtRand->Random() * (max - min) + min);
 }
 
@@ -163,9 +163,9 @@ int32 MoneyStringToMoney(const std::string& moneyString)
     for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
     {
         std::string tokenString(*itr);
-        uint32 gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
-        uint32 sCount = std::count(tokenString.begin(), tokenString.end(), 's');
-        uint32 cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
+        size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
+        size_t sCount = std::count(tokenString.begin(), tokenString.end(), 's');
+        size_t cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
         if (gCount + sCount + cCount != 1)
             return 0;
 
@@ -236,6 +236,21 @@ bool IsIPAddress(char const* ipaddress)
     // Let the big boys do it.
     // Drawback: all valid ip address formats are recognized e.g.: 12.23, 121234, 0xABCD)
     return inet_addr(ipaddress) != INADDR_NONE;
+}
+
+std::string GetAddressString(ACE_INET_Addr const& addr)
+{
+    char buf[ACE_MAX_FULLY_QUALIFIED_NAME_LEN + 16];
+    addr.addr_to_string(buf, ACE_MAX_FULLY_QUALIFIED_NAME_LEN + 16);
+    return buf;
+}
+
+bool IsIPAddrInNetwork(ACE_INET_Addr const& net, ACE_INET_Addr const& addr, ACE_INET_Addr const& subnetMask)
+{
+    uint32 mask = subnetMask.get_ip_address();
+    if ((net.get_ip_address() & mask) == (addr.get_ip_address() & mask))
+        return true;
+    return false;
 }
 
 /// create PID file

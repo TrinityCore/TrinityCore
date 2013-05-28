@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,7 +27,6 @@ class AuthCrypt
 {
     public:
         AuthCrypt();
-        ~AuthCrypt();
 
         void Init(BigNumber* K);
         void DecryptRecv(uint8 *, size_t);

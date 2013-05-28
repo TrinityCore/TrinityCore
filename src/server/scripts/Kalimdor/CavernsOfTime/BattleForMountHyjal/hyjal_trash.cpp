@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -191,7 +191,7 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : npc_escortAI(creature)
 
 void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
 {
-    if (done_by->GetTypeId() == TYPEID_PLAYER || (done_by->GetTypeId() == TYPEID_UNIT && CAST_CRE(done_by)->isPet()))
+    if (done_by->GetTypeId() == TYPEID_PLAYER || done_by->isPet())
     {
         damageTaken += damage;
         if (instance)
@@ -199,7 +199,7 @@ void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
     }
 }
 
-void hyjal_trashAI::UpdateAI(const uint32 /*diff*/)
+void hyjal_trashAI::UpdateAI(uint32 /*diff*/)
 {
     if (IsOverrun && !SetupOverrun)
     {
@@ -458,7 +458,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Delay <= diff)
             {
@@ -596,7 +596,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -699,7 +699,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -773,7 +773,7 @@ public:
         void JustSummoned(Creature* summon)
         {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true);
-            if (target && summon)
+            if (target)
                 summon->Attack(target, false);
             summons.Summon(summon);
         }
@@ -822,7 +822,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
 
@@ -920,7 +920,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1019,7 +1019,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1109,7 +1109,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1208,7 +1208,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1321,7 +1321,7 @@ public:
             hyjal_trashAI::JustDied(killer);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1369,8 +1369,7 @@ public:
                 forcemove = false;
                 if (forcemove)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         me->Attack(target, false);
                 }
                 if (MoveTimer <= diff)
@@ -1409,11 +1408,11 @@ public:
         return new alliance_riflemanAI(creature);
     }
 
-    struct alliance_riflemanAI : public Scripted_NoMovementAI
+    struct alliance_riflemanAI : public ScriptedAI
     {
-        alliance_riflemanAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        alliance_riflemanAI(Creature* creature) : ScriptedAI(creature)
         {
-            Reset();
+            SetCombatMovement(false);
         }
 
         uint32 ExplodeTimer;
@@ -1444,7 +1443,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Check if we have a target
             if (!UpdateVictim())

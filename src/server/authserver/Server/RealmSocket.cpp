@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,10 +22,6 @@
 
 #include "RealmSocket.h"
 #include "Log.h"
-
-#ifndef MSG_NOSIGNAL
-#define MSG_NOSIGNAL 0
-#endif
 
 RealmSocket::Session::Session(void) {}
 
@@ -59,7 +55,7 @@ int RealmSocket::open(void * arg)
 
     if (peer().get_remote_addr(addr) == -1)
     {
-        sLog->outError(LOG_FILTER_AUTHSERVER, "Error %s while opening realm socket!", ACE_OS::strerror(errno));
+        TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Error %s while opening realm socket!", ACE_OS::strerror(errno));
         return -1;
     }
 
@@ -138,7 +134,11 @@ ssize_t RealmSocket::noblk_send(ACE_Message_Block &message_block)
         return -1;
 
     // Try to send the message directly.
+#ifdef MSG_NOSIGNAL
     ssize_t n = peer().send(message_block.rd_ptr(), len, MSG_NOSIGNAL);
+#else
+    ssize_t n = peer().send(message_block.rd_ptr(), len);
+#endif // MSG_NOSIGNAL
 
     if (n < 0)
     {

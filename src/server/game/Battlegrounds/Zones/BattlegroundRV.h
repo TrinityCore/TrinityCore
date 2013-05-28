@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,7 +108,6 @@ class BattlegroundRV : public Battleground
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
 
     private:
         uint32 Timer;
@@ -118,11 +117,11 @@ class BattlegroundRV : public Battleground
         void PostUpdateImpl(uint32 diff);
 
     protected:
-        uint32 getTimer() { return Timer; };
-        void setTimer(uint32 timer) { Timer = timer; };
+        uint32 getTimer() { return Timer; }
+        void setTimer(uint32 timer) { Timer = timer; }
 
-        uint32 getState() { return State; };
-        void setState(uint32 state) { State = state; };
+        uint32 getState() { return State; }
+        void setState(uint32 state) { State = state; }
         void TogglePillarCollision();
         bool GetPillarCollision() { return PillarCollision; }
         void SetPillarCollision(bool apply) { PillarCollision = apply; }

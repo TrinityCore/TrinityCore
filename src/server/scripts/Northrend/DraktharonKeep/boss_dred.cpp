@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -86,7 +86,7 @@ class boss_dred : public CreatureScript
                     instance->SetData(DATA_DRED_EVENT, IN_PROGRESS);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -148,7 +148,7 @@ class boss_dred : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_RAPTOR_KILLED)
                     ++raptorsKilled;
@@ -196,7 +196,7 @@ class npc_drakkari_gutripper : public CreatureScript
                 GutRipTimer = urand(10000, 15000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -246,7 +246,7 @@ class npc_drakkari_scytheclaw : public CreatureScript
                 uiRendTimer = urand(10000, 15000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

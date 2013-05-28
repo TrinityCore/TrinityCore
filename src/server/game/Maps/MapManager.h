@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,13 +19,14 @@
 #ifndef TRINITY_MAPMANAGER_H
 #define TRINITY_MAPMANAGER_H
 
-#include "Define.h"
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
-#include "Common.h"
+#include "Object.h"
 #include "Map.h"
 #include "GridStates.h"
 #include "MapUpdater.h"
+
+#include <ace/Singleton.h>
+#include <ace/Thread_Mutex.h>
+
 
 class Transport;
 struct TransportCreatureProto;
@@ -102,21 +103,6 @@ class MapManager
         static bool IsValidMapCoord(WorldLocation const& loc)
         {
             return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
-        }
-
-        // modulos a radian orientation to the range of 0..2PI
-        static float NormalizeOrientation(float o)
-        {
-            // fmod only supports positive numbers. Thus we have
-            // to emulate negative numbers
-            if (o < 0)
-            {
-                float mod = o *-1;
-                mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
-                mod = -mod + 2.0f * static_cast<float>(M_PI);
-                return mod;
-            }
-            return fmod(o, 2.0f * static_cast<float>(M_PI));
         }
 
         void DoDelayedMovesAndRemoves();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction)
     data << uint8(direction);
 
     for (uint32 i = 0; i < packet.size(); i++)
-        data << const_cast<WorldPacket&>(packet)[i];
+        data << packet[i];
 
     fwrite(data.contents(), 1, data.size(), _file);
     fflush(_file);

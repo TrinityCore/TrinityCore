@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,10 +73,7 @@ void Appender::setLogLevel(LogLevel _level)
 void Appender::write(LogMessage& message)
 {
     if (!level || level > message.level)
-    {
-        //fprintf(stderr, "Appender::write: Appender %s, Level %s. Msg %s Level %s Type %s WRONG LEVEL MASK\n", getName().c_str(), getLogLevelString(level), message.text.c_str(), getLogLevelString(message.level), getLogFilterTypeString(message.type)); // DEBUG - RemoveMe
         return;
-    }
 
     message.prefix.clear();
     if (flags & APPENDER_FLAGS_PREFIX_TIMESTAMP)
@@ -219,8 +216,13 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "OPCODE";
         case LOG_FILTER_SOAP:
             return "SOAP";
+        case LOG_FILTER_RBAC:
+            return "RBAC";
+        case LOG_FILTER_CHEAT:
+            return "CHEAT";
         default:
             break;
     }
+
     return "???";
 }

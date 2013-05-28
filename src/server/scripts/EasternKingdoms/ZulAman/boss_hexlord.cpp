@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -198,7 +198,7 @@ struct boss_hexlord_addAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void UpdateAI(const uint32 /*diff*/)
+    void UpdateAI(uint32 /*diff*/)
     {
         if (instance && instance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
         {
@@ -274,9 +274,9 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Unit* Temp = Unit::GetUnit(*me, AddGUID[i]);
-                    if (Temp && Temp->isAlive())
-                        CAST_CRE(Temp)->AI()->AttackStart(me->getVictim());
+                    Creature* creature = Unit::GetCreature(*me, AddGUID[i]);
+                    if (creature && creature->isAlive())
+                        creature->AI()->AttackStart(me->getVictim());
                     else
                     {
                         EnterEvadeMode();
@@ -351,7 +351,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -511,7 +511,7 @@ class boss_thurg : public CreatureScript
                 boss_hexlord_addAI::Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -588,7 +588,7 @@ class boss_alyson_antille : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -672,7 +672,7 @@ struct boss_gazakrothAI : public boss_hexlord_addAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(uint32 diff)
     {
         if (!UpdateVictim())
             return;
@@ -714,7 +714,7 @@ class boss_lord_raadan : public CreatureScript
                 boss_hexlord_addAI::Reset();
 
             }
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -763,7 +763,7 @@ class boss_darkheart : public CreatureScript
                 psychicwail_timer = 8000;
                 boss_hexlord_addAI::Reset();
             }
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -822,7 +822,7 @@ class boss_slither : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -867,7 +867,7 @@ class boss_fenstalker : public CreatureScript
                 boss_hexlord_addAI::Reset();
 
             }
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -916,7 +916,7 @@ class boss_koragg : public CreatureScript
                 boss_hexlord_addAI::Reset();
 
             }
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

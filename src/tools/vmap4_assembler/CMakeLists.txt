@@ -1,5 +1,5 @@
 # Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -20,9 +20,7 @@ include_directories(
   ${ZLIB_INCLUDE_DIR}
 )
 
-add_definitions(-DNO_CORE_FUNCS)
 add_executable(vmap4assembler VMapAssembler.cpp)
-add_dependencies(vmap4assembler mpq)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set_target_properties(vmap4assembler PROPERTIES LINK_FLAGS "-framework Carbon")

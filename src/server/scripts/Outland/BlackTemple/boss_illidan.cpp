@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -422,8 +422,7 @@ public:
                     Glaive->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_FLAME_ENRAGE, true);
                     DoResetThreat();
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target && target->isAlive())
+                    if (SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         me->AddThreat(me->getVictim(), 5000000.0f);
                         AttackStart(me->getVictim());
@@ -442,7 +441,7 @@ public:
             GlaiveGUID = guid;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -578,7 +577,7 @@ public:
             if (victim == me)
                 return;
 
-            // TODO: Find better way to handle emote
+            /// @todo Find better way to handle emote
             switch (urand(0, 1))
             {
             case 0:
@@ -799,7 +798,7 @@ public:
             {
                 EnterEvadeMode();
                 me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, 0);
-                sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
             }
         }
 
@@ -957,7 +956,7 @@ public:
             ++TransformCount;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if ((!UpdateVictim()) && Phase < PHASE_TALK_SEQUENCE)
                 return;
@@ -1231,7 +1230,7 @@ public:
                 ScriptedAI::AttackStart(who);
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             if (param > PHASE_ILLIDAN_NULL && param < PHASE_ILLIDAN_MAX)
                 EnterPhase(PhaseIllidan(param));
@@ -1303,7 +1302,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if ((!UpdateVictim())
                 && !Timer[EVENT_MAIEV_STEALTH])
@@ -1733,7 +1732,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->IsVisible())
             {
@@ -2079,7 +2078,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (DespawnTimer)
             {
@@ -2092,7 +2091,7 @@ public:
                 // {
                 //    if (Unit* Illidan = Unit::GetUnit(*me, IllidanGUID)
                 //    {
-                //        // TODO: Find proper spells and properly apply 'caged' Illidan effect
+                //        /// @todo Find proper spells and properly apply 'caged' Illidan effect
                 //    }
                 // }
         }
@@ -2150,7 +2149,7 @@ public:
                 target->RemoveAurasDueToSpell(SPELL_PARALYZE);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -2248,7 +2247,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->getVictim())
             {
@@ -2265,7 +2264,7 @@ public:
             if (CheckTimer <= diff)
             {
                 GETUNIT(Illidan, IllidanGUID);
-                if (!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
+                if (!Illidan || Illidan->ToCreature()->IsInEvadeMode())
                 {
                     me->SetVisible(false);
                     me->setDeathState(JUST_DIED);

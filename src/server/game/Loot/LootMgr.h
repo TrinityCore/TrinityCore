@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@
 
 #include <map>
 #include <vector>
+#include <list>
 
 enum RollType
 {
@@ -99,7 +100,6 @@ enum LootSlotType
 
 class Player;
 class LootStore;
-class ConditionMgr;
 
 struct LootStoreItem
 {
@@ -141,14 +141,17 @@ struct LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
+    bool    canSave;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
     explicit LootItem(LootStoreItem const& li);
 
+    // Empty constructor for creating an empty LootItem to be filled in with DB data
+    LootItem() : canSave(true){};
+
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
-
     void AddAllowedLooter(Player const* player);
     const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
 };
@@ -171,7 +174,7 @@ class LootTemplate;
 typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
 typedef std::map<uint32, QuestItemList*> QuestItemMap;
-typedef std::vector<LootStoreItem> LootStoreItemList;
+typedef std::list<LootStoreItem*> LootStoreItemList;
 typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
@@ -215,14 +218,18 @@ class LootStore
 class LootTemplate
 {
     class LootGroup;                                       // A set of loot definitions for items (refs are not allowed inside)
-    typedef std::vector<LootGroup> LootGroups;
+    typedef std::vector<LootGroup*> LootGroups;
 
     public:
+        LootTemplate() { }
+        ~LootTemplate();
+
         // Adds an entry to the group (at loading stage)
-        void AddEntry(LootStoreItem& item);
+        void AddEntry(LootStoreItem* item);
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
         void CopyConditions(ConditionList conditions);
+        void CopyConditions(LootItem* li) const;
 
         // True if template includes at least 1 quest drop entry
         bool HasQuestDrop(LootTemplateMap const& store, uint8 groupId = 0) const;
@@ -238,6 +245,10 @@ class LootTemplate
     private:
         LootStoreItemList Entries;                          // not grouped only
         LootGroups        Groups;                           // groups have own (optimised) processing, grouped entries go there
+
+        // Objects of this class must never be copied, we are storing pointers in container
+        LootTemplate(LootTemplate const&);
+        LootTemplate& operator=(LootTemplate const&);
 };
 
 //=====================================================
@@ -286,9 +297,18 @@ struct Loot
     uint8 unlootedCount;
     uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
+    uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE) {}
+    // GUIDLow of container that holds this loot (item_instance.entry)
+    //  Only set for inventory items that can be right-click looted
+    uint32 containerID;
+
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) {}
     ~Loot() { clear(); }
+
+    // For deleting items at loot removal since there is no backward interface to the Item()
+    void DeleteLootItemFromContainerItemDB(uint32 itemID);
+    void DeleteLootMoneyFromContainerItemDB();
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)

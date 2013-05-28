@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,15 +20,10 @@
 #include "Cryptography/HMACSHA1.h"
 #include "Cryptography/BigNumber.h"
 
-AuthCrypt::AuthCrypt() : _clientDecrypt(SHA_DIGEST_LENGTH), _serverEncrypt(SHA_DIGEST_LENGTH)
-    , _initialized(false)
-{
-}
-
-AuthCrypt::~AuthCrypt()
-{
-
-}
+AuthCrypt::AuthCrypt() :
+    _clientDecrypt(SHA_DIGEST_LENGTH), _serverEncrypt(SHA_DIGEST_LENGTH),
+    _initialized(false)
+{ }
 
 void AuthCrypt::Init(BigNumber* K)
 {

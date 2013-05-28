@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,38 +29,30 @@ EndScriptData */
 
 class instance_zulgurub : public InstanceMapScript
 {
-    public:
-        instance_zulgurub()
-            : InstanceMapScript("instance_zulgurub", 309)
-        {
-        }
+    public: instance_zulgurub(): InstanceMapScript(ZGScriptName, 309) {}
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
-            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-            //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
-            uint32 m_auiEncounter[MAX_ENCOUNTERS];
-
-            //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
-            uint64 m_uiLorKhanGUID;
-            uint64 m_uiZathGUID;
-            uint64 m_uiThekalGUID;
-            uint64 m_uiJindoGUID;
+            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
+            {
+                SetBossNumber(EncounterCount);
+            }
 
             void Initialize()
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                m_uiLorKhanGUID = 0;
-                m_uiZathGUID = 0;
-                m_uiThekalGUID = 0;
-                m_uiJindoGUID = 0;
+                _zealotLorkhanGUID = 0;
+                _zealotZathGUID = 0;
+                _highPriestTekalGUID = 0;
+                _jindoTheHexxerGUID = 0;
+                _vilebranchSpeakerGUID = 0;
+                _arlokkGUID = 0;
+                _goForcefieldGUID = 0;
+                _goGongOfBethekkGUID = 0;
             }
 
             bool IsEncounterInProgress() const
             {
-                //not active in Zul'Gurub
+                // not active in Zul'Gurub
                 return false;
             }
 
@@ -68,73 +60,44 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case 11347: m_uiLorKhanGUID = creature->GetGUID(); break;
-                    case 11348: m_uiZathGUID = creature->GetGUID(); break;
-                    case 14509: m_uiThekalGUID = creature->GetGUID(); break;
-                    case 11380: m_uiJindoGUID = creature->GetGUID(); break;
-                }
-            }
-
-            void SetData(uint32 uiType, uint32 uiData)
-            {
-                switch (uiType)
-                {
-                    case DATA_ARLOKK:
-                        m_auiEncounter[0] = uiData;
+                    case NPC_ZEALOT_LORKHAN:
+                        _zealotLorkhanGUID = creature->GetGUID();
                         break;
-
-                    case DATA_JEKLIK:
-                        m_auiEncounter[1] = uiData;
+                    case NPC_ZEALOT_ZATH:
+                        _zealotZathGUID = creature->GetGUID();
                         break;
-
-                    case DATA_VENOXIS:
-                        m_auiEncounter[2] = uiData;
+                    case NPC_HIGH_PRIEST_THEKAL:
+                        _highPriestTekalGUID = creature->GetGUID();
                         break;
-
-                    case DATA_MARLI:
-                        m_auiEncounter[3] = uiData;
+                    case NPC_JINDO_THE_HEXXER:
+                        _jindoTheHexxerGUID = creature->GetGUID();
                         break;
-
-                    case DATA_THEKAL:
-                        m_auiEncounter[4] = uiData;
+                    case NPC_VILEBRANCH_SPEAKER:
+                        _vilebranchSpeakerGUID = creature->GetGUID();
                         break;
-
-                    case DATA_LORKHAN:
-                        m_auiEncounter[5] = uiData;
-                        break;
-
-                    case DATA_ZATH:
-                        m_auiEncounter[6] = uiData;
-                        break;
-
-                    case DATA_OHGAN:
-                        m_auiEncounter[7] = uiData;
+                    case NPC_ARLOKK:
+                        _arlokkGUID = creature->GetGUID();
                         break;
                 }
             }
 
-            uint32 GetData(uint32 uiType) const
+            void OnGameObjectCreate(GameObject* go)
             {
-                switch (uiType)
+                switch (go->GetEntry())
                 {
-                    case DATA_ARLOKK:
-                        return m_auiEncounter[0];
-                    case DATA_JEKLIK:
-                        return m_auiEncounter[1];
-                    case DATA_VENOXIS:
-                        return m_auiEncounter[2];
-                    case DATA_MARLI:
-                        return m_auiEncounter[3];
-                    case DATA_THEKAL:
-                        return m_auiEncounter[4];
-                    case DATA_LORKHAN:
-                        return m_auiEncounter[5];
-                    case DATA_ZATH:
-                        return m_auiEncounter[6];
-                    case DATA_OHGAN:
-                        return m_auiEncounter[7];
+                    case GO_FORCEFIELD:
+                        _goForcefieldGUID = go->GetGUID();
+                        break;
+                    case GO_GONG_OF_BETHEKK:
+                        _goGongOfBethekkGUID = go->GetGUID();
+                        if (GetBossState(DATA_ARLOKK) == DONE)
+                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        else
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    default:
+                        break;
                 }
-                return 0;
             }
 
             uint64 GetData64(uint32 uiData) const
@@ -142,16 +105,84 @@ class instance_zulgurub : public InstanceMapScript
                 switch (uiData)
                 {
                     case DATA_LORKHAN:
-                        return m_uiLorKhanGUID;
+                        return _zealotLorkhanGUID;
+                        break;
                     case DATA_ZATH:
-                        return m_uiZathGUID;
+                        return _zealotZathGUID;
+                        break;
                     case DATA_THEKAL:
-                        return m_uiThekalGUID;
+                        return _highPriestTekalGUID;
+                        break;
                     case DATA_JINDO:
-                        return m_uiJindoGUID;
+                        return _jindoTheHexxerGUID;
+                        break;
+                    case NPC_ARLOKK:
+                        return _arlokkGUID;
+                        break;
+                    case GO_FORCEFIELD:
+                        return _goForcefieldGUID;
+                        break;
+                    case GO_GONG_OF_BETHEKK:
+                        return _goGongOfBethekkGUID;
+                        break;
                 }
                 return 0;
             }
+
+            std::string GetSaveData()
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "Z G " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(const char* str)
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'Z' && dataHead2 == 'G')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+        private:
+            //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
+            //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
+
+            uint64 _zealotLorkhanGUID;
+            uint64 _zealotZathGUID;
+            uint64 _highPriestTekalGUID;
+            uint64 _jindoTheHexxerGUID;
+            uint64 _vilebranchSpeakerGUID;
+            uint64 _arlokkGUID;
+            uint64 _goForcefieldGUID;
+            uint64 _goGongOfBethekkGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

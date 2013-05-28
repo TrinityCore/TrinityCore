@@ -7,7 +7,7 @@
  * in effect in addition to the GNU General Public License.
  * Copyright (c) 2006, 2007 by Mutsuo Saito, Makoto Matsumoto and Hiroshima University.
  * Copyright (c) 2008 by Agner Fog.
- * Copyright (c) 2012 Trinity Core
+ * Copyright (c) 2008-2013 Trinity Core
  * 
  *  BSD License:
  *  Redistribution and use in source and binary forms, with or without 
@@ -347,11 +347,11 @@ private:
         _mm_free(ptr);
     }
 
+    __m128i  mask;                                // AND mask
+    __m128i  state[SFMT_N];                       // State vector for SFMT generator
     uint32_t ix;                                  // Index into state array
     uint32_t LastInterval;                        // Last interval length for IRandom
     uint32_t RLimit;                              // Rejection limit used by IRandom
-    __m128i  mask;                                // AND mask
-    __m128i  state[SFMT_N];                       // State vector for SFMT generator
 };
 
 #endif // SFMT_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -124,7 +124,7 @@ public:
             me->setFaction(FACTION_FRIENDLY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (postGossipStep>0 && postGossipStep<4)
             {
@@ -182,7 +182,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DoAction(const int32 /*param*/)
+        void DoAction(int32 /*param*/)
         {
             postGossipStep=1;
             Text_Timer = 0;
@@ -331,7 +331,7 @@ public:
                 instance->SetData(0, DONE);*/
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -370,13 +370,13 @@ public:
                     if (destroyingDoor)
                     {
                         instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
-                        //TODO: leave the area...
+                        /// @todo leave the area...
                         me->DespawnOrUnsummon();
                     };
             }
         }
 
-        void DoAction(const int32 /*param*/)
+        void DoAction(int32 /*param*/)
         {
             DestroyDoor();
         }

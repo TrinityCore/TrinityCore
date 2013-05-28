@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,6 +32,18 @@ EndContentData */
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"
 #include "Player.h"
+
+enum Yells
+{
+    SAY_INTRO_1         = 0,
+    SAY_INTRO_2         = 1,
+    SAY_INTRO_3         = 2,
+    SAY_AGGRO           = 3,
+    SAY_PHASE_2         = 4,
+    SAY_PHASE_3         = 5,
+    SAY_KILL_PLAYER     = 6,
+    SAY_DEATH           = 7
+};
 
 #define GOSSIP_START_EVENT1     "I'm ready to start challenge."
 #define GOSSIP_START_EVENT2     "I'm ready for the next challenge."
@@ -400,7 +412,7 @@ public:
             }
         }
 
-       void UpdateAI(const uint32 uiDiff)
+       void UpdateAI(uint32 uiDiff)
         {
             ScriptedAI::UpdateAI(uiDiff);
 

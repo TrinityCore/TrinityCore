@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Boss_High_Inquisitor_Fairbanks
 SD%Complete: 100
-SDComment: TODO: if this guy not involved in some special event, remove (and let ACID script)
+SDComment: @todo if this guy not involved in some special event, remove (and let ACID script)
 SDCategory: Scarlet Monastery
 EndScriptData */
 
@@ -77,7 +77,7 @@ public:
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

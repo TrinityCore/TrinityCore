@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,23 +27,24 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SPELL_AMBUSH            24337
-#define SPELL_THOUSANDBLADES    24649
+enum Spells
+{
+    SPELL_AMBUSH                = 34794,
+    SPELL_THOUSANDBLADES        = 34799
+};
 
-#define EQUIP_ID_MAIN_HAND      0           //was item display id 31818, but this id does not exist
+enum Misc
+{
+    EQUIP_ID_MAIN_HAND          = 0  //was item display id 31818, but this id does not exist
+};
 
 class boss_renataki : public CreatureScript
 {
-    public:
+    public: boss_renataki() : CreatureScript("boss_renataki") {}
 
-        boss_renataki()
-            : CreatureScript("boss_renataki")
+        struct boss_renatakiAI : public BossAI
         {
-        }
-
-        struct boss_renatakiAI : public ScriptedAI
-        {
-            boss_renatakiAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
             uint32 Invisible_Timer;
             uint32 Ambush_Timer;
@@ -56,6 +57,7 @@ class boss_renataki : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 Invisible_Timer = urand(8000, 18000);
                 Ambush_Timer = 3000;
                 Visible_Timer = 4000;
@@ -66,11 +68,17 @@ class boss_renataki : public CreatureScript
                 Ambushed = false;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
             }
 
-            void UpdateAI(const uint32 diff)
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+            }
+
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

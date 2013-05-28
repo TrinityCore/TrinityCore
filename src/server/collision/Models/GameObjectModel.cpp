@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,8 +34,6 @@ using G3D::Vector3;
 using G3D::Ray;
 using G3D::AABox;
 
-#ifndef NO_CORE_FUNCS
-
 struct GameobjectModelData
 {
     GameobjectModelData(const std::string& name_, const AABox& box) :
@@ -50,11 +48,14 @@ ModelList model_list;
 
 void LoadGameObjectModelList()
 {
+#ifndef NO_CORE_FUNCS
     uint32 oldMSTime = getMSTime();
+#endif
+
     FILE* model_list_file = fopen((sWorld->GetDataPath() + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
     if (!model_list_file)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Unable to open '%s' file.", VMAP::GAMEOBJECT_MODELS);
+        VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "Unable to open '%s' file.", VMAP::GAMEOBJECT_MODELS);
         return;
     }
 
@@ -73,19 +74,18 @@ void LoadGameObjectModelList()
             || fread(&v1, sizeof(Vector3), 1, model_list_file) != 1
             || fread(&v2, sizeof(Vector3), 1, model_list_file) != 1)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "File '%s' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
+            VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "File '%s' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
             break;
         }
 
         model_list.insert
         (
-            ModelList::value_type( displayId, GameobjectModelData(std::string(buff,name_length),AABox(v1,v2)) )
+            ModelList::value_type( displayId, GameobjectModelData(std::string(buff, name_length), AABox(v1, v2)) )
         );
     }
 
     fclose(model_list_file);
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
-
+    VMAP_INFO_LOG(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 GameObjectModel::~GameObjectModel()
@@ -104,7 +104,7 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
     // ignore models with no bounds
     if (mdl_box == G3D::AABox::zero())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
+        VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
         return false;
     }
 
@@ -184,5 +184,3 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     }
     return hit;
 }
-
-#endif

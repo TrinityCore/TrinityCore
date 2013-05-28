@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,7 +153,7 @@ struct hyjalAI : public npc_escortAI
 
     void EnterCombat(Unit* /*who*/);                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 
-    void UpdateAI(const uint32 diff);                       // Called to summon waves, check for boss deaths and to cast our spells.
+    void UpdateAI(uint32 diff);                       // Called to summon waves, check for boss deaths and to cast our spells.
 
     void JustDied(Unit* /*killer*/);                             // Called on death, informs the raid that they have failed.
 

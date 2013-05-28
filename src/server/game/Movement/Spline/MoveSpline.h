@@ -27,7 +27,7 @@ namespace Movement
     struct Location : public Vector3
     {
         Location() : orientation(0) {}
-        Location(float x, float y, float z, float o) : Vector3(x,y,z), orientation(o) {}
+        Location(float x, float y, float z, float o) : Vector3(x, y, z), orientation(o) {}
         Location(const Vector3& v) : Vector3(v), orientation(0) {}
         Location(const Vector3& v, float o) : Vector3(v), orientation(o) {}
 
@@ -78,18 +78,17 @@ namespace Movement
         UpdateResult _updateState(int32& ms_time_diff);
         int32 next_timestamp() const { return spline.length(point_Idx+1); }
         int32 segment_time_elapsed() const { return next_timestamp()-time_passed; }
-        int32 Duration() const { return spline.length(); }
         int32 timeElapsed() const { return Duration() - time_passed; }
         int32 timePassed() const { return time_passed; }
 
     public:
+        int32 Duration() const { return spline.length(); }
         const MySpline& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
         void _Finalize();
         void _Interrupt() { splineflags.done = true;}
 
     public:
-
         void Initialize(const MoveSplineInitArgs&);
         bool Initialized() const { return !spline.empty(); }
 
@@ -101,14 +100,14 @@ namespace Movement
             ASSERT(Initialized());
             do
                 handler(_updateState(difftime));
-            while(difftime > 0);
+            while (difftime > 0);
         }
 
         void updateState(int32 difftime)
         {
             ASSERT(Initialized());
             do _updateState(difftime);
-            while(difftime > 0);
+            while (difftime > 0);
         }
 
         Location ComputePosition() const;

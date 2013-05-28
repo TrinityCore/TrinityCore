@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,17 @@
 OutdoorPvPTF::OutdoorPvPTF()
 {
     m_TypeId = OUTDOOR_PVP_TF;
+
+    m_IsLocked = false;
+    m_LockTimer = TF_LOCK_TIME;
+    m_LockTimerUpdate = 0;
+
+    m_AllianceTowersControlled = 0;
+    m_HordeTowersControlled = 0;
+
+    hours_left = 6;
+    second_digit = 0;
+    first_digit = 0;
 }
 
 OPvPCapturePointTF::OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
     Map* map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        sLog->outError(LOG_FILTER_GENERAL, "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
         return;
     }
 
@@ -77,7 +77,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
 
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
 
@@ -134,7 +134,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
         AttackStart(who);
     //else if (who->getVictim() && me->IsFriendlyTo(who)
     //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
-    //    && me->canStartAttack(who->getVictim(), true)) // TODO: if we use true, it will not attack it when it arrives
+    //    && me->canStartAttack(who->getVictim(), true)) /// @todo if we use true, it will not attack it when it arrives
     //    me->GetMotionMaster()->MoveChase(who->getVictim());
 }
 
@@ -143,7 +143,7 @@ void CreatureAI::EnterEvadeMode()
     if (!_EnterEvadeMode())
         return;
 
-    sLog->outDebug(LOG_FILTER_UNITS, "Creature %u enters evade mode.", me->GetEntry());
+    TC_LOG_DEBUG(LOG_FILTER_UNITS, "Creature %u enters evade mode.", me->GetEntry());
 
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
@@ -174,3 +174,91 @@ void CreatureAI::EnterEvadeMode()
     if (!me->getVictim())
         AttackStart(attacker);
 }*/
+
+void CreatureAI::SetGazeOn(Unit* target)
+{
+    if (me->IsValidAttackTarget(target))
+    {
+        AttackStart(target);
+        me->SetReactState(REACT_PASSIVE);
+    }
+}
+
+bool CreatureAI::UpdateVictimWithGaze()
+{
+    if (!me->isInCombat())
+        return false;
+
+    if (me->HasReactState(REACT_PASSIVE))
+    {
+        if (me->getVictim())
+            return true;
+        else
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    if (Unit* victim = me->SelectVictim())
+        AttackStart(victim);
+    return me->getVictim();
+}
+
+bool CreatureAI::UpdateVictim()
+{
+    if (!me->isInCombat())
+        return false;
+
+    if (!me->HasReactState(REACT_PASSIVE))
+    {
+        if (Unit* victim = me->SelectVictim())
+            AttackStart(victim);
+        return me->getVictim();
+    }
+    else if (me->getThreatManager().isThreatListEmpty())
+    {
+        EnterEvadeMode();
+        return false;
+    }
+
+    return true;
+}
+
+bool CreatureAI::_EnterEvadeMode()
+{
+    if (!me->isAlive())
+        return false;
+
+    // dont remove vehicle auras, passengers arent supposed to drop off the vehicle
+    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
+
+    // sometimes bosses stuck in combat?
+    me->DeleteThreatList();
+    me->CombatStop(true);
+    me->LoadCreaturesAddon();
+    me->SetLootRecipient(NULL);
+    me->ResetPlayerDamageReq();
+
+    if (me->IsInEvadeMode())
+        return false;
+
+    return true;
+}
+
+Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
+{
+    return me->SummonCreature(entry, pos, summonType, despawnTime);
+}
+
+Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, uint32 despawnTime, TempSummonType summonType)
+{
+    Position pos;
+    obj->GetRandomNearPosition(pos, radius);
+    return me->SummonCreature(entry, pos, summonType, despawnTime);
+}
+
+Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, uint32 despawnTime, TempSummonType summonType)
+{
+    Position pos;
+    obj->GetRandomNearPosition(pos, radius);
+    pos.m_positionZ += flightZ;
+    return me->SummonCreature(entry, pos, summonType, despawnTime);
+}

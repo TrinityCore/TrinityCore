@@ -1,20 +1,20 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -113,7 +113,7 @@ struct emerald_dragonAI : public WorldBossAI
     }
 
     // Execute and reschedule base events shared between all Emerald Dragons
-    void ExecuteEvent(uint32 const eventId)
+    void ExecuteEvent(uint32 eventId)
     {
         switch (eventId)
         {
@@ -137,7 +137,7 @@ struct emerald_dragonAI : public WorldBossAI
         }
     }
 
-    void UpdateAI(uint32 const diff)
+    void UpdateAI(uint32 diff)
     {
         if (!UpdateVictim())
             return;
@@ -177,7 +177,7 @@ class npc_dream_fog : public CreatureScript
                 _roamTimer = 0;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -275,7 +275,7 @@ class boss_ysondre : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -304,7 +304,7 @@ class boss_ysondre : public CreatureScript
  * --- Dragonspecific scripts and handling: LETHON
  * ---
  *
- * TODO:
+ * @todo
  * - Spell: Shadow bolt whirl casts needs custom handling (spellscript)
  */
 
@@ -370,7 +370,7 @@ class boss_lethon : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -490,7 +490,7 @@ class boss_emeriss : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -604,7 +604,7 @@ class boss_taerar : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -622,7 +622,7 @@ class boss_taerar : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!me->isInCombat())
                     return;

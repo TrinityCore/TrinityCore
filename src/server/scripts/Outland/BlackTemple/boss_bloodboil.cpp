@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -187,9 +187,7 @@ public:
 
         void RevertThreatOnTarget(uint64 guid)
         {
-            Unit* unit = NULL;
-            unit = Unit::GetUnit(*me, guid);
-            if (unit)
+            if (Unit* unit = Unit::GetUnit(*me, guid))
             {
                 if (DoGetThreat(unit))
                     DoModifyThreatPercent(unit, -100);
@@ -198,7 +196,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -279,8 +277,7 @@ public:
             {
                 if (Phase1)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target && target->isAlive())
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         Phase1 = false;
 
@@ -308,7 +305,8 @@ public:
                         AcidGeyserTimer = 1000;
                         PhaseChangeTimer = 30000;
                     }
-                } else                                           // Encounter is a loop pretty much. Phase 1 -> Phase 2 -> Phase 1 -> Phase 2 till death or enrage
+                }
+                else                                           // Encounter is a loop pretty much. Phase 1 -> Phase 2 -> Phase 1 -> Phase 2 till death or enrage
                 {
                     if (TargetGUID)
                         RevertThreatOnTarget(TargetGUID);

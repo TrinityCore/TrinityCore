@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -206,7 +206,7 @@ public:
                 instance->SetData(TYPE_BJARNGRIM, DONE);
         }
 
-        //TODO: remove when removal is done by the core
+        /// @todo remove when removal is done by the core
         void DoRemoveStanceAura(uint8 uiStance)
         {
             switch (uiStance)
@@ -223,7 +223,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -412,7 +412,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //Return since we have no target
             if (!UpdateVictim())

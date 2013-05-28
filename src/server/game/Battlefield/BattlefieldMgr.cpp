@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,12 +23,12 @@
 BattlefieldMgr::BattlefieldMgr()
 {
     m_UpdateTimer = 0;
-    //sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Instantiating BattlefieldMgr");
+    //TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Instantiating BattlefieldMgr");
 }
 
 BattlefieldMgr::~BattlefieldMgr()
 {
-    //sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Deleting BattlefieldMgr");
+    //TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Deleting BattlefieldMgr");
     for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
         delete *itr;
 }
@@ -40,27 +39,27 @@ void BattlefieldMgr::InitBattlefield()
     // respawn, init variables
     if (!pBf->SetupBattlefield())
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Battlefield : Wintergrasp init failed.");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Battlefield : Wintergrasp init failed.");
         delete pBf;
     }
     else
     {
         m_BattlefieldSet.push_back(pBf);
-        sLog->outInfo(LOG_FILTER_GENERAL, "Battlefield : Wintergrasp successfully initiated.");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Battlefield : Wintergrasp successfully initiated.");
     }
 
     /* For Cataclysm: Tol Barad
        pBf = new BattlefieldTB;
        // respawn, init variables
-       if(!pBf->SetupBattlefield())
+       if (!pBf->SetupBattlefield())
        {
-       sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad init failed.");
+       TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad init failed.");
        delete pBf;
        }
        else
        {
        m_BattlefieldSet.push_back(pBf);
-       sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad successfully initiated.");
+       TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad successfully initiated.");
        } */
 }
 
@@ -69,7 +68,7 @@ void BattlefieldMgr::AddZone(uint32 zoneid, Battlefield *handle)
     m_BattlefieldMap[zoneid] = handle;
 }
 
-void BattlefieldMgr::HandlePlayerEnterZone(Player * player, uint32 zoneid)
+void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
@@ -79,10 +78,10 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player * player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerEnterZone(player, zoneid);
-    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
+    TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
-void BattlefieldMgr::HandlePlayerLeaveZone(Player * player, uint32 zoneid)
+void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
@@ -92,7 +91,7 @@ void BattlefieldMgr::HandlePlayerLeaveZone(Player * player, uint32 zoneid)
     if (!itr->second->HasPlayer(player))
         return;
     itr->second->HandlePlayerLeaveZone(player, zoneid);
-    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u left outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
+    TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Player %u left outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
 Battlefield *BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneid)
@@ -130,7 +129,7 @@ void BattlefieldMgr::Update(uint32 diff)
     }
 }
 
-ZoneScript *BattlefieldMgr::GetZoneScript(uint32 zoneId)
+ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneId);
     if (itr != m_BattlefieldMap.end())

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -96,7 +96,6 @@ class BattlegroundDS : public Battleground
         void Reset();
         void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;
@@ -106,15 +105,15 @@ class BattlegroundDS : public Battleground
 
         void PostUpdateImpl(uint32 diff);
     protected:
-        uint32 getWaterFallStatus() { return _waterfallStatus; };
-        void setWaterFallStatus(uint8 status) { _waterfallStatus = status; };
-        uint32 getWaterFallTimer() { return _waterfallTimer; };
-        void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; };
-        uint32 getWaterFallKnockbackTimer() { return _waterfallKnockbackTimer; };
-        void setWaterFallKnockbackTimer(uint32 timer) { _waterfallKnockbackTimer = timer; };
-        uint8 getPipeKnockBackCount() { return _pipeKnockBackCount; };
-        void setPipeKnockBackCount(uint8 count) { _pipeKnockBackCount = count; };
-        uint32 getPipeKnockBackTimer() { return _pipeKnockBackTimer; };
-        void setPipeKnockBackTimer(uint32 timer) { _pipeKnockBackTimer = timer; };
+        uint32 getWaterFallStatus() { return _waterfallStatus; }
+        void setWaterFallStatus(uint8 status) { _waterfallStatus = status; }
+        uint32 getWaterFallTimer() { return _waterfallTimer; }
+        void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; }
+        uint32 getWaterFallKnockbackTimer() { return _waterfallKnockbackTimer; }
+        void setWaterFallKnockbackTimer(uint32 timer) { _waterfallKnockbackTimer = timer; }
+        uint8 getPipeKnockBackCount() { return _pipeKnockBackCount; }
+        void setPipeKnockBackCount(uint8 count) { _pipeKnockBackCount = count; }
+        uint32 getPipeKnockBackTimer() { return _pipeKnockBackTimer; }
+        void setPipeKnockBackTimer(uint32 timer) { _pipeKnockBackTimer = timer; }
 };
 #endif

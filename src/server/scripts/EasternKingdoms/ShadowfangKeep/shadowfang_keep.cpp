@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -98,34 +98,32 @@ public:
         npc_shadowfang_prisonerAI(Creature* creature) : npc_escortAI(creature)
         {
             instance = creature->GetInstanceScript();
-            uiNpcEntry = creature->GetEntry();
         }
 
         InstanceScript* instance;
-        uint32 uiNpcEntry;
 
         void WaypointReached(uint32 waypointId)
         {
             switch (waypointId)
             {
                 case 0:
-                    if (uiNpcEntry == NPC_ASH)
+                    if (me->GetEntry() == NPC_ASH)
                         Talk(SAY_FREE_AS);
                     else
                         Talk(SAY_FREE_AD);
                     break;
                 case 10:
-                    if (uiNpcEntry == NPC_ASH)
+                    if (me->GetEntry() == NPC_ASH)
                         Talk(SAY_OPEN_DOOR_AS);
                     else
                         Talk(SAY_OPEN_DOOR_AD);
                     break;
                 case 11:
-                    if (uiNpcEntry == NPC_ASH)
+                    if (me->GetEntry() == NPC_ASH)
                         DoCast(me, SPELL_UNLOCK);
                     break;
                 case 12:
-                    if (uiNpcEntry == NPC_ASH)
+                    if (me->GetEntry() == NPC_ASH)
                         Talk(SAY_POST_DOOR_AS);
                     else
                         Talk(SAY_POST1_DOOR_AD);
@@ -134,7 +132,7 @@ public:
                         instance->SetData(TYPE_FREE_NPC, DONE);
                     break;
                 case 13:
-                    if (uiNpcEntry != NPC_ASH)
+                    if (me->GetEntry() != NPC_ASH)
                         Talk(SAY_POST2_DOOR_AD);
                     break;
             }
@@ -172,7 +170,7 @@ public:
             uiDarkOffering = urand(200, 1000);
         }
 
-        void UpdateAI(uint32 const uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;

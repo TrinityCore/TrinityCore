@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1257,7 +1257,7 @@ enum Opcodes
     CMSG_GM_GRANT_ACHIEVEMENT                       = 0x4C4,
     CMSG_GM_REMOVE_ACHIEVEMENT                      = 0x4C5,
     CMSG_GM_SET_CRITERIA_FOR_PLAYER                 = 0x4C6,
-    SMSG_ARENA_OPPONENT_UPDATE                      = 0x4C7, // uint64
+    SMSG_ARENA_UNIT_DESTROYED                       = 0x4C7,
     SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED            = 0x4C8, // uint32 "Can't modify arena team while queued or in a match."
     CMSG_PROFILEDATA_REQUEST                        = 0x4C9,
     SMSG_PROFILEDATA_RESPONSE                       = 0x4CA,
@@ -1325,7 +1325,7 @@ enum Opcodes
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                  = 0x508,
     CMSG_SET_ALLOW_LOW_LEVEL_RAID2                  = 0x509,
     SMSG_CAMERA_SHAKE                               = 0x50A, // uint32 SpellEffectCameraShakes.dbc index, uint32
-    SMSG_UPDATE_ITEM_ENCHANTMENTS                   = 0x50B, // some item update packet?
+    SMSG_SOCKET_GEMS_RESULT                         = 0x50B,
     CMSG_SET_CHARACTER_MODEL                        = 0x50C,
     SMSG_REDIRECT_CLIENT                            = 0x50D, // uint32 ip, uint16 port, uint32 unk, uint8[20] hash (ip + port, seed=sessionkey)
     CMSG_REDIRECTION_FAILED                         = 0x50E, // something with networking

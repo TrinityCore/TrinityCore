@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@
 
 RARunnable::RARunnable()
 {
-    ACE_Reactor_Impl* imp = NULL;
+    ACE_Reactor_Impl* imp;
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     imp = new ACE_Dev_Poll_Reactor();
@@ -61,17 +61,17 @@ void RARunnable::run()
 
     ACE_Acceptor<RASocket, ACE_SOCK_ACCEPTOR> acceptor;
 
-    uint16 raport = ConfigMgr::GetIntDefault("Ra.Port", 3443);
+    uint16 raport = uint16(ConfigMgr::GetIntDefault("Ra.Port", 3443));
     std::string stringip = ConfigMgr::GetStringDefault("Ra.IP", "0.0.0.0");
     ACE_INET_Addr listen_addr(raport, stringip.c_str());
 
     if (acceptor.open(listen_addr, m_Reactor) == -1)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Trinity RA can not bind to port %d on %s", raport, stringip.c_str());
+        TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Trinity RA can not bind to port %d on %s", raport, stringip.c_str());
         return;
     }
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting Trinity RA on port %d on %s", raport, stringip.c_str());
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Starting Trinity RA on port %d on %s", raport, stringip.c_str());
 
     while (!World::IsStopped())
     {
@@ -82,5 +82,5 @@ void RARunnable::run()
             break;
     }
 
-    sLog->outDebug(LOG_FILTER_WORLDSERVER, "Trinity RA thread exiting");
+    TC_LOG_DEBUG(LOG_FILTER_WORLDSERVER, "Trinity RA thread exiting");
 }

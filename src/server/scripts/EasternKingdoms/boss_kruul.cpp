@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,13 +26,16 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SPELL_SHADOWVOLLEY          21341
-#define SPELL_CLEAVE                20677
-#define SPELL_THUNDERCLAP           23931
-#define SPELL_TWISTEDREFLECTION     21063
-#define SPELL_VOIDBOLT              21066
-#define SPELL_RAGE                  21340
-#define SPELL_CAPTURESOUL           21054
+enum Spells
+{
+    SPELL_SHADOWVOLLEY          = 21341,
+    SPELL_CLEAVE                = 20677,
+    SPELL_THUNDERCLAP           = 23931,
+    SPELL_TWISTEDREFLECTION     = 21063,
+    SPELL_VOIDBOLT              = 21066,
+    SPELL_RAGE                  = 21340,
+    SPELL_CAPTURESOUL           = 21054
+};
 
 class boss_kruul : public CreatureScript
 {
@@ -83,7 +86,7 @@ public:
                 Hound->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())

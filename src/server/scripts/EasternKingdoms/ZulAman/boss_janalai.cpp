@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -247,7 +247,7 @@ class boss_janalai : public CreatureScript
                     cell.Visit(pair, cSearcher, *me->GetMap(), *me, me->GetGridActivationRange());
                 }
 
-                //sLog->outError(LOG_FILTER_TSCR, "Eggs %d at middle", templist.size());
+                //TC_LOG_ERROR(LOG_FILTER_TSCR, "Eggs %d at middle", templist.size());
                 if (templist.empty())
                     return false;
 
@@ -315,7 +315,7 @@ class boss_janalai : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (isFlameBreathing)
                 {
@@ -468,7 +468,7 @@ class mob_janalai_firebomb : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) {}
 
-            void UpdateAI(const uint32 /*diff*/) {}
+            void UpdateAI(uint32 /*diff*/) {}
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -533,7 +533,7 @@ class mob_janalai_hatcher : public CreatureScript
                     cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
                 }
 
-                //sLog->outError(LOG_FILTER_TSCR, "Eggs %d at %d", templist.size(), side);
+                //TC_LOG_ERROR(LOG_FILTER_TSCR, "Eggs %d at %d", templist.size(), side);
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
                     if ((*i)->GetDisplayId() != 11686)
@@ -560,7 +560,7 @@ class mob_janalai_hatcher : public CreatureScript
                     WaitTimer = 1;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance || !(instance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
                 {
@@ -641,7 +641,7 @@ class mob_janalai_hatchling : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance || !(instance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
                 {
@@ -684,7 +684,7 @@ public:
 
         void Reset() {}
 
-        void UpdateAI(uint32 const /*diff*/) {}
+        void UpdateAI(uint32 /*diff*/) {}
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {

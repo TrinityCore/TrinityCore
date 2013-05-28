@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,8 +20,9 @@
 
 #include "Define.h"
 #include <time.h>
+#include "Dynamic/UnorderedMap.h"
+
 #include <string>
-#include <map>
 
 enum LogFilterType
 {
@@ -67,10 +68,12 @@ enum LogFilterType
     LOG_FILTER_BATTLEFIELD                       = 39,
     LOG_FILTER_SERVER_LOADING                    = 40,
     LOG_FILTER_OPCODES                           = 41,
-    LOG_FILTER_SOAP                              = 42
+    LOG_FILTER_SOAP                              = 42,
+    LOG_FILTER_RBAC                              = 43,
+    LOG_FILTER_CHEAT                             = 44
 };
 
-const uint8 MaxLogFilter = 43;
+const uint8 MaxLogFilter = 45;
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel
@@ -107,12 +110,8 @@ enum AppenderFlags
 struct LogMessage
 {
     LogMessage(LogLevel _level, LogFilterType _type, std::string _text)
-        : level(_level)
-        , type(_type)
-        , text(_text)
-    {
-        mtime = time(NULL);
-    }
+        : level(_level), type(_type), text(_text), mtime(time(NULL))
+    { }
 
     static std::string getTimeStr(time_t time);
     std::string getTimeStr();
@@ -123,6 +122,12 @@ struct LogMessage
     std::string prefix;
     std::string param1;
     time_t mtime;
+
+    ///@ Returns size of the log message content in bytes
+    uint32 Size() const
+    {
+        return prefix.size() + text.size();
+    }
 };
 
 class Appender
@@ -143,7 +148,7 @@ class Appender
         static const char* getLogFilterTypeString(LogFilterType type);
 
     private:
-        virtual void _write(LogMessage& /*message*/) = 0;
+        virtual void _write(LogMessage const& /*message*/) = 0;
 
         uint8 id;
         std::string name;
@@ -152,6 +157,6 @@ class Appender
         AppenderFlags flags;
 };
 
-typedef std::map<uint8, Appender*> AppenderMap;
+typedef UNORDERED_MAP<uint8, Appender*> AppenderMap;
 
 #endif

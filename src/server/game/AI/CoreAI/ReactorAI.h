@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,9 +29,9 @@ class ReactorAI : public CreatureAI
 
         explicit ReactorAI(Creature* c) : CreatureAI(c) {}
 
-        void MoveInLineOfSight(Unit*);
+        void MoveInLineOfSight(Unit*) {}
+        void UpdateAI(uint32 diff);
 
-        void UpdateAI(const uint32);
         static int Permissible(const Creature*);
 };
 #endif

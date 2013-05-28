@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,15 +65,15 @@ class boss_koralon : public CreatureScript
             {
                 DoCast(me, SPELL_BURNING_FURY);
 
-                events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    // TODO check timer
+                events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    /// @todo check timer
                 events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
                 events.ScheduleEvent(EVENT_METEOR_FISTS_A, 75000);  // 1st after 75sec, then every 45sec
-                events.ScheduleEvent(EVENT_FLAME_CINDER_A, 30000);  // TODO check timer
+                events.ScheduleEvent(EVENT_FLAME_CINDER_A, 30000);  /// @todo check timer
 
                 _EnterCombat();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -149,7 +149,7 @@ class mob_flame_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 10000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

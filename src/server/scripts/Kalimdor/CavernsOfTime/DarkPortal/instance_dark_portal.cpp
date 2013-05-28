@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -122,7 +122,7 @@ public:
 
         bool IsEncounterInProgress() const
         {
-            if (const_cast<instance_dark_portal_InstanceMapScript*>(this)->GetData(TYPE_MEDIVH) == IN_PROGRESS)
+            if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return true;
 
             return false;
@@ -196,7 +196,7 @@ public:
                 {
                     if (data == IN_PROGRESS)
                     {
-                        sLog->outDebug(LOG_FILTER_TSCR, "Instance Dark Portal: Starting event.");
+                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Starting event.");
                         InitWorldState();
                         m_auiEncounter[1] = IN_PROGRESS;
                         NextPortal_Timer = 15000;
@@ -205,7 +205,7 @@ public:
                     if (data == DONE)
                     {
                         //this may be completed further out in the post-event
-                        sLog->outDebug(LOG_FILTER_TSCR, "Instance Dark Portal: Event completed.");
+                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Event completed.");
                         Map::PlayerList const& players = instance->GetPlayers();
 
                         if (!players.isEmpty())
@@ -270,7 +270,7 @@ public:
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
 
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance Dark Portal: Summoning rift boss entry %u.", entry);
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Summoning rift boss entry %u.", entry);
 
             Position pos;
             me->GetRandomNearPosition(pos, 10.0f);
@@ -281,7 +281,7 @@ public:
             if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
                 return summon;
 
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
             return NULL;
         }
 
@@ -294,7 +294,7 @@ public:
                 if (tmp >= CurrentRiftId)
                     ++tmp;
 
-                sLog->outDebug(LOG_FILTER_TSCR, "Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).", tmp, CurrentRiftId);
+                TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).", tmp, CurrentRiftId);
 
                 CurrentRiftId = tmp;
 

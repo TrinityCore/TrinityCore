@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,216 +15,347 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Darkmaster_Gandling
-SD%Complete: 75
-SDComment: Doors missing in instance script.
-SDCategory: Scholomance
-EndScriptData */
+/*
+Name: Boss_Darkmaster_Gandling
+%Complete: 90
+Comment: Doors Not yet reopening.
+Category: Scholomance
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "SpellScript.h"
 
-#define SPELL_ARCANEMISSILES           22272
-#define SPELL_SHADOWSHIELD             22417                //Not right ID. But 12040 is wrong either.
-#define SPELL_CURSE                    18702
+enum Says
+{
+   YELL_SUMMONED                = 0
+};
 
-#define ADD_1X 170.205f
-#define ADD_1Y 99.413f
-#define ADD_1Z 104.733f
-#define ADD_1O 3.16f
+enum Spells
+{
+    SPELL_ARCANEMISSILES        = 15790,
+    SPELL_SHADOWSHIELD          = 12040,
+    SPELL_CURSE                 = 18702,
+    SPELL_SHADOW_PORTAL         = 17950
+};
 
-#define ADD_2X 170.813f
-#define ADD_2Y 97.857f
-#define ADD_2Z 104.713f
-#define ADD_2O 3.16f
-
-#define ADD_3X 170.720f
-#define ADD_3Y 100.900f
-#define ADD_3Z 104.739f
-#define ADD_3O 3.16f
-
-#define ADD_4X 171.866f
-#define ADD_4Y 99.373f
-#define ADD_4Z 104.732f
-#define ADD_4O 3.16f
+enum Events
+{
+    EVENT_ARCANEMISSILES        = 1,
+    EVENT_SHADOWSHIELD          = 2,
+    EVENT_CURSE                 = 3,
+    EVENT_SHADOW_PORTAL         = 4
+};
 
 class boss_darkmaster_gandling : public CreatureScript
 {
-public:
-    boss_darkmaster_gandling() : CreatureScript("boss_darkmaster_gandling") { }
+    public: boss_darkmaster_gandling() : CreatureScript("boss_darkmaster_gandling") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_darkmaster_gandlingAI (creature);
-    }
-
-    struct boss_darkmaster_gandlingAI : public ScriptedAI
-    {
-        boss_darkmaster_gandlingAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_darkmaster_gandlingAI : public BossAI
         {
-            instance = me->GetInstanceScript();
-        }
+            boss_darkmaster_gandlingAI(Creature* creature) : BossAI(creature, DATA_DARKMASTERGANDLING) {}
 
-        InstanceScript* instance;
-
-        uint32 ArcaneMissiles_Timer;
-        uint32 ShadowShield_Timer;
-        uint32 Curse_Timer;
-        uint32 Teleport_Timer;
-
-        void Reset()
-        {
-            ArcaneMissiles_Timer = 4500;
-            ShadowShield_Timer = 12000;
-            Curse_Timer = 2000;
-            Teleport_Timer = 16000;
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            if (instance)
-                instance->SetData(TYPE_GANDLING, DONE);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            //ArcaneMissiles_Timer
-            if (ArcaneMissiles_Timer <= diff)
+            void Reset()
             {
-                DoCast(me->getVictim(), SPELL_ARCANEMISSILES);
-                ArcaneMissiles_Timer = 8000;
-            } else ArcaneMissiles_Timer -= diff;
-
-            //ShadowShield_Timer
-            if (ShadowShield_Timer <= diff)
-            {
-                DoCast(me, SPELL_SHADOWSHIELD);
-                ShadowShield_Timer = urand(14000, 28000);
-            } else ShadowShield_Timer -= diff;
-
-            //Curse_Timer
-            if (Curse_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_CURSE);
-                Curse_Timer = urand(15000, 27000);
-            } else Curse_Timer -= diff;
-
-            //Teleporting Random Target to one of the six pre boss rooms and spawn 3-4 skeletons near the gamer.
-            //We will only telport if gandling has more than 3% of hp so teleported gamers can always loot.
-            if (HealthAbovePct(3))
-            {
-                if (Teleport_Timer <= diff)
-                {
-                    Unit* target = NULL;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target && target->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (DoGetThreat(target))
-                            DoModifyThreatPercent(target, -100);
-
-                        Creature* Summoned = NULL;
-                        switch (rand()%6)
-                        {
-                            case 0:
-                                DoTeleportPlayer(target, 250.0696f, 0.3921f, 84.8408f, 3.149f);
-                                Summoned = me->SummonCreature(16119, 254.2325f, 0.3417f, 84.8407f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 257.7133f, 4.0226f, 84.8407f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 258.6702f, -2.60656f, 84.8407f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                break;
-                            case 1:
-                                DoTeleportPlayer(target, 181.4220f, -91.9481f, 84.8410f, 1.608f);
-                                Summoned = me->SummonCreature(16119, 184.0519f, -73.5649f, 84.8407f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 179.5951f, -73.7045f, 84.8407f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 180.6452f, -78.2143f, 84.8407f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 283.2274f, -78.1518f, 84.8407f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                break;
-                            case 2:
-                                DoTeleportPlayer(target, 95.1547f, -1.8173f, 85.2289f, 0.043f);
-                                Summoned = me->SummonCreature(16119, 100.9404f, -1.8016f, 85.2289f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 101.3729f, 0.4882f, 85.2289f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 101.4596f, -4.4740f, 85.2289f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                break;
-                            case 3:
-                                DoTeleportPlayer(target, 250.0696f, 0.3921f, 72.6722f, 3.149f);
-                                Summoned = me->SummonCreature(16119, 240.34481f, 0.7368f, 72.6722f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 240.3633f, -2.9520f, 72.6722f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 240.6702f, 3.34949f, 72.6722f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                break;
-                            case 4:
-                                DoTeleportPlayer(target, 181.4220f, -91.9481f, 70.7734f, 1.608f);
-                                Summoned = me->SummonCreature(16119, 184.0519f, -73.5649f, 70.7734f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 179.5951f, -73.7045f, 70.7734f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 180.6452f, -78.2143f, 70.7734f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 283.2274f, -78.1518f, 70.7734f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                break;
-                            case 5:
-                                DoTeleportPlayer(target, 106.1541f, -1.8994f, 75.3663f, 0.043f);
-                                Summoned = me->SummonCreature(16119, 115.3945f, -1.5555f, 75.3663f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 257.7133f, 1.8066f, 75.3663f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                Summoned = me->SummonCreature(16119, 258.6702f, -5.1001f, 75.3663f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                                if (Summoned)
-                                    Summoned->AI()->AttackStart(target);
-                                break;
-                        }
-                    }
-                    Teleport_Timer = urand(20000, 35000);
-                } else Teleport_Timer -= diff;
+                _Reset();
+                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
+                    gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
+                    gate->SetGoState(GO_STATE_ACTIVE);
+            }
 
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
+                events.ScheduleEvent(EVENT_SHADOWSHIELD, 12000);
+                events.ScheduleEvent(EVENT_CURSE, 2000);
+                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 16000);
+
+                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
+                    gate->SetGoState(GO_STATE_READY);
+            }
+
+            void IsSummonedBy(Unit* /*summoner*/)
+            {
+                Talk(YELL_SUMMONED);
+                me->GetMotionMaster()->MoveRandom(5);
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_ARCANEMISSILES:
+                            DoCastVictim(SPELL_ARCANEMISSILES, true);
+                            events.ScheduleEvent(EVENT_ARCANEMISSILES, 8000);
+                            break;
+                        case EVENT_SHADOWSHIELD:
+                            DoCast(me, SPELL_SHADOWSHIELD);
+                            events.ScheduleEvent(EVENT_SHADOWSHIELD, urand(14000, 28000));
+                            break;
+                        case EVENT_CURSE:
+                            DoCastVictim(SPELL_CURSE, true);
+                            events.ScheduleEvent(EVENT_CURSE, urand(15000, 27000));
+                            break;
+                        case EVENT_SHADOW_PORTAL:
+                            if (HealthAbovePct(3))
+                            {
+                                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOW_PORTAL, true);
+                                events.ScheduleEvent(EVENT_SHADOW_PORTAL, urand(17000, 27000));
+                            }
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_darkmaster_gandlingAI (creature);
+        }
+};
+
+// Script for Shadow Portal spell 17950
+enum Rooms
+{
+    ROOM_HALL_OF_SECRETS        = 0,
+    ROOM_HALL_OF_THE_DAMNED     = 1,
+    ROOM_THE_COVEN              = 2,
+    ROOM_THE_SHADOW_VAULT       = 3,
+    ROOM_BAROV_FAMILY_VAULT     = 4,
+    ROOM_VAULT_OF_THE_RAVENIAN  = 5
+};
+
+enum SPSpells
+{
+    SPELL_SHADOW_PORTAL_HALLOFSECRETS          = 17863,
+    SPELL_SHADOW_PORTAL_HALLOFTHEDAMNED        = 17939,
+    SPELL_SHADOW_PORTAL_THECOVEN               = 17943,
+    SPELL_SHADOW_PORTAL_THESHADOWVAULT         = 17944,
+    SPELL_SHADOW_PORTAL_BAROVFAMILYVAULT       = 17946,
+    SPELL_SHADOW_PORTAL_VAULTOFTHERAVENIAN     = 17948
+};
+
+class spell_shadow_portal : public SpellScriptLoader
+{
+    public:
+        spell_shadow_portal() : SpellScriptLoader("spell_shadow_portal") { }
+
+        class spell_shadow_portal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_shadow_portal_SpellScript);
+
+            void HandleCast(SpellEffIndex /*effIndex*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                int8 attempts  = 0;
+                int32 spell_to_cast =0;
+
+                while (!spell_to_cast)
+                {
+                    if (attempts++ >= 6) break;
+
+                    switch (urand(0, 5))
+                    {
+                        case ROOM_HALL_OF_SECRETS:
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (GameObject::GetGameObject(*caster, instance->GetData64(GO_GATE_RAVENIAN))->GetGoState() == GO_STATE_ACTIVE)
+                                    spell_to_cast = SPELL_SHADOW_PORTAL_HALLOFSECRETS;
+                            break;
+                        case ROOM_HALL_OF_THE_DAMNED:
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (GameObject::GetGameObject(*caster, instance->GetData64(GO_GATE_THEOLEN))->GetGoState() == GO_STATE_ACTIVE)
+                                    spell_to_cast = SPELL_SHADOW_PORTAL_HALLOFTHEDAMNED;
+                            break;
+                        case ROOM_THE_COVEN:
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (GameObject::GetGameObject(*caster, instance->GetData64(GO_GATE_MALICIA))->GetGoState() == GO_STATE_ACTIVE)
+                                    spell_to_cast = SPELL_SHADOW_PORTAL_THECOVEN;
+                            break;
+                        case ROOM_THE_SHADOW_VAULT:
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (GameObject::GetGameObject(*caster, instance->GetData64(GO_GATE_ILLUCIA))->GetGoState() == GO_STATE_ACTIVE)
+                                    spell_to_cast = SPELL_SHADOW_PORTAL_THESHADOWVAULT;
+                            break;
+                        case ROOM_BAROV_FAMILY_VAULT:
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (GameObject::GetGameObject(*caster, instance->GetData64(GO_GATE_BAROV))->GetGoState() == GO_STATE_ACTIVE)
+                                    spell_to_cast = SPELL_SHADOW_PORTAL_BAROVFAMILYVAULT;
+                            break;
+                        case ROOM_VAULT_OF_THE_RAVENIAN:
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (GameObject::GetGameObject(*caster, instance->GetData64(GO_GATE_POLKELT))->GetGoState() == GO_STATE_ACTIVE)
+                                    spell_to_cast = SPELL_SHADOW_PORTAL_VAULTOFTHERAVENIAN;
+                            break;
+                    }
+
+                    if (spell_to_cast)
+                        GetHitUnit()->CastSpell(GetHitUnit(), spell_to_cast);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_shadow_portal_SpellScript();
+        }
+};
+
+// Script for Shadow Portal spells 17863, 17939, 17943, 17944, 17946, 17948
+Position const SummonPos[18] =
+{
+    // Hall of Secrects
+
+
+
+    // The Hall of the damned
+    { 177.9624f, -68.23893f, 84.95197f, 3.228859f },
+    { 183.7705f, -61.43489f, 84.92424f, 5.148721f },
+    { 184.7035f, -77.74805f, 84.92424f, 4.660029f },
+    // The Coven
+    { 111.7203f, -1.105035f, 85.45985f, 3.961897f },
+    { 118.0079f, 6.430664f, 85.31169f, 2.408554f },
+    { 120.0276f, -7.496636f, 85.31169f, 2.984513f },
+    // The Shadow Vault
+    { 245.3716f, 0.628038f, 72.73877f, 0.01745329f },
+    { 240.9920f, 3.405653f, 72.73877f, 6.143559f },
+    { 240.9543f, -3.182943f, 72.73877f, 0.2268928f },
+    // Barov Family Vault
+    { 181.8245f, -42.58117f, 75.4812f, 4.660029f },
+    { 177.7456f, -42.74745f, 75.4812f, 4.886922f },
+    { 185.6157f, -42.91200f, 75.4812f, 4.45059f },
+    // Vault of the Ravenian
+
+
+
+};
+
+enum Creatures
+{
+    NPC_RISEN_GUARDIAN                  = 11598
+};
+
+enum ScriptEventId
+{
+    SPELL_EVENT_HALLOFSECRETS          = 5618,
+    SPELL_EVENT_HALLOFTHEDAMNED        = 5619,
+    SPELL_EVENT_THECOVEN               = 5620,
+    SPELL_EVENT_THESHADOWVAULT         = 5621,
+    SPELL_EVENT_BAROVFAMILYVAULT       = 5622,
+    SPELL_EVENT_VAULTOFTHERAVENIAN     = 5623
+};
+
+class spell_shadow_portal_rooms : public SpellScriptLoader
+{
+    public:
+        spell_shadow_portal_rooms() : SpellScriptLoader("spell_shadow_portal_rooms") { }
+
+        class spell_shadow_portal_rooms_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
+
+            void HandleSendEvent(SpellEffIndex effIndex)
+            {
+                // If only one player in threat list fail spell
+
+                Creature* Summoned = NULL;
+                Creature* caster = GetCaster()->ToCreature();
+
+                int8 pos_to_summon = 0;
+                int8 phase_to_set = 0;
+                int32 gate_to_close = 0;
+
+                switch (GetSpellInfo()->Effects[effIndex].MiscValue)
+                {
+                    case SPELL_EVENT_HALLOFSECRETS:
+                        pos_to_summon = 0; // Not yet spawned
+                        phase_to_set = 1;
+                        gate_to_close = GO_GATE_RAVENIAN;
+                        break;
+                    case SPELL_EVENT_HALLOFTHEDAMNED:
+                        pos_to_summon = 0;
+                        phase_to_set = 2;
+                        gate_to_close = GO_GATE_THEOLEN;
+                        break;
+                    case SPELL_EVENT_THECOVEN:
+                        pos_to_summon = 3;
+                        phase_to_set = 3;
+                        gate_to_close = GO_GATE_MALICIA;
+                        break;
+                    case SPELL_EVENT_THESHADOWVAULT:
+                        pos_to_summon = 6;
+                        phase_to_set = 4;
+                        gate_to_close = GO_GATE_ILLUCIA;
+                        break;
+                    case SPELL_EVENT_BAROVFAMILYVAULT:
+                        pos_to_summon = 9;
+                        phase_to_set = 5;
+                        gate_to_close = GO_GATE_BAROV;
+                        break;
+                    case SPELL_EVENT_VAULTOFTHERAVENIAN:
+                        pos_to_summon = 0; // Not yet spawned
+                        phase_to_set = 6;
+                        gate_to_close = GO_GATE_POLKELT;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (gate_to_close && (GetCaster()->GetMap()->GetId() == 289))
+                {
+                    for (uint8 i = 0; i < 3; ++i)
+                    {
+                        Summoned = GetCaster()->SummonCreature(NPC_RISEN_GUARDIAN, SummonPos[pos_to_summon++], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (Summoned)
+                        {
+                            Summoned->GetMotionMaster()->MoveRandom(5);
+                            Summoned->AI()->SetData(0, phase_to_set);
+                        }
+                    }
+
+                    if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                        if (GameObject* gate = GameObject::GetGameObject(*caster, instance->GetData64(gate_to_close)))
+                            gate->SetGoState(GO_STATE_READY);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_shadow_portal_rooms_SpellScript();
+        }
 };
 
 void AddSC_boss_darkmaster_gandling()
 {
     new boss_darkmaster_gandling();
+    new spell_shadow_portal();
+    new spell_shadow_portal_rooms();
 }

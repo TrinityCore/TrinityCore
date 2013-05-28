@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,9 @@
 #include "QueryHolder.h"
 #include "AdhocStatement.h"
 
+#define MIN_MYSQL_SERVER_VERSION 50100u
+#define MIN_MYSQL_CLIENT_VERSION 50100u
+
 class PingOperation : public SQLOperation
 {
     //! Operation for idle delaythreads
@@ -52,7 +55,8 @@ class DatabaseWorkerPool
             memset(_connectionCount, 0, sizeof(_connectionCount));
             _connections.resize(IDX_SIZE);
 
-            WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
+            WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
+            WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
         }
 
         ~DatabaseWorkerPool()
@@ -64,7 +68,7 @@ class DatabaseWorkerPool
             bool res = true;
             _connectionInfo = MySQLConnectionInfo(infoString);
 
-            sLog->outInfo(LOG_FILTER_SQL_DRIVER, "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
+            TC_LOG_INFO(LOG_FILTER_SQL_DRIVER, "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
                 GetDatabaseName(), async_threads, synch_threads);
 
             //! Open asynchronous connections (delayed operations)
@@ -73,6 +77,8 @@ class DatabaseWorkerPool
             {
                 T* t = new T(_queue, _connectionInfo);
                 res &= t->Open();
+                if (res) // only check mysql version if connection is valid
+                    WPFatal(mysql_get_server_version(t->GetHandle()) >= MIN_MYSQL_SERVER_VERSION, "TrinityCore does not support MySQL versions below 5.1");
                 _connections[IDX_ASYNC][i] = t;
                 ++_connectionCount[IDX_ASYNC];
             }
@@ -88,17 +94,17 @@ class DatabaseWorkerPool
             }
 
             if (res)
-                sLog->outInfo(LOG_FILTER_SQL_DRIVER, "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
+                TC_LOG_INFO(LOG_FILTER_SQL_DRIVER, "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
                     (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
             else
-                sLog->outError(LOG_FILTER_SQL_DRIVER, "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
+                TC_LOG_ERROR(LOG_FILTER_SQL_DRIVER, "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
                     "for specific errors.", GetDatabaseName());
             return res;
         }
 
         void Close()
         {
-            sLog->outInfo(LOG_FILTER_SQL_DRIVER, "Closing down DatabasePool '%s'.", GetDatabaseName());
+            TC_LOG_INFO(LOG_FILTER_SQL_DRIVER, "Closing down DatabasePool '%s'.", GetDatabaseName());
 
             //! Shuts down delaythreads for this connection pool by underlying deactivate().
             //! The next dequeue attempt in the worker thread tasks will result in an error,
@@ -114,7 +120,7 @@ class DatabaseWorkerPool
                 t->Close();         //! Closes the actualy MySQL connection.
             }
 
-            sLog->outInfo(LOG_FILTER_SQL_DRIVER, "Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.",
+            TC_LOG_INFO(LOG_FILTER_SQL_DRIVER, "Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.",
                 GetDatabaseName());
 
             //! Shut down the synchronous connections
@@ -127,7 +133,7 @@ class DatabaseWorkerPool
             //! Deletes the ACE_Activation_Queue object and its underlying ACE_Message_Queue
             delete _queue;
 
-            sLog->outInfo(LOG_FILTER_SQL_DRIVER, "All connections on DatabasePool '%s' closed.", GetDatabaseName());
+            TC_LOG_INFO(LOG_FILTER_SQL_DRIVER, "All connections on DatabasePool '%s' closed.", GetDatabaseName());
         }
 
         /**
@@ -216,7 +222,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult Query(const char* sql, MySQLConnection* conn = NULL)
+        QueryResult Query(const char* sql, T* conn = NULL)
         {
             if (!conn)
                 conn = GetFreeConnection();
@@ -235,7 +241,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult PQuery(const char* sql, MySQLConnection* conn, ...)
+        QueryResult PQuery(const char* sql, T* conn, ...)
         {
             if (!sql)
                 return QueryResult(NULL);
@@ -357,10 +363,10 @@ class DatabaseWorkerPool
             switch (transaction->GetSize())
             {
                 case 0:
-                    sLog->outDebug(LOG_FILTER_SQL_DRIVER, "Transaction contains 0 queries. Not executing.");
+                    TC_LOG_DEBUG(LOG_FILTER_SQL_DRIVER, "Transaction contains 0 queries. Not executing.");
                     return;
                 case 1:
-                    sLog->outDebug(LOG_FILTER_SQL_DRIVER, "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+                    TC_LOG_DEBUG(LOG_FILTER_SQL_DRIVER, "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
                     break;
                 default:
                     break;
@@ -374,7 +380,7 @@ class DatabaseWorkerPool
         //! were appended to the transaction will be respected during execution.
         void DirectCommitTransaction(SQLTransaction& transaction)
         {
-            MySQLConnection* con = GetFreeConnection();
+            T* con = GetFreeConnection();
             if (con->ExecuteTransaction(transaction))
             {
                 con->Unlock();      // OK, operation succesful
@@ -382,7 +388,7 @@ class DatabaseWorkerPool
             }
 
             //! Handle MySQL Errno 1213 without extending deadlock to the core itself
-            //! TODO: More elegant way
+            /// @todo More elegant way
             if (con->GetLastError() == 1213)
             {
                 uint8 loopBreaker = 5;
@@ -484,17 +490,17 @@ class DatabaseWorkerPool
         {
             uint8 i = 0;
             size_t num_cons = _connectionCount[IDX_SYNCH];
+            T* t = NULL;
             //! Block forever until a connection is free
             for (;;)
             {
-                T* t = _connections[IDX_SYNCH][++i % num_cons];
+                t = _connections[IDX_SYNCH][++i % num_cons];
                 //! Must be matched with t->Unlock() or you will get deadlocks
                 if (t->LockIfReady())
-                    return t;
+                    break;
             }
 
-            //! This will be called when Celine Dion learns to sing
-            return NULL;
+            return t;
         }
 
         char const* GetDatabaseName() const

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,9 @@
 
 #include "LFG.h"
 #include "LFGGroupData.h"
+
+namespace lfg
+{
 
 LfgGroupData::LfgGroupData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
     m_Leader(0), m_Dungeon(0), m_KicksLeft(LFG_GROUP_MAX_KICKS)
@@ -122,3 +125,5 @@ uint8 LfgGroupData::GetKicksLeft() const
 {
     return m_KicksLeft;
 }
+
+} // namespace lfg

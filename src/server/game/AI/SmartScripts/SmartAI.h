@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,7 +45,7 @@ enum SmartEscortVars
 class SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){};
+        ~SmartAI(){}
         explicit SmartAI(Creature* c);
 
         // Start moving to the desired MovePoint
@@ -111,7 +111,7 @@ class SmartAI : public CreatureAI
         void HealReceived(Unit* doneBy, uint32& addhealth);
 
         // Called at World update tick
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         // Called at text emote receive from player
         void ReceiveEmote(Player* player, uint32 textEmote);
@@ -147,7 +147,7 @@ class SmartAI : public CreatureAI
         bool CanAIAttack(const Unit* who) const;
 
         // Used in scripts to share variables
-        void DoAction(const int32 param = 0);
+        void DoAction(int32 param = 0);
 
         // Used in scripts to share variables
         uint32 GetData(uint32 id = 0) const;

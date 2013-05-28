@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,12 +88,12 @@ enum PrinceMalchezaar
     SPELL_CLEAVE                = 30131,                       //Same as Nightbane.
     SPELL_HELLFIRE              = 30859,                       //Infenals' hellfire aura
     NETHERSPITE_INFERNAL        = 17646,                       //The netherspite infernal creature
-    MALCHEZARS_AXE              = 17650,                      //Malchezar's axes (creatures), summoned during phase 3
+    MALCHEZARS_AXE              = 17650,                       //Malchezar's axes (creatures), summoned during phase 3
 
-    INFERNAL_MODEL_INVISIBLE    = 11686,                     //Infernal Effects
+    INFERNAL_MODEL_INVISIBLE    = 11686,                       //Infernal Effects
     SPELL_INFERNAL_RELAY        = 30834,
 
-    EQUIP_ID_AXE                = 33542,                     //Axes info
+    EQUIP_ID_AXE                = 33542                        //Axes info
 };
 
 //---------Infernal code first
@@ -121,7 +121,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (HellfireTimer)
             {
@@ -145,9 +145,9 @@ public:
 
         void KilledUnit(Unit* who)
         {
-            Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
-            if (pMalchezaar)
-                CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
+            if (Unit* unit = Unit::GetUnit(*me, malchezaar))
+                if (Creature* creature = unit->ToCreature())
+                    creature->AI()->KilledUnit(who);
         }
 
         void SpellHit(Unit* /*who*/, const SpellInfo* spell)
@@ -386,7 +386,7 @@ public:
             Talk(SAY_SUMMON);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -603,7 +603,7 @@ public:
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()
 {
-    Creature *pMalchezaar = Unit::GetCreature(*me, malchezaar);
+    Creature* pMalchezaar = Unit::GetCreature(*me, malchezaar);
 
     if (pMalchezaar && pMalchezaar->isAlive())
         CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);

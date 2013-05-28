@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,5 +62,5 @@ enum OperaEvents
     EVENT_RAJ                       = 3
 };
 
-#define ERROR_INST_DATA(a)          sLog->outError(LOG_FILTER_TSCR, "Instance Data for Karazhan not set properly. Encounter for Creature Entry %u may not work properly.", a->GetEntry());
+#define ERROR_INST_DATA(a)          TC_LOG_ERROR(LOG_FILTER_TSCR, "Instance Data for Karazhan not set properly. Encounter for Creature Entry %u may not work properly.", a->GetEntry());
 #endif

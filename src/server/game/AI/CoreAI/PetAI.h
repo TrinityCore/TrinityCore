@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@ class PetAI : public CreatureAI
 
         explicit PetAI(Creature* c);
 
-        void UpdateAI(const uint32);
+        void UpdateAI(uint32);
         static int Permissible(const Creature*);
 
         void KilledUnit(Unit* /*victim*/);

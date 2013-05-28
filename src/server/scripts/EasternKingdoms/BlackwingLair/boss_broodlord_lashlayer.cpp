@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,12 +32,20 @@ enum Say
     SAY_LEASH               = 1,
 };
 
+enum Events
+{
+    EVENT_CLEAVE            = 1,
+    EVENT_MORTAL_STRIKE     = 2,
+    EVENT_BLAST_WAVE        = 3,
+    EVENT_KNOCK_BACK        = 4,
+};
+
 enum Spells
 {
     SPELL_CLEAVE            = 26350,
-    SPELL_BLASTWAVE         = 23331,
-    SPELL_MORTALSTRIKE      = 24573,
-    SPELL_KNOCKBACK         = 25778
+    SPELL_BLAST_WAVE        = 23331,
+    SPELL_MORTAL_STRIKE     = 24573,
+    SPELL_KNOCK_BACK        = 25778
 };
 
 class boss_broodlord : public CreatureScript
@@ -54,17 +62,13 @@ public:
     {
         boss_broodlordAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 Cleave_Timer;
-        uint32 BlastWave_Timer;
-        uint32 MortalStrike_Timer;
-        uint32 KnockBack_Timer;
-
         void Reset()
         {
-            Cleave_Timer = 8000;                                // These times are probably wrong
-            BlastWave_Timer = 12000;
-            MortalStrike_Timer = 20000;
-            KnockBack_Timer = 30000;
+            // These timers are probably wrong
+            events.ScheduleEvent(EVENT_CLEAVE, 8000);
+            events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 20000);
+            events.ScheduleEvent(EVENT_KNOCK_BACK, 30000);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -73,47 +77,56 @@ public:
             DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
 
-            //Cleave_Timer
-            if (Cleave_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = 7000;
-            } else Cleave_Timer -= diff;
+            if (EnterEvadeIfOutOfCombatArea(diff))
+                Talk(SAY_LEASH);
 
-            // BlastWave
-            if (BlastWave_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_BLASTWAVE);
-                BlastWave_Timer = urand(8000, 16000);
-            } else BlastWave_Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            //MortalStrike_Timer
-            if (MortalStrike_Timer <= diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = urand(25000, 35000);
-            } else MortalStrike_Timer -= diff;
-
-            if (KnockBack_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_KNOCKBACK);
-                //Drop 50% aggro
-                if (DoGetThreat(me->getVictim()))
-                    DoModifyThreatPercent(me->getVictim(), -50);
-
-                KnockBack_Timer = urand(15000, 30000);
-            } else KnockBack_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        events.ScheduleEvent(EVENT_CLEAVE, 8000);
+                        break;
+                    case EVENT_MORTAL_STRIKE:
+                        DoCastVictim(SPELL_MORTAL_STRIKE);
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 20000);
+                        break;
+                    case EVENT_BLAST_WAVE:
+                        DoCastVictim(SPELL_BLAST_WAVE);
+                        events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
+                        break;
+                    case EVENT_KNOCK_BACK:
+                        if (Unit* target = me->getVictim())
+                        {
+                            DoCast(target, SPELL_BLAST_WAVE);
+                            // Drop 50% of threat
+                            if (DoGetThreat(target))
+                                DoModifyThreatPercent(target, -50);
+                        }
+                        events.ScheduleEvent(EVENT_KNOCK_BACK, 30000);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             if (EnterEvadeIfOutOfCombatArea(diff))
                 Talk(SAY_LEASH);
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            EventMap events; /// @todo: change BWL to instance script and bosses to BossAI
     };
 };
 

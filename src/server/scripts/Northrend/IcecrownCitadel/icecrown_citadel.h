@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,6 +54,10 @@ enum SharedSpells
     // The Lich King
     SPELL_ARTHAS_TELEPORTER_CEREMONY    = 72915,
     SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
+
+    // Shadowmourne questline
+    SPELL_UNSATED_CRAVING               = 71168,
+    SPELL_SHADOWS_FATE                  = 71169
 };
 
 enum TeleporterSpells

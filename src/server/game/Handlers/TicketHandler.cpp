@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,10 +41,15 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     }
 
     GMTicketResponse response = GMTICKET_RESPONSE_CREATE_ERROR;
+    GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID());
+
+    if (ticket && ticket->IsCompleted())
+        sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());;
+
     // Player must not have ticket
-    if (!sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
+    if (!ticket || ticket->IsClosed())
     {
-        GmTicket* ticket = new GmTicket(GetPlayer(), recvData);
+        ticket = new GmTicket(GetPlayer(), recvData);
 
         uint32 count;
         std::list<uint32> times;
@@ -69,15 +74,16 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             dest.resize(decompressedSize);
 
             uLongf realSize = decompressedSize;
-            if (uncompress(const_cast<uint8*>(dest.contents()), &realSize, const_cast<uint8*>(recvData.contents() + pos), recvData.size() - pos) == Z_OK)
+            if (uncompress(dest.contents(), &realSize, recvData.contents() + pos, recvData.size() - pos) == Z_OK)
             {
                 dest >> chatLog;
                 ticket->SetChatLog(times, chatLog);
             }
             else
             {
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_GMTICKET_CREATE possibly corrupt. Uncompression failed.");
+                TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "CMSG_GMTICKET_CREATE possibly corrupt. Uncompression failed.");
                 recvData.rfinish();
+                delete ticket;
                 return;
             }
 

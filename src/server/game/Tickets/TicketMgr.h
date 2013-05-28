@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,7 +82,7 @@ class GmTicket
 {
 public:
     GmTicket();
-    explicit GmTicket(Player* player, WorldPacket& recvData);
+    GmTicket(Player* player, WorldPacket& recvData);
     ~GmTicket();
 
     bool IsClosed() const { return _closedBy; }
@@ -119,7 +119,8 @@ public:
         else if (_escalatedStatus == TICKET_UNASSIGNED)
             _escalatedStatus = TICKET_ASSIGNED;
     }
-    void SetClosedBy(const int64& value) { _closedBy = value; }
+    void SetClosedBy(int64 value) { _closedBy = value; }
+    void SetCompleted() { _completed = true; }
     void SetMessage(std::string const& message)
     {
         _message = message;
@@ -162,7 +163,7 @@ private:
     bool _completed;
     GMTicketEscalationStatus _escalatedStatus;
     bool _viewed;
-    bool _needResponse; // TODO: find out the use of this, and then store it in DB
+    bool _needResponse; /// @todo find out the use of this, and then store it in DB
     bool _haveTicket;
     std::string _response;
     std::string _chatLog; // No need to store in db, will be refreshed every session client side

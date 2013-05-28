@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,17 +23,16 @@
 #include "Appender.h"
 #include "LogWorker.h"
 #include "Logger.h"
-
-#include <ace/Singleton.h>
+#include "Dynamic/UnorderedMap.h"
 
 #include <string>
-#include <set>
+#include <ace/Singleton.h>
 
 class Log
 {
     friend class ACE_Singleton<Log, ACE_Thread_Mutex>;
 
-    typedef std::map<uint8, Logger> LoggerMap;
+    typedef UNORDERED_MAP<uint8, Logger> LoggerMap;
 
     private:
         Log();
@@ -45,19 +44,18 @@ class Log
         bool ShouldLog(LogFilterType type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
 
-        void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
+        void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
 
-        void EnableDBAppenders();
         void outCommand(uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
         void outCharDump(char const* str, uint32 account_id, uint32 guid, char const* name);
         static std::string GetTimestampStr();
 
-        void SetRealmID(uint32 id);
+        void SetRealmId(uint32 id);
 
     private:
         void vlog(LogFilterType f, LogLevel level, char const* str, va_list argptr);
@@ -78,10 +76,59 @@ class Log
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        uint32 realm;
         LogWorker* worker;
 };
 
+inline bool Log::ShouldLog(LogFilterType type, LogLevel level) const
+{
+    LoggerMap::const_iterator it = loggers.find(uint8(type));
+    if (it != loggers.end())
+    {
+        LogLevel logLevel = it->second.getLogLevel();
+        return logLevel != LOG_LEVEL_DISABLED && logLevel <= level;
+    }
+
+    if (type != LOG_FILTER_GENERAL)
+        return ShouldLog(LOG_FILTER_GENERAL, level);
+    else
+        return false;
+}
+
 #define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()
+
+#if COMPILER != COMPILER_MICROSOFT
+#define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)     \
+        do {                                                        \
+            if (sLog->ShouldLog(filterType__, level__))             \
+                sLog->call__(filterType__, __VA_ARGS__);            \
+        } while (0)
+#else
+#define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)     \
+        __pragma(warning(push))                                     \
+        __pragma(warning(disable:4127))                             \
+        do {                                                        \
+            if (sLog->ShouldLog(filterType__, level__))             \
+                sLog->call__(filterType__, __VA_ARGS__);            \
+        } while (0)                                                 \
+        __pragma(warning(pop))
+#endif
+
+#define TC_LOG_TRACE(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_TRACE, outTrace, filterType__, __VA_ARGS__)
+
+#define TC_LOG_DEBUG(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_DEBUG, outDebug, filterType__, __VA_ARGS__)
+
+#define TC_LOG_INFO(filterType__, ...)  \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_INFO, outInfo, filterType__, __VA_ARGS__)
+
+#define TC_LOG_WARN(filterType__, ...)  \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_WARN, outWarn, filterType__, __VA_ARGS__)
+
+#define TC_LOG_ERROR(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_ERROR, outError, filterType__, __VA_ARGS__)
+
+#define TC_LOG_FATAL(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_FATAL, outFatal, filterType__, __VA_ARGS__)
 
 #endif

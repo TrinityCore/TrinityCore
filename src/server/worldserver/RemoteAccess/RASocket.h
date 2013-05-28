@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,6 +57,7 @@ class RASocket: public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
     private:
         /// Minimum security level required to connect
         uint8 _minLevel;
+        ACE_Atomic_Op<ACE_Thread_Mutex, bool> _commandExecuting;
 };
 #endif
 /// @}

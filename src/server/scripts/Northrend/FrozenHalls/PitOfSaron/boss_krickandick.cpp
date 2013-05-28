@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -203,7 +203,7 @@ class boss_ick : public CreatureScript
                 me->AddThreat(target, _tempThreat);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!me->isInCombat())
                     return;
@@ -226,13 +226,13 @@ class boss_ick : public CreatureScript
                         case EVENT_TOXIC_WASTE:
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                    krick->CastSpell(target, SPELL_TOXIC_WASTE, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
+                                    krick->CastSpell(target, SPELL_TOXIC_WASTE);
                             events.ScheduleEvent(EVENT_TOXIC_WASTE, urand(7000, 10000));
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                    krick->CastSpell(target, SPELL_SHADOW_BOLT, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
+                                    krick->CastSpell(target, SPELL_SHADOW_BOLT);
                             events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
                             return;
                         case EVENT_MIGHTY_KICK:
@@ -322,7 +322,7 @@ class boss_krick : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim == me)
+                if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 Talk(SAY_KRICK_SLAY);
@@ -338,7 +338,7 @@ class boss_krick : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 actionId)
+            void DoAction(int32 actionId)
             {
                 if (actionId == ACTION_OUTRO)
                 {
@@ -365,7 +365,7 @@ class boss_krick : public CreatureScript
                 _events.ScheduleEvent(EVENT_OUTRO_1, 1000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_phase != PHASE_OUTRO)
                     return;
@@ -448,7 +448,7 @@ class boss_krick : public CreatureScript
                             break;
                         case EVENT_OUTRO_9:
                             Talk(SAY_KRICK_OUTRO_8);
-                            // TODO: Tyrannus starts killing Krick.
+                            /// @todo Tyrannus starts killing Krick.
                             // there shall be some visual spell effect
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 tyrannus->CastSpell(me, SPELL_NECROMANTIC_POWER, true);  //not sure if it's the right spell :/

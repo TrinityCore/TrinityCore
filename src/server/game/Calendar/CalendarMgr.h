@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -261,9 +261,9 @@ struct CalendarEvent
         std::string _title;
         std::string _description;
 };
-
+typedef std::vector<CalendarInvite*> CalendarInviteStore;
 typedef std::set<CalendarEvent*> CalendarEventStore;
-typedef std::map<uint64 /* eventId */, std::vector<CalendarInvite*> > CalendarInviteStore;
+typedef std::map<uint64 /* eventId */, CalendarInviteStore > CalendarEventInviteStore;
 
 class CalendarMgr
 {
@@ -274,7 +274,7 @@ class CalendarMgr
         ~CalendarMgr();
 
         CalendarEventStore _events;
-        CalendarInviteStore _invites;
+        CalendarEventInviteStore _invites;
 
         std::deque<uint64> _freeEventIds;
         std::deque<uint64> _freeInviteIds;
@@ -284,14 +284,14 @@ class CalendarMgr
     public:
         void LoadFromDB();
 
-        CalendarEvent* GetEvent(uint64 eventId);
+        CalendarEvent* GetEvent(uint64 eventId) const;
         CalendarEventStore const& GetEvents() const { return _events; }
         CalendarEventStore GetPlayerEvents(uint64 guid);
 
-        CalendarInvite* GetInvite(uint64 inviteId);
-        CalendarInviteStore const& GetInvites() const { return _invites; }
-        std::vector<CalendarInvite*> GetEventInvites(uint64 eventId);
-        std::vector<CalendarInvite*> GetPlayerInvites(uint64 guid);
+        CalendarInvite* GetInvite(uint64 inviteId) const;
+        CalendarEventInviteStore const& GetInvites() const { return _invites; }
+        CalendarInviteStore const& GetEventInvites(uint64 eventId);
+        CalendarInviteStore GetPlayerInvites(uint64 guid);
 
         void FreeEventId(uint64 id);
         uint64 GetFreeEventId();

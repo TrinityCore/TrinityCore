@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,14 +53,16 @@ enum eUnits
     ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169
 };
 
-enum eSays
+enum Says
 {
     SAY_INTRO                     = 0,
-    SAY_WIPE                      = 1,
-    SAY_AGGRO                     = 2,
-    SAY_KILL                      = 3,
-    SAY_DIE                       = 4,
-    EMOTE                         = 5
+
+    SAY_WIPE                      = 0,
+    SAY_AGGRO                     = 1,
+    SAY_KILL                      = 2,
+    SAY_DIE                       = 3,
+
+    EMOTE                         = 0
 };
 
 const float VazrudenMiddle[3] = {-1406.5f, 1746.5f, 81.2f};
@@ -122,7 +124,7 @@ class boss_nazan : public CreatureScript
                     me->SummonCreature(ENTRY_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -241,7 +243,7 @@ class boss_vazruden : public CreatureScript
                     Talk(SAY_DIE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                 {
@@ -394,7 +396,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     sentryDown = true;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 switch (phase)
                 {
@@ -485,7 +487,7 @@ class mob_hellfire_sentry : public CreatureScript
                     CAST_AI(boss_vazruden_the_herald::boss_vazruden_the_heraldAI, herald->AI())->SentryDownBy(killer);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

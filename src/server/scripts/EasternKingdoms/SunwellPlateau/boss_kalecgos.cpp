@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -182,7 +182,7 @@ public:
             ScriptedAI::EnterEvadeMode();
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             switch (param)
             {
@@ -197,7 +197,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (TalkTimer)
             {
@@ -264,7 +264,7 @@ public:
                         }
                         else
                         {
-                            sLog->outError(LOG_FILTER_TSCR, "Didn't find Shathrowar. Kalecgos event reseted.");
+                            TC_LOG_ERROR(LOG_FILTER_TSCR, "Didn't find Shathrowar. Kalecgos event reseted.");
                             EnterEvadeMode();
                             return;
                         }
@@ -485,7 +485,7 @@ public:
                 damage *= 3;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
                 me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);
@@ -691,7 +691,7 @@ public:
             }
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             switch (param)
             {
@@ -706,7 +706,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
                 me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);
@@ -780,8 +780,9 @@ public:
 
             if (AgonyCurseTimer <= diff)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (!target) target = me->getVictim();
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                if (!target)
+                    target = me->getVictim();
                 DoCast(target, SPELL_AGONY_CURSE);
                 AgonyCurseTimer = 20000;
             } else AgonyCurseTimer -= diff;

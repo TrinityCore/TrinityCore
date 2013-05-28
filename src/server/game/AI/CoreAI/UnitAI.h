@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,17 +28,6 @@ class Player;
 class Quest;
 class Unit;
 struct AISpellInfoType;
-
-// Default script texts
-enum GeneralScriptTexts
-{
-    DEFAULT_TEXT                = -1000000,
-    EMOTE_GENERIC_FRENZY_KILL   = -1000001,
-    EMOTE_GENERIC_FRENZY        = -1000002,
-    EMOTE_GENERIC_ENRAGED       = -1000003,
-    EMOTE_GENERIC_BERSERK       = -1000004,
-    EMOTE_GENERIC_BERSERK_RAID  = -1000005 // RaidBossEmote version of the previous one
-};
 
 //Selection method used by SelectTarget
 enum SelectAggroTarget
@@ -100,7 +89,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
 };
 
 // Target selector for spell casts checking range, auras and attributes
-// TODO: Add more checks from Spell::CheckCast
+/// @todo Add more checks from Spell::CheckCast
 struct SpellTargetSelector : public std::unary_function<Unit*, bool>
 {
     public:
@@ -136,7 +125,7 @@ class UnitAI
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
         virtual void AttackStart(Unit* /*target*/);
-        virtual void UpdateAI(uint32 const diff) = 0;
+        virtual void UpdateAI(uint32 diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
@@ -146,7 +135,7 @@ class UnitAI
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(int32 const /*param*/) {}
+        virtual void DoAction(int32 /*param*/) {}
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
         virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
@@ -289,7 +278,7 @@ class PlayerAI : public UnitAI
 class SimpleCharmedAI : public PlayerAI
 {
     public:
-        void UpdateAI(uint32 const diff);
+        void UpdateAI(uint32 diff);
         SimpleCharmedAI(Player* player): PlayerAI(player) {}
 };
 

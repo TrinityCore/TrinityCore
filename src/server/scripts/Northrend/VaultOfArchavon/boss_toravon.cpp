@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,7 +74,7 @@ class boss_toravon : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -142,7 +142,7 @@ class mob_frost_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -196,7 +196,7 @@ public:
             DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!done)
             {
@@ -234,9 +234,9 @@ class mob_frozen_orb_stalker : public CreatureScript
     public:
         mob_frozen_orb_stalker() : CreatureScript("mob_frozen_orb_stalker") { }
 
-        struct mob_frozen_orb_stalkerAI : public Scripted_NoMovementAI
+        struct mob_frozen_orb_stalkerAI : public ScriptedAI
         {
-            mob_frozen_orb_stalkerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 creature->SetVisible(false);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
@@ -244,9 +244,11 @@ class mob_frozen_orb_stalker : public CreatureScript
 
                 instance = creature->GetInstanceScript();
                 spawned = false;
+
+                SetCombatMovement(false);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (spawned)
                     return;

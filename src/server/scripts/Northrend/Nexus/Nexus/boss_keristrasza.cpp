@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -167,7 +167,7 @@ public:
                 intenseColdList.push_back(guid);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -244,7 +244,7 @@ class spell_intense_cold : public SpellScriptLoader
                 if (aurEff->GetBase()->GetStackAmount() < 2)
                     return;
                 Unit* caster = GetCaster();
-                //TODO: the caster should be boss but not the player
+                /// @todo the caster should be boss but not the player
                 if (!caster || !caster->GetAI())
                     return;
                 caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);

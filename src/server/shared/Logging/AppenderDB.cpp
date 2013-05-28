@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,8 @@
 #include "AppenderDB.h"
 #include "Database/DatabaseEnv.h"
 
-AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level, uint8 realmId):
-Appender(id, name, APPENDER_DB, level), realm(realmId), enable(false)
+AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level)
+    : Appender(id, name, APPENDER_DB, level), realmId(0), enabled(false)
 {
 }
 
@@ -27,10 +27,11 @@ AppenderDB::~AppenderDB()
 {
 }
 
-void AppenderDB::_write(LogMessage& message)
+void AppenderDB::_write(LogMessage const& message)
 {
-    if (!enable)
+    if (!enabled)
         return;
+
     switch (message.type)
     {
         case LOG_FILTER_SQL:
@@ -40,16 +41,17 @@ void AppenderDB::_write(LogMessage& message)
         default:
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
             stmt->setUInt64(0, message.mtime);
-            stmt->setUInt32(1, realm);
-            stmt->setUInt8(2, message.type);
-            stmt->setUInt8(3, message.level);
+            stmt->setUInt32(1, realmId);
+            stmt->setUInt8(2, uint8(message.type));
+            stmt->setUInt8(3, uint8(message.level));
             stmt->setString(4, message.text);
             LoginDatabase.Execute(stmt);
             break;
     }
 }
 
-void AppenderDB::setEnable(bool _enable)
+void AppenderDB::setRealmId(uint32 _realmId)
 {
-    enable = _enable;
+    enabled = true;
+    realmId = _realmId;
 }

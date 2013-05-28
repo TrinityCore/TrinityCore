@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,12 +72,12 @@ namespace VMAP
         uint32 liquidflags;
         std::vector<MeshTriangle> triangles;
         std::vector<G3D::Vector3> vertexArray;
-        class WmoLiquid *liquid;
+        class WmoLiquid* liquid;
 
         GroupModel_Raw() : liquid(0) {}
         ~GroupModel_Raw();
 
-        bool Read(FILE * f);
+        bool Read(FILE* f);
     };
 
     struct WorldModel_Raw

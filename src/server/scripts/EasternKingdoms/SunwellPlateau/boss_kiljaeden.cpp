@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@ SDComment: Sinister Reflection Model, Armageddon Visual, SAY_KJ_SHADOWSPIKE3, Em
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-//TODO rewrite Armageddon
+/// @todo rewrite Armageddon
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -105,7 +105,7 @@ enum Spells
     SPELL_ARMAGEDDON_DAMAGE                     = 45915, // This does the area damage
 
     /* Shield Orb Spells*/
-    SPELL_SHADOW_BOLT                           = 45680, //45679 would be correct but triggers to often //TODO fix console error
+    SPELL_SHADOW_BOLT                           = 45680, //45679 would be correct but triggers to often /// @todo fix console error
 
     /* Anveena's spells and cosmetics (Or, generally, everything that has "Anveena" in name) */
     SPELL_ANVEENA_PRISON                        = 46367, // She hovers locked within a bubble
@@ -335,7 +335,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
         }
 
@@ -392,11 +392,13 @@ public:
         return new mob_kiljaeden_controllerAI (creature);
     }
 
-    struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
+    struct mob_kiljaeden_controllerAI : public ScriptedAI
     {
-        mob_kiljaeden_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature), summons(me)
+        mob_kiljaeden_controllerAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -452,7 +454,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiRandomSayTimer < diff)
             {
@@ -492,11 +494,13 @@ public:
         return new boss_kiljaedenAI (creature);
     }
 
-    struct boss_kiljaedenAI : public Scripted_NoMovementAI
+    struct boss_kiljaedenAI : public ScriptedAI
     {
-        boss_kiljaedenAI(Creature* creature) : Scripted_NoMovementAI(creature), summons(me)
+        boss_kiljaedenAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -520,7 +524,7 @@ public:
 
         void InitializeAI()
         {
-            Scripted_NoMovementAI::InitializeAI();
+            // Scripted_NoMovementAI::InitializeAI();
         }
 
         void Reset()
@@ -615,7 +619,8 @@ public:
 
         void EnterEvadeMode()
         {
-            Scripted_NoMovementAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode();
+
             summons.DespawnAll();
 
             // Reset the controller
@@ -661,7 +666,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() || Phase < PHASE_NORMAL)
                 return;
@@ -741,7 +746,7 @@ public:
                                 if (pRandomPlayer)
                                     DoCast(pRandomPlayer, SPELL_LEGION_LIGHTNING, false);
                                 else
-                                    sLog->outError(LOG_FILTER_TSCR, "try to cast SPELL_LEGION_LIGHTNING on invalid target");
+                                    TC_LOG_ERROR(LOG_FILTER_TSCR, "try to cast SPELL_LEGION_LIGHTNING on invalid target");
 
                                 Timer[TIMER_LEGION_LIGHTNING] = (Phase == PHASE_SACRIFICE) ? 18000 : 30000; // 18 seconds in PHASE_SACRIFICE
                                 Timer[TIMER_SOUL_FLAY] = 2500;
@@ -779,7 +784,7 @@ public:
                             break;
                         case TIMER_FLAME_DART: //Phase 3
                             DoCastAOE(SPELL_FLAME_DART, false);
-                            Timer[TIMER_FLAME_DART] = 3000; //TODO Timer
+                            Timer[TIMER_FLAME_DART] = 3000; /// @todo Timer
                             break;
                         case TIMER_DARKNESS: //Phase 3
                             if (!me->IsNonMeleeSpellCasted(false))
@@ -913,7 +918,7 @@ public:
 
         void Reset()
         {
-            // TODO: Timers!
+            /// @todo Timers!
             ShadowBoltVolleyTimer = urand(8000, 14000); // So they don't all cast it in the same moment.
             FelfirePortalTimer = 20000;
             if (instance)
@@ -946,7 +951,7 @@ public:
                 ++(CAST_AI(mob_kiljaeden_controller::mob_kiljaeden_controllerAI, pControl->AI())->deceiverDeathCount);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->isInCombat())
                 DoCast(me, SPELL_SHADOW_CHANNELING);
@@ -999,9 +1004,12 @@ public:
         return new mob_felfire_portalAI (creature);
     }
 
-    struct mob_felfire_portalAI : public Scripted_NoMovementAI
+    struct mob_felfire_portalAI : public ScriptedAI
     {
-        mob_felfire_portalAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        mob_felfire_portalAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         uint32 uiSpawnFiendTimer;
 
@@ -1017,7 +1025,7 @@ public:
             summoned->SetLevel(me->getLevel());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -1063,7 +1071,7 @@ public:
                 DoCast(me, SPELL_FELFIRE_FISSION, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -1100,9 +1108,12 @@ public:
         return new mob_armageddonAI (creature);
     }
 
-    struct mob_armageddonAI : public Scripted_NoMovementAI
+    struct mob_armageddonAI : public ScriptedAI
     {
-        mob_armageddonAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        mob_armageddonAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         uint8 spell;
         uint32 uiTimer;
@@ -1113,7 +1124,7 @@ public:
             uiTimer = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiTimer <= diff)
             {
@@ -1182,7 +1193,7 @@ public:
             bClockwise = urand(0, 1);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (bPointReached)
             {
@@ -1256,7 +1267,7 @@ public:
             victimClass = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -1393,7 +1404,7 @@ public:
                     DoMeleeAttackIfReady();
                     break;
             }
-            sLog->outDebug(LOG_FILTER_TSCR, "Sinister-Timer");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Sinister-Timer");
             for (uint8 i = 0; i < 3; ++i)
                 uiTimer[i] -= diff;
         }

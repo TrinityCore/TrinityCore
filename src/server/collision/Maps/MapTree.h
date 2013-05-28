@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@ namespace VMAP
 
     struct LocationInfo
     {
-        LocationInfo(): hitInstance(0), hitModel(0), ground_Z(-G3D::inf()) {};
+        LocationInfo(): hitInstance(0), hitModel(0), ground_Z(-G3D::inf()) {}
         const ModelInstance* hitInstance;
         const GroupModel* hitModel;
         float ground_Z;
@@ -72,7 +72,7 @@ namespace VMAP
             bool getObjectHitPos(const G3D::Vector3& pos1, const G3D::Vector3& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
             float getHeight(const G3D::Vector3& pPos, float maxSearchDist) const;
             bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
-            bool GetLocationInfo(const Vector3 &pos, LocationInfo &info) const;
+            bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
 
             bool InitMap(const std::string &fname, VMapManager2* vm);
             void UnloadMap(VMapManager2* vm);
@@ -80,11 +80,12 @@ namespace VMAP
             void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             bool isTiled() const { return iIsTiled; }
             uint32 numLoadedTiles() const { return iLoadedTiles.size(); }
+            void getModelInstances(ModelInstance* &models, uint32 &count);
     };
 
     struct AreaInfo
     {
-        AreaInfo(): result(false), ground_Z(-G3D::inf()) {};
+        AreaInfo(): result(false), ground_Z(-G3D::inf()) {}
         bool result;
         float ground_Z;
         uint32 flags;

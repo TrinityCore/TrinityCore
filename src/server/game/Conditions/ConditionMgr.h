@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,7 +46,7 @@ enum ConditionTypes
     CONDITION_DRUNKENSTATE          = 10,                   // DrunkenState     0,             0                  true if player is drunk enough
     CONDITION_WORLD_STATE           = 11,                   // index            value          0                  true if world has the value for the index
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id         0              0                  true if event is active
-    CONDITION_INSTANCE_DATA         = 13,                   // entry            data           0                  true if data is set in current instance
+    CONDITION_INSTANCE_INFO         = 13,                   // entry            data           type               true if the instance info defined by type (enum InstanceInfo) equals data.
     CONDITION_QUEST_NONE            = 14,                   // quest_id         0              0                  true if doesn't have quest saved
     CONDITION_CLASS                 = 15,                   // class            0              0                  true if player's class is equal to class
     CONDITION_RACE                  = 16,                   // race             0              0                  true if player's race is equal to race
@@ -54,7 +54,7 @@ enum ConditionTypes
     CONDITION_TITLE                 = 18,                   // title id         0              0                  true if player has title
     CONDITION_SPAWNMASK             = 19,                   // spawnMask        0              0                  true if in spawnMask
     CONDITION_GENDER                = 20,                   // gender           0              0                  true if player's gender is equal to gender
-    CONDITION_UNUSED_21             = 21,                   //
+    CONDITION_UNIT_STATE            = 21,                   // unitState        0              0                  true if unit has unitState
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
     CONDITION_UNUSED_24             = 24,                   //
@@ -128,7 +128,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
-    CONDITION_SOURCE_TYPE_MAX                            = 24  // MAX
+    CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
+    CONDITION_SOURCE_TYPE_MAX                            = 25  // MAX
 };
 
 enum ComparisionType
@@ -150,6 +151,13 @@ enum RelationType
     RELATION_PASSENGER_OF,
     RELATION_CREATED_BY,
     RELATION_MAX
+};
+
+enum InstanceInfo
+{
+    INSTANCE_INFO_DATA = 0,
+    INSTANCE_INFO_DATA64,
+    INSTANCE_INFO_BOSS_STATE
 };
 
 enum

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,11 +89,10 @@ class boss_sapphiron : public CreatureScript
 
         struct boss_sapphironAI : public BossAI
         {
-            boss_sapphironAI(Creature* creature) : BossAI(creature, BOSS_SAPPHIRON)
-                , _phase(PHASE_NULL)
-            {
-                _map = me->GetMap();
-            }
+            boss_sapphironAI(Creature* creature) :
+                BossAI(creature, BOSS_SAPPHIRON), _phase(PHASE_NULL),
+                _map(me->GetMap())
+            { }
 
             void InitializeAI()
             {
@@ -159,7 +158,7 @@ class boss_sapphiron : public CreatureScript
                     events.ScheduleEvent(EVENT_LIFTOFF, 0);
             }
 
-            void DoAction(int32 const param)
+            void DoAction(int32 param)
             {
                 if (param == DATA_SAPPHIRON_BIRTH)
                 {
@@ -217,7 +216,7 @@ class boss_sapphiron : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!_phase)
                     return;

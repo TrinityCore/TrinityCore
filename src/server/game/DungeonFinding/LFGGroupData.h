@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,9 @@
 #define _LFGGROUPDATA_H
 
 #include "LFG.h"
+
+namespace lfg
+{
 
 enum LfgGroupEnum
 {
@@ -74,5 +77,7 @@ class LfgGroupData
         // Vote Kick
         uint8 m_KicksLeft;                                 ///< Number of kicks left
 };
+
+} // namespace lfg
 
 #endif

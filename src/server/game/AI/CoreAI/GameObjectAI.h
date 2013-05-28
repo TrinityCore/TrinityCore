@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,7 @@ class GameObjectAI
         virtual void Reset() { }
 
         // Pass parameters between AI
-        virtual void DoAction(const int32 /*param = 0 */) {}
+        virtual void DoAction(int32 /*param = 0 */) {}
         virtual void SetGUID(uint64 /*guid*/, int32 /*id = 0 */) {}
         virtual uint64 GetGUID(int32 /*id = 0 */) const { return 0; }
 

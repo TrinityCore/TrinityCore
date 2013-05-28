@@ -3,7 +3,9 @@
 // MSDN Magazine, 2002
 // FILE: WheatyExceptionReport.CPP
 //==========================================
-#if PLATFORM == PLATFORM_WINDOWS
+#include "CompilerDefs.h"
+
+#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
@@ -193,154 +195,125 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
     {
         // Windows NT product family.
         case VER_PLATFORM_WIN32_NT:
+        {
+        #if WINVER < 0x0500
+            BYTE suiteMask = osvi.wReserved[0];
+            BYTE productType = osvi.wReserved[1];
+        #else
+            WORD suiteMask = osvi.wSuiteMask;
+            BYTE productType = osvi.wProductType;
+        #endif                                          // WINVER < 0x0500
+
             // Test for the specific product family.
             if (osvi.dwMajorVersion == 6)
             {
-            #if WINVER < 0x0500
-                if (osvi.wReserved[1] == VER_NT_WORKSTATION)
-            #else
-                if (osvi.wProductType == VER_NT_WORKSTATION)
-            #endif                                          // WINVER < 0x0500
+                if (productType == VER_NT_WORKSTATION)
                 {
-                    if (osvi.dwMinorVersion == 1)
+                    if (osvi.dwMinorVersion == 2)
+                        _tcsncat(szVersion, _T("Windows 8 "), cntMax);
+                    else if (osvi.dwMinorVersion == 1)
                         _tcsncat(szVersion, _T("Windows 7 "), cntMax);
                     else
                         _tcsncat(szVersion, _T("Windows Vista "), cntMax);
                 }
+                else if (osvi.dwMinorVersion == 2)
+                    _tcsncat(szVersion, _T("Windows Server 2012 "), cntMax);
                 else if (osvi.dwMinorVersion == 1)
                     _tcsncat(szVersion, _T("Windows Server 2008 R2 "), cntMax);
                 else
                     _tcsncat(szVersion, _T("Windows Server 2008 "), cntMax);
             }
-            if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
+            else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
                 _tcsncat(szVersion, _T("Microsoft Windows Server 2003 "), cntMax);
-            if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)
+            else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)
                 _tcsncat(szVersion, _T("Microsoft Windows XP "), cntMax);
-            if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
+            else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
                 _tcsncat(szVersion, _T("Microsoft Windows 2000 "), cntMax);
-            if (osvi.dwMajorVersion <= 4)
+            else if (osvi.dwMajorVersion <= 4)
                 _tcsncat(szVersion, _T("Microsoft Windows NT "), cntMax);
 
             // Test for specific product on Windows NT 4.0 SP6 and later.
             if (bOsVersionInfoEx)
             {
                 // Test for the workstation type.
-            #if WINVER < 0x0500
-                if (osvi.wReserved[1] == VER_NT_WORKSTATION)
-            #else
-                    if (osvi.wProductType == VER_NT_WORKSTATION)
-            #endif                                          // WINVER < 0x0500
-            {
-                if (osvi.dwMajorVersion == 4)
-                    _tcsncat(szVersion, _T("Workstation 4.0 "), cntMax);
-                #if WINVER < 0x0500
-                else if (osvi.wReserved[0] & VER_SUITE_PERSONAL)
-                #else
-                    else if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
-                #endif                                      // WINVER < 0x0500
+                if (productType == VER_NT_WORKSTATION)
+                {
+                    if (osvi.dwMajorVersion == 4)
+                        _tcsncat(szVersion, _T("Workstation 4.0 "), cntMax);
+                    else if (suiteMask & VER_SUITE_PERSONAL)
                         _tcsncat(szVersion, _T("Home Edition "), cntMax);
-                #if WINVER < 0x0500
-                else if (osvi.wReserved[0] & VER_SUITE_EMBEDDEDNT)
-                #else
-                    else if (osvi.wSuiteMask & VER_SUITE_EMBEDDEDNT)
-                #endif                                      // WINVER < 0x0500
+                    else if (suiteMask & VER_SUITE_EMBEDDEDNT)
                         _tcsncat(szVersion, _T("Embedded "), cntMax);
-                else
-                    _tcsncat(szVersion, _T("Professional "), cntMax);
-            }
-            // Test for the server type.
-            #if WINVER < 0x0500
-            else if (osvi.wReserved[1] == VER_NT_SERVER)
-            #else
-                else if (osvi.wProductType == VER_NT_SERVER)
-            #endif                                          // WINVER < 0x0500
-            {
-                if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
+                    else
+                        _tcsncat(szVersion, _T("Professional "), cntMax);
+                }
+                // Test for the server type.
+                else if (productType == VER_NT_SERVER)
                 {
-                    #if WINVER < 0x0500
-                    if (osvi.wReserved[0] & VER_SUITE_DATACENTER)
-                    #else
-                        if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-                    #endif                                  // WINVER < 0x0500
+                    if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
+                    {
+                        if (suiteMask & VER_SUITE_DATACENTER)
                             _tcsncat(szVersion, _T("Datacenter Edition "), cntMax);
-                    #if WINVER < 0x0500
-                    else if (osvi.wReserved[0] & VER_SUITE_ENTERPRISE)
-                    #else
-                        else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                    #endif                                  // WINVER < 0x0500
+                        else if (suiteMask & VER_SUITE_ENTERPRISE)
                             _tcsncat(szVersion, _T("Enterprise Edition "), cntMax);
-                    #if WINVER < 0x0500
-                    else if (osvi.wReserved[0] == VER_SUITE_BLADE)
-                    #else
-                        else if (osvi.wSuiteMask == VER_SUITE_BLADE)
-                    #endif                                  // WINVER < 0x0500
+                        else if (suiteMask == VER_SUITE_BLADE)
                             _tcsncat(szVersion, _T("Web Edition "), cntMax);
-                    else
-                        _tcsncat(szVersion, _T("Standard Edition "), cntMax);
-                }
-                else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
-                {
-                    #if WINVER < 0x0500
-                    if (osvi.wReserved[0] & VER_SUITE_DATACENTER)
-                    #else
-                        if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-                    #endif                                  // WINVER < 0x0500
+                        else
+                            _tcsncat(szVersion, _T("Standard Edition "), cntMax);
+                    }
+                    else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
+                    {
+                        if (suiteMask & VER_SUITE_DATACENTER)
                             _tcsncat(szVersion, _T("Datacenter Server "), cntMax);
-                    #if WINVER < 0x0500
-                    else if (osvi.wReserved[0] & VER_SUITE_ENTERPRISE)
-                    #else
-                        else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                    #endif                                  // WINVER < 0x0500
+                        else if (suiteMask & VER_SUITE_ENTERPRISE)
                             _tcsncat(szVersion, _T("Advanced Server "), cntMax);
-                    else
-                        _tcsncat(szVersion, _T("Server "), cntMax);
-                }
-                else                                        // Windows NT 4.0
-                {
-                    #if WINVER < 0x0500
-                    if (osvi.wReserved[0] & VER_SUITE_ENTERPRISE)
-                    #else
-                        if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                    #endif                                  // WINVER < 0x0500
+                        else
+                            _tcsncat(szVersion, _T("Server "), cntMax);
+                    }
+                    else                                        // Windows NT 4.0
+                    {
+                        if (suiteMask & VER_SUITE_ENTERPRISE)
                             _tcsncat(szVersion, _T("Server 4.0, Enterprise Edition "), cntMax);
-                    else
-                        _tcsncat(szVersion, _T("Server 4.0 "), cntMax);
+                        else
+                            _tcsncat(szVersion, _T("Server 4.0 "), cntMax);
+                    }
                 }
             }
-        }
-        // Display service pack (if any) and build number.
-        if (osvi.dwMajorVersion == 4 && _tcsicmp(osvi.szCSDVersion, _T("Service Pack 6")) == 0)
-        {
-            HKEY hKey;
-            LONG lRet;
 
-            // Test for SP6 versus SP6a.
-            lRet = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009"), 0, KEY_QUERY_VALUE, &hKey);
-            if (lRet == ERROR_SUCCESS)
+            // Display service pack (if any) and build number.
+            if (osvi.dwMajorVersion == 4 && _tcsicmp(osvi.szCSDVersion, _T("Service Pack 6")) == 0)
             {
-                _stprintf(wszTmp, _T("Service Pack 6a (Version %d.%d, Build %d)"),
-                    osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
+                HKEY hKey;
+                LONG lRet;
+
+                // Test for SP6 versus SP6a.
+                lRet = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009"), 0, KEY_QUERY_VALUE, &hKey);
+                if (lRet == ERROR_SUCCESS)
+                {
+                    _stprintf(wszTmp, _T("Service Pack 6a (Version %d.%d, Build %d)"),
+                        osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
+                    _tcsncat(szVersion, wszTmp, cntMax);
+                }
+                else                                            // Windows NT 4.0 prior to SP6a
+                {
+                    _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+                        osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
+                    _tcsncat(szVersion, wszTmp, cntMax);
+                }
+                ::RegCloseKey(hKey);
+            }
+            else                                                // Windows NT 3.51 and earlier or Windows 2000 and later
+            {
+                if (!_tcslen(osvi.szCSDVersion))
+                    _stprintf(wszTmp, _T("(Version %d.%d, Build %d)"),
+                        osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
+                else
+                    _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
+                        osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                 _tcsncat(szVersion, wszTmp, cntMax);
             }
-            else                                            // Windows NT 4.0 prior to SP6a
-            {
-                _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
-                    osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
-                _tcsncat(szVersion, wszTmp, cntMax);
-            }
-            ::RegCloseKey(hKey);
+            break;
         }
-        else                                                // Windows NT 3.51 and earlier or Windows 2000 and later
-        {
-            if (!_tcslen(osvi.szCSDVersion))
-                _stprintf(wszTmp, _T("(Version %d.%d, Build %d)"),
-                    osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
-            else
-                _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
-                    osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
-            _tcsncat(szVersion, wszTmp, cntMax);
-        }
-        break;
         default:
             _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
                 osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);

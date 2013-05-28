@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,9 @@
 #define _LFG_H
 
 #include "Common.h"
+
+namespace lfg
+{
 
 enum LFGEnum
 {
@@ -98,5 +101,11 @@ typedef std::set<uint64> LfgGuidSet;
 typedef std::list<uint64> LfgGuidList;
 typedef std::map<uint64, uint8> LfgRolesMap;
 typedef std::map<uint64, uint64> LfgGroupsMap;
+
+std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
+std::string GetRolesString(uint8 roles);
+std::string GetStateString(LfgState state);
+
+} // namespace lfg
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -78,10 +78,11 @@ public:
         return new boss_the_lurker_belowAI (creature);
     }
 
-    struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
+    struct boss_the_lurker_belowAI : public ScriptedAI
     {
-        boss_the_lurker_belowAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+        boss_the_lurker_belowAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -152,11 +153,10 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             if (instance)
                 instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
-            Scripted_NoMovementAI::EnterCombat(who);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -177,7 +177,7 @@ public:
                 me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!CanStartEvent) // boss is invisible, don't attack
             {
@@ -368,10 +368,11 @@ public:
         return new mob_coilfang_ambusherAI (creature);
     }
 
-    struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
+    struct mob_coilfang_ambusherAI : public ScriptedAI
     {
-        mob_coilfang_ambusherAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        mob_coilfang_ambusherAI(Creature* creature) : ScriptedAI(creature)
         {
+            SetCombatMovement(false);
         }
 
         uint32 MultiShotTimer;
@@ -392,7 +393,7 @@ public:
                 AttackStart(who);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (MultiShotTimer <= diff)
             {

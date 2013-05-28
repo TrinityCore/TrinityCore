@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,22 +23,22 @@
 enum Yells
 {
     // The time of our retribution is at hand! Let darkness reign in the hearts of our enemies! Sound: 8645 Emote: 35
-    SAY_ANDOROV_INTRO         = -1509003,   // Before for the first wave
-    SAY_ANDOROV_ATTACK        = -1509004,   // Beginning the event
-    SAY_ANDOROV_WAVE_1        = -1509001,   // When the first wave comes text: Kill first, ask questions later... Incoming! emote: 45 sound: 8653
-    SAY_WAVE3                 = -1509005,
-    SAY_WAVE4                 = -1509006,
-    SAY_WAVE5                 = -1509007,
-    SAY_WAVE6                 = -1509008,
-    SAY_WAVE7                 = -1509009,
-    SAY_INTRO                 = -1509010,
-    SAY_UNK1                  = -1509011,
-    SAY_UNK2                  = -1509012,
-    SAY_UNK3                  = -1509013,
-    SAY_DEATH                 = -1509014,
-    SAY_CHANGEAGGRO           = -1509015,
-    SAY_KILLS_ANDOROV         = -1509016,
-    SAY_COMPLETE_QUEST        = -1509017    // Yell when realm complete quest 8743 for world event
+    SAY_ANDOROV_INTRO         = 0,   // Before for the first wave
+    SAY_ANDOROV_ATTACK        = 1,   // Beginning the event
+
+    SAY_WAVE3                 = 0,
+    SAY_WAVE4                 = 1,
+    SAY_WAVE5                 = 2,
+    SAY_WAVE6                 = 3,
+    SAY_WAVE7                 = 4,
+    SAY_INTRO                 = 5,
+    SAY_UNK1                  = 6,
+    SAY_UNK2                  = 7,
+    SAY_UNK3                  = 8,
+    SAY_DEATH                 = 9,
+    SAY_CHANGEAGGRO           = 10,
+    SAY_KILLS_ANDOROV         = 11,
+    SAY_COMPLETE_QUEST        = 12    // Yell when realm complete quest 8743 for world event
     // Warriors, Captains, continue the fight! Sound: 8640
 };
 
@@ -86,7 +86,7 @@ class boss_rajaxx : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

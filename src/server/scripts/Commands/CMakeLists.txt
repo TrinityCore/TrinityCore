@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -12,12 +12,14 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
+  Commands/cs_arena.cpp
   Commands/cs_ban.cpp
   Commands/cs_bf.cpp
   Commands/cs_cast.cpp
   Commands/cs_character.cpp
   Commands/cs_cheat.cpp
   Commands/cs_debug.cpp
+  Commands/cs_deserter.cpp
   Commands/cs_disable.cpp
   Commands/cs_event.cpp
   Commands/cs_gm.cpp
@@ -35,6 +37,7 @@ set(scripts_STAT_SRCS
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
   Commands/cs_quest.cpp
+  Commands/cs_rbac.cpp
   Commands/cs_reload.cpp
   Commands/cs_reset.cpp
   Commands/cs_tele.cpp
@@ -42,6 +45,7 @@ set(scripts_STAT_SRCS
   Commands/cs_server.cpp
   Commands/cs_titles.cpp
   Commands/cs_wp.cpp
+  Commands/cs_mmaps.cpp
 #  Commands/cs_pdump.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp

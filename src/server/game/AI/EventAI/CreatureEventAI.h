@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -81,7 +81,7 @@ enum EventAI_ActionType
     ACTION_T_THREAT_SINGLE_PCT          = 13,               // Threat%, Target
     ACTION_T_THREAT_ALL_PCT             = 14,               // Threat%
     ACTION_T_QUEST_EVENT                = 15,               // QuestID, Target
-    ACTION_T_CAST_EVENT                 = 16,               // QuestID, SpellId, Target - must be removed as hack?
+    ACTION_T_CAST_EVENT                 = 16,               // CreatureId, SpellId, Target - must be removed as hack?
     ACTION_T_SET_UNIT_FIELD             = 17,               // Field_Number, Value, Target
     ACTION_T_SET_UNIT_FLAG              = 18,               // Flags (may be more than one field OR'd together), Target
     ACTION_T_REMOVE_UNIT_FLAG           = 19,               // Flags (may be more than one field OR'd together), Target
@@ -591,10 +591,8 @@ class CreatureEventAI : public CreatureAI
 {
     public:
         explicit CreatureEventAI(Creature* c);
-        ~CreatureEventAI()
-        {
-            m_CreatureEventAIList.clear();
-        }
+        ~CreatureEventAI() { }
+
         void JustRespawned();
         void Reset();
         void JustReachedHome();
@@ -608,7 +606,7 @@ class CreatureEventAI : public CreatureAI
         void SpellHit(Unit* unit, const SpellInfo* spell);
         void DamageTaken(Unit* done_by, uint32& damage);
         void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
         void ReceiveEmote(Player* player, uint32 textEmote);
         static int Permissible(const Creature*);
 

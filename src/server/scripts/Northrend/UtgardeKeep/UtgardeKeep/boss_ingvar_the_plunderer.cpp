@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,13 +30,12 @@ enum Yells
 {
     //Yells Ingvar
     YELL_AGGRO_1                                = 0,
-    YELL_AGGRO_2                                = 1,
-
+    YELL_KILL_1                                 = 1,
     YELL_DEAD_1                                 = 2,
-    YELL_DEAD_2                                 = 3,
 
-    YELL_KILL_1                                 = 4,
-    YELL_KILL_2                                 = 5,
+    YELL_AGGRO_2                                = 0,
+    YELL_KILL_2                                 = 1,
+    YELL_DEAD_2                                 = 2
 };
 
 enum Creatures
@@ -124,10 +123,10 @@ public:
             events.Reset();
             events.SetPhase(PHASE_HUMAN);
 
-            events.ScheduleEvent(EVENT_CLEAVE, urand(6,12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-            events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18,21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-            events.ScheduleEvent(EVENT_ENRAGE, urand(7,14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-            events.ScheduleEvent(EVENT_SMASH, urand(12,17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+            events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+            events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+            events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+            events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
 
             if (instance)
                 instance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
@@ -154,7 +153,7 @@ public:
                 Talk(YELL_DEAD_1);
             }
 
-            if (events.GetPhaseMask() & (1 << PHASE_EVENT))
+            if (events.IsInPhase(PHASE_EVENT))
                 damage = 0;
         }
 
@@ -193,9 +192,9 @@ public:
         void ScheduleSecondPhase()
         {
             events.SetPhase(PHASE_UNDEAD);
-            events.ScheduleEvent(EVENT_DARK_SMASH, urand(14,18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-            events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-            events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10,14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+            events.ScheduleEvent(EVENT_DARK_SMASH, urand(14, 18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+            events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+            events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
             events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
         }
 
@@ -204,9 +203,9 @@ public:
             Talk(bIsUndead ? YELL_KILL_1 : YELL_KILL_2);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
-            if (!UpdateVictim() && !(events.GetPhaseMask() & (1 << PHASE_EVENT)))
+            if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
                 return;
 
             events.Update(diff);
@@ -221,19 +220,19 @@ public:
                     // PHASE ONE
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(6,12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                        events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     case EVENT_STAGGERING_ROAR:
                         DoCast(me, SPELL_STAGGERING_ROAR);
-                        events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                        events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     case EVENT_ENRAGE:
                         DoCast(me, SPELL_ENRAGE);
-                        events.ScheduleEvent(EVENT_ENRAGE, urand(7,14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                        events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     case EVENT_SMASH:
                         DoCastAOE(SPELL_SMASH);
-                        events.ScheduleEvent(EVENT_SMASH, urand(12,16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                        events.ScheduleEvent(EVENT_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     case EVENT_JUST_TRANSFORMED:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -247,15 +246,15 @@ public:
                     // PHASE TWO
                     case EVENT_DARK_SMASH:
                         DoCastVictim(SPELL_DARK_SMASH);
-                        events.ScheduleEvent(EVENT_DARK_SMASH, urand(12,16)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                        events.ScheduleEvent(EVENT_DARK_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                         break;
                     case EVENT_DREADFUL_ROAR:
                         DoCast(me, SPELL_DREADFUL_ROAR);
-                        events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                        events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                         break;
                     case EVENT_WOE_STRIKE:
                         DoCastVictim(SPELL_WOE_STRIKE);
-                        events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10,14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                        events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                         break;
                     case EVENT_SHADOW_AXE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
@@ -358,7 +357,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiResurectTimer)
             {

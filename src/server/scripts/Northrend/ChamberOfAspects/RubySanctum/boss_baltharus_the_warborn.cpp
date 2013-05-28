@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,9 +61,7 @@ enum Phases
 {
     PHASE_ALL       = 0,
     PHASE_INTRO     = 1,
-    PHASE_COMBAT    = 2,
-
-    PHASE_INTRO_MASK    = 1 << PHASE_INTRO,
+    PHASE_COMBAT    = 2
 };
 
 class boss_baltharus_the_warborn : public CreatureScript
@@ -87,7 +85,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -164,17 +162,18 @@ class boss_baltharus_the_warborn : public CreatureScript
                     instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
-                if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                bool introPhase = events.IsInPhase(PHASE_INTRO);
+                if (!UpdateVictim() && !introPhase)
                     return;
 
-                if (!(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (!introPhase)
                     me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (me->HasUnitState(UNIT_STATE_CASTING) && !introPhase)
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -258,7 +257,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                         killer->Kill(baltharus);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -200,7 +200,7 @@ class boss_gothik : public CreatureScript
 
                 if (LiveTriggerGUID.size() < POS_LIVE || DeadTriggerGUID.size() < POS_DEAD)
                 {
-                    sLog->outError(LOG_FILTER_TSCR, "Script Gothik: cannot summon triggers!");
+                    TC_LOG_ERROR(LOG_FILTER_TSCR, "Script Gothik: cannot summon triggers!");
                     EnterEvadeMode();
                     return;
                 }
@@ -393,7 +393,7 @@ class boss_gothik : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -524,7 +524,7 @@ class mob_gothik_minion : public CreatureScript
                 return (liveSide == IN_LIVE_SIDE(who));
             }
 
-            void DoAction(int32 const param)
+            void DoAction(int32 param)
             {
                 gateClose = param;
             }
@@ -574,7 +574,7 @@ class mob_gothik_minion : public CreatureScript
                 Reset();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (gateClose && (!isOnSameSide(me) || (me->getVictim() && !isOnSameSide(me->getVictim()))))
                 {

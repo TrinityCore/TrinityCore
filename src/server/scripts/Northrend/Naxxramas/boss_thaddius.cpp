@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -159,7 +159,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 action)
         {
             switch (action)
             {
@@ -218,7 +218,7 @@ public:
             return uint32(polaritySwitch);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (checkFeugenAlive && checkStalaggAlive)
                 uiAddsTimer = 0;
@@ -331,7 +331,7 @@ public:
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
@@ -423,7 +423,7 @@ public:
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;

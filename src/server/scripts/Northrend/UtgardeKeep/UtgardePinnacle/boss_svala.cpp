@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -101,8 +101,8 @@ enum SvalaPhase
 
 static const float spectatorWP[2][3] =
 {
-    {296.95f,-312.76f,86.36f},
-    {297.69f,-275.81f,86.36f}
+    {296.95f, -312.76f, 86.36f},
+    {297.69f, -275.81f, 86.36f}
 };
 
 static Position ArthasPos = { 295.81f, -366.16f, 92.57f, 1.58f };
@@ -250,7 +250,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Phase == IDLE)
                 return;
@@ -459,11 +459,13 @@ public:
         return new npc_ritual_channelerAI(creature);
     }
 
-    struct npc_ritual_channelerAI : public Scripted_NoMovementAI
+    struct npc_ritual_channelerAI : public ScriptedAI
     {
-        npc_ritual_channelerAI(Creature* creature) :Scripted_NoMovementAI(creature)
+        npc_ritual_channelerAI(Creature* creature) :ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -477,7 +479,7 @@ public:
                     DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -517,7 +519,7 @@ public:
             if (motionType == POINT_MOTION_TYPE)
             {
                 if (pointId == 1)
-                    me->GetMotionMaster()->MovePoint(2,spectatorWP[1][0],spectatorWP[1][1],spectatorWP[1][2]);
+                    me->GetMotionMaster()->MovePoint(2, spectatorWP[1][0], spectatorWP[1][1], spectatorWP[1][2]);
                 else if (pointId == 2)
                     me->DespawnOrUnsummon(1000);
             }
@@ -599,7 +601,7 @@ class npc_scourge_hulk : public CreatureScript
                     killedByRitualStrike = true;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,8 +18,9 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "trial_of_the_crusader.h"
 #include "SpellScript.h"
+#include "Player.h"
+#include "trial_of_the_crusader.h"
 
 enum Yells
 {
@@ -69,7 +70,6 @@ enum BossSpells
     SPELL_FEL_INFERNO                   = 67047,
     SPELL_FEL_STREAK                    = 66494,
     SPELL_LORD_HITTIN                   = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
-    SPELL_MISTRESS_KISS_DEBUFF          = 66334,
     SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359
 };
 
@@ -149,7 +149,7 @@ class boss_jaraxxus : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -182,7 +182,7 @@ class boss_jaraxxus : public CreatureScript
                             events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_NETHER_POWER:
-                            me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5,10), me, true);
+                            me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5, 10), me, true);
                             events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
                             return;
                         case EVENT_LEGION_FLAME:
@@ -223,10 +223,11 @@ class mob_legion_flame : public CreatureScript
     public:
         mob_legion_flame() : CreatureScript("mob_legion_flame") { }
 
-        struct mob_legion_flameAI : public Scripted_NoMovementAI
+        struct mob_legion_flameAI : public ScriptedAI
         {
-            mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_legion_flameAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
                 _instance = creature->GetInstanceScript();
             }
 
@@ -237,7 +238,7 @@ class mob_legion_flame : public CreatureScript
                 DoCast(SPELL_LEGION_FLAME_EFFECT);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 UpdateVictim();
                 if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
@@ -258,10 +259,11 @@ class mob_infernal_volcano : public CreatureScript
     public:
         mob_infernal_volcano() : CreatureScript("mob_infernal_volcano") { }
 
-        struct mob_infernal_volcanoAI : public Scripted_NoMovementAI
+        struct mob_infernal_volcanoAI : public ScriptedAI
         {
-            mob_infernal_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature), _summons(me)
+            mob_infernal_volcanoAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
+                SetCombatMovement(false);
             }
 
             void Reset()
@@ -294,7 +296,7 @@ class mob_infernal_volcano : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const /*diff*/) {}
+            void UpdateAI(uint32 /*diff*/) {}
 
             private:
                 SummonList _summons;
@@ -324,7 +326,7 @@ class mob_fel_infernal : public CreatureScript
                 me->SetInCombatWithZone();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
@@ -398,7 +400,7 @@ class mob_nether_portal : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const /*diff*/) {}
+            void UpdateAI(uint32 /*diff*/) {}
 
             private:
                 SummonList _summons;
@@ -439,7 +441,7 @@ class mob_mistress_of_pain : public CreatureScript
                     _instance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, DECREASE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
@@ -533,6 +535,21 @@ class spell_mistress_kiss : public SpellScriptLoader
         }
 };
 
+class MistressKissTargetSelector
+{
+    public:
+        MistressKissTargetSelector() { }
+
+        bool operator()(WorldObject* unit) const
+        {
+            if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->ToPlayer()->getPowerType() == POWER_MANA)
+                    return false;
+
+            return true;
+        }
+};
+
 class spell_mistress_kiss_area : public SpellScriptLoader
 {
     public:
@@ -542,44 +559,27 @@ class spell_mistress_kiss_area : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mistress_kiss_area_SpellScript)
 
-            bool Load()
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (GetCaster())
-                    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DEBUFF, GetCaster()))
-                        return true;
-                return false;
+                // get a list of players with mana
+                targets.remove_if(MistressKissTargetSelector());
+                if (targets.empty())
+                    return;
+
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(target);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-                if (caster && target)
-                    caster->CastSpell(target, SPELL_MISTRESS_KISS_DEBUFF, true);
-            }
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                // get a list of players with mana
-                std::list<WorldObject*> _targets;
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    if ((*itr)->ToUnit()->getPowerType() == POWER_MANA)
-                        _targets.push_back(*itr);
-
-                // pick a random target and kiss him
-                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(_targets))
-                {
-                    // correctly fill "targets" for the visual effect
-                    targets.clear();
-                    targets.push_back(_target);
-                    if (Unit* caster = GetCaster())
-                        caster->CastSpell(_target->ToUnit(), SPELL_MISTRESS_KISS_DEBUFF, true);
-                }
+                GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mistress_kiss_area_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_mistress_kiss_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

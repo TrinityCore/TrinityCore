@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -150,7 +150,7 @@ public:
                 instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, DONE);
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             if (action == ACTION_INITIAND_KILLED)
                 volunteerWork = false;
@@ -280,7 +280,7 @@ public:
             bCanDown = true;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance)
                 return;
@@ -451,7 +451,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (instance && bCheckTimer <= diff)
             {
@@ -523,15 +523,17 @@ class npc_jedogas_aufseher_trigger : public CreatureScript
 public:
     npc_jedogas_aufseher_trigger() : CreatureScript("npc_jedogas_aufseher_trigger") { }
 
-    struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
+    struct npc_jedogas_aufseher_triggerAI : public ScriptedAI
     {
-        npc_jedogas_aufseher_triggerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_jedogas_aufseher_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance    = creature->GetInstanceScript();
             bRemoved    = false;
             bRemoved2   = false;
             bCasted     = false;
             bCasted2    = false;
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -546,7 +548,7 @@ public:
         void AttackStart(Unit* /*victim*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!instance)
                 return;

@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -507,7 +507,7 @@ public:
         {
              switch (summoned->GetEntry())
              {
-            //TODO: make Scarloc start into event instead, and not start attack directly
+            /// @todo make Scarloc start into event instead, and not start attack directly
              case MOB_ENTRY_BARN_GUARDSMAN:
              case MOB_ENTRY_BARN_PROTECTOR:
              case MOB_ENTRY_BARN_LOOKOUT:
@@ -536,14 +536,14 @@ public:
             Talk(SAY_TH_RANDOM_DIE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
 
-                 //TODO: add his abilities'n-crap here
+                 /// @todo add his abilities'n-crap here
                 if (!LowHp && HealthBelowPct(20))
                 {
                     Talk(SAY_TH_RANDOM_LOW_HP);
@@ -642,7 +642,7 @@ public:
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
         }

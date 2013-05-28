@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -138,7 +138,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
             {
                 Talk(SAY_TAUNT);
 
-                //TODO: kill the peons first
+                /// @todo kill the peons first
                 IsIntroEvent = false;
                 PeonEngagedCount = 4;
                 PeonKilledCount = 4;
@@ -213,7 +213,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 instance->HandleGameObject(instance->GetData64(DATA_NETHEKURSE_DOOR), true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (IsIntroEvent)
                 {
@@ -346,7 +346,7 @@ class mob_fel_orc_convert : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

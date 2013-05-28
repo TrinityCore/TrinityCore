@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -85,13 +85,11 @@ template<uint32 LIMIT>
 struct CoordPair
 {
     CoordPair(uint32 x=0, uint32 y=0)
-        : x_coord(x)
-        , y_coord(y)
+        : x_coord(x), y_coord(y)
     {}
 
     CoordPair(const CoordPair<LIMIT> &obj)
-        : x_coord(obj.x_coord)
-        , y_coord(obj.y_coord)
+        : x_coord(obj.x_coord), y_coord(obj.y_coord)
     {}
 
     CoordPair<LIMIT> & operator=(const CoordPair<LIMIT> &obj)

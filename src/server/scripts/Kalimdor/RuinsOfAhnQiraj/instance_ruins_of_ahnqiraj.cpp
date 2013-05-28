@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,6 +36,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 _buruGUID       = 0;
                 _ayamissGUID    = 0;
                 _ossirianGUID   = 0;
+                _paralyzedGUID  = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -71,6 +72,12 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
+            void SetData64(uint32 type, uint64 data)
+            {
+                if (type == DATA_PARALYZED)
+                    _paralyzedGUID = data;
+            }
+
             uint64 GetData64(uint32 type) const
             {
                 switch (type)
@@ -87,6 +94,8 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                         return _ayamissGUID;
                     case DATA_OSSIRIAN:
                         return _ossirianGUID;
+                    case DATA_PARALYZED:
+                        return _paralyzedGUID;
                 }
 
                 return 0;
@@ -142,6 +151,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             uint64 _buruGUID;
             uint64 _ayamissGUID;
             uint64 _ossirianGUID;
+            uint64 _paralyzedGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

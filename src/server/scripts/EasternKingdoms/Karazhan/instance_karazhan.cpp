@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Instance_Karazhan
 SD%Complete: 70
-SDComment: Instance Script for Karazhan to help in various encounters. TODO: GameObject visibility for Opera event.
+SDComment: Instance Script for Karazhan to help in various encounters. @todo GameObject visibility for Opera event.
 SDCategory: Karazhan
 EndScriptData */
 
@@ -224,7 +224,7 @@ public:
 
             switch (m_uiOperaEvent)
             {
-                //TODO: Set Object visibilities for Opera based on performance
+                /// @todo Set Object visibilities for Opera based on performance
                 case EVENT_OZ:
                     break;
 

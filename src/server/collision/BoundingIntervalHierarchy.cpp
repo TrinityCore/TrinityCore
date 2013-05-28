@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,12 @@
  */
 
 #include "BoundingIntervalHierarchy.h"
+
+#ifdef _MSC_VER
+  #define isnan _isnan
+#else
+  #define isnan std::isnan
+#endif
 
 void BIH::buildHierarchy(std::vector<uint32> &tempTree, buildData &dat, BuildStats &stats)
 {
@@ -51,7 +57,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
         prevAxis = axis;
         prevSplit = split;
         // perform quick consistency checks
-        Vector3 d( gridBox.hi - gridBox.lo );
+        G3D::Vector3 d( gridBox.hi - gridBox.lo );
         if (d.x < 0 || d.y < 0 || d.z < 0)
             throw std::logic_error("negative node extents");
         for (int i = 0; i < 3; i++)
@@ -241,7 +247,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
 bool BIH::writeToFile(FILE* wf) const
 {
     uint32 treeSize = tree.size();
-    uint32 check=0, count=0;
+    uint32 check=0, count;
     check += fwrite(&bounds.low(), sizeof(float), 3, wf);
     check += fwrite(&bounds.high(), sizeof(float), 3, wf);
     check += fwrite(&treeSize, sizeof(uint32), 1, wf);
@@ -255,18 +261,18 @@ bool BIH::writeToFile(FILE* wf) const
 bool BIH::readFromFile(FILE* rf)
 {
     uint32 treeSize;
-    Vector3 lo, hi;
+    G3D::Vector3 lo, hi;
     uint32 check=0, count=0;
     check += fread(&lo, sizeof(float), 3, rf);
     check += fread(&hi, sizeof(float), 3, rf);
-    bounds = AABox(lo, hi);
+    bounds = G3D::AABox(lo, hi);
     check += fread(&treeSize, sizeof(uint32), 1, rf);
     tree.resize(treeSize);
     check += fread(&tree[0], sizeof(uint32), treeSize, rf);
     check += fread(&count, sizeof(uint32), 1, rf);
     objects.resize(count); // = new uint32[nObjects];
     check += fread(&objects[0], sizeof(uint32), count, rf);
-    return check == (3 + 3 + 2 + treeSize + count);
+    return uint64(check) == uint64(3 + 3 + 1 + 1 + uint64(treeSize) + uint64(count));
 }
 
 void BIH::BuildStats::updateLeaf(int depth, int n)

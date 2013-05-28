@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,7 +60,7 @@ void WorldSession::SendBfInvitePlayerToQueue(uint32 BattleId)
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
 //Param3:(CanQueue) if able to queue
 //Param4:(Full) on log in is full
-void WorldSession::SendBfQueueInviteResponse(uint32 BattleId,uint32 ZoneId, bool CanQueue, bool Full)
+void WorldSession::SendBfQueueInviteResponse(uint32 BattleId, uint32 ZoneId, bool CanQueue, bool Full)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 11);
     data << uint32(BattleId);
@@ -102,7 +101,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     uint8 Accepted;
 
     recvData >> BattleId >> Accepted;
-    sLog->outDebug(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
+    TC_LOG_DEBUG(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;
@@ -120,7 +119,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
     uint8 Accepted;
 
     recvData >> BattleId >> Accepted;
-    sLog->outDebug(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
+    TC_LOG_DEBUG(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;
@@ -142,7 +141,7 @@ void WorldSession::HandleBfExitRequest(WorldPacket & recvData)
     uint32 BattleId;
 
     recvData >> BattleId;
-    sLog->outDebug(LOG_FILTER_GENERAL, "HandleBfExitRequest: BattleID:%u ", BattleId);
+    TC_LOG_DEBUG(LOG_FILTER_GENERAL, "HandleBfExitRequest: BattleID:%u ", BattleId);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;

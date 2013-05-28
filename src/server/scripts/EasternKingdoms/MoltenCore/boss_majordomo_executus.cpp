@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -94,7 +94,7 @@ class boss_majordomo : public CreatureScript
                 events.ScheduleEvent(EVENT_TELEPORT, 20000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (instance && instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
                 {
@@ -174,7 +174,7 @@ class boss_majordomo : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_START_RAGNAROS)
                 {

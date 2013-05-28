@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,34 +20,36 @@
 #ifndef _DYNTREE_H
 #define _DYNTREE_H
 
-#include <G3D/Matrix3.h>
-#include <G3D/Vector3.h>
-#include <G3D/AABox.h>
-#include <G3D/Ray.h>
-
-//#include "ModelInstance.h"
 #include "Define.h"
-//#include "GameObjectModel.h"
 
 namespace G3D
 {
+    class Ray;
     class Vector3;
 }
 
-using G3D::Vector3;
 class GameObjectModel;
+struct DynTreeImpl;
 
 class DynamicMapTree
 {
-    struct DynTreeImpl& impl;
+    DynTreeImpl *impl;
+
 public:
 
     DynamicMapTree();
     ~DynamicMapTree();
 
-    bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
-    bool getIntersectionTime(uint32 phasemask, const G3D::Ray& ray, const Vector3& endPos, float& maxDist) const;
-    bool getObjectHitPos(uint32 phasemask, const Vector3& pPos1, const Vector3& pPos2, Vector3& pResultHitPos, float pModifyDist) const;
+    bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2,
+                         float z2, uint32 phasemask) const;
+
+    bool getIntersectionTime(uint32 phasemask, const G3D::Ray& ray,
+                             const G3D::Vector3& endPos, float& maxDist) const;
+
+    bool getObjectHitPos(uint32 phasemask, const G3D::Vector3& pPos1,
+                         const G3D::Vector3& pPos2, G3D::Vector3& pResultHitPos,
+                         float pModifyDist) const;
+
     float getHeight(float x, float y, float z, float maxSearchDist, uint32 phasemask) const;
 
     void insert(const GameObjectModel&);

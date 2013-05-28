@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "halls_of_reflection.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO                                     = 0,
     SAY_SLAY                                      = 1,
@@ -34,7 +34,7 @@ enum Spells
     SPELL_IMPENDING_DESPAIR                       = 72426,
     SPELL_DEFILING_HORROR                         = 72435,
     SPELL_HOPELESSNESS                            = 72395,
-    H_SPELL_HOPELESSNESS                          = 72390, // TODO: not in dbc. Add in DB.
+    H_SPELL_HOPELESSNESS                          = 72390, /// @todo not in dbc. Add in DB.
 };
 
 enum Events
@@ -68,18 +68,18 @@ public:
             uiHopelessnessCount = 0;
 
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_FALRIC_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
-            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
         }
 
         void JustDied(Unit* /*killer*/)
@@ -87,7 +87,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, DONE);
+                instance->SetBossState(DATA_FALRIC_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -95,7 +95,7 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             // Return since we have no target
             if (!UpdateVictim())
@@ -122,7 +122,7 @@ public:
                     break;
                 case EVENT_DEFILING_HORROR:
                     DoCast(SPELL_DEFILING_HORROR);
-                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
                     break;
             }
 

@@ -1,0 +1,13 @@
+diff --git a/dep/recastnavigation/Detour/DetourNavMesh.h b/dep/recastnavigation/Detour/DetourNavMesh.h
+index 52d2c50..99e30c7 100644
+--- a/dep/recastnavigation/Detour/DetourNavMesh.h
++++ b/dep/recastnavigation/Detour/DetourNavMesh.h
+@@ -21,7 +21,7 @@
+ 
+ #include "DetourAlloc.h"
+ 
+-#ifdef WIN32
++#if defined(WIN32) && !defined(__MINGW32__)
+     typedef unsigned __int64   uint64;
+ #else
+ #include <stdint.h>

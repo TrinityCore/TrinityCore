@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -130,7 +130,7 @@ class mob_omrogg_heads : public CreatureScript
                 DeathYell = true;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!DeathYell)
                     return;
@@ -306,13 +306,13 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 pLeftHead->AI()->Talk(YELL_DIE_L);
 
-                CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, CAST_CRE(pRightHead)->AI())->DoDeathYell();
+                CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, pRightHead->ToCreature()->AI())->DoDeathYell();
 
                 if (instance)
                     instance->SetData(TYPE_OMROGG, DONE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (Delay_Timer <= diff)
                 {

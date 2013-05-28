@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -12,7 +12,7 @@
 # This to stop a few silly crashes that could have been avoided IF people
 # weren't doing some -O3 psychooptimizations etc.
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
   add_definitions(-fno-delete-null-pointer-checks)
 endif()
 
@@ -30,5 +30,6 @@ if( SERVERS )
 else()
   if( TOOLS )
     add_subdirectory(collision)
+    add_subdirectory(shared)
   endif()
 endif()

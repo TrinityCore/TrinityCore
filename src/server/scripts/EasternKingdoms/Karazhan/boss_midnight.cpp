@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,10 +32,11 @@ enum Midnight
     SAY_MIDNIGHT_KILL           = 0,
     SAY_APPEAR                  = 1,
     SAY_MOUNT                   = 2,
-    SAY_KILL                    = 3,
-    SAY_DISARMED                = 4,
-    SAY_DEATH                   = 5,
-    SAY_RANDOM                  = 6,
+
+    SAY_KILL                    = 0,
+    SAY_DISARMED                = 1,
+    SAY_DEATH                   = 2,
+    SAY_RANDOM                  = 3,
 
     SPELL_SHADOWCLEAVE          = 29832,
     SPELL_INTANGIBLE_PRESENCE   = 29833,
@@ -43,7 +44,7 @@ enum Midnight
 
     MOUNTED_DISPLAYID           = 16040,
 
-    //Attumen (TODO: Use the summoning spell instead of Creature id. It works, but is not convenient for us)
+    //Attumen (@todo Use the summoning spell instead of Creature id. It works, but is not convenient for us)
     SUMMON_ATTUMEN              = 15550,
 };
 
@@ -103,7 +104,7 @@ public:
                 midnight->Kill(midnight);
         }
 
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         void SpellHit(Unit* /*source*/, const SpellInfo* spell)
         {
@@ -152,7 +153,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -233,7 +234,7 @@ public:
     };
 };
 
-void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
+void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
 {
     if (ResetTimer)
     {

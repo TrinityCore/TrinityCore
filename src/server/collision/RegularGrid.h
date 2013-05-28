@@ -3,17 +3,11 @@
 
 
 #include <G3D/Ray.h>
-#include <G3D/AABox.h>
 #include <G3D/Table.h>
 #include <G3D/BoundsTrait.h>
 #include <G3D/PositionTrait.h>
 
 #include "Errors.h"
-
-using G3D::Vector2;
-using G3D::Vector3;
-using G3D::AABox;
-using G3D::Ray;
 
 template<class Node>
 struct NodeCreator{
@@ -54,7 +48,7 @@ public:
 
     void insert(const T& value)
     {
-        Vector3 pos;
+        G3D::Vector3 pos;
         PositionFunc::getPosition(value, pos);
         Node& node = getGridFor(pos.x, pos.y);
         node.insert(value);
@@ -104,18 +98,18 @@ public:
     {
         ASSERT(x < CELL_NUMBER && y < CELL_NUMBER);
         if (!nodes[x][y])
-            nodes[x][y] = NodeCreatorFunc::makeNode(x,y);
+            nodes[x][y] = NodeCreatorFunc::makeNode(x, y);
         return *nodes[x][y];
     }
 
     template<typename RayCallback>
-    void intersectRay(const Ray& ray, RayCallback& intersectCallback, float max_dist)
+    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float max_dist)
     {
         intersectRay(ray, intersectCallback, max_dist, ray.origin() + ray.direction() * max_dist);
     }
 
     template<typename RayCallback>
-    void intersectRay(const Ray& ray, RayCallback& intersectCallback, float& max_dist, const Vector3& end)
+    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& max_dist, const G3D::Vector3& end)
     {
         Cell cell = Cell::ComputeCell(ray.origin().x, ray.origin().y);
         if (!cell.isValid())
@@ -191,7 +185,7 @@ public:
     }
 
     template<typename IsectCallback>
-    void intersectPoint(const Vector3& point, IsectCallback& intersectCallback)
+    void intersectPoint(const G3D::Vector3& point, IsectCallback& intersectCallback)
     {
         Cell cell = Cell::ComputeCell(point.x, point.y);
         if (!cell.isValid())
@@ -202,7 +196,7 @@ public:
 
     // Optimized verson of intersectRay function for rays with vertical directions
     template<typename RayCallback>
-    void intersectZAllignedRay(const Ray& ray, RayCallback& intersectCallback, float& max_dist)
+    void intersectZAllignedRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& max_dist)
     {
         Cell cell = Cell::ComputeCell(ray.origin().x, ray.origin().y);
         if (!cell.isValid())

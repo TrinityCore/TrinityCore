@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -168,7 +168,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance)
                 return;
@@ -229,7 +229,7 @@ public:
                         if (me->HasAura(SPELL_CHANNEL))
                             me->RemoveAura(SPELL_CHANNEL);
 
-                        //TODO: start the post-event here
+                        /// @todo start the post-event here
                         instance->SetData(TYPE_MEDIVH, DONE);
                     }
                 } else Check_Timer -= diff;
@@ -331,7 +331,7 @@ public:
             uint32 entry = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-            sLog->outDebug(LOG_FILTER_TSCR, "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
 
             ++mRiftWaveCount;
 
@@ -342,7 +342,7 @@ public:
             } else DoSummonAtRift(entry);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance)
                 return;
@@ -356,7 +356,7 @@ public:
             if (me->IsNonMeleeSpellCasted(false))
                 return;
 
-            sLog->outDebug(LOG_FILTER_TSCR, "npc_time_rift: not casting anylonger, i need to die.");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_time_rift: not casting anylonger, i need to die.");
             me->setDeathState(JUST_DIED);
 
             if (instance->GetData(TYPE_RIFT) == IN_PROGRESS)
