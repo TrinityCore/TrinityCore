@@ -15,11 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "UpdateMask.h"
-#include "Opcodes.h"
-#include "World.h"
 #include "ObjectAccessor.h"
+#include "Unit.h"
+#include "SpellInfo.h"
+#include "Log.h"
 #include "AreaTrigger.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0)
