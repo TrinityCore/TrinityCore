@@ -267,8 +267,8 @@ public:
                 case NPC_WAVE_MAGE:
                 {
                     uint32 deadNpcs = 0;
-                    uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
-                    for (std::set<uint64>::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
+                    uint32 waveId = creature->AI()->GetData(0);
+                    for (std::set<uint64>::const_iterator itr = waveGuidList[waveId].begin(); itr != waveGuidList[waveId].end(); ++itr)
                     {
                         Creature* npc = instance->GetCreature(*itr);
                         if (!npc || !npc->isAlive())
@@ -277,7 +277,7 @@ public:
 
                     // because the current npc returns isAlive when OnUnitDeath happens
                     // we check if the number of dead npcs is equal to the list-1
-                    if (deadNpcs == waveGuidList[internalWaveId].size() - 1)
+                    if (deadNpcs == waveGuidList[waveId].size() - 1)
                     {
                         ++_waveCount;
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
@@ -322,7 +322,7 @@ public:
                         possibilityList.push_back(NPC_WAVE_MAGE);
 
                         // iterate each wave
-                        for (uint8 i = 0; i < 8; i++)
+                        for (uint8 i = 0; i < 8; ++i)
                         {
                             tempList = possibilityList;
 
