@@ -40,17 +40,17 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_mimiron_flame_spread' WHERE `
 UPDATE `creature_template` SET `ScriptName` = 'npc_mimiron_bomb_bot' WHERE `entry` = 33836;
 
 -- not-so-friendly fire + rocket strike targets
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (63041,65040,65346);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`) VALUES
-(13,63041,18,1,33836),
-(13,63041,18,1,34362),
-(13,63041,18,1,33855),
-(13,63041,18,1,34057),
-(13,63041,18,1,34147),
-(13,63041,18,1,0),
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 13 AND SourceEntry IN (63041,65040,65346);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 63041, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', NULL),
+(13, 1, 63041, 0, 0, 31, 0, 3, 34147, 0, 0, 0, 0, '', NULL),
+(13, 1, 63041, 0, 0, 31, 0, 3, 34057, 0, 0, 0, 0, '', NULL),
+(13, 1, 63041, 0, 0, 31, 0, 3, 33855, 0, 0, 0, 0, '', NULL),
+(13, 1, 63041, 0, 0, 31, 0, 3, 34362, 0, 0, 0, 0, '', NULL),
+(13, 1, 63041, 0, 0, 31, 0, 3, 33836, 0, 0, 0, 0, '', NULL),
 -- only players
-(13,65040,18,1,0),
-(13,65346,18,1,0);
+(13, 1, 65040, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', NULL),
+(13, 1, 65346, 0, 0, 31, 0, 4, 0, 0, 0, 0, 0, '', NULL);
 
 -- not-so-friendly fire
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10405,10406) AND `type`=18;

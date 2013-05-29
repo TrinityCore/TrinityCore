@@ -330,8 +330,8 @@ UPDATE `creature_template` SET `InhabitType`=4 WHERE  `entry`=16218;
 -- Add conditions for Stalagg's and Feugen's chain
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` IN (28111,28096);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(13, 7, 28111, 0, 0, 31, 0, 3, 15930, 0, 0, 0, '', ''),
-(13, 7, 28096, 0, 0, 31, 0, 3, 15929, 0, 0, 0, '', '');
+(13, 1, 28111, 0, 0, 31, 0, 3, 15930, 0, 0, 0, '', ''),
+(13, 1, 28096, 0, 0, 31, 0, 3, 15929, 0, 0, 0, '', '');
 
 -- Add spell difficulties
 DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (28783,28785,28796,28794,28798,28732,28371,28374,29317,28157,29998,28478,28479,29865,29204,29484,28741,28776,54123,29213,29212,41926,29107,28134,28135,28167);
