@@ -716,27 +716,27 @@ public:
             if (CheckTimer <= diff)
             {
                 Creature* Kalec = Unit::GetCreature(*me, KalecGUID);
-                if (!Kalec || (Kalec && !Kalec->isAlive()))
+                if (!Kalec || !Kalec->isAlive())
                 {
                     if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
                         Kalecgos->AI()->EnterEvadeMode();
-                        return;
+                    return;
                 }
+
                 if (HealthBelowPct(10) && !isEnraged)
                 {
                     if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
                         Kalecgos->AI()->DoAction(DO_ENRAGE);
                     DoAction(DO_ENRAGE);
                 }
+
                 Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID);
-                if (Kalecgos)
+                if (Kalecgos && !Kalecgos->isInCombat())
                 {
-                    if (!Kalecgos->isInCombat())
-                    {
-                        me->AI()->EnterEvadeMode();
-                        return;
-                    }
+                    me->AI()->EnterEvadeMode();
+                    return;
                 }
+
                 if (!isBanished && HealthBelowPct(1))
                 {
                     if (Kalecgos)
@@ -746,8 +746,7 @@ public:
                             me->DealDamage(me, me->GetHealth());
                             return;
                         }
-                        else
-                            DoAction(DO_BANISH);
+                        DoAction(DO_BANISH);
                     }
                     else
                     {
