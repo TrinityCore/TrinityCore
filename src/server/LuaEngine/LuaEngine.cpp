@@ -477,22 +477,34 @@ WorldObject* Eluna::CHECK_WORLDOBJECT(lua_State* L, int narg)
 
 Unit * Eluna::CHECK_UNIT(lua_State* L, int narg)
 {
-    return CHECK_WORLDOBJECT(L, narg)->ToUnit();
+    WorldObject* obj = CHECK_WORLDOBJECT(L, narg);
+    if(!obj)
+        return NULL;
+    return obj->ToUnit();
 }
 
 Player * Eluna::CHECK_PLAYER(lua_State* L, int narg)
 {
-    return CHECK_WORLDOBJECT(L, narg)->ToPlayer();
+    WorldObject* obj = CHECK_WORLDOBJECT(L, narg);
+    if(!obj)
+        return NULL;
+    return obj->ToPlayer();
 }
 
 Creature * Eluna::CHECK_CREATURE(lua_State* L, int narg)
 {
-    return CHECK_WORLDOBJECT(L, narg)->ToCreature();
+    WorldObject* obj = CHECK_WORLDOBJECT(L, narg);
+    if(!obj)
+        return NULL;
+    return obj->ToCreature();
 }
 
 GameObject* Eluna::CHECK_OBJECT(lua_State* L, int narg)
 {
-    return CHECK_WORLDOBJECT(L, narg)->ToGameObject();
+    WorldObject* obj = CHECK_WORLDOBJECT(L, narg);
+    if(!obj)
+        return NULL;
+    return obj->ToGameObject();
 }
 
 WorldPacket* Eluna::CHECK_PACKET(lua_State* L, int narg)
