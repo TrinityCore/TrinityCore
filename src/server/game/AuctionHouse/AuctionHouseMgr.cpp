@@ -321,6 +321,7 @@ void AuctionHouseMgr::LoadAuctions()
         if (!aItem->LoadFromDB(fields))
         {
             aItem->DeleteFromDB(trans);
+            aItem = NULL;
             delete aItem;
             continue;
         }
@@ -414,8 +415,8 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction, uint32 /*itemEntry
     sScriptMgr->OnAuctionRemove(this, auction);
 
     // we need to delete the entry, it is not referenced any more
-    delete auction;
     auction = NULL;
+    delete auction;
 
     return wasInMap;
 }
@@ -747,6 +748,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
         {
             // For some reason the record in the DB is broken (possibly corrupt
             //  faction info). Delete the object and move on.
+            auction = NULL;
             delete auction;
             continue;
         }
@@ -774,6 +776,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
         CharacterDatabase.CommitTransaction(trans);
 
         // Release memory
+        auction = NULL;
         delete auction;
         ++expirecount;
 
