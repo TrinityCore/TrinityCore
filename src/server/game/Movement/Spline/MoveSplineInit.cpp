@@ -175,13 +175,8 @@ namespace Movement
     Vector3 TransportPathTransform::operator()(Vector3 input)
     {
         if (_transformForTransport)
-        {
             if (TransportBase* transport = _owner->GetDirectTransport())
-            {
-                float unused = 0.0f; // need reference
-                transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
-            }
-        }
+                transport->CalculatePassengerOffset(input.x, input.y, input.z);
 
         return input;
     }
