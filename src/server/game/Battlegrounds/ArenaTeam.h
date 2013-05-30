@@ -141,6 +141,8 @@ class ArenaTeam
 
         size_t GetMembersSize() const         { return Members.size(); }
         bool   Empty() const                  { return Members.empty(); }
+        MemberList::iterator m_membersBegin() { return Members.begin(); }
+        MemberList::iterator m_membersEnd()   { return Members.end(); }
         bool IsMember(uint64 guid) const;
 
         ArenaTeamMember* GetMember(uint64 guid);

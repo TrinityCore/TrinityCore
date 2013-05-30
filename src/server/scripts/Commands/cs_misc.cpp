@@ -1717,12 +1717,6 @@ public:
         {
             Field* fields = result3->Fetch();
             xptotal       = fields[0].GetUInt32();
-            case RACE_GOBLIN:
-                raceStr = "Goblin";
-                break;
-            case RACE_WORGEN:
-                raceStr = "Worgen";
-                break;
         }
 
         // Can be used to query data from Characters database
