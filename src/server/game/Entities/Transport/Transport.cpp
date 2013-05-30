@@ -691,30 +691,34 @@ void Transport::UpdatePassengerPositions()
 
         float x, y, z, o;
         npc->m_movementInfo.t_pos.GetPosition(x, y, z, o);
-        CalculatePassengerPosition(x, y, z, o);
+        CalculatePassengerPosition(x, y, z, &o);
         GetMap()->CreatureRelocation(npc, x, y, z, o, false);
         npc->GetTransportHomePosition(x, y, z, o);
-        CalculatePassengerPosition(x, y, z, o);
+        CalculatePassengerPosition(x, y, z, &o);
         npc->SetHomePosition(x, y, z, o);
     }
 }
 
-void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o) const
+void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const
 {
-    float inx = x, iny = y, inz = z, ino = o;
-    o = GetOrientation() + ino;
+    float inx = x, iny = y, inz = z;
+    if (o)
+        *o = Position::NormalizeOrientation(GetOrientation() + *o);
+
     x = GetPositionX() + inx * std::cos(GetOrientation()) - iny * std::sin(GetOrientation());
     y = GetPositionY() + iny * std::cos(GetOrientation()) + inx * std::sin(GetOrientation());
     z = GetPositionZ() + inz;
 }
 
-void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o) const
+void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const
 {
-    o -= GetOrientation();
+    if (o)
+        *o = Position::NormalizeOrientation(*o - GetOrientation());
+
     z -= GetPositionZ();
     y -= GetPositionY();    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
     x -= GetPositionX();    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
     float inx = x, iny = y;
-    y = (iny - inx * tan(GetOrientation())) / (cos(GetOrientation()) + std::sin(GetOrientation()) * tan(GetOrientation()));
-    x = (inx + iny * tan(GetOrientation())) / (cos(GetOrientation()) + std::sin(GetOrientation()) * tan(GetOrientation()));
+    y = (iny - inx * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
+    x = (inx + iny * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
 }

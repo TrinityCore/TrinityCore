@@ -1481,6 +1481,7 @@ struct WGWorkshop
 
         bf = _bf;
         workshopId = _workshopId;
+        teamControl = BATTLEFIELD_WG_TEAM_NEUTRAL;
     }
 
     void GiveControlTo(uint8 team, bool init /* for first call in setup*/)

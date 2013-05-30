@@ -18,85 +18,50 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
-#include "halls_of_reflection.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "halls_of_reflection.h"
 
-#define MAX_ENCOUNTER 3
+Position const JainaSpawnPos                = {5236.659f, 1929.894f, 707.7781f, 0.8726646f}; // Jaina Spawn Position
+Position const SylvanasSpawnPos             = {5236.667f, 1929.906f, 707.7781f, 0.8377581f}; // Sylvanas Spawn Position
+Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 3.944444f}; // Frostsworn General
 
-/* Halls of Reflection encounters:
-0- Falric
-1- Marwyn
-2- The Lich King
-*/
-
-enum eEnum
+Position const SpawnPos[] =
 {
-    ENCOUNTER_WAVE_MERCENARY                      = 6,
-    ENCOUNTER_WAVE_FOOTMAN                        = 10,
-    ENCOUNTER_WAVE_RIFLEMAN                       = 6,
-    ENCOUNTER_WAVE_PRIEST                         = 6,
-    ENCOUNTER_WAVE_MAGE                           = 6,
-};
-
-enum Events
-{
-    EVENT_NONE,
-    EVENT_NEXT_WAVE,
-    EVENT_START_LICH_KING,
-};
-
-static Position PriestSpawnPos[ENCOUNTER_WAVE_PRIEST] =
-{
-    {5277.74f, 2016.88f, 707.778f, 5.96903f},
-    {5295.88f, 2040.34f, 707.778f, 5.07891f},
-    {5320.37f, 1980.13f, 707.778f, 2.00713f},
-    {5280.51f, 1997.84f, 707.778f, 0.296706f},
-    {5302.45f, 2042.22f, 707.778f, 4.90438f},
-    {5306.57f, 1977.47f, 707.778f, 1.50098f},
-};
-
-static Position MageSpawnPos[ENCOUNTER_WAVE_MAGE] =
-{
-    {5312.75f, 2037.12f, 707.778f, 4.59022f},
-    {5309.58f, 2042.67f, 707.778f, 4.69494f},
-    {5275.08f, 2008.72f, 707.778f, 6.21337f},
-    {5279.65f, 2004.66f, 707.778f, 0.069813f},
-    {5275.48f, 2001.14f, 707.778f, 0.174533f},
-    {5316.7f, 2041.55f, 707.778f, 4.50295f},
-};
-
-static Position MercenarySpawnPos[ENCOUNTER_WAVE_MERCENARY] =
-{
-    {5302.25f, 1972.41f, 707.778f, 1.37881f},
-    {5311.03f, 1972.23f, 707.778f, 1.64061f},
-    {5277.36f, 1993.23f, 707.778f, 0.401426f},
-    {5318.7f, 2036.11f, 707.778f, 4.2237f},
-    {5335.72f, 1996.86f, 707.778f, 2.74017f},
-    {5299.43f, 1979.01f, 707.778f, 1.23918f},
-};
-
-static Position FootmenSpawnPos[ENCOUNTER_WAVE_FOOTMAN] =
-{
-    {5306.06f, 2037, 707.778f, 4.81711f},
-    {5344.15f, 2007.17f, 707.778f, 3.15905f},
-    {5337.83f, 2010.06f, 707.778f, 3.22886f},
-    {5343.29f, 1999.38f, 707.778f, 2.9147f},
-    {5340.84f, 1992.46f, 707.778f, 2.75762f},
-    {5325.07f, 1977.6f, 707.778f, 2.07694f},
-    {5336.6f, 2017.28f, 707.778f, 3.47321f},
-    {5313.82f, 1978.15f, 707.778f, 1.74533f},
-    {5280.63f, 2012.16f, 707.778f, 6.05629f},
-    {5322.96f, 2040.29f, 707.778f, 4.34587f},
-};
-
-static Position RiflemanSpawnPos[ENCOUNTER_WAVE_RIFLEMAN] =
-{
-    {5343.47f, 2015.95f, 707.778f, 3.49066f},
-    {5337.86f, 2003.4f, 707.778f, 2.98451f},
-    {5319.16f, 1974, 707.778f, 1.91986f},
-    {5299.25f, 2036, 707.778f, 5.02655f},
-    {5295.64f, 1973.76f, 707.778f, 1.18682f},
-    {5282.9f, 2019.6f, 707.778f, 5.88176f},
+    {5309.577f, 2042.668f, 707.7781f, 4.694936f},
+    {5295.885f, 2040.342f, 707.7781f, 5.078908f},
+    {5340.836f, 1992.458f, 707.7781f, 2.757620f},
+    {5325.072f, 1977.597f, 707.7781f, 2.076942f},
+    {5277.365f, 1993.229f, 707.7781f, 0.401426f},
+    {5275.479f, 2001.135f, 707.7781f, 0.174533f},
+    {5302.448f, 2042.222f, 707.7781f, 4.904375f},
+    {5343.293f, 1999.384f, 707.7781f, 2.914700f},
+    {5295.635f, 1973.757f, 707.7781f, 1.186824f},
+    {5311.031f, 1972.229f, 707.7781f, 1.640610f},
+    {5275.076f, 2008.724f, 707.7781f, 6.213372f},
+    {5316.701f, 2041.550f, 707.7781f, 4.502949f},
+    {5344.150f, 2007.168f, 707.7781f, 3.159046f},
+    {5319.158f, 1973.998f, 707.7781f, 1.919862f},
+    {5302.247f, 1972.415f, 707.7781f, 1.378810f},
+    {5277.739f, 2016.882f, 707.7781f, 5.969026f},
+    {5322.964f, 2040.288f, 707.7781f, 4.345870f},
+    {5343.467f, 2015.951f, 707.7781f, 3.490659f},
+    {5313.820f, 1978.146f, 707.7781f, 1.745329f},
+    {5279.649f, 2004.656f, 707.7781f, 0.069814f},
+    {5306.057f, 2037.002f, 707.7781f, 4.817109f},
+    {5337.865f, 2003.403f, 707.7781f, 2.984513f},
+    {5299.434f, 1979.009f, 707.7781f, 1.239184f},
+    {5312.752f, 2037.122f, 707.7781f, 4.590216f},
+    {5335.724f, 1996.859f, 707.7781f, 2.740167f},
+    {5280.632f, 2012.156f, 707.7781f, 6.056293f},
+    {5320.369f, 1980.125f, 707.7781f, 2.007129f},
+    {5306.572f, 1977.474f, 707.7781f, 1.500983f},
+    {5336.599f, 2017.278f, 707.7781f, 3.473205f},
+    {5282.897f, 2019.597f, 707.7781f, 5.881760f},
+    {5318.704f, 2036.108f, 707.7781f, 4.223697f},
+    {5280.513f, 1997.842f, 707.7781f, 0.296706f},
+    {5337.833f, 2010.057f, 707.7781f, 3.228859f},
+    {5299.250f, 2035.998f, 707.7781f, 5.026548f},
 };
 
 class instance_halls_of_reflection : public InstanceMapScript
@@ -104,107 +69,107 @@ class instance_halls_of_reflection : public InstanceMapScript
 public:
     instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection", 668) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
-    {
-        return new instance_halls_of_reflection_InstanceMapScript(map);
-    }
-
     struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) {};
-
-        uint64 uiFalric;
-        uint64 uiMarwyn;
-        uint64 uiLichKingEvent;
-        uint64 uiJainaPart1;
-        uint64 uiSylvanasPart1;
-
-        uint64 uiFrostmourne;
-        uint64 uiFrostmourneAltar;
-        uint64 uiArthasDoor;
-        uint64 uiFrontDoor;
-
-        uint32 uiEncounter[MAX_ENCOUNTER];
-        uint32 uiTeamInInstance;
-        uint32 uiWaveCount;
-        bool bIntroDone;
-
-        EventMap events;
+        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         void Initialize()
         {
+            SetBossNumber(MAX_ENCOUNTER);
             events.Reset();
+            _falricGUID = 0;
+            _marwynGUID = 0;
+            _jainaOrSylvanasPart1GUID = 0;
+            _frostwornGeneralGUID = 0;
+            _frostmourneGUID = 0;
+            _entranceDoorGUID = 0;
+            _frostwornDoorGUID = 0;
+            _arthasDoorGUID = 0;
+            _teamInInstance = 0;
+            _waveCount = 0;
+            _introEvent = NOT_STARTED;
+            _frostwornGeneral = NOT_STARTED;
+        }
 
-            uiFalric = 0;
-            uiMarwyn = 0;
-            uiLichKingEvent = 0;
-            uiJainaPart1 = 0;
-            uiSylvanasPart1 = 0;
-
-            uiFrostmourne = 0;
-            uiFrostmourneAltar = 0;
-            uiArthasDoor = 0;
-            uiFrontDoor = 0;
-            uiTeamInInstance = 0;
-            uiWaveCount = 0;
-            bIntroDone = false;
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                uiEncounter[i] = NOT_STARTED;
+        void OnPlayerEnter(Player* player)
+        {
+            if (!_teamInInstance)
+                _teamInInstance = player->GetTeam();
         }
 
         void OnCreatureCreate(Creature* creature)
         {
-            Map::PlayerList const &players = instance->GetPlayers();
+            Map::PlayerList const& players = instance->GetPlayers();
             if (!players.isEmpty())
                 if (Player* player = players.begin()->getSource())
-                    uiTeamInInstance = player->GetTeam();
+                    _teamInInstance = player->GetTeam();
 
             switch (creature->GetEntry())
             {
+                case NPC_JAINA_PART1:
+                case NPC_SYLVANAS_PART1:
+                    _jainaOrSylvanasPart1GUID = creature->GetGUID();
+                    break;
                 case NPC_FALRIC:
-                    uiFalric = creature->GetGUID();
+                    _falricGUID = creature->GetGUID();
                     break;
                 case NPC_MARWYN:
-                    uiMarwyn = creature->GetGUID();
+                    _marwynGUID = creature->GetGUID();
                     break;
-                case NPC_LICH_KING_EVENT:
-                    uiLichKingEvent = creature->GetGUID();
+                case NPC_FROSTWORN_GENERAL:
+                    _frostwornGeneralGUID = creature->GetGUID();
+                    if (GetBossState(DATA_MARWYN_EVENT) == DONE)
+                        if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
+                            general->SetPhaseMask(1, true);
                     break;
-                case NPC_JAINA_PART1:
-                    uiJainaPart1 = creature->GetGUID();
+            }
+        }
+
+        void OnCreatureRemove(Creature* creature)
+        {
+            switch (creature->GetEntry())
+            {
+                case NPC_WAVE_MERCENARY:
+                case NPC_WAVE_FOOTMAN:
+                case NPC_WAVE_RIFLEMAN:
+                case NPC_WAVE_PRIEST:
+                case NPC_WAVE_MAGE:
+                {
+                    uint32 internalWaveId = creature->AI()->GetData(0);
+                    waveGuidList[internalWaveId].erase(creature->GetGUID());
                     break;
-                case NPC_SYLVANAS_PART1:
-                    uiSylvanasPart1 = creature->GetGUID();
-                    break;
+                }
             }
         }
 
         void OnGameObjectCreate(GameObject* go)
         {
-            /// @todo init state depending on encounters
             switch (go->GetEntry())
             {
                 case GO_FROSTMOURNE:
-                    uiFrostmourne = go->GetGUID();
+                    _frostmourneGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     HandleGameObject(0, false, go);
+                    if (GetData(DATA_INTRO_EVENT) == DONE)
+                        go->SetPhaseMask(2, true);
                     break;
-                case GO_FROSTMOURNE_ALTAR:
-                    uiFrostmourneAltar = go->GetGUID();
+                case GO_ENTRANCE_DOOR:
+                    _entranceDoorGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     HandleGameObject(0, true, go);
                     break;
-                case GO_FRONT_DOOR:
-                    uiFrontDoor = go->GetGUID();
+                case GO_FROSTWORN_DOOR:
+                    _frostwornDoorGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, true, go);
+                    if (GetBossState(DATA_MARWYN_EVENT) == DONE)
+                        HandleGameObject(0, true, go);
+                    else
+                        HandleGameObject(0, false, go);
                     break;
                 case GO_ARTHAS_DOOR:
-                    uiArthasDoor = go->GetGUID();
+                    _arthasDoorGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-
-                    if (uiEncounter[1] == DONE)
+                    if (GetBossState(DATA_FROSWORN_EVENT) == DONE)
                         HandleGameObject(0, true, go);
                     else
                         HandleGameObject(0, false, go);
@@ -212,195 +177,114 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data)
+        void FillInitialWorldStates(WorldPacket& data)
         {
-            if (type == DATA_WAVE_COUNT && data == SPECIAL)
-            {
-                bIntroDone = true;
-                events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                return;
-            }
+            data << uint32(WORLD_STATE_HOR_WAVES_ENABLED) << uint32(0);
+            data << uint32(WORLD_STATE_HOR_WAVE_COUNT) << uint32(0);
+        }
 
-            if (uiWaveCount && data == NOT_STARTED)
-                DoWipe();
+        bool SetBossState(uint32 type, EncounterState state)
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
 
             switch (type)
             {
                 case DATA_FALRIC_EVENT:
-                    uiEncounter[0] = data;
-                    if (data == DONE)
+                    if (state == DONE)
+                    {
+                        ++_waveCount;
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+                    }
                     break;
                 case DATA_MARWYN_EVENT:
-                    uiEncounter[1] = data;
-                    if (data == DONE)
-                        HandleGameObject(uiArthasDoor, true);
+                    if (state == DONE)
+                    {
+                        HandleGameObject(_entranceDoorGUID, true);
+                        HandleGameObject(_frostwornDoorGUID, true);
+                        if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
+                            general->SetPhaseMask(1, true);
+                    }
                     break;
                 case DATA_LICHKING_EVENT:
-                    uiEncounter[2] = data;
+                    break;
+                default:
                     break;
             }
 
-            if (data == DONE)
-                SaveToDB();
+            return true;
         }
 
-        uint32 GetData(uint32 type) const
+        void SetData(uint32 type, uint32 data)
         {
             switch (type)
             {
-                case DATA_FALRIC_EVENT:         return uiEncounter[0];
-                case DATA_MARWYN_EVENT:         return uiEncounter[1];
-                case DATA_LICHKING_EVENT:       return uiEncounter[2];
-                case DATA_WAVE_COUNT:           return uiWaveCount;
-                case DATA_TEAM_IN_INSTANCE:     return uiTeamInInstance;
+                case DATA_INTRO_EVENT:
+                    if (data == IN_PROGRESS)
+                    {
+                        if (!_introEvent)
+                        {
+                            if (_teamInInstance == ALLIANCE)
+                                instance->SummonCreature(NPC_JAINA_PART1, JainaSpawnPos);
+                            else
+                                instance->SummonCreature(NPC_SYLVANAS_PART1, SylvanasSpawnPos);
+                        }
+                    }
+                    _introEvent = data;
+                    break;
+                case DATA_WAVE_COUNT:
+                    if (_waveCount && data == NOT_STARTED)
+                        ProcessEvent(NULL, EVENT_DO_WIPE);
+                    break;
+                case DATA_FROSWORN_EVENT:
+                    if (data == DONE)
+                    {
+                        HandleGameObject(_arthasDoorGUID, true);
+                        // spawn Jaina part 2
+                        // spawn LK part 2
+                    }
+                    _frostwornGeneral = data;
+                    break;
             }
 
-            return 0;
+            SaveToDB();
         }
 
-        uint64 GetData64(uint32 identifier) const
+
+        // wave scheduling,checked when wave npcs die
+        void OnUnitDeath(Unit* unit)
         {
-            switch (identifier)
-            {
-                case DATA_FALRIC:               return uiFalric;
-                case DATA_MARWYN:               return uiMarwyn;
-                case DATA_LICHKING:             return uiLichKingEvent;
-                case DATA_FROSTMOURNE:          return uiFrostmourne;
-            }
-
-            return 0;
-        }
-
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "H R 1 " << uiEncounter[0] << ' ' << uiEncounter[1] << ' ' << uiEncounter[2];
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* in)
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
+            Creature* creature = unit->ToCreature();
+            if (!creature)
                 return;
-            }
 
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 version;
-            uint16 data0, data1, data2;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> version >> data0 >> data1 >> data2;
-
-            if (dataHead1 == 'H' && dataHead2 == 'R')
+            switch (creature->GetEntry())
             {
-                uiEncounter[0] = data0;
-                uiEncounter[1] = data1;
-                uiEncounter[2] = data2;
+                case NPC_WAVE_MERCENARY:
+                case NPC_WAVE_FOOTMAN:
+                case NPC_WAVE_RIFLEMAN:
+                case NPC_WAVE_PRIEST:
+                case NPC_WAVE_MAGE:
+                {
+                    uint32 deadNpcs = 0;
+                    uint32 waveId = creature->AI()->GetData(0);
+                    for (std::set<uint64>::const_iterator itr = waveGuidList[waveId].begin(); itr != waveGuidList[waveId].end(); ++itr)
+                    {
+                        Creature* npc = instance->GetCreature(*itr);
+                        if (!npc || !npc->isAlive())
+                            ++deadNpcs;
+                    }
 
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (uiEncounter[i] == IN_PROGRESS)
-                        uiEncounter[i] = NOT_STARTED;
-
-            } else OUT_LOAD_INST_DATA_FAIL;
-
-            if (uiEncounter[0] == DONE || uiEncounter[1] == DONE)
-                bIntroDone = true;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        void AddWave()
-        {
-            DoUpdateWorldState(WORLD_STATE_HOR, 1);
-            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
-
-            switch (uiWaveCount)
-            {
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    if (Creature* pFalric = instance->GetCreature(uiFalric))
-                        SpawnWave(pFalric);
-                    break;
-                case 5:
-                    if (GetData(DATA_FALRIC_EVENT) == DONE)
+                    // because the current npc returns isAlive when OnUnitDeath happens
+                    // we check if the number of dead npcs is equal to the list-1
+                    if (deadNpcs == waveGuidList[waveId].size() - 1)
+                    {
+                        ++_waveCount;
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    else if (Creature* pFalric = instance->GetCreature(uiFalric))
-                        if (pFalric->AI())
-                            pFalric->AI()->DoAction(ACTION_ENTER_COMBAT);
+                    }
                     break;
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                    if (Creature* pMarwyn  = instance->GetCreature(uiMarwyn))
-                        SpawnWave(pMarwyn);
-                    break;
-                case 10:
-                    if (GetData(DATA_MARWYN_EVENT) != DONE) // wave should not have been started if DONE. Check anyway to avoid bug exploit!
-                        if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
-                            if (pMarwyn->AI())
-                                pMarwyn->AI()->DoAction(ACTION_ENTER_COMBAT);
-                    break;
+                }
             }
-        }
-
-        // Wipe has been detected. Perform cleanup and reset.
-        void DoWipe()
-        {
-            uiWaveCount = 0;
-            events.Reset();
-            DoUpdateWorldState(WORLD_STATE_HOR, 1);
-            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
-            HandleGameObject(uiFrontDoor, true);
-
-            /// @todo
-            // in case of wipe, the event is normally restarted by jumping into the center of the room.
-            // As I can't find a trigger area there, just respawn Jaina/Sylvanas so the event may be restarted.
-            if (Creature* pJaina = instance->GetCreature(uiJainaPart1))
-                pJaina->Respawn();
-            if (Creature* pSylvanas = instance->GetCreature(uiSylvanasPart1))
-                pSylvanas->Respawn();
-
-            if (Creature* pFalric = instance->GetCreature(uiFalric))
-                pFalric->SetVisible(false);
-            if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
-                pMarwyn->SetVisible(false);
-        }
-
-        // spawn a wave on behalf of the summoner.
-        void SpawnWave(Creature* summoner)
-        {
-            uint32 index;
-
-            summoner->SetVisible(true);
-
-            /// @todo do composition at random. # of spawn also depends on uiWaveCount
-            // As of now, it is just one of each.
-            index = urand(0, ENCOUNTER_WAVE_MERCENARY-1);
-            summoner->SummonCreature(NPC_WAVE_MERCENARY, MercenarySpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
-
-            index = urand(0, ENCOUNTER_WAVE_FOOTMAN-1);
-            summoner->SummonCreature(NPC_WAVE_FOOTMAN, FootmenSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
-
-            index = urand(0, ENCOUNTER_WAVE_RIFLEMAN-1);
-            summoner->SummonCreature(NPC_WAVE_RIFLEMAN, RiflemanSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
-
-            index = urand(0, ENCOUNTER_WAVE_PRIEST-1);
-            summoner->SummonCreature(NPC_WAVE_PRIEST, PriestSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
-
-            index = urand(0, ENCOUNTER_WAVE_MAGE-1);
-            summoner->SummonCreature(NPC_WAVE_MAGE, MageSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
         }
 
         void Update(uint32 diff)
@@ -413,16 +297,241 @@ public:
             switch (events.ExecuteEvent())
             {
                 case EVENT_NEXT_WAVE:
-                    uiWaveCount++;
-                    AddWave();
-                    break;
-                case EVENT_START_LICH_KING:
-                    /// @todo
+                    ProcessEvent(NULL, EVENT_ADD_WAVE);
                     break;
             }
         }
+
+        void ProcessEvent(WorldObject* /*go*/, uint32 eventId)
+        {
+            switch (eventId)
+            {
+                // spawning all wave npcs at once
+                case EVENT_SPAWN_WAVES:
+                    _waveCount = 1;
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    {
+                        std::list<uint32> possibilityList, tempList;
+                        uint32 posIndex = 0;
+
+                        possibilityList.push_back(NPC_WAVE_MERCENARY);
+                        possibilityList.push_back(NPC_WAVE_FOOTMAN);
+                        possibilityList.push_back(NPC_WAVE_RIFLEMAN);
+                        possibilityList.push_back(NPC_WAVE_PRIEST);
+                        possibilityList.push_back(NPC_WAVE_MAGE);
+
+                        // iterate each wave
+                        for (uint8 i = 0; i < 8; ++i)
+                        {
+                            tempList = possibilityList;
+
+                            uint64 bossGuid = i <= 3 ? _falricGUID : _marwynGUID;
+
+                            if (!i)
+                                Trinity::Containers::RandomResizeList(tempList, 3);
+                            else if (i < 6 && i != 3)
+                                Trinity::Containers::RandomResizeList(tempList, 4);
+
+                            for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
+                            {
+                                if (Creature* boss = instance->GetCreature(bossGuid))
+                                {
+                                    if (Creature* temp = boss->SummonCreature(*itr, SpawnPos[posIndex], TEMPSUMMON_DEAD_DESPAWN))
+                                    {
+                                        temp->AI()->SetData(0, i);
+                                        waveGuidList[i].insert(temp->GetGUID());
+                                    }
+                                }
+
+                                ++posIndex;
+                            }
+                        }
+                    }
+                    events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                    break;
+                case EVENT_ADD_WAVE:
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    HandleGameObject(_entranceDoorGUID, false);
+
+                    if (_waveCount % 5)
+                    {
+                        uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
+                        for (std::set<uint64>::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
+                        {
+                            if (Creature* temp = instance->GetCreature(*itr))
+                            {
+                                temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, true);
+                                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
+                                temp->AI()->DoZoneInCombat();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        uint32 bossIndex = (_waveCount / 5) - 1;
+                        if (GetBossState(DATA_FALRIC_EVENT + bossIndex) != DONE)
+                        {
+                            if (Creature* boss = instance->GetCreature(bossIndex ? _marwynGUID : _falricGUID))
+                                if (boss->AI())
+                                    boss->AI()->DoAction(ACTION_ENTER_COMBAT);
+                        }
+                        else if (_waveCount != 10)
+                        {
+                            ++_waveCount;
+                            events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                        }
+                    }
+                    break;
+                case EVENT_DO_WIPE:
+                    _waveCount = 0;
+                    events.Reset();
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    HandleGameObject(_entranceDoorGUID, true);
+
+                    if (Creature* falric = instance->GetCreature(_falricGUID))
+                        falric->SetVisible(false);
+                    if (Creature* marwyn = instance->GetCreature(_marwynGUID))
+                        marwyn->SetVisible(false);
+
+                    //despawn wave npcs
+                    for (uint8 i = 0; i < 8; ++i)
+                    {
+                        for (std::set<uint64>::const_iterator itr = waveGuidList[i].begin(); itr != waveGuidList[i].end(); ++itr)
+                            if (Creature* creature = instance->GetCreature(*itr))
+                                creature->DespawnOrUnsummon(1);
+
+                        waveGuidList[i].clear();
+                    }
+                    break;
+            }
+        }
+
+        uint32 GetData(uint32 type) const
+        {
+            switch (type)
+            {
+                case DATA_WAVE_COUNT:
+                    return _waveCount;
+                case DATA_TEAM_IN_INSTANCE:
+                    return _teamInInstance;
+                case DATA_INTRO_EVENT:
+                    return _introEvent;
+                case DATA_FROSWORN_EVENT:
+                    return _frostwornGeneral;
+                default:
+                    break;
+            }
+
+            return 0;
+        }
+
+        uint64 GetData64(uint32 type) const
+        {
+            switch (type)
+            {
+                case DATA_FALRIC_EVENT:
+                    return _falricGUID;
+                case DATA_MARWYN_EVENT:
+                    return _marwynGUID;
+                case DATA_FROSWORN_EVENT:
+                    return _frostwornGeneralGUID;
+                case DATA_FROSTWORN_DOOR:
+                    return _frostwornDoorGUID;
+                case DATA_FROSTMOURNE:
+                    return _frostmourneGUID;
+                default:
+                    break;
+            }
+
+            return 0;
+        }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << "H R " << GetBossSaveData() << _introEvent << ' ' << _frostwornGeneral;
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+        }
+
+        void Load(char const* in)
+        {
+            if (!in)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(in);
+
+            char dataHead1, dataHead2;
+
+            std::istringstream loadStream(in);
+            loadStream >> dataHead1 >> dataHead2;
+
+            if (dataHead1 == 'H' && dataHead2 == 'R')
+            {
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                {
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+
+                    SetBossState(i, EncounterState(tmpState));
+                }
+
+                uint32 temp = 0;
+                loadStream >> temp;
+                if (temp == DONE)
+                    SetData(DATA_INTRO_EVENT, DONE);
+                else
+                    SetData(DATA_INTRO_EVENT, NOT_STARTED);
+
+                loadStream >> temp;
+                if (temp == DONE)
+                    SetData(DATA_FROSWORN_EVENT, DONE);
+                else
+                    SetData(DATA_FROSWORN_EVENT, NOT_STARTED);
+            }
+            else
+                OUT_LOAD_INST_DATA_FAIL;
+
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
+
+    private:
+        uint64 _falricGUID;
+        uint64 _marwynGUID;
+        uint64 _jainaOrSylvanasPart1GUID;
+        uint64 _frostwornGeneralGUID;
+
+        uint64 _frostmourneGUID;
+        uint64 _entranceDoorGUID;
+        uint64 _frostwornDoorGUID;
+        uint64 _arthasDoorGUID;
+        uint64 _escapeDoorGUID;
+
+        uint32 _teamInInstance;
+        uint32 _waveCount;
+        uint32 _introEvent;
+        uint32 _frostwornGeneral;
+
+        EventMap events;
+
+        std::set<uint64> waveGuidList[8];
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    {
+        return new instance_halls_of_reflection_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_halls_of_reflection()

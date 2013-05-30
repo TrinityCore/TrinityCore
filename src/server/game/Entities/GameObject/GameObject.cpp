@@ -87,7 +87,10 @@ bool GameObject::AIM_Initialize()
 
 std::string GameObject::GetAIName() const
 {
-    return sObjectMgr->GetGameObjectTemplate(GetEntry())->AIName;
+    if (GameObjectTemplate const* got = sObjectMgr->GetGameObjectTemplate(GetEntry()))
+        return got->AIName;
+
+    return "";
 }
 
 void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)

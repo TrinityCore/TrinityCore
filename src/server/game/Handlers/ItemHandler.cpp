@@ -891,14 +891,14 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID)
+void WorldSession::SendEnchantmentLog(uint64 target, uint64 caster, uint32 itemId, uint32 enchantId)
 {
-    WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+4+4+1));     // last check 4.3.4
-    data.appendPackGUID(Target);
-    data.appendPackGUID(Caster);
-    data << uint32(ItemID);
-    data << uint32(SpellID);
-    SendPacket(&data);
+    WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+4+4));
+    data.appendPackGUID(target);
+    data.appendPackGUID(caster);
+    data << uint32(itemId);
+    data << uint32(enchantId);
+    GetPlayer()->SendMessageToSet(&data, true);
 }
 
 void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration)
@@ -1201,10 +1201,12 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     {
         if (GemEnchants[i])
         {
-            uint32 gemCount = 1;
-            itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0);
+            itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0, _player->GetGUID());
             if (Item* guidItem = _player->GetItemByGuid(gem_guids[i]))
+            {
+                uint32 gemCount = 1;
                 _player->DestroyItemCount(guidItem, gemCount, true);
+            }
         }
     }
 
@@ -1215,7 +1217,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...
     {
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, false);
-        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->socketBonus : 0), 0, 0);
+        itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetTemplate()->socketBonus : 0), 0, 0, _player->GetGUID());
         _player->ApplyEnchantment(itemTarget, BONUS_ENCHANTMENT_SLOT, true);
         //it is not displayed, client has an inbuilt system to determine if the bonus is activated
     }
@@ -1224,6 +1226,8 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     _player->RemoveTradeableItem(itemTarget);
     itemTarget->ClearSoulboundTradeable(_player);           // clear tradeable flag
+
+    itemTarget->SendUpdateSockets();
 }
 
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)

@@ -85,7 +85,8 @@ namespace VMAP
 
     struct AreaInfo
     {
-        AreaInfo(): result(false), ground_Z(-G3D::inf()) {}
+        AreaInfo(): result(false), ground_Z(-G3D::inf()), flags(0), adtId(0),
+            rootId(0), groupId(0) {}
         bool result;
         float ground_Z;
         uint32 flags;
