@@ -1640,6 +1640,37 @@ class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public S
         }
 };
 
+class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
+{
+    public:
+        spell_q12847_summon_soul_moveto_bunny() : SpellScriptLoader("spell_q12847_summon_soul_moveto_bunny") { }
+
+        class spell_q12847_summon_soul_moveto_bunny_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12847_summon_soul_moveto_bunny_SpellScript);
+
+            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
+            {
+                // Adjust effect summon position
+                WorldLocation summonPos = *GetExplTargetDest();
+                Position offset = { 0.0f, 0.0f, 2.5f, 0.0f };
+                summonPos.RelocateOffset(offset);
+                SetExplTargetDest(summonPos);
+                GetHitDest()->RelocateOffset(offset);
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_q12847_summon_soul_moveto_bunny_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_q12847_summon_soul_moveto_bunny_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1680,4 +1711,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12527_zuldrak_rat();
     new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy();
     new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon();
+    new spell_q12847_summon_soul_moveto_bunny();
 }

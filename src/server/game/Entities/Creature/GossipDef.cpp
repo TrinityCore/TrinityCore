@@ -184,7 +184,9 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
         data << item.BoxMessage;                        // accept text (related to money) pop up box, 2.0.3
     }
 
-    data << uint32(_questMenu.GetMenuItemCount());      // max count 0x20
+    size_t count_pos = data.wpos();
+    data << uint32(0);                                  // max count 0x20
+    uint32 count = 0;
 
     // Store this instead of checking the Singleton every loop iteration
     bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
@@ -193,26 +195,29 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
     {
         QuestMenuItem const& item = _questMenu.GetItem(i);
         uint32 questID = item.QuestId;
-        Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
+        {
+            ++count;
+            data << uint32(questID);
+            data << uint32(item.QuestIcon);
+            data << int32(quest->GetQuestLevel());
+            data << uint32(quest->GetFlags());              // 3.3.3 quest flags
+            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
+            std::string title = quest->GetTitle();
 
-        data << uint32(questID);
-        data << uint32(item.QuestIcon);
-        data << int32(quest->GetQuestLevel());
-        data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-        data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
-        std::string title = quest->GetTitle();
+            int32 locale = _session->GetSessionDbLocaleIndex();
+            if (locale >= 0)
+                if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(localeData->Title, locale, title);
 
-        int32 locale = _session->GetSessionDbLocaleIndex();
-        if (locale >= 0)
-            if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                ObjectMgr::GetLocaleString(localeData->Title, locale, title);
+            if (questLevelInTitle)
+                AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
-        if (questLevelInTitle)
-            AddQuestLevelToTitle(title, quest->GetQuestLevel());
-
-        data << title;                                  // max 0x200
+            data << title;                                  // max 0x200
+        }
     }
 
+    data.put<uint8>(count_pos, count);
     _session->SendPacket(&data);
 }
 
@@ -300,20 +305,21 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     data << uint32(eEmote._Emote);                         // NPC emote
 
     size_t count_pos = data.wpos();
-    data << uint8 (_questMenu.GetMenuItemCount());
+    data << uint8 (0);
     uint32 count = 0;
 
     // Store this instead of checking the Singleton every loop iteration
     bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
 
-    for (; count < _questMenu.GetMenuItemCount(); ++count)
+    for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
-        QuestMenuItem const& qmi = _questMenu.GetItem(count);
+        QuestMenuItem const& qmi = _questMenu.GetItem(i);
 
         uint32 questID = qmi.QuestId;
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
+            ++count;
             std::string title = quest->GetTitle();
 
             int32 locale = _session->GetSessionDbLocaleIndex();

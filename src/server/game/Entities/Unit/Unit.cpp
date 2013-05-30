@@ -416,15 +416,8 @@ void Unit::UpdateSplinePosition()
         pos.m_positionZ = loc.z;
         pos.SetOrientation(loc.orientation);
 
-        if (Unit* vehicle = GetVehicleBase())
-        {
-            loc.x += vehicle->GetPositionX();
-            loc.y += vehicle->GetPositionY();
-            loc.z += vehicle->GetPositionZMinusOffset();
-            loc.orientation = vehicle->GetOrientation();
-        }
-        else if (TransportBase* transport = GetDirectTransport())
-            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
+        if (TransportBase* transport = GetDirectTransport())
+            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, &loc.orientation);
     }
 
     if (HasUnitState(UNIT_STATE_CANNOT_TURN))
@@ -11246,7 +11239,7 @@ void Unit::setDeathState(DeathState s)
         SetPower(getPowerType(), 0);
 
         // players in instance don't have ZoneScript, but they have InstanceScript
-        if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : (ZoneScript*)GetInstanceScript())
+        if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
             zoneScript->OnUnitDeath(this);
     }
     else if (s == JUST_RESPAWNED)

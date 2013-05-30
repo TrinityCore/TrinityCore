@@ -307,10 +307,10 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
                 Item* item = items[i];
                 if (log)
                 {
-                    sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail item: %s (Entry: %u Count: %u) "
-                        "to player: %s (Account: %u)", GetPlayerName().c_str(), GetAccountId(),
+                    sLog->outCommand(GetAccountId(), "GM %s (GUID: %u) (Account: %u) mail item: %s (Entry: %u Count: %u) "
+                        "to player: %s (GUID: %u) (Account: %u)", GetPlayerName().c_str(), GetGuidLow(), GetAccountId(),
                         item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(),
-                        receiverName.c_str(), receiverAccountId);
+                        receiverName.c_str(), GUID_LOPART(receiverGuid), receiverAccountId);
                 }
 
                 item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
@@ -329,8 +329,8 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (log && money > 0)
         {
-            sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail money: " UI64FMTD " to player: %s (Account: %u)",
-                GetPlayerName().c_str(), GetAccountId(), money, receiverName.c_str(), receiverAccountId);
+            sLog->outCommand(GetAccountId(), "GM %s (GUID: %u) (Account: %u) mail money: " UI64FMTD " to player: %s (GUID: %u) (Account: %u)",
+                GetPlayerName().c_str(), GetGuidLow(), GetAccountId(), money, receiverName.c_str(), GUID_LOPART(receiverGuid), receiverAccountId);
         }
     }
 

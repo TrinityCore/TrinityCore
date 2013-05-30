@@ -119,8 +119,9 @@ namespace VMAP
         return intersectionCallBack.result;
     }
 
-    StaticMapTree::StaticMapTree(uint32 mapID, const std::string &basePath)
-        : iMapID(mapID), iIsTiled(false), iTreeValues(0), iBasePath(basePath)
+    StaticMapTree::StaticMapTree(uint32 mapID, const std::string &basePath) :
+        iMapID(mapID), iIsTiled(false), iTreeValues(NULL),
+        iNTreeValues(0), iBasePath(basePath)
     {
         if (iBasePath.length() > 0 && iBasePath[iBasePath.length()-1] != '/' && iBasePath[iBasePath.length()-1] != '\\')
         {
@@ -273,54 +274,49 @@ namespace VMAP
     bool StaticMapTree::InitMap(const std::string &fname, VMapManager2* vm)
     {
         VMAP_DEBUG_LOG(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
-        bool success = true;
+        bool success = false;
         std::string fullname = iBasePath + fname;
         FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
             return false;
-        else
+
+        char chunk[8];
+        char tiled = '\0';
+
+        if (readChunk(rf, chunk, VMAP_MAGIC, 8) && fread(&tiled, sizeof(char), 1, rf) == 1 &&
+            readChunk(rf, chunk, "NODE", 4) && iTree.readFromFile(rf))
         {
-            char chunk[8];
-            //general info
-            if (!readChunk(rf, chunk, VMAP_MAGIC, 8)) success = false;
-            char tiled = '\0';
-            if (success && fread(&tiled, sizeof(char), 1, rf) != 1) success = false;
-            iIsTiled = bool(tiled);
-            // Nodes
-            if (success && !readChunk(rf, chunk, "NODE", 4)) success = false;
-            if (success) success = iTree.readFromFile(rf);
-            if (success)
-            {
-                iNTreeValues = iTree.primCount();
-                iTreeValues = new ModelInstance[iNTreeValues];
-            }
-
-            if (success && !readChunk(rf, chunk, "GOBJ", 4)) success = false;
-            // global model spawns
-            // only non-tiled maps have them, and if so exactly one (so far at least...)
-            ModelSpawn spawn;
-#ifdef VMAP_DEBUG
-            TC_LOG_DEBUG(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : map isTiled: %u", static_cast<uint32>(iIsTiled));
-#endif
-            if (!iIsTiled && ModelSpawn::readFromFile(rf, spawn))
-            {
-                WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
-                VMAP_DEBUG_LOG(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
-                if (model)
-                {
-                    // assume that global model always is the first and only tree value (could be improved...)
-                    iTreeValues[0] = ModelInstance(spawn, model);
-                    iLoadedSpawns[0] = 1;
-                }
-                else
-                {
-                    success = false;
-                    VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "StaticMapTree::InitMap() : could not acquire WorldModel pointer for '%s'", spawn.name.c_str());
-                }
-            }
-
-            fclose(rf);
+            iNTreeValues = iTree.primCount();
+            iTreeValues = new ModelInstance[iNTreeValues];
+            success = readChunk(rf, chunk, "GOBJ", 4);
         }
+
+        iIsTiled = bool(tiled);
+
+        // global model spawns
+        // only non-tiled maps have them, and if so exactly one (so far at least...)
+        ModelSpawn spawn;
+#ifdef VMAP_DEBUG
+        TC_LOG_DEBUG(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : map isTiled: %u", static_cast<uint32>(iIsTiled));
+#endif
+        if (!iIsTiled && ModelSpawn::readFromFile(rf, spawn))
+        {
+            WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
+            VMAP_DEBUG_LOG(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
+            if (model)
+            {
+                // assume that global model always is the first and only tree value (could be improved...)
+                iTreeValues[0] = ModelInstance(spawn, model);
+                iLoadedSpawns[0] = 1;
+            }
+            else
+            {
+                success = false;
+                VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "StaticMapTree::InitMap() : could not acquire WorldModel pointer for '%s'", spawn.name.c_str());
+            }
+        }
+
+        fclose(rf);
         return success;
     }
 

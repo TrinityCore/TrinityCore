@@ -828,6 +828,7 @@ struct SmartAction
         struct
         {
             uint32 flag;
+            uint32 type;
         } unitFlag;
 
         struct

@@ -556,7 +556,7 @@ void Vehicle::RelocatePassengers()
 
             float px, py, pz, po;
             passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
-            CalculatePassengerPosition(px, py, pz, po);
+            CalculatePassengerPosition(px, py, pz, &po);
 
             passenger->UpdatePosition(px, py, pz, po);
         }
@@ -675,24 +675,28 @@ uint8 Vehicle::GetAvailableSeatCount() const
     return ret;
 }
 
-void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o) const
+void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const
 {
-    float inx = x, iny = y, inz = z, ino = o;
-    o = GetBase()->GetOrientation() + ino;
+    float inx = x, iny = y, inz = z;
+    if (o)
+        *o = Position::NormalizeOrientation(GetBase()->GetOrientation() + *o);
+
     x = GetBase()->GetPositionX() + inx * std::cos(GetBase()->GetOrientation()) - iny * std::sin(GetBase()->GetOrientation());
     y = GetBase()->GetPositionY() + iny * std::cos(GetBase()->GetOrientation()) + inx * std::sin(GetBase()->GetOrientation());
     z = GetBase()->GetPositionZ() + inz;
 }
 
-void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o) const
+void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const
 {
-    o -= GetBase()->GetOrientation();
+    if (o)
+        *o = Position::NormalizeOrientation(*o - GetBase()->GetOrientation());
+
     z -= GetBase()->GetPositionZ();
     y -= GetBase()->GetPositionY();    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
     x -= GetBase()->GetPositionX();    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
     float inx = x, iny = y;
-    y = (iny - inx * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + std::sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
-    x = (inx + iny * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + std::sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
+    y = (iny - inx * std::tan(GetBase()->GetOrientation())) / (std::cos(GetBase()->GetOrientation()) + std::sin(GetBase()->GetOrientation()) * std::tan(GetBase()->GetOrientation()));
+    x = (inx + iny * std::tan(GetBase()->GetOrientation())) / (std::cos(GetBase()->GetOrientation()) + std::sin(GetBase()->GetOrientation()) * std::tan(GetBase()->GetOrientation()));
 }
 
 /**
