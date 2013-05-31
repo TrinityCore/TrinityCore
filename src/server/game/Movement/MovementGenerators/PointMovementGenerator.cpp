@@ -42,6 +42,11 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     if (speed > 0.0f)
         init.SetVelocity(speed);
     init.Launch();
+    
+    //Call for creature group update
+    if (Creature* creature = unit->ToCreature())
+        if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
+            creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
 }
 
 template<class T>
@@ -66,6 +71,11 @@ bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
         if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
             init.SetVelocity(speed);
         init.Launch();
+        
+        //Call for creature group update
+        if (Creature* creature = unit->ToCreature())
+            if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
+                creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
     }
 
     return !unit->movespline->Finalized();
