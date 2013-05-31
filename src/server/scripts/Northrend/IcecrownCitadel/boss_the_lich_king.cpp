@@ -1096,6 +1096,7 @@ class boss_the_lich_king : public CreatureScript
             {
                 WorldPacket data(SMSG_PLAY_MUSIC, 4);
                 data << uint32(musicId);
+                data << uint64(me->GetGUID());
                 SendPacketToPlayers(&data);
             }
 
