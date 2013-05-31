@@ -1612,6 +1612,8 @@ class Unit : public WorldObject
         void SendMovementWalkMode();
         void SendMovementSwimming();
 
+        void SendSetPlayHoverAnim(bool enable);
+
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
         virtual bool SetWalk(bool enable);
