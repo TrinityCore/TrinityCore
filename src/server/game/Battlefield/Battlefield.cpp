@@ -64,7 +64,7 @@ Battlefield::~Battlefield()
         delete itr->second;
 
     for (GraveyardVect::const_iterator itr = m_GraveyardList.begin(); itr != m_GraveyardList.end(); ++itr)
-        delete *itr;
+        delete itr;
 }
 
 // Called when a player enters the zone
