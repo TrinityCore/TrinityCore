@@ -1278,6 +1278,7 @@ enum Opcodes
     SMSG_SPLINE_MOVE_GRAVITY_DISABLE                  = 0x5DB5,
     SMSG_SPLINE_MOVE_GRAVITY_ENABLE                   = 0x3CA6,
     SMSG_SPLINE_MOVE_ROOT                             = 0x51B4,
+    SMSG_SPLINE_MOVE_SET_ANIM                         = 0x4335,
     SMSG_SPLINE_MOVE_SET_FEATHER_FALL                 = 0x3DA5,
     SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED            = 0x38B3,
     SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED                 = 0x39A0,
