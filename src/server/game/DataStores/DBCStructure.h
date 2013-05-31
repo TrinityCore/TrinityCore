@@ -2149,6 +2149,27 @@ struct TotemCategoryEntry
     uint32    categoryMask;                                 // 3        m_totemCategoryMask (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
+struct UnitPowerBarEntry
+{
+    uint32  Id;
+    uint32  MinPower;
+    uint32  MaxPower;
+    //uint32  Unk0;
+    //uint32  Unk1;
+    //float   Unk2;
+    //float   Unk3;
+    //uint32  BarType;
+    //uint32  TextureFile[6];
+    //uint32  Unk4[6];
+    //uint32  DisplayFlags;
+    //char*   PowerName;
+    //char*   CostString;
+    //char*   EmptyMessage;
+    //char*   Tooltip;
+    //float   StartInset;
+    //float   EndInset;
+};
+
 #define MAX_VEHICLE_SEATS 8
 
 struct VehicleEntry
