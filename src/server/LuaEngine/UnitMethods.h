@@ -16,7 +16,7 @@ public:
     static int SummonPlayer(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-        
+
         Player* target = sEluna->CHECK_PLAYER(L, 1);
         uint32 map = luaL_checkunsigned(L, 2);
         float x = luaL_checknumber(L, 3);
@@ -24,7 +24,7 @@ public:
         float z = luaL_checknumber(L, 5);
         float zoneId = luaL_checkunsigned(L, 6);
         uint32 delay = luaL_optunsigned(L, 7, 0);
-        if(!target || !MapManager::IsValidMapCoord(map, x, y, z))
+        if (!target || !MapManager::IsValidMapCoord(map, x, y, z))
             return 0;
 
         target->SetSummonPoint(map, x, y, z);
@@ -961,7 +961,7 @@ public:
     {
         TO_PLAYER();
 
-        GameObject* object = sEluna->CHECK_OBJECT(L, 1);
+        GameObject* object = sEluna->CHECK_GAMEOBJECT(L, 1);
         if (!object)
             return 0;
 
@@ -3207,7 +3207,7 @@ public:
         Gender gender;
         uint32 _gender = luaL_checkint(L, 1);
 
-        switch(_gender)
+        switch (_gender)
         {
         case 0:
             gender = GENDER_MALE;
@@ -3521,7 +3521,7 @@ public:
         if (type == -1)
         {
             // We didn't specify a type, so get the default type for our class
-            switch(unit->getClass())
+            switch (unit->getClass())
             {
             case 1:
                 type = POWER_RAGE;
@@ -3564,7 +3564,7 @@ public:
         if (type == -1)
         {
             // We didn't specify a type, so get the default type for our class
-            switch(unit->getClass())
+            switch (unit->getClass())
             {
             case 1:
                 type = POWER_RAGE;
@@ -3676,7 +3676,7 @@ public:
         TO_UNIT();
 
         const char* str = NULL;
-        switch(unit->getClass())
+        switch (unit->getClass())
         {
         case 1:
             str = "Warrior";
@@ -3914,7 +3914,7 @@ public:
         int type = luaL_checkinteger(L, 1);
         uint32 amt = luaL_checkunsigned(L, 2);
 
-        switch(type)
+        switch (type)
         {
         case POWER_MANA:
             unit->SetPower(POWER_MANA, amt);
@@ -3943,7 +3943,7 @@ public:
         int type = luaL_checkinteger(L, 1);
         int amt = luaL_checkunsigned(L, 2);
 
-        switch(type)
+        switch (type)
         {
         case POWER_MANA:
             unit->SetMaxPower(POWER_MANA, amt);
@@ -4607,29 +4607,14 @@ public:
         return 0;
     }
 
-    // GiveCoinage(amount)
-    static int GiveCoinage(lua_State* L, Unit* unit)
+    // ModifyMoney(amount[, sendError])
+    static int ModifyMoney(lua_State* L, Unit* unit)
     {
         TO_PLAYER_BOOL();
 
-        int amt = luaL_checkinteger(L, 1);
-        if (amt > 0)
-            sEluna->PushBoolean(L, player->ModifyMoney(amt));
-        else
-            sEluna->PushBoolean(L, false);
-        return 1;
-    }
-
-    // RemoveCoinage(amount)
-    static int RemoveCoinage(lua_State* L, Unit* unit)
-    {
-        TO_PLAYER_BOOL();
-
-        int amt = luaL_checkinteger(L, 1);
-        if (amt > 0)
-            sEluna->PushBoolean(L, player->ModifyMoney(-amt));
-        else
-            sEluna->PushBoolean(L, false);
+        int32 amt = luaL_checkinteger(L, 1);
+        bool sendError = luaL_optbool(L, 2, true);
+        sEluna->PushBoolean(L, player->ModifyMoney(amt, sendError));
         return 1;
     }
 
@@ -4664,30 +4649,38 @@ public:
         return 0;
     }
 
-    // CastSpell(spellID) - self
+    // CastSpell(target, spellID[, triggered])
     static int CastSpell(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
-        uint32 spell = luaL_checkunsigned(L, 1);
-        unit->CastSpell(unit, spell, true);
-        return 0;
-    }
-
-    // CastSpellOnTarget(spellID, unit, triggered) - See if can be gameobject target
-    static int CastSpellOnTarget(lua_State* L, Unit* unit)
-    {
-        TO_UNIT();
-
-        uint32 spell = luaL_checkunsigned(L, 1);
-        Unit* target = sEluna->CHECK_UNIT(L, 2);
+        Object* obj = sEluna->CHECK_OBJECT(L, 1);
+        if (!obj)
+            return 0;
+        uint32 spell = luaL_checkunsigned(L, 2);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
+        if (!spellInfo)
+            return 0;
         bool triggered = luaL_optbool(L, 3, true);
-        if (target)
-            unit->CastSpell(target, spell, triggered);
+
+        SpellCastTargets targets;
+        if (Unit* unitTarget = obj->ToUnit())
+            targets.SetUnitTarget(unitTarget);
+        else if (GameObject* goTarget = obj->ToGameObject())
+            targets.SetGOTarget(goTarget);
+        else if (obj->GetTypeId() == TYPEID_ITEM)
+        {
+            if (Item* itemTarget = reinterpret_cast<Item*>(obj))
+                targets.SetItemTarget(itemTarget);
+        }
+        else
+            return 0;
+
+        unit->CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
         return 0;
     }
 
-    // CastSpellAoF(x, y, z, id) - to coords
+    // CastSpellAoF(x, y, z, spellID[, triggered]) - to coords
     static int CastSpellAoF(lua_State* L, Unit* unit)
     {
         TO_UNIT();
@@ -4696,29 +4689,8 @@ public:
         float _y = luaL_checknumber(L, 2);
         float _z = luaL_checknumber(L, 3);
         uint32 spell = luaL_checkunsigned(L, 4);
-        unit->CastSpell(_x, _y, _z, spell, true);
-        return 0;
-    }
-
-    // FullCastSpell(spellID) - self
-    static int FullCastSpell(lua_State* L, Unit* unit)
-    {
-        TO_UNIT();
-
-        uint32 spell = luaL_checkunsigned(L, 1);
-        unit->CastSpell(unit, spell, false);
-        return 0;
-    }
-
-    // FullCastSpellOnTarget(spellID, unit) - See if can be gameobject target
-    static int FullCastSpellOnTarget(lua_State* L, Unit* unit)
-    {
-        TO_UNIT();
-
-        uint32 spell = luaL_checkunsigned(L, 1);
-        Unit* target = sEluna->CHECK_UNIT(L, 2);
-        if (target)
-            unit->CastSpell(target, spell, false);
+        bool triggered = luaL_optbool(L, 5, true);
+        unit->CastSpell(_x, _y, _z, spell, triggered);
         return 0;
     }
 
@@ -4932,7 +4904,7 @@ public:
         int spellType = luaL_checkint(L, 1);
         bool delayed = luaL_optbool(L, 2, true);
         bool instant = luaL_optbool(L, 3, true);
-        switch(spellType)
+        switch (spellType)
         {
         case 0:
             spellType = CURRENT_MELEE_SPELL;
@@ -5527,7 +5499,7 @@ public:
         }
         return 0;
     }
-    
+
     // AttackStop()
     static int AttackStop(lua_State* L, Unit* unit)
     {
@@ -5536,7 +5508,7 @@ public:
         sEluna->PushBoolean(L, unit->AttackStop());
         return 1;
     }
-    
+
     // Attack(who, meleeAttack)
     static int Attack(lua_State* L, Unit* unit)
     {
@@ -5544,14 +5516,14 @@ public:
 
         Unit* who = sEluna->CHECK_UNIT(L, 1);
         bool meleeAttack = luaL_optbool(L, 2, false);
-        
+
         if (!who)
             sEluna->PushBoolean(L, false);
         else
             sEluna->PushBoolean(L, unit->Attack(who, meleeAttack));
         return 1;
     }
-    
+
     //SetCanFly(apply)
     static int SetCanFly(lua_State* L, Unit* unit)
     {
@@ -5561,7 +5533,7 @@ public:
         unit->SetCanFly(apply);
         return 0;
     }
-    
+
     //SetVisible(x)
     static int SetVisible(lua_State* L, Unit* unit)
     {
@@ -5571,7 +5543,7 @@ public:
         unit->SetVisible(x);
         return 0;
     }
-    
+
     // IsVisible()
     static int IsVisible(lua_State* L, Unit* unit)
     {
@@ -5580,7 +5552,7 @@ public:
         sEluna->PushBoolean(L, unit->IsVisible());
         return 1;
     }
-    
+
     // isMoving()
     static int isMoving(lua_State* L, Unit* unit)
     {
@@ -5589,7 +5561,7 @@ public:
         sEluna->PushBoolean(L, unit->isMoving());
         return 1;
     }
-    
+
     // IsFlying()
     static int IsFlying(lua_State* L, Unit* unit)
     {
@@ -5598,7 +5570,7 @@ public:
         sEluna->PushBoolean(L, unit->IsFlying());
         return 1;
     }
-    
+
     // IsStopped()
     static int IsStopped(lua_State* L, Unit* unit)
     {
@@ -5607,7 +5579,7 @@ public:
         sEluna->PushBoolean(L, unit->IsStopped());
         return 1;
     }
-    
+
     //RestoreDisplayId()
     static int RestoreDisplayId(lua_State* L, Unit* unit)
     {
@@ -5616,7 +5588,7 @@ public:
         unit->RestoreDisplayId();
         return 0;
     }
-    
+
     //RestoreFaction()
     static int RestoreFaction(lua_State* L, Unit* unit)
     {
@@ -5625,7 +5597,7 @@ public:
         unit->RestoreFaction();
         return 0;
     }
-    
+
     //RemoveBindSightAuras()
     static int RemoveBindSightAuras(lua_State* L, Unit* unit)
     {
@@ -5634,7 +5606,7 @@ public:
         unit->RemoveBindSightAuras();
         return 0;
     }
-    
+
     //RemoveCharmAuras()
     static int RemoveCharmAuras(lua_State* L, Unit* unit)
     {
@@ -5643,7 +5615,7 @@ public:
         unit->RemoveCharmAuras();
         return 0;
     }
-    
+
     //StopMoving()
     static int StopMoving(lua_State* L, Unit* unit)
     {

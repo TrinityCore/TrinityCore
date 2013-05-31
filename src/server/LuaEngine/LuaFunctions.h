@@ -179,8 +179,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendPacketToGuild", &LuaUnit::SendPacketToGuild},             // :SendPacketToGuild(packet) - Sends a specified packet to your guild
     {"SendPacketToRankedInGuild", &LuaUnit::SendPacketToRankedInGuild}, // :SendPacketToRankedInGuild(packet, rankId) - Sends a specified packet to your guild, specifying a rankId will only send the packet to your ranked members.
     {"SendVendorWindow", &LuaUnit::SendVendorWindow},               // :SendVendorWindow(unit) -- Sends the unit's vendor window to the player
-    {"GiveCoinage", &LuaUnit::GiveCoinage},                         // :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
-    {"RemoveCoinage", &LuaUnit::RemoveCoinage},                     // :RemoveCoinage(amount) - Removes amount of coinage from plr.
+    {"ModifyMoney", &LuaUnit::ModifyMoney},                         // :ModifyMoney(amount[, sendError]) - Modifies (does not set) money (copper count) of the player. Amount can be negative to remove copper.
     {"LearnSpell", &LuaUnit::LearnSpell},                           // :LearnSpell(id) - learns the given spell.
     {"RemoveItem", &LuaUnit::RemoveItem},                           // :RemoveItem(item/entry, amount) - Removes amount of item from player.
     {"RemoveLifetimeKills", &LuaUnit::RemoveLifetimeKills},         // :RemoveLifetimeKills(val) - Removes a specified amount(val) of the player's lifetime (honorable) kills
@@ -457,11 +456,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendUnitEmote", &LuaUnit::SendUnitEmote},                     // :SendUnitEmote(msg[, receiver, bossEmote]) -- Sends a text emote
     {"SendUnitSay", &LuaUnit::SendUnitSay},                         // :SendUnitSay(msg, language) -- Sends a "Say" message with the specified language (all languages: 0)
     {"SendUnitYell", &LuaUnit::SendUnitYell},                       // :SendUnitYell(msg, language) -- Sends a "Yell" message with the specified language (all languages: 0)
-    {"CastSpell", &LuaUnit::CastSpell},                             // :CastSpell(spellID) - Casts the spell on self, no manacost or cast time
-    {"CastSpellOnTarget", &LuaUnit::CastSpellOnTarget},             // :CastSpellOnTarget(spellID, unit) - Casts the spell on target, no manacost or cast time
-    {"CastSpellAoF", &LuaUnit::CastSpellAoF},                       // :CastSpellAoF(x, y, z, SpellID, triggered) - Casts the spell on coordinates, if triggered is false has manacost and cast time
-    {"FullCastSpell", &LuaUnit::FullCastSpell},                     // :FullCastSpell(spellID) - Casts the spell on self
-    {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
+    {"CastSpell", &LuaUnit::CastSpell},                             // :CastSpell(target, spellID[, triggered]) - Casts spell on target (player/npc/object/item), if triggered is false has mana cost and cast time
+    {"CastSpellAoF", &LuaUnit::CastSpellAoF},                       // :CastSpellAoF(x, y, z, spellID[, triggered]) - Casts the spell on coordinates, if triggered is false has mana cost and cast time
     {"PlayDirectSound", &LuaUnit::PlayDirectSound},                 // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player.
     {"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. The sound fades the further you are
     {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlaySoundToSet(soundId, player) - Unit plays soundID to player, or everyone around if no player. (ARC compability)
@@ -554,12 +550,12 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"IsInvisibleDueToDespawn", &LuaGameObject::IsInvisibleDueToDespawn}, // :IsInvisibleDueToDespawn() - UNDOCUMENTED
 
     // Other
-    {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time -
-    {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates -
-    {"SpawnCreature", &LuaGameObject::SummonCreature},              // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) -
-    {"RegisterEvent", &LuaGameObject::RegisterEvent},               // :RegisterEvent(function, delay, calls) -
-    {"RemoveEventById", &LuaGameObject::RemoveEventById},           // :RemoveEventById(eventID) -
-    {"RemoveEvents", &LuaGameObject::RemoveEvents},                 // :RemoveEvents() -
+    {"CastSpell", &LuaGameObject::CastSpell},                       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time
+    {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates
+    {"SpawnCreature", &LuaGameObject::SummonCreature},              // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms)
+    {"RegisterEvent", &LuaGameObject::RegisterEvent},               // :RegisterEvent(function, delay, calls)
+    {"RemoveEventById", &LuaGameObject::RemoveEventById},           // :RemoveEventById(eventID)
+    {"RemoveEvents", &LuaGameObject::RemoveEvents},                 // :RemoveEvents()
     {"Despawn", &LuaGameObject::Despawn},                           // :Despawn() - Object despawns
     {"SummonGameObject", &LuaGameObject::SummonGameObject},         // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil
 

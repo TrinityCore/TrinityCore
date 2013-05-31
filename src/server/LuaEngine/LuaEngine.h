@@ -291,12 +291,13 @@ public:
     void PushQuest(lua_State*, Quest const*);
     void PushPacket(lua_State*, WorldPacket*);
     // Checks
-    Player * CHECK_PLAYER(lua_State* L, int narg);
-    Unit * CHECK_UNIT(lua_State* L, int narg);
-    Creature * CHECK_CREATURE(lua_State* L, int narg);
-    GameObject* CHECK_OBJECT(lua_State* L, int narg);
     WorldPacket* CHECK_PACKET(lua_State* L, int narg);
+    Object* CHECK_OBJECT(lua_State* L, int narg);
     WorldObject* CHECK_WORLDOBJECT(lua_State* L, int narg);
+    Unit * CHECK_UNIT(lua_State* L, int narg);
+    Player * CHECK_PLAYER(lua_State* L, int narg);
+    Creature * CHECK_CREATURE(lua_State* L, int narg);
+    GameObject* CHECK_GAMEOBJECT(lua_State* L, int narg);
     Quest* CHECK_QUEST(lua_State* L, int narg);
     Spell* CHECK_SPELL(lua_State* L, int narg);
     uint64 CHECK_ULONG(lua_State* L, int narg);

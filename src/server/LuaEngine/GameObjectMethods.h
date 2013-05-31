@@ -56,8 +56,8 @@ public:
         return 1;
     }
 
-    // CastSpellOnTarget(target, spellid)
-    static int CastSpellOnTarget(lua_State* L, GameObject* go)
+    // CastSpell(target, spellid)
+    static int CastSpell(lua_State* L, GameObject* go)
     {
         if (!go || !go->IsInWorld())
             return 0;

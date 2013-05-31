@@ -467,6 +467,14 @@ void Eluna::PushPacket(lua_State* L, WorldPacket* packet)
         lua_pushnil(L);
 }
 
+Object* Eluna::CHECK_OBJECT(lua_State* L, int narg)
+{
+    if (!L)
+        return ElunaTemplate<Object>::check(LuaState, narg);
+    else
+        return ElunaTemplate<Object>::check(L, narg);
+}
+
 WorldObject* Eluna::CHECK_WORLDOBJECT(lua_State* L, int narg)
 {
     if (!L)
@@ -499,7 +507,7 @@ Creature * Eluna::CHECK_CREATURE(lua_State* L, int narg)
     return obj->ToCreature();
 }
 
-GameObject* Eluna::CHECK_OBJECT(lua_State* L, int narg)
+GameObject* Eluna::CHECK_GAMEOBJECT(lua_State* L, int narg)
 {
     WorldObject* obj = CHECK_WORLDOBJECT(L, narg);
     if(!obj)
