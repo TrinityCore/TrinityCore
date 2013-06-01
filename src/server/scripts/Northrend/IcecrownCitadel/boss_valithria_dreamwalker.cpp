@@ -1013,8 +1013,11 @@ class npc_dream_portal : public CreatureScript
             {
             }
 
-            void OnSpellClick(Unit* /*clicker*/)
+            void OnSpellClick(Unit* /*clicker*/, bool& result)
             {
+                if (!result)
+                    return;
+
                 _used = true;
                 me->DespawnOrUnsummon();
             }
