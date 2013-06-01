@@ -238,6 +238,7 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     init.SetFirstPointId(GetCurrentNode());
     init.SetFly();
     init.SetSmooth();
+    init.SetUncompressed();
     init.SetWalk(true);
     init.SetVelocity(PLAYER_FLIGHT_SPEED);
     init.Launch();

@@ -102,31 +102,39 @@ namespace Movement
          * if not enabled linear spline mode will be choosen. Disabled by default
          */
         void SetSmooth();
-        /* Enables CatmullRom spline interpolation mode, enables flying animation. Disabled by default
+
+        /* Waypoints in packets will be sent without compression
+         */
+        void SetUncompressed();
+
+        /* Enables flying animation. Disabled by default
          */
         void SetFly();
+
         /* Enables walk mode. Disabled by default
          */
-        void EnableTaxiFlight();
-        /* Flags used in taxi
-        */
-
         void SetWalk(bool enable);
+
         /* Makes movement cyclic. Disabled by default
          */
         void SetCyclic();
+
         /* Enables falling mode. Disabled by default
          */
         void SetFall();
+
         /* Enters transport. Disabled by default
          */
         void SetTransportEnter();
+
         /* Exits transport. Disabled by default
          */
         void SetTransportExit();
+
         /* Inverses unit model orientation. Disabled by default
          */
         void SetOrientationInversed();
+
         /* Fixes unit's model rotation. Disabled by default
          */
         void SetOrientationFixed(bool enable);
@@ -152,6 +160,7 @@ namespace Movement
     inline void MoveSplineInit::SetFly() { args.flags.flying = true; }
     inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
+    inline void MoveSplineInit::SetUncompressed() { args.flags.uncompressedPath = true; }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
