@@ -97,10 +97,10 @@ namespace Movement
         data << uint8(MonsterMoveStop);
     }
 
-    void WriteLinearPath(const Spline<int32>& spline, ByteBuffer& data)
+    void WriteLinearPath(Spline<int32> const& spline, ByteBuffer& data)
     {
         uint32 last_idx = spline.getPointCount() - 3;
-        const Vector3 * real_path = &spline.getPoint(1);
+        Vector3 const* real_path = &spline.getPoint(1);
 
         data << last_idx;
         data << real_path[last_idx];   // destination
@@ -117,14 +117,14 @@ namespace Movement
         }
     }
 
-    void WriteCatmullRomPath(const Spline<int32>& spline, ByteBuffer& data)
+    void WriteUncompressedPath(Spline<int32> const& spline, ByteBuffer& data)
     {
         uint32 count = spline.getPointCount() - 3;
         data << count;
         data.append<Vector3>(&spline.getPoint(2), count);
     }
 
-    void WriteCatmullRomCyclicPath(const Spline<int32>& spline, ByteBuffer& data)
+    void WriteUncompressedCyclicPath(Spline<int32> const& spline, ByteBuffer& data)
     {
         uint32 count = spline.getPointCount() - 3;
         data << uint32(count + 1);
@@ -136,14 +136,14 @@ namespace Movement
     {
         WriteCommonMonsterMovePart(move_spline, data);
 
-        const Spline<int32>& spline = move_spline.spline;
+        Spline<int32> const& spline = move_spline.spline;
         MoveSplineFlag splineflags = move_spline.splineflags;
         if (splineflags & MoveSplineFlag::UncompressedPath)
         {
-            if (splineflags.cyclic)
-                WriteCatmullRomCyclicPath(spline, data);
+            if (!splineflags.cyclic)
+                WriteUncompressedPath(spline, data);
             else
-                WriteCatmullRomPath(spline, data);
+                WriteUncompressedCyclicPath(spline, data);
         }
         else
             WriteLinearPath(spline, data);

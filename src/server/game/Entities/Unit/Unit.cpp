@@ -13269,9 +13269,7 @@ void Unit::StopMoving()
         return;
 
     Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), false);
-    init.SetFacing(GetOrientation());
-    init.Launch();
+    init.Stop();
 }
 
 bool Unit::IsSitState() const
