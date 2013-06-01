@@ -35,7 +35,6 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -16842,6 +16841,14 @@ void Unit::SendSetPlayHoverAnim(bool enable)
     data.WriteByteSeq(guid[6]);
 
     SendMessageToSet(&data, true);
+}
+
+void Unit::SendMovementSetSplineAnim(Movement::AnimType anim)
+{
+    WorldPacket data(SMSG_SPLINE_MOVE_SET_ANIM, 8 + 4);
+    data.append(GetPackGUID());
+    data << uint32(anim);
+    SendMessageToSet(&data, false);
 }
 
 bool Unit::IsSplineEnabled() const

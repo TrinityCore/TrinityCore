@@ -28,6 +28,7 @@
 #include "Object.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
+#include "MoveSplineInit.h"
 
 #define WORLD_TRIGGER   12999
 
@@ -357,6 +358,7 @@ class SpellCastTargets;
 namespace Movement
 {
     class ExtraMovementStatusElement;
+    class MoveSpline;
 }
 
 typedef std::list<Unit*> UnitList;
@@ -790,10 +792,6 @@ enum UnitTypeMask
     UNIT_MASK_CONTROLABLE_GUARDIAN  = 0x00000100,
     UNIT_MASK_ACCESSORY             = 0x00000200
 };
-
-namespace Movement{
-    class MoveSpline;
-}
 
 struct DiminishingReturn
 {
@@ -1613,6 +1611,7 @@ class Unit : public WorldObject
         void SendMovementSwimming();
 
         void SendSetPlayHoverAnim(bool enable);
+        void SendMovementSetSplineAnim(Movement::AnimType anim);
 
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
