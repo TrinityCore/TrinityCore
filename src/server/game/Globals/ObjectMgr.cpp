@@ -5724,7 +5724,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     MapEntry const* map = sMapStore.LookupEntry(MapId);
 
     // not need to check validity of map object; MapId _MUST_ be valid here
-    if (range.first == range.second && !map->IsBattleArena())
+    if (range.first == range.second && !map->IsBattlegroundOrArena())
     {
         TC_LOG_ERROR(LOG_FILTER_SQL, "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
         return GetDefaultGraveYard(team);
