@@ -659,6 +659,7 @@ void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
 {
     data->Initialize(SMSG_PLAY_SOUND, 4);
     *data << uint32(soundid);
+    *data << uint64(0);
 }
 
 void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint64 guid)

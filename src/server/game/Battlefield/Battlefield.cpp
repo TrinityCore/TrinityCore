@@ -357,6 +357,7 @@ void Battlefield::DoPlaySoundToAll(uint32 SoundID)
     WorldPacket data;
     data.Initialize(SMSG_PLAY_SOUND, 4);
     data << uint32(SoundID);
+    data << uint64(0);
 
     for (int team = 0; team < BG_TEAMS_COUNT; team++)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
