@@ -1198,7 +1198,8 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     SetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, cinfo->minrangedmg);
     SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, cinfo->maxrangedmg);
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, cinfo->attackpower);
+	SetModifierValue(UNIT_MOD_ATTACK_POWER_POS, BASE_VALUE, cinfo->attackpower * GetCreatureTemplate()->dmg_multiplier);
+	SetModifierValue(UNIT_MOD_ATTACK_POWER_NEG, BASE_VALUE, 0);
 
 }
 
