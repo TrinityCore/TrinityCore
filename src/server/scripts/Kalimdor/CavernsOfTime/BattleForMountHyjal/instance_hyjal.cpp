@@ -222,7 +222,8 @@ public:
                                             i->getSource()->GetSession()->SendPacket(&packet);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);
-                                            data2 << 10986;
+                                            data2 << uint32(10986);
+                                            data2 << uint64(unit->GetGUID());
                                             i->getSource()->GetSession()->SendPacket(&data2);
                                          }
                                     }
