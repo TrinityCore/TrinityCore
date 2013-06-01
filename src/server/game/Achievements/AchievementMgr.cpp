@@ -2702,8 +2702,15 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
 {
     for (uint8 i = 0; i < MAX_ADDITIONAL_CRITERIA_CONDITIONS; ++i)
     {
-        uint32 const reqType = criteria->additionalConditionType[i];
-        uint32 const reqValue = criteria->additionalConditionValue[i];
+        uint32 reqType = criteria->additionalConditionType[i];
+
+        ///@TODO Extract additionalConditionValue[2] column from an older dbc and store it in database
+        ///      This column is not present in 4.3.4 Achievement_Criteria.dbc
+        ///      so for now, just return as failed condition to prevent invalid memory access
+        if (i == 2 && reqType)
+            return false;
+
+        uint32 reqValue = criteria->additionalConditionValue[i];
 
         switch (AchievementCriteriaAdditionalCondition(reqType))
         {
