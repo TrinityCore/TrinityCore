@@ -2675,14 +2675,12 @@ void World::SendAutoBroadcast()
 
     if (abcenter == 0)
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
     else if (abcenter == 1)
     {
         WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
         data << msg;
         sWorld->SendGlobalMessage(&data);
     }
-
     else if (abcenter == 2)
     {
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());

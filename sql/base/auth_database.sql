@@ -110,6 +110,20 @@ LOCK TABLES `account_banned` WRITE;
 UNLOCK TABLES;
 
 --
+-- Dumping data for table `autobroadcast`
+--
+
+DROP TABLE IF EXISTS `autobroadcast`;
+
+CREATE TABLE `autobroadcast` (
+  `realmid` int(11) NOT NULL DEFAULT '-1',
+  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `weight` tinyint(3) unsigned DEFAULT '1',
+  `text` longtext NOT NULL,
+  PRIMARY KEY (`id`,`realmid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `ip_banned`
 --
 
