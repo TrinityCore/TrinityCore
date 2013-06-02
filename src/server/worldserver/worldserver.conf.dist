@@ -18,6 +18,7 @@
 #    GAME MASTER SETTINGS
 #    VISIBILITY AND DISTANCES
 #    SERVER RATES
+#    STATS SYSTEM
 #    AUTO BROADCAST
 #    BATTLEGROUND CONFIG
 #    BATTLEFIELD CONFIG
@@ -1999,6 +2000,34 @@ Death.Bones.BattlegroundOrArena = 1
 #                     0 - (Disabled)
 
 Die.Command.Mode = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# STATS SYSTEM
+#
+#    Stats.System.Enable
+#        Description: Enable or disable stats system
+#        Default:     0 - Disabled
+
+Stats.System.Enable = 0
+
+#
+#    Limit.Dodge
+#    Limit.Parry
+#    Limit.Block
+#    Limit.Crit
+#        Description: Set percentage limit for dodge, parry, block and crit rating
+#        Default:     95.0 - (Limit.Dodge)
+#        Default:     95.0 - (Limit.Parry)
+#        Default:     95.0 - (Limit.Block)
+#        Default:     95.0 - (Limit.Crit)
+
+Limit.Dodge = 95.0
+Limit.Parry = 95.0
+Limit.Block = 95.0
+Limit.Crit  = 95.0
 
 #
 ###################################################################################################
