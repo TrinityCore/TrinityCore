@@ -246,8 +246,6 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     npcGuid[7] = recvData.ReadBit();
 
-    recvData.FlushBits();
-
     for (uint32 i = 0; i < countDeposit; ++i)
     {
         recvData.ReadByteSeq(itemGuids[i][6]);
@@ -266,8 +264,8 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (uint32 i = 0; i < countWithdraw; ++i)
     {
         recvData.ReadByteSeq(itemIds[i][3]);
-        recvData.ReadByteSeq(itemIds[i][1]);
         recvData.ReadByteSeq(itemIds[i][0]);
+        recvData.ReadByteSeq(itemIds[i][1]);
         recvData.ReadByteSeq(itemIds[i][6]);
         recvData.ReadByteSeq(itemIds[i][2]);
         recvData.ReadByteSeq(itemIds[i][7]);
