@@ -2711,7 +2711,6 @@ void World::SendAutoBroadcast()
 
     if (abcenter == 0)
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
     else if (abcenter == 1)
     {
         WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
@@ -2720,7 +2719,6 @@ void World::SendAutoBroadcast()
         data.WriteString(msg);
         sWorld->SendGlobalMessage(&data);
     }
-
     else if (abcenter == 2)
     {
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
