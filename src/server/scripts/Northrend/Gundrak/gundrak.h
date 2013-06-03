@@ -51,7 +51,8 @@ enum mainCreatures
     CREATURE_ECK                        = 29932
 };
 
-enum Gameobjects {
+enum Gameobjects
+{
 
     GO_SLADRAN_ALTAR                    = 192518,
     GO_MOORABI_ALTAR                    = 192519,
@@ -67,7 +68,6 @@ enum Gameobjects {
     GO_GALDARAH_DOOR3                   = 192568,
     GO_BRIDGE                           = 193188,
     GO_COLLISION                        = 192633
-    
 };
 
 #endif
