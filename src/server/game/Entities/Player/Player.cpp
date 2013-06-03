@@ -25460,7 +25460,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
         std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentInfo->TalentTab);
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
-                learnSpell(specSpells->at(i), true);
+                learnSpell(specSpells->at(i), false);
 
         if (CanUseMastery())
             for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
