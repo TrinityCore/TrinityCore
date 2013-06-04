@@ -2014,15 +2014,9 @@ Die.Command.Mode = 1
 Stats.Limits.Enable = 0
 
 #
-#    Limit.Dodge
-#    Limit.Parry
-#    Limit.Block
-#    Limit.Crit
+#    Stats.Limit.[STAT]
 #        Description: Set percentage limit for dodge, parry, block and crit rating
-#        Default:     95.0 - (Limit.Dodge)
-#        Default:     95.0 - (Limit.Parry)
-#        Default:     95.0 - (Limit.Block)
-#        Default:     95.0 - (Limit.Crit)
+#        Default:     95.0 (95%)
 
 Stats.Limits.Dodge = 95.0
 Stats.Limits.Parry = 95.0
