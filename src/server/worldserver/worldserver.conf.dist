@@ -2007,11 +2007,11 @@ Die.Command.Mode = 1
 ###################################################################################################
 # STATS SYSTEM
 #
-#    Stats.System.Enable
+#    Stats.Limits.Enable
 #        Description: Enable or disable stats system
 #        Default:     0 - Disabled
 
-Stats.System.Enable = 0
+Stats.Limits.Enable = 0
 
 #
 #    Limit.Dodge
@@ -2024,10 +2024,10 @@ Stats.System.Enable = 0
 #        Default:     95.0 - (Limit.Block)
 #        Default:     95.0 - (Limit.Crit)
 
-Limit.Dodge = 95.0
-Limit.Parry = 95.0
-Limit.Block = 95.0
-Limit.Crit  = 95.0
+Stats.Limits.Dodge = 95.0
+Stats.Limits.Parry = 95.0
+Stats.Limits.Block = 95.0
+Stats.Limits.Crit  = 95.0
 
 #
 ###################################################################################################
