@@ -1,5 +1,5 @@
 -- Add option conditions for Paladin trainers
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (15) AND `SourceGroup` IN (2304,4556,4557,4469,4470,4471,4662,4663,4664,4677,4678,7260,8111);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (15) AND `SourceGroup` IN (2304,4556,4557,4469,4470,4471,4662,4463,4464,4677,4678,7260,8111);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,2304,0,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
 (15,2304,1,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
@@ -22,12 +22,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,4662,0,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
 (15,4662,1,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
 (15,4662,2,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
-(15,4663,0,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
-(15,4663,1,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
-(15,4663,2,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
-(15,4664,0,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
-(15,4664,1,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
-(15,4664,2,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
+(15,4463,0,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
+(15,4463,1,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
+(15,4463,2,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
+(15,4464,0,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
+(15,4464,1,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
+(15,4464,2,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
 (15,4677,0,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
 (15,4677,1,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
 (15,4677,2,0,15,2,0,0,0,'','Show gossip option if player is a Paladin'),
