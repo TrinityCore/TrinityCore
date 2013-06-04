@@ -18,7 +18,7 @@
 #    GAME MASTER SETTINGS
 #    VISIBILITY AND DISTANCES
 #    SERVER RATES
-#    STATS SYSTEM
+#    STATS LIMITS
 #    AUTO BROADCAST
 #    BATTLEGROUND CONFIG
 #    BATTLEFIELD CONFIG
@@ -2005,7 +2005,7 @@ Die.Command.Mode = 1
 ###################################################################################################
 
 ###################################################################################################
-# STATS SYSTEM
+# STATS LIMITS
 #
 #    Stats.Limits.Enable
 #        Description: Enable or disable stats system
