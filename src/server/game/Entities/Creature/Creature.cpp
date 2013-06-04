@@ -871,92 +871,6 @@ void Creature::InitializeReactState()
     SetReactState(REACT_DEFENSIVE);*/;
 }
 
-bool Creature::isCanTrainingOf(Player* player, bool msg) const
-{
-    if (!isTrainer())
-        return false;
-
-    TrainerSpellData const* trainer_spells = GetTrainerSpells();
-
-    if ((!trainer_spells || trainer_spells->spellList.empty()) && GetCreatureTemplate()->trainer_type != TRAINER_TYPE_PETS)
-    {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "Creature %u (Entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
-            GetGUIDLow(), GetEntry());
-        return false;
-    }
-
-    switch (GetCreatureTemplate()->trainer_type)
-    {
-        case TRAINER_TYPE_CLASS:
-            if (player->getClass() != GetCreatureTemplate()->trainer_class)
-            {
-                if (msg)
-                {
-                    player->PlayerTalkClass->ClearMenus();
-                    switch (GetCreatureTemplate()->trainer_class)
-                    {
-                        case CLASS_DRUID:  player->PlayerTalkClass->SendGossipMenu(4913, GetGUID()); break;
-                        case CLASS_HUNTER: player->PlayerTalkClass->SendGossipMenu(10090, GetGUID()); break;
-                        case CLASS_MAGE:   player->PlayerTalkClass->SendGossipMenu(328, GetGUID()); break;
-                        case CLASS_PALADIN:player->PlayerTalkClass->SendGossipMenu(1635, GetGUID()); break;
-                        case CLASS_PRIEST: player->PlayerTalkClass->SendGossipMenu(4436, GetGUID()); break;
-                        case CLASS_ROGUE:  player->PlayerTalkClass->SendGossipMenu(4797, GetGUID()); break;
-                        case CLASS_SHAMAN: player->PlayerTalkClass->SendGossipMenu(5003, GetGUID()); break;
-                        case CLASS_WARLOCK:player->PlayerTalkClass->SendGossipMenu(5836, GetGUID()); break;
-                        case CLASS_WARRIOR:player->PlayerTalkClass->SendGossipMenu(4985, GetGUID()); break;
-                    }
-                }
-                return false;
-            }
-            break;
-        case TRAINER_TYPE_PETS:
-            if (player->getClass() != CLASS_HUNTER)
-            {
-                player->PlayerTalkClass->ClearMenus();
-                player->PlayerTalkClass->SendGossipMenu(3620, GetGUID());
-                return false;
-            }
-            break;
-        case TRAINER_TYPE_MOUNTS:
-            if (GetCreatureTemplate()->trainer_race && player->getRace() != GetCreatureTemplate()->trainer_race)
-            {
-                if (msg)
-                {
-                    player->PlayerTalkClass->ClearMenus();
-                    switch (GetCreatureTemplate()->trainer_race)
-                    {
-                        case RACE_DWARF:        player->PlayerTalkClass->SendGossipMenu(5865, GetGUID()); break;
-                        case RACE_GNOME:        player->PlayerTalkClass->SendGossipMenu(4881, GetGUID()); break;
-                        case RACE_HUMAN:        player->PlayerTalkClass->SendGossipMenu(5861, GetGUID()); break;
-                        case RACE_NIGHTELF:     player->PlayerTalkClass->SendGossipMenu(5862, GetGUID()); break;
-                        case RACE_ORC:          player->PlayerTalkClass->SendGossipMenu(5863, GetGUID()); break;
-                        case RACE_TAUREN:       player->PlayerTalkClass->SendGossipMenu(5864, GetGUID()); break;
-                        case RACE_TROLL:        player->PlayerTalkClass->SendGossipMenu(5816, GetGUID()); break;
-                        case RACE_UNDEAD_PLAYER:player->PlayerTalkClass->SendGossipMenu(624, GetGUID()); break;
-                        case RACE_BLOODELF:     player->PlayerTalkClass->SendGossipMenu(5862, GetGUID()); break;
-                        case RACE_DRAENEI:      player->PlayerTalkClass->SendGossipMenu(5864, GetGUID()); break;
-                    }
-                }
-                return false;
-            }
-            break;
-        case TRAINER_TYPE_TRADESKILLS:
-            if (GetCreatureTemplate()->trainer_spell && !player->HasSpell(GetCreatureTemplate()->trainer_spell))
-            {
-                if (msg)
-                {
-                    player->PlayerTalkClass->ClearMenus();
-                    player->PlayerTalkClass->SendGossipMenu(11031, GetGUID());
-                }
-                return false;
-            }
-            break;
-        default:
-            return false;                                   // checked and error output at creature_template loading
-    }
-    return true;
-}
-
 bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 {
     if (!isBattleMaster())
@@ -987,13 +901,6 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
         return false;
     }
     return true;
-}
-
-bool Creature::isCanTrainingAndResetTalentsOf(Player* player) const
-{
-    return player->getLevel() >= 10
-        && GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS
-        && player->getClass() == GetCreatureTemplate()->trainer_class;
 }
 
 Player* Creature::GetLootRecipient() const
