@@ -211,6 +211,19 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
         }
+		if(sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
+		{
+			std::ostringstream ss;
+			if (mode == BAN_CHARACTER)
+				ss << "The character ";
+			else if (mode == BAN_IP)
+				ss << "The IP ";
+			else
+				ss << "The account ";
+			ss << nameOrIP << " was banned by " << handler->GetSession()->GetPlayerName()
+				<< " for " << durationStr << ". The reason is : " << reasonStr;
+			sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
+		}
 
         return true;
     }
