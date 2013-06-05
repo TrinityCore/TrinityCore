@@ -652,7 +652,7 @@ ElunaRegister<Aura> AuraMethods[] =
     {"GetCaster", &LuaAura::GetCaster},                                                                     // :GetCaster() - Returns caster as object
     {"GetCasterGUID", &LuaAura::GetCasterGUID},                                                             // :GetCasterGUID() - Returns caster as GUID
     {"GetCasterLevel", &LuaAura::GetCasterLevel},                                                           // :GetCasterLevel() - Returns casters level
-    {"GetDuration", &LuaAura::GetDuration},                                                                 // :GetDuration() - Returns remaining duration
+    // {"GetDuration", &LuaAura::GetDuration},                                                                 // :GetDuration() - Returns remaining duration
     {"GetMaxDuration", &LuaAura::GetMaxDuration},                                                           // :GetMaxDuration() - Returns maximum duration
     {"GetCharges", &LuaAura::GetCharges},                                                                   // :GetCharges() - Returns remaining charges
     {"GetAuraId", &LuaAura::GetAuraId},                                                                     // :GetAuraId() - Returns aura ID

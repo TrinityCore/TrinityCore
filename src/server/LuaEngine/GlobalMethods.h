@@ -4,8 +4,8 @@
 #include "GuildMgr.h"
 #include "AccountMgr.h"
 
-#ifndef __GLOBAL_METHODS_ELUNA
-#define __GLOBAL_METHODS_ELUNA
+#ifndef GLOBALMETHODS_H
+#define GLOBALMETHODS_H
 
 namespace LuaGlobalFunctions
 {
