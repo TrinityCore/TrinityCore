@@ -326,7 +326,7 @@ void Eluna::PushULong(lua_State* L, uint64 l)
 {
     if (!L) L = LuaState;
     std::ostringstream ss;
-    ss << std::hex << l;
+    ss << "0x" << std::hex << l;
     sEluna->PushString(L, ss.str().c_str());
 }
 
@@ -334,7 +334,7 @@ void Eluna::PushLong(lua_State* L, int64 l)
 {
     if (!L) L = LuaState;
     std::ostringstream ss;
-    ss << std::hex << l;
+    ss << "0x" << std::hex << l;
     sEluna->PushString(L, ss.str().c_str());
 }
 
@@ -543,9 +543,9 @@ uint64 Eluna::CHECK_ULONG(lua_State* L, int narg)
 {
     const char* c_str;
     if (!L)
-        c_str = luaL_optstring(LuaState, narg, "0");
+        c_str = luaL_optstring(LuaState, narg, "0x0");
     else
-        c_str = luaL_optstring(L, narg, "0");
+        c_str = luaL_optstring(L, narg, "0x0");
     return strtoul(c_str, NULL, 0);
 }
 
@@ -553,9 +553,9 @@ int64 Eluna::CHECK_LONG(lua_State* L, int narg)
 {
     const char* c_str;
     if (!L)
-        c_str = luaL_optstring(LuaState, narg, "0");
+        c_str = luaL_optstring(LuaState, narg, "0x0");
     else
-        c_str = luaL_optstring(L, narg, "0");
+        c_str = luaL_optstring(L, narg, "0x0");
     return strtol(c_str, NULL, 0);
 }
 
