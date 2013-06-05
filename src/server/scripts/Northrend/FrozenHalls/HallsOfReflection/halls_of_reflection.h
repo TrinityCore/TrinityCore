@@ -94,7 +94,7 @@ enum GameObjects
 
 enum HorWorldStates
 {
-    WORLD_STATE_HOR                               = 4884,
+    WORLD_STATE_HOR_WAVES_ENABLED                 = 4884,
     WORLD_STATE_HOR_WAVE_COUNT                    = 4882,
 };
 

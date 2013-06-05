@@ -196,12 +196,12 @@ const AuthHandler table[] =
 Patcher PatchesCache;
 
 // Constructor - set the N and g values for SRP6
-AuthSocket::AuthSocket(RealmSocket& socket) : pPatch(NULL), socket_(socket)
+AuthSocket::AuthSocket(RealmSocket& socket) :
+    pPatch(NULL), socket_(socket), _authed(false), _build(0),
+    _expversion(0), _accountSecurityLevel(SEC_PLAYER)
 {
     N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword(7);
-    _authed = false;
-    _accountSecurityLevel = SEC_PLAYER;
 }
 
 // Close patch file descriptor before leaving
