@@ -41,13 +41,26 @@ project website at http://www.TrinityCore.org
 Documentation including installation instructions can be found inside
 the doc directory.
 
-SQL files to create the database can be found in the sql/create and sql/base directory.
-You need to download world database from http://www.trinitycore.org/f/files/ be sure you get the higher numbered database.
-When installing a core the 1st time you need to import also the files at sql/updates/world directory.
-To save time importing multiple files, you can use copy *.sql world_updates.sql under Windows or cat *.sql > world_updates under Linux.
-You need to update your core (recompile and overwrite binaries) when updating your database, usually you can't use one older core with a newer database or a newer core with a older database.
-When updating your core you also need to import the files at sql/updates/auth and sql/updates/characters along with sql/updates/world files.
-You can't merge all the sql files on sql/updates into a single file, because they belong to 3 different databases and they don't use database name.
+SQL files to create the databases can be found in the sql/create and 
+sql/base directories.
+You need to run sql/create/create_mysql.sql 1st and then
+sql/base/auth_database.sql and sql/base/auth_database.sql
+You need to download world database from http://www.trinitycore.org/f/files/
+be sure you get the higher numbered database.
+When installing a core the 1st time you need to import also the files at
+sql/updates/world directory.
+sql/updates/auth and sql/updates/characters databases only needs to be run
+when updating one existing server.
+To save time importing multiple files, you can use copy *.sql world_updates.sql
+under Windows or cat *.sql > world_updates under Linux.
+
+You need to update your core (recompile and overwrite binaries) when updating
+your database, usually you can't use one older core with a newer database or a
+newer core with a older database.
+When updating your core you also need to import the files at sql/updates/auth
+and sql/updates/characters along with sql/updates/world files.
+You can't merge all the sql files on sql/updates into a single file, because
+they belong to 3 different databases and they don't use database name.
 
 TrinityCore Requirements
 Platform: Linux, Windows or Mac
