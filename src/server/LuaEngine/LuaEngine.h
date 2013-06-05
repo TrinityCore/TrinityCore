@@ -1151,9 +1151,9 @@ public:
             sEluna->ExecuteCall(5, 0);
         }
 
-        void OnSpellClick(Unit* clicker)
+        void OnSpellClick(Unit* clicker, bool& result)
         {
-            ScriptedAI::OnSpellClick(clicker);
+            ScriptedAI::OnSpellClick(clicker, result);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SPELL_CLICK);
             if (!bind)
                 return;
@@ -1161,7 +1161,8 @@ public:
             sEluna->PushInteger(sEluna->LuaState, CREATURE_EVENT_ON_SPELL_CLICK);
             sEluna->PushUnit(sEluna->LuaState, me);
             sEluna->PushUnit(sEluna->LuaState, clicker);
-            sEluna->ExecuteCall(3, 0);
+            sEluna->PushBoolean(sEluna->LuaState, result);
+            sEluna->ExecuteCall(4, 0);
         }
 
         void MoveInLineOfSight(Unit* who)
