@@ -1161,6 +1161,9 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_NO_RESET_TALENT_COST] = ConfigMgr::GetBoolDefault("NoResetTalentsCost", false);
     m_bool_configs[CONFIG_SHOW_KICK_IN_WORLD] = ConfigMgr::GetBoolDefault("ShowKickInWorld", false);
+	m_bool_configs[CONFIG_SHOW_BAN_IN_WORLD] = ConfigMgr::GetBoolDefault("ShowBanInWorld", false);
+	m_bool_configs[CONFIG_SHOW_MUTE_IN_WORLD] = ConfigMgr::GetBoolDefault("ShowMuteInWorld", false);
+	m_bool_configs[CONFIG_SHOW_MUTE_IN_WORLD_REQUIRES_REASON] = ConfigMgr::GetBoolDefault("ShowMuteRequireReason", false);
     m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = ConfigMgr::GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
     m_int_configs[CONFIG_MIN_LOG_UPDATE] = ConfigMgr::GetIntDefault("MinRecordUpdateTimeDiff", 100);
     m_int_configs[CONFIG_NUMTHREADS] = ConfigMgr::GetIntDefault("MapUpdate.Threads", 1);

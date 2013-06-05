@@ -1664,7 +1664,7 @@ public:
 
             // Only fetch these fields if commander has sufficient rights)
             if (handler->HasPermission(RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA) && // RBAC Perm. 48, Role 39
-               (!handler->GetSession() || handler->GetSession()->GetSecurity() >= AccountTypes(security)))
+               (!handler->GetSession() || handler->GetSession()->GetSecurity() >= security))
             {
                 eMail     = fields[2].GetString();
                 lastIp    = fields[3].GetString();
@@ -1916,6 +1916,17 @@ public:
         if (muteReason != NULL)
             muteReasonStr = muteReason;
 
+
+		bool ShowInWorld = sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD);
+
+		if (ShowInWorld && !sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD_REQUIRES_REASON) && muteReason == NULL)
+		{
+			handler->SendSysMessage("You must specify a reason");
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+
+
         Player* target;
         uint64 targetGuid;
         std::string targetName;
@@ -1964,6 +1975,14 @@ public:
         std::string nameLink = handler->playerLink(targetName);
 
         handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+
+		if(ShowInWorld)
+		{
+			std::ostringstream ss;
+			ss << nameLink << " was muted by " << handler->GetSession()->GetPlayerName()
+				<< " for " << delayStr << " minutes. The reason is : " << muteReasonStr;
+			sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
+		}
 
         return true;
     }
