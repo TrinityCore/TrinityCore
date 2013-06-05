@@ -1421,8 +1421,10 @@ class npc_descend_into_madness : public CreatureScript
         {
             npc_descend_into_madnessAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void OnSpellClick(Unit* clicker)
+            void OnSpellClick(Unit* clicker, bool& result)
             {
+                if (!result)
+                    return;
                 clicker->RemoveAurasDueToSpell(SPELL_BRAIN_LINK);
                 me->DespawnOrUnsummon();
             }

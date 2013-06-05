@@ -442,6 +442,15 @@ struct MovementInfo
 
     void SetFallTime(uint32 time) { fallTime = time; }
 
+    void ClearTransport()
+    {
+        t_guid = 0;
+        t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+        t_seat = -1;
+        t_time = 0;
+        t_time2 = 0;
+    }
+
     void OutDebug();
 };
 

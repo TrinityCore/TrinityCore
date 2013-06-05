@@ -496,10 +496,10 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
  * @param [in, out] unit The passenger to remove.
  */
 
-void Vehicle::RemovePassenger(Unit* unit)
+Vehicle* Vehicle::RemovePassenger(Unit* unit)
 {
     if (unit->GetVehicle() != this)
-        return;
+        return NULL;
 
     SeatMap::iterator seat = GetSeatIteratorForPassenger(unit);
     ASSERT(seat != Seats.end());
@@ -519,9 +519,7 @@ void Vehicle::RemovePassenger(Unit* unit)
     if (_me->IsInWorld())
     {
         unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-        unit->m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-        unit->m_movementInfo.t_time = 0;
-        unit->m_movementInfo.t_seat = 0;
+        unit->m_movementInfo.ClearTransport();
     }
 
     // only for flyable vehicles
@@ -533,6 +531,9 @@ void Vehicle::RemovePassenger(Unit* unit)
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnRemovePassenger(this, unit);
+
+    unit->SetVehicle(NULL);
+    return this;
 }
 
 /**
@@ -803,7 +804,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     Target->RemovePendingEventsForSeat(Seat->first);
 
-    Passenger->m_vehicle = Target;
+    Passenger->SetVehicle(Target);
     Seat->second.Passenger = Passenger->GetGUID();
     if (Seat->second.SeatInfo->CanEnterOrExit())
     {
