@@ -311,7 +311,7 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
             : _mapEntry(sMapStore.LookupEntry(mapId))
         {
             if (!_mapEntry)
-                sLog->outError(LOG_FILTER_TSCR, "Invalid MapScript for %u; no such map ID.", mapId);
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "Invalid MapScript for %u; no such map ID.", mapId);
         }
 
     public:

@@ -322,7 +322,7 @@ class WorldSession
         void SendAuctionOwnerNotification(AuctionEntry* auction);
 
         //Item Enchantment
-        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
+        void SendEnchantmentLog(uint64 target, uint64 caster, uint32 itemId, uint32 enchantId);
         void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi

@@ -95,14 +95,14 @@ public:
         path.SetUseStraightPath(useStraightPath);
         bool result = path.CalculatePath(x, y, z);
 
-        PointsArray const& pointPath = path.GetPath();
+        Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
-        handler->PSendSysMessage("Result: %s - Length: "SIZEFMTD" - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
+        handler->PSendSysMessage("Result: %s - Length: " SIZEFMTD " - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
-        Vector3 start = path.GetStartPosition();
-        Vector3 end = path.GetEndPosition();
-        Vector3 actualEnd = path.GetActualEndPosition();
+        G3D::Vector3 const &start = path.GetStartPosition();
+        G3D::Vector3 const &end = path.GetEndPosition();
+        G3D::Vector3 const &actualEnd = path.GetActualEndPosition();
 
         handler->PSendSysMessage("StartPosition     (%.3f, %.3f, %.3f)", start.x, start.y, start.z);
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
@@ -128,7 +128,7 @@ public:
         int32 gy = 32 - player->GetPositionY() / SIZE_OF_GRIDS;
 
         handler->PSendSysMessage("%03u%02i%02i.mmtile", player->GetMapId(), gy, gx);
-        handler->PSendSysMessage("gridloc [%i,%i]", gx, gy);
+        handler->PSendSysMessage("gridloc [%i, %i]", gx, gy);
 
         // calculate navmesh tile location
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
@@ -148,7 +148,7 @@ public:
         int32 tilex = int32((y - min[0]) / SIZE_OF_GRIDS);
         int32 tiley = int32((x - min[2]) / SIZE_OF_GRIDS);
 
-        handler->PSendSysMessage("Calc   [%02i,%02i]", tilex, tiley);
+        handler->PSendSysMessage("Calc   [%02i, %02i]", tilex, tiley);
 
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
@@ -156,16 +156,16 @@ public:
         navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL);
 
         if (polyRef == INVALID_POLYREF)
-            handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
+            handler->PSendSysMessage("Dt     [??, ??] (invalid poly, probably no tile loaded)");
         else
         {
             dtMeshTile const* tile;
             dtPoly const* poly;
             navmesh->getTileAndPolyByRef(polyRef, &tile, &poly);
             if (tile)
-                handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
+                handler->PSendSysMessage("Dt     [%02i, %02i]", tile->header->x, tile->header->y);
             else
-                handler->PSendSysMessage("Dt     [??,??] (no tile loaded)");
+                handler->PSendSysMessage("Dt     [??, ??] (no tile loaded)");
         }
 
         return true;
@@ -190,7 +190,7 @@ public:
             if (!tile || !tile->header)
                 continue;
 
-            handler->PSendSysMessage("[%02i,%02i]", tile->header->x, tile->header->y);
+            handler->PSendSysMessage("[%02i, %02i]", tile->header->x, tile->header->y);
         }
 
         return true;
@@ -264,7 +264,7 @@ public:
 
         if (!creatureList.empty())
         {
-            handler->PSendSysMessage("Found "SIZEFMTD" Creatures.", creatureList.size());
+            handler->PSendSysMessage("Found " SIZEFMTD " Creatures.", creatureList.size());
 
             uint32 paths = 0;
             uint32 uStartTime = getMSTime();

@@ -67,7 +67,7 @@ class instance_ramparts : public InstanceMapScript
 
             void SetData(uint32 uiType, uint32 uiData)
             {
-                sLog->outDebug(LOG_FILTER_TSCR, "Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
+                TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
 
                 switch (uiType)
                 {

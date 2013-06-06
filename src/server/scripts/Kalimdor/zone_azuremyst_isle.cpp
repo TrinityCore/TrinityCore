@@ -553,7 +553,7 @@ public:
                 }
             }
             else
-                sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: FlagList is empty!");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: FlagList is empty!");
         }
 
         void UpdateAI(uint32 diff)

@@ -20,8 +20,9 @@
 
 #include "Define.h"
 #include <time.h>
+#include "Dynamic/UnorderedMap.h"
+
 #include <string>
-#include <map>
 
 enum LogFilterType
 {
@@ -68,10 +69,11 @@ enum LogFilterType
     LOG_FILTER_SERVER_LOADING                    = 40,
     LOG_FILTER_OPCODES                           = 41,
     LOG_FILTER_SOAP                              = 42,
-    LOG_FILTER_RBAC                              = 43
+    LOG_FILTER_RBAC                              = 43,
+    LOG_FILTER_CHEAT                             = 44
 };
 
-const uint8 MaxLogFilter = 43;
+const uint8 MaxLogFilter = 45;
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel
@@ -108,12 +110,8 @@ enum AppenderFlags
 struct LogMessage
 {
     LogMessage(LogLevel _level, LogFilterType _type, std::string _text)
-        : level(_level)
-        , type(_type)
-        , text(_text)
-    {
-        mtime = time(NULL);
-    }
+        : level(_level), type(_type), text(_text), mtime(time(NULL))
+    { }
 
     static std::string getTimeStr(time_t time);
     std::string getTimeStr();
@@ -159,6 +157,6 @@ class Appender
         AppenderFlags flags;
 };
 
-typedef std::map<uint8, Appender*> AppenderMap;
+typedef UNORDERED_MAP<uint8, Appender*> AppenderMap;
 
 #endif

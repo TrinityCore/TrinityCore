@@ -45,9 +45,9 @@ enum Spells
 
 enum Events
 {
-    EVENT_STREAM_OF_MACHINE_FLUID   = 0,
-    EVENT_SAW_BLADE                 = 1,
-    EVENT_SHADOW_POWER              = 2
+    EVENT_STREAM_OF_MACHINE_FLUID   = 1,
+    EVENT_SAW_BLADE                 = 2,
+    EVENT_SHADOW_POWER              = 3
 };
 
 class boss_gatewatcher_gyrokill : public CreatureScript

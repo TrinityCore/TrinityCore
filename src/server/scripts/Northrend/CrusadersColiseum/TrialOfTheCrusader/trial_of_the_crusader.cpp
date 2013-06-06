@@ -149,6 +149,9 @@ class npc_announcer_toc10 : public CreatureScript
                 }
             }
 
+            if (i >= NUM_MESSAGES)
+                return false;
+
             player->SEND_GOSSIP_MENU(_GossipMessage[i].msgnum, creature->GetGUID());
             return true;
         }

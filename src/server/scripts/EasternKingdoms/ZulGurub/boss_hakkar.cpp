@@ -51,17 +51,17 @@ enum Spells
 
 enum Events
 {
-    EVENT_BLOOD_SIPHON          = 0,
-    EVENT_CORRUPTED_BLOOD       = 1,
-    EVENT_CAUSE_INSANITY        = 2,     // Spell needs scripting. Event disabled
-    EVENT_WILL_OF_HAKKAR        = 3,
-    EVENT_ENRAGE                = 4,
+    EVENT_BLOOD_SIPHON          = 1,
+    EVENT_CORRUPTED_BLOOD       = 2,
+    EVENT_CAUSE_INSANITY        = 3,     // Spell needs scripting. Event disabled
+    EVENT_WILL_OF_HAKKAR        = 4,
+    EVENT_ENRAGE                = 5,
     // The Aspects of all High Priests events
-    EVENT_ASPECT_OF_JEKLIK      = 5,
-    EVENT_ASPECT_OF_VENOXIS     = 6,
-    EVENT_ASPECT_OF_MARLI       = 7,
-    EVENT_ASPECT_OF_THEKAL      = 8,
-    EVENT_ASPECT_OF_ARLOKK      = 9
+    EVENT_ASPECT_OF_JEKLIK      = 6,
+    EVENT_ASPECT_OF_VENOXIS     = 7,
+    EVENT_ASPECT_OF_MARLI       = 8,
+    EVENT_ASPECT_OF_THEKAL      = 9,
+    EVENT_ASPECT_OF_ARLOKK      = 10
 };
 
 class boss_hakkar : public CreatureScript

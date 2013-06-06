@@ -18,6 +18,7 @@
 #    GAME MASTER SETTINGS
 #    VISIBILITY AND DISTANCES
 #    SERVER RATES
+#    STATS LIMITS
 #    AUTO BROADCAST
 #    BATTLEGROUND CONFIG
 #    BATTLEFIELD CONFIG
@@ -1123,7 +1124,7 @@ AccountInstancesPerHour = 5
 #   RBAC.DefaultGroups
 #        Description: Comma separated list of groups to be added to any account
 #                     Check auth.rbac_groups for correct ids
-#         Default:    "" (No group)
+#        Default:     "" (No group)
 
 RBAC.DefaultGroups = ""
 
@@ -2004,6 +2005,28 @@ Die.Command.Mode = 1
 ###################################################################################################
 
 ###################################################################################################
+# STATS LIMITS
+#
+#    Stats.Limits.Enable
+#        Description: Enable or disable stats system
+#        Default:     0 - Disabled
+
+Stats.Limits.Enable = 0
+
+#
+#    Stats.Limit.[STAT]
+#        Description: Set percentage limit for dodge, parry, block and crit rating
+#        Default:     95.0 (95%)
+
+Stats.Limits.Dodge = 95.0
+Stats.Limits.Parry = 95.0
+Stats.Limits.Block = 95.0
+Stats.Limits.Crit  = 95.0
+
+#
+###################################################################################################
+
+###################################################################################################
 # AUTO BROADCAST
 #
 #    AutoBroadcast.On
@@ -2372,11 +2395,19 @@ CharDelete.Method = 0
 
 #
 #    CharDelete.MinLevel
-#        Description: Required level to use the unlinking method if enabled.
+#        Description: Required level to use the unlinking method if enabled for non-heroic classes.
 #        Default:     0  - (Same method for every level)
 #                     1+ - (Only characters with the specified level will use the unlinking method)
 
 CharDelete.MinLevel = 0
+
+#
+#    CharDelete.Heroic.MinLevel
+#        Description: Required level to use the unlinking method if enabled for heroic classes.
+#        Default:     0  - (Same method for every level)
+#                     1+ - (Only characters with the specified level will use the unlinking method)
+
+CharDelete.Heroic.MinLevel = 0
 
 #
 #    CharDelete.KeepDays
@@ -2712,6 +2743,7 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                        41 - Opcodes (just id and name sent / received)
 #                        42 - SOAP
 #                        43 - RBAC (Role Based Access Control)
+#                        44 - Cheat (used to log cheat attempts)
 #
 #                     LogLevel
 #                         0 - (Disabled)

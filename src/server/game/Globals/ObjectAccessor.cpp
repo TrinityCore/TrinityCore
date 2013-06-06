@@ -47,6 +47,35 @@ ObjectAccessor::~ObjectAccessor()
 {
 }
 
+template<class T> T* ObjectAccessor::GetObjectInWorld(uint32 mapid, float x, float y, uint64 guid, T* /*fake*/)
+{
+    T* obj = HashMapHolder<T>::Find(guid);
+    if (!obj || obj->GetMapId() != mapid)
+        return NULL;
+
+    CellCoord p = Trinity::ComputeCellCoord(x, y);
+    if (!p.IsCoordValid())
+    {
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "ObjectAccessor::GetObjectInWorld: invalid coordinates supplied X:%f Y:%f grid cell [%u:%u]", x, y, p.x_coord, p.y_coord);
+        return NULL;
+    }
+
+    CellCoord q = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
+    if (!q.IsCoordValid())
+    {
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "ObjectAccessor::GetObjecInWorld: object (GUID: %u TypeId: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), q.x_coord, q.y_coord);
+        return NULL;
+    }
+
+    int32 dx = int32(p.x_coord) - int32(q.x_coord);
+    int32 dy = int32(p.y_coord) - int32(q.y_coord);
+
+    if (dx > -2 && dx < 2 && dy > -2 && dy < 2)
+        return obj;
+    else
+        return NULL;
+}
+
 Player* ObjectAccessor::GetObjectInWorld(uint64 guid, Player* /*typeSpecifier*/)
 {
     Player* player = HashMapHolder<Player>::Find(guid);
@@ -296,7 +325,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
         return NULL;
     }
 
-    sLog->outDebug(LOG_FILTER_GENERAL, "Deleting Corpse and spawned bones.");
+    TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Deleting Corpse and spawned bones.");
 
     // Map can be NULL
     Map* map = corpse->FindMap();

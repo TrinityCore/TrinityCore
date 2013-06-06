@@ -35,8 +35,8 @@ enum Spells
 
 enum Events
 {
-    EVENT_LIGHTNINGCLOUD        = 0,
-    EVENT_LIGHTNINGWAVE         = 1
+    EVENT_LIGHTNINGCLOUD        = 1,
+    EVENT_LIGHTNINGWAVE         = 2
 };
 
 class boss_wushoolay : public CreatureScript
