@@ -505,9 +505,12 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellStore,                  dbcPath, "Spell.dbc", &CustomSpellEntryfmt, &CustomSpellEntryIndex);//
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
-        SpellCategoriesEntry const* spell = sSpellCategoriesStore.LookupEntry(i);
-        if (spell && spell->Category)
-            sSpellCategoryStore[spell->Category].insert(i);
+        SpellEntry const* spell = sSpellStore.LookupEntry(i);
+        if (!spell)
+            continue;
+
+        if (SpellCategoriesEntry const* category = sSpellCategoriesStore.LookupEntry(spell->SpellCategoriesId))
+            sSpellCategoryStore[category->Category].insert(i);
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellReagentsStore,          dbcPath,"SpellReagents.dbc");//15595
@@ -584,7 +587,7 @@ void LoadDBCStores(const std::string& dataPath)
 
         SpellDifficultyEntry newEntry;
         memset(newEntry.SpellID, 0, 4*sizeof(uint32));
-        for (int x = 0; x < MAX_DIFFICULTY; ++x)
+        for (uint32 x = 0; x < MAX_DIFFICULTY; ++x)
         {
             if (spellDiff->SpellID[x] <= 0 || !sSpellStore.LookupEntry(spellDiff->SpellID[x]))
             {
@@ -595,10 +598,11 @@ void LoadDBCStores(const std::string& dataPath)
             else
                 newEntry.SpellID[x] = spellDiff->SpellID[x];
         }
+
         if (newEntry.SpellID[0] <= 0 || newEntry.SpellID[1] <= 0)//id0-1 must be always set!
             continue;
 
-        for (int x = 0; x < MAX_DIFFICULTY; ++x)
+        for (uint32 x = 0; x < MAX_DIFFICULTY; ++x)
             sSpellMgr->SetSpellDifficultyId(uint32(newEntry.SpellID[x]), spellDiff->ID);
     }
 
