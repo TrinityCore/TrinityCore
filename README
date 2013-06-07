@@ -71,3 +71,10 @@ CMake ≥ 2.8.0 (max 2.8.9 under linux)
 OpenSSL ≥ 0.9.8o
 GCC ≥ 4.3 (Linux only)
 MS Visual Studio ≥ 9 (2008) (Windows only)
+A bit of brain, wiki can become outdated with the release of new TDB versions
+if wiki refers to TDB 50 and you see TDB 52 get the higher number.
+Some reading skills, search forum, read http://www.trinitycore.org/f/topic/1518-
+and http://www.trinitycore.org/f/topic/37- before posting a bug report or ask for
+help on forum. 
+Search for existing bug reports before post your bug report, don't post multiple
+bugs on a single ticket.
