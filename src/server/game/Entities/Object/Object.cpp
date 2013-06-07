@@ -442,11 +442,11 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             ObjectGuid transGuid = self->m_movementInfo.t_guid;
 
             data->WriteBit(transGuid[1]);
-            data->WriteBit(0);                                                  // Has transport time 2
+            data->WriteBit(hasTransportTime2);                                  // Has transport time 2
             data->WriteBit(transGuid[4]);
             data->WriteBit(transGuid[0]);
             data->WriteBit(transGuid[6]);
-            data->WriteBit(0);                                                  // Has transport time 3
+            data->WriteBit(hasTransportTime3);                                  // Has transport time 3
             data->WriteBit(transGuid[7]);
             data->WriteBit(transGuid[5]);
             data->WriteBit(transGuid[3]);
