@@ -3465,7 +3465,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
     if (GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
         xp = 0; // SMSG_GUILD_XP_GAIN is always sent, even for no gains
 
-    if (GetLevel() >= GUILD_EXPERIENCE_UNCAPPED_LEVEL)
+    if (GetLevel() < GUILD_EXPERIENCE_UNCAPPED_LEVEL)
         xp = std::min(xp, sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP) - uint32(_todayExperience));
 
     WorldPacket data(SMSG_GUILD_XP_GAIN, 8);
