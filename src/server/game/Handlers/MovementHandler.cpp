@@ -392,7 +392,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     mover->UpdatePosition(movementInfo.pos);
 
     WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
-    _player->WriteMovementInfo(data);
+    mover->WriteMovementInfo(data);
     mover->SendMessageToSet(&data, _player);
 
     if (plrMover)                                            // nothing is charmed, or player charmed
