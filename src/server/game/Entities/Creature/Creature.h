@@ -520,6 +520,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool HasSpell(uint32 spellID) const;
 
         bool UpdateEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
+
+        void UpdateMovementFlags();
+
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
         void UpdateResistances(uint32 school);
