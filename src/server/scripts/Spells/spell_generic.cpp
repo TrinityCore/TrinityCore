@@ -3562,6 +3562,47 @@ class spell_gen_orc_disguise : public SpellScriptLoader
         }
 };
 
+enum WhisperGulchYoggSaronWhisper
+{
+    SPELL_YOGG_SARON_WHISPER_DUMMY = 29072,
+    CREATURE_UNKNOWN_VOICE         = 29881
+};
+
+class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
+{
+    public:
+        spell_gen_whisper_gulch_yogg_saron_whisper() : SpellScriptLoader("spell_gen_whisper_gulch_yogg_saron_whisper") { }
+
+        class spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_YOGG_SARON_WHISPER_DUMMY))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster->FindNearestCreature(CREATURE_UNKNOWN_VOICE,100), SPELL_YOGG_SARON_WHISPER_DUMMY, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_whisper_gulch_yogg_saron_whisper_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3642,4 +3683,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_replenishment();
     new spell_gen_aura_service_uniform();
     new spell_gen_orc_disguise();
+    new spell_gen_whisper_gulch_yogg_saron_whisper();
 }
