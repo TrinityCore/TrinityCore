@@ -1,8 +1,8 @@
 -- Fix quest To Westguard Keep! (11291)
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=9618;
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`action_script_id`,`box_coded`,`box_money`,`box_text`) VALUES
-(9618,0,0,'Admiral Keller sent me, Emilune. Please send me to Westguard Keep!',1,1,0,0,0,0,0,'');
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
+(9618,0,0,'Admiral Keller sent me, Emilune. Please send me to Westguard Keep!',1,1,0,0,0,0,'');
 
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=27930;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=27930 AND `source_type`=0;
