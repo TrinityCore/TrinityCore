@@ -1462,9 +1462,9 @@ MovementStatusElements const MovementStopAscend[] =
 
 MovementStatusElements const MovementStopPitch[] =
 {
-    MSEPositionY,
     MSEPositionX,
     MSEPositionZ,
+    MSEPositionY,
     MSEHasGuidByte0,
     MSEHasGuidByte5,
     MSEHasGuidByte3,
