@@ -35,17 +35,21 @@ class WorldPacket;
 enum AuctionError
 {
     ERR_AUCTION_OK                  = 0,
+    ERR_AUCTION_INVENTORY           = 1,
     ERR_AUCTION_DATABASE_ERROR      = 2,
     ERR_AUCTION_NOT_ENOUGHT_MONEY   = 3,
     ERR_AUCTION_ITEM_NOT_FOUND      = 4,
-    ERR_AUCTION_BID_OWN             = 10
+    ERR_AUCTION_HIGHER_BID          = 5,
+    ERR_AUCTION_BID_INCREMENT       = 7,
+    ERR_AUCTION_BID_OWN             = 10,
+    ERR_AUCTION_RESTRICTED_ACCOUNT  = 13
 };
 
 enum AuctionAction
 {
-    AUCTION_SELL_ITEM = 0,
-    AUCTION_CANCEL = 1,
-    AUCTION_PLACE_BID = 2
+    AUCTION_SELL_ITEM   = 0,
+    AUCTION_CANCEL      = 1,
+    AUCTION_PLACE_BID   = 2
 };
 
 enum MailAuctionAnswers
