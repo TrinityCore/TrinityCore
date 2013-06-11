@@ -3367,6 +3367,20 @@ void SpellMgr::LoadDbcDataCorrections()
             case 64596: // Cosmic Smash (Algalon the Observer)
                 spellInfo->rangeIndex = 6;  // 100yd
                 break;
+            case 63387: // Rapid Burst Left 10 man (Mimiron)
+            case 64019: // Rapid Burst Right 10 man (Mimiron)
+            case 64531: // Rapid Burst Left 25 man (Mimiron)
+            case 64532: // Rapid Burst Right 25 man (Mimiron)
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_50000_YARDS;   // 50000yd
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_UNK25;
+                break;
+            case 63382: // Rapid Burst Aura (Mimiron)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 64444: // Mimiron - Magnetic Core
+                spellInfo->rangeIndex = 6; // 100yd
+                break;
             case 64014: // Expedition Base Camp Teleport
             case 64024: // Conservatory Teleport
             case 64025: // Halls of Invention Teleport

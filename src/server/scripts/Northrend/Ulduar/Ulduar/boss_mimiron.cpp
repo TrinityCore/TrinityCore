@@ -24,6 +24,7 @@
 #include "VehicleDefines.h"
 
 #define EMOTE_LEVIATHAN                         "Leviathan MK II begins to cast Plasma Blast!"
+#define FLAME_CAP 200
 #define ACHIEVEMENT_FIREFIGHTER                 RAID_MODE(3180, 3189)
 #define ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE        RAID_MODE(3138, 2995)
 #define ACHIEVEMENT_SET_UP_US_THE_BOMB          RAID_MODE(2989, 3237)
@@ -79,15 +80,18 @@ enum Spells
     SPELL_HOVER                                 = 57764, // Set Hover position
     SPELL_BERSERK                               = 47008,
     // Hard Mode
+    SPELL_SELF_DESTRUCTION                      = 64610,
+    SPELL_SELF_DESTRUCTION_VISUAL               = 64613,
     SPELL_EMERGENCY_MODE                        = 64582,
     SPELL_FLAME_SUPPRESSANT                     = 64570,
     SPELL_FLAME_SUPPRESSANT_VX001               = 65192,
+    SPELL_SUMMON_FLAMES_INITIAL                 = 64563,
     SPELL_FLAME                                 = 64561,
     SPELL_FROST_BOMB                            = 64624,
     SPELL_FROST_BOMB_EXPLOSION_10               = 64626,
     SPELL_FROST_BOMB_EXPLOSION_25               = 65333,
     SPELL_WATER_SPRAY                           = 64619,
-    SPELL_SIREN                                 = 64616,
+    SPELL_DEAFENING_SIREN                       = 64616,
     // NPCs
     SPELL_BOMB_BOT                              = 63801,
 };
@@ -138,8 +142,8 @@ enum Events
     // Misc
     EVENT_ENRAGE,
     EVENT_FLAME,
-    // Leviathan MK II
     EVENT_NONE,
+    // Leviathan MK II
     EVENT_PROXIMITY_MINE,
     EVENT_NAPALM_SHELL,
     EVENT_PLASMA_BLAST,
@@ -157,7 +161,9 @@ enum Events
     // Aerial Command Unit
     EVENT_PLASMA_BALL,
     EVENT_REACTIVATE_AERIAL,
-    EVENT_SUMMON_BOTS
+    EVENT_SUMMON_BOTS,
+	    Thrash events
+	
 };
 
 enum Phases
@@ -192,6 +198,14 @@ enum eActions
     DO_ENTER_ENRAGE                            = 12,
     DO_ACTIVATE_HARD_MODE                      = 13,
     DO_DESPAWN_SUMMONS                         = 14,
+    DO_INCREASE_FLAME_COUNT                    = 15,
+    DO_DECREASE_FLAME_COUNT                    = 16,
+};
+
+enum eDatas
+{
+    DATA_FLAME_COUNT,
+    DATA_GET_HARD_MODE,
 };
 
 const Position SummonPos[9] =
@@ -259,6 +273,7 @@ class boss_mimiron : public CreatureScript
                         }
 
                 uiBotTimer = 0;
+                _flameCount = 0;
                 MimironHardMode = false;
                 checkBotAlive = true;
                 Enraged = false;
@@ -319,6 +334,19 @@ class boss_mimiron : public CreatureScript
                 me->DespawnOrUnsummon(5000);
             }
 
+            uint32 GetData(uint32 type) const
+            {
+                switch (type)
+                {
+                    case DATA_GET_HARD_MODE:
+                        return MimironHardMode ? 1 : 0;
+                    case DATA_FLAME_COUNT:
+                        return _flameCount;
+                    default:
+                        return 0;
+                }
+            }
+
             void DoAction(int32 action)
             {
                 switch (action)
@@ -342,6 +370,13 @@ class boss_mimiron : public CreatureScript
                     case DO_ACTIVATE_HARD_MODE:
                         MimironHardMode = true;
                         DoZoneInCombat();
+                        break;
+                    case DO_INCREASE_FLAME_COUNT:
+                        ++_flameCount;
+                        break;
+                    case DO_DECREASE_FLAME_COUNT:
+                        if (_flameCount)
+                            --_flameCount;
                         break;
                 }
             }
@@ -601,6 +636,7 @@ class boss_mimiron : public CreatureScript
             uint32 EnrageTimer;
             uint32 FlameTimer;
             uint32 uiBotTimer;
+            uint32 _flameCount;
             bool checkBotAlive;
             bool Enraged;
             EventMap events;
@@ -805,7 +841,7 @@ class boss_leviathan_mk_turret : public CreatureScript
             boss_leviathan_mk_turretAI(Creature* creature) : ScriptedAI(creature) 
             {
                 me->SetReactState(REACT_PASSIVE);
-				events.ScheduleEvent(EVENT_NAPALM_SHELL, urand(4000, 8000));
+                events.ScheduleEvent(EVENT_NAPALM_SHELL, urand(4000, 8000));
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
             
@@ -814,6 +850,37 @@ class boss_leviathan_mk_turret : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            Unit* GetNapalmShellTarget()
+            {
+                Map* map = me->GetMap();
+                if (map && map->IsDungeon())
+                {
+                    std::list<Player*> playerList;
+                    Map::PlayerList const& Players = map->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                    {
+                        if (Player* player = itr->getSource())
+                        {
+                            if (player->isDead() || player->isGameMaster())
+                                continue;
+
+                            float Distance = player->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                            if (Distance < 15.0f || Distance > 100.0f)
+                                continue;
+
+                            playerList.push_back(player);
+                        }
+                    }
+
+                    if (playerList.empty())
+                        return NULL;
+
+                    return Trinity::Containers::SelectRandomContainerElement(playerList);
+                }
+                else
+                    return NULL;
             }
 
             void UpdateAI(uint32 diff)
@@ -828,8 +895,11 @@ class boss_leviathan_mk_turret : public CreatureScript
                     switch(eventId)
                     {
                         case EVENT_NAPALM_SHELL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, -12.0f))
-                                DoCast(target, SPELL_NAPALM_SHELL);
+                            Unit* shellTarget = GetNapalmShellTarget();
+                            if (!shellTarget)
+                                shellTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true);
+                            if (shellTarget)
+                                DoCast(shellTarget, SPELL_NAPALM_SHELL);
                             events.RescheduleEvent(EVENT_NAPALM_SHELL, urand(8000, 12000));
                             break;
                     }
@@ -925,6 +995,12 @@ class boss_vx_001 : public CreatureScript
                 me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
                 phase = PHASE_NULL;
                 events.SetPhase(PHASE_NULL);
+
+                // TODO: remove when Spinning Up is fixed properly
+                me->ApplySpellImmune(0, IMMUNITY_ID, 48181, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 59161, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 59163, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 59164, true);
             }
 
             void KilledUnit(Unit * /*who*/)
@@ -1046,6 +1122,11 @@ class boss_vx_001 : public CreatureScript
                         {
                             float orient = me->GetOrientation();
                             me->SetFacingTo(orient + (direction ? M_PI/60 : -M_PI/60));
+                            float x, y, z;
+                            z = me->GetPositionZ();
+                            me->GetNearPoint2D(x, y, 10.0f, me->GetOrientation());
+                            if (Creature* temp = me->SummonCreature(NPC_BURST_TARGET, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 250))
+                                me->SetTarget(temp->GetGUID());
                         }
                         spinTimer = 250;
                     }
@@ -1073,9 +1154,10 @@ class boss_vx_001 : public CreatureScript
                                 me->SetReactState(REACT_PASSIVE);
                                 if (Creature* leviathan = me->GetVehicleCreatureBase())
                                 {
-                                    float orient = leviathan->GetOrientation();
+                                    float orient = float(2*M_PI * rand_norm());
                                     leviathan->CastSpell(leviathan, 14821, true);
                                     leviathan->SetFacingTo(orient);
+                                    leviathan->SetOrientation(orient);
                                     me->SetOrientation(orient);
                                 }
                                 direction = urand(0, 1);
@@ -1087,7 +1169,8 @@ class boss_vx_001 : public CreatureScript
                                 break;
                             case EVENT_LASER_BARRAGE_END:
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                AttackStart(me->getVictim());
+                                if (me->getVictim())
+                                    AttackStart(me->getVictim());
                                 spinning = false;
                                 break;
                             case EVENT_ROCKET_STRIKE:
@@ -1110,9 +1193,19 @@ class boss_vx_001 : public CreatureScript
                                 events.RescheduleEvent(EVENT_HAND_PULSE, urand(4000, 5000));
                                 break;
                             case EVENT_FROST_BOMB:
-                                me->SummonCreature(NPC_FROST_BOMB, SummonPos[rand()%9], TEMPSUMMON_TIMED_DESPAWN, 11000);
+                                {
+                                std::list<Creature*> _flames;
+                                me->GetCreatureListWithEntryInGrid(_flames, NPC_FLAME_SPREAD, 150.0f);
+                                if (!_flames.empty())
+                                {
+                                    if (Creature* flame = Trinity::Containers::SelectRandomContainerElement(_flames))
+                                        me->SummonCreature(NPC_FROST_BOMB, *flame, TEMPSUMMON_TIMED_DESPAWN, 11000);
+                                }
+                                else
+                                    me->SummonCreature(NPC_FROST_BOMB, SummonPos[rand()%9], TEMPSUMMON_TIMED_DESPAWN, 11000);
                                 events.RescheduleEvent(EVENT_FROST_BOMB, 45000);
                                 break;
+                                }
                             case EVENT_FLAME_SUPPRESSANT_VX001:
                                 DoCastAOE(SPELL_FLAME_SUPPRESSANT_VX001);
                                 events.RescheduleEvent(EVENT_FLAME_SUPPRESSANT_VX001, 10000);
@@ -1436,7 +1529,7 @@ class npc_assault_bot : public CreatureScript
 
             void Reset()
             {
-                uiFieldTimer = urand(4000, 6000);
+                events.ScheduleEvent(EVENT_MAGNETIC_FIELD, urand(4000, 6000));
             }
 
             void UpdateAI(uint32 uiDiff)
@@ -1444,25 +1537,30 @@ class npc_assault_bot : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (uiFieldTimer <= uiDiff)
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCastVictim(SPELL_MAGNETIC_FIELD);
-                    uiFieldTimer = urand(15000, 20000);
+                    switch (eventId)
+                    {
+                        case EVENT_MAGNETIC_FIELD:
+                            DoCastVictim(SPELL_MAGNETIC_FIELD);
+                            events.RescheduleEvent(EVENT_MAGNETIC_FIELD, urand(15000, 20000));
+                            break;
+                    }
                 }
-                else uiFieldTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                if (spell->Id == 63041 && instance)
+                if (spell->Id == SPELL_ROCKET_STRIKE_DMG && instance)
                     instance->DoCompleteAchievement(ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE);
             }
 
         private:
             InstanceScript* instance;
-            uint32 uiFieldTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1483,21 +1581,24 @@ class npc_emergency_bot : public CreatureScript
                 me->setFaction(14);
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MoveRandom(15);
-                SprayTimer = 5000;
+                events.ScheduleEvent(EVENT_SPRAY, 5000);
             }
 
             void UpdateAI(uint32 uiDiff)
             {
-                if (SprayTimer <= uiDiff)
-                {
-                    DoCast(SPELL_WATER_SPRAY);
-                    SprayTimer = 10000;
-                }
-                else SprayTimer -= uiDiff;
-            }
+                events.Update(diff);
 
-        private:
-            uint32 SprayTimer;
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SPRAY:
+                            DoCast(SPELL_WATER_SPRAY);
+                            events.RescheduleEvent(EVENT_SPRAY, 10000);
+                            break;
+                    }
+                }
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1607,9 +1708,12 @@ class npc_mimiron_flame_trigger : public CreatureScript
         {
             npc_mimiron_flame_triggerAI(Creature* creature) : ScriptedAI(creature)
             {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                DoCast(me, SPELL_FLAME, true);
-                FlameTimer = 8000;
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                me->SetInCombatWithZone();
+                _flameTimer = 2000;
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -1621,7 +1725,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                     case SPELL_FROST_BOMB_EXPLOSION_10:
                     case SPELL_FROST_BOMB_EXPLOSION_25:
                     case SPELL_WATER_SPRAY:
-                        FlameTimer = 1000;
+                        _flameTimer = 1000;
                         me->DespawnOrUnsummon(500);
                         break;
                     default:
@@ -1629,18 +1733,42 @@ class npc_mimiron_flame_trigger : public CreatureScript
                 }
             }
 
+            void JustSummoned(Creature* /*summon*/)
+            {
+                if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MIMIRON) : 0))
+                    mimiron->AI()->DoAction(DO_INCREASE_FLAME_COUNT);
+            }
+
             void UpdateAI(uint32 diff)
             {
-                if (FlameTimer <= diff)
+                if (_flameTimer <= diff)
                 {
+                    // check if flame cap is reached
+                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MIMIRON) : 0))
+                        if (mimiron->AI()->GetData(DATA_FLAME_COUNT) >= FLAME_CAP)
+                        {
+                            me->DespawnOrUnsummon();
+                            return;
+                        }
+
+                    DoZoneInCombat();
+
+                    if (Player* nearest = me->SelectNearestPlayer(100.0f))
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveFollow(nearest, 0.0f, 0.0f);
+                    }
+
                     me->SummonCreature(NPC_FLAME_SPREAD, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                    FlameTimer = 8000;
+                    _flameTimer = 4000;
                 }
-                else FlameTimer -= diff;
+                else
+                    _flameTimer -= diff;
             }
 
         private:
-            uint32 FlameTimer;
+            uint32 _flameTimer;
+            InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1673,6 +1801,8 @@ class npc_mimiron_flame_spread : public CreatureScript
                     case SPELL_FROST_BOMB_EXPLOSION_10:
                     case SPELL_FROST_BOMB_EXPLOSION_25:
                     case SPELL_WATER_SPRAY:
+                        if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MIMIRON) : 0))
+                            mimiron->AI()->DoAction(DO_DECREASE_FLAME_COUNT);
                         me->DespawnOrUnsummon(500);
                         break;
                     default:
@@ -1733,30 +1863,50 @@ class spell_rapid_burst : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rapid_burst_AuraScript);
 
-            void HandleDummyTick(AuraEffect const* aurEff)
+            void HandleDummyTickLeft(AuraEffect const* aurEff)
             {
-                if (!GetTarget())
-                    return;
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
 
-                if (Unit* caster = GetCaster())
+                switch (caster->GetMap()->GetDifficulty())
                 {
-                    switch (caster->GetMap()->GetDifficulty())
-                    {
-                        case RAID_DIFFICULTY_10MAN_NORMAL:
-                            caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_10, SPELL_RAPID_BURST_RIGHT_10), true, NULL, aurEff);
-                            break;
-                        case RAID_DIFFICULTY_25MAN_NORMAL:
-                            caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_25, SPELL_RAPID_BURST_RIGHT_25), true, NULL, aurEff);
-                            break;
-                        default:
-                            break;
-                    }
+                    case RAID_DIFFICULTY_10MAN_NORMAL:
+                        if (Unit* target = GetTarget())
+                            target->CastSpell(target,SPELL_RAPID_BURST_LEFT_10, true, NULL, NULL, caster->GetGUID());
+                        break;
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                        if (Unit* target = GetTarget())
+                            target->CastSpell(target,SPELL_RAPID_BURST_LEFT_25, true, NULL, NULL, caster->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            void HandleDummyTickRight(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+
+                switch (caster->GetMap()->GetDifficulty())
+                {
+                    case RAID_DIFFICULTY_10MAN_NORMAL:
+                        if (Unit* target = GetTarget())
+                            target->CastSpell(target, SPELL_RAPID_BURST_RIGHT_10, true, NULL, NULL, caster->GetGUID());
+                        break;
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                        if (Unit* target = GetTarget())
+                            target->CastSpell(target, SPELL_RAPID_BURST_RIGHT_25, true, NULL, NULL, caster->GetGUID());
+                        break;
+                    default:
+                        break;
                 }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rapid_burst_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rapid_burst_AuraScript::HandleDummyTickLeft, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rapid_burst_AuraScript::HandleDummyTickRight, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
