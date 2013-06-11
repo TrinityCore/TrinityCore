@@ -231,7 +231,7 @@ class boss_general_vezax : public CreatureScript
                     // If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
                     Map::PlayerList const& Players = map->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
-                        if (Player* player = itr->getSource())
+                        if (Player* player = itr->GetSource())
                             if (player->HasSpell(SPELL_SHAMANTIC_RAGE))
                                 player->CastSpell(player, SPELL_CORRUPTED_RAGE, false);
                 }
@@ -278,7 +278,7 @@ class boss_general_vezax : public CreatureScript
                     Map::PlayerList const& Players = map->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
                     {
-                        if (Player* player = itr->getSource())
+                        if (Player* player = itr->GetSource())
                         {
                             float distance = player->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                             if (rangeMin > distance || distance > rangeMax)

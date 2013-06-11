@@ -312,7 +312,7 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 
     Map::PlayerList const& PlayerList = map->GetPlayers();
     for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-        if (Player* player = itr->getSource())
+        if (Player* player = itr->GetSource())
             if (player->IsAlive())
                 player->TeleportTo(me->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }

@@ -443,10 +443,10 @@ bool Group::AddMember(Player* player)
         // Broadcast group members' fields to player
         for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            if (itr->getSource() == player)
+            if (itr->GetSource() == player)
                 continue;
 
-            if (Player* member = itr->getSource())
+            if (Player* member = itr->GetSource())
             {
                 if (player->HaveAtClient(member))
                 {
@@ -926,7 +926,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             //a vector is filled with only near party members
             for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* member = itr->getSource();
+                Player* member = itr->GetSource();
                 if (!member || !member->GetSession())
                     continue;
                 if (i->AllowedForPlayer(member))
@@ -1010,7 +1010,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         //a vector is filled with only near party members
         for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* member = itr->getSource();
+            Player* member = itr->GetSource();
             if (!member || !member->GetSession())
                 continue;
 
@@ -1070,7 +1070,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
             for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* playerToRoll = itr->getSource();
+                Player* playerToRoll = itr->GetSource();
                 if (!playerToRoll || !playerToRoll->GetSession())
                     continue;
 
@@ -1145,7 +1145,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
         for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* playerToRoll = itr->getSource();
+            Player* playerToRoll = itr->GetSource();
             if (!playerToRoll || !playerToRoll->GetSession())
                 continue;
 
@@ -1206,7 +1206,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* looter = itr->getSource();
+        Player* looter = itr->GetSource();
         if (!looter->IsInWorld())
             continue;
 
@@ -1221,7 +1221,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* looter = itr->getSource();
+        Player* looter = itr->GetSource();
         if (looter->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
             looter->GetSession()->SendPacket(&data);
     }
@@ -1541,7 +1541,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        member = itr->getSource();
+        member = itr->GetSource();
         if (member && !member->IsWithinDist(player, member->GetSightRange(), false))
             member->GetSession()->SendPacket(&data);
     }
@@ -1551,7 +1551,7 @@ void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* player = itr->getSource();
+        Player* player = itr->GetSource();
         if (!player || (ignore != 0 && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 
@@ -1564,7 +1564,7 @@ void Group::BroadcastReadyCheck(WorldPacket* packet)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* player = itr->getSource();
+        Player* player = itr->GetSource();
         if (player && player->GetSession())
             if (IsLeader(player->GetGUID()) || IsAssistant(player->GetGUID()))
                 player->GetSession()->SendPacket(packet);
@@ -1770,7 +1770,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         return ERR_BATTLEGROUND_NONE;                        // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)
-    Player* reference = GetFirstMember()->getSource();
+    Player* reference = GetFirstMember()->GetSource();
     // no reference found, can't join this way
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
@@ -1788,7 +1788,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     memberscount = 0;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next(), ++memberscount)
     {
-        Player* member = itr->getSource();
+        Player* member = itr->GetSource();
         // offline member? don't let join
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
@@ -1854,7 +1854,7 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* player = itr->getSource();
+        Player* player = itr->GetSource();
         if (!player->GetSession())
             continue;
 
@@ -1878,7 +1878,7 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* player = itr->getSource();
+        Player* player = itr->GetSource();
         if (!player->GetSession())
             continue;
 
@@ -1891,7 +1891,7 @@ bool Group::InCombatToInstance(uint32 instanceId)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* player = itr->getSource();
+        Player* player = itr->GetSource();
         if (player && !player->getAttackers().empty() && player->GetInstanceId() == instanceId && (player->GetMap()->IsRaidOrHeroicDungeon()))
             for (std::set<Unit*>::const_iterator i = player->getAttackers().begin(); i != player->getAttackers().end(); ++i)
                 if ((*i) && (*i)->GetTypeId() == TYPEID_UNIT && (*i)->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
@@ -2066,7 +2066,7 @@ void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
 
 void Group::_homebindIfInstance(Player* player)
 {
-    if (player && !player->isGameMaster() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())
+    if (player && !player->IsGameMaster() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())
         player->m_InstanceValid = false;
 }
 
@@ -2334,7 +2334,7 @@ void Group::DelinkMember(uint64 guid)
     while (ref)
     {
         GroupReference* nextRef = ref->next();
-        if (ref->getSource()->GetGUID() == guid)
+        if (ref->GetSource()->GetGUID() == guid)
         {
             ref->unlink();
             break;

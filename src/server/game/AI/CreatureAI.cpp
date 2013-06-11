@@ -88,9 +88,9 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
 
     for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
     {
-        if (Player* player = itr->getSource())
+        if (Player* player = itr->GetSource())
         {
-            if (player->isGameMaster())
+            if (player->IsGameMaster())
                 continue;
 
             if (player->IsAlive())
@@ -130,11 +130,11 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good;)
         return;
 
-    if (me->canStartAttack(who, false))
+    if (me->CanStartAttack(who, false))
         AttackStart(who);
     //else if (who->GetVictim() && me->IsFriendlyTo(who)
     //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
-    //    && me->canStartAttack(who->GetVictim(), true)) /// @todo if we use true, it will not attack it when it arrives
+    //    && me->CanStartAttack(who->GetVictim(), true)) /// @todo if we use true, it will not attack it when it arrives
     //    me->GetMotionMaster()->MoveChase(who->GetVictim());
 }
 

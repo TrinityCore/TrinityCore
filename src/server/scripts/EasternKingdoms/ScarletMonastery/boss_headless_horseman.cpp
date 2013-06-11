@@ -544,9 +544,9 @@ public:
 
             std::list<Player*> temp;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if ((me->IsWithinLOSInMap(i->getSource()) || !checkLoS) && me->GetVictim() != i->getSource() &&
-                    me->IsWithinDistInMap(i->getSource(), range) && i->getSource()->IsAlive())
-                    temp.push_back(i->getSource());
+                if ((me->IsWithinLOSInMap(i->GetSource()) || !checkLoS) && me->GetVictim() != i->GetSource() &&
+                    me->IsWithinDistInMap(i->GetSource(), range) && i->GetSource()->IsAlive())
+                    temp.push_back(i->GetSource());
 
             if (!temp.empty())
             {
@@ -577,7 +577,7 @@ public:
 
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
-                sLFGMgr->FinishDungeon(players.begin()->getSource()->GetGroup()->GetGUID(), 285);
+                sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 285);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)

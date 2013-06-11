@@ -671,8 +671,8 @@ public:
             Map::PlayerList const &players = instance->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                Player* player = itr->getSource();
-                if (player->isGameMaster())
+                Player* player = itr->GetSource();
+                if (player->IsGameMaster())
                     continue;
 
                 if (player->IsAlive())

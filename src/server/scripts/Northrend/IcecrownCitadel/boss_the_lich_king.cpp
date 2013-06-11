@@ -1142,7 +1142,7 @@ class boss_the_lich_king : public CreatureScript
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        if (Player* player = itr->getSource())
+                        if (Player* player = itr->GetSource())
                             if (player->GetAreaId() == AREA_THE_FROZEN_THRONE)
                                 player->GetSession()->SendPacket(data);
             }

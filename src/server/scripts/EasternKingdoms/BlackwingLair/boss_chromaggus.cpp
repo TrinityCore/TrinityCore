@@ -243,7 +243,7 @@ public:
                 ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
                 for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                 {
-                    if ((*i) && (*i)->getSource())
+                    if ((*i) && (*i)->GetSource())
                     {
                         if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                         {

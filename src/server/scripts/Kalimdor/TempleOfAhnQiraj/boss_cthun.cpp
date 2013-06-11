@@ -601,7 +601,7 @@ public:
                     {
                         for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                         {
-                            if (Player* pPlr = itr->getSource())
+                            if (Player* pPlr = itr->GetSource())
                                 pPlr->PlayDirectSound(RANDOM_SOUND_WHISPER, pPlr);
                         }
                     }

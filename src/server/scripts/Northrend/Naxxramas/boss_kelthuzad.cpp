@@ -660,7 +660,7 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             return false;
 
         InstanceScript* instance = player->GetInstanceScript();

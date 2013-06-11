@@ -1290,7 +1290,7 @@ public:
 
         CreatureTemplate const* cInfo = creatureTarget->GetCreatureTemplate();
 
-        if (!cInfo->isTameable (player->CanTameExoticPets()))
+        if (!cInfo->IsTameable (player->CanTameExoticPets()))
         {
             handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->Entry);
             handler->SetSentErrorMessage (true);

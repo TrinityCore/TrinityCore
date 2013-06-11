@@ -105,7 +105,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     uint32 reqmoney = cost + money;
 
-    if (!player->HasEnoughMoney(reqmoney) && !player->isGameMaster())
+    if (!player->HasEnoughMoney(reqmoney) && !player->IsGameMaster())
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;

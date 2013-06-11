@@ -1544,7 +1544,7 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
             newPhase = PHASEMASK_NORMAL;
 
         // GM-mode have mask 0xFFFFFFFF
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             newPhase = 0xFFFFFFFF;
 
         player->SetPhaseMask(newPhase, false);

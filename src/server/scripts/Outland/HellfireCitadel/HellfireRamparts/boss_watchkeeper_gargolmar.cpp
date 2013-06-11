@@ -83,7 +83,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!me->GetVictim() && me->canCreatureAttack(who))
+                if (!me->GetVictim() && me->CanCreatureAttack(who))
                 {
                     if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;

@@ -110,7 +110,7 @@ namespace Trinity
         template<class T> void updateObjects(GridRefManager<T> &m)
         {
             for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
-                iter->getSource()->Update(i_timeDiff);
+                iter->GetSource()->Update(i_timeDiff);
         }
 
         void Visit(PlayerMapType &m) { updateObjects<Player>(m); }
@@ -242,8 +242,8 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_GAMEOBJECT))
                 return;
             for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_phaseMask))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
         }
 
         void Visit(PlayerMapType &m)
@@ -251,16 +251,16 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
                 return;
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_phaseMask))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
         }
         void Visit(CreatureMapType &m)
         {
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CREATURE))
                 return;
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_phaseMask))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
         }
 
         void Visit(CorpseMapType &m)
@@ -268,8 +268,8 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CORPSE))
                 return;
             for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_phaseMask))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
         }
 
         void Visit(DynamicObjectMapType &m)
@@ -277,8 +277,8 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_DYNAMICOBJECT))
                 return;
             for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_phaseMask))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
         }
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
@@ -341,8 +341,8 @@ namespace Trinity
         void Visit(GameObjectMapType& m)
         {
             for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(_phaseMask))
-                    _func(itr->getSource());
+                if (itr->GetSource()->InSamePhase(_phaseMask))
+                    _func(itr->GetSource());
         }
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
@@ -465,8 +465,8 @@ namespace Trinity
         void Visit(CreatureMapType &m)
         {
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_phaseMask))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
         }
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
@@ -532,8 +532,8 @@ namespace Trinity
         void Visit(PlayerMapType &m)
         {
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_phaseMask))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->GetSource());
         }
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
@@ -552,8 +552,8 @@ namespace Trinity
         void Visit(PlayerMapType &m)
         {
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->getSource()->InSamePhase(i_searcher) && itr->getSource()->IsWithinDist(i_searcher, i_dist))
-                    i_do(itr->getSource());
+                if (itr->GetSource()->InSamePhase(i_searcher) && itr->GetSource()->IsWithinDist(i_searcher, i_dist))
+                    i_do(itr->GetSource());
         }
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
@@ -846,7 +846,7 @@ namespace Trinity
                     && !i_funit->IsFriendlyTo(u)
                     && i_funit->IsValidAttackTarget(u)
                     && u->GetCreatureType() != CREATURE_TYPE_CRITTER
-                    && i_funit->canSeeOrDetect(u);
+                    && i_funit->CanSeeOrDetect(u);
             }
         private:
             Unit const* i_funit;
@@ -931,7 +931,7 @@ namespace Trinity
             bool operator()(Unit* u)
             {
                 if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
-                    !i_funit->IsFriendlyTo(u) && i_funit->canSeeOrDetect(u))
+                    !i_funit->IsFriendlyTo(u) && i_funit->CanSeeOrDetect(u))
                 {
                     i_range = i_obj->GetDistance(u);        // use found unit range as new range limit for next check
                     return true;
@@ -1065,7 +1065,7 @@ namespace Trinity
                 if (!me->IsWithinDistInMap(u, m_range))
                     return false;
 
-                if (!me->canSeeOrDetect(u))
+                if (!me->CanSeeOrDetect(u))
                     return false;
 
                 if (m_force)
@@ -1073,7 +1073,7 @@ namespace Trinity
                     if (!me->IsValidAttackTarget(u))
                         return false;
                 }
-                else if (!me->canStartAttack(u, false))
+                else if (!me->CanStartAttack(u, false))
                     return false;
 
                 m_range = me->GetDistance(u);   // use found unit range as new range limit for next check
@@ -1308,7 +1308,7 @@ namespace Trinity
         bool operator() (Player* player)
         {
             //No threat list check, must be done explicit if expected to be in combat with creature
-            if (!player->isGameMaster() && player->IsAlive() && !unit->IsWithinDist(player, fRange, false))
+            if (!player->IsGameMaster() && player->IsAlive() && !unit->IsWithinDist(player, fRange, false))
                 return true;
 
             return false;

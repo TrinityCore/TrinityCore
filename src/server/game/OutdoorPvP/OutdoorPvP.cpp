@@ -441,7 +441,7 @@ void OutdoorPvP::HandleKill(Player* killer, Unit* killed)
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* groupGuy = itr->getSource();
+            Player* groupGuy = itr->GetSource();
 
             if (!groupGuy)
                 continue;

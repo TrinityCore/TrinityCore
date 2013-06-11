@@ -183,7 +183,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     // FIXME: mapDiff is never used
 
     //Bypass checks for GMs
-    if (player->isGameMaster())
+    if (player->IsGameMaster())
         return true;
 
     char const* mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];

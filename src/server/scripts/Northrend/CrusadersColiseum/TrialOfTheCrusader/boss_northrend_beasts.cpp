@@ -1089,7 +1089,7 @@ class boss_icehowl : public CreatureScript
                             Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                             {
-                                if (Unit* player = itr->getSource())
+                                if (Unit* player = itr->GetSource())
                                 {
                                     if (player->IsAlive() && player->IsWithinDistInMap(me, 6.0f))
                                     {
