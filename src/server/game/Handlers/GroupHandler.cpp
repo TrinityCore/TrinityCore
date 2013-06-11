@@ -735,7 +735,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             if (player->IsPvP())
                 playerStatus |= MEMBER_STATUS_PVP;
 
-            if (!player->isAlive())
+            if (!player->IsAlive())
             {
                 if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
                     playerStatus |= MEMBER_STATUS_GHOST;
@@ -940,7 +940,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
     if (player->IsPvP())
         playerStatus |= MEMBER_STATUS_PVP;
 
-    if (!player->isAlive())
+    if (!player->IsAlive())
     {
         if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
             playerStatus |= MEMBER_STATUS_GHOST;

@@ -621,19 +621,19 @@ class instance_ulduar : public InstanceMapScript
                 switch (eventId)
                 {
                     case EVENT_TOWER_OF_STORM_DESTROYED:
-                        if (FlameLeviathan && FlameLeviathan->isAlive())
+                        if (FlameLeviathan && FlameLeviathan->IsAlive())
                             FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_STORM_DESTROYED);
                         break;
                     case EVENT_TOWER_OF_FROST_DESTROYED:
-                        if (FlameLeviathan && FlameLeviathan->isAlive())
+                        if (FlameLeviathan && FlameLeviathan->IsAlive())
                             FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_FROST_DESTROYED);
                         break;
                     case EVENT_TOWER_OF_FLAMES_DESTROYED:
-                        if (FlameLeviathan && FlameLeviathan->isAlive())
+                        if (FlameLeviathan && FlameLeviathan->IsAlive())
                             FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_FLAMES_DESTROYED);
                         break;
                     case EVENT_TOWER_OF_LIFE_DESTROYED:
-                        if (FlameLeviathan && FlameLeviathan->isAlive())
+                        if (FlameLeviathan && FlameLeviathan->IsAlive())
                             FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_LIFE_DESTROYED);
                         break;
                     case EVENT_ACTIVATE_SANITY_WELL:

@@ -675,7 +675,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!me->isInCombat() || _phase != PHASE_ONE)
+            if (!me->IsInCombat() || _phase != PHASE_ONE)
                 return;
 
             if (who->GetEntry() == NPC_POWER_SPARK)
@@ -819,7 +819,7 @@ public:
                             break;
                         }
 
-                        me->CastSpell(me->getVictim(), SPELL_ARCANE_BREATH);
+                        me->CastSpell(me->GetVictim(), SPELL_ARCANE_BREATH);
                         events.ScheduleEvent(EVENT_ARCANE_BREATH, 20*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_ARCANE_STORM:
@@ -1426,7 +1426,7 @@ class npc_nexus_lord : public CreatureScript
                             _events.ScheduleEvent(EVENT_HASTE_BUFF, 15*IN_MILLISECONDS);
                             break;
                         case EVENT_NUKE_DUMMY:
-                            DoCast(me->getVictim(), SPELL_DUMMY_NUKE, true);
+                            DoCast(me->GetVictim(), SPELL_DUMMY_NUKE, true);
                             DoCast(me, SPELL_ALIGN_DISK_AGGRO, true);
                             _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1*IN_MILLISECONDS);
                             break;
@@ -1999,7 +1999,7 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
             {
                 Creature* caster = GetCaster()->ToCreature();
                 if (Creature* target = GetHitCreature())
-                    target->GetMotionMaster()->MoveChase(caster->getVictim());
+                    target->GetMotionMaster()->MoveChase(caster->GetVictim());
             }
 
             void Register()

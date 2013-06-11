@@ -71,12 +71,12 @@ class mob_crystalcore_devastator : public CreatureScript
                 //Knockaway_Timer
                 if (Knockaway_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
+                    DoCast(me->GetVictim(), SPELL_KNOCKAWAY, true);
 
                     // current aggro target is knocked away pick new target
                     Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
 
-                    if (!target || target == me->getVictim())
+                    if (!target || target == me->GetVictim())
                         target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target)

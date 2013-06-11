@@ -138,7 +138,7 @@ public:
             BossAI::SummonedCreatureDespawn(summon);
 
             // check if it is an actual killed guard
-            if (!me->isAlive() || summon->isAlive() || summon->GetEntry() != MOB_CRYPT_GUARD)
+            if (!me->IsAlive() || summon->IsAlive() || summon->GetEntry() != MOB_CRYPT_GUARD)
                 return;
 
             summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, NULL, NULL, me->GetGUID());

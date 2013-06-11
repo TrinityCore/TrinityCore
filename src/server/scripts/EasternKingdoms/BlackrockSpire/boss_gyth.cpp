@@ -151,15 +151,15 @@ public:
                         events.CancelEvent(EVENT_SUMMON_ORC_PACK);
                         break;
                     case EVENT_CORROSIVE_ACID:
-                        DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
+                        DoCast(me->GetVictim(), SPELL_CORROSIVE_ACID);
                         events.ScheduleEvent(EVENT_CORROSIVE_ACID, 7 * IN_MILLISECONDS);
                         break;
                     case EVENT_FREEZE:
-                        DoCast(me->getVictim(), SPELL_FREEZE);
+                        DoCast(me->GetVictim(), SPELL_FREEZE);
                         events.ScheduleEvent(EVENT_FREEZE, 16 * IN_MILLISECONDS);
                         break;
                     case EVENT_FLAME_BREATH:
-                        DoCast(me->getVictim(), SPELL_FLAMEBREATH);
+                        DoCast(me->GetVictim(), SPELL_FLAMEBREATH);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, 10500);
                         break;
                 }

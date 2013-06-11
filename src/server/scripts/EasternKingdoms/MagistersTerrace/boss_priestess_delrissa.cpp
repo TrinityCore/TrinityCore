@@ -150,7 +150,7 @@ public:
             {
                 if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[i]))
                 {
-                    if (!pAdd->getVictim())
+                    if (!pAdd->GetVictim())
                     {
                         who->SetInCombatWith(pAdd);
                         pAdd->AddThreat(who, 0.0f);
@@ -165,7 +165,7 @@ public:
         void InitializeLackeys()
         {
             //can be called if Creature are dead, so avoid
-            if (!me->isAlive())
+            if (!me->IsAlive())
                 return;
 
             uint8 j = 0;
@@ -263,7 +263,7 @@ public:
                 {
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[i]))
                     {
-                        if (pAdd->isAlive() && pAdd->GetHealth() < health)
+                        if (pAdd->IsAlive() && pAdd->GetHealth() < health)
                             target = pAdd;
                     }
                 }
@@ -278,7 +278,7 @@ public:
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
-                        if (pAdd->isAlive())
+                        if (pAdd->IsAlive())
                             target = pAdd;
 
                 DoCast(target, SPELL_RENEW_NORMAL);
@@ -291,7 +291,7 @@ public:
 
                 if (urand(0, 1))
                     if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
-                        if (pAdd->isAlive() && !pAdd->HasAura(SPELL_SHIELD))
+                        if (pAdd->IsAlive() && !pAdd->HasAura(SPELL_SHIELD))
                             target = pAdd;
 
                 DoCast(target, SPELL_SHIELD);
@@ -310,7 +310,7 @@ public:
                         target = me;
                     else
                         if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
-                            if (pAdd->isAlive())
+                            if (pAdd->IsAlive())
                                 target = pAdd;
                 }
 
@@ -368,7 +368,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
         if (Creature* pDelrissa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DELRISSA) : 0))
         {
-            if (!pDelrissa->isAlive())
+            if (!pDelrissa->IsAlive())
                 pDelrissa->Respawn();
         }
     }
@@ -384,7 +384,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
             {
                 if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUIDs[i]))
                 {
-                    if (!pAdd->getVictim() && pAdd != me)
+                    if (!pAdd->GetVictim() && pAdd != me)
                     {
                         who->SetInCombatWith(pAdd);
                         pAdd->AddThreat(who, 0.0f);
@@ -394,7 +394,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
             if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
             {
-                if (pDelrissa->isAlive() && !pDelrissa->getVictim())
+                if (pDelrissa->IsAlive() && !pDelrissa->GetVictim())
                 {
                     who->SetInCombatWith(pDelrissa);
                     pDelrissa->AddThreat(who, 0.0f);
@@ -425,7 +425,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (uiLackeyDeathCount == MAX_ACTIVE_LACKEY)
         {
             //time to make her lootable and complete event if she died before lackeys
-            if (!pDelrissa->isAlive())
+            if (!pDelrissa->IsAlive())
             {
                 if (!pDelrissa->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
                     pDelrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -544,8 +544,8 @@ public:
             {
                 if (Wait_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BACKSTAB, true);
-                    DoCast(me->getVictim(), SPELL_KIDNEY_SHOT, true);
+                    DoCast(me->GetVictim(), SPELL_BACKSTAB, true);
+                    DoCast(me->GetVictim(), SPELL_KIDNEY_SHOT, true);
                     me->SetVisible(true);       // ...? Hacklike
                     InVanish = false;
                 } else Wait_Timer -= diff;
@@ -553,19 +553,19 @@ public:
 
             if (Gouge_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GOUGE);
+                DoCast(me->GetVictim(), SPELL_GOUGE);
                 Gouge_Timer = 5500;
             } else Gouge_Timer -= diff;
 
             if (Kick_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KICK);
+                DoCast(me->GetVictim(), SPELL_KICK);
                 Kick_Timer = 7000;
             } else Kick_Timer -= diff;
 
             if (Eviscerate_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_EVISCERATE);
+                DoCast(me->GetVictim(), SPELL_EVISCERATE);
                 Eviscerate_Timer = 4000;
             } else Eviscerate_Timer -= diff;
 
@@ -632,13 +632,13 @@ public:
 
             if (Immolate_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_IMMOLATE);
+                DoCast(me->GetVictim(), SPELL_IMMOLATE);
                 Immolate_Timer = 6000;
             } else Immolate_Timer -= diff;
 
             if (Shadow_Bolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
+                DoCast(me->GetVictim(), SPELL_SHADOW_BOLT);
                 Shadow_Bolt_Timer = 5000;
             } else Shadow_Bolt_Timer -= diff;
 
@@ -712,13 +712,13 @@ public:
 
             if (Knockdown_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                DoCast(me->GetVictim(), SPELL_KNOCKDOWN);
                 Knockdown_Timer = 6000;
             } else Knockdown_Timer -= diff;
 
             if (Snap_Kick_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SNAP_KICK);
+                DoCast(me->GetVictim(), SPELL_SNAP_KICK);
                 Snap_Kick_Timer  = 4500;
             } else Snap_Kick_Timer -= diff;
 
@@ -812,19 +812,19 @@ public:
 
             if (Ice_Lance_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ICE_LANCE);
+                DoCast(me->GetVictim(), SPELL_ICE_LANCE);
                 Ice_Lance_Timer = 12000;
             } else Ice_Lance_Timer -= diff;
 
             if (Cone_of_Cold_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CONE_OF_COLD);
+                DoCast(me->GetVictim(), SPELL_CONE_OF_COLD);
                 Cone_of_Cold_Timer = 10000;
             } else Cone_of_Cold_Timer -= diff;
 
             if (Frostbolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTBOLT);
+                DoCast(me->GetVictim(), SPELL_FROSTBOLT);
                 Frostbolt_Timer = 8000;
             } else Frostbolt_Timer -= diff;
 
@@ -943,31 +943,31 @@ public:
 
             if (Disarm_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DISARM);
+                DoCast(me->GetVictim(), SPELL_DISARM);
                 Disarm_Timer = 6000;
             } else Disarm_Timer -= diff;
 
             if (Hamstring_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMSTRING);
+                DoCast(me->GetVictim(), SPELL_HAMSTRING);
                 Hamstring_Timer = 4500;
             } else Hamstring_Timer -= diff;
 
             if (Mortal_Strike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                DoCast(me->GetVictim(), SPELL_MORTAL_STRIKE);
                 Mortal_Strike_Timer = 4500;
             } else Mortal_Strike_Timer -= diff;
 
             if (Piercing_Howl_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_PIERCING_HOWL);
+                DoCast(me->GetVictim(), SPELL_PIERCING_HOWL);
                 Piercing_Howl_Timer = 10000;
             } else Piercing_Howl_Timer -= diff;
 
             if (Frightening_Shout_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FRIGHTENING_SHOUT);
+                DoCast(me->GetVictim(), SPELL_FRIGHTENING_SHOUT);
                 Frightening_Shout_Timer = 18000;
             } else Frightening_Shout_Timer -= diff;
 
@@ -1043,11 +1043,11 @@ public:
 
             boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-            if (me->IsWithinDistInMap(me->getVictim(), ATTACK_DISTANCE))
+            if (me->IsWithinDistInMap(me->GetVictim(), ATTACK_DISTANCE))
             {
                 if (Wing_Clip_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_WING_CLIP);
+                    DoCast(me->GetVictim(), SPELL_WING_CLIP);
                     Wing_Clip_Timer = 4000;
                 } else Wing_Clip_Timer -= diff;
 
@@ -1062,7 +1062,7 @@ public:
                     else
                     {
                         //if go does not exist, then we can cast
-                        DoCast(me->getVictim(), SPELL_FREEZING_TRAP);
+                        DoCast(me->GetVictim(), SPELL_FREEZING_TRAP);
                         Freezing_Trap_Timer = 15000;
                     }
                 } else Freezing_Trap_Timer -= diff;
@@ -1073,25 +1073,25 @@ public:
             {
                 if (Concussive_Shot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CONCUSSIVE_SHOT);
+                    DoCast(me->GetVictim(), SPELL_CONCUSSIVE_SHOT);
                     Concussive_Shot_Timer = 8000;
                 } else Concussive_Shot_Timer -= diff;
 
                 if (Multi_Shot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MULTI_SHOT);
+                    DoCast(me->GetVictim(), SPELL_MULTI_SHOT);
                     Multi_Shot_Timer = 10000;
                 } else Multi_Shot_Timer -= diff;
 
                 if (Aimed_Shot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_AIMED_SHOT);
+                    DoCast(me->GetVictim(), SPELL_AIMED_SHOT);
                     Aimed_Shot_Timer = 6000;
                 } else Aimed_Shot_Timer -= diff;
 
                 if (Shoot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHOOT);
+                    DoCast(me->GetVictim(), SPELL_SHOOT);
                     Shoot_Timer = 2500;
                 } else Shoot_Timer -= diff;
             }
@@ -1174,7 +1174,7 @@ public:
 
             if (Frost_Shock_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROST_SHOCK);
+                DoCast(me->GetVictim(), SPELL_FROST_SHOCK);
                 Frost_Shock_Timer = 7000;
             } else Frost_Shock_Timer -= diff;
 
@@ -1185,7 +1185,7 @@ public:
                 // if (guid)
                 // {
                 //   Unit* pAdd = Unit::GetUnit(*me, (*itr)->guid);
-                //   if (pAdd && pAdd->isAlive())
+                //   if (pAdd && pAdd->IsAlive())
                 //   {
                 DoCast(me, SPELL_LESSER_HEALING_WAVE);
                 Healing_Wave_Timer = 5000;
@@ -1249,19 +1249,19 @@ public:
 
             if (Goblin_Dragon_Gun_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GOBLIN_DRAGON_GUN);
+                DoCast(me->GetVictim(), SPELL_GOBLIN_DRAGON_GUN);
                 Goblin_Dragon_Gun_Timer = 10000;
             } else Goblin_Dragon_Gun_Timer -= diff;
 
             if (Rocket_Launch_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ROCKET_LAUNCH);
+                DoCast(me->GetVictim(), SPELL_ROCKET_LAUNCH);
                 Rocket_Launch_Timer = 9000;
             } else Rocket_Launch_Timer -= diff;
 
             if (Fel_Iron_Bomb_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEL_IRON_BOMB);
+                DoCast(me->GetVictim(), SPELL_FEL_IRON_BOMB);
                 Fel_Iron_Bomb_Timer = 15000;
             } else Fel_Iron_Bomb_Timer -= diff;
 

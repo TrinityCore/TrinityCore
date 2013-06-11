@@ -180,7 +180,7 @@ public:
         {
             Creature* creature = Unit::GetCreature(*me, SpawnedGUID);
 
-            if (creature && creature->isAlive())
+            if (creature && creature->IsAlive())
                 return creature;
 
             return NULL;
@@ -225,7 +225,7 @@ public:
                             }
 
                             if (markAura->GetDuration() < AURA_DURATION_TIME_LEFT)
-                                if (!lastSpawnedGuard->getVictim())
+                                if (!lastSpawnedGuard->GetVictim())
                                     lastSpawnedGuard->AI()->AttackStart(who);
                         }
                         else
@@ -252,7 +252,7 @@ public:
                             return;
 
                         // ROOFTOP only triggers if the player is on the ground
-                        if (!playerTarget->IsFlying() && !lastSpawnedGuard->getVictim())
+                        if (!playerTarget->IsFlying() && !lastSpawnedGuard->GetVictim())
                             lastSpawnedGuard->AI()->AttackStart(who);
 
                         break;
@@ -762,7 +762,7 @@ public:
         void SpellHit(Unit* caster, SpellInfo const* spell)
         {
             Player* player = caster->ToPlayer();
-            if (!player || !me->isAlive() || spell->Id != 20804)
+            if (!player || !me->IsAlive() || spell->Id != 20804)
                 return;
 
             if (player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
@@ -802,10 +802,10 @@ public:
         void UpdateAI(uint32 /*diff*/)
         {
             //lower HP on every world tick makes it a useful counter, not officlone though
-            if (me->isAlive() && me->GetHealth() > 6)
+            if (me->IsAlive() && me->GetHealth() > 6)
                 me->ModifyHealth(-5);
 
-            if (me->isAlive() && me->GetHealth() <= 6)
+            if (me->IsAlive() && me->GetHealth() <= 6)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -947,7 +947,7 @@ public:
             if (spell->Id == SPELL_LESSER_HEAL_R2 || spell->Id == SPELL_FORTITUDE_R1)
             {
                 //not while in combat
-                if (me->isInCombat())
+                if (me->IsInCombat())
                     return;
 
                 //nothing to be done now
@@ -1059,7 +1059,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (CanRun && !me->isInCombat())
+            if (CanRun && !me->IsInCombat())
             {
                 if (RunAwayTimer <= diff)
                 {
@@ -1136,7 +1136,7 @@ public:
 
             if (me->isAttackReady())
             {
-                DoCast(me->getVictim(), SPELL_DEATHTOUCH, true);
+                DoCast(me->GetVictim(), SPELL_DEATHTOUCH, true);
                 me->resetAttackTimer();
             }
         }
@@ -1159,7 +1159,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         bool canBuy = false;
@@ -1225,7 +1225,7 @@ public:
 
         if (canBuy)
         {
-            if (creature->isVendor())
+            if (creature->IsVendor())
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         }
@@ -1257,10 +1257,10 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (creature->isTrainer())
+        if (creature->IsTrainer())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
         if (player->getClass() == CLASS_ROGUE)
@@ -1363,7 +1363,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->HasSpellCooldown(SPELL_INT) ||
@@ -1630,7 +1630,7 @@ public:
             me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
             // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
-            if (!me->getVictim() && me->isSummon())
+            if (!me->GetVictim() && me->IsSummon())
                 if (Unit* Owner = me->ToTempSummon()->GetSummoner())
                     if (Owner->getAttackerForHelper())
                         AttackStart(Owner->getAttackerForHelper());
@@ -1639,7 +1639,7 @@ public:
         //Redefined for random target selection:
         void MoveInLineOfSight(Unit* who)
         {
-            if (!me->getVictim() && me->canCreatureAttack(who))
+            if (!me->GetVictim() && me->canCreatureAttack(who))
             {
                 if (me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                     return;
@@ -1662,7 +1662,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+            if (me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
             {
                 me->InterruptNonMeleeSpells(false);
                 return;
@@ -1680,7 +1680,7 @@ public:
                         else
                             spell = SPELL_CRIPPLING_POISON;
 
-                        DoCast(me->getVictim(), spell);
+                        DoCast(me->GetVictim(), spell);
                     }
 
                     SpellTimer = VIPER_TIMER;
@@ -1688,7 +1688,7 @@ public:
                 else //Venomous Snake
                 {
                     if (urand(0, 2) == 0) //33% chance to cast
-                        DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        DoCast(me->GetVictim(), SPELL_DEADLY_POISON);
                     SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                 }
             }
@@ -1832,7 +1832,7 @@ public:
         // Do not reload Creature templates on evade mode enter - prevent visual lost
         void EnterEvadeMode()
         {
-            if (me->IsInEvadeMode() || !me->isAlive())
+            if (me->IsInEvadeMode() || !me->IsAlive())
                 return;
 
             Unit* owner = me->GetCharmerOrOwner();
@@ -1894,7 +1894,7 @@ public:
         // Fly away when dismissed
         void SpellHit(Unit* source, SpellInfo const* spell)
         {
-            if (spell->Id != 50515 || !me->isAlive())
+            if (spell->Id != 50515 || !me->IsAlive())
                 return;
 
             Unit* owner = me->GetOwner();
@@ -1957,7 +1957,7 @@ class npc_lightwell : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (!me->isAlive())
+                if (!me->IsAlive())
                     return;
 
                 me->DeleteThreatList();
@@ -2071,7 +2071,7 @@ class npc_shadowfiend : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (me->isSummon())
+                if (me->IsSummon())
                     if (Unit* owner = me->ToTempSummon()->GetSummoner())
                         if (owner->HasAura(GLYPH_OF_SHADOWFIEND))
                             owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
@@ -2122,7 +2122,7 @@ public:
 
             if (FireShield_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIRESHIELD);
+                DoCast(me->GetVictim(), SPELL_FIRESHIELD);
                 FireShield_Timer = 2 * IN_MILLISECONDS;
             }
             else
@@ -2130,7 +2130,7 @@ public:
 
             if (FireBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBLAST);
+                DoCast(me->GetVictim(), SPELL_FIREBLAST);
                 FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
             }
             else
@@ -2138,7 +2138,7 @@ public:
 
             if (FireNova_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIRENOVA);
+                DoCast(me->GetVictim(), SPELL_FIRENOVA);
                 FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
             }
             else
@@ -2183,7 +2183,7 @@ public:
 
             if (AngeredEarth_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ANGEREDEARTH);
+                DoCast(me->GetVictim(), SPELL_ANGEREDEARTH);
                 AngeredEarth_Timer = 5000 + rand() % 15000; // 5-20 sec cd
             }
             else
@@ -2249,7 +2249,7 @@ class npc_wormhole : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
-            if (creature->isSummon())
+            if (creature->IsSummon())
             {
                 if (player == creature->ToTempSummon()->GetSummoner())
                 {
@@ -2333,7 +2333,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->getClass() == CLASS_HUNTER)

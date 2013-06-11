@@ -164,7 +164,7 @@ public:
                 if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
                 {
                     Attumen = attumen->GetGUID();
-                    attumen->AI()->AttackStart(me->getVictim());
+                    attumen->AI()->AttackStart(me->GetVictim());
                     SetMidnight(attumen, me->GetGUID());
                     Talk(SAY_APPEAR, Attumen);
                 }
@@ -187,10 +187,10 @@ public:
                         {
                             pAttumen->SetDisplayId(MOUNTED_DISPLAYID);
                             pAttumen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            if (pAttumen->getVictim())
+                            if (pAttumen->GetVictim())
                             {
-                                pAttumen->GetMotionMaster()->MoveChase(pAttumen->getVictim());
-                                pAttumen->SetTarget(pAttumen->getVictim()->GetGUID());
+                                pAttumen->GetMotionMaster()->MoveChase(pAttumen->GetVictim());
+                                pAttumen->SetTarget(pAttumen->GetVictim()->GetGUID());
                             }
                             pAttumen->SetObjectScale(1);
                         }
@@ -262,13 +262,13 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
 
     if (CleaveTimer <= diff)
     {
-        DoCast(me->getVictim(), SPELL_SHADOWCLEAVE);
+        DoCast(me->GetVictim(), SPELL_SHADOWCLEAVE);
         CleaveTimer = urand(10000, 15000);
     } else CleaveTimer -= diff;
 
     if (CurseTimer <= diff)
     {
-        DoCast(me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
+        DoCast(me->GetVictim(), SPELL_INTANGIBLE_PRESENCE);
         CurseTimer = 30000;
     } else CurseTimer -= diff;
 

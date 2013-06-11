@@ -122,7 +122,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
 
-    if (!owner || !owner->isAlive())
+    if (!owner || !owner->IsAlive())
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))

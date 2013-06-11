@@ -206,8 +206,8 @@ class mob_ragin_flames : public CreatureScript
 
                     if (inferno_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_INFERNO);
-                        me->TauntApply(me->getVictim());
+                        DoCast(me->GetVictim(), SPELL_INFERNO);
+                        me->TauntApply(me->GetVictim());
                         inferno_Timer = 10000;
                     } else inferno_Timer -= diff;
 

@@ -142,12 +142,12 @@ class example_escort : public CreatureScript
                 npc_escortAI::UpdateAI(uiDiff);
 
                 //Combat check
-                if (me->getVictim())
+                if (me->GetVictim())
                 {
                     if (m_uiDeathCoilTimer <= uiDiff)
                     {
                         Talk(SAY_SPELL);
-                        DoCast(me->getVictim(), SPELL_DEATH_COIL, false);
+                        DoCast(me->GetVictim(), SPELL_DEATH_COIL, false);
                         m_uiDeathCoilTimer = 4000;
                     }
                     else

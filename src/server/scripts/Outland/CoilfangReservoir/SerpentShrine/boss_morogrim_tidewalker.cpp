@@ -174,7 +174,7 @@ public:
             {
                 if (!Earthquake)
                 {
-                    DoCast(me->getVictim(), SPELL_EARTHQUAKE);
+                    DoCast(me->GetVictim(), SPELL_EARTHQUAKE);
                     Earthquake = true;
                     Earthquake_Timer = 10000;
                 }
@@ -197,7 +197,7 @@ public:
             //TidalWave_Timer
             if (TidalWave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TIDAL_WAVE);
+                DoCast(me->GetVictim(), SPELL_TIDAL_WAVE);
                 TidalWave_Timer = 20000;
             } else TidalWave_Timer -= diff;
 
@@ -309,7 +309,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || me->getVictim())
+            if (!who || me->GetVictim())
                 return;
 
             if (me->canCreatureAttack(who))
@@ -328,9 +328,9 @@ public:
 
             if (Check_Timer <= diff)
             {
-                if (me->IsWithinDistInMap(me->getVictim(), 5))
+                if (me->IsWithinDistInMap(me->GetVictim(), 5))
                 {
-                    DoCast(me->getVictim(), SPELL_GLOBULE_EXPLOSION);
+                    DoCast(me->GetVictim(), SPELL_GLOBULE_EXPLOSION);
 
                     //despawn
                     me->DespawnOrUnsummon();

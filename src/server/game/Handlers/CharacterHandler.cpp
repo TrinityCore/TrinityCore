@@ -1579,7 +1579,7 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
 
 void WorldSession::HandleEquipmentSetUse(WorldPacket &recvData)
 {
-    if (_player->isInCombat())
+    if (_player->IsInCombat())
         return;
 
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");

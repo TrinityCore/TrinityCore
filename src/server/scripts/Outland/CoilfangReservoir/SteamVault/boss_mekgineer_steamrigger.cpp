@@ -129,7 +129,7 @@ public:
 
             if (Shrink_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SUPER_SHRINK_RAY);
+                DoCast(me->GetVictim(), SPELL_SUPER_SHRINK_RAY);
                 Shrink_Timer = 20000;
             } else Shrink_Timer -= diff;
 
@@ -138,14 +138,14 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     DoCast(target, SPELL_SAW_BLADE);
                 else
-                    DoCast(me->getVictim(), SPELL_SAW_BLADE);
+                    DoCast(me->GetVictim(), SPELL_SAW_BLADE);
 
                 Saw_Blade_Timer = 15000;
             } else Saw_Blade_Timer -= diff;
 
             if (Electrified_Net_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ELECTRIFIED_NET);
+                DoCast(me->GetVictim(), SPELL_ELECTRIFIED_NET);
                 Electrified_Net_Timer = 10000;
             }
             else Electrified_Net_Timer -= diff;

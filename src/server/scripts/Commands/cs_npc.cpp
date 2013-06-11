@@ -320,7 +320,7 @@ public:
         {
             creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
             creature->GetMotionMaster()->Initialize();
-            if (creature->isAlive())                            // dead creature will reset movement generator at respawn
+            if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
             {
                 creature->setDeathState(JUST_DIED);
                 creature->Respawn(true);
@@ -435,7 +435,7 @@ public:
         else
             unit = handler->getSelectedCreature();
 
-        if (!unit || unit->IsPet() || unit->isTotem())
+        if (!unit || unit->IsPet() || unit->IsTotem())
         {
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -459,7 +459,7 @@ public:
             return false;
 
         Creature* vendor = handler->getSelectedCreature();
-        if (!vendor || !vendor->isVendor())
+        if (!vendor || !vendor->IsVendor())
         {
             handler->SendSysMessage(LANG_COMMAND_VENDORSELECTION);
             handler->SetSentErrorMessage(true);
@@ -776,7 +776,7 @@ public:
             }
             creature->SetPosition(x, y, z, o);
             creature->GetMotionMaster()->Initialize();
-            if (creature->isAlive())                            // dead creature will reset movement generator at respawn
+            if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
             {
                 creature->setDeathState(JUST_DIED);
                 creature->Respawn();
@@ -978,7 +978,7 @@ public:
 
             creature->SetDefaultMovementType(move_type);
             creature->GetMotionMaster()->Initialize();
-            if (creature->isAlive())                            // dead creature will reset movement generator at respawn
+            if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
             {
                 creature->setDeathState(JUST_DIED);
                 creature->Respawn();
@@ -1056,7 +1056,7 @@ public:
         creature->SetRespawnRadius((float)option);
         creature->SetDefaultMovementType(mtype);
         creature->GetMotionMaster()->Initialize();
-        if (creature->isAlive())                                // dead creature will reset movement generator at respawn
+        if (creature->IsAlive())                                // dead creature will reset movement generator at respawn
         {
             creature->setDeathState(JUST_DIED);
             creature->Respawn();

@@ -144,7 +144,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (!creature->isVendor() || !creature->isTrainer())
+        if (!creature->IsVendor() || !creature->IsTrainer())
             return false;
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);

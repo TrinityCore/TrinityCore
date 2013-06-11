@@ -233,7 +233,7 @@ public:
                 Unit* target = NULL;
                 if (PlayerGUID)
                     if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
-                        if (player->isAlive() && RAND(0, 1))
+                        if (player->IsAlive() && RAND(0, 1))
                             target = player;
 
                 if (!target)

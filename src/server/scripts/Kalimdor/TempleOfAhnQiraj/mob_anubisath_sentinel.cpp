@@ -140,7 +140,7 @@ public:
                 Creature* c = Unit::GetCreature(*me, NearbyGUID[i]);
                 if (c)
                 {
-                    if (!c->isInCombat())
+                    if (!c->IsInCombat())
                     {
                         c->SetNoCallAssistance(true);
                         if (c->AI())

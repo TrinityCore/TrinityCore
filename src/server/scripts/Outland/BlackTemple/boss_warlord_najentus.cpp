@@ -169,7 +169,7 @@ public:
                     case EVENT_SPINE:
                     {
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                        if (!target) target = me->getVictim();
+                        if (!target) target = me->GetVictim();
                         if (target)
                         {
                             DoCast(target, SPELL_IMPALING_SPINE, true);
