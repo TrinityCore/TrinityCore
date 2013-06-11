@@ -330,9 +330,6 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
 
     SetName(normalInfo->Name);                              // at normal entry always
 
-    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius);
-    SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach);
-
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
 
     SetSpeed(MOVE_WALK,     cinfo->speed_walk);
@@ -340,6 +337,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
     SetSpeed(MOVE_SWIM, 1.0f);      // using 1.0 rate
     SetSpeed(MOVE_FLIGHT, 1.0f);    // using 1.0 rate
 
+    // Will set UNIT_FIELD_BOUNDINGRADIUS and UNIT_FIELD_COMBATREACH
     SetObjectScale(cinfo->scale);
 
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, cinfo->HoverHeight);
@@ -2554,4 +2552,26 @@ void Creature::UpdateMovementFlags()
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+}
+
+void Creature::SetObjectScale(float scale)
+{
+    Unit::SetObjectScale(scale);
+
+    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
+    {
+        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * scale);
+        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * scale);
+    }
+}
+
+void Creature::SetDisplayId(uint32 modelId)
+{
+    Unit::SetDisplayId(modelId);
+
+    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
+    {
+        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * GetFloatValue(OBJECT_FIELD_SCALE_X));
+        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * GetFloatValue(OBJECT_FIELD_SCALE_X));
+    }
 }
