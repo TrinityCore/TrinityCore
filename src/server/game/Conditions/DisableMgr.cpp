@@ -372,7 +372,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             if (!unit)
                 return true;
             if (Player const* player = unit->ToPlayer())
-                if (player->isGameMaster())
+                if (player->IsGameMaster())
                     return false;
             return true;
         case DISABLE_TYPE_BATTLEGROUND:

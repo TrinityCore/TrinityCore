@@ -174,7 +174,7 @@ class boss_sapphiron : public CreatureScript
                     Map::PlayerList const &players = _map->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        if (itr->getSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
+                        if (itr->GetSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
                         {
                             _canTheHundredClub = false;
                             break;

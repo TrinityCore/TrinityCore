@@ -312,7 +312,7 @@ public:
             if (!who || me->GetVictim())
                 return;
 
-            if (me->canCreatureAttack(who))
+            if (me->CanCreatureAttack(who))
             {
                 //no attack radius check - it attacks the first target that moves in his los
                 //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);

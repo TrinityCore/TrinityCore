@@ -532,7 +532,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
         {
             if (!go->IsDynTransport())
             {
-                if (go->ActivateToQuest(target) || target->isGameMaster())
+                if (go->ActivateToQuest(target) || target->IsGameMaster())
                     IsActivateToQuest = true;
 
                 if (go->GetGoArtKit())
@@ -543,7 +543,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
         {
             if (!go->IsTransport())
             {
-                if (go->ActivateToQuest(target) || target->isGameMaster())
+                if (go->ActivateToQuest(target) || target->IsGameMaster())
                     IsActivateToQuest = true;
 
                 updateMask->SetBit(GAMEOBJECT_BYTES_1);
@@ -577,7 +577,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
 
                     if (GetTypeId() == TYPEID_UNIT)
                     {
-                        if (!target->canSeeSpellClickOn(this->ToCreature()))
+                        if (!target->CanSeeSpellClickOn(this->ToCreature()))
                             appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
                     }
 
@@ -605,7 +605,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
                 // Gamemasters should be always able to select units - remove not selectable flag
                 else if (index == UNIT_FIELD_FLAGS)
                 {
-                    if (target->isGameMaster())
+                    if (target->IsGameMaster())
                         *data << (m_uint32Values[index] & ~UNIT_FLAG_NOT_SELECTABLE);
                     else
                         *data << m_uint32Values[index];
@@ -629,7 +629,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
 
                         if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                         {
-                            if (target->isGameMaster())
+                            if (target->IsGameMaster())
                             {
                                 if (cinfo->Modelid1)
                                     *data << cinfo->Modelid1;//Modelid1 is a visible model for gms
@@ -734,21 +734,21 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
                         switch (go->GetGoType())
                         {
                             case GAMEOBJECT_TYPE_CHEST:
-                                if (target->isGameMaster())
+                                if (target->IsGameMaster())
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
                                 *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GENERIC:
-                                if (target->isGameMaster())
+                                if (target->IsGameMaster())
                                     *data << uint16(0);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_SPARKLE);
                                 *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GOOBER:
-                                if (target->isGameMaster())
+                                if (target->IsGameMaster())
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
@@ -1962,7 +1962,7 @@ float WorldObject::GetSightRange(const WorldObject* target) const
     return 0.0f;
 }
 
-bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck) const
+bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck) const
 {
     if (this == obj)
         return true;
@@ -2285,8 +2285,8 @@ void WorldObject::MonsterYellToZone(int32 textId, uint32 language, uint64 Target
 
     Map::PlayerList const& pList = GetMap()->GetPlayers();
     for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-        if (itr->getSource()->GetZoneId() == zoneid)
-            say_do(itr->getSource());
+        if (itr->GetSource()->GetZoneId() == zoneid)
+            say_do(itr->GetSource());
 }
 
 void WorldObject::MonsterTextEmote(const char* text, uint64 TargetGuid, bool IsBossEmote)
@@ -3159,7 +3159,7 @@ struct WorldObjectChangeAccumulator
         Player* source = NULL;
         for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = iter->GetSource();
 
             BuildPacket(source);
 
@@ -3177,7 +3177,7 @@ struct WorldObjectChangeAccumulator
         Creature* source = NULL;
         for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = iter->GetSource();
             if (!source->GetSharedVisionList().empty())
             {
                 SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
@@ -3192,7 +3192,7 @@ struct WorldObjectChangeAccumulator
         DynamicObject* source = NULL;
         for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = iter->GetSource();
             uint64 guid = source->GetCasterGUID();
 
             if (IS_PLAYER_GUID(guid))

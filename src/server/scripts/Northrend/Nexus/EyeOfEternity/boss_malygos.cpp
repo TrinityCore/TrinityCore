@@ -1046,7 +1046,7 @@ public:
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                         if (player->GetAreaId() == AREA_EYE_OF_ETERNITY)
                             player->GetSession()->SendPacket(data);
         }
@@ -1901,7 +1901,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                         if (Unit* target = (*itr)->getTarget())
                         {
                             Player* targetPlayer = target->ToPlayer();
-                            if (!targetPlayer || targetPlayer->isGameMaster())
+                            if (!targetPlayer || targetPlayer->IsGameMaster())
                                 continue;
 
                             if (InstanceScript* instance = caster->GetInstanceScript())

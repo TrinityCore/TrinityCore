@@ -1181,7 +1181,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
     data.append(player->GetPackGUID());
 
-    if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())
+    if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->IsGameMaster())
         player->BuildPlayerTalentsInfoData(&data);
     else
     {
@@ -1480,7 +1480,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket& recvData)
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* groupGuy = itr->getSource();
+                Player* groupGuy = itr->GetSource();
                 if (!groupGuy)
                     continue;
 
@@ -1538,7 +1538,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* groupGuy = itr->getSource();
+                Player* groupGuy = itr->GetSource();
                 if (!groupGuy)
                     continue;
 

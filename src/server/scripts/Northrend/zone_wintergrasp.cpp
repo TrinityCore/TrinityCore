@@ -120,7 +120,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
-            if (canBuild(creature))
+            if (CanBuild(creature))
             {
                 if (player->HasAura(SPELL_CORPORAL))
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -142,7 +142,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
         {
             player->CLOSE_GOSSIP_MENU();
 
-            if (canBuild(creature))
+            if (CanBuild(creature))
             {
                 switch (action - GOSSIP_ACTION_INFO_DEF)
                 {
@@ -163,7 +163,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
         }
 
     private:
-        bool canBuild(Creature* creature)
+        bool CanBuild(Creature* creature)
         {
             Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
             if (!wintergrasp)

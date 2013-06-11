@@ -297,7 +297,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (!who || me->GetVictim())
             return;
 
-        if (me->canCreatureAttack(who))
+        if (me->CanCreatureAttack(who))
         {
             float attackRadius = me->GetAttackDistance(who);
             if (attackRadius < PULL_RANGE)

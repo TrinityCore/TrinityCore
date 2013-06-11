@@ -1209,7 +1209,7 @@ public:
     {
         InstanceScript* instance = player->GetInstanceScript();
 
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             return true;
 
         if (instance->GetData(DATA_INTRO_EVENT) == NOT_STARTED)
@@ -1230,7 +1230,7 @@ public:
     {
         InstanceScript* instance = player->GetInstanceScript();
 
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             return true;
 
         if (instance->GetData(DATA_WAVE_COUNT))

@@ -137,9 +137,9 @@ class instance_serpent_shrine : public InstanceMapScript
                         return;
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        if (Player* player = i->getSource())
+                        if (Player* player = i->GetSource())
                         {
-                            if (player->IsAlive() && /*i->getSource()->GetPositionZ() <= -21.434931f*/player->IsInWater())
+                            if (player->IsAlive() && /*i->GetSource()->GetPositionZ() <= -21.434931f*/player->IsInWater())
                             {
                                 if (Water == WATERSTATE_SCALDING)
                                 {

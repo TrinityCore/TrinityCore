@@ -92,7 +92,7 @@ public:
             state.c_str(), sLFGMgr->GetDungeon(guid));
 
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-            GetPlayerInfo(handler, itr->getSource());
+            GetPlayerInfo(handler, itr->GetSource());
 
         return true;
     }

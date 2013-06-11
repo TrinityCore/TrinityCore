@@ -212,7 +212,7 @@ public:
                         {
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             {
-                                if (Player* player = itr->getSource())
+                                if (Player* player = itr->GetSource())
                                 {
                                     if (player->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE)
                                         player->AreaExploredOrEventHappens(QUEST_OPENING_PORTAL);

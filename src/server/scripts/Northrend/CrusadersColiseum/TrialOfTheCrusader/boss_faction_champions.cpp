@@ -632,7 +632,7 @@ struct boss_faction_championsAI : public BossAI
             uint32 TeamInInstance = 0;
 
             if (!players.isEmpty())
-                if (Player* player = players.begin()->getSource())
+                if (Player* player = players.begin()->GetSource())
                     TeamInInstance = player->GetTeam();
 
             if (instance)

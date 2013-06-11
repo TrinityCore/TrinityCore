@@ -230,7 +230,7 @@ void UpdateWorldState(Map* map, uint32 id, uint32 state)
     {
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
-            if (Player* player = itr->getSource())
+            if (Player* player = itr->GetSource())
                 player->SendUpdateWorldState(id, state);
         }
     }
@@ -1302,8 +1302,8 @@ public:
                                 if (!PlayerList.isEmpty())
                                 {
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                                        if (i->getSource()->IsAlive() && me->IsWithinDistInMap(i->getSource(), 50))
-                                            i->getSource()->CastSpell(i->getSource(), SPELL_THE_LIGHT_OF_DAWN_Q, false);
+                                        if (i->GetSource()->IsAlive() && me->IsWithinDistInMap(i->GetSource(), 50))
+                                            i->GetSource()->CastSpell(i->GetSource(), SPELL_THE_LIGHT_OF_DAWN_Q, false);
                                 }
                             }
                             me->SetVisible(false); // respawns another Darion for quest turn in

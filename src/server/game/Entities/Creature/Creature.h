@@ -155,18 +155,18 @@ struct CreatureTemplate
             return SKILL_SKINNING;                          // normal case
     }
 
-    bool isExotic() const
+    bool IsExotic() const
     {
         return (type_flags & CREATURE_TYPEFLAGS_EXOTIC) != 0;
     }
 
-    bool isTameable(bool canTameExotic) const
+    bool IsTameable(bool canTameExotic) const
     {
         if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
-        return canTameExotic || !isExotic();
+        return canTameExotic || !IsExotic();
     }
 };
 
@@ -487,7 +487,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         /// @todo Rename these properly
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
-        bool canCreatureAttack(Unit const* victim, bool force = true) const;
+        bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         bool IsImmunedToSpell(SpellInfo const* spellInfo) const;                     // override Unit::IsImmunedToSpell
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; // override Unit::IsImmunedToSpellEffect
         bool isElite() const;
@@ -599,7 +599,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         CreatureSpellCooldowns m_CreatureSpellCooldowns;
         CreatureSpellCooldowns m_CreatureCategoryCooldowns;
 
-        bool canStartAttack(Unit const* u, bool force) const;
+        bool CanStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* player) const;
         float GetAggroRange(Unit const* target) const;
 
