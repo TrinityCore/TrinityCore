@@ -171,7 +171,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             std::vector<Player*> playersNear;
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* member = itr->getSource();
+                Player* member = itr->GetSource();
                 if (!member)
                     continue;
 

@@ -556,7 +556,7 @@ void Creature::Update(uint32 diff)
 
             bool bInCombat = IsInCombat() && (!GetVictim() ||                                        // if IsInCombat() is true and this has no victim
                              !GetVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
-                             !GetVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster()); // or the victim/owner/charmer is not a GameMaster
+                             !GetVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
             /*if (m_regenTimer <= diff)
             {*/
@@ -1333,7 +1333,7 @@ bool Creature::CanAlwaysSee(WorldObject const* obj) const
     return false;
 }
 
-bool Creature::canStartAttack(Unit const* who, bool force) const
+bool Creature::CanStartAttack(Unit const* who, bool force) const
 {
     if (IsCivilian())
         return false;
@@ -1365,7 +1365,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
             return false;
     }
 
-    if (!canCreatureAttack(who, force))
+    if (!CanCreatureAttack(who, force))
         return false;
 
     return IsWithinLOSInMap(who);
@@ -1927,7 +1927,7 @@ void Creature::SaveRespawnTime()
 }
 
 // this should not be called by petAI or
-bool Creature::canCreatureAttack(Unit const* victim, bool /*force*/) const
+bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
 {
     if (!victim->IsInMap(this))
         return false;
@@ -2080,9 +2080,9 @@ void Creature::SetInCombatWithZone()
 
     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
-        if (Player* player = i->getSource())
+        if (Player* player = i->GetSource())
         {
-            if (player->isGameMaster())
+            if (player->IsGameMaster())
                 continue;
 
             if (player->IsAlive())

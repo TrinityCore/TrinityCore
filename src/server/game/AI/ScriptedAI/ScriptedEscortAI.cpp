@@ -130,7 +130,7 @@ void npc_escortAI::JustDied(Unit* /*killer*/)
         if (Group* group = player->GetGroup())
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
-                if (Player* member = groupRef->getSource())
+                if (Player* member = groupRef->GetSource())
                     if (member->GetQuestStatus(m_pQuestForEscort->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
                         member->FailQuest(m_pQuestForEscort->GetQuestId());
         }
@@ -194,7 +194,7 @@ bool npc_escortAI::IsPlayerOrGroupInRange()
         if (Group* group = player->GetGroup())
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
-                if (Player* member = groupRef->getSource())
+                if (Player* member = groupRef->GetSource())
                     if (me->IsWithinDistInMap(member, GetMaxPlayerDistance()))
                         return true;
         }

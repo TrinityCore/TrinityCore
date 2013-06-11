@@ -378,7 +378,7 @@ public:
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        Player* player = itr->getSource();
+                        Player* player = itr->GetSource();
                         if (player)
                             me->GetMap()->ToInstanceMap()->PermBindAllPlayers(player);
                     }
@@ -552,7 +552,7 @@ public:
         Map::PlayerList const &PlayerList = map->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
-            if (i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
+            if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
                 ++SpectralPlayers;
         }
         uint8 MaxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
@@ -683,10 +683,10 @@ public:
             Map::PlayerList const &PlayerList = map->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if (i->getSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
+                if (i->GetSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
                 {
-                    i->getSource()->RemoveAura(AURA_SPECTRAL_REALM);
-                    i->getSource()->TeleportTo(me->GetMap()->GetId(), i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), DRAGON_REALM_Z+5, i->getSource()->GetOrientation());
+                    i->GetSource()->RemoveAura(AURA_SPECTRAL_REALM);
+                    i->GetSource()->TeleportTo(me->GetMap()->GetId(), i->GetSource()->GetPositionX(), i->GetSource()->GetPositionY(), DRAGON_REALM_Z+5, i->GetSource()->GetOrientation());
                 }
             }
         }

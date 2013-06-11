@@ -530,7 +530,7 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
                     {
                         Map::PlayerList const &players = caster->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            if (Player* player = itr->getSource())
+                            if (Player* player = itr->GetSource())
                                 if (player->IsWithinDist(caster, 60.0f))    // don't know correct range
                                     caster->CastSpell(player, SPELL_EXPLOSIVE_BARRAGE_SUMMON, true);
                     }

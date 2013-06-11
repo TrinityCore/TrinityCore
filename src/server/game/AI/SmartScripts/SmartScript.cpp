@@ -2297,7 +2297,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                     if (Group* group = player->GetGroup())
                     {
                         for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
-                            if (Player* member = groupRef->getSource())
+                            if (Player* member = groupRef->GetSource())
                                 l->push_back(member);
                     }
                     // We still add the player to the list if there is no group. If we do

@@ -505,7 +505,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
         bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
         {
             InstanceScript* instance = player->GetInstanceScript();
-            if (player->isGameMaster() || !instance)
+            if (player->IsGameMaster() || !instance)
                 return false;
 
             if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)

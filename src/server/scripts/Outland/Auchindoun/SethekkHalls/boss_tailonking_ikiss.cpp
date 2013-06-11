@@ -89,7 +89,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!me->GetVictim() && me->canCreatureAttack(who))
+            if (!me->GetVictim() && me->CanCreatureAttack(who))
             {
                 if (!Intro && me->IsWithinDistInMap(who, 100))
                 {

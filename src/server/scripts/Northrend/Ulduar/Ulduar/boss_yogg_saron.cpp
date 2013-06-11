@@ -448,7 +448,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 // not sure, spoken by Sara (sound), regarding to wowwiki Voice whispers it
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                     {
                         if (events.IsInPhase(PHASE_ONE))
                             Talk(WHISPER_VOICE_PHASE_1_WIPE, player->GetGUID());
@@ -932,7 +932,7 @@ class boss_yogg_saron : public CreatureScript
 
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                     {
                         player->RemoveAurasDueToSpell(SPELL_SANITY);
                         player->RemoveAurasDueToSpell(SPELL_INSANE);

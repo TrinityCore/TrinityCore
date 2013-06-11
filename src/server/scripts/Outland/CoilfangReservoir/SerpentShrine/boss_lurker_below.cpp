@@ -257,7 +257,7 @@ public:
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
-                            if (me->IsWithinMeleeRange(i->getSource()))
+                            if (me->IsWithinMeleeRange(i->GetSource()))
                                 InRange = true;
                         }
                     }
@@ -272,8 +272,8 @@ public:
                         Map::PlayerList const &PlayerList = map->GetPlayers();
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
-                            if (i->getSource() && i->getSource()->IsAlive() && me->HasInArc(float(diff/20000*M_PI*2), i->getSource()) && me->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
-                                DoCast(i->getSource(), SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
+                            if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(float(diff/20000*M_PI*2), i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
+                                DoCast(i->GetSource(), SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
                         }
                     }
 

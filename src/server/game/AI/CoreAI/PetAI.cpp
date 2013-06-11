@@ -284,7 +284,7 @@ void PetAI::UpdateAllies()
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* Target = itr->getSource();
+            Player* Target = itr->GetSource();
             if (!Target || !group->SameSubGroup((Player*)owner, Target))
                 continue;
 

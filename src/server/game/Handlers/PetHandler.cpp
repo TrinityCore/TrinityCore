@@ -449,7 +449,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     // spell case or GM
     if (guid == GetPlayer()->GetGUID())
     {
-        if (!GetPlayer()->isGameMaster() && !GetPlayer()->HasAuraType(SPELL_AURA_OPEN_STABLE))
+        if (!GetPlayer()->IsGameMaster() && !GetPlayer()->HasAuraType(SPELL_AURA_OPEN_STABLE))
         {
             TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Player (GUID:%u) attempt open stable in cheating way.", GUID_LOPART(guid));
             return false;
