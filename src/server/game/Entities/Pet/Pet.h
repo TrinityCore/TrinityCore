@@ -46,6 +46,8 @@ class Pet : public Guardian
         void AddToWorld();
         void RemoveFromWorld();
 
+        void SetDisplayId(uint32 modelId);
+
         PetType getPetType() const { return m_petType; }
         void setPetType(PetType type) { m_petType = type; }
         bool isControlled() const { return getPetType() == SUMMON_PET || getPetType() == HUNTER_PET; }
