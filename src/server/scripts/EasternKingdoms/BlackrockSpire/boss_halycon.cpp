@@ -90,11 +90,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CROWD_PUMMEL:
-                        DoCast(me->getVictim(), SPELL_CROWDPUMMEL);
+                        DoCast(me->GetVictim(), SPELL_CROWDPUMMEL);
                         events.ScheduleEvent(EVENT_CROWD_PUMMEL, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_MIGHTY_BLOW:
-                        DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
+                        DoCast(me->GetVictim(), SPELL_MIGHTYBLOW);
                         events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10 * IN_MILLISECONDS);
                         break;
                 }

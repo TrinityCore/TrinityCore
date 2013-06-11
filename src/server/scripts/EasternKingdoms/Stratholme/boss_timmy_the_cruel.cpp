@@ -78,7 +78,7 @@ public:
             if (RavenousClaw_Timer <= diff)
             {
                 //Cast
-                DoCast(me->getVictim(), SPELL_RAVENOUSCLAW);
+                DoCast(me->GetVictim(), SPELL_RAVENOUSCLAW);
                 //15 seconds until we should cast this again
                 RavenousClaw_Timer = 15000;
             } else RavenousClaw_Timer -= diff;

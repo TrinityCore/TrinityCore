@@ -98,9 +98,9 @@ public:
 
                 Reset_Timer -= diff;
 
-                if (me->isInCombat() && me->getVictim())
+                if (me->IsInCombat() && me->GetVictim())
                 {
-                    if (Player* player = me->getVictim()->ToPlayer())
+                    if (Player* player = me->GetVictim()->ToPlayer())
                     {
                         if (player->GetTeam() == HORDE)
                         {

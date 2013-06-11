@@ -832,7 +832,7 @@ class spell_item_unsated_craving : public SpellScriptLoader
                     return false;
 
                 Unit* target = procInfo.GetActionTarget();
-                if (!target || target->GetTypeId() != TYPEID_UNIT || target->GetCreatureType() == CREATURE_TYPE_CRITTER || (target->GetEntry() != NPC_SINDRAGOSA && target->isSummon()))
+                if (!target || target->GetTypeId() != TYPEID_UNIT || target->GetCreatureType() == CREATURE_TYPE_CRITTER || (target->GetEntry() != NPC_SINDRAGOSA && target->IsSummon()))
                     return false;
 
                 return true;
@@ -915,7 +915,7 @@ class spell_item_shadowmourne : public SpellScriptLoader
             {
                 if (GetTarget()->HasAura(SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF)) // cant collect shards while under effect of Chaos Bane buff
                     return false;
-                return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->isAlive();
+                return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive();
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

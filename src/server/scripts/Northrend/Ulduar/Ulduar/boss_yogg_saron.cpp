@@ -433,7 +433,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
             void MoveInLineOfSight(Unit* who)
             {
                 // TODO: MoveInLineOfSight doesn't work for such a big distance
-                if (who->GetTypeId() == TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->isInCombat())
+                if (who->GetTypeId() == TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->IsInCombat())
                     me->SetInCombatWithZone();
             }
 
@@ -750,7 +750,7 @@ class boss_sara : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat())
+                if (!me->IsInCombat())
                     return;
 
                 if (me->HasAura(SPELL_SHATTERED_ILLUSION))
@@ -1609,7 +1609,7 @@ class npc_yogg_saron_keeper : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat())
+                if (!me->IsInCombat())
                     return;
 
                 _events.Update(diff);
@@ -2428,7 +2428,7 @@ class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* vehicle = GetTarget()->GetVehicleBase())
-                    if (vehicle->isAlive())
+                    if (vehicle->IsAlive())
                         vehicle->Kill(vehicle); // should tentacle die or just release its target?
             }
 
@@ -2910,7 +2910,7 @@ class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTarget()->isAlive())
+                if (GetTarget()->IsAlive())
                     GetTarget()->Kill(GetTarget());
             }
 

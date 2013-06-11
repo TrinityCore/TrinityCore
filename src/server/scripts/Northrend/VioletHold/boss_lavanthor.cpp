@@ -110,19 +110,19 @@ public:
 
             if (uiFireboltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBOLT);
+                DoCast(me->GetVictim(), SPELL_FIREBOLT);
                 uiFireboltTimer = urand(5000, 13000);
             } else uiFireboltTimer -= diff;
 
             if (uiFlameBreathTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FLAME_BREATH);
+                DoCast(me->GetVictim(), SPELL_FLAME_BREATH);
                 uiFlameBreathTimer = urand(10000, 15000);
             } else uiFlameBreathTimer -= diff;
 
             if (uiLavaBurnTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_LAVA_BURN);
+                DoCast(me->GetVictim(), SPELL_LAVA_BURN);
                 uiLavaBurnTimer = urand(15000, 23000);
             }
 
@@ -130,7 +130,7 @@ public:
             {
                 if (uiCauterizingFlamesTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CAUTERIZING_FLAMES);
+                    DoCast(me->GetVictim(), SPELL_CAUTERIZING_FLAMES);
                     uiCauterizingFlamesTimer = urand(10000, 16000);
                 } else uiCauterizingFlamesTimer -= diff;
             }

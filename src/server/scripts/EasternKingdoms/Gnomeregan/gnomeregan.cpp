@@ -232,7 +232,7 @@ public:
                 {
                     if (Creature* summon = Unit::GetCreature(*me, *itr))
                     {
-                        if (summon->isAlive())
+                        if (summon->IsAlive())
                             summon->DisappearAndDie();
                         else
                             summon->RemoveCorpse();
@@ -254,7 +254,7 @@ public:
                     if (player->isGameMaster())
                         continue;
 
-                    if (player->isAlive())
+                    if (player->IsAlive())
                     {
                         temp->SetInCombatWith(player);
                         player->SetInCombatWith(temp);
@@ -565,7 +565,7 @@ public:
 
         void SetDataSummoner()
         {
-            if (!me->isSummon())
+            if (!me->IsSummon())
                 return;
 
             if (Unit* summon = me->ToTempSummon()->GetSummoner())
@@ -583,7 +583,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (!me->isSummon())
+            if (!me->IsSummon())
                 return;
 
             if (Unit* summoner = me->ToTempSummon()->GetSummoner())

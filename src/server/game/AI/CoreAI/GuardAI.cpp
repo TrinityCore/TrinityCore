@@ -25,7 +25,7 @@
 
 int GuardAI::Permissible(Creature const* creature)
 {
-    if (creature->isGuard())
+    if (creature->IsGuard())
         return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
@@ -50,7 +50,7 @@ bool GuardAI::CanSeeAlways(WorldObject const* obj)
 
 void GuardAI::EnterEvadeMode()
 {
-    if (!me->isAlive())
+    if (!me->IsAlive())
     {
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop(true);

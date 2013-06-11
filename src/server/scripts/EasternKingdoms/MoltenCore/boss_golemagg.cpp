@@ -146,7 +146,7 @@ class mob_core_rager : public CreatureScript
 
                 if (Creature* pGolemagg = instance->instance->GetCreature(instance->GetData64(BOSS_GOLEMAGG_THE_INCINERATOR)))
                 {
-                    if (pGolemagg->isAlive())
+                    if (pGolemagg->IsAlive())
                     {
                         me->AddAura(SPELL_GOLEMAGG_TRUST, me);
                         Talk(EMOTE_LOWHP);
@@ -163,7 +163,7 @@ class mob_core_rager : public CreatureScript
                 // Mangle
                 if (mangleTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MANGLE);
+                    DoCast(me->GetVictim(), SPELL_MANGLE);
                     mangleTimer = 10*IN_MILLISECONDS;
                 }
                 else

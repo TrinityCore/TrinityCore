@@ -446,7 +446,7 @@ class mob_swarm_scarab : public CreatureScript
                 _determinationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
                 DoCast(me, SPELL_ACID_MANDIBLE);
                 me->SetInCombatWithZone();
-                if (me->isInCombat())
+                if (me->IsInCombat())
                     if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
             }
@@ -520,7 +520,7 @@ class mob_nerubian_burrower : public CreatureScript
                 DoCast(me, SPELL_SPIDER_FRENZY);
                 DoCast(me, SPELL_AWAKENED);
                 me->SetInCombatWithZone();
-                if (me->isInCombat())
+                if (me->IsInCombat())
                     if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
             }

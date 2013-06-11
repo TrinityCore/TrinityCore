@@ -91,15 +91,15 @@ void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
     switch (state)
     {
         case NOT_STARTED:
-            if (!minion->isAlive())
+            if (!minion->IsAlive())
                 minion->Respawn();
-            else if (minion->isInCombat())
+            else if (minion->IsInCombat())
                 minion->AI()->EnterEvadeMode();
             break;
         case IN_PROGRESS:
-            if (!minion->isAlive())
+            if (!minion->IsAlive())
                 minion->Respawn();
-            else if (!minion->getVictim())
+            else if (!minion->GetVictim())
                 minion->AI()->DoZoneInCombat();
             break;
         default:
@@ -210,7 +210,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             if (state == DONE)
                 for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-                    if ((*i)->isWorldBoss() && (*i)->isAlive())
+                    if ((*i)->isWorldBoss() && (*i)->IsAlive())
                         return false;
 
             bossInfo->state = state;

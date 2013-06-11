@@ -177,7 +177,7 @@ public:
 
             if (CastTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_NETHER_BREATH);
+                DoCast(me->GetVictim(), SPELL_NETHER_BREATH);
                 CastTimer = 5000;
             } else CastTimer -= diff;
 
@@ -425,7 +425,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isVendor() && player->GetReputationRank(1015) == REP_EXALTED)
+        if (creature->IsVendor() && player->GetReputationRank(1015) == REP_EXALTED)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
@@ -612,9 +612,9 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
-        if (creature->isVendor())
+        if (creature->IsVendor())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
         if (player->GetQuestStatus(10519) == QUEST_STATUS_INCOMPLETE)
@@ -1351,13 +1351,13 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[6].SpellId);//Cleave
+                    DoCast(me->GetVictim(), SpawnCast[6].SpellId);//Cleave
                     SpellTimer1 = SpawnCast[6].Timer2 + (rand()%10 * 1000);
                 } else SpellTimer1 -= diff;
 
                 if (SpellTimer2 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[7].SpellId);//Shadowfury
+                    DoCast(me->GetVictim(), SpawnCast[7].SpellId);//Shadowfury
                     SpellTimer2 = SpawnCast[7].Timer2 + (rand()%5 * 1000);
                 } else SpellTimer2 -= diff;
 
@@ -1609,7 +1609,7 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[0].SpellId);//Spellbreaker
+                    DoCast(me->GetVictim(), SpawnCast[0].SpellId);//Spellbreaker
                     SpellTimer1 = SpawnCast[0].Timer2 + (rand()%5 * 1000);
                 } else SpellTimer1 -= diff;
             }
@@ -1630,13 +1630,13 @@ public:
 
                 if (SpellTimer2 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[2].SpellId);//Psychic Scream
+                    DoCast(me->GetVictim(), SpawnCast[2].SpellId);//Psychic Scream
                     SpellTimer2 = SpawnCast[2].Timer2 + (rand()%13 * 1000);
                 } else SpellTimer2 -= diff;
 
                 if (SpellTimer3 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[3].SpellId);//Mind Blast
+                    DoCast(me->GetVictim(), SpawnCast[3].SpellId);//Mind Blast
                     SpellTimer3 = SpawnCast[3].Timer2 + (rand()%8 * 1000);
                 } else SpellTimer3 -= diff;
             }
@@ -1645,13 +1645,13 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[4].SpellId);//Curse Of Flames
+                    DoCast(me->GetVictim(), SpawnCast[4].SpellId);//Curse Of Flames
                     SpellTimer1 = SpawnCast[4].Timer2 + (rand()%10 * 1000);
                 } else SpellTimer1 -= diff;
 
                 if (SpellTimer2 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[5].SpellId);//Flamestrike
+                    DoCast(me->GetVictim(), SpawnCast[5].SpellId);//Flamestrike
                     SpellTimer2 = SpawnCast[5].Timer2 + (rand()%7 * 13000);
                 } else SpellTimer2 -= diff;
             }

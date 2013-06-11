@@ -124,7 +124,7 @@ public:
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 {
                     Player* player = i->getSource();
-                    if (!player || !player->isAlive())
+                    if (!player || !player->IsAlive())
                         continue;
                     // Summon clone
                     if (Unit* summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
@@ -277,13 +277,13 @@ public:
 
             if (uiMindFlayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIND_FLAY);
+                DoCast(me->GetVictim(), SPELL_MIND_FLAY);
                 uiMindFlayTimer = 20*IN_MILLISECONDS;
             } else uiMindFlayTimer -= diff;
 
             if (uiShadowBoltVolleyTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
+                DoCast(me->GetVictim(), SPELL_SHADOW_BOLT_VOLLEY);
                 uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
             } else uiShadowBoltVolleyTimer -= diff;
 

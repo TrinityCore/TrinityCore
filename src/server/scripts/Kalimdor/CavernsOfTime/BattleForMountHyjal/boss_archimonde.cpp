@@ -121,7 +121,7 @@ public:
             {
                 if (Unit* Archimonde = Unit::GetUnit(*me, ArchimondeGUID))
                 {
-                    if (Archimonde->HealthBelowPct(2) || !Archimonde->isAlive())
+                    if (Archimonde->HealthBelowPct(2) || !Archimonde->IsAlive())
                         DoCast(me, SPELL_DENOUEMENT_WISP);
                     else
                         DoCast(Archimonde, SPELL_ANCIENT_SPARK);
@@ -355,7 +355,7 @@ public:
         bool CanUseFingerOfDeath()
         {
             // First we check if our current victim is in melee range or not.
-            Unit* victim = me->getVictim();
+            Unit* victim = me->GetVictim();
             if (victim && me->IsWithinDistInMap(victim, me->GetAttackDistance(victim)))
                 return false;
 
@@ -368,7 +368,7 @@ public:
             for (; itr != threatlist.end(); ++itr)
             {
                 Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                if (unit && unit->isAlive())
+                if (unit && unit->IsAlive())
                     targets.push_back(unit);
             }
 
@@ -382,7 +382,7 @@ public:
                 if (!me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
                     return true;                                // Cast Finger of Death
                 else                                            // This target is closest, he is our new tank
-                    me->AddThreat(target, me->getThreatManager().getThreat(me->getVictim()));
+                    me->AddThreat(target, me->getThreatManager().getThreat(me->GetVictim()));
             }
 
             return false;
@@ -456,7 +456,7 @@ public:
             if (me->HasAura(chargeSpell))
             {
                 me->RemoveAuraFromStack(chargeSpell);
-                DoCast(me->getVictim(), unleashSpell);
+                DoCast(me->GetVictim(), unleashSpell);
                 HasCast = true;
                 SoulChargeCount--;
             }
@@ -467,7 +467,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!me->isInCombat())
+            if (!me->IsInCombat())
             {
                 if (instance)
                 {
@@ -577,7 +577,7 @@ public:
             {
                 if (HandOfDeathTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_HAND_OF_DEATH);
+                    DoCast(me->GetVictim(), SPELL_HAND_OF_DEATH);
                     HandOfDeathTimer = 2000;
                 } else HandOfDeathTimer -= diff;
                 return;                                         // Don't do anything after this point.
@@ -605,7 +605,7 @@ public:
 
             if (FearTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEAR);
+                DoCast(me->GetVictim(), SPELL_FEAR);
                 FearTimer = 42000;
             } else FearTimer -= diff;
 
@@ -614,7 +614,7 @@ public:
                 Talk(SAY_DOOMFIRE);
                 Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (!temp)
-                    temp = me->getVictim();
+                    temp = me->GetVictim();
 
                 //replace with spell cast 31903 once implicitTarget 73 implemented
                 SummonDoomfire(temp);

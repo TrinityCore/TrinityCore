@@ -417,7 +417,7 @@ public:
 
             if (Silence_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SILENCE);
+                DoCast(me->GetVictim(), SPELL_SILENCE);
                 Silence_Timer = 30000;
             } else Silence_Timer -= diff;
 
@@ -429,7 +429,7 @@ public:
 
             if (Frostbolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTBOLT);
+                DoCast(me->GetVictim(), SPELL_FROSTBOLT);
                 Frostbolt_Timer = 5000;
             } else Frostbolt_Timer -= diff;
 
@@ -617,7 +617,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isVendor() && player->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+        if (creature->IsVendor() && player->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
             player->SEND_GOSSIP_MENU(9896, creature->GetGUID());

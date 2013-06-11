@@ -424,8 +424,8 @@ public:
                     DoResetThreat();
                     if (SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        me->AddThreat(me->getVictim(), 5000000.0f);
-                        AttackStart(me->getVictim());
+                        me->AddThreat(me->GetVictim(), 5000000.0f);
+                        AttackStart(me->GetVictim());
                     }
                 }
                 else if (!me->HasAura(SPELL_AZZINOTH_CHANNEL))
@@ -448,8 +448,8 @@ public:
 
             if (FlameBlastTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BLAZE_SUMMON, true); // appear at victim
-                DoCast(me->getVictim(), SPELL_FLAME_BLAST);
+                DoCast(me->GetVictim(), SPELL_BLAZE_SUMMON, true); // appear at victim
+                DoCast(me->GetVictim(), SPELL_FLAME_BLAST);
                 FlameBlastTimer = 15000; // 10000 is official-like?
                 DoZoneInCombat(); // in case someone is revived
             } else FlameBlastTimer -= diff;
@@ -529,9 +529,9 @@ public:
         {
             if (FlightCount == 7) // change hover point
             {
-                if (me->getVictim())
+                if (me->GetVictim())
                 {
-                    me->SetInFront(me->getVictim());
+                    me->SetInFront(me->GetVictim());
                     me->StopMoving();
                 }
                 EnterPhase(PHASE_FLIGHT);
@@ -655,7 +655,7 @@ public:
             case PHASE_NORMAL:
             case PHASE_NORMAL_2:
             case PHASE_NORMAL_MAIEV:
-                AttackStart(me->getVictim());
+                AttackStart(me->GetVictim());
                 Timer[EVENT_TAUNT] = 32000;
                 Timer[EVENT_SHEAR] = urand(10, 25) * 1000;
                 Timer[EVENT_FLAME_CRASH] = 20000;
@@ -682,7 +682,7 @@ public:
                 Timer[EVENT_FLAME_BURST] = 10000;
                 Timer[EVENT_SHADOWDEMON] = 30000;
                 Timer[EVENT_TRANSFORM_DEMON] = 60000;
-                AttackStart(me->getVictim());
+                AttackStart(me->GetVictim());
                 break;
             case PHASE_TALK_SEQUENCE:
                 Timer[EVENT_TALK_SEQUENCE] = 100;
@@ -725,7 +725,7 @@ public:
             if (MaievGUID)
             {
                 GETCRE(Maiev, MaievGUID);
-                if (Maiev && Maiev->isAlive())
+                if (Maiev && Maiev->IsAlive())
                     Maiev->AI()->DoAction(NextPhase);
             }
             Phase = NextPhase;
@@ -1039,12 +1039,12 @@ public:
 
                 case EVENT_SHEAR:
                     // no longer exists in 3.0f.2
-                    // DoCast(me->getVictim(), SPELL_SHEAR);
+                    // DoCast(me->GetVictim(), SPELL_SHEAR);
                     Timer[EVENT_SHEAR] = 25000 + (rand()%16 * 1000);
                     break;
 
                 case EVENT_FLAME_CRASH:
-                    DoCast(me->getVictim(), SPELL_FLAME_CRASH);
+                    DoCast(me->GetVictim(), SPELL_FLAME_CRASH);
                     Timer[EVENT_FLAME_CRASH] = urand(30000, 40000);
                     break;
 
@@ -1061,7 +1061,7 @@ public:
                     break;
 
                 case EVENT_DRAW_SOUL:
-                    DoCast(me->getVictim(), SPELL_DRAW_SOUL);
+                    DoCast(me->GetVictim(), SPELL_DRAW_SOUL);
                     Timer[EVENT_DRAW_SOUL] = urand(50000, 60000);
                     break;
 
@@ -1126,11 +1126,11 @@ public:
                 {
                 case EVENT_SHADOW_BLAST:
                     me->GetMotionMaster()->Clear(false);
-                    if (!me->IsWithinDistInMap(me->getVictim(), 50)||!me->IsWithinLOSInMap(me->getVictim()))
-                        me->GetMotionMaster()->MoveChase(me->getVictim(), 30);
+                    if (!me->IsWithinDistInMap(me->GetVictim(), 50)||!me->IsWithinLOSInMap(me->GetVictim()))
+                        me->GetMotionMaster()->MoveChase(me->GetVictim(), 30);
                     else
                         me->GetMotionMaster()->MoveIdle();
-                    DoCast(me->getVictim(), SPELL_SHADOW_BLAST);
+                    DoCast(me->GetVictim(), SPELL_SHADOW_BLAST);
                     Timer[EVENT_SHADOW_BLAST] = 4000;
                     break;
                 case EVENT_SHADOWDEMON:
@@ -1205,7 +1205,7 @@ public:
             else
             {
                 GETUNIT(Illidan, IllidanGUID);
-                if (Illidan && Illidan->getVictim() == me)
+                if (Illidan && Illidan->GetVictim() == me)
                     damage = me->CountPctFromMaxHealth(10);
                 if (damage >= me->GetHealth())
                     damage = 0;
@@ -1340,7 +1340,7 @@ public:
                     }
                     break;
                 case EVENT_MAIEV_SHADOW_STRIKE:
-                    DoCast(me->getVictim(), SPELL_SHADOW_STRIKE);
+                    DoCast(me->GetVictim(), SPELL_SHADOW_STRIKE);
                     Timer[EVENT_MAIEV_SHADOW_STRIKE] = 60000;
                     break;
                 case EVENT_MAIEV_TRAP:
@@ -1352,9 +1352,9 @@ public:
                     }
                     else
                     {
-                        if (!me->IsWithinDistInMap(me->getVictim(), 40))
-                            me->GetMotionMaster()->MoveChase(me->getVictim(), 30);
-                        DoCast(me->getVictim(), SPELL_THROW_DAGGER);
+                        if (!me->IsWithinDistInMap(me->GetVictim(), 40))
+                            me->GetMotionMaster()->MoveChase(me->GetVictim(), 30);
+                        DoCast(me->GetVictim(), SPELL_THROW_DAGGER);
                         Timer[EVENT_MAIEV_THROW_DAGGER] = 2000;
                     }
                     break;
@@ -1777,7 +1777,7 @@ public:
                             EnterPhase(PHASE_TALK);
                         else
                         {
-                            DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
+                            DoCast(me->GetVictim(), SPELL_CHAIN_LIGHTNING);
                             Timer = 30000;
                         }
                     }
@@ -1850,7 +1850,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     {
         if (GETCRE(Akama, AkamaGUID))
         {
-            if (!Akama->isAlive())
+            if (!Akama->IsAlive())
                 Akama->Respawn();
             else
             {
@@ -2154,19 +2154,19 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->getVictim()->GetTypeId() != TYPEID_PLAYER)
+            if (me->GetVictim()->GetTypeId() != TYPEID_PLAYER)
                 return; // Only cast the below on players.
 
-            if (!me->getVictim()->HasAura(SPELL_PARALYZE))
+            if (!me->GetVictim()->HasAura(SPELL_PARALYZE))
             {
-                TargetGUID = me->getVictim()->GetGUID();
-                me->AddThreat(me->getVictim(), 10000000.0f);
-                DoCast(me->getVictim(), SPELL_PURPLE_BEAM, true);
-                DoCast(me->getVictim(), SPELL_PARALYZE, true);
+                TargetGUID = me->GetVictim()->GetGUID();
+                me->AddThreat(me->GetVictim(), 10000000.0f);
+                DoCast(me->GetVictim(), SPELL_PURPLE_BEAM, true);
+                DoCast(me->GetVictim(), SPELL_PARALYZE, true);
             }
             // Kill our target if we're very close.
-            if (me->IsWithinDistInMap(me->getVictim(), 3))
-                DoCast(me->getVictim(), SPELL_CONSUME_SOUL);
+            if (me->IsWithinDistInMap(me->GetVictim(), 3))
+                DoCast(me->GetVictim(), SPELL_CONSUME_SOUL);
         }
     };
 };
@@ -2233,23 +2233,23 @@ public:
 
         void DoMeleeAttackIfReady()
         {
-            if (me->isAttackReady() && me->IsWithinMeleeRange(me->getVictim()))
+            if (me->isAttackReady() && me->IsWithinMeleeRange(me->GetVictim()))
             {
-                if (!me->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
-                    && !me->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
+                if (!me->GetVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+                    && !me->GetVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
                 {
                     if (Creature* illidan = Unit::GetCreature((*me), IllidanGUID))// summon only in 1. phase
                         if (CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->Phase == PHASE_NORMAL)
-                            me->CastSpell(me->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); // do not stack
+                            me->CastSpell(me->GetVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); // do not stack
                 }
-                me->AttackerStateUpdate(me->getVictim());
+                me->AttackerStateUpdate(me->GetVictim());
                 me->resetAttackTimer();
             }
         }
 
         void UpdateAI(uint32 diff)
         {
-            if (!me->getVictim())
+            if (!me->GetVictim())
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
                     AttackStart(target);
