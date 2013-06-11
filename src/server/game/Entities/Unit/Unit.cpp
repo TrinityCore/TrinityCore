@@ -13317,16 +13317,6 @@ bool Unit::IsPolymorphed() const
 void Unit::SetDisplayId(uint32 modelId)
 {
     SetUInt32Value(UNIT_FIELD_DISPLAYID, modelId);
-
-    if (GetTypeId() == TYPEID_UNIT && ToCreature()->isPet())
-    {
-        Pet* pet = ToPet();
-        if (!pet->isControlled())
-            return;
-        Unit* owner = GetOwner();
-        if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-            owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
-    }
 }
 
 void Unit::RestoreDisplayId()
@@ -15862,29 +15852,23 @@ void Unit::EnterVehicle(Unit* base, int8 seatId)
 void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp)
 {
     // Must be called only from aura handler
+    ASSERT(aurApp);
+
     if (!isAlive() || GetVehicleKit() == vehicle || vehicle->GetBase()->IsOnVehicle(this))
         return;
 
     if (m_vehicle)
     {
-        if (m_vehicle == vehicle)
-        {
-            if (seatId >= 0 && seatId != GetTransSeat())
-            {
-                TC_LOG_DEBUG(LOG_FILTER_VEHICLES, "EnterVehicle: %u leave vehicle %u seat %d and enter %d.", GetEntry(), m_vehicle->GetBase()->GetEntry(), GetTransSeat(), seatId);
-                ChangeSeat(seatId);
-            }
-
-            return;
-        }
-        else
+        if (m_vehicle != vehicle)
         {
             TC_LOG_DEBUG(LOG_FILTER_VEHICLES, "EnterVehicle: %u exit %u and enter %u.", GetEntry(), m_vehicle->GetBase()->GetEntry(), vehicle->GetBase()->GetEntry());
             ExitVehicle();
         }
+        else if (seatId >= 0 && seatId == GetTransSeat())
+            return;
     }
 
-    if (!aurApp || aurApp->GetRemoveMode())
+    if (aurApp->GetRemoveMode())
         return;
 
     if (Player* player = ToPlayer())
@@ -15914,16 +15898,22 @@ void Unit::ChangeSeat(int8 seatId, bool next)
     if (seat == m_vehicle->Seats.end() || seat->second.Passenger)
         return;
 
-    // Todo: the functions below could be consolidated and refactored to take
-    // SeatMap::const_iterator as parameter, to save redundant map lookups.
-    m_vehicle->RemovePassenger(this);
+    AuraEffect* rideVehicleEffect = NULL;
+    AuraEffectList const& vehicleAuras = m_vehicle->GetBase()->GetAuraEffectsByType(SPELL_AURA_CONTROL_VEHICLE);
+    for (AuraEffectList::const_iterator itr = vehicleAuras.begin(); itr != vehicleAuras.end(); ++itr)
+    {
+        if ((*itr)->GetCasterGUID() != GetGUID())
+            continue;
 
-    // Set m_vehicle to NULL before adding passenger as adding new passengers is handled asynchronously
-    // and someone may call ExitVehicle again before passenger is added to new seat
-    Vehicle* veh = m_vehicle;
-    m_vehicle = NULL;
-    if (!veh->AddPassenger(this, seatId))
-        ASSERT(false);
+        // Make sure there is only one ride vehicle aura on target cast by the unit changing seat
+        ASSERT(!rideVehicleEffect);
+        rideVehicleEffect = *itr;
+    }
+
+    // Unit riding a vehicle must always have control vehicle aura on target
+    ASSERT(rideVehicleEffect);
+
+    rideVehicleEffect->ChangeAmount(seat->first + 1);
 }
 
 void Unit::ExitVehicle(Position const* /*exitPosition*/)
@@ -15953,17 +15943,14 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     if (!m_vehicle)
         return;
 
-    m_vehicle->RemovePassenger(this);
+    // This should be done before dismiss, because there may be some aura removal
+    Vehicle* vehicle = m_vehicle->RemovePassenger(this);
 
     Player* player = ToPlayer();
 
     // If the player is on mounted duel and exits the mount, he should immediatly lose the duel
     if (player && player->duel && player->duel->isMounted)
         player->DuelComplete(DUEL_FLED);
-
-    // This should be done before dismiss, because there may be some aura removal
-    Vehicle* vehicle = m_vehicle;
-    m_vehicle = NULL;
 
     SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
@@ -16014,6 +16001,11 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         else
             ToTempSummon()->UnSummon(2000); // Approximation
     }
+}
+
+bool Unit::IsFalling() const
+{
+    return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
 }
 
 void Unit::SetCanFly(bool apply)

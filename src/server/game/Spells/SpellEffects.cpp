@@ -5013,25 +5013,9 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     }
 
     Map* cMap = m_caster->GetMap();
-    if (goinfo->type == GAMEOBJECT_TYPE_FISHINGNODE || goinfo->type == GAMEOBJECT_TYPE_FISHINGHOLE)
-    {
-        LiquidData liqData;
-        if (!cMap->IsInWater(fx, fy, fz + 1.f/* -0.5f */, &liqData))             // Hack to prevent fishing bobber from failing to land on fishing hole
-        { // but this is not proper, we really need to ignore not materialized objects
-            SendCastResult(SPELL_FAILED_NOT_HERE);
-            SendChannelUpdate(0);
-            return;
-        }
-
-        // replace by water level in this case
-        //fz = cMap->GetWaterLevel(fx, fy);
-        fz = liqData.level;
-    }
     // if gameobject is summoning object, it should be spawned right on caster's position
-    else if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
-    {
+    if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
         m_caster->GetPosition(fx, fy, fz);
-    }
 
     GameObject* pGameObj = new GameObject;
 

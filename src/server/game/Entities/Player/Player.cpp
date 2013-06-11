@@ -978,8 +978,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     uint8 powertype = cEntry->powerType;
 
-    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
-    SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
+    SetObjectScale(1.0f);
 
     setFactionForRace(createInfo->Race);
 
@@ -2136,9 +2135,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             m_transport->RemovePassenger(this);
             m_transport = NULL;
-            m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            m_movementInfo.t_time = 0;
-            m_movementInfo.t_seat = -1;
+            m_movementInfo.ClearTransport();
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
         }
 
@@ -2162,10 +2159,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             m_transport->RemovePassenger(this);
             m_transport = NULL;
-            m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            m_movementInfo.t_time = 0;
-            m_movementInfo.t_seat = -1;
-            m_movementInfo.t_guid = 0;
+            m_movementInfo.ClearTransport();
         }
     }
 
@@ -4588,16 +4582,16 @@ Mail* Player::GetMail(uint32 id)
 
 void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        if (m_items[i] == NULL)
-            continue;
-
-        m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
-    }
-
     if (target == this)
     {
+        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        {
+            if (m_items[i] == NULL)
+                continue;
+
+            m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
+        }
+
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
         {
             if (m_items[i] == NULL)
@@ -5157,8 +5151,6 @@ void Player::BuildPlayerRepop()
     corpse->ResetGhostTime();
 
     StopMirrorTimers();                                     //disable timers(bars)
-
-    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, float(1.0f));   //see radius of death player?
 
     // set and clear other
     SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
@@ -14419,10 +14411,6 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     }
                     break;
                 }
-                case GOSSIP_OPTION_TRAINER:
-                    if (!creature->isCanTrainingOf(this, false))
-                        canTalk = false;
-                    break;
                 case GOSSIP_OPTION_LEARNDUALSPEC:
                     if (!(GetSpecsCount() == 1 && creature->isCanTrainingAndResetTalentsOf(this) && !(getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))))
                         canTalk = false;
@@ -14450,6 +14438,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 case GOSSIP_OPTION_QUESTGIVER:
                     canTalk = false;
                     break;
+                case GOSSIP_OPTION_TRAINER:
                 case GOSSIP_OPTION_GOSSIP:
                 case GOSSIP_OPTION_SPIRITGUIDE:
                 case GOSSIP_OPTION_INNKEEPER:
@@ -14463,7 +14452,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                         canTalk = false;
                     break;
                 default:
-                    TC_LOG_ERROR(LOG_FILTER_SQL, "Creature entry %u have unknown gossip option %u for menu %u", creature->GetEntry(), itr->second.OptionType, itr->second.MenuId);
+                    TC_LOG_ERROR(LOG_FILTER_SQL, "Creature entry %u has unknown gossip option %u for menu %u", creature->GetEntry(), itr->second.OptionType, itr->second.MenuId);
                     canTalk = false;
                     break;
             }
@@ -17088,8 +17077,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadIntoDataField(fields[55].GetCString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
     _LoadIntoDataField(fields[57].GetCString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
 
-    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
-    SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
+    SetObjectScale(1.0f);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
 
     // load achievements before anything else to prevent multiple gains for the same achievement/criteria on every loading (as loading does call UpdateAchievementCriteria)
@@ -18926,7 +18914,9 @@ void Player::ConvertInstancesToGroup(Player* player, Group* group, bool switchLe
     {
         for (BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
         {
-            group->BindToInstance(itr->second.save, itr->second.perm, false);
+            if (!switchLeader || !group->GetBoundInstance(itr->second.save->GetDifficulty(), itr->first))
+                group->BindToInstance(itr->second.save, itr->second.perm, false);
+
             // permanent binds are not removed
             if (switchLeader && !itr->second.perm)
             {

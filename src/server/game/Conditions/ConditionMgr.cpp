@@ -1674,7 +1674,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         {
             if (!sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Quest condition specifies non-existing quest (%u), skipped", cond->ConditionValue1);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Quest condition (Type: %u) points to non-existing quest (%u) for Source Entry %u. SourceGroup: %u, SourceTypeOrReferenceId: %u",
+                    cond->ConditionType, cond->ConditionValue1, cond->SourceEntry, cond->SourceGroup, cond->SourceType);
                 return false;
             }
 

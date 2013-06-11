@@ -30,9 +30,6 @@
 #include "Util.h"
 #include "AccountMgr.h"
 
-//please DO NOT use iterator++, because it is slower than ++iterator!!!
-//post-incrementation is always slower than pre-incrementation !
-
 //void called when player click on auctioneer npc
 void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
 {
