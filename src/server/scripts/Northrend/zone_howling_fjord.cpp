@@ -276,56 +276,6 @@ public:
 };
 
 /*######
-## npc_mcgoyver
-######*/
-
-#define GOSSIP_ITEM_MG_I  "Walt sent me to pick up some dark iron ingots."
-#define GOSSIP_ITEM_MG_II "Yarp."
-
-enum eMcGoyver
-{
-    QUEST_WE_CAN_REBUILD_IT             = 11483,
-
-    SPELL_CREATURE_DARK_IRON_INGOTS     = 44512,
-    SPELL_TAXI_EXPLORERS_LEAGUE         = 44280,
-
-    GOSSIP_TEXTID_MCGOYVER              = 12193
-};
-
-class npc_mcgoyver : public CreatureScript
-{
-public:
-    npc_mcgoyver() : CreatureScript("npc_mcgoyver") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MCGOYVER, creature->GetGUID());
-                player->CastSpell(player, SPELL_CREATURE_DARK_IRON_INGOTS, true);
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->CastSpell(player, SPELL_TAXI_EXPLORERS_LEAGUE, true);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
-        return true;
-    }
-};
-
-/*######
 ## npc_daegarn
 ######*/
 
@@ -435,6 +385,5 @@ void AddSC_howling_fjord()
     new npc_apothecary_hanes;
     new npc_plaguehound_tracker;
     new npc_razael_and_lyana;
-    new npc_mcgoyver;
     new npc_daegarn;
  }
