@@ -50,7 +50,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Creature* creatureTarget = GetHitCreature())
-                if (!creatureTarget->isPet() && creatureTarget->GetEntry() == _originalEntry)
+                if (!creatureTarget->IsPet() && creatureTarget->GetEntry() == _originalEntry)
                 {
                     creatureTarget->UpdateEntry(_newEntry);
                     if (_shouldAttack && creatureTarget->IsAIEnabled)

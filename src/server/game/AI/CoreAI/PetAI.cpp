@@ -32,7 +32,7 @@
 
 int PetAI::Permissible(const Creature* creature)
 {
-    if (creature->isPet())
+    if (creature->IsPet())
         return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
@@ -580,19 +580,19 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
         switch (emote)
         {
             case TEXT_EMOTE_COWER:
-                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
                     me->HandleEmoteCommand(/*EMOTE_ONESHOT_ROAR*/EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
             case TEXT_EMOTE_ANGRY:
-                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
                     me->HandleEmoteCommand(/*EMOTE_ONESHOT_COWER*/EMOTE_STATE_STUN);
                 break;
             case TEXT_EMOTE_GLARE:
-                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
                     me->HandleEmoteCommand(EMOTE_STATE_STUN);
                 break;
             case TEXT_EMOTE_SOOTHE:
-                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                if (me->IsPet() && me->ToPet()->IsPetGhoul())
                     me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
         }

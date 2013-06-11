@@ -211,7 +211,7 @@ public:
         {
             // Try reset talents as Hunter Pet
             Creature* creature = handler->getSelectedCreature();
-            if (!*args && creature && creature->isPet())
+            if (!*args && creature && creature->IsPet())
             {
                 Unit* owner = creature->GetOwner();
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))

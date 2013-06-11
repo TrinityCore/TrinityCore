@@ -394,7 +394,7 @@ public:
             return false;
         }
 
-        if (creature->isPet())
+        if (creature->IsPet())
         {
             if (((Pet*)creature)->getPetType() == HUNTER_PET)
             {
@@ -435,7 +435,7 @@ public:
         else
             unit = handler->getSelectedCreature();
 
-        if (!unit || unit->isPet() || unit->isTotem())
+        if (!unit || unit->IsPet() || unit->isTotem())
         {
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -836,7 +836,7 @@ public:
 
         Creature* creature = handler->getSelectedCreature();
 
-        if (!creature || creature->isPet())
+        if (!creature || creature->IsPet())
         {
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -920,7 +920,7 @@ public:
         {
             type_str = guid_str;
             creature = handler->getSelectedCreature();
-            if (!creature || creature->isPet())
+            if (!creature || creature->IsPet())
                 return false;
             lowguid = creature->GetDBTableGUIDLow();
         }
@@ -1022,7 +1022,7 @@ public:
 
         creature->SetPhaseMask(phasemask, true);
 
-        if (!creature->isPet())
+        if (!creature->IsPet())
             creature->SaveToDB();
 
         return true;
@@ -1272,7 +1272,7 @@ public:
     static bool HandleNpcTameCommand(ChatHandler* handler, char const* /*args*/)
     {
         Creature* creatureTarget = handler->getSelectedCreature();
-        if (!creatureTarget || creatureTarget->isPet())
+        if (!creatureTarget || creatureTarget->IsPet())
         {
             handler->PSendSysMessage (LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage (true);

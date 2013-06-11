@@ -355,7 +355,7 @@ class PlayerOrPetCheck
         bool operator()(WorldObject* object) const
         {
             if (object->GetTypeId() != TYPEID_PLAYER)
-                if (!object->ToCreature()->isPet())
+                if (!object->ToCreature()->IsPet())
                     return true;
 
             return false;
