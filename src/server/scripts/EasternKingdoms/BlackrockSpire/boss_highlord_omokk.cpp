@@ -93,31 +93,31 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WARSTOMP:
-                        DoCast(me->getVictim(), SPELL_WARSTOMP);
+                        DoCast(me->GetVictim(), SPELL_WARSTOMP);
                         events.ScheduleEvent(EVENT_WARSTOMP, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        DoCast(me->GetVictim(), SPELL_CLEAVE);
                         events.ScheduleEvent(EVENT_CLEAVE, 8 * IN_MILLISECONDS);
                         break;
                     case EVENT_STRIKE:
-                        DoCast(me->getVictim(), SPELL_STRIKE);
+                        DoCast(me->GetVictim(), SPELL_STRIKE);
                         events.ScheduleEvent(EVENT_STRIKE, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_REND:
-                        DoCast(me->getVictim(), SPELL_REND);
+                        DoCast(me->GetVictim(), SPELL_REND);
                         events.ScheduleEvent(EVENT_REND, 18 * IN_MILLISECONDS);
                         break;
                     case EVENT_SUNDER_ARMOR:
-                        DoCast(me->getVictim(), SPELL_SUNDERARMOR);
+                        DoCast(me->GetVictim(), SPELL_SUNDERARMOR);
                         events.ScheduleEvent(EVENT_SUNDER_ARMOR, 25 * IN_MILLISECONDS);
                         break;
                     case EVENT_KNOCK_AWAY:
-                        DoCast(me->getVictim(), SPELL_KNOCKAWAY);
+                        DoCast(me->GetVictim(), SPELL_KNOCKAWAY);
                         events.ScheduleEvent(EVENT_KNOCK_AWAY, 12 * IN_MILLISECONDS);
                         break;
                     case EVENT_SLOW:
-                        DoCast(me->getVictim(), SPELL_SLOW);
+                        DoCast(me->GetVictim(), SPELL_SLOW);
                         events.ScheduleEvent(EVENT_SLOW, 18 * IN_MILLISECONDS);
                         break;
                 }

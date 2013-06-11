@@ -232,7 +232,7 @@ enum Events
                                 events.ScheduleEvent(EVENT_CHILLING_WAVE, 5000, 0, PHASE_TWO);
                             else if (events.IsInPhase(PHASE_THREE))
                                 events.ScheduleEvent(EVENT_DEEP_FREEZE, 10000, 0, PHASE_THREE);
-                            AttackStart(me->getVictim());
+                            AttackStart(me->GetVictim());
                             break;
                         default:
                             break;

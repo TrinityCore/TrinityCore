@@ -171,7 +171,7 @@ public:
             {
                 if (uiArcaneBuffet_Timer < uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANE_BUFFET);
+                    DoCast(me->GetVictim(), SPELL_ARCANE_BUFFET);
                     uiArcaneBuffet_Timer = 0;
                 }
                 else uiArcaneBuffet_Timer -= uiDiff;
@@ -288,7 +288,7 @@ public:
 
                     if (!PlayerList.isEmpty())
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (i->getSource()->isAlive())
+                            if (i->getSource()->IsAlive())
                                 DoTeleportPlayer(i->getSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), i->getSource()->GetOrientation());
                 }
 

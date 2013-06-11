@@ -135,7 +135,7 @@ class npc_announcer_toc10 : public CreatureScript
 
             char const* _message = "We are ready!";
 
-            if (player->isInCombat() || instance->IsEncounterInProgress() || instance->GetData(TYPE_EVENT))
+            if (player->IsInCombat() || instance->IsEncounterInProgress() || instance->GetData(TYPE_EVENT))
                 return true;
 
             uint8 i = 0;
@@ -208,7 +208,7 @@ class npc_announcer_toc10 : public CreatureScript
                 creature->CastSpell(creature, SPELL_DESTROY_FLOOR_KNOCKUP, false);
 
                 Creature* anubArak = Unit::GetCreature(*creature, instance->GetData64(NPC_ANUBARAK));
-                if (!anubArak || !anubArak->isAlive())
+                if (!anubArak || !anubArak->IsAlive())
                     anubArak = creature->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
                 instance->SetBossState(BOSS_ANUBARAK, NOT_STARTED);
@@ -332,7 +332,7 @@ class boss_lich_king_toc : public CreatureScript
                             {
                                 _instance->SetBossState(BOSS_LICH_KING, DONE);
                                 Creature* temp = Unit::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK));
-                                if (!temp || !temp->isAlive())
+                                if (!temp || !temp->IsAlive())
                                     temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
                                 _instance->SetData(TYPE_EVENT, 0);

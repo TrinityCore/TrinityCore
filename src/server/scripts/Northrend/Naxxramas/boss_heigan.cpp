@@ -117,7 +117,7 @@ public:
                 events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_PHASE, 90000);
                 events.ScheduleEvent(EVENT_ERUPT, 15000);
-                me->GetMotionMaster()->MoveChase(me->getVictim());
+                me->GetMotionMaster()->MoveChase(me->GetVictim());
             }
             else
             {

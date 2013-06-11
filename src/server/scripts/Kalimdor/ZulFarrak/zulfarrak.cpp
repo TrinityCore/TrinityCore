@@ -113,7 +113,7 @@ public:
         uint32 postGossipStep;
         uint32 Text_Timer;
         uint32 ShieldBash_Timer;
-        uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless me->getVictim() dodge, parry or block attack. Trinity support required.
+        uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless me->GetVictim() dodge, parry or block attack. Trinity support required.
         uint64 PlayerGUID;
 
         void Reset()
@@ -165,7 +165,7 @@ public:
 
             if (ShieldBash_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHIELD_BASH);
+                DoCast(me->GetVictim(), SPELL_SHIELD_BASH);
                 ShieldBash_Timer = 15000;
             }
             else
@@ -173,7 +173,7 @@ public:
 
             if (Revenge_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_REVENGE);
+                DoCast(me->GetVictim(), SPELL_REVENGE);
                 Revenge_Timer = 10000;
             }
             else
@@ -191,7 +191,7 @@ public:
         void switchFactionIfAlive(InstanceScript* instance, uint32 entry)
         {
            if (Creature* crew = instance->instance->GetCreature(instance->GetData64(entry)))
-               if (crew->isAlive())
+               if (crew->IsAlive())
                    crew->setFaction(FACTION_HOSTILE);
         }
     };
@@ -338,15 +338,15 @@ public:
 
             if (Bomb_Timer < diff)
             {
-                DoCast(me->getVictim(), SPELL_BOMB);
+                DoCast(me->GetVictim(), SPELL_BOMB);
                 Bomb_Timer = 10000;
             }
             else
                 Bomb_Timer -= diff;
 
-            if (me->isAttackReady() && !me->IsWithinMeleeRange(me->getVictim()))
+            if (me->isAttackReady() && !me->IsWithinMeleeRange(me->GetVictim()))
             {
-                DoCast(me->getVictim(), SPELL_SHOOT);
+                DoCast(me->GetVictim(), SPELL_SHOOT);
                 me->SetSheath(SHEATH_STATE_RANGED);
             }
             else
@@ -383,7 +383,7 @@ public:
 
         void DestroyDoor()
         {
-            if (me->isAlive())
+            if (me->IsAlive())
             {
                 me->setFaction(FACTION_FRIENDLY);
                 me->GetMotionMaster()->MovePoint(0, 1858.57f, 1146.35f, 14.745f);

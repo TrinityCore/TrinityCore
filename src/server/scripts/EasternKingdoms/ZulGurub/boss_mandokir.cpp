@@ -121,7 +121,7 @@ class boss_mandokir : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
                     events.ScheduleEvent(EVENT_CHECK_START, 1000);
                     if (Creature* speaker = Creature::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
-                        if (!speaker->isAlive())
+                        if (!speaker->IsAlive())
                             speaker->Respawn(true);
                 }
                 summons.DespawnAll();
@@ -170,7 +170,7 @@ class boss_mandokir : public CreatureScript
                 {
                     Talk(SAY_DING_KILL);
                     if (Creature* jindo = Creature::GetCreature(*me, instance->GetData64(DATA_JINDO)))
-                        if (jindo->isAlive())
+                        if (jindo->IsAlive())
                             jindo->AI()->Talk(SAY_GRATS_JINDO);
                     DoCast(me, SPELL_LEVEL_UP, true);
                     killCount = 0;
@@ -236,7 +236,7 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERPOWER, urand(6000, 12000));
                             break;
                         case EVENT_MORTAL_STRIKE:
-                            if (me->getVictim() && me->getVictim()->HealthBelowPct(50))
+                            if (me->GetVictim() && me->GetVictim()->HealthBelowPct(50))
                                 DoCastVictim(SPELL_MORTAL_STRIKE, true);
                             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
                             break;

@@ -384,7 +384,7 @@ public:
             handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
 
             // stop flight if need
-            if (_player->isInFlight())
+            if (_player->IsInFlight())
             {
                 _player->GetMotionMaster()->MovementExpired();
                 _player->CleanupAfterTaxiFlight();
@@ -418,7 +418,7 @@ public:
                 return false;
 
             // stop flight if need
-            if (_player->isInFlight())
+            if (_player->IsInFlight())
             {
                 _player->GetMotionMaster()->MovementExpired();
                 _player->CleanupAfterTaxiFlight();
@@ -509,7 +509,7 @@ public:
                 ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
 
             // stop flight if need
-            if (target->isInFlight())
+            if (target->IsInFlight())
             {
                 target->GetMotionMaster()->MovementExpired();
                 target->CleanupAfterTaxiFlight();
@@ -620,7 +620,7 @@ public:
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->GetNameLink().c_str());
 
             // stop flight if need
-            if (player->isInFlight())
+            if (player->IsInFlight())
             {
                 player->GetMotionMaster()->MovementExpired();
                 player->CleanupAfterTaxiFlight();
@@ -661,7 +661,7 @@ public:
                 return false;
         }
 
-        if (target->isAlive())
+        if (target->IsAlive())
         {
             if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
                 handler->GetSession()->GetPlayer()->Kill(target);
@@ -704,7 +704,7 @@ public:
             return false;
         }
 
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             handler->SendSysMessage(LANG_YOU_IN_FLIGHT);
             handler->SetSentErrorMessage(true);
@@ -869,7 +869,7 @@ public:
         }
 
         // stop flight if need
-        if (target->isInFlight())
+        if (target->IsInFlight())
         {
             target->GetMotionMaster()->MovementExpired();
             target->CleanupAfterTaxiFlight();
@@ -965,7 +965,7 @@ public:
         if (!handler->extractPlayerTarget(player_str, &player))
             return false;
 
-        if (player->isInFlight() || player->isInCombat())
+        if (player->IsInFlight() || player->IsInCombat())
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(7355);
             if (!spellInfo)
@@ -1612,7 +1612,7 @@ public:
             muteTime          = target->GetSession()->m_muteTime;
             mapId             = target->GetMapId();
             areaId            = target->GetAreaId();
-            alive             = target->isAlive() ? "Yes" : "No";
+            alive             = target->IsAlive() ? "Yes" : "No";
             gender            = target->getGender();
             phase             = target->GetPhaseMask();
         }
@@ -2233,7 +2233,7 @@ public:
                 return false;
         }
 
-        if (!target->isAlive())
+        if (!target->IsAlive())
             return true;
 
         char* damageStr = strtok((char*)args, " ");
@@ -2780,7 +2780,7 @@ public:
                 {
                     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
                     // not let dismiss dead pet
-                    if (pet->isAlive())
+                    if (pet->IsAlive())
                         player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
                 }
             }

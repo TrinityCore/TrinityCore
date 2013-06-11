@@ -171,7 +171,7 @@ public:
 
                         if (uiWhirlingSlashTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_WHIRLING_SLASH);
+                            DoCast(me->GetVictim(), SPELL_WHIRLING_SLASH);
                             uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
                             ++uiPhaseCounter;
                         } else uiWhirlingSlashTimer -= diff;
@@ -207,19 +207,19 @@ public:
                     {
                         if (uiPunctureTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_PUNCTURE);
+                            DoCast(me->GetVictim(), SPELL_PUNCTURE);
                             uiPunctureTimer = 8*IN_MILLISECONDS;
                         } else uiPunctureTimer -= diff;
 
                         if (uiEnrageTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_ENRAGE);
+                            DoCast(me->GetVictim(), SPELL_ENRAGE);
                             uiEnrageTimer = 20*IN_MILLISECONDS;
                         } else uiEnrageTimer -= diff;
 
                         if (uiStompTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_STOMP);
+                            DoCast(me->GetVictim(), SPELL_STOMP);
                             uiStompTimer = 20*IN_MILLISECONDS;
                         } else uiStompTimer -= diff;
 

@@ -163,7 +163,7 @@ class boss_laj : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
-                if (summon && me->getVictim())
+                if (summon && me->GetVictim())
                     summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             }
 
@@ -186,7 +186,7 @@ class boss_laj : public CreatureScript
 
                 if (Allergic_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ALLERGIC_REACTION);
+                    DoCast(me->GetVictim(), SPELL_ALLERGIC_REACTION);
                     Allergic_Timer = 25000+rand()%15000;
                 }
                 else

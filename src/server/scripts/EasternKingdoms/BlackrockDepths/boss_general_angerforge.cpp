@@ -78,21 +78,21 @@ public:
             //MightyBlow_Timer
             if (MightyBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
+                DoCast(me->GetVictim(), SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 18000;
             } else MightyBlow_Timer -= diff;
 
             //HamString_Timer
             if (HamString_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMSTRING);
+                DoCast(me->GetVictim(), SPELL_HAMSTRING);
                 HamString_Timer = 15000;
             } else HamString_Timer -= diff;
 
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast(me->GetVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 9000;
             } else Cleave_Timer -= diff;
 
@@ -102,9 +102,9 @@ public:
                 if (Adds_Timer <= diff)
                 {
                     // summon 3 Adds every 25s
-                    SummonAdds(me->getVictim());
-                    SummonAdds(me->getVictim());
-                    SummonAdds(me->getVictim());
+                    SummonAdds(me->GetVictim());
+                    SummonAdds(me->GetVictim());
+                    SummonAdds(me->GetVictim());
 
                     Adds_Timer = 25000;
                 } else Adds_Timer -= diff;
@@ -113,8 +113,8 @@ public:
             //Summon Medics
             if (!Medics && HealthBelowPct(21))
             {
-                SummonMedics(me->getVictim());
-                SummonMedics(me->getVictim());
+                SummonMedics(me->GetVictim());
+                SummonMedics(me->GetVictim());
                 Medics = true;
             }
 

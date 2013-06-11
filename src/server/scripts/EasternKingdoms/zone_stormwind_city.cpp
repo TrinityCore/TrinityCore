@@ -64,7 +64,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(11223) == QUEST_STATUS_COMPLETE)
@@ -123,7 +123,7 @@ public:
 
         void AttackedBy(Unit* pAttacker)
         {
-            if (me->getVictim())
+            if (me->GetVictim())
                 return;
 
             if (me->IsFriendlyTo(pAttacker))
@@ -188,7 +188,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(4185) == QUEST_STATUS_INCOMPLETE)
@@ -257,7 +257,7 @@ public:
 
             if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
             {
-                if (pMarzon->isAlive())
+                if (pMarzon->IsAlive())
                     pMarzon->DisappearAndDie();
             }
         }
@@ -266,7 +266,7 @@ public:
         {
             if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
             {
-                if (pMarzon->isAlive() && !pMarzon->isInCombat())
+                if (pMarzon->IsAlive() && !pMarzon->IsInCombat())
                     pMarzon->AI()->AttackStart(who);
             }
         }
@@ -402,11 +402,11 @@ public:
         {
             Talk(SAY_MARZON_2);
 
-            if (me->isSummon())
+            if (me->IsSummon())
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive() && !summoner->isInCombat())
+                    if (summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAlive() && !summoner->IsInCombat())
                         summoner->ToCreature()->AI()->AttackStart(who);
                 }
             }
@@ -416,11 +416,11 @@ public:
         {
             me->DisappearAndDie();
 
-            if (me->isSummon())
+            if (me->IsSummon())
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive())
+                    if (summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAlive())
                         summoner->ToCreature()->DisappearAndDie();
                 }
             }
@@ -431,7 +431,7 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            if (me->isSummon())
+            if (me->IsSummon())
             {
                 Unit* summoner = me->ToTempSummon()->GetSummoner();
                 if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled)

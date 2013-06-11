@@ -1348,7 +1348,7 @@ public:
             if (GetCaster()->GetOwner()->ToPlayer())
             {
                 //  Pet's base damage changes depending on happiness
-                if (GetCaster()->IsPet() && GetCaster()->ToPet()->isHunterPet())
+                if (GetCaster()->IsPet() && GetCaster()->ToPet()->IsHunterPet())
                 {
                     switch (GetCaster()->ToPet()->GetHappinessState())
                     {
@@ -1490,7 +1490,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (pet->isGuardian())
+                if (pet->IsGuardian())
                 {
                     if (Unit* owner = pet->GetOwner())
                     {
@@ -1529,7 +1529,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isGuardian())
+                if (!pet->IsGuardian())
                     return;
 
                 Unit* owner = pet->GetOwner();
@@ -1703,7 +1703,7 @@ public:
                 if (!owner)
                     return;
 
-                if (pet->isGuardian())
+                if (pet->IsGuardian())
                     ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
 
                 amount += owner->CalculateDamage(BASE_ATTACK, true, true);
