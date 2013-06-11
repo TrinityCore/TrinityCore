@@ -454,6 +454,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void AddToWorld();
         void RemoveFromWorld();
 
+        void SetObjectScale(float scale);
+        void SetDisplayId(uint32 modelId);
+
         void DisappearAndDie();
 
         bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);

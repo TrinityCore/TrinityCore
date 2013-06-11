@@ -2078,3 +2078,16 @@ Player* Pet::GetOwner() const
 {
     return Minion::GetOwner()->ToPlayer();
 }
+
+void Pet::SetDisplayId(uint32 modelId)
+{
+    Guardian::SetDisplayId(modelId);
+
+    if (!isControlled())
+        return;
+
+    if (Unit* owner = GetOwner())
+        if (Player* player = owner->ToPlayer())
+            if (owner->ToPlayer()->GetGroup())
+                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+}
