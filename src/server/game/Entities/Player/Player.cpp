@@ -22168,7 +22168,7 @@ inline void BeforeVisibilityDestroy(T* /*t*/, Player* /*p*/)
 template<>
 inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
 {
-    if (p->GetPetGUID() == t->GetGUID() && t->ToCreature()->isPet())
+    if (p->GetPetGUID() == t->GetGUID() && t->ToCreature()->IsPet())
         ((Pet*)t)->Remove(PET_SAVE_NOT_IN_SLOT, true);
 }
 
@@ -23477,7 +23477,7 @@ bool Player::isHonorOrXPTarget(Unit* victim)
     if (victim->GetTypeId() == TYPEID_UNIT)
     {
         if (victim->ToCreature()->isTotem() ||
-            victim->ToCreature()->isPet() ||
+            victim->ToCreature()->IsPet() ||
             victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)
                 return false;
     }

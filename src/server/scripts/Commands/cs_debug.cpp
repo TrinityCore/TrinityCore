@@ -796,7 +796,7 @@ public:
     static bool HandleDebugThreatListCommand(ChatHandler* handler, char const* /*args*/)
     {
         Creature* target = handler->getSelectedCreature();
-        if (!target || target->isTotem() || target->isPet())
+        if (!target || target->isTotem() || target->IsPet())
             return false;
 
         ThreatContainer::StorageType const &threatList = target->getThreatManager().getThreatList();

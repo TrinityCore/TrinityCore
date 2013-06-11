@@ -173,7 +173,7 @@ void TempSummon::Update(uint32 diff)
 
 void TempSummon::InitStats(uint32 duration)
 {
-    ASSERT(!isPet());
+    ASSERT(!IsPet());
 
     m_timer = duration;
     m_lifetime = duration;
@@ -241,8 +241,8 @@ void TempSummon::UnSummon(uint32 msTime)
         return;
     }
 
-    //ASSERT(!isPet());
-    if (isPet())
+    //ASSERT(!IsPet());
+    if (IsPet())
     {
         ((Pet*)this)->Remove(PET_SAVE_NOT_IN_SLOT);
         ASSERT(!IsInWorld());
@@ -310,7 +310,7 @@ void Minion::RemoveFromWorld()
 
 bool Minion::IsGuardianPet() const
 {
-    return isPet() || (m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET);
+    return IsPet() || (m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET);
 }
 
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject)
