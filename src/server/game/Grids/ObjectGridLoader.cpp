@@ -38,7 +38,7 @@ void ObjectGridEvacuator::Visit(CreatureMapType &m)
         Creature* c = iter->getSource();
         ++iter;
 
-        ASSERT(!c->isPet() && "ObjectGridRespawnMover must not be called for pets");
+        ASSERT(!c->IsPet() && "ObjectGridRespawnMover must not be called for pets");
         c->GetMap()->CreatureRespawnRelocation(c, true);
     }
 }

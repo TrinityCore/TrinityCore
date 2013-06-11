@@ -33,7 +33,7 @@ namespace FactorySelector
         const CreatureAICreator* ai_factory = NULL;
         CreatureAIRegistry& ai_registry(*CreatureAIRepository::instance());
 
-        if (creature->isPet())
+        if (creature->IsPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
 
         //scriptname in db

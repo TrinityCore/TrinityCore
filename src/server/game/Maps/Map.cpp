@@ -839,7 +839,7 @@ void Map::MoveAllCreaturesInMoveList()
                 //But this check is always needed to ensure safety
                 /// @todo pets will disappear if this is outside CreatureRespawnRelocation
                 //need to check why pet is frequently relocated to an unloaded cell
-                if (c->isPet())
+                if (c->IsPet())
                     ((Pet*)c)->Remove(PET_SAVE_NOT_IN_SLOT, true);
                 else
                     AddObjectToRemoveList(c);
@@ -2232,7 +2232,7 @@ void Map::AddToActive(Creature* c)
     AddToActiveHelper(c);
 
     // also not allow unloading spawn grid to prevent creating creature clone at load
-    if (!c->isPet() && c->GetDBTableGUIDLow())
+    if (!c->IsPet() && c->GetDBTableGUIDLow())
     {
         float x, y, z;
         c->GetRespawnPosition(x, y, z);
@@ -2253,7 +2253,7 @@ void Map::RemoveFromActive(Creature* c)
     RemoveFromActiveHelper(c);
 
     // also allow unloading spawn grid
-    if (!c->isPet() && c->GetDBTableGUIDLow())
+    if (!c->IsPet() && c->GetDBTableGUIDLow())
     {
         float x, y, z;
         c->GetRespawnPosition(x, y, z);
