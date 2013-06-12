@@ -690,8 +690,8 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
                 {
                     if (unit->IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(target))
                     {
-                        FactionTemplateEntry const* ft1 = unit->getFactionTemplateEntry();
-                        FactionTemplateEntry const* ft2 = target->getFactionTemplateEntry();
+                        FactionTemplateEntry const* ft1 = unit->GetFactionTemplateEntry();
+                        FactionTemplateEntry const* ft2 = target->GetFactionTemplateEntry();
                         if (ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
                         {
                             if (index == UNIT_FIELD_BYTES_2)

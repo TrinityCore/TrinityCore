@@ -23111,7 +23111,7 @@ bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 
 float Player::GetReputationPriceDiscount(Creature const* creature) const
 {
-    FactionTemplateEntry const* vendor_faction = creature->getFactionTemplateEntry();
+    FactionTemplateEntry const* vendor_faction = creature->GetFactionTemplateEntry();
     if (!vendor_faction || !vendor_faction->faction)
         return 1.0f;
 
@@ -24066,7 +24066,7 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject)
     // It is possible to call this method with a null pointer, only skipping faction check.
     if (gameobject)
     {
-        FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
+        FactionTemplateEntry const* playerFaction = GetFactionTemplateEntry();
         FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
 
         if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
