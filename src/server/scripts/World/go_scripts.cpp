@@ -317,7 +317,7 @@ public:
         {
             if (!creature->IsHostileTo(player))
             {
-                if (FactionTemplateEntry const* pFaction = creature->getFactionTemplateEntry())
+                if (FactionTemplateEntry const* pFaction = creature->GetFactionTemplateEntry())
                 {
                     uint32 Spell = 0;
 
