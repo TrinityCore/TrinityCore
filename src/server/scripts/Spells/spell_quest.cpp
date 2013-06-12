@@ -86,6 +86,47 @@ class spell_q55_sacred_cleansing : public SpellScriptLoader
         }
 };
 
+// 9712 - Thaumaturgy Channel
+enum ThaumaturgyChannel
+{
+    SPELL_THAUMATURGY_CHANNEL = 21029
+};
+
+class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
+{
+    public:
+        spell_q2203_thaumaturgy_channel() : SpellScriptLoader("spell_q2203_thaumaturgy_channel") { }
+
+        class spell_q2203_thaumaturgy_channel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q2203_thaumaturgy_channel_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_THAUMATURGY_CHANNEL))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, SPELL_THAUMATURGY_CHANNEL, false);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q2203_thaumaturgy_channel_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_q2203_thaumaturgy_channel_AuraScript();
+        }
+};
+
 // http://www.wowhead.com/quest=5206 Marauders of Darrowshire
 // 17271 Test Fetid Skull
 enum Quest5206Data
@@ -1674,6 +1715,7 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
+    new spell_q2203_thaumaturgy_channel();
     new spell_q5206_test_fetid_skull();
     new spell_q6124_6129_apply_salve();
     new spell_q10255_administer_antidote();
