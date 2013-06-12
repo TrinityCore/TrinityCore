@@ -68,7 +68,7 @@ public:
     }
     void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
     {
-        if (!player || !player->IsInWorld() || !player->isAlive() || player->GetCharmerGUID())
+        if (!player->isAlive() || player->GetCharmerGUID())
             return;
 
         if (player->HasUnitState(UNIT_STATE_DIED))

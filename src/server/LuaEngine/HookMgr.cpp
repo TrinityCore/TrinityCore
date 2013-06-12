@@ -31,6 +31,8 @@ InventoryResult HookMgr::OnCanUseItem(const Player* player, uint32 itemEntry)
 }
 void HookMgr::HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
 {
+    if (!player || !player->IsInWorld() || player->PlayerTalkClass->GetGossipMenu().GetMenuId() != menuId)
+        return;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
         (*it)->HandleGossipSelectOption(player, guid, sender, action, code, menuId);
 }
