@@ -94,6 +94,7 @@ enum Spells
     SPELL_DEAFENING_SIREN                       = 64616,
     // NPCs
     SPELL_BOMB_BOT                              = 63801,
+    SPELL_NOT_SO_FRIENDLY_FIRE                  = 65040,
 };
 
 enum Npcs
@@ -162,8 +163,10 @@ enum Events
     EVENT_PLASMA_BALL,
     EVENT_REACTIVATE_AERIAL,
     EVENT_SUMMON_BOTS,
-	    Thrash events
-	
+    // Thrash events
+    EVENT_MAGNETIC_FIELD,
+    EVENT_SPRAY,
+    EVENT_FROST_BOMB_EXPLOSION,
 };
 
 enum Phases
@@ -198,8 +201,6 @@ enum eActions
     DO_ENTER_ENRAGE                            = 12,
     DO_ACTIVATE_HARD_MODE                      = 13,
     DO_DESPAWN_SUMMONS                         = 14,
-    DO_INCREASE_FLAME_COUNT                    = 15,
-    DO_DECREASE_FLAME_COUNT                    = 16,
 };
 
 enum eDatas
@@ -219,6 +220,14 @@ const Position SummonPos[9] =
     {2764.95f, 2604.11f, 364.397f, 0},
     {2759.19f, 2594.26f, 364.397f, 0},
     {2753.56f, 2584.30f, 364.397f, 0}
+};
+
+enum MimironChests
+{
+    CACHE_OF_INNOVATION_10                      = 194789,
+    CACHE_OF_INNOVATION_HARDMODE_10             = 194957,
+    CACHE_OF_INNOVATION_25                      = 194956,
+    CACHE_OF_INNOVATION_HARDMODE_25             = 194958,
 };
 
 class boss_mimiron : public CreatureScript
@@ -326,7 +335,11 @@ class boss_mimiron : public CreatureScript
                         DespawnCreatures(NPC_FLAME_SPREAD, 100);
                         DespawnCreatures(NPC_FLAME, 100);
                         instance->DoCompleteAchievement(ACHIEVEMENT_FIREFIGHTER);
+                        me->SummonGameObject(RAID_MODE<uint32>(CACHE_OF_INNOVATION_HARDMODE_10, CACHE_OF_INNOVATION_HARDMODE_25), 2744.65f, 2569.46f,364.314f, 3.14159f, 0, 0, 0.7f, 0.7f, 604800);
                     }
+                    else
+                        me->SummonGameObject(RAID_MODE<uint32>(CACHE_OF_INNOVATION_10, CACHE_OF_INNOVATION_25), 2744.65f, 2569.46f, 364.314f, 3.14159f,0, 0, 0.7f, 0.7f, 604800);
+
                     instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_LEVIATHAN_MKII, 1);
                 }
 
@@ -370,13 +383,6 @@ class boss_mimiron : public CreatureScript
                     case DO_ACTIVATE_HARD_MODE:
                         MimironHardMode = true;
                         DoZoneInCombat();
-                        break;
-                    case DO_INCREASE_FLAME_COUNT:
-                        ++_flameCount;
-                        break;
-                    case DO_DECREASE_FLAME_COUNT:
-                        if (_flameCount)
-                            --_flameCount;
                         break;
                 }
             }
@@ -1532,7 +1538,7 @@ class npc_assault_bot : public CreatureScript
                 events.ScheduleEvent(EVENT_MAGNETIC_FIELD, urand(4000, 6000));
             }
 
-            void UpdateAI(uint32 uiDiff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1561,6 +1567,7 @@ class npc_assault_bot : public CreatureScript
 
         private:
             InstanceScript* instance;
+            EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1584,7 +1591,7 @@ class npc_emergency_bot : public CreatureScript
                 events.ScheduleEvent(EVENT_SPRAY, 5000);
             }
 
-            void UpdateAI(uint32 uiDiff)
+            void UpdateAI(uint32 diff)
             {
                 events.Update(diff);
 
@@ -1599,6 +1606,8 @@ class npc_emergency_bot : public CreatureScript
                     }
                 }
             }
+        private:
+            EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1676,21 +1685,26 @@ class npc_frost_bomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 DoCast(me, SPELL_FROST_BOMB, true);
-                FrostTimer = 10000;
+                events.ScheduleEvent(EVENT_FROST_BOMB_EXPLOSION, 10000);
             }
             
             void UpdateAI(uint32 diff)
             {
-                if (FrostTimer <= diff)
-                {
-                    DoCast(me, RAID_MODE(SPELL_FROST_BOMB_EXPLOSION_10, SPELL_FROST_BOMB_EXPLOSION_25), true);
-                    FrostTimer = 10000;
-                }
-                else FrostTimer -= diff;
-            }
+                events.Update(diff);
 
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_FROST_BOMB_EXPLOSION:
+                            DoCast(me, RAID_MODE(SPELL_FROST_BOMB_EXPLOSION_10, SPELL_FROST_BOMB_EXPLOSION_25), true);
+                            events.RescheduleEvent(EVENT_FROST_BOMB_EXPLOSION, 10000);
+                            break;
+                    }
+                }
+            }
         private:
-            uint32 FrostTimer;
+            EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1713,7 +1727,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                 me->SetInCombatWithZone();
-                _flameTimer = 2000;
+                events.ScheduleEvent(EVENT_FLAME, 2000);
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -1725,7 +1739,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                     case SPELL_FROST_BOMB_EXPLOSION_10:
                     case SPELL_FROST_BOMB_EXPLOSION_25:
                     case SPELL_WATER_SPRAY:
-                        _flameTimer = 1000;
+                        events.ScheduleEvent(EVENT_FLAME, 1000);
                         me->DespawnOrUnsummon(500);
                         break;
                     default:
@@ -1733,42 +1747,23 @@ class npc_mimiron_flame_trigger : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* /*summon*/)
-            {
-                if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MIMIRON) : 0))
-                    mimiron->AI()->DoAction(DO_INCREASE_FLAME_COUNT);
-            }
-
             void UpdateAI(uint32 diff)
             {
-                if (_flameTimer <= diff)
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    // check if flame cap is reached
-                    if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MIMIRON) : 0))
-                        if (mimiron->AI()->GetData(DATA_FLAME_COUNT) >= FLAME_CAP)
-                        {
-                            me->DespawnOrUnsummon();
-                            return;
-                        }
-
-                    DoZoneInCombat();
-
-                    if (Player* nearest = me->SelectNearestPlayer(100.0f))
+                    switch (eventId)
                     {
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MoveFollow(nearest, 0.0f, 0.0f);
+                        case EVENT_FLAME:
+                            me->SummonCreature(NPC_FLAME_SPREAD, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                            events.RescheduleEvent(EVENT_FLAME, 4000);
+                            break;
                     }
-
-                    me->SummonCreature(NPC_FLAME_SPREAD, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                    _flameTimer = 4000;
                 }
-                else
-                    _flameTimer -= diff;
             }
-
         private:
-            uint32 _flameTimer;
-            InstanceScript* instance;
+            EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1801,8 +1796,6 @@ class npc_mimiron_flame_spread : public CreatureScript
                     case SPELL_FROST_BOMB_EXPLOSION_10:
                     case SPELL_FROST_BOMB_EXPLOSION_25:
                     case SPELL_WATER_SPRAY:
-                        if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MIMIRON) : 0))
-                            mimiron->AI()->DoAction(DO_DECREASE_FLAME_COUNT);
                         me->DespawnOrUnsummon(500);
                         break;
                     default:
@@ -1863,7 +1856,7 @@ class spell_rapid_burst : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rapid_burst_AuraScript);
 
-            void HandleDummyTickLeft(AuraEffect const* aurEff)
+            void HandleDummyTick(AuraEffect const* aurEff)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
@@ -1882,31 +1875,12 @@ class spell_rapid_burst : public SpellScriptLoader
                         break;
                 }
             }
-            
-            void HandleDummyTickRight(AuraEffect const* aurEff)
-            {
-                Unit* caster = GetCaster();
-                Unit* target = GetTarget();
 
-                switch (caster->GetMap()->GetDifficulty())
-                {
-                    case RAID_DIFFICULTY_10MAN_NORMAL:
-                        if (Unit* target = GetTarget())
-                            target->CastSpell(target, SPELL_RAPID_BURST_RIGHT_10, true, NULL, NULL, caster->GetGUID());
-                        break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                        if (Unit* target = GetTarget())
-                            target->CastSpell(target, SPELL_RAPID_BURST_RIGHT_25, true, NULL, NULL, caster->GetGUID());
-                        break;
-                    default:
-                        break;
-                }
-            }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rapid_burst_AuraScript::HandleDummyTickLeft, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rapid_burst_AuraScript::HandleDummyTickRight, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rapid_burst_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rapid_burst_AuraScript::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
