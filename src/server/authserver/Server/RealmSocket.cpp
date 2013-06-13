@@ -27,7 +27,9 @@ RealmSocket::Session::Session(void) {}
 
 RealmSocket::Session::~Session(void) { }
 
-RealmSocket::RealmSocket(void) : input_buffer_(4096), session_(NULL), _remoteAddress()
+RealmSocket::RealmSocket(void) :
+    input_buffer_(4096), session_(NULL),
+    _remoteAddress(), _remotePort(0)
 {
     reference_counting_policy().value(ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
 
@@ -55,7 +57,7 @@ int RealmSocket::open(void * arg)
 
     if (peer().get_remote_addr(addr) == -1)
     {
-        sLog->outError(LOG_FILTER_AUTHSERVER, "Error %s while opening realm socket!", ACE_OS::strerror(errno));
+        TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Error %s while opening realm socket!", ACE_OS::strerror(errno));
         return -1;
     }
 

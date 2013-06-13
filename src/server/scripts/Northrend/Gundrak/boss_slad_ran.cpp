@@ -130,20 +130,20 @@ public:
 
             if (uiPoisonNovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_POISON_NOVA);
+                DoCast(me->GetVictim(), SPELL_POISON_NOVA);
                 Talk(EMOTE_NOVA);
                 uiPoisonNovaTimer = 15*IN_MILLISECONDS;
             } else uiPoisonNovaTimer -= diff;
 
             if (uiPowerfullBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_POWERFULL_BITE);
+                DoCast(me->GetVictim(), SPELL_POWERFULL_BITE);
                 uiPowerfullBiteTimer = 10*IN_MILLISECONDS;
             } else uiPowerfullBiteTimer -= diff;
 
             if (uiVenomBoltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VENOM_BOLT);
+                DoCast(me->GetVictim(), SPELL_VENOM_BOLT);
                 uiVenomBoltTimer = 10*IN_MILLISECONDS;
             } else uiVenomBoltTimer -= diff;
 
@@ -238,7 +238,7 @@ public:
 
             if (uiGripOfSladRanTimer <= diff)
             {
-                Unit* target = me->getVictim();
+                Unit* target = me->GetVictim();
 
                 DoCast(target, SPELL_GRIP_OF_SLAD_RAN);
                 uiGripOfSladRanTimer = urand(3, 6)*IN_MILLISECONDS;
@@ -293,7 +293,7 @@ public:
 
             if (uiVenomousBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VENOMOUS_BITE);
+                DoCast(me->GetVictim(), SPELL_VENOMOUS_BITE);
                 uiVenomousBiteTimer = 10*IN_MILLISECONDS;
             } else uiVenomousBiteTimer -= diff;
         }

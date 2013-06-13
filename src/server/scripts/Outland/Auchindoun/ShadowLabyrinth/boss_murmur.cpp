@@ -107,7 +107,7 @@ public:
         // Sonic Boom instant damage (needs core fix instead of this)
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            if (target && target->isAlive() && spell && spell->Id == uint32(SPELL_SONIC_BOOM_EFFECT))
+            if (target && target->IsAlive() && spell && spell->Id == uint32(SPELL_SONIC_BOOM_EFFECT))
                 me->DealDamage(target, (target->GetHealth()*90)/100, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NATURE, spell);
         }
 
@@ -144,7 +144,7 @@ public:
             } else MurmursTouch_Timer -= diff;
 
             // Resonance
-            if (!SonicBoom && !(me->IsWithinMeleeRange(me->getVictim())))
+            if (!SonicBoom && !(me->IsWithinMeleeRange(me->GetVictim())))
             {
                 if (Resonance_Timer <= diff)
                 {
@@ -157,7 +157,7 @@ public:
             if (MagneticPull_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                    if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                     {
                         DoCast(target, SPELL_MAGNETIC_PULL);
                         MagneticPull_Timer = 15000+rand()%15000;
@@ -174,7 +174,7 @@ public:
                     ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
                     for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                         if (Unit* target = Unit::GetUnit(*me, (*i)->getUnitGuid()))
-                            if (target->isAlive() && !me->IsWithinDist(target, 35, false))
+                            if (target->IsAlive() && !me->IsWithinDist(target, 35, false))
                                 DoCast(target, SPELL_THUNDERING_STORM, true);
                     ThunderingStorm_Timer = 15000;
                 } else ThunderingStorm_Timer -= diff;
@@ -183,7 +183,7 @@ public:
                 if (SonicShock_Timer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20, false))
-                        if (target->isAlive())
+                        if (target->IsAlive())
                             DoCast(target, SPELL_SONIC_SHOCK);
                     SonicShock_Timer = 10000+rand()%10000;
                 } else SonicShock_Timer -= diff;
@@ -192,12 +192,12 @@ public:
             // Select nearest most aggro target if top aggro too far
             if (!me->isAttackReady())
                 return;
-            if (!me->IsWithinMeleeRange(me->getVictim()))
+            if (!me->IsWithinMeleeRange(me->GetVictim()))
             {
                 ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
                 for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                     if (Unit* target = Unit::GetUnit(*me, (*i)->getUnitGuid()))
-                        if (target->isAlive() && me->IsWithinMeleeRange(target))
+                        if (target->IsAlive() && me->IsWithinMeleeRange(target))
                         {
                             me->TauntApply(target);
                             break;

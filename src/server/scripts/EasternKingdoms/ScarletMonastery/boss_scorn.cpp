@@ -71,7 +71,7 @@ public:
             //LichSlap_Timer
             if (LichSlap_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_LICHSLAP);
+                DoCast(me->GetVictim(), SPELL_LICHSLAP);
                 LichSlap_Timer = 45000;
             }
             else LichSlap_Timer -= diff;
@@ -79,7 +79,7 @@ public:
             //FrostboltVolley_Timer
             if (FrostboltVolley_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTBOLTVOLLEY);
+                DoCast(me->GetVictim(), SPELL_FROSTBOLTVOLLEY);
                 FrostboltVolley_Timer = 20000;
             }
             else FrostboltVolley_Timer -= diff;
@@ -87,7 +87,7 @@ public:
             //MindFlay_Timer
             if (MindFlay_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MINDFLAY);
+                DoCast(me->GetVictim(), SPELL_MINDFLAY);
                 MindFlay_Timer = 20000;
             }
             else MindFlay_Timer -= diff;
@@ -95,7 +95,7 @@ public:
             //FrostNova_Timer
             if (FrostNova_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTNOVA);
+                DoCast(me->GetVictim(), SPELL_FROSTNOVA);
                 FrostNova_Timer = 15000;
             }
             else FrostNova_Timer -= diff;

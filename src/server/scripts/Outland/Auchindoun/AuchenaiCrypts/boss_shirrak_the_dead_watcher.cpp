@@ -103,8 +103,8 @@ public:
                 Map* map = me->GetMap();
                 Map::PlayerList const &PlayerList = map->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* i_pl = i->getSource())
-                        if (i_pl->isAlive() && (dist = i_pl->IsWithinDist(me, 45)))
+                    if (Player* i_pl = i->GetSource())
+                        if (i_pl->IsAlive() && (dist = i_pl->IsWithinDist(me, 45)))
                         {
                             i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
                             me->AddAura(SPELL_INHIBITMAGIC, i_pl);
@@ -142,7 +142,7 @@ public:
             {
                 // Summon Focus Fire & Emote
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                 {
                     FocusedTargetGUID = target->GetGUID();
                     me->SummonCreature(ENTRY_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);

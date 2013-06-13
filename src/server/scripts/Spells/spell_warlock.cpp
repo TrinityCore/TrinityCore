@@ -161,7 +161,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                                 rank = 2;
                                 break;
                             default:
-                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                                TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
                                 break;
                         }
                     }
@@ -349,7 +349,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
             {
                 if (Creature* targetCreature = GetHitCreature())
                 {
-                    if (targetCreature->isPet())
+                    if (targetCreature->IsPet())
                     {
                         CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
                         switch (ci->family)

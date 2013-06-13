@@ -54,11 +54,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_SUMMON                   = 0,
-    EVENT_MANA_TAP                 = 1,
-    EVENT_ARCANE_TORRENT           = 2,
-    EVENT_DOMINATION               = 3,
-    EVENT_ARCANE_EXPLOSION         = 4
+    EVENT_SUMMON                   = 1,
+    EVENT_MANA_TAP                 = 2,
+    EVENT_ARCANE_TORRENT           = 3,
+    EVENT_DOMINATION               = 4,
+    EVENT_ARCANE_EXPLOSION         = 5
 };
 
 enum Creatures
@@ -199,7 +199,7 @@ class mob_nether_wraith : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_ARCANE_MISSILES);
                     else
-                        DoCast(me->getVictim(), SPELL_ARCANE_MISSILES);
+                        DoCast(me->GetVictim(), SPELL_ARCANE_MISSILES);
                     ArcaneMissiles_Timer = urand(5000, 10000);
                 }
                 else

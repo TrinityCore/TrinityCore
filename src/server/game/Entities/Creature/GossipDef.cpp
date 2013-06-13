@@ -184,7 +184,9 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
         data << item.BoxMessage;                        // accept text (related to money) pop up box, 2.0.3
     }
 
-    data << uint32(_questMenu.GetMenuItemCount());      // max count 0x20
+    size_t count_pos = data.wpos();
+    data << uint32(0);                                  // max count 0x20
+    uint32 count = 0;
 
     // Store this instead of checking the Singleton every loop iteration
     bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
@@ -193,26 +195,29 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
     {
         QuestMenuItem const& item = _questMenu.GetItem(i);
         uint32 questID = item.QuestId;
-        Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
+        {
+            ++count;
+            data << uint32(questID);
+            data << uint32(item.QuestIcon);
+            data << int32(quest->GetQuestLevel());
+            data << uint32(quest->GetFlags());              // 3.3.3 quest flags
+            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
+            std::string title = quest->GetTitle();
 
-        data << uint32(questID);
-        data << uint32(item.QuestIcon);
-        data << int32(quest->GetQuestLevel());
-        data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-        data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
-        std::string title = quest->GetTitle();
+            int32 locale = _session->GetSessionDbLocaleIndex();
+            if (locale >= 0)
+                if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
+                    ObjectMgr::GetLocaleString(localeData->Title, locale, title);
 
-        int32 locale = _session->GetSessionDbLocaleIndex();
-        if (locale >= 0)
-            if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                ObjectMgr::GetLocaleString(localeData->Title, locale, title);
+            if (questLevelInTitle)
+                AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
-        if (questLevelInTitle)
-            AddQuestLevelToTitle(title, quest->GetQuestLevel());
-
-        data << title;                                  // max 0x200
+            data << title;                                  // max 0x200
+        }
     }
 
+    data.put<uint8>(count_pos, count);
     _session->SendPacket(&data);
 }
 
@@ -227,7 +232,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
     PointOfInterest const* poi = sObjectMgr->GetPointOfInterest(poiId);
     if (!poi)
     {
-        sLog->outError(LOG_FILTER_SQL, "Request to send non-existing POI (Id: %u), ignored.", poiId);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Request to send non-existing POI (Id: %u), ignored.", poiId);
         return;
     }
 
@@ -300,20 +305,21 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     data << uint32(eEmote._Emote);                         // NPC emote
 
     size_t count_pos = data.wpos();
-    data << uint8 (_questMenu.GetMenuItemCount());
+    data << uint8 (0);
     uint32 count = 0;
 
     // Store this instead of checking the Singleton every loop iteration
     bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
 
-    for (; count < _questMenu.GetMenuItemCount(); ++count)
+    for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
-        QuestMenuItem const& qmi = _questMenu.GetItem(count);
+        QuestMenuItem const& qmi = _questMenu.GetItem(i);
 
         uint32 questID = qmi.QuestId;
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
+            ++count;
             std::string title = quest->GetTitle();
 
             int32 locale = _session->GetSessionDbLocaleIndex();
@@ -335,7 +341,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
     data.put<uint8>(count_pos, count);
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint8 questStatus, uint64 npcGUID) const
@@ -345,7 +351,7 @@ void PlayerMenu::SendQuestGiverStatus(uint8 questStatus, uint64 npcGUID) const
     data << uint8(questStatus);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", GUID_LOPART(npcGUID), questStatus);
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", GUID_LOPART(npcGUID), questStatus);
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, bool activateAccept) const
@@ -453,7 +459,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     }
     _session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
@@ -590,7 +596,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         data << questObjectiveText[i];
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, bool enableNext) const
@@ -684,7 +690,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
         data << uint32(quest->RewardFactionValueIdOverride[i]);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, bool canComplete, bool closeOnCancel) const
@@ -761,7 +767,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     data << uint32(0x10);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }
 
 void PlayerMenu::AddQuestLevelToTitle(std::string &title, int32 level)

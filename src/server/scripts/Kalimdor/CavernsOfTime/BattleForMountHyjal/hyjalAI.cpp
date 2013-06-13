@@ -407,7 +407,7 @@ void hyjalAI::Reset()
             instance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
             instance->SetData(DATA_RESET_TRASH_COUNT, 0);
         }
-    } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
+    } else TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
 
     //Visibility
     DoHide = true;
@@ -421,7 +421,7 @@ void hyjalAI::EnterEvadeMode()
     me->CombatStop(true);
     me->LoadCreaturesAddon();
 
-    if (me->isAlive())
+    if (me->IsAlive())
         me->GetMotionMaster()->MoveTargetedHome();
 
     me->SetLootRecipient(NULL);
@@ -540,7 +540,7 @@ void hyjalAI::SummonNextWave(const Wave wave[18], uint32 Count, float Base[4][3]
 
     if (!instance)
     {
-        sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
+        TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
         return;
     }
     InfernalCount = 0;//reset infernal count every new wave
@@ -570,7 +570,7 @@ void hyjalAI::SummonNextWave(const Wave wave[18], uint32 Count, float Base[4][3]
         else
         {
             NextWaveTimer = 15000;
-            sLog->outDebug(LOG_FILTER_TSCR, "HyjalAI: debug mode is enabled. Next Wave in 15 seconds");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "HyjalAI: debug mode is enabled. Next Wave in 15 seconds");
         }
     }
     else
@@ -614,7 +614,7 @@ uint32 hyjalAI::GetInstanceData(uint32 Event)
 {
     if (instance)
         return instance->GetData(Event);
-    else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
+    else TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
 
     return 0;
 }
@@ -825,7 +825,7 @@ void hyjalAI::UpdateAI(uint32 diff)
             if (BossGUID[i])
             {
                 Unit* unit = Unit::GetUnit(*me, BossGUID[i]);
-                if (unit && (!unit->isAlive()))
+                if (unit && (!unit->IsAlive()))
                 {
                     if (BossGUID[i] == BossGUID[0])
                     {
@@ -874,11 +874,11 @@ void hyjalAI::UpdateAI(uint32 diff)
                         break;
 
                     case TARGETTYPE_VICTIM:
-                        target = me->getVictim();
+                        target = me->GetVictim();
                         break;
                 }
 
-                if (target && target->isAlive())
+                if (target && target->IsAlive())
                 {
                     DoCast(target, Spells[i].SpellId);
                     SpellTimer[i] = Spells[i].Cooldown;
@@ -988,7 +988,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
         {
             for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
             {
-                if ((*itr) && (*itr)->isAlive() && (*itr) != me && (*itr)->GetEntry() != JAINA)
+                if ((*itr) && (*itr)->IsAlive() && (*itr) != me && (*itr)->GetEntry() != JAINA)
                 {
                     if (!(*itr)->IsWithinDist(me, 60))
                         (*itr)->SetWalk(false);
@@ -1028,7 +1028,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
             {
                 for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
                 {
-                    if ((*itr) && (*itr)->isAlive())
+                    if ((*itr) && (*itr)->IsAlive())
                     {
                         (*itr)->CastSpell(*itr, SPELL_TELEPORT_VISUAL, true);
                         (*itr)->setFaction(35);//make them friendly so mobs won't attack them

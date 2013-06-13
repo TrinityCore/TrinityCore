@@ -35,10 +35,10 @@ void ObjectGridEvacuator::Visit(CreatureMapType &m)
     // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end();)
     {
-        Creature* c = iter->getSource();
+        Creature* c = iter->GetSource();
         ++iter;
 
-        ASSERT(!c->isPet() && "ObjectGridRespawnMover must not be called for pets");
+        ASSERT(!c->IsPet() && "ObjectGridRespawnMover must not be called for pets");
         c->GetMap()->CreatureRespawnRelocation(c, true);
     }
 }
@@ -94,7 +94,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
     {
         T* obj = new T;
         uint32 guid = *i_guid;
-        //sLog->outInfo(LOG_FILTER_GENERAL, "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
+        //TC_LOG_INFO(LOG_FILTER_GENERAL, "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
         if (!obj->LoadFromDB(guid, map))
         {
             delete obj;
@@ -185,7 +185,7 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
-    sLog->outDebug(LOG_FILTER_MAPS, "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG(LOG_FILTER_MAPS, "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 
 template<class T>
@@ -193,7 +193,7 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
 {
     while (!m.isEmpty())
     {
-        T *obj = m.getFirst()->getSource();
+        T *obj = m.getFirst()->GetSource();
         // if option set then object already saved at this moment
         if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
@@ -212,13 +212,13 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     // stop any fights at grid de-activation and remove dynobjects created at cast by creatures
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        iter->getSource()->RemoveAllDynObjects();
-        if (iter->getSource()->isInCombat())
+        iter->GetSource()->RemoveAllDynObjects();
+        if (iter->GetSource()->IsInCombat())
         {
-            iter->getSource()->CombatStop();
-            iter->getSource()->DeleteThreatList();
-            if (iter->getSource()->IsAIEnabled)
-                iter->getSource()->AI()->EnterEvadeMode();
+            iter->GetSource()->CombatStop();
+            iter->GetSource()->DeleteThreatList();
+            if (iter->GetSource()->IsAIEnabled)
+                iter->GetSource()->AI()->EnterEvadeMode();
         }
     }
 }
@@ -227,7 +227,7 @@ template<class T>
 void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 {
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
-        iter->getSource()->CleanupsBeforeDelete();
+        iter->GetSource()->CleanupsBeforeDelete();
 }
 
 template void ObjectGridUnloader::Visit(CreatureMapType &);

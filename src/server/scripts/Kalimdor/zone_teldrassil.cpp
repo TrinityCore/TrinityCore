@@ -74,7 +74,7 @@ public:
         {
             FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_ARYNIA)
+            if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_ARYNIA)
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {

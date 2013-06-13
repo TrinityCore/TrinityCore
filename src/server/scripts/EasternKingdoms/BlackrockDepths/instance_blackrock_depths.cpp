@@ -170,7 +170,7 @@ public:
             case NPC_ANGERREL: TombBossGUIDs[6] = creature->GetGUID(); break;
             case NPC_MAGMUS:
                 MagmusGUID = creature->GetGUID();
-                if (!creature->isAlive())
+                if (!creature->IsAlive())
                     HandleGameObject(GetData64(DATA_THRONE_DOOR), true); // if Magmus is dead open door to last boss
                 break;
             }
@@ -212,7 +212,7 @@ public:
 
         void SetData64(uint32 type, uint64 data)
         {
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
 
             switch (type)
             {
@@ -228,7 +228,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
 
             switch (type)
             {
@@ -392,7 +392,7 @@ public:
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
                 {
-                    if (!boss->isAlive())
+                    if (!boss->IsAlive())
                     {//do not call EnterEvadeMode(), it will create infinit loops
                         boss->Respawn();
                         boss->RemoveAllAuras();
@@ -441,7 +441,7 @@ public:
                     {
                         if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
                         {
-                            if (!boss->isAlive())
+                            if (!boss->IsAlive())
                             {
                                 GhostKillCount = i+1;
                              }

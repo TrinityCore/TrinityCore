@@ -33,7 +33,7 @@
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     uint64 lguid = player->GetLootGUID();
     Loot* loot = NULL;
@@ -81,7 +81,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
         if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
         {
@@ -101,7 +101,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
 
     Player* player = GetPlayer();
     uint64 guid = player->GetLootGUID();
@@ -148,11 +148,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         case HIGHGUID_VEHICLE:
         {
             Creature* creature = player->GetMap()->GetCreature(guid);
-            bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+            bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
             if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
             {
                 loot = &creature->loot;
-                if (creature->isAlive())
+                if (creature->IsAlive())
                     shareMoney = false;
             }
             break;
@@ -171,7 +171,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             std::vector<Player*> playersNear;
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* member = itr->getSource();
+                Player* member = itr->GetSource();
                 if (!member)
                     continue;
 
@@ -217,13 +217,13 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
 
     uint64 guid;
     recvData >> guid;
 
     // Check possible cheat
-    if (!_player->isAlive())
+    if (!_player->IsAlive())
         return;
 
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
@@ -235,7 +235,7 @@ void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
@@ -357,7 +357,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
         if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
             return;
 
@@ -365,7 +365,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         if (loot->isLooted())
         {
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
-            if (!creature->isAlive())
+            if (!creature->IsAlive())
                 creature->AllLootRemovedFromCorpse();
 
             creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -414,7 +414,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     if (!target)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName().c_str());
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName().c_str());
 
     if (_player->GetLootGUID() != lootguid)
         return;
@@ -443,7 +443,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     if (slotid >= loot->items.size() + loot->quest_items.size())
     {
-        sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",
+        TC_LOG_DEBUG(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",
             GetPlayer()->GetName().c_str(), slotid, (unsigned long)loot->items.size());
         return;
     }

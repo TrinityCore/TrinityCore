@@ -428,11 +428,11 @@ public:
                         events.ScheduleEvent(EVENT_BERSERK, 10000);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->getVictim(), SPELL_CLEAVE, false);
+                        DoCast(me->GetVictim(), SPELL_CLEAVE, false);
                         events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
                         break;
                     case EVENT_CORROSION:
-                        DoCast(me->getVictim(), SPELL_CORROSION, false);
+                        DoCast(me->GetVictim(), SPELL_CORROSION, false);
                         events.ScheduleEvent(EVENT_CORROSION, urand(20000, 30000));
                         break;
                     case EVENT_GAS_NOVA:
@@ -538,7 +538,7 @@ public:
         }
         void UpdateAI(uint32 /*diff*/)
         {
-            if (!me->getVictim())
+            if (!me->GetVictim())
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     AttackStart(target);
         }

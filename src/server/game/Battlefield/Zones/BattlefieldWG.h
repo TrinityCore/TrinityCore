@@ -1189,7 +1189,7 @@ struct BfWGGameObjectBuilding
                 if (m_WG->GetRelic())
                     m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                 else
-                    sLog->outError(LOG_FILTER_GENERAL, "BattlefieldWG: Relic not found.");
+                    TC_LOG_ERROR(LOG_FILTER_GENERAL, "BattlefieldWG: Relic not found.");
                 break;
         }
 
@@ -1481,6 +1481,7 @@ struct WGWorkshop
 
         bf = _bf;
         workshopId = _workshopId;
+        teamControl = BATTLEFIELD_WG_TEAM_NEUTRAL;
     }
 
     void GiveControlTo(uint8 team, bool init /* for first call in setup*/)

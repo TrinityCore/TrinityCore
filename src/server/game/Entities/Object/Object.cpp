@@ -91,7 +91,7 @@ WorldObject::~WorldObject()
     {
         if (GetTypeId() == TYPEID_CORPSE)
         {
-            sLog->outFatal(LOG_FILTER_GENERAL, "Object::~Object Corpse guid="UI64FMTD", type=%d, entry=%u deleted but still in map!!",
+            TC_LOG_FATAL(LOG_FILTER_GENERAL, "Object::~Object Corpse guid="UI64FMTD", type=%d, entry=%u deleted but still in map!!",
                 GetGUID(), ((Corpse*)this)->GetType(), GetEntry());
             ASSERT(false);
         }
@@ -103,16 +103,16 @@ Object::~Object()
 {
     if (IsInWorld())
     {
-        sLog->outFatal(LOG_FILTER_GENERAL, "Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
+        TC_LOG_FATAL(LOG_FILTER_GENERAL, "Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
         if (isType(TYPEMASK_ITEM))
-            sLog->outFatal(LOG_FILTER_GENERAL, "Item slot %u", ((Item*)this)->GetSlot());
+            TC_LOG_FATAL(LOG_FILTER_GENERAL, "Item slot %u", ((Item*)this)->GetSlot());
         ASSERT(false);
         RemoveFromWorld();
     }
 
     if (m_objectUpdated)
     {
-        sLog->outFatal(LOG_FILTER_GENERAL, "Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in update list!!", GetGUID(), GetTypeId(), GetEntry());
+        TC_LOG_FATAL(LOG_FILTER_GENERAL, "Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in update list!!", GetGUID(), GetTypeId(), GetEntry());
         ASSERT(false);
         sObjectAccessor->RemoveUpdateObject(this);
     }
@@ -242,12 +242,12 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
         if (isType(TYPEMASK_UNIT))
         {
-            if (ToUnit()->getVictim())
+            if (ToUnit()->GetVictim())
                 flags |= UPDATEFLAG_HAS_TARGET;
         }
     }
 
-    //sLog->outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updateType, m_objectTypeId, flags, flags2);
+    //TC_LOG_DEBUG("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updateType, m_objectTypeId, flags, flags2);
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -485,7 +485,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     // 0x4
     if (flags & UPDATEFLAG_HAS_TARGET)
     {
-        if (Unit* victim = unit->getVictim())
+        if (Unit* victim = unit->GetVictim())
             data->append(victim->GetPackGUID());
         else
             *data << uint8(0);
@@ -532,7 +532,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
         {
             if (!go->IsDynTransport())
             {
-                if (go->ActivateToQuest(target) || target->isGameMaster())
+                if (go->ActivateToQuest(target) || target->IsGameMaster())
                     IsActivateToQuest = true;
 
                 if (go->GetGoArtKit())
@@ -543,7 +543,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
         {
             if (!go->IsTransport())
             {
-                if (go->ActivateToQuest(target) || target->isGameMaster())
+                if (go->ActivateToQuest(target) || target->IsGameMaster())
                     IsActivateToQuest = true;
 
                 updateMask->SetBit(GAMEOBJECT_BYTES_1);
@@ -577,14 +577,8 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
 
                     if (GetTypeId() == TYPEID_UNIT)
                     {
-                        if (!target->canSeeSpellClickOn(this->ToCreature()))
+                        if (!target->CanSeeSpellClickOn(this->ToCreature()))
                             appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
-
-                        if (appendValue & UNIT_NPC_FLAG_TRAINER)
-                        {
-                            if (!creature->isCanTrainingOf(target, false))
-                                appendValue &= ~(UNIT_NPC_FLAG_TRAINER | UNIT_NPC_FLAG_TRAINER_CLASS | UNIT_NPC_FLAG_TRAINER_PROFESSION);
-                        }
                     }
 
                     *data << uint32(appendValue);
@@ -611,7 +605,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
                 // Gamemasters should be always able to select units - remove not selectable flag
                 else if (index == UNIT_FIELD_FLAGS)
                 {
-                    if (target->isGameMaster())
+                    if (target->IsGameMaster())
                         *data << (m_uint32Values[index] & ~UNIT_FLAG_NOT_SELECTABLE);
                     else
                         *data << m_uint32Values[index];
@@ -635,7 +629,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
 
                         if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                         {
-                            if (target->isGameMaster())
+                            if (target->IsGameMaster())
                             {
                                 if (cinfo->Modelid1)
                                     *data << cinfo->Modelid1;//Modelid1 is a visible model for gms
@@ -696,8 +690,8 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
                 {
                     if (unit->IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(target))
                     {
-                        FactionTemplateEntry const* ft1 = unit->getFactionTemplateEntry();
-                        FactionTemplateEntry const* ft2 = target->getFactionTemplateEntry();
+                        FactionTemplateEntry const* ft1 = unit->GetFactionTemplateEntry();
+                        FactionTemplateEntry const* ft2 = target->GetFactionTemplateEntry();
                         if (ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
                         {
                             if (index == UNIT_FIELD_BYTES_2)
@@ -740,21 +734,21 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* 
                         switch (go->GetGoType())
                         {
                             case GAMEOBJECT_TYPE_CHEST:
-                                if (target->isGameMaster())
+                                if (target->IsGameMaster())
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
                                 *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GENERIC:
-                                if (target->isGameMaster())
+                                if (target->IsGameMaster())
                                     *data << uint16(0);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_SPARKLE);
                                 *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GOOBER:
-                                if (target->isGameMaster())
+                                if (target->IsGameMaster())
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
@@ -1045,7 +1039,7 @@ void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
 
     if (offset > 4)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Object::SetByteValue: wrong offset %u", offset);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Object::SetByteValue: wrong offset %u", offset);
         return;
     }
 
@@ -1069,7 +1063,7 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
 
     if (offset > 2)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Object::SetUInt16Value: wrong offset %u", offset);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Object::SetUInt16Value: wrong offset %u", offset);
         return;
     }
 
@@ -1209,7 +1203,7 @@ void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
 
     if (offset > 4)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Object::SetByteFlag: wrong offset %u", offset);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Object::SetByteFlag: wrong offset %u", offset);
         return;
     }
 
@@ -1232,7 +1226,7 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
 
     if (offset > 4)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Object::RemoveByteFlag: wrong offset %u", offset);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Object::RemoveByteFlag: wrong offset %u", offset);
         return;
     }
 
@@ -1299,7 +1293,7 @@ void Object::ApplyModFlag64(uint16 index, uint64 flag, bool apply)
 
 bool Object::PrintIndexError(uint32 index, bool set) const
 {
-    sLog->outError(LOG_FILTER_GENERAL, "Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, "Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
 
     // ASSERT must fail after function call
     return false;
@@ -1362,32 +1356,32 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
 
 void MovementInfo::OutDebug()
 {
-    sLog->outInfo(LOG_FILTER_GENERAL, "MOVEMENT INFO");
-    sLog->outInfo(LOG_FILTER_GENERAL, "guid " UI64FMTD, guid);
-    sLog->outInfo(LOG_FILTER_GENERAL, "flags %u", flags);
-    sLog->outInfo(LOG_FILTER_GENERAL, "flags2 %u", flags2);
-    sLog->outInfo(LOG_FILTER_GENERAL, "time %u current time " UI64FMTD "", flags2, uint64(::time(NULL)));
-    sLog->outInfo(LOG_FILTER_GENERAL, "position: `%s`", pos.ToString().c_str());
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "MOVEMENT INFO");
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "guid " UI64FMTD, guid);
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "flags %u", flags);
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "flags2 %u", flags2);
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "time %u current time " UI64FMTD "", flags2, uint64(::time(NULL)));
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "position: `%s`", pos.ToString().c_str());
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "TRANSPORT:");
-        sLog->outInfo(LOG_FILTER_GENERAL, "guid: " UI64FMTD, t_guid);
-        sLog->outInfo(LOG_FILTER_GENERAL, "position: `%s`", t_pos.ToString().c_str());
-        sLog->outInfo(LOG_FILTER_GENERAL, "seat: %i", t_seat);
-        sLog->outInfo(LOG_FILTER_GENERAL, "time: %u", t_time);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "TRANSPORT:");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "guid: " UI64FMTD, t_guid);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "position: `%s`", t_pos.ToString().c_str());
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "seat: %i", t_seat);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "time: %u", t_time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-            sLog->outInfo(LOG_FILTER_GENERAL, "time2: %u", t_time2);
+            TC_LOG_INFO(LOG_FILTER_GENERAL, "time2: %u", t_time2);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
-        sLog->outInfo(LOG_FILTER_GENERAL, "pitch: %f", pitch);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "pitch: %f", pitch);
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "fallTime: %u", fallTime);
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "fallTime: %u", fallTime);
     if (flags & MOVEMENTFLAG_FALLING)
-        sLog->outInfo(LOG_FILTER_GENERAL, "j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed);
 
     if (flags & MOVEMENTFLAG_SPLINE_ELEVATION)
-        sLog->outInfo(LOG_FILTER_GENERAL, "splineElevation: %f", splineElevation);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "splineElevation: %f", splineElevation);
 }
 
 WorldObject::WorldObject(bool isWorldObject): WorldLocation(),
@@ -1871,7 +1865,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
             if (!ToCreature()->CanFly())
             {
-                bool canSwim = ToCreature()->canSwim();
+                bool canSwim = ToCreature()->CanSwim();
                 float ground_z = z;
                 float max_z = canSwim
                     ? GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
@@ -1968,7 +1962,7 @@ float WorldObject::GetSightRange(const WorldObject* target) const
     return 0.0f;
 }
 
-bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck) const
+bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck) const
 {
     if (this == obj)
         return true;
@@ -2291,8 +2285,8 @@ void WorldObject::MonsterYellToZone(int32 textId, uint32 language, uint64 Target
 
     Map::PlayerList const& pList = GetMap()->GetPlayers();
     for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-        if (itr->getSource()->GetZoneId() == zoneid)
-            say_do(itr->getSource());
+        if (itr->GetSource()->GetZoneId() == zoneid)
+            say_do(itr->GetSource());
 }
 
 void WorldObject::MonsterTextEmote(const char* text, uint64 TargetGuid, bool IsBossEmote)
@@ -2404,7 +2398,7 @@ void WorldObject::SetMap(Map* map)
         return;
     if (m_currMap)
     {
-        sLog->outFatal(LOG_FILTER_GENERAL, "WorldObject::SetMap: obj %u new map %u %u, old map %u %u", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
+        TC_LOG_FATAL(LOG_FILTER_GENERAL, "WorldObject::SetMap: obj %u new map %u %u, old map %u %u", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
         ASSERT(false);
     }
     m_currMap = map;
@@ -2439,7 +2433,7 @@ void WorldObject::AddObjectToRemoveList()
     Map* map = FindMap();
     if (!map)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).", GetTypeId(), GetEntry(), GetGUIDLow(), GetMapId());
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).", GetTypeId(), GetEntry(), GetGUIDLow(), GetMapId());
         return;
     }
 
@@ -2615,7 +2609,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goinfo)
     {
-        sLog->outError(LOG_FILTER_SQL, "Gameobject template %u not found in database!", entry);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Gameobject template %u not found in database!", entry);
         return NULL;
     }
 
@@ -2749,7 +2743,7 @@ namespace Trinity
 
                 float x, y, z;
 
-                if (!c->isAlive() || c->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) ||
+                if (!c->IsAlive() || c->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) ||
                     !c->GetMotionMaster()->GetDestination(x, y, z))
                 {
                     x = c->GetPositionX();
@@ -2983,7 +2977,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty, pos.m_positionZ))
     {
-        sLog->outFatal(LOG_FILTER_GENERAL, "WorldObject::MovePosition invalid coordinates X: %f and Y: %f were passed!", destx, desty);
+        TC_LOG_FATAL(LOG_FILTER_GENERAL, "WorldObject::MovePosition invalid coordinates X: %f and Y: %f were passed!", destx, desty);
         return;
     }
 
@@ -3029,7 +3023,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty))
     {
-        sLog->outFatal(LOG_FILTER_GENERAL, "WorldObject::MovePositionToFirstCollision invalid coordinates X: %f and Y: %f were passed!", destx, desty);
+        TC_LOG_FATAL(LOG_FILTER_GENERAL, "WorldObject::MovePositionToFirstCollision invalid coordinates X: %f and Y: %f were passed!", destx, desty);
         return;
     }
 
@@ -3165,7 +3159,7 @@ struct WorldObjectChangeAccumulator
         Player* source = NULL;
         for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = iter->GetSource();
 
             BuildPacket(source);
 
@@ -3183,7 +3177,7 @@ struct WorldObjectChangeAccumulator
         Creature* source = NULL;
         for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = iter->GetSource();
             if (!source->GetSharedVisionList().empty())
             {
                 SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
@@ -3198,7 +3192,7 @@ struct WorldObjectChangeAccumulator
         DynamicObject* source = NULL;
         for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = iter->GetSource();
             uint64 guid = source->GetCasterGUID();
 
             if (IS_PLAYER_GUID(guid))

@@ -252,7 +252,7 @@ struct advisorbase_ai : public ScriptedAI
 
                 Unit* Target = Unit::GetUnit(*me, DelayRes_Target);
                 if (!Target)
-                    Target = me->getVictim();
+                    Target = me->GetVictim();
 
                 DoResetThreat();
                 AttackStart(Target);
@@ -324,7 +324,7 @@ class boss_kaelthas : public CreatureScript
                 IsCastingFireball = false;
                 ChainPyros = false;
 
-                if (me->isInCombat())
+                if (me->IsInCombat())
                     PrepareAdvisors();
 
                 summons.DespawnAll();
@@ -362,7 +362,7 @@ class boss_kaelthas : public CreatureScript
 
                 if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
                 {
-                    sLog->outError(LOG_FILTER_TSCR, "Kael'Thas One or more advisors missing, Skipping Phases 1-3");
+                    TC_LOG_ERROR(LOG_FILTER_TSCR, "Kael'Thas One or more advisors missing, Skipping Phases 1-3");
 
                     Talk(SAY_PHASE4_INTRO2);
 
@@ -393,7 +393,7 @@ class boss_kaelthas : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->canCreatureAttack(who))
+                if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->CanCreatureAttack(who))
                 {
                     if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;
@@ -401,7 +401,7 @@ class boss_kaelthas : public CreatureScript
                     float attackRadius = me->GetAttackDistance(who);
                     if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
                     {
-                        if (!me->getVictim() && Phase >= 4)
+                        if (!me->GetVictim() && Phase >= 4)
                         {
                             who->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                             AttackStart(who);
@@ -689,7 +689,7 @@ class boss_kaelthas : public CreatureScript
                                 Advisor = Unit::GetCreature(*me, m_auiAdvisorGuid[i]);
 
                                 if (!Advisor)
-                                    sLog->outError(LOG_FILTER_TSCR, "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                                    TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                                 else
                                     CAST_AI(advisorbase_ai, Advisor->AI())->Revive(target);
                             }
@@ -742,7 +742,7 @@ class boss_kaelthas : public CreatureScript
                                         //interruptable
                                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
                                         int32 dmg = 20000+rand()%5000;
-                                        me->CastCustomSpell(me->getVictim(), SPELL_FIREBALL, &dmg, 0, 0, false);
+                                        me->CastCustomSpell(me->GetVictim(), SPELL_FIREBALL, &dmg, 0, 0, false);
                                         IsCastingFireball = true;
                                         Fireball_Timer = 2500;
                                     }
@@ -761,7 +761,7 @@ class boss_kaelthas : public CreatureScript
                             //ArcaneDisruption_Timer
                             if (ArcaneDisruption_Timer <= diff)
                             {
-                                DoCast(me->getVictim(), SPELL_ARCANE_DISRUPTION, true);
+                                DoCast(me->GetVictim(), SPELL_ARCANE_DISRUPTION, true);
                                 ArcaneDisruption_Timer = 60000;
                             }
                             else
@@ -782,7 +782,7 @@ class boss_kaelthas : public CreatureScript
                                 if (me->getThreatManager().getThreatList().size() >= 2)
                                     for (uint32 i = 0; i < 3; ++i)
                                 {
-                                    sLog->outDebug(LOG_FILTER_TSCR, "Kael'Thas mind control not supported.");
+                                    TC_LOG_DEBUG(LOG_FILTER_TSCR, "Kael'Thas mind control not supported.");
                                     //DoCast(unit, SPELL_MIND_CONTROL);
                                 }
 
@@ -842,7 +842,7 @@ class boss_kaelthas : public CreatureScript
                             {
                                 if (PyrosCasted < 3)
                                 {
-                                    DoCast(me->getVictim(), SPELL_PYROBLAST);
+                                    DoCast(me->GetVictim(), SPELL_PYROBLAST);
                                     ++PyrosCasted;
                                 }
                                 else
@@ -865,7 +865,7 @@ class boss_kaelthas : public CreatureScript
 
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 Phase = 6;
-                                AttackStart(me->getVictim());
+                                AttackStart(me->GetVictim());
                             }
                             else
                                 Phase_Timer -= diff;
@@ -959,7 +959,7 @@ class boss_kaelthas : public CreatureScript
                                         InGravityLapse = false;
                                         GravityLapse_Timer = 60000;
                                         GravityLapse_Phase = 0;
-                                        AttackStart(me->getVictim());
+                                        AttackStart(me->GetVictim());
                                         break;
                                 }
                             }
@@ -1075,7 +1075,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 //Silence_Timer
                 if (Silence_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SILENCE);
+                    DoCast(me->GetVictim(), SPELL_SILENCE);
                     Silence_Timer = 20000;
                 }
                 else
@@ -1084,7 +1084,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 //PsychicBlow_Timer
                 if (PsychicBlow_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_PSYCHIC_BLOW);
+                    DoCast(me->GetVictim(), SPELL_PSYCHIC_BLOW);
                     PsychicBlow_Timer = 20000+rand()%5000;
                 }
                 else
@@ -1153,7 +1153,7 @@ class boss_lord_sanguinar : public CreatureScript
                 //Fear_Timer
                 if (Fear_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BELLOWING_ROAR);
+                    DoCast(me->GetVictim(), SPELL_BELLOWING_ROAR);
                     Fear_Timer = 25000+rand()%10000;                //approximately every 30 seconds
                 }
                 else
@@ -1254,7 +1254,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 //Fireball_Timer
                 if (Fireball_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CAPERNIAN_FIREBALL);
+                    DoCast(me->GetVictim(), SPELL_CAPERNIAN_FIREBALL);
                     Fireball_Timer = 4000;
                 }
                 else
@@ -1269,7 +1269,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     if (target && me->IsWithinDistInMap(target, 30))
                         DoCast(target, SPELL_CONFLAGRATION);
                     else
-                        DoCast(me->getVictim(), SPELL_CONFLAGRATION);
+                        DoCast(me->GetVictim(), SPELL_CONFLAGRATION);
 
                     Conflagration_Timer = 10000+rand()%5000;
                 }
@@ -1368,7 +1368,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                 //Bomb_Timer
                 if (Bomb_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BOMB);
+                    DoCast(me->GetVictim(), SPELL_BOMB);
                     Bomb_Timer = 25000;
                 }
                 else
@@ -1552,7 +1552,7 @@ class mob_phoenix_egg_tk : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                summoned->AddThreat(me->getVictim(), 0.0f);
+                summoned->AddThreat(me->GetVictim(), 0.0f);
                 summoned->CastSpell(summoned, SPELL_REBIRTH, false);
             }
 

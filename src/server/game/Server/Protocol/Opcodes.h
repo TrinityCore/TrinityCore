@@ -1325,7 +1325,7 @@ enum Opcodes
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                  = 0x508,
     CMSG_SET_ALLOW_LOW_LEVEL_RAID2                  = 0x509,
     SMSG_CAMERA_SHAKE                               = 0x50A, // uint32 SpellEffectCameraShakes.dbc index, uint32
-    SMSG_UPDATE_ITEM_ENCHANTMENTS                   = 0x50B, // some item update packet?
+    SMSG_SOCKET_GEMS_RESULT                         = 0x50B,
     CMSG_SET_CHARACTER_MODEL                        = 0x50C,
     SMSG_REDIRECT_CLIENT                            = 0x50D, // uint32 ip, uint16 port, uint32 unk, uint8[20] hash (ip + port, seed=sessionkey)
     CMSG_REDIRECTION_FAILED                         = 0x50E, // something with networking

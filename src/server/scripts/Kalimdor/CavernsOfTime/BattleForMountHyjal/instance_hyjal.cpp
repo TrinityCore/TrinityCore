@@ -214,15 +214,15 @@ public:
 
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                     {
-                                         if (i->getSource())
+                                         if (i->GetSource())
                                          {
                                             WorldPacket packet(SMSG_MESSAGECHAT, 200);
-                                            unit->BuildMonsterChat(&packet, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
-                                            i->getSource()->GetSession()->SendPacket(&packet);
+                                            unit->BuildMonsterChat(&packet, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->GetSource()->GetGUID());
+                                            i->GetSource()->GetSession()->SendPacket(&packet);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);
                                             data2 << 10986;
-                                            i->getSource()->GetSession()->SendPacket(&data2);
+                                            i->GetSource()->GetSession()->SendPacket(&data2);
                                          }
                                     }
                                 }
@@ -276,7 +276,7 @@ public:
                     break;
             }
 
-             sLog->outDebug(LOG_FILTER_TSCR, "Instance Hyjal: Instance data updated for event %u (Data=%u)", type, data);
+             TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Hyjal: Instance data updated for event %u (Data=%u)", type, data);
 
             if (data == DONE)
             {

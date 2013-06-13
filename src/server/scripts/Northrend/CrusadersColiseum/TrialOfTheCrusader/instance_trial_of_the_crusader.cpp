@@ -286,7 +286,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     state = DONE;
                                 break;
                             case DONE:
-                                if (instance->GetPlayers().getFirst()->getSource()->GetTeam() == ALLIANCE)
+                                if (instance->GetPlayers().getFirst()->GetSource()->GetTeam() == ALLIANCE)
                                     EventStage = 4020;
                                 else
                                     EventStage = 4030;
@@ -366,7 +366,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (type < MAX_ENCOUNTERS)
                 {
-                    sLog->outInfo(LOG_FILTER_TSCR, "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
+                    TC_LOG_INFO(LOG_FILTER_TSCR, "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
                     if (state == FAIL)
                     {
                         if (instance->IsHeroic())
@@ -375,7 +375,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             // decrease attempt counter at wipe
                             Map::PlayerList const &PlayerList = instance->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                                if (Player* player = itr->getSource())
+                                if (Player* player = itr->GetSource())
                                     player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
 
                             // if theres no more attemps allowed

@@ -238,13 +238,13 @@ public:
 
             if (IntangiblePresence_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
+                DoCast(me->GetVictim(), SPELL_INTANGIBLE_PRESENCE);
                 IntangiblePresence_Timer = 15000+rand()%15000;
             } else IntangiblePresence_Timer -= diff;
 
             if (ManaBurn_Timer <= diff)
             {
-                Unit* target = me->getVictim();
+                Unit* target = me->GetVictim();
                 if (target && target->getPowerType() == POWER_MANA)
                     DoCast(target, SPELL_MANA_BURN);
                 ManaBurn_Timer = 8000+rand()%8000;
@@ -252,7 +252,7 @@ public:
 
             if (ArcaneBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
+                DoCast(me->GetVictim(), SPELL_ARCANE_BLAST);
                 ArcaneBlast_Timer = 2500+rand()%5000;
             } else ArcaneBlast_Timer -= diff;
 
@@ -499,7 +499,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || (!who->isAlive()))
+            if (!who || (!who->IsAlive()))
                 return;
 
             if (me->IsWithinDistInMap(who, 50.0f))

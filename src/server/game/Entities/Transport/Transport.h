@@ -50,10 +50,10 @@ class Transport : public GameObject, public TransportBase
         void UpdatePassengerPositions();
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float& o) const;
+        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = NULL) const;
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float& o) const;
+        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = NULL) const;
 
         void BuildStartMovePacket(Map const* targetMap);
         void BuildStopMovePacket(Map const* targetMap);

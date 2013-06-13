@@ -75,7 +75,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me->getVictim(), SPELL_BIRTH);
+            DoCast(me->GetVictim(), SPELL_BIRTH);
         }
 
         void UpdateAI(uint32 diff)
@@ -87,14 +87,14 @@ public:
             //Sweep_Timer
             if (!Submerged && Sweep_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SWEEP);
+                DoCast(me->GetVictim(), SPELL_SWEEP);
                 Sweep_Timer = urand(15000, 30000);
             } else Sweep_Timer -= diff;
 
             //SandBlast_Timer
             if (!Submerged && SandBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SANDBLAST);
+                DoCast(me->GetVictim(), SPELL_SANDBLAST);
                 SandBlast_Timer = urand(20000, 35000);
             } else SandBlast_Timer -= diff;
 
@@ -129,7 +129,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->setFaction(14);
 
-                DoCast(me->getVictim(), SPELL_GROUND_RUPTURE);
+                DoCast(me->GetVictim(), SPELL_GROUND_RUPTURE);
 
                 Submerged = false;
                 Submerge_Timer = urand(60000, 120000);

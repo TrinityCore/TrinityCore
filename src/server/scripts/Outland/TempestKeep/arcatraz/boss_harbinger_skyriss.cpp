@@ -125,7 +125,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     summon->SetHealth(summon->CountPctFromMaxHealth(33));
                 else
                     summon->SetHealth(summon->CountPctFromMaxHealth(66));
-                if (me->getVictim())
+                if (me->GetVictim())
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         summon->AI()->AttackStart(target);
             }
@@ -209,7 +209,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_MIND_REND);
                     else
-                        DoCast(me->getVictim(), SPELL_MIND_REND);
+                        DoCast(me->GetVictim(), SPELL_MIND_REND);
 
                     MindRend_Timer = 8000;
                 }
@@ -226,7 +226,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_FEAR);
                     else
-                        DoCast(me->getVictim(), SPELL_FEAR);
+                        DoCast(me->GetVictim(), SPELL_FEAR);
 
                     Fear_Timer = 25000;
                 }
@@ -243,7 +243,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_DOMINATION);
                     else
-                        DoCast(me->getVictim(), SPELL_DOMINATION);
+                        DoCast(me->GetVictim(), SPELL_DOMINATION);
 
                     Domination_Timer = 16000+rand()%16000;
                 }

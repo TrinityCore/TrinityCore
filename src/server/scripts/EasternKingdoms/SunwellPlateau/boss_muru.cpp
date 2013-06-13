@@ -501,7 +501,7 @@ public:
                 }
                 else
                 {
-                    if (me->IsWithinDist(me->getVictim(), 5))
+                    if (me->IsWithinDist(me->GetVictim(), 5))
                     {
                         DoCastAOE(SPELL_DARKFIEND_AOE, false);
                         me->DisappearAndDie();
@@ -559,7 +559,7 @@ public:
 
             if (VoidBlastTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VOID_BLAST, false);
+                DoCast(me->GetVictim(), SPELL_VOID_BLAST, false);
                 VoidBlastTimer = 45000;
             } else VoidBlastTimer -= diff;
 
@@ -630,7 +630,7 @@ public:
                     case 3:
                         SpellTimer = urand(400, 900);
                         NeedForAHack = 1;
-                        if (Unit* Temp = me->getVictim())
+                        if (Unit* Temp = me->GetVictim())
                         {
                             if (Temp->GetPositionZ() > 73 && Victim)
                                 AttackStart(Victim);

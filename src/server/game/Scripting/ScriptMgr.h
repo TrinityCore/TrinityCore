@@ -311,7 +311,7 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
             : _mapEntry(sMapStore.LookupEntry(mapId))
         {
             if (!_mapEntry)
-                sLog->outError(LOG_FILTER_TSCR, "Invalid MapScript for %u; no such map ID.", mapId);
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "Invalid MapScript for %u; no such map ID.", mapId);
         }
 
     public:
@@ -688,8 +688,8 @@ class PlayerScript : public UnitScript
         // Called when a player is killed by a creature
         virtual void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
 
-        // Called when a player's level changes (right before the level is applied)
-        virtual void OnLevelChanged(Player* /*player*/, uint8 /*newLevel*/) { }
+        // Called when a player's level changes (after the level is applied)
+        virtual void OnLevelChanged(Player* /*player*/, uint8 /*oldLevel*/) { }
 
         // Called when a player's free talent points change (right before the change is applied)
         virtual void OnFreeTalentPointsChanged(Player* /*player*/, uint32 /*points*/) { }

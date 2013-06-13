@@ -134,12 +134,12 @@ public:
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                         return player;
                 }
             }
 
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance Black Temple: GetPlayerInMap, but PlayerList is empty!");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Black Temple: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
         }
 

@@ -234,7 +234,7 @@ public:
                 Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
 
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* player = i->getSource())
+                    if (Player* player = i->GetSource())
                         player->DeMorph();
 
                 DoCast(me, SPELL_ACHIEVEMENT_CHECK);

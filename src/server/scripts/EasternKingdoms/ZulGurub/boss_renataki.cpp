@@ -138,8 +138,8 @@ class boss_renataki : public CreatureScript
                         Unit* target = NULL;
                         target = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
-                        if (DoGetThreat(me->getVictim()))
-                            DoModifyThreatPercent(me->getVictim(), -50);
+                        if (DoGetThreat(me->GetVictim()))
+                            DoModifyThreatPercent(me->GetVictim(), -50);
 
                         if (target)
                             AttackStart(target);
@@ -149,7 +149,7 @@ class boss_renataki : public CreatureScript
 
                     if (ThousandBlades_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_THOUSANDBLADES);
+                        DoCast(me->GetVictim(), SPELL_THOUSANDBLADES);
                         ThousandBlades_Timer = urand(7000, 12000);
                     } else ThousandBlades_Timer -= diff;
                 }

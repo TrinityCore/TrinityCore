@@ -139,7 +139,7 @@ void ScriptedAI::DoStartNoMovement(Unit* victim)
 
 void ScriptedAI::DoStopAttack()
 {
-    if (me->getVictim())
+    if (me->GetVictim())
         me->AttackStop();
 }
 
@@ -159,7 +159,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
 
     if (!sSoundEntriesStore.LookupEntry(soundId))
     {
-        sLog->outError(LOG_FILTER_TSCR, "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUIDLow());
+        TC_LOG_ERROR(LOG_FILTER_TSCR, "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUIDLow());
         return;
     }
 
@@ -252,7 +252,7 @@ void ScriptedAI::DoResetThreat()
 {
     if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
     {
-        sLog->outError(LOG_FILTER_TSCR, "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
+        TC_LOG_ERROR(LOG_FILTER_TSCR, "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
         return;
     }
 
@@ -300,7 +300,7 @@ void ScriptedAI::DoTeleportPlayer(Unit* unit, float x, float y, float z, float o
     if (Player* player = unit->ToPlayer())
         player->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
     else
-        sLog->outError(LOG_FILTER_TSCR, "Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.",
+        TC_LOG_ERROR(LOG_FILTER_TSCR, "Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.",
             me->GetGUID(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID(), x, y, z, o);
 }
 
@@ -312,8 +312,8 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 
     Map::PlayerList const& PlayerList = map->GetPlayers();
     for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-        if (Player* player = itr->getSource())
-            if (player->isAlive())
+        if (Player* player = itr->GetSource())
+            if (player->IsAlive())
                 player->TeleportTo(me->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
 
@@ -407,7 +407,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
         return false;
     }
 
-    if (me->IsInEvadeMode() || !me->getVictim())
+    if (me->IsInEvadeMode() || !me->GetVictim())
         return false;
 
     float x = me->GetPositionX();
@@ -433,7 +433,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
                 return false;
             break;
         default: // For most of creatures that certain area is their home area.
-            sLog->outInfo(LOG_FILTER_GENERAL, "TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
+            TC_LOG_INFO(LOG_FILTER_GENERAL, "TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
             uint32 homeAreaId = me->GetMap()->GetAreaId(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ());
             if (me->GetAreaId() == homeAreaId)
                 return false;
@@ -454,7 +454,7 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
 
 void BossAI::_Reset()
 {
-    if (!me->isAlive())
+    if (!me->IsAlive())
         return;
 
     me->ResetLootMode();
@@ -555,7 +555,7 @@ bool BossAI::CheckBoundary(Unit* who)
 void BossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    if (me->isInCombat())
+    if (me->IsInCombat())
         DoZoneInCombat(summon);
 }
 
@@ -590,7 +590,7 @@ WorldBossAI::WorldBossAI(Creature* creature) :
 
 void WorldBossAI::_Reset()
 {
-    if (!me->isAlive())
+    if (!me->IsAlive())
         return;
 
     events.Reset();
