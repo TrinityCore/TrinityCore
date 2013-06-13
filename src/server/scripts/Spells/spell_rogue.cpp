@@ -380,7 +380,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
-                Unit* victim = target->getVictim();
+                Unit* victim = target->GetVictim();
                 if (victim && (target->GetHealthPct() > victim->GetHealthPct()))
                 {
                     if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))

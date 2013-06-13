@@ -160,9 +160,9 @@ class boss_marli : public CreatureScript
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
-                            DoCast(me->getVictim(), SPELL_ENVOLWINGWEB);
-                            if (DoGetThreat(me->getVictim()))
-                                DoModifyThreatPercent(me->getVictim(), -100);
+                            DoCast(me->GetVictim(), SPELL_ENVOLWINGWEB);
+                            if (DoGetThreat(me->GetVictim()))
+                                DoModifyThreatPercent(me->GetVictim(), -100);
                             events.ScheduleEvent(EVENT_CHARGE_PLAYER, 1500, 0, PHASE_THREE);
                             events.ScheduleEvent(EVENT_TRANSFORM_BACK, 25000, 0, PHASE_THREE);
                             events.SetPhase(PHASE_THREE);

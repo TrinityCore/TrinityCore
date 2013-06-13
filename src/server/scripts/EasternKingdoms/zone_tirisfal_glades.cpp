@@ -90,7 +90,7 @@ public:
 
         void AttackedBy(Unit* pAttacker)
         {
-            if (me->getVictim() || me->IsFriendlyTo(pAttacker))
+            if (me->GetVictim() || me->IsFriendlyTo(pAttacker))
                 return;
 
             AttackStart(pAttacker);

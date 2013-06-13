@@ -447,7 +447,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         UpdateDamagePhysical(RANGED_ATTACK);
-        if (pet && pet->isHunterPet()) // At ranged attack change for hunter pet
+        if (pet && pet->IsHunterPet()) // At ranged attack change for hunter pet
             pet->UpdateAttackPowerAndDamage();
     }
     else
@@ -1126,7 +1126,7 @@ bool Guardian::UpdateStats(Stats stat)
     }
     else if (stat == STAT_STAMINA)
     {
-        if (owner->getClass() == CLASS_WARLOCK && isPet())
+        if (owner->getClass() == CLASS_WARLOCK && IsPet())
         {
             ownersBonus = CalculatePct(owner->GetStat(STAT_STAMINA), 75);
             value += ownersBonus;
@@ -1134,7 +1134,7 @@ bool Guardian::UpdateStats(Stats stat)
         else
         {
             mod = 0.45f;
-            if (isPet())
+            if (IsPet())
             {
                 PetSpellMap::const_iterator itr = (ToPet()->m_spells.find(62758)); // Wild Hunt rank 1
                 if (itr == ToPet()->m_spells.end())
@@ -1206,7 +1206,7 @@ void Guardian::UpdateResistances(uint32 school)
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
 
         // hunter and warlock pets gain 40% of owner's resistance
-        if (isPet())
+        if (IsPet())
             value += float(CalculatePct(m_owner->GetResistance(SpellSchools(school)), 40));
 
         SetResistance(SpellSchools(school), int32(value));
@@ -1222,7 +1222,7 @@ void Guardian::UpdateArmor()
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
     // hunter and warlock pets gain 35% of owner's armor value
-    if (isPet())
+    if (IsPet())
         bonus_armor = float(CalculatePct(m_owner->GetArmor(), 35));
 
     value  = GetModifierValue(unitMod, BASE_VALUE);
@@ -1301,10 +1301,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     Unit* owner = GetOwner();
     if (owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
-        if (isHunterPet())                      //hunter pets benefit from owner's attack power
+        if (IsHunterPet())                      //hunter pets benefit from owner's attack power
         {
             float mod = 1.0f;                                                 //Hunter contribution modifier
-            if (isPet())
+            if (IsPet())
             {
                 PetSpellMap::const_iterator itr = ToPet()->m_spells.find(62758);    //Wild Hunt rank 1
                 if (itr == ToPet()->m_spells.end())
@@ -1334,7 +1334,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
         }
         //demons benefit from warlocks shadow or fire damage
-        else if (isPet())
+        else if (IsPet())
         {
             int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
             int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
@@ -1412,7 +1412,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
     //  Pet's base damage changes depending on happiness
-    if (isHunterPet() && attType == BASE_ATTACK)
+    if (IsHunterPet() && attType == BASE_ATTACK)
     {
         switch (ToPet()->GetHappinessState())
         {

@@ -182,7 +182,7 @@ public:
             if (!who)
                 return;
 
-            if (me->isInCombat())
+            if (me->IsInCombat())
                 return;
 
             if (who->GetTypeId() != TYPEID_PLAYER)
@@ -299,7 +299,7 @@ public:
                     Timer = 1000;
                     if (Phase == 3)
                     {
-                        if (!Essence->isAlive())
+                        if (!Essence->IsAlive())
                             DoCast(me, 7, true);
                         else return;
                     }
@@ -455,7 +455,7 @@ public:
             for (; itr != threatlist.end(); ++itr)
             {
                 Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                if (unit && unit->isAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
+                if (unit && unit->IsAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
                     targets.push_back(unit);
             }
             if (targets.empty())
@@ -471,7 +471,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (me->isInCombat())
+            if (me->IsInCombat())
             {
                 //Supposed to be cast on nearest target
                 if (FixateTimer <= diff)
@@ -590,14 +590,14 @@ public:
 
             if (SoulShockTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SOUL_SHOCK);
+                DoCast(me->GetVictim(), SPELL_SOUL_SHOCK);
                 SoulShockTimer = 5000;
             } else SoulShockTimer -= diff;
 
             if (DeadenTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me->getVictim(), SPELL_DEADEN);
+                DoCast(me->GetVictim(), SPELL_DEADEN);
                 DeadenTimer = urand(25000, 35000);
                 if (!(rand()%2))
                 {
@@ -673,24 +673,24 @@ public:
 
             if (!CheckedAggro)
             {
-                AggroTargetGUID = me->getVictim()->GetGUID();
+                AggroTargetGUID = me->GetVictim()->GetGUID();
                 CheckedAggro = true;
             }
 
             if (CheckTankTimer <= diff)
             {
-                if (me->getVictim()->GetGUID() != AggroTargetGUID)
+                if (me->GetVictim()->GetGUID() != AggroTargetGUID)
                 {
                     Talk(ANGER_SAY_BEFORE);
                     DoCast(me, SPELL_SELF_SEETHE, true);
-                    AggroTargetGUID = me->getVictim()->GetGUID();
+                    AggroTargetGUID = me->GetVictim()->GetGUID();
                 }
                 CheckTankTimer = 2000;
             } else CheckTankTimer -= diff;
 
             if (SoulScreamTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SOUL_SCREAM);
+                DoCast(me->GetVictim(), SPELL_SOUL_SCREAM);
                 SoulScreamTimer = urand(9000, 11000);
                 if (!(rand()%3))
                 {

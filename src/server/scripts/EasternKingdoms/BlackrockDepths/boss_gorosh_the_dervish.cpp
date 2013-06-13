@@ -68,7 +68,7 @@ public:
             //MortalStrike_Timer
             if (MortalStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
+                DoCast(me->GetVictim(), SPELL_MORTALSTRIKE);
                 MortalStrike_Timer = 15000;
             } else MortalStrike_Timer -= diff;
 

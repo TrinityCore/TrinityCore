@@ -470,7 +470,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
                     if (uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank))
                     {
                         Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
-                        if (totem && totem->isTotem())
+                        if (totem && totem->IsTotem())
                             caster->CastSpell(totem, spellId, true);
                     }
                 }
@@ -784,7 +784,7 @@ class spell_sha_sentry_totem : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[4]))
-                        if (totem->isTotem())
+                        if (totem->IsTotem())
                             caster->CastSpell(totem, SPELL_SHAMAN_BIND_SIGHT, true);
             }
 

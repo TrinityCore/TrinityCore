@@ -58,7 +58,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             //  be (GetCombatReach() + i_offset) away.
             // Only applies when i_target is pet's owner otherwise pets and mobs end up
             //   doing a "dance" while fighting
-            if (owner->isPet() && i_target->GetTypeId() == TYPEID_PLAYER)
+            if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
             {
                 dist = i_target->GetCombatReach();
                 size = i_target->GetCombatReach() - i_target->GetObjectSize();
@@ -89,7 +89,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
         i_path = new PathGenerator(owner);
 
     // allow pets to use shortcut if no path found when following their master
-    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->isPet()
+    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet()
         && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = i_path->CalculatePath(x, y, z, forceDest);
@@ -122,7 +122,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
 
-    if (!owner || !owner->isAlive())
+    if (!owner || !owner->IsAlive())
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
@@ -252,7 +252,7 @@ void FollowMovementGenerator<Creature>::_updateSpeed(Creature* owner)
 {
     // pet only sync speed with owner
     /// Make sure we are not in the process of a map change (IsInWorld)
-    if (!owner->isPet() || !owner->IsInWorld() || !i_target.isValid() || i_target->GetGUID() != owner->GetOwnerGUID())
+    if (!owner->IsPet() || !owner->IsInWorld() || !i_target.isValid() || i_target->GetGUID() != owner->GetOwnerGUID())
         return;
 
     owner->UpdateSpeed(MOVE_RUN, true);

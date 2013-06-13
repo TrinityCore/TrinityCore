@@ -194,7 +194,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_6566) == QUEST_STATUS_INCOMPLETE)
@@ -231,13 +231,13 @@ public:
 
             if (ChainLightningTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
+                DoCast(me->GetVictim(), SPELL_CHAIN_LIGHTNING);
                 ChainLightningTimer = 9000;
             } else ChainLightningTimer -= diff;
 
             if (ShockTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHOCK);
+                DoCast(me->GetVictim(), SPELL_SHOCK);
                 ShockTimer = 15000;
             } else ShockTimer -= diff;
 

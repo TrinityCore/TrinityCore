@@ -117,7 +117,7 @@ public:
             //Arcane Blast
             if (ArcaneBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
+                DoCast(me->GetVictim(), SPELL_ARCANE_BLAST);
                 ArcaneBlast_Timer = 15000+rand()%10000;
             } else ArcaneBlast_Timer -= diff;
 

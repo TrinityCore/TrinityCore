@@ -105,7 +105,7 @@ public:
                 if (TerestianGUID)
                 {
                     Unit* Terestian = Unit::GetUnit(*me, TerestianGUID);
-                    if (Terestian && Terestian->isAlive())
+                    if (Terestian && Terestian->IsAlive())
                         DoCast(Terestian, SPELL_BROKEN_PACT, true);
                 }
             } else ERROR_INST_DATA(me);
@@ -120,7 +120,7 @@ public:
             if (AmplifyTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me->getVictim(), SPELL_AMPLIFY_FLAMES);
+                DoCast(me->GetVictim(), SPELL_AMPLIFY_FLAMES);
 
                 AmplifyTimer = urand(10000, 20000);
             } else AmplifyTimer -= diff;
@@ -236,7 +236,7 @@ public:
 
             if (FireboltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBOLT);
+                DoCast(me->GetVictim(), SPELL_FIREBOLT);
                 FireboltTimer = 2200;
             } else FireboltTimer -= diff;
 
@@ -309,7 +309,7 @@ public:
 
             if (Minion* Kilrek = me->GetFirstMinion())
             {
-                if (!Kilrek->isAlive())
+                if (!Kilrek->IsAlive())
                 {
                     Kilrek->UnSummon();
                     DoCast(me, SPELL_SUMMON_IMP, true);
@@ -370,7 +370,7 @@ public:
             if (SacrificeTimer <= diff)
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-                if (target && target->isAlive())
+                if (target && target->IsAlive())
                 {
                     DoCast(target, SPELL_SACRIFICE, true);
                     DoCast(target, SPELL_SUMMON_DEMONCHAINS, true);
@@ -394,15 +394,15 @@ public:
             if (SummonTimer <= diff)
             {
                 if (!PortalGUID[0])
-                    DoCast(me->getVictim(), SPELL_FIENDISH_PORTAL, false);
+                    DoCast(me->GetVictim(), SPELL_FIENDISH_PORTAL, false);
 
                 if (!PortalGUID[1])
-                    DoCast(me->getVictim(), SPELL_FIENDISH_PORTAL_1, false);
+                    DoCast(me->GetVictim(), SPELL_FIENDISH_PORTAL_1, false);
 
                 if (PortalGUID[0] && PortalGUID[1])
                 {
                     if (Creature* pPortal = Unit::GetCreature(*me, PortalGUID[urand(0, 1)]))
-                        pPortal->CastSpell(me->getVictim(), SPELL_SUMMON_FIENDISIMP, false);
+                        pPortal->CastSpell(me->GetVictim(), SPELL_SUMMON_FIENDISIMP, false);
                     SummonTimer = 5000;
                 }
             } else SummonTimer -= diff;

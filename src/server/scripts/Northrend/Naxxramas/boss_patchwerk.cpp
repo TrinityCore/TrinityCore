@@ -119,7 +119,7 @@ public:
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
                             Unit* target = (*i)->getTarget();
-                            if (target->isAlive() && target != me->getVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
+                            if (target->IsAlive() && target != me->GetVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
                             {
                                 MostHP = target->GetHealth();
                                 pMostHPTarget = target;
@@ -127,7 +127,7 @@ public:
                         }
 
                         if (!pMostHPTarget)
-                            pMostHPTarget = me->getVictim();
+                            pMostHPTarget = me->GetVictim();
 
                         DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE, H_SPELL_HATEFUL_STRIKE), true);
 
@@ -140,7 +140,7 @@ public:
                         events.ScheduleEvent(EVENT_SLIME, 2000);
                         break;
                     case EVENT_SLIME:
-                        DoCast(me->getVictim(), SPELL_SLIME_BOLT, true);
+                        DoCast(me->GetVictim(), SPELL_SLIME_BOLT, true);
                         events.ScheduleEvent(EVENT_SLIME, 2000);
                         break;
                 }

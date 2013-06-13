@@ -1329,31 +1329,21 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 itr->second.equipement_id_prev = creature->GetCurrentEquipmentId();
                 itr->second.modelid_prev = creature->GetDisplayId();
                 creature->LoadEquipment(itr->second.equipment_id, true);
-                if (itr->second.modelid > 0 && itr->second.modelid_prev != itr->second.modelid)
+                if (itr->second.modelid > 0 && itr->second.modelid_prev != itr->second.modelid &&
+                    sObjectMgr->GetCreatureModelInfo(itr->second.modelid))
                 {
-                    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid);
-                    if (minfo)
-                    {
-                        creature->SetDisplayId(itr->second.modelid);
-                        creature->SetNativeDisplayId(itr->second.modelid);
-                        creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius);
-                        creature->SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach);
-                    }
+                    creature->SetDisplayId(itr->second.modelid);
+                    creature->SetNativeDisplayId(itr->second.modelid);
                 }
             }
             else
             {
                 creature->LoadEquipment(itr->second.equipement_id_prev, true);
-                if (itr->second.modelid_prev > 0 && itr->second.modelid_prev != itr->second.modelid)
+                if (itr->second.modelid_prev > 0 && itr->second.modelid_prev != itr->second.modelid &&
+                    sObjectMgr->GetCreatureModelInfo(itr->second.modelid_prev))
                 {
-                    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid_prev);
-                    if (minfo)
-                    {
-                        creature->SetDisplayId(itr->second.modelid_prev);
-                        creature->SetNativeDisplayId(itr->second.modelid_prev);
-                        creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius);
-                        creature->SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach);
-                    }
+                    creature->SetDisplayId(itr->second.modelid_prev);
+                    creature->SetNativeDisplayId(itr->second.modelid_prev);
                 }
             }
         }

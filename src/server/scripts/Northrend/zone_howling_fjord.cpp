@@ -178,7 +178,7 @@ public:
         {
             uint64 summonerGUID = 0;
 
-            if (me->isSummon())
+            if (me->IsSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                     if (summoner->GetTypeId() == TYPEID_PLAYER)
                         summonerGUID = summoner->GetGUID();
@@ -230,7 +230,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
@@ -269,56 +269,6 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 2:
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA2, creature->GetGUID());
                 player->TalkedToCreature(NPC_LYANA, creature->GetGUID());
-                break;
-        }
-        return true;
-    }
-};
-
-/*######
-## npc_mcgoyver
-######*/
-
-#define GOSSIP_ITEM_MG_I  "Walt sent me to pick up some dark iron ingots."
-#define GOSSIP_ITEM_MG_II "Yarp."
-
-enum eMcGoyver
-{
-    QUEST_WE_CAN_REBUILD_IT             = 11483,
-
-    SPELL_CREATURE_DARK_IRON_INGOTS     = 44512,
-    SPELL_TAXI_EXPLORERS_LEAGUE         = 44280,
-
-    GOSSIP_TEXTID_MCGOYVER              = 12193
-};
-
-class npc_mcgoyver : public CreatureScript
-{
-public:
-    npc_mcgoyver() : CreatureScript("npc_mcgoyver") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MCGOYVER, creature->GetGUID());
-                player->CastSpell(player, SPELL_CREATURE_DARK_IRON_INGOTS, true);
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->CastSpell(player, SPELL_TAXI_EXPLORERS_LEAGUE, true);
-                player->CLOSE_GOSSIP_MENU();
                 break;
         }
         return true;
@@ -390,7 +340,7 @@ public:
         {
             if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
-                if (player->isAlive())
+                if (player->IsAlive())
                 {
                     summon->SetWalk(false);
                     summon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
@@ -435,6 +385,5 @@ void AddSC_howling_fjord()
     new npc_apothecary_hanes;
     new npc_plaguehound_tracker;
     new npc_razael_and_lyana;
-    new npc_mcgoyver;
     new npc_daegarn;
  }

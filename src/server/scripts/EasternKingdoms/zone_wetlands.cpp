@@ -101,7 +101,7 @@ public:
 
         void AttackedBy(Unit* pAttacker)
         {
-            if (me->getVictim())
+            if (me->GetVictim())
                 return;
 
             if (me->IsFriendlyTo(pAttacker))

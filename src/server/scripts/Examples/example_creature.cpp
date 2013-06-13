@@ -168,7 +168,7 @@ class example_creature : public CreatureScript
             void UpdateAI(uint32 uiDiff)
             {
                 //Out of combat timers
-                if (!me->getVictim())
+                if (!me->GetVictim())
                 {
                     //Random Say timer
                     if (m_uiSayTimer <= uiDiff)
@@ -200,9 +200,9 @@ class example_creature : public CreatureScript
                 {
                     //Cast spell one on our current target.
                     if (rand()%50 > 10)
-                        DoCast(me->getVictim(), SPELL_ONE_ALT);
-                    else if (me->IsWithinDist(me->getVictim(), 25.0f))
-                        DoCast(me->getVictim(), SPELL_ONE);
+                        DoCast(me->GetVictim(), SPELL_ONE_ALT);
+                    else if (me->IsWithinDist(me->GetVictim(), 25.0f))
+                        DoCast(me->GetVictim(), SPELL_ONE);
 
                     m_uiSpell1Timer = 5000;
                 }
@@ -213,7 +213,7 @@ class example_creature : public CreatureScript
                 if (m_uiSpell2Timer <= uiDiff)
                 {
                     //Cast spell two on our current target.
-                    DoCast(me->getVictim(), SPELL_TWO);
+                    DoCast(me->GetVictim(), SPELL_TWO);
                     m_uiSpell2Timer = 37000;
                 }
                 else
@@ -226,7 +226,7 @@ class example_creature : public CreatureScript
                     if (m_uiSpell3Timer <= uiDiff)
                     {
                         //Cast spell one on our current target.
-                        DoCast(me->getVictim(), SPELL_THREE);
+                        DoCast(me->GetVictim(), SPELL_THREE);
 
                         m_uiSpell3Timer = 19000;
                     }
@@ -236,8 +236,8 @@ class example_creature : public CreatureScript
                     if (m_uiBeserkTimer <= uiDiff)
                     {
                         //Say our line then cast uber death spell
-                        Talk(SAY_BERSERK, me->getVictim() ? me->getVictim()->GetGUID() : 0);
-                        DoCast(me->getVictim(), SPELL_BERSERK);
+                        Talk(SAY_BERSERK, me->GetVictim() ? me->GetVictim()->GetGUID() : 0);
+                        DoCast(me->GetVictim(), SPELL_BERSERK);
 
                         //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
                         m_uiBeserkTimer = 12000;

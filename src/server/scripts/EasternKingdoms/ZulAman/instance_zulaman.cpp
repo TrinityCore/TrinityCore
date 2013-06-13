@@ -182,7 +182,7 @@ class instance_zulaman : public InstanceMapScript
                     return;
 
                 Map::PlayerList::const_iterator i = PlayerList.begin();
-                if (Player* i_pl = i->getSource())
+                if (Player* i_pl = i->GetSource())
                 {
                     if (Unit* Hostage = i_pl->SummonCreature(HostageInfo[num].npc, HostageInfo[num].x, HostageInfo[num].y, HostageInfo[num].z, HostageInfo[num].o, TEMPSUMMON_DEAD_DESPAWN, 0))
                     {
