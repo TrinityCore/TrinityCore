@@ -46,7 +46,21 @@ enum Yells
     SAY_V07TRON_ACTIVATE                        = 11,
     SAY_V07TRON_SLAY                            = 12,
     SAY_V07TRON_DEATH                           = 13,
-    SAY_BERSERK                                 = 14
+    SAY_BERSERK                                 = 14,
+	//Computer
+	SAY_HARDMODE                                = 0,
+	SAY_10_MIN                                  = 1,
+	SAY_9_MIN                                   = 2,
+	SAY_8_MIN                                   = 3,
+	SAY_7_MIN                                   = 4,
+	SAY_6_MIN                                   = 5,
+	SAY_5_MIN                                   = 6,
+	SAY_4_MIN                                   = 7,
+	SAY_3_MIN                                   = 8,
+	SAY_2_MIN                                   = 9,
+	SAY_1_MIN                                   = 10,
+	SAY_DESTROY_MIN                             = 11,
+	SAY_OVERRIDE_MIN                            = 12,
 };
 
 enum Spells
@@ -109,6 +123,7 @@ enum Npcs
     NPC_FLAME_SPREAD                            = 34121,
     NPC_FROST_BOMB                              = 34149,
     NPC_MKII_TURRET                             = 34071,
+	NPC_COMPUTER                                = 34143,
 };
 
 enum Events
@@ -118,9 +133,8 @@ enum Events
     EVENT_INTRO_2,
     EVENT_INTRO_3,
     EVENT_INTRO_4,
-    EVENT_INTRO_5,
-    EVENT_INTRO_6,
-    EVENT_INTRO_7,
+	EVENT_HARD_1,
+	EVENT_HARD_2,
     EVENT_VX001_1,
     EVENT_VX001_2,
     EVENT_VX001_3,
@@ -144,6 +158,7 @@ enum Events
     EVENT_ENRAGE,
     EVENT_FLAME,
     EVENT_NONE,
+	EVENT_CRAWL,
     // Leviathan MK II
     EVENT_PROXIMITY_MINE,
     EVENT_NAPALM_SHELL,
@@ -239,9 +254,12 @@ class boss_mimiron : public CreatureScript
         {
             boss_mimironAI(Creature* creature) : BossAI(creature, DATA_MIMIRON)
             {
+	     		crawl=1;
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_ROCKET_STRIKE_DMG, true);
                 MimironHardMode = false;
                 me->SetReactState(REACT_PASSIVE);
+				events.SetPhase(PHASE_NULL);
+                events.ScheduleEvent(EVENT_CRAWL, 30000, 0, PHASE_NULL);
             }
 
             void DespawnCreatures(uint32 entry, float distance, bool discs = false)
@@ -267,7 +285,7 @@ class boss_mimiron : public CreatureScript
                 me->SetVisible(true);
                 me->ExitVehicle();
                 me->GetMotionMaster()->MoveTargetedHome();
-
+				events.SetPhase(PHASE_NULL);
                 instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE);
 
                 if (Creature* aerial = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
@@ -301,13 +319,18 @@ class boss_mimiron : public CreatureScript
             {
                 _EnterCombat();
                 instance->SetBossState(DATA_MIMIRON, IN_PROGRESS);
+				events.SetPhase(PHASE_INTRO);
                 if (MimironHardMode)
-                    TalkToMap(SAY_HARDMODE_ON);
+				{
+                    events.ScheduleEvent(EVENT_HARD_1, 2500, 0, PHASE_INTRO);
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
+				}
                 else
+				{
                     TalkToMap(SAY_AGGRO);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
-                events.SetPhase(PHASE_INTRO);
-                events.ScheduleEvent(EVENT_INTRO_2, 10000, 0, PHASE_INTRO);
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
+					events.ScheduleEvent(EVENT_INTRO_2, 10000, 0, PHASE_INTRO);
+				}
 
                 if (MimironHardMode)
                 {
@@ -389,6 +412,32 @@ class boss_mimiron : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CRAWL:
+							switch(crawl)
+							{
+								case 1:
+								    if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+								        me->EnterVehicle(Leviathan, 4);
+									crawl++;
+								    break;
+								case 2:
+								    me->ChangeSeat(2);
+									crawl++;
+								    break;
+								case 3:
+								    me->ChangeSeat(3);
+									crawl=1;
+								    break;
+							}
+                            events.RescheduleEvent(EVENT_CRAWL, 30000, 0, PHASE_NULL);
+                            break;
+                    }
+                }
+				
                 if (!UpdateVictim())
                     return;
 
@@ -435,33 +484,31 @@ class boss_mimiron : public CreatureScript
                 {
                     switch (eventId)
                     {
+                        case EVENT_HARD_1:
+						    if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_10_MIN);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                            events.ScheduleEvent(EVENT_HARD_2, 500, 0, PHASE_INTRO);
+                            break;
+                        case EVENT_HARD_2:
+							if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+						        me->EnterVehicle(Leviathan,5);
+                            TalkToMap(SAY_HARDMODE_ON);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+							events.ScheduleEvent(EVENT_INTRO_3, 6000, 0, PHASE_INTRO);
+                            break;
                         case EVENT_INTRO_2:
-                            if (instance)
-                            {
-                                if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
-                                    me->EnterVehicle(Leviathan, 4);
-                                events.ScheduleEvent(EVENT_INTRO_3, 2000, 0, PHASE_INTRO);
-                            }
+							if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+						        me->EnterVehicle(Leviathan,5);
+                            TalkToMap(SAY_MKII_ACTIVATE);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                            events.ScheduleEvent(EVENT_INTRO_3, 6000, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_3:
-                            me->ChangeSeat(2);
+                            me->ChangeSeat(6);
                             events.ScheduleEvent(EVENT_INTRO_4, 2000, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_4:
-                            me->ChangeSeat(5);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                            events.ScheduleEvent(EVENT_INTRO_5, 2500, 0, PHASE_INTRO);
-                            break;
-                        case EVENT_INTRO_5:
-                            TalkToMap(SAY_MKII_ACTIVATE);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                            events.ScheduleEvent(EVENT_INTRO_6, 6000, 0, PHASE_INTRO);
-                            break;
-                        case EVENT_INTRO_6:
-                            me->ChangeSeat(6);
-                            events.ScheduleEvent(EVENT_INTRO_7, 2000, 0, PHASE_INTRO);
-                            break;
-                        case EVENT_INTRO_7:
                             if (instance)
                                 if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                 {
@@ -643,6 +690,7 @@ class boss_mimiron : public CreatureScript
             uint32 FlameTimer;
             uint32 uiBotTimer;
             uint32 _flameCount;
+            uint32 crawl;
             bool checkBotAlive;
             bool Enraged;
             EventMap events;
@@ -1903,8 +1951,16 @@ class go_not_push_button : public GameObjectScript
                 return false;
 
             if ((_instance->GetBossState(DATA_MIMIRON) != IN_PROGRESS || _instance->GetBossState(DATA_MIMIRON) != DONE) && player)
+			{
                 if (Creature* mimiron = player->GetCreature((*player), _instance->GetData64(DATA_MIMIRON)))
-                    mimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
+				{
+					if (Creature* computer = mimiron->FindNearestCreature(NPC_COMPUTER,100.0f))
+					{
+					    computer->AI()->TalkToMap(SAY_HARDMODE);
+						mimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
+					}
+				}
+			}
 
             go->UseDoorOrButton();
 
