@@ -692,6 +692,141 @@ class npc_venture_co_straggler : public CreatureScript
         }
 };
 
+/*######
+## Quest A Blade Fit For A Champion
+######*/
+
+enum eLakeFrog
+{
+    SPELL_WARTSBGONE_LIP_BALM              = 62574,
+    SPELL_FROG_LOVE                        = 62537, // for 1 minute !
+    SPELL_WARTS                            = 62581,
+    SPELL_MAIDEN_OF_ASHWOOD_LAKE_TRANSFORM = 62550,
+    SPELL_SUMMON_ASHWOOD_BRAND             = 62554,
+    ITEM_WARTS_B_GONE_LIP_BALM             = 44986,
+    NPC_LAKE_FROG                          = 33211,
+    NPC_LAKE_FROG_QUEST                    = 33224,
+    SAY_MAIDEN_0                           = 0,
+    SAY_MAIDEN_1                           = 1
+};
+
+class npc_lake_frog : public CreatureScript
+{
+    public:
+        npc_lake_frog(): CreatureScript("npc_lake_frog") { }
+
+    struct npc_lake_frogAI : public ScriptedAI
+    {
+        npc_lake_frogAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset()
+        {
+            uiFollowing = false;
+            uiRunningScript = false;
+            uiPhase = 0;
+            if (me->GetEntry() == NPC_LAKE_FROG_QUEST)
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void UpdateAI(uint32 uiDiff)
+        {
+            if (uiFollowing)
+                if(!me->HasAura(SPELL_FROG_LOVE))
+                    me->DespawnOrUnsummon(0);
+
+            if (uiRunningScript)
+            {
+                if (uiScriptTimer <= uiDiff)
+                {
+                    switch (uiPhase)
+                    {
+                        case 0:
+                            DoCast(me, SPELL_MAIDEN_OF_ASHWOOD_LAKE_TRANSFORM);
+                            me->SetEntry(33220);
+                            uiScriptTimer = 2000;
+                            ++uiPhase;
+                            break;
+                        case 1:
+                            Talk(SAY_MAIDEN_0);
+                            uiScriptTimer = 3000;
+                            ++uiPhase;
+                            break;
+                        case 2:
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            uiScriptTimer = 25000;
+                            ++uiPhase;
+                            break;
+                        case 3:
+                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            uiScriptTimer = 2000;
+                            ++uiPhase;
+                            break;
+                        case 4:
+                            Talk(SAY_MAIDEN_1);
+                            uiScriptTimer = 4000;
+                            ++uiPhase;
+                            break;
+                        case 5:
+                            uiRunningScript=false;
+                            me->DespawnOrUnsummon(0);
+                            break;
+                    }
+                }
+                else if (uiScriptTimer)
+                    uiScriptTimer -= uiDiff;
+            }
+
+        }
+
+        void ReceiveEmote(Player* player, uint32 emote)
+        {
+            if (uiFollowing || uiRunningScript)
+                return;
+
+            if(emote==TEXT_EMOTE_KISS && me->IsWithinDistInMap(player, 30.0f) && player->HasItemCount(ITEM_WARTS_B_GONE_LIP_BALM, 1, false))
+            {
+                if(!player->HasAura(SPELL_WARTSBGONE_LIP_BALM))
+                    player->AddAura(SPELL_WARTS, player);
+
+                else
+                {
+                    player->RemoveAura(SPELL_WARTSBGONE_LIP_BALM);
+
+                    if (me->GetEntry() == NPC_LAKE_FROG)
+                    {
+                        me->AddAura(SPELL_FROG_LOVE, me);
+                        me->GetMotionMaster()->MoveFollow(player, 0.3f, frand (M_PI/2, M_PI + (M_PI/2)));
+                        uiFollowing=true;
+                    }
+                    else if (me->GetEntry() == NPC_LAKE_FROG_QUEST)
+                    {
+                        me->SetWalk(false);
+                        me->SetFacingToObject(player);
+                        uiRunningScript=true;
+                        uiScriptTimer = 2000;
+                    }
+                }
+            }
+        }
+
+        void sGossipSelect(Player* player, uint32 sender, uint32 /*action*/)
+        {
+            DoCast(player, SPELL_SUMMON_ASHWOOD_BRAND);
+        }
+
+    private:
+        bool   uiFollowing;
+        bool   uiRunningScript;
+        uint32 uiScriptTimer;
+        uint8  uiPhase;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_lake_frogAI(creature);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_emily();
@@ -702,4 +837,5 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
+    new npc_lake_frog();
 }
