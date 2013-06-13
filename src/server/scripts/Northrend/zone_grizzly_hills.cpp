@@ -711,6 +711,7 @@ enum LakeFrog
     // Creature
     NPC_LAKE_FROG                          = 33211,
     NPC_LAKE_FROG_QUEST                    = 33224,
+    NPC_MAIDEN_OF_ASHWOOD_LAKE             = 33220,
 
     // Text
     SAY_MAIDEN_0                           = 0,
@@ -757,7 +758,7 @@ class npc_lake_frog : public CreatureScript
                     {
                         case EVENT_SCRIPT_1:
                             DoCast(me, SPELL_MAIDEN_OF_ASHWOOD_LAKE_TRANSFORM);
-                            me->SetEntry(33220);
+                            me->SetEntry(NPC_MAIDEN_OF_ASHWOOD_LAKE);
                             _events.ScheduleEvent(EVENT_SCRIPT_2, 2000);
                             break;
                         case EVENT_SCRIPT_2:
