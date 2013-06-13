@@ -251,6 +251,7 @@ enum eGurgthock
     QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1          = 12932,
     QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR          = 12933,
     QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND        = 12934,
+    QUEST_THE_CHAMPION_OF_ANGUISH                 = 12948,
 
     NPC_ORINOKO_TUSKBREAKER                       = 30020,
     NPC_KORRAK_BLOODRAGER                         = 30023,
@@ -264,6 +265,7 @@ enum eGurgthock
     NPC_FIEND_AIR                                 = 30045,
     NPC_FIEND_FIRE                                = 30042,
     NPC_FIEND_EARTH                               = 30043,
+    NPC_VLADOF_THE_BUTCHER                        = 30022,
 
     SAY_QUEST_ACCEPT_TUSKARRMAGEDON               = 0,
     SAY_QUEST_ACCEPT_KORRAK_1                     = 1,
@@ -404,6 +406,10 @@ public:
                             uiTimer = 2000;
                             uiPhase = 12;
                             break;
+                        case QUEST_THE_CHAMPION_OF_ANGUISH:
+                            uiTimer = 2000;
+                            uiPhase = 15;
+                            break;
                    }
                         break;
                 }
@@ -526,6 +532,12 @@ public:
                                 creature->AI()->SetData(1, uiBossRandom);
                             uiPhase = 0;
                             break;
+                        case 15:
+                            std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()));
+                            me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
+                            me->SummonCreature(NPC_VLADOF_THE_BUTCHER, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                            uiPhase = 0;
+                            break;
                     }
                 }else uiTimer -= uiDiff;
             }
@@ -552,6 +564,9 @@ public:
             case QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND:
                 creature->AI()->SetData(1, quest->GetQuestId());
                 break;
+            case QUEST_THE_CHAMPION_OF_ANGUISH:
+                creature->AI()->SetData(1, quest->GetQuestId());
+                break;
         }
 
         creature->AI()->SetGUID(player->GetGUID());
@@ -563,6 +578,129 @@ public:
     {
         return new npc_gurgthockAI(creature);
     }
+};
+
+/*####
+## npc_vladof_the_butcher
+####*/
+
+enum vladof_spells
+{
+    EVENT_BLOOD_BOIL,
+    EVENT_BLOOD_PLAGUE,
+    EVENT_BLOOD_PRESENCE,
+    EVENT_FROST_FEVER,
+    EVENT_HYSRERIA,
+    EVENT_SLOW,
+    EVENT_DEFLECTION,
+    EVENT_WHIRLWIND,
+
+    //NPC_VLADOF_THE_BUTCHER spells
+
+    SPELL_BLOOD_BOIL      = 55974,
+    SPELL_BLOOD_PLAGUE    = 55973,
+    SPELL_BLOOD_PRESENCE  = 50689,
+    SPELL_FROST_FEVER     = 55095,
+    SPELL_HYSRERIA        = 55975,
+    SPELL_SLOW            = 31589,
+    SPELL_DEFLECTION      = 55976,
+    SPELL_WHIRLWIND       = 55977,
+};
+
+class npc_vladof_the_butcher : public CreatureScript
+
+public:
+    npc_vladof_the_butcher() : CreatureScript("npc_vladof_the_butcher") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_vladof_the_butcherAI(creature);
+    }
+
+    struct npc_vladof_the_butcherAI  : public ScriptedAI
+    {
+        npc_vladof_the_butcherAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_AGGRESSIVE);
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_BLOOD_BOIL, 2000); // TODO: adjust timers
+            events.ScheduleEvent(EVENT_BLOOD_PLAGUE, 7000);
+            events.ScheduleEvent(EVENT_BLOOD_PRESENCE, 1000);
+            events.ScheduleEvent(EVENT_HYSRERIA, 21000);
+            events.ScheduleEvent(SPELL_SLOW, 6000);
+            events.ScheduleEvent(EVENT_FROST_FEVER, 6000);
+            events.ScheduleEvent(EVENT_DEFLECTION, 15000);
+            events.ScheduleEvent(EVENT_WHIRLWIND, 15000);
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_BLOOD_BOIL:
+                            DoCastVictim(SPELL_BLOOD_BOIL);
+                        events.ScheduleEvent(EVENT_BLOOD_BOIL, 8000);
+                        break;
+                    case EVENT_BLOOD_PLAGUE:
+                            DoCastVictim(SPELL_BLOOD_PLAGUE);
+                        events.ScheduleEvent(EVENT_BLOOD_PLAGUE, 8000);
+                        break;
+                    case EVENT_BLOOD_PRESENCE:
+                            DoCast(SPELL_BLOOD_PRESENCE);
+                        break;
+                    case EVENT_FROST_FEVER:
+                            DoCastVictim(SPELL_FROST_FEVER);
+                        events.ScheduleEvent(EVENT_FROST_FEVER, 15000);
+                        break;
+                    case EVENT_WHIRLWIND:
+                            DoCast(SPELL_WHIRLWIND);
+                        break;
+                    case EVENT_DEFLECTION:
+                            DoCastVictim(SPELL_DEFLECTION);
+                        break;
+                    case EVENT_SLOW:
+                            DoCastVictim(SPELL_SLOW);
+                        events.ScheduleEvent(EVENT_SLOW, 9000);
+                        break;
+                    case EVENT_HYSRERIA:
+                            DoCast(SPELL_HYSRERIA);
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+        
+        void JustDied(Unit* killer)
+        {
+
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->GroupEventHappens(QUEST_THE_CHAMPION_OF_ANGUISH, player);
+            }
+        }
+    };
 };
 
 /*####
@@ -1428,4 +1566,5 @@ void AddSC_zuldrak()
     new npc_elemental_lord;
     new npc_fiend_elemental;
     new go_scourge_enclosure;
+    new npc_vladof_the_butcher();
 }

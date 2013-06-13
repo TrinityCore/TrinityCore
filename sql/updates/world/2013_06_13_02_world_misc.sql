@@ -1,0 +1,1 @@
+UPDATE `creature_text` SET `comment`='Lich King SAY_LICH_KING_GHOUL' WHERE `entry`=36954 AND `groupid`=6 AND `id`=0;
