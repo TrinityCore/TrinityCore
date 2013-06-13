@@ -246,7 +246,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket&  /*recvData*
     lfg::LfgLockPartyMap lockMap;
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* plrg = itr->getSource();
+        Player* plrg = itr->GetSource();
         if (!plrg)
             continue;
 

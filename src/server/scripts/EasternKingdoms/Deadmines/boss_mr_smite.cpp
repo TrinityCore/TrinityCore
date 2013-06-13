@@ -110,7 +110,7 @@ public:
             if (uiSlamTimer <= uiDiff)
             {
                 if (bCheckChances())
-                    DoCast(me->getVictim(), SPELL_SMITE_SLAM);
+                    DoCast(me->GetVictim(), SPELL_SMITE_SLAM);
                 uiSlamTimer = 11000;
             } else uiSlamTimer -= uiDiff;
 
@@ -156,7 +156,7 @@ public:
                             break;
                         case 3:
                             SetCombatMovement(true);
-                            me->GetMotionMaster()->MoveChase(me->getVictim(), me->m_CombatDistance);
+                            me->GetMotionMaster()->MoveChase(me->GetVictim(), me->m_CombatDistance);
                             uiPhase = 0;
                             break;
                     }

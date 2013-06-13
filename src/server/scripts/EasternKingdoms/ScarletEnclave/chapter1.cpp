@@ -245,22 +245,22 @@ public:
                     switch (eventId)
                     {
                     case EVENT_ICY_TOUCH:
-                        DoCast(me->getVictim(), SPELL_ICY_TOUCH);
+                        DoCast(me->GetVictim(), SPELL_ICY_TOUCH);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
                         break;
                     case EVENT_PLAGUE_STRIKE:
-                        DoCast(me->getVictim(), SPELL_PLAGUE_STRIKE);
+                        DoCast(me->GetVictim(), SPELL_PLAGUE_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(SPELL_PLAGUE_STRIKE, 5000, GCD_CAST);
                         break;
                     case EVENT_BLOOD_STRIKE:
-                        DoCast(me->getVictim(), SPELL_BLOOD_STRIKE);
+                        DoCast(me->GetVictim(), SPELL_BLOOD_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
                         break;
                     case EVENT_DEATH_COIL:
-                        DoCast(me->getVictim(), SPELL_DEATH_COIL);
+                        DoCast(me->GetVictim(), SPELL_DEATH_COIL);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
                         break;
@@ -359,7 +359,7 @@ public:
         {
             player->CLOSE_GOSSIP_MENU();
 
-            if (player->isInCombat() || creature->isInCombat())
+            if (player->IsInCombat() || creature->IsInCombat())
                 return true;
 
             if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, creature->AI()))
@@ -386,7 +386,7 @@ public:
             if (player->HealthBelowPct(10))
                 return true;
 
-            if (player->isInCombat() || creature->isInCombat())
+            if (player->IsInCombat() || creature->IsInCombat())
                 return true;
 
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -484,10 +484,10 @@ public:
                         EnterEvadeMode();
                     return;
                 }
-                else if (me->getVictim()->GetTypeId() == TYPEID_PLAYER && me->getVictim()->HealthBelowPct(10))
+                else if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER && me->GetVictim()->HealthBelowPct(10))
                 {
-                    me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
-                    me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
+                    me->GetVictim()->CastSpell(me->GetVictim(), 7267, true); // beg
+                    me->GetVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                     EnterEvadeMode();
                     return;
                 }
@@ -809,7 +809,7 @@ public:
                 {
                     if ((*itr)->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
                     {
-                        if ((*itr)->isInCombat() && (*itr)->getAttackerForHelper())
+                        if ((*itr)->IsInCombat() && (*itr)->getAttackerForHelper())
                         {
                             AttackStart((*itr)->getAttackerForHelper());
                         }
@@ -820,12 +820,12 @@ public:
 
         void UpdateAI(uint32 /*diff*/)
         {
-            if (!me->isInCombat())
+            if (!me->IsInCombat())
             {
                 if (Unit* owner = me->GetOwner())
                 {
                     Player* plrOwner = owner->ToPlayer();
-                    if (plrOwner && plrOwner->isInCombat())
+                    if (plrOwner && plrOwner->IsInCombat())
                     {
                         if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
                             AttackStart(plrOwner->getAttackerForHelper());
@@ -840,14 +840,14 @@ public:
 
             //ScriptedAI::UpdateAI(diff);
             //Check if we have a current target
-            if (me->getVictim()->GetEntry() == NPC_GHOSTS)
+            if (me->GetVictim()->GetEntry() == NPC_GHOSTS)
             {
                 if (me->isAttackReady())
                 {
                     //If we are within range melee the target
-                    if (me->IsWithinMeleeRange(me->getVictim()))
+                    if (me->IsWithinMeleeRange(me->GetVictim()))
                     {
-                        me->AttackerStateUpdate(me->getVictim());
+                        me->AttackerStateUpdate(me->GetVictim());
                         me->resetAttackTimer();
                     }
                 }

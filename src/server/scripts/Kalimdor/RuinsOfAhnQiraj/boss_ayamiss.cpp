@@ -157,7 +157,7 @@ class boss_ayamiss : public CreatureScript
                     SetCombatMovement(true);
                     me->SetCanFly(false);
                     Position VictimPos;
-                    me->getVictim()->GetPosition(&VictimPos);
+                    me->GetVictim()->GetPosition(&VictimPos);
                     me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     DoResetThreat();
                     events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));

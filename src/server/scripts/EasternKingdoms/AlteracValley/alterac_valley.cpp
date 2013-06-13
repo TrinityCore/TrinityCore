@@ -129,11 +129,11 @@ class mob_av_marshal_or_warmaster : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CHARGE_TARGET:
-                            DoCast(me->getVictim(), SPELL_CHARGE);
+                            DoCast(me->GetVictim(), SPELL_CHARGE);
                             events.ScheduleEvent(EVENT_CHARGE, urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
                             break;
                         case EVENT_CLEAVE:
-                            DoCast(me->getVictim(), SPELL_CLEAVE);
+                            DoCast(me->GetVictim(), SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
                             break;
                         case EVENT_DEMORALIZING_SHOUT:

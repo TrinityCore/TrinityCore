@@ -449,7 +449,7 @@ class spell_pri_penance : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
                 {
-                    if (!unitTarget->isAlive())
+                    if (!unitTarget->IsAlive())
                         return;
 
                     uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);

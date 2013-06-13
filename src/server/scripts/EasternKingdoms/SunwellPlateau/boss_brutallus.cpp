@@ -306,14 +306,14 @@ public:
 
             if (SlashTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_METEOR_SLASH);
+                DoCast(me->GetVictim(), SPELL_METEOR_SLASH);
                 SlashTimer = 11000;
             } else SlashTimer -= diff;
 
             if (StompTimer <= diff)
             {
                 Talk(YELL_LOVE);
-                DoCast(me->getVictim(), SPELL_STOMP);
+                DoCast(me->GetVictim(), SPELL_STOMP);
                 StompTimer = 30000;
             } else StompTimer -= diff;
 

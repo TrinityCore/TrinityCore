@@ -134,7 +134,7 @@ public:
                         events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
                         break;
                     case EVENT_AMPLIFY_MAGIC:
-                        DoCast(me->getVictim(), SPELL_CALL_AMPLIFY_MAGIC);
+                        DoCast(me->GetVictim(), SPELL_CALL_AMPLIFY_MAGIC);
                         events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
                         break;
                 }

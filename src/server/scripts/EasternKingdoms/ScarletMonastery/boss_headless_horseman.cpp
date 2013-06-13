@@ -320,7 +320,7 @@ public:
                 DoCast(me, SPELL_HEAD, false);
                 SaySound(SAY_LOST_HEAD);
                 me->GetMotionMaster()->Clear(false);
-                me->GetMotionMaster()->MoveFleeing(caster->getVictim());
+                me->GetMotionMaster()->MoveFleeing(caster->GetVictim());
             }
         }
 
@@ -332,10 +332,10 @@ public:
                 if (wait <= diff)
                 {
                     wait = 1000;
-                    if (!me->getVictim())
+                    if (!me->GetVictim())
                         return;
                     me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveFleeing(me->getVictim());
+                    me->GetMotionMaster()->MoveFleeing(me->GetVictim());
                 }
                 else wait -= diff;
 
@@ -544,9 +544,9 @@ public:
 
             std::list<Player*> temp;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if ((me->IsWithinLOSInMap(i->getSource()) || !checkLoS) && me->getVictim() != i->getSource() &&
-                    me->IsWithinDistInMap(i->getSource(), range) && i->getSource()->isAlive())
-                    temp.push_back(i->getSource());
+                if ((me->IsWithinLOSInMap(i->GetSource()) || !checkLoS) && me->GetVictim() != i->GetSource() &&
+                    me->IsWithinDistInMap(i->GetSource(), range) && i->GetSource()->IsAlive())
+                    temp.push_back(i->GetSource());
 
             if (!temp.empty())
             {
@@ -577,7 +577,7 @@ public:
 
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
-                sLFGMgr->FinishDungeon(players.begin()->getSource()->GetGroup()->GetGUID(), 285);
+                sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 285);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -604,7 +604,7 @@ public:
                 for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 {
                     Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (unit && unit->isAlive() && unit != caster)
+                    if (unit && unit->IsAlive() && unit != caster)
                         me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
                 }
             }
@@ -624,7 +624,7 @@ public:
                     headGUID = DoSpawnCreature(HEAD, float(rand()%6), float(rand()%6), 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0)->GetGUID();
 
                 Unit* Head = Unit::GetUnit(*me, headGUID);
-                if (Head && Head->isAlive())
+                if (Head && Head->IsAlive())
                 {
                     Head->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     //Head->CastSpell(Head, SPELL_HEAD_INVIS, false);
@@ -731,7 +731,7 @@ public:
                     DoMeleeAttackIfReady();
                     if (cleave <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        DoCast(me->GetVictim(), SPELL_CLEAVE);
                         cleave = urand(2000, 6000);       //1 cleave per 2.0f-6.0fsec
                     }
                     else cleave -= diff;
@@ -749,7 +749,7 @@ public:
                         else
                             Phase = 1;
                         Creature* Head = Unit::GetCreature((*me), headGUID);
-                        if (Head && Head->isAlive())
+                        if (Head && Head->IsAlive())
                         {
                             CAST_AI(mob_head::mob_headAI, Head->AI())->Phase = Phase;
                             CAST_AI(mob_head::mob_headAI, Head->AI())->Disappear();
@@ -825,7 +825,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 DoCast(me, SPELL_SPROUT_BODY, true);
                 me->UpdateEntry(PUMPKIN_FIEND);
-                DoStartMovement(me->getVictim());
+                DoStartMovement(me->GetVictim());
             }
         }
 
@@ -850,7 +850,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || !me->IsValidAttackTarget(who) || me->getVictim())
+            if (!who || !me->IsValidAttackTarget(who) || me->GetVictim())
                 return;
 
             me->AddThreat(who, 0.0f);
@@ -906,7 +906,7 @@ void mob_head::mob_headAI::Disappear()
     if (bodyGUID)
     {
         Creature* body = Unit::GetCreature((*me), bodyGUID);
-        if (body && body->isAlive())
+        if (body && body->IsAlive())
         {
             withbody = true;
             me->RemoveAllAuras();

@@ -183,7 +183,7 @@ public:
             if (CheckTimer <= diff)
             {
                 Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
-                if (Shade && Shade->isAlive() && me->isAlive())
+                if (Shade && Shade->IsAlive() && me->IsAlive())
                 {
                     if (me->IsWithinDist(Shade, 20, false))
                     {
@@ -425,7 +425,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!me->isInCombat())
+            if (!me->IsInCombat())
                 return;
 
             if (IsBanished)
@@ -473,7 +473,7 @@ public:
                     if (AkamaGUID)
                     {
                         Creature* Akama = Unit::GetCreature((*me), AkamaGUID);
-                        if (Akama && Akama->isAlive())
+                        if (Akama && Akama->IsAlive())
                         {
                             IsBanished = false;
                             me->GetMotionMaster()->Clear(false);
@@ -498,7 +498,7 @@ public:
                     if (AkamaGUID)
                     {
                         Creature* Akama = Unit::GetCreature((*me), AkamaGUID);
-                        if (Akama && Akama->isAlive())
+                        if (Akama && Akama->IsAlive())
                         {
                             //10 % less health every few seconds.
                             me->DealDamage(Akama, Akama->GetMaxHealth()/10, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -536,7 +536,7 @@ public:
 void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
-    if (Shade && Shade->isAlive())
+    if (Shade && Shade->IsAlive())
         CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount();
     else TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
 }
@@ -544,7 +544,7 @@ void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer
 void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
-    if (Shade && Shade->isAlive())
+    if (Shade && Shade->IsAlive())
         CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount(me->GetGUID());
     else TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
@@ -568,7 +568,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (player->isAlive())
+        if (player->IsAlive())
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(907, creature->GetGUID());
@@ -720,7 +720,7 @@ public:
             BrokenList.clear();
             HasYelledOnce = false;
             Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
-            if (Shade && Shade->isAlive())
+            if (Shade && Shade->IsAlive())
                 CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
             summons.DespawnAll();
         }
@@ -739,7 +739,7 @@ public:
             if (ShadeGUID && !StartCombat)
             {
                 Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
-                if (Shade && Shade->isAlive())
+                if (Shade && Shade->IsAlive())
                 {
                     if (CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IsBanished)
                     {
@@ -772,14 +772,14 @@ public:
                     if (ShadeGUID)
                     {
                         Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
-                        if (Shade && !Shade->isAlive())
+                        if (Shade && !Shade->IsAlive())
                         {
                             ShadeHasDied = true;
                             WayPointId = 0;
                             me->SetWalk(true);
                             me->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z);
                         }
-                        if (Shade && Shade->isAlive())
+                        if (Shade && Shade->IsAlive())
                         {
                             if (Shade->getThreatManager().getThreatList().size() < 2)
                                 Shade->AI()->EnterEvadeMode();
@@ -880,14 +880,14 @@ public:
             if (DestructivePoisonTimer <= diff)
             {
                 Creature* Shade = Unit::GetCreature((*me), ShadeGUID);
-                if (Shade && Shade->isAlive())
+                if (Shade && Shade->IsAlive())
                     DoCast(Shade, SPELL_DESTRUCTIVE_POISON);
                 DestructivePoisonTimer = 15000;
             } else DestructivePoisonTimer -= diff;
 
             if (LightningBoltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_LIGHTNING_BOLT);
+                DoCast(me->GetVictim(), SPELL_LIGHTNING_BOLT);
                 LightningBoltTimer = 10000;
             } else LightningBoltTimer -= diff;
 

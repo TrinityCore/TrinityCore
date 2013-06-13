@@ -110,7 +110,7 @@ public:
 
             if (uiCorrosiveSalivaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CORROSIVE_SALIVA);
+                DoCast(me->GetVictim(), SPELL_CORROSIVE_SALIVA);
                 uiCorrosiveSalivaTimer = 10000;
             } else uiCorrosiveSalivaTimer -= diff;
 

@@ -124,11 +124,11 @@ public:
             // and each mob will send its status at reset (meaning that it is alive)
             checkFeugenAlive = false;
             if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
-                checkFeugenAlive = pFeugen->isAlive();
+                checkFeugenAlive = pFeugen->IsAlive();
 
             checkStalaggAlive = false;
             if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
-                checkStalaggAlive = pStalagg->isAlive();
+                checkStalaggAlive = pStalagg->IsAlive();
 
             if (!checkFeugenAlive && !checkStalaggAlive)
             {
@@ -260,7 +260,7 @@ public:
                         events.ScheduleEvent(EVENT_SHIFT, 30000);
                         return;
                     case EVENT_CHAIN:
-                        DoCast(me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
+                        DoCast(me->GetVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
                         events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                         return;
                     case EVENT_BERSERK:
@@ -269,8 +269,8 @@ public:
                 }
             }
 
-            if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
-                DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
+            if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->GetVictim()))
+                DoCast(me->GetVictim(), SPELL_BALL_LIGHTNING);
             else
                 DoMeleeAttackIfReady();
         }
@@ -340,8 +340,8 @@ public:
             {
                 if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
                 {
-                    Unit* pStalaggVictim = me->getVictim();
-                    Unit* pFeugenVictim = pFeugen->getVictim();
+                    Unit* pStalaggVictim = me->GetVictim();
+                    Unit* pFeugenVictim = pFeugen->GetVictim();
 
                     if (pFeugenVictim && pStalaggVictim)
                     {

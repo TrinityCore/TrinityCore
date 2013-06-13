@@ -97,7 +97,7 @@ class boss_archaedas : public CreatureScript
             {
                 Unit* minion = Unit::GetUnit(*me, uiGuid);
 
-                if (minion && minion->isAlive())
+                if (minion && minion->IsAlive())
                 {
                     DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
                     minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
@@ -185,7 +185,7 @@ class boss_archaedas : public CreatureScript
                 if (uiTremorTimer <= uiDiff)
                 {
                     //Cast
-                    DoCast(me->getVictim(), SPELL_GROUND_TREMOR);
+                    DoCast(me->GetVictim(), SPELL_GROUND_TREMOR);
 
                     //45 seconds until we should cast this agian
                     uiTremorTimer  = 45000;

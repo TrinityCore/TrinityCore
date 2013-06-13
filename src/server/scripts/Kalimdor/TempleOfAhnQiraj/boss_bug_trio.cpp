@@ -98,20 +98,20 @@ public:
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast(me->GetVictim(), SPELL_CLEAVE);
                 Cleave_Timer = urand(5000, 12000);
             } else Cleave_Timer -= diff;
 
             //ToxicVolley_Timer
             if (ToxicVolley_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TOXIC_VOLLEY);
+                DoCast(me->GetVictim(), SPELL_TOXIC_VOLLEY);
                 ToxicVolley_Timer = urand(10000, 15000);
             } else ToxicVolley_Timer -= diff;
 
             if (!HealthAbovePct(5) && !Death)
             {
-                DoCast(me->getVictim(), SPELL_POISON_CLOUD);
+                DoCast(me->GetVictim(), SPELL_POISON_CLOUD);
                 Death = true;
             }
 
@@ -209,9 +209,9 @@ public:
             //KnockBack_Timer
             if (KnockBack_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKBACK);
-                if (DoGetThreat(me->getVictim()))
-                    DoModifyThreatPercent(me->getVictim(), -80);
+                DoCast(me->GetVictim(), SPELL_KNOCKBACK);
+                if (DoGetThreat(me->GetVictim()))
+                    DoModifyThreatPercent(me->GetVictim(), -80);
                 KnockBack_Timer = urand(15000, 25000);
             } else KnockBack_Timer -= diff;
 
@@ -295,7 +295,7 @@ public:
             //Fear_Timer
             if (Fear_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEAR);
+                DoCast(me->GetVictim(), SPELL_FEAR);
                 DoResetThreat();
                 Fear_Timer = 20000;
             } else Fear_Timer -= diff;

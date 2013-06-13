@@ -240,7 +240,7 @@ public:
         void CalculateStaminaAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = CalculatePct(owner->GetStat(STAT_STAMINA), 75);
@@ -284,7 +284,7 @@ public:
         void RemoveEffect(AuraEffect const* /* aurEff */, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                 {
                     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
                     pet->ToPet()->SetCreateHealth(pInfo->health);
@@ -294,7 +294,7 @@ public:
         void CalculateAttackPowerAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
 
                 if (Unit* owner = pet->ToPet()->GetOwner())
                 {
@@ -322,7 +322,7 @@ public:
         void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         //the damage bonus used for pets is either fire or shadow damage, whatever is higher
@@ -377,7 +377,7 @@ public:
         void CalculateIntellectAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
@@ -420,7 +420,7 @@ public:
         void RemoveEffect(AuraEffect const* /* aurEff */, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                 {
                     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
                     pet->ToPet()->SetCreateMana(pInfo->mana);
@@ -430,7 +430,7 @@ public:
         void CalculateArmorAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
@@ -442,7 +442,7 @@ public:
         void CalculateFireResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
@@ -489,7 +489,7 @@ public:
         void CalculateFrostResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
@@ -501,7 +501,7 @@ public:
         void CalculateArcaneResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
@@ -513,7 +513,7 @@ public:
         void CalculateNatureResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
@@ -556,7 +556,7 @@ public:
         void CalculateShadowResistanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
@@ -795,7 +795,7 @@ public:
         void CalculateAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                         if (AuraEffect* /* aurEff */ect = owner->GetAuraEffect(SPELL_WARLOCK_GLYPH_OF_VOIDWALKER, EFFECT_0))
                             amount += /* aurEff */ect->GetAmount();
@@ -885,7 +885,7 @@ public:
         void CalculateStaminaAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (pet->isPet())
+                if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float mod = 0.45f;
@@ -924,7 +924,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -954,7 +954,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -1019,7 +1019,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -1038,7 +1038,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -1057,7 +1057,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -1106,7 +1106,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -1125,7 +1125,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -1144,7 +1144,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isPet())
+                if (!pet->IsPet())
                     return;
 
                 Unit* owner = pet->ToPet()->GetOwner();
@@ -1472,7 +1472,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (pet->isGuardian())
+                if (pet->IsGuardian())
                 {
                     if (Unit* owner = pet->GetOwner())
                     {
@@ -1511,7 +1511,7 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isGuardian())
+                if (!pet->IsGuardian())
                     return;
 
                 Unit* owner = pet->GetOwner();
@@ -1685,7 +1685,7 @@ public:
                 if (!owner)
                     return;
 
-                if (pet->isGuardian())
+                if (pet->IsGuardian())
                     ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
 
                 amount += owner->CalculateDamage(BASE_ATTACK, true, true);

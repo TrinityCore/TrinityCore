@@ -244,7 +244,7 @@ class boss_alizabal : public CreatureScript
                             me->RemoveAura(SPELL_BLADE_DANCE_DUMMY);
                             me->SetSpeed(MOVE_WALK, 1.0f);
                             me->SetSpeed(MOVE_RUN, 1.14f);
-                            me->GetMotionMaster()->MoveChase(me->getVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetVictim());
                             Hate = false;
                             Skewer = false;
                             break;

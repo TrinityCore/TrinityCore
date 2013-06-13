@@ -151,8 +151,8 @@ public:
                     //and correct movement, if not already
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
                     {
-                        if (me->getVictim())
-                            me->GetMotionMaster()->MoveChase(me->getVictim());
+                        if (me->GetVictim())
+                            me->GetMotionMaster()->MoveChase(me->GetVictim());
                     }
                 }
             }
@@ -197,10 +197,10 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
-                    if (target && me->IsWithinMeleeRange(me->getVictim()))
+                    if (target && me->IsWithinMeleeRange(me->GetVictim()))
                         DoCast(target, SPELL_HURTFUL_STRIKE);
                     else
-                        DoCast(me->getVictim(), SPELL_HURTFUL_STRIKE);
+                        DoCast(me->GetVictim(), SPELL_HURTFUL_STRIKE);
 
                     m_uiHurtfulStrike_Timer= 8000;
                 }
@@ -210,7 +210,7 @@ public:
                 // Reverberation
                 if (m_uiReverberation_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_REVERBERATION, true);
+                    DoCast(me->GetVictim(), SPELL_REVERBERATION, true);
                     m_uiReverberation_Timer = urand(15000, 25000);
                 }
                 else
