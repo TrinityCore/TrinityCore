@@ -36,7 +36,7 @@
 #include "BattlegroundRV.h"
 #include "BattlegroundIC.h"
 #include "BattlegroundTP.h"
-#include "BattlegroundBFG.h"
+#include "BattlegroundBG.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -456,20 +456,20 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         buff << uint32(((BattlegroundSAScore*)itr->second)->demolishers_destroyed);
                         buff << uint32(((BattlegroundSAScore*)itr->second)->gates_destroyed);
                         break;
-                    case 628:                                   // IC
+                    case 628:
                         data->WriteBits(0x00000002, 24);
                         buff << uint32(((BattlegroundICScore*)itr->second)->BasesAssaulted);       // bases assaulted
                         buff << uint32(((BattlegroundICScore*)itr->second)->BasesDefended);        // bases defended
                         break;
                     case 726:
                         data->WriteBits(0x00000002, 24);
-                        buff << uint32(((BattlegroundTPScore*)itr->second)->FlagCaptures);         // flag captures
-                        buff << uint32(((BattlegroundTPScore*)itr->second)->FlagReturns);          // flag returns
+                        buff << uint32(((BattlegroundWGScore*)itr->second)->FlagCaptures);        // flag captures
+                        buff << uint32(((BattlegroundWGScore*)itr->second)->FlagReturns);         // flag returns
                         break;
                     case 761:
                         data->WriteBits(0x00000002, 24);
-                        buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesAssaulted);      // bases assaulted
-                        buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesDefended);       // bases defended
+                        buff << uint32(((BattlegroundBGScore*)itr->second)->BasesAssaulted);      // bases assaulted
+                        buff << uint32(((BattlegroundBGScore*)itr->second)->BasesDefended);       // bases defended
                         break;
                     default:
                         data->WriteBits(0, 24);
@@ -513,10 +513,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 buff << uint32(((BattlegroundTPScore*)itr->second)->FlagCaptures);         // flag captures
                 buff << uint32(((BattlegroundTPScore*)itr->second)->FlagReturns);          // flag returns
                 break;
-            case BATTLEGROUND_BFG:
+            case BATTLEGROUND_BG:
                 data->WriteBits(0x00000002, 24);
-                buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesAssaulted);      // bases assaulted
-                buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesDefended);       // bases defended
+                buff << uint32(((BattlegroundWGScore*)itr->second)->FlagCaptures);        // flag captures
+                buff << uint32(((BattlegroundWGScore*)itr->second)->FlagReturns);         // flag returns
                 break;
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -870,8 +870,8 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_TP:
             bg = new BattlegroundTP(*(BattlegroundTP*)bg_template);
             break;
-        case BATTLEGROUND_BFG:
-            bg = new BattlegroundBFG(*(BattlegroundBFG*)bg_template);
+        case BATTLEGROUND_BG:
+            bg = new BattlegroundBG(*(BattlegroundBG*)bg_template);
             break;
         case BATTLEGROUND_RB:
         case BATTLEGROUND_AA:
@@ -967,8 +967,8 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_TP:
             bg = new BattlegroundTP;
             break;
-        case BATTLEGROUND_BFG:
-            bg = new BattlegroundBFG;
+        case BATTLEGROUND_BG:
+            bg = new BattlegroundBG;
             break;
         default:
             return false;
@@ -1234,8 +1234,8 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_TP:
             return BATTLEGROUND_QUEUE_TP;
-        case BATTLEGROUND_BFG:
-            return BATTLEGROUND_QUEUE_BFG;
+        case BATTLEGROUND_BG:
+            return BATTLEGROUND_QUEUE_BG;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
         case BATTLEGROUND_SA:
@@ -1282,8 +1282,8 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_IC;
         case BATTLEGROUND_QUEUE_TP:
             return BATTLEGROUND_TP;
-        case BATTLEGROUND_QUEUE_BFG:
-            return BATTLEGROUND_BFG;
+        case BATTLEGROUND_QUEUE_BG:
+            return BATTLEGROUND_BG;
         case BATTLEGROUND_QUEUE_RB:
             return BATTLEGROUND_RB;
         case BATTLEGROUND_QUEUE_2v2:
@@ -1409,7 +1409,7 @@ HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId
         case BATTLEGROUND_AB: return HOLIDAY_CALL_TO_ARMS_AB;
         case BATTLEGROUND_IC: return HOLIDAY_CALL_TO_ARMS_IC;
         case BATTLEGROUND_TP: return HOLIDAY_CALL_TO_ARMS_TP;
-        case BATTLEGROUND_BFG: return HOLIDAY_CALL_TO_ARMS_BFG;
+        case BATTLEGROUND_BG: return HOLIDAY_CALL_TO_ARMS_BG;
         default: return HOLIDAY_NONE;
     }
 }
@@ -1425,7 +1425,7 @@ BattlegroundTypeId BattlegroundMgr::WeekendHolidayIdToBGType(HolidayIds holiday)
         case HOLIDAY_CALL_TO_ARMS_AB: return BATTLEGROUND_AB;
         case HOLIDAY_CALL_TO_ARMS_IC: return BATTLEGROUND_IC;
         case HOLIDAY_CALL_TO_ARMS_TP: return BATTLEGROUND_TP;
-        case HOLIDAY_CALL_TO_ARMS_BFG: return BATTLEGROUND_BFG;
+        case HOLIDAY_CALL_TO_ARMS_BG: return BATTLEGROUND_BG;
         default: return BATTLEGROUND_TYPE_NONE;
     }
 }

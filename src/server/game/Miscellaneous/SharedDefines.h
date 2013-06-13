@@ -3045,7 +3045,7 @@ enum HolidayIds
     HOLIDAY_CALL_TO_ARMS_IC          = 420,
     HOLIDAY_LOVE_IS_IN_THE_AIR       = 423,
     HOLIDAY_KALU_AK_FISHING_DERBY    = 424,
-    HOLIDAY_CALL_TO_ARMS_BFG         = 435,
+    HOLIDAY_CALL_TO_ARMS_BG         = 435,
     HOLIDAY_CALL_TO_ARMS_TP          = 436,
     HOLIDAY_RATED_BG_15_VS_15        = 442,
     HOLIDAY_RATED_BG_25_VS_25        = 443,
@@ -3769,7 +3769,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_RATED_15_VS_15 = 101, // Rated BG 15 vs 15
     BATTLEGROUND_RATED_25_VS_25 = 102, // Rated BG 25 vs 25
     BATTLEGROUND_TP             = 108, // Twin Peaks
-    BATTLEGROUND_BFG            = 120, // Battle For Gilneas
+    BATTLEGROUND_BG            = 120, // Battle For Gilneas
     // 441 = "Icecrown Citadel"
     // 443 = "The Ruby Sanctum"
     // 656 = "Rated Eye of the Storm"
@@ -3921,7 +3921,7 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_SA       = 5,
     BATTLEGROUND_QUEUE_IC       = 6,
     BATTLEGROUND_QUEUE_TP       = 7,
-    BATTLEGROUND_QUEUE_BFG      = 8,
+    BATTLEGROUND_QUEUE_BG      = 8,
     BATTLEGROUND_QUEUE_RB       = 9,
     BATTLEGROUND_QUEUE_2v2      = 10,
     BATTLEGROUND_QUEUE_3v3      = 11,

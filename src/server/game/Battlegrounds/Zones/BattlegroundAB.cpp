@@ -28,6 +28,18 @@
 #include "Util.h"
 #include "WorldSession.h"
 
+uint32 BG_AB_HonorScoreTicks[BG_HONOR_MODE_NUM] =
+{
+    330, // normal honor
+    200  // holiday
+};
+
+uint32 BG_AB_Reputation[BG_HONOR_MODE_NUM][BG_AB_REWARD_NUM] =
+{
+    200, // normal honor
+    150  // holiday
+};
+
 BattlegroundAB::BattlegroundAB()
 {
     m_IsInformedNearVictory = false;
