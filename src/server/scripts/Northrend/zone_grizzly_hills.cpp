@@ -809,7 +809,7 @@ class npc_lake_frog : public CreatureScript
             }
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 /*action*/)
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/)
         {
             DoCast(player, SPELL_SUMMON_ASHWOOD_BRAND);
         }
