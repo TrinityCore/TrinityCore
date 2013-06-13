@@ -797,7 +797,7 @@ public:
     static bool HandleDebugThreatListCommand(ChatHandler* handler, char const* /*args*/)
     {
         Creature* target = handler->getSelectedCreature();
-        if (!target || target->isTotem() || target->isPet())
+        if (!target || target->IsTotem() || target->IsPet())
             return false;
 
         ThreatContainer::StorageType const &threatList = target->getThreatManager().getThreatList();
@@ -826,7 +826,7 @@ public:
         handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName().c_str(), target->GetGUIDLow());
         while (ref)
         {
-            if (Unit* unit = ref->getSource()->getOwner())
+            if (Unit* unit = ref->GetSource()->GetOwner())
             {
                 ++count;
                 handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUIDLow(), ref->getThreat());

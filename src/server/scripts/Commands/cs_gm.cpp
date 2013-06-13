@@ -131,7 +131,7 @@ public:
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itrSec = itr->second->GetSession()->GetSecurity();
-            if ((itr->second->isGameMaster() ||
+            if ((itr->second->IsGameMaster() ||
                 (itr->second->GetSession()->HasPermission(RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST) &&
                  itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
                 (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
@@ -241,7 +241,7 @@ public:
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->isGameMaster())
+            if (handler->GetSession()->GetPlayer()->IsGameMaster())
                 handler->GetSession()->SendNotification(LANG_GM_ON);
             else
                 handler->GetSession()->SendNotification(LANG_GM_OFF);

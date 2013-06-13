@@ -257,7 +257,7 @@ class boss_kologarn : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_MELEE_CHECK:
-                            if (!me->IsWithinMeleeRange(me->getVictim()))
+                            if (!me->IsWithinMeleeRange(me->GetVictim()))
                                 DoCast(SPELL_PETRIFY_BREATH);
                             events.ScheduleEvent(EVENT_MELEE_CHECK, 1 * IN_MILLISECONDS);
                             break;
@@ -397,7 +397,7 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
             void FilterTargetsInitial(std::list<WorldObject*>& unitList)
             {
                 // Remove "main tank" and non-player targets
-                unitList.remove_if(StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->getVictim()));
+                unitList.remove_if(StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
                 // Maximum affected targets per difficulty mode
                 uint32 maxTargets = 1;
                 if (GetSpellInfo()->Id == 63981)

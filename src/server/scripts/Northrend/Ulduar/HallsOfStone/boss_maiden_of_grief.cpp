@@ -126,7 +126,7 @@ public:
 
             if (StormOfGriefTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
+                DoCast(me->GetVictim(), SPELL_STORM_OF_GRIEF_N, true);
                 StormOfGriefTimer = urand(15000, 20000);
             } else StormOfGriefTimer -= diff;
 
@@ -145,7 +145,7 @@ public:
                 if (target)
                     DoCast(target, SPELL_PILLAR_OF_WOE_N);
                 else
-                    DoCast(me->getVictim(), SPELL_PILLAR_OF_WOE_N);
+                    DoCast(me->GetVictim(), SPELL_PILLAR_OF_WOE_N);
 
                 PillarOfWoeTimer = urand(5000, 25000);
             } else PillarOfWoeTimer -= diff;

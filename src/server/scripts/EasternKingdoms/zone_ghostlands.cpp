@@ -54,15 +54,16 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (creature->isVendor() && player->GetQuestRewardStatus(9152))
+        if (creature->IsVendor() && player->GetQuestRewardStatus(9152))
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
             player->SEND_GOSSIP_MENU(8432, creature->GetGUID());
-        }else
-        player->SEND_GOSSIP_MENU(8431, creature->GetGUID());
+        }
+        else
+            player->SEND_GOSSIP_MENU(8431, creature->GetGUID());
 
         return true;
     }

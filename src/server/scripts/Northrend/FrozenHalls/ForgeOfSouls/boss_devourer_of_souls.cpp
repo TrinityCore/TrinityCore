@@ -338,7 +338,7 @@ class boss_devourer_of_souls : public CreatureScript
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->SetDisplayId(DISPLAY_ANGER);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                                me->GetMotionMaster()->MoveChase(me->getVictim());
+                                me->GetMotionMaster()->MoveChase(me->GetVictim());
                                 events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
                             }
                             break;

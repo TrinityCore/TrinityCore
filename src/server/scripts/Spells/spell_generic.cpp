@@ -3520,7 +3520,7 @@ class spell_gen_two_forms : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (GetCaster()->isInCombat())
+                if (GetCaster()->IsInCombat())
                 {
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_TRANSFORM);
                     return SPELL_FAILED_CUSTOM_ERROR;

@@ -64,15 +64,15 @@ public:
                 switch (fm_Type)
                 {
                     case 1:
-                        instance->SetData(EVENT_FORGE_1, me->isAlive() ? NOT_STARTED : DONE);
+                        instance->SetData(EVENT_FORGE_1, me->IsAlive() ? NOT_STARTED : DONE);
                         break;
 
                     case 2:
-                        instance->SetData(EVENT_FORGE_2, me->isAlive() ? NOT_STARTED : DONE);
+                        instance->SetData(EVENT_FORGE_2, me->IsAlive() ? NOT_STARTED : DONE);
                         break;
 
                     case 3:
-                        instance->SetData(EVENT_FORGE_3, me->isAlive() ? NOT_STARTED : DONE);
+                        instance->SetData(EVENT_FORGE_3, me->IsAlive() ? NOT_STARTED : DONE);
                         break;
                 }
             }

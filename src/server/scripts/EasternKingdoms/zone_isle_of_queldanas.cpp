@@ -80,7 +80,7 @@ public:
                     Talk(SAY_CONVERTED);
 
                     DoCast(me, SPELL_CONVERT_CREDIT);
-                    if (me->isPet())
+                    if (me->IsPet())
                         me->ToPet()->SetDuration(7500);
                     Credit = true;
                 } else Timer -= diff;

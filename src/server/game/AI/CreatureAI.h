@@ -160,7 +160,7 @@ class CreatureAI : public UnitAI
         virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}
 
         // Called when victim entered water and creature can not enter water
-        //virtual bool canReachByRangeAttack(Unit*) { return false; }
+        //virtual bool CanReachByRangeAttack(Unit*) { return false; }
 
         /// == Fields =======================================
 

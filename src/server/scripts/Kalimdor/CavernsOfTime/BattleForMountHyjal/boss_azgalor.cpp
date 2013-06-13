@@ -99,7 +99,7 @@ public:
             if (waypointId == 7 && instance)
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
-                if (target && target->isAlive())
+                if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
@@ -161,7 +161,7 @@ public:
 
             if (CleaveTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast(me->GetVictim(), SPELL_CLEAVE);
                 CleaveTimer = 10000+rand()%5000;
             } else CleaveTimer -= diff;
 
@@ -226,7 +226,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsValidAttackTarget(who))
+            if (me->IsWithinDist(who, 50) && !me->IsInCombat() && me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 

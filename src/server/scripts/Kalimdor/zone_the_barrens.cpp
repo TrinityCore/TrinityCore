@@ -194,7 +194,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
@@ -380,7 +380,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || !who->isAlive() || EventInProgress)
+            if (!who || !who->IsAlive() || EventInProgress)
                 return;
 
             if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
@@ -405,7 +405,7 @@ public:
                 if (!pWarrior)
                     return;
 
-                if (!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
+                if (!pWarrior->IsAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
                     Talk(SAY_TWIGGY_FLATHEAD_DOWN);
                     pWarrior->FailQuest(1719);
 
@@ -414,7 +414,7 @@ public:
                         if (AffrayChallenger[i])
                         {
                             Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
-                            if (creature && creature->isAlive())
+                            if (creature && creature->IsAlive())
                                 creature->DisappearAndDie();
                         }
                     }
@@ -422,7 +422,7 @@ public:
                     if (BigWill) // unsummon bigWill
                     {
                         Creature* creature = Unit::GetCreature((*me), BigWill);
-                        if (creature && creature->isAlive())
+                        if (creature && creature->IsAlive())
                             creature->DisappearAndDie();
                     }
                     Reset();
@@ -462,7 +462,7 @@ public:
                             if (AffrayChallenger[i])
                             {
                                 Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
-                                if ((!creature || (!creature->isAlive())) && !ChallengerDown[i])
+                                if ((!creature || (!creature->IsAlive())) && !ChallengerDown[i])
                                 {
                                     Talk(SAY_TWIGGY_FLATHEAD_DOWN);
                                     ChallengerDown[i] = true;
@@ -478,7 +478,7 @@ public:
                         {
                             Talk(SAY_TWIGGY_FLATHEAD_FRAY);
                             Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
-                            if (creature && (creature->isAlive()))
+                            if (creature && (creature->IsAlive()))
                             {
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -504,7 +504,7 @@ public:
                         else if (Wave >= 6 && EventBigWill && BigWill)
                         {
                             Creature* creature = Unit::GetCreature((*me), BigWill);
-                            if (!creature || !creature->isAlive())
+                            if (!creature || !creature->IsAlive())
                             {
                                 Talk(SAY_TWIGGY_FLATHEAD_OVER);
                                 Reset();

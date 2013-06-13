@@ -496,7 +496,7 @@ class spell_mage_focus_magic : public SpellScriptLoader
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
                 _procTarget = GetCaster();
-                return _procTarget && _procTarget->isAlive();
+                return _procTarget && _procTarget->IsAlive();
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)

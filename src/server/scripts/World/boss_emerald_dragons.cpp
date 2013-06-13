@@ -593,7 +593,7 @@ class boss_taerar : public CreatureScript
 
                     uint32 count = sizeof(TaerarShadeSpells) / sizeof(uint32);
                     for (uint32 i = 0; i < count; ++i)
-                        DoCast(me->getVictim(), TaerarShadeSpells[i], true);
+                        DoCast(me->GetVictim(), TaerarShadeSpells[i], true);
                     _shades += count;
 
                     DoCast(SPELL_SHADE);
@@ -624,7 +624,7 @@ class boss_taerar : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat())
+                if (!me->IsInCombat())
                     return;
 
                 if (_banished)

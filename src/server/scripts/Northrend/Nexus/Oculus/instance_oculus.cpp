@@ -131,7 +131,7 @@ public:
                         creature->SetPhaseMask(1, true);
                     break;
                 case NPC_CENTRIFUGE_CONSTRUCT:
-                    if (creature->isAlive())
+                    if (creature->IsAlive())
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, ++centrifugueConstructCounter);
                     break;
                 case NPC_BELGARISTRASZ:

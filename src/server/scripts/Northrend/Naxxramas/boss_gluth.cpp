@@ -105,7 +105,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WOUND:
-                        DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
+                        DoCast(me->GetVictim(), SPELL_MORTAL_WOUND);
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
@@ -130,11 +130,11 @@ public:
                 }
             }
 
-            if (me->getVictim() && me->getVictim()->GetEntry() == MOB_ZOMBIE)
+            if (me->GetVictim() && me->GetVictim()->GetEntry() == MOB_ZOMBIE)
             {
-                if (me->IsWithinMeleeRange(me->getVictim()))
+                if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
-                    me->Kill(me->getVictim());
+                    me->Kill(me->GetVictim());
                     me->ModifyHealth(int32(me->CountPctFromMaxHealth(5)));
                 }
             }

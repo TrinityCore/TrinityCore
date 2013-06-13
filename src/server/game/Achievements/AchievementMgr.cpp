@@ -465,7 +465,7 @@ void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes type, 
     TC_LOG_DEBUG(LOG_FILTER_ACHIEVEMENTSYS, "ResetAchievementCriteria(%u, " UI64FMTD ", " UI64FMTD ")", type, miscValue1, miscValue2);
 
     // disable for gamemasters with GM-mode enabled
-    if (GetOwner()->isGameMaster())
+    if (GetOwner()->IsGameMaster())
         return;
 
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
@@ -1099,7 +1099,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
     }
 
     // disable for gamemasters with GM-mode enabled
-    if (referencePlayer->isGameMaster())
+    if (referencePlayer->IsGameMaster())
     {
         TC_LOG_DEBUG(LOG_FILTER_ACHIEVEMENTSYS, "UpdateAchievementCriteria: [Player %s GM mode on] %s, %s (%u), " UI64FMTD ", " UI64FMTD ", " UI64FMTD
             , referencePlayer->GetName().c_str(), GetLogNameForGuid(GetOwner()->GetGUID()), AchievementGlobalMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2, miscValue3);
@@ -1855,7 +1855,7 @@ template<>
 void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
 {
     // disable for gamemasters with GM-mode enabled
-    if (GetOwner()->isGameMaster())
+    if (GetOwner()->IsGameMaster())
         return;
 
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
@@ -1961,7 +1961,7 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
 
         if (Group const* group = referencePlayer->GetGroup())
             for (GroupReference const* ref = group->GetFirstMember(); ref != NULL; ref = ref->next())
-                if (Player const* groupMember = ref->getSource())
+                if (Player const* groupMember = ref->GetSource())
                     if (groupMember->GetGuildId() == GetOwner()->GetId())
                         ca.guids.insert(groupMember->GetGUID());
     }
@@ -2723,7 +2723,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_DEAD: // 6
-                if (!unit || unit->isAlive())
+                if (!unit || unit->IsAlive())
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_ENEMY: // 7

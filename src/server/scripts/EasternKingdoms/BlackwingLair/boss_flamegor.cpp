@@ -83,7 +83,7 @@ public:
             //WingBuffet_Timer
             if (WingBuffet_Timer <= diff)
             {
-                if (Unit* target = me->getVictim())
+                if (Unit* target = me->GetVictim())
                 {
                     DoCast(target, SPELL_WINGBUFFET);
                     if (DoGetThreat(target))

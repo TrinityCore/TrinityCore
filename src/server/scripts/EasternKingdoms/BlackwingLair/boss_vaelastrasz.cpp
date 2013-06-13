@@ -74,7 +74,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -205,14 +205,14 @@ public:
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast(me->GetVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 15000;
             } else Cleave_Timer -= diff;
 
             //FlameBreath_Timer
             if (FlameBreath_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FLAMEBREATH);
+                DoCast(me->GetVictim(), SPELL_FLAMEBREATH);
                 FlameBreath_Timer = urand(4000, 8000);
             } else FlameBreath_Timer -= diff;
 
@@ -240,7 +240,7 @@ public:
             {
                 // have the victim cast the spell on himself otherwise the third effect aura will be applied
                 // to Vael instead of the player
-                me->getVictim()->CastSpell(me->getVictim(), SPELL_BURNINGADRENALINE, 1);
+                me->GetVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, 1);
 
                 BurningAdrenalineTank_Timer = 45000;
             } else BurningAdrenalineTank_Timer -= diff;
@@ -248,7 +248,7 @@ public:
             //FireNova_Timer
             if (FireNova_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIRENOVA);
+                DoCast(me->GetVictim(), SPELL_FIRENOVA);
                 FireNova_Timer = 5000;
             } else FireNova_Timer -= diff;
 
@@ -256,9 +256,9 @@ public:
             if (TailSwipe_Timer <= diff)
             {
                 //Only cast if we are behind
-                /*if (!me->HasInArc(M_PI, me->getVictim()))
+                /*if (!me->HasInArc(M_PI, me->GetVictim()))
                 {
-                DoCast(me->getVictim(), SPELL_TAILSWIPE);
+                DoCast(me->GetVictim(), SPELL_TAILSWIPE);
                 }*/
 
                 TailSwipe_Timer = 20000;

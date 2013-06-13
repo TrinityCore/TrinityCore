@@ -337,7 +337,7 @@ class boss_professor_putricide : public CreatureScript
                         break;
                 }
 
-                if (me->isInCombat())
+                if (me->IsInCombat())
                     DoZoneInCombat(summon);
             }
 
@@ -624,7 +624,7 @@ class boss_professor_putricide : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             me->SetReactState(REACT_DEFENSIVE);
-                            AttackStart(me->getVictim());
+                            AttackStart(me->GetVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
                             instance->DoRemoveAurasDueToSpellOnPlayers(71615);
@@ -1312,7 +1312,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 if (!professor)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                if (professor->AI()->GetData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->isAlive())
+                if (professor->AI()->GetData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->IsAlive())
                 {
                     extendedError = SPELL_CUSTOM_ERROR_ALL_POTIONS_USED;
                     return SPELL_FAILED_CUSTOM_ERROR;

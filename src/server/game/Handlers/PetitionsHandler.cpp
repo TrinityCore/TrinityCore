@@ -98,7 +98,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     uint32 charterid = 0;
     uint32 cost = 0;
     uint32 type = 0;
-    if (creature->isTabardDesigner())
+    if (creature->IsTabardDesigner())
     {
         // if tabard designer, then trying to buy a guild charter.
         // do not let if already in guild.
@@ -937,7 +937,7 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     WorldPacket data(SMSG_PETITION_SHOWLIST, 8+1+4*6);
     data << guid;                                           // npc guid
 
-    if (creature->isTabardDesigner())
+    if (creature->IsTabardDesigner())
     {
         data << uint8(1);                                   // count
         data << uint32(1);                                  // index

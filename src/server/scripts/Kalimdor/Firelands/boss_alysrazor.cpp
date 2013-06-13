@@ -149,7 +149,7 @@ class TrashRespawnWorker
                 case NPC_EGG_PILE:
                 case NPC_HARBINGER_OF_FLAME:
                 case NPC_MOLTEN_EGG_TRASH:
-                    if (!creature->isAlive())
+                    if (!creature->IsAlive())
                         creature->Respawn(true);
                     break;
                 case NPC_SMOULDERING_HATCHLING:
@@ -195,10 +195,10 @@ class npc_harbinger_of_flame : public CreatureScript
 
             void MoveInLineOfSight(Unit* unit)
             {
-                if (me->isInCombat())
+                if (me->IsInCombat())
                     return;
 
-                if (!unit->isCharmedOwnedByPlayerOrPlayer())
+                if (!unit->IsCharmedOwnedByPlayerOrPlayer())
                     return;
 
                 ScriptedAI::MoveInLineOfSight(unit);
@@ -206,7 +206,7 @@ class npc_harbinger_of_flame : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat())
+                if (!me->IsInCombat())
                     if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                         if (Creature* fireBird = me->FindNearestCreature((me->GetHomePosition().GetPositionY() > -275.0f ? NPC_BLAZING_MONSTROSITY_LEFT : NPC_BLAZING_MONSTROSITY_RIGHT), 100.0f))
                             DoCast(fireBird, SPELL_FIRE_CHANNELING);
