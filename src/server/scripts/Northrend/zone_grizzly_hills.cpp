@@ -800,7 +800,7 @@ class npc_lake_frog : public CreatureScript
                     }
                     else if (me->GetEntry() == NPC_LAKE_FROG_QUEST)
                     {
-                        me->SetWalk(false);
+                        me->GetMotionMaster()->MoveIdle();
                         me->SetFacingToObject(player);
                         uiRunningScript=true;
                         uiScriptTimer = 2000;
