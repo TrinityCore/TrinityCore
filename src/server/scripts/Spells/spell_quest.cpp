@@ -1602,6 +1602,44 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
         }
 };
 
+enum QuenchingMist
+{
+    SPELL_FLICKERING_FLAMES = 53504
+};
+
+class spell_q12730_quenching_mist : public SpellScriptLoader
+{
+    public:
+        spell_q12730_quenching_mist() : SpellScriptLoader("spell_q12730_quenching_mist") { }
+
+        class spell_q12730_quenching_mist_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q12730_quenching_mist_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FLICKERING_FLAMES))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_FLICKERING_FLAMES);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12730_quenching_mist_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_q12730_quenching_mist_AuraScript();
+        }
+};
+
 // 13291 - Borrowed Technology/13292 - The Solution Solution /Daily//13239 - Volatility/13261 - Volatiliy /Daily//
 enum Quest13291_13292_13239_13261Data
 {
@@ -1751,6 +1789,7 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_q11008_check_fly_mount();
     new spell_q12372_azure_on_death_force_whisper();
     new spell_q12527_zuldrak_rat();
+    new spell_q12730_quenching_mist();
     new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy();
     new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon();
     new spell_q12847_summon_soul_moveto_bunny();
