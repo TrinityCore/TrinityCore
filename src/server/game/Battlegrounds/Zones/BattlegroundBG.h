@@ -29,17 +29,17 @@ enum BG_BG_Rewards
 
 enum BG_BG_WorldStates
 {
-    BG_BG_OP_OCCUPIED_BASES_HORDE       = 1778,
-    BG_BG_OP_OCCUPIED_BASES_ALLY        = 1779,
-    BG_BG_OP_RESOURCES_ALLY             = 1776,
-    BG_BG_OP_RESOURCES_HORDE            = 1777,
-    BG_BG_OP_RESOURCES_MAX              = 1780,
-    BG_BG_OP_RESOURCES_WARNING          = 1955
+    BG_BG_OP_OCCUPIED_BASES_HORDE        = 1778,
+    BG_BG_OP_OCCUPIED_BASES_ALLY         = 1779,
+    BG_BG_OP_RESOURCES_ALLY              = 1776,
+    BG_BG_OP_RESOURCES_HORDE             = 1777,
+    BG_BG_OP_RESOURCES_MAX               = 1780,
+    BG_BG_OP_RESOURCES_WARNING           = 1955
 };
 
-const uint32 BG_BG_OP_NODESTATES[3] = {1787, 1782, 1772};
+const uint32 BG_BG_OP_NODESTATES[3] =    {1787, 1782, 1772};
 
-const uint32 BG_BG_OP_NODEICONS[3]  = {1843, 1846, 1845};
+const uint32 BG_BG_OP_NODEICONS[3]  =    {1843, 1846, 1845};
 
 enum BG_BG_NodeObjectId
 {
@@ -77,28 +77,28 @@ enum BG_BG_ObjectType
 /* Object id templates from DB */
 enum BG_BG_ObjectTypes
 {
-    BG_BG_OBJECTID_BANNER_A       = 208673,
-    BG_BG_OBJECTID_BANNER_CONT_A  = 208763,
-    BG_BG_OBJECTID_BANNER_H       = 208748,
-    BG_BG_OBJECTID_BANNER_CONT_H  = 208733,
+    BG_BG_OBJECTID_BANNER_A              = 208673,
+    BG_BG_OBJECTID_BANNER_CONT_A         = 208763,
+    BG_BG_OBJECTID_BANNER_H              = 208748,
+    BG_BG_OBJECTID_BANNER_CONT_H         = 208733,
 
-    BG_BG_OBJECTID_AURA_A         = 180100,
-    BG_BG_OBJECTID_AURA_H         = 180101,
-    BG_BG_OBJECTID_AURA_C         = 180102,
+    BG_BG_OBJECTID_AURA_A                = 180100,
+    BG_BG_OBJECTID_AURA_H                = 180101,
+    BG_BG_OBJECTID_AURA_C                = 180102,
 
-    BG_BG_OBJECTID_GATE_A         = 207177,
-    BG_BG_OBJECTID_GATE_H         = 207178
+    BG_BG_OBJECTID_GATE_A                = 207177,
+    BG_BG_OBJECTID_GATE_H                = 207178
 };
 
 enum BG_BG_Timers
 {
-    BG_BG_FLAG_CAPTURING_TIME           = 60000
+    BG_BG_FLAG_CAPTURING_TIME            = 60000
 };
 
 enum BG_BG_Score
 {
-    BG_BG_WARNING_NEAR_VICTORY_SCORE    = 1800,
-    BG_BG_MAX_TEAM_SCORE                = 2000
+    BG_BG_WARNING_NEAR_VICTORY_SCORE     = 1800,
+    BG_BG_MAX_TEAM_SCORE                 = 2000
 };
 
 /* Do not change below, or this thing will go boom! */
@@ -155,7 +155,7 @@ const float BG_BG_NodePositions[BG_BG_DYNAMIC_NODES_COUNT][4] =
 {
     {1057.856934f, 1278.269165f, 2.91f, 1.903034f},   // Lighthouse
     {980.1835f, 947.8692f, 13.998f, 5.9015f},         // Waterwork
-    {1251.010f, 958.3939f, 5.680f, 2.7698f}           // mine
+    {1251.010f, 958.3939f, 5.680f, 2.7698f}           // Mine
 };
 
 // x, y, z, o, rot0, rot1, rot2, rot3
@@ -170,7 +170,7 @@ const uint32 BG_BG_TickIntervals[4] = {0, 12000, 6000, 1000};
 const uint32 BG_BG_TickPoints[4] = {0, 10, 10, 30};
 
 // WorldSafeLocs ids for 3 nodes, and for ally, and horde starting location
-const uint32 BG_BG_GraveyardIds[BG_BG_ALL_NODES_COUNT] = {1736, 1738, 1735, 1740, 1739};
+const uint32 BG_BG_GraveyardIds[BG_BG_ALL_NODES_COUNT] = {1735, 1736, 1738, 1739, 1740};
 
 // x, y, z, o
 const float BG_BG_BuffPositions[BG_BG_DYNAMIC_NODES_COUNT][4] =
