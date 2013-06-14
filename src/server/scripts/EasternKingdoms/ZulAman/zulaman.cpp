@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "CreatureTextMgr.h"
+#include "SpellScript.h"
 #include "zulaman.h"
 
 enum Says

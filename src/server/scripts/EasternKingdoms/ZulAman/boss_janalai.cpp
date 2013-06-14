@@ -70,6 +70,21 @@ class boss_janalai : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+                /*
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        default:
+                            break;
+                    }
+                }
+                */
+
                 DoMeleeAttackIfReady();
             }
         };
