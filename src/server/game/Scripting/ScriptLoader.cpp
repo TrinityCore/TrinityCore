@@ -234,7 +234,7 @@ void AddSC_boss_halazzi();
 void AddSC_boss_hex_lord_malacrass();
 void AddSC_boss_janalai();
 void AddSC_boss_nalorakk();
-void AddSC_boss_zuljin();
+void AddSC_boss_daakara();
 void AddSC_instance_zulaman();
 void AddSC_zulaman();
 void AddSC_boss_grilek();                   // Zul'Gurub
@@ -876,7 +876,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_hex_lord_malacrass();
     AddSC_boss_janalai();
     AddSC_boss_nalorakk();
-    AddSC_boss_zuljin();
+    AddSC_boss_daakara();
     AddSC_instance_zulaman();
     AddSC_zulaman();
     AddSC_boss_grilek();                    // Zul'Gurub

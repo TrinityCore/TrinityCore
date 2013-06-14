@@ -31,15 +31,15 @@ enum Events
 {
 };
 
-class boss_halazzi : public CreatureScript
+class boss_daakara : public CreatureScript
 {
     public:
 
-        boss_halazzi() : CreatureScript("boss_halazzi") { }
+        boss_daakara() : CreatureScript("boss_daakara") { }
 
-        struct boss_halazziAI : public BossAI
+        struct boss_daakaraAI : public BossAI
         {
-            boss_halazziAI(Creature* creature) : BossAI(creature, DATA_HALAZZI) { }
+            boss_daakaraAI(Creature* creature) : BossAI(creature, DATA_DAAKARA) { }
 
             void Reset()
             {
@@ -51,14 +51,6 @@ class boss_halazzi : public CreatureScript
                 _EnterCombat();
             }
 
-             void UpdateAI(uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
             void KilledUnit(Unit* /*victim*/)
             {
             }
@@ -67,15 +59,20 @@ class boss_halazzi : public CreatureScript
             {
                 _JustDied();
             }
+
+            void UpdateAI(uint32 diff)
+            {
+                DoMeleeAttackIfReady();
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetZulAmanAI<boss_halazziAI>(creature);
+            return GetZulAmanAI<boss_daakaraAI>(creature);
         }
 };
 
-void AddSC_boss_halazzi()
+void AddSC_boss_daakara()
 {
-    new boss_halazzi();
+    new boss_daakara();
 }
