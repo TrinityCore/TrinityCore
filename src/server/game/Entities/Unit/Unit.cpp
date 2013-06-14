@@ -1186,11 +1186,12 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
                 AddPct(damageInfo->damage, mod);
             break;
         }
+		// [Niebla30] Parry now awoid 50% damage and gives 100% chance of parry next hit
         case MELEE_HIT_PARRY:
             damageInfo->TargetState  = VICTIMSTATE_PARRY;
             damageInfo->procEx      |= PROC_EX_PARRY;
-            damageInfo->cleanDamage += damageInfo->damage;
-            damageInfo->damage = 0;
+			damageInfo->cleanDamage += (uint32)((float)damageInfo->damage * 0.5f);
+			damageInfo->damage = (uint32)((float)damageInfo->damage * 0.5f);
             break;
         case MELEE_HIT_DODGE:
             damageInfo->TargetState  = VICTIMSTATE_DODGE;
@@ -1276,36 +1277,24 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     if (damageInfo->blocked_amount && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
         victim->HandleEmoteCommand(EMOTE_ONESHOT_PARRY_SHIELD);
 
+	// [Niebla30] Parry now awoid 50% damage and gives 100% chance of parry next hit
     if (damageInfo->TargetState == VICTIMSTATE_PARRY)
     {
-        // Get attack timers
-        float offtime  = float(victim->getAttackTimer(OFF_ATTACK));
-        float basetime = float(victim->getAttackTimer(BASE_ATTACK));
-        // Reduce attack time
-        if (victim->haveOffhandWeapon() && offtime < basetime)
-        {
-            float percent20 = victim->GetAttackTime(OFF_ATTACK) * 0.20f;
-            float percent60 = 3.0f * percent20;
-            if (offtime > percent20 && offtime <= percent60)
-                victim->setAttackTimer(OFF_ATTACK, uint32(percent20));
-            else if (offtime > percent60)
-            {
-                offtime -= 2.0f * percent20;
-                victim->setAttackTimer(OFF_ATTACK, uint32(offtime));
-            }
-        }
-        else
-        {
-            float percent20 = victim->GetAttackTime(BASE_ATTACK) * 0.20f;
-            float percent60 = 3.0f * percent20;
-            if (basetime > percent20 && basetime <= percent60)
-                victim->setAttackTimer(BASE_ATTACK, uint32(percent20));
-            else if (basetime > percent60)
-            {
-                basetime -= 2.0f * percent20;
-                victim->setAttackTimer(BASE_ATTACK, uint32(basetime));
-            }
-        }
+        bool HasAuraParry = false;
+
+		AuraEffectList const& mTotalAuraList = pVictim->GetAuraEffectsByType(SPELL_AURA_MOD_PARRY_PERCENT);
+		for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+		{
+			if ((*i)->GetId() == 23547)
+			{
+				pVictim->RemoveAurasDueToSpell(23547);
+				HasAuraParry = true;
+				break;
+			}
+		}
+
+		if (!HasAuraParry)
+			pVictim->CastSpell(pVictim, 23547, false);
     }
 
     // Call default DealDamage

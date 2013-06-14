@@ -2812,6 +2812,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+			// [Niebla30] allows quick disipation of Parry spell (walkaround). 
+			case 23547:
+				spellInfo->DurationIndex = 1;
+			break;
             case 60256:
                 //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
