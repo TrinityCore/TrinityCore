@@ -3921,7 +3921,7 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_SA       = 5,
     BATTLEGROUND_QUEUE_IC       = 6,
     BATTLEGROUND_QUEUE_TP       = 7,
-    BATTLEGROUND_QUEUE_BG      = 8,
+    BATTLEGROUND_QUEUE_BG       = 8,
     BATTLEGROUND_QUEUE_RB       = 9,
     BATTLEGROUND_QUEUE_2v2      = 10,
     BATTLEGROUND_QUEUE_3v3      = 11,
