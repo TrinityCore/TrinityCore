@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "ScriptedCreature.h"
 #include "zulaman.h"
 
 class instance_zulaman : public InstanceMapScript
