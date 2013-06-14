@@ -9849,6 +9849,16 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4131) << uint32(0);              // 10 WORLDSTATE_ALGALON_DESPAWN_TIMER
             }
             break;
+        // Zul Aman
+        case 3805:
+            if (instance && mapid == 568)
+                instance->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(3104) << uint32(0);              // 9  WORLD_STATE_ZULAMAN_TIMER_ENABLED
+                data << uint32(3106) << uint32(0);              // 10 WORLD_STATE_ZULAMAN_TIMER
+            }
+            break;
         // Twin Peaks
         case 5031:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_TP)
