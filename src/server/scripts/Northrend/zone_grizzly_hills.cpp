@@ -711,10 +711,20 @@ enum LakeFrog
     // Creature
     NPC_LAKE_FROG                          = 33211,
     NPC_LAKE_FROG_QUEST                    = 33224,
+    NPC_MAIDEN_OF_ASHWOOD_LAKE             = 33220,
 
     // Text
     SAY_MAIDEN_0                           = 0,
     SAY_MAIDEN_1                           = 1
+};
+
+enum LakeFrogEvents
+{
+    EVENT_SCRIPT_1                         = 1,
+    EVENT_SCRIPT_2                         = 2,
+    EVENT_SCRIPT_3                         = 3,
+    EVENT_SCRIPT_4                         = 4,
+    EVENT_SCRIPT_5                         = 5
 };
 
 class npc_lake_frog : public CreatureScript
@@ -730,7 +740,6 @@ class npc_lake_frog : public CreatureScript
             {
                 _following = false;
                 _runningScript = false;
-                _phase = 0;
                 if (me->GetEntry() == NPC_LAKE_FROG_QUEST)
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
@@ -739,48 +748,38 @@ class npc_lake_frog : public CreatureScript
             {
                 if (_following)
                     if (!me->HasAura(SPELL_FROG_LOVE))
-                        me->DespawnOrUnsummon(0);
+                        me->DespawnOrUnsummon(1000);
 
-                if (_runningScript)
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
-                    if (_scriptTimer <= diff)
+                    switch (eventId)
                     {
-                        switch (_phase)
-                        {
-                            case 0:
-                                DoCast(me, SPELL_MAIDEN_OF_ASHWOOD_LAKE_TRANSFORM);
-                                me->SetEntry(33220);
-                                _scriptTimer = 2000;
-                                ++_phase;
-                                break;
-                            case 1:
-                                Talk(SAY_MAIDEN_0);
-                                _scriptTimer = 3000;
-                                ++_phase;
-                                break;
-                            case 2:
-                                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                _scriptTimer = 25000;
-                                ++_phase;
-                                break;
-                            case 3:
-                                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                _scriptTimer = 2000;
-                                ++_phase;
-                                break;
-                            case 4:
-                                Talk(SAY_MAIDEN_1);
-                                _scriptTimer = 4000;
-                                ++_phase;
-                                break;
-                            case 5:
-                                _runningScript = false;
-                                me->DespawnOrUnsummon(0);
-                                break;
-                        }
+                        case EVENT_SCRIPT_1:
+                            DoCast(me, SPELL_MAIDEN_OF_ASHWOOD_LAKE_TRANSFORM);
+                            me->SetEntry(NPC_MAIDEN_OF_ASHWOOD_LAKE);
+                            _events.ScheduleEvent(EVENT_SCRIPT_2, 2000);
+                            break;
+                        case EVENT_SCRIPT_2:
+                            Talk(SAY_MAIDEN_0);
+                            _events.ScheduleEvent(EVENT_SCRIPT_3, 3000);
+                            break;
+                        case EVENT_SCRIPT_3:
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            _events.ScheduleEvent(EVENT_SCRIPT_4, 25000);
+                            break;
+                        case EVENT_SCRIPT_4:
+                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            _events.ScheduleEvent(EVENT_SCRIPT_5, 2000);
+                            break;
+                        case EVENT_SCRIPT_5:
+                            Talk(SAY_MAIDEN_1);
+                            me->DespawnOrUnsummon(4000);
+                            break;
+                        default:
+                            break;
                     }
-                    else if (_scriptTimer)
-                        _scriptTimer -= diff;
                 }
             }
 
@@ -808,7 +807,7 @@ class npc_lake_frog : public CreatureScript
                             me->GetMotionMaster()->MoveIdle();
                             me->SetFacingToObject(player);
                             _runningScript = true;
-                            _scriptTimer = 2000;
+                            _events.ScheduleEvent(EVENT_SCRIPT_1, 2000);
                         }
                     }
                 }
@@ -820,10 +819,9 @@ class npc_lake_frog : public CreatureScript
             }
 
         private:
+            EventMap _events;
             bool   _following;
             bool   _runningScript;
-            uint32 _scriptTimer;
-            uint8  _phase;
         };
 
         CreatureAI* GetAI(Creature* creature) const
