@@ -151,9 +151,9 @@ int LuaUnit::GetRelativePoint(lua_State* L, Unit* unit)
     TO_UNIT();
 
     float dist = luaL_checknumber(L, 1);
-    int deg = luaL_checkinteger(L, 2);
+    float rad = luaL_checknumber(L, 2);
 
-    float o = Position::NormalizeOrientation(unit->GetOrientation() + (deg*M_PI/180));
+    float o = Position::NormalizeOrientation(unit->GetOrientation() + rad);
     sEluna->PushFloat(L, unit->GetPositionX()+(dist*cosf(o)));
     sEluna->PushFloat(L, unit->GetPositionY()+(dist*sinf(o)));
     sEluna->PushFloat(L, o);
@@ -3348,7 +3348,7 @@ int LuaUnit::GetMaxPower(lua_State* L, Unit* unit)
             type = POWER_MANA;
         }
     }
-    else if (type >= POWER_ALL)
+    else if (type < 0 || type >= POWER_ALL)
     {
         luaL_error(L, "Invalid index (%d)", type);
         return 0;
@@ -5199,5 +5199,48 @@ int LuaUnit::StopMoving(lua_State* L, Unit* unit)
     TO_UNIT();
 
     unit->StopMoving();
+    return 0;
+}
+
+int LuaUnit::AddUnitState(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint32 state = luaL_checkunsigned(L, 1);
+
+    unit->AddUnitState(state);
+    return 0;
+}
+
+int LuaUnit::ClearUnitState(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint32 state = luaL_checkunsigned(L, 1);
+
+    unit->ClearUnitState(state);
+    return 0;
+}
+
+int LuaUnit::HasUnitState(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint32 state = luaL_checkunsigned(L, 1);
+
+    sEluna->PushBoolean(L, unit->HasUnitState(state));
+    return 1;
+}
+
+int LuaUnit::DisableMelee(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    bool apply = luaL_optbool(L, 1, true);
+
+    if (apply)
+        unit->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
+    else
+        unit->ClearUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
     return 0;
 }

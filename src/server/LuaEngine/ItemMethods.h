@@ -534,9 +534,17 @@ public:
             return 1;
         }
 
-        owner->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, false);
-        item->SetEnchantment(PERM_ENCHANTMENT_SLOT, enchant, 0, 0);
-        owner->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, true);
+        EnchantmentSlot slot = EnchantmentSlot(luaL_checkinteger(L, 2));
+        if(slot < 0 || slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        {
+            luaL_error(L, "Invalid enchantment slot (%d)", slot);
+            sEluna->PushBoolean(L, false);
+            return 1;
+        }
+
+        owner->ApplyEnchantment(item, slot, false);
+        item->SetEnchantment(slot, enchant, 0, 0);
+        owner->ApplyEnchantment(item, slot, true);
         sEluna->PushBoolean(L, true);
         return 1;
     }
@@ -556,14 +564,22 @@ public:
             return 1;
         }
 
-        if (!item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT))
+        EnchantmentSlot slot = EnchantmentSlot(luaL_checkinteger(L, 1));
+        if(slot < 0 || slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        {
+            luaL_error(L, "Invalid enchantment slot (%d)", slot);
+            sEluna->PushBoolean(L, false);
+            return 1;
+        }
+
+        if (!item->GetEnchantmentId(slot))
         {
             sEluna->PushBoolean(L, false);
             return 1;
         }
 
-        owner->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, false);
-        item->ClearEnchantment(PERM_ENCHANTMENT_SLOT);
+        owner->ApplyEnchantment(item, slot, false);
+        item->ClearEnchantment(slot);
         sEluna->PushBoolean(L, true);
         return 1;
     }

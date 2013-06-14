@@ -334,7 +334,10 @@ void Eluna::PushLong(lua_State* L, int64 l)
 {
     if (!L) L = LuaState;
     std::ostringstream ss;
-    ss << "0x" << std::hex << l;
+    if (l < 0)
+        ss << "-0x" << std::hex << -l;
+    else
+        ss << "0x" << std::hex << l;
     sEluna->PushString(L, ss.str().c_str());
 }
 

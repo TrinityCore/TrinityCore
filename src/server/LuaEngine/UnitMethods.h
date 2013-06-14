@@ -481,5 +481,9 @@ namespace LuaUnit
     int RemoveBindSightAuras(lua_State*, Unit*);
     int RemoveCharmAuras(lua_State*, Unit*);
     int StopMoving(lua_State*, Unit*);
+    int AddUnitState(lua_State*, Unit*);
+    int ClearUnitState(lua_State*, Unit*);
+    int HasUnitState(lua_State*, Unit*);
+    int DisableMelee(lua_State*, Unit*);
 };
 #endif

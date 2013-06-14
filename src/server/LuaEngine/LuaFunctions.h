@@ -378,9 +378,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
     {"GetOwner", &LuaUnit::GetOwner},                                                                       // :GetOwner() - Returns the owner
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
-    {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
-    {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
-    {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                                                                   // :SetFaction(factionId) - Sets the unit's faction
@@ -447,6 +444,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsFlying", &LuaUnit::IsFlying},                                                                       // :IsFlying()
     {"IsStopped", &LuaUnit::IsStopped},                                                                     // :IsStopped()
     {"HasFlag", &LuaUnit::HasFlag},                                                                         // :HasFlag(index, flag)
+    {"HasUnitState", &LuaUnit::HasUnitState},                                                               // :HasUnitState(state) - state from UnitState enum
 
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},                                                             // :RegisterEvent(function, delay, calls)
@@ -497,7 +495,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"StopMoving", &LuaUnit::StopMoving},                                                                   // :StopMoving()
     {"ClearThreatList", &LuaUnit::ClearThreatList},                                                         // :ClearThreatList()
     {"RemoveFlag", &LuaUnit::RemoveFlag},                                                                   // :RemoveFlag(index, flag)
-    {"RemoveFlag", &LuaUnit::RemoveFlag},                                                                   // :RemoveFlag(index, flag)
+    {"ClearUnitState", &LuaUnit::ClearUnitState},                                                           // :ClearUnitState(state)
+    {"AddUnitState", &LuaUnit::AddUnitState},                                                               // :AddUnitState(state)
+    {"DisableMelee", &LuaUnit::DisableMelee},                                                               // :DisableMelee([disable]) - if true, enables
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},                                                 // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
@@ -540,7 +540,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetNearestPlayer", &LuaGameObject::GetNearestPlayer},                                                 // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius.
     {"GetNearestGameObject", &LuaGameObject::GetNearestGameObject},                                         // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius.
     {"GetNearestCreature", &LuaGameObject::GetNearestCreature},                                             // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius.
-    {"GetRelativePoint", &LuaGameObject::GetRelativePoint},                                                 // :GetRelativePoint(dist, degrees) - Returns the X, Y and orientation of a point dist away from gob. Degrees are - 90 for right and 90 for left.
+    {"GetRelativePoint", &LuaGameObject::GetRelativePoint},                                                 // :GetRelativePoint(dist, radians) - Returns the X, Y and orientation of a point dist away from gob. Radian 0 point is the direction the unit is facing.
     {"GetHeight", &LuaGameObject::GetHeight},                                                               // :GetHeight(X, Y) - Returns returns the Z coord of the given location. If no valid position found, returns gob Z coordinate.
 
     // Setters
@@ -638,8 +638,8 @@ ElunaRegister<Item> ItemMethods[] =
     {"IsArmorVellum", &LuaItem::IsArmorVellum},                                                             // :IsArmorVellum() - Returns true if the item is an armor vellum
     {"IsConjuredConsumable", &LuaItem::IsConjuredConsumable},                                               // :IsConjuredConsumable() - Returns true if the item is a conjured consumable
     {"IsRefundExpired", &LuaItem::IsRefundExpired},                                                         // :IsRefundExpired() - Returns true if the item's refund time has expired
-    {"SetEnchantment", &LuaItem::SetEnchantment},                                                           // :SetEnchantment(enchantid) - Sets a new enchantment for the item. Returns true on success
-    {"ClearEnchantment", &LuaItem::ClearEnchantment},                                                       // :ClearEnchantment() - Removes the enchantment from the item if one exists. Returns true on success
+    {"SetEnchantment", &LuaItem::SetEnchantment},                                                           // :SetEnchantment(enchantid, enchantmentslot) - Sets a new enchantment for the item. Returns true on success
+    {"ClearEnchantment", &LuaItem::ClearEnchantment},                                                       // :ClearEnchantment(enchantmentslot) - Removes the enchantment from the item if one exists. Returns true on success
 
     // Other
     {NULL, NULL},
