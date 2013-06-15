@@ -134,7 +134,7 @@ class Object
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY, entry); }
 
-        void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
+        virtual void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
         bool isType(uint16 mask) const { return (mask & m_objectType); }
