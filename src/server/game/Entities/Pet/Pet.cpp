@@ -2088,6 +2088,6 @@ void Pet::SetDisplayId(uint32 modelId)
 
     if (Unit* owner = GetOwner())
         if (Player* player = owner->ToPlayer())
-            if (owner->ToPlayer()->GetGroup())
-                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+            if (player->GetGroup())
+                player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
 }
