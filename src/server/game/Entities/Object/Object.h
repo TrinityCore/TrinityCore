@@ -236,10 +236,8 @@ class Object
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
 
-        void _SetUpdateBits(UpdateMask* updateMask, Player* target) const;
-        void _SetCreateBits(UpdateMask* updateMask, Player* target) const;
-        void _BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
-        void _BuildValuesUpdate(uint8 updatetype, ByteBuffer *data, UpdateMask* updateMask, Player* target) const;
+        void BuildMovementUpdate(ByteBuffer* data, uint16 flags) const;
+        virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         uint16 m_objectType;
 
