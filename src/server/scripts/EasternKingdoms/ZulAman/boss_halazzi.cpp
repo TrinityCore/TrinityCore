@@ -19,11 +19,17 @@
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 
-enum Spells
+enum Says
 {
+    SAY_AGGRO               = 0,
+    SAY_PLAYER_KILL         = 1,
+    SAY_MELEE               = 2,
+    SAY_SPLIT               = 3,
+    SAY_COMBINE             = 4,
+    SAY_DEATH               = 5
 };
 
-enum Says
+enum Spells
 {
 };
 
@@ -48,10 +54,23 @@ class boss_halazzi : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
+                Talk(SAY_AGGRO);
                 _EnterCombat();
             }
 
-             void UpdateAI(uint32 diff)
+            void JustDied(Unit* /*killer*/)
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
+            }
+
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -72,15 +91,6 @@ class boss_halazzi : public CreatureScript
                 */
 
                 DoMeleeAttackIfReady();
-            }
-
-            void KilledUnit(Unit* /*victim*/)
-            {
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                _JustDied();
             }
         };
 
