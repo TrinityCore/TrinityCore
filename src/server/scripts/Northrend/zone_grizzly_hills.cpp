@@ -537,7 +537,7 @@ public:
 
         void Reset()
         {
-            _events.ScheduleEvent(EVENT_SENTRY, 4000);
+            _events.ScheduleEvent(EVENT_SENTRY, urand(10000, 12000));
         }
 
         void UpdateAI(uint32 diff)
@@ -551,7 +551,7 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_WOODSMAN_1:
+                    case EVENT_SENTRY:
                         DoCast(SPELL_CHARGED_SENTRY_TOTEM);
                         _events.ScheduleEvent(EVENT_SENTRY, urand(10000, 12000));
                         break;
