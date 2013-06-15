@@ -330,9 +330,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 if (!foundNewTransport)
                 {
                     plrMover->m_transport = NULL;
-                    movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-                    movementInfo.t_time = 0;
-                    movementInfo.t_seat = -1;
+                    movementInfo.ClearTransport();
                 }
             }
         }
