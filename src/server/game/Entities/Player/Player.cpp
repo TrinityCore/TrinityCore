@@ -24,15 +24,14 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
-#include "BattlegroundAV.h"
 #include "Battleground.h"
+#include "BattlegroundAV.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
-#include <cmath>
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -49,8 +48,8 @@
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
-#include "Language.h"
 #include "LFGMgr.h"
+#include "Language.h"
 #include "Log.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
@@ -59,17 +58,18 @@
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
-#include "ReputationMgr.h"
 #include "Pet.h"
 #include "QuestDef.h"
+#include "ReputationMgr.h"
 #include "SkillDiscovery.h"
 #include "SocialMgr.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
-#include "Spell.h"
 #include "SpellMgr.h"
 #include "Transport.h"
 #include "UpdateData.h"
+#include "UpdateFieldFlags.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "Vehicle.h"
@@ -22229,13 +22229,29 @@ void Player::UpdateTriggerVisibility()
     {
         if (IS_CREATURE_GUID(*itr))
         {
-            Creature* obj = GetMap()->GetCreature(*itr);
-            if (!obj || !(obj->IsTrigger() || obj->HasAuraType(SPELL_AURA_TRANSFORM)))  // can transform into triggers
+            Creature* creature = GetMap()->GetCreature(*itr);
+            // Update fields of triggers, transformed units or unselectable units (values dependent on GM state)
+            if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE)))
                 continue;
 
-            obj->BuildValuesUpdateBlockForPlayer(&udata, this);
+            creature->SetFieldNotifyFlag(UF_FLAG_PUBLIC);
+            creature->BuildValuesUpdateBlockForPlayer(&udata, this);
+            creature->RemoveFieldNotifyFlag(UF_FLAG_PUBLIC);
+        }
+        else if (IS_GAMEOBJECT_GUID((*itr)))
+        {
+            GameObject* go = GetMap()->GetGameObject(*itr);
+            if (!go)
+                continue;
+
+            go->SetFieldNotifyFlag(UF_FLAG_PUBLIC);
+            go->BuildValuesUpdateBlockForPlayer(&udata, this);
+            go->RemoveFieldNotifyFlag(UF_FLAG_PUBLIC);
         }
     }
+
+    if (!udata.HasData())
+        return;
 
     udata.BuildPacket(&packet);
     GetSession()->SendPacket(&packet);
