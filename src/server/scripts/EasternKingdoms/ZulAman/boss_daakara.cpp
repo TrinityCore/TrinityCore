@@ -19,11 +19,24 @@
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 
-enum Spells
+enum Says
 {
+    SAY_INTRO                       = 0,
+    SAY_AGGRO                       = 1,
+    SAY_PLAYER_KILL                 = 2,
+    SAY_FIRE_BREATH                 = 3,
+    SAY_TRANSFORMS_BEAR             = 4,
+    SAY_TRANSFORMS_EAGLE            = 5,
+    SAY_TRANSFORMS_LYNX             = 6,
+    SAY_TRANSFORMS_DRAGONHAWK       = 7,
+    SAY_ABSORBS_BEAR_SPIRIT         = 8,
+    SAY_ABSORBS_EAGLE_SPIRIT        = 9,
+    SAY_ABSORBS_LYNX_SPIRIT         = 10,
+    SAY_ABSORBS_DRAGONHAWK_SPIRIT   = 11,
+    SAY_DEATH                       = 12
 };
 
-enum Says
+enum Spells
 {
 };
 
@@ -48,16 +61,20 @@ class boss_daakara : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
+                Talk(SAY_AGGRO);
                 _EnterCombat();
-            }
-
-            void KilledUnit(Unit* /*victim*/)
-            {
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                Talk(SAY_DEATH);
                 _JustDied();
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 diff)

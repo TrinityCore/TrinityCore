@@ -21,14 +21,20 @@
 #include "SpellAuraEffects.h"
 #include "zulaman.h"
 
+enum Says
+{
+    SAY_AGGRO               = 0,
+    SAY_PLAYER_KILL         = 1,
+    SAY_SPIRIT_BOLTS        = 2,
+    SAY_SIPHON_SOUL         = 3,
+    SAY_PET_DEATH           = 4,
+    SAY_DEATH               = 5
+};
+
 enum Spells
 {
     SPELL_WL_UNSTABLE_AFFL          = 43522,
     SPELL_WL_UNSTABLE_AFFL_DISPEL   = 43523,
-};
-
-enum Says
-{
 };
 
 enum Events
@@ -52,16 +58,20 @@ class boss_hexlord_malacrass : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
+                Talk(SAY_AGGRO);
                 _EnterCombat();
-            }
-
-            void KilledUnit(Unit* /*victim*/)
-            {
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                Talk(SAY_DEATH);
                 _JustDied();
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 diff)
@@ -133,4 +143,3 @@ void AddSC_boss_hex_lord_malacrass()
     new boss_hexlord_malacrass();
     new spell_hexlord_unstable_affliction();
 }
-
