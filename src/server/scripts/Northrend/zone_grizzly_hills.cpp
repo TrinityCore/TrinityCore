@@ -442,12 +442,11 @@ public:
 
 enum Skirmisher
 {
-    // Creature
-    NPC_CREDIT                  = 27466,
     // Quest
     QUEST_OVERWHELMED           = 12288,
     // Spell
     SPELL_RENEW_SKIRMISHER      = 48812,
+    SPELL_KILL_CREDIT           = 48813,
     // Text
     SAY_RANDOM                  = 0
 };
@@ -478,7 +477,7 @@ public:
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(QUEST_OVERWHELMED) == QUEST_STATUS_INCOMPLETE)
             {
-                caster->ToPlayer()->KilledMonsterCredit(NPC_CREDIT, 0);
+                DoCast(caster, SPELL_KILL_CREDIT);
                 Talk(SAY_RANDOM);
                 if (me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
@@ -518,7 +517,8 @@ enum Sentry
     QUEST_OR_MAYBE_WE_DONT_A               = 12138,
     QUEST_OR_MAYBE_WE_DONT_H               = 12198,
     // Spell
-    SPELL_CHARGED_SENTRY_TOTEM             = 52703
+    SPELL_CHARGED_SENTRY_TOTEM             = 52703,
+    SPELL_WAR_GOLEM_CHARGE_CREDIT          = 47797,
 };
 
 enum SentryEvents
@@ -574,7 +574,7 @@ public:
                 {
                     if (killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_A) == QUEST_STATUS_INCOMPLETE ||
                         killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_H) == QUEST_STATUS_INCOMPLETE)
-                        killer->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, 0);
+                        DoCast(killer, SPELL_WAR_GOLEM_CHARGE_CREDIT);
                 }
             }
         }
