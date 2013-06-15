@@ -271,10 +271,10 @@ class npc_glob_of_viscidus : public CreatureScript
                     if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
                         ViscidusAI->SummonedCreatureDespawn(me);
 
-                    if (Viscidus->isAlive() && Viscidus->GetHealthPct() < 5.0f)
+                    if (Viscidus->IsAlive() && Viscidus->GetHealthPct() < 5.0f)
                     {
                         Viscidus->SetVisible(true);
-                        Viscidus->getVictim()->Kill(Viscidus);
+                        Viscidus->GetVictim()->Kill(Viscidus);
                     }
                     else
                     {

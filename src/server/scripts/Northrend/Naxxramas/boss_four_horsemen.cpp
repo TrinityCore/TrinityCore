@@ -158,16 +158,16 @@ class boss_four_horsemen : public CreatureScript
                     {
                         if (instance->GetBossState(DATA_HORSEMEN) != NOT_STARTED)
                         {
-                            if (!Thane->isAlive())
+                            if (!Thane->IsAlive())
                                 Thane->Respawn();
 
-                            if (!Lady->isAlive())
+                            if (!Lady->IsAlive())
                                 Lady->Respawn();
 
-                            if (!Baron->isAlive())
+                            if (!Baron->IsAlive())
                                 Baron->Respawn();
 
-                            if (!Sir->isAlive())
+                            if (!Sir->IsAlive())
                                 Sir->Respawn();
 
                             CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
@@ -183,7 +183,7 @@ class boss_four_horsemen : public CreatureScript
                     }
 
                     if (checkAllDead)
-                        return !Thane->isAlive() && !Lady->isAlive() && !Baron->isAlive() && !Sir->isAlive();
+                        return !Thane->IsAlive() && !Lady->IsAlive() && !Baron->IsAlive() && !Sir->IsAlive();
                 }
                 return false;
             }
@@ -247,9 +247,9 @@ class boss_four_horsemen : public CreatureScript
 
             void SelectNearestTarget(Unit* who)
             {
-                if (me->getVictim() && me->GetDistanceOrder(who, me->getVictim()) && me->IsValidAttackTarget(who))
+                if (me->GetVictim() && me->GetDistanceOrder(who, me->GetVictim()) && me->IsValidAttackTarget(who))
                 {
-                    me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
+                    me->getThreatManager().modifyThreatPercent(me->GetVictim(), -100);
                     me->AddThreat(who, 1000000.0f);
                 }
             }
@@ -359,7 +359,7 @@ class boss_four_horsemen : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
                                     DoCast(target, SPELL_PRIMARY(id));
                             else
-                                DoCast(me->getVictim(), SPELL_PRIMARY(id));
+                                DoCast(me->GetVictim(), SPELL_PRIMARY(id));
                             events.ScheduleEvent(EVENT_CAST, 15000);
                             break;
                         case EVENT_BERSERK:
@@ -383,7 +383,7 @@ class boss_four_horsemen : public CreatureScript
 
                 if (!caster)
                     DoMeleeAttackIfReady();
-                else if ((!DoSpellAttackIfReady(SPELL_SECONDARY(id)) || !me->IsWithinLOSInMap(me->getVictim())) && movementCompleted && !doDelayPunish)
+                else if ((!DoSpellAttackIfReady(SPELL_SECONDARY(id)) || !me->IsWithinLOSInMap(me->GetVictim())) && movementCompleted && !doDelayPunish)
                     doDelayPunish = true;
             }
 

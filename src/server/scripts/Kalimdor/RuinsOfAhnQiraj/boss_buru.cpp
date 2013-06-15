@@ -208,7 +208,7 @@ class npc_buru_egg : public CreatureScript
             void EnterCombat(Unit* attacker)
             {
                 if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
-                    if (!buru->isInCombat())
+                    if (!buru->IsInCombat())
                         buru->AI()->AttackStart(attacker);
             }
 

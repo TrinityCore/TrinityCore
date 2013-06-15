@@ -10,7 +10,6 @@
 
 # NOTE: Do not use glob here, it would include files we don't want
 set(ace_STAT_SRCS
-  PrecompiledHeaders/WinAcePCH.cpp
   ACE.cpp
   ACE_crc32.cpp
   ACE_crc_ccitt.cpp

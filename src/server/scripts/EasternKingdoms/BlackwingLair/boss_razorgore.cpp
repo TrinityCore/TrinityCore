@@ -89,38 +89,38 @@ public:
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast(me->GetVictim(), SPELL_CLEAVE);
                 Cleave_Timer = urand(7000, 10000);
             } else Cleave_Timer -= diff;
 
             //WarStomp_Timer
             if (WarStomp_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WARSTOMP);
+                DoCast(me->GetVictim(), SPELL_WARSTOMP);
                 WarStomp_Timer = urand(15000, 25000);
             } else WarStomp_Timer -= diff;
 
             //FireballVolley_Timer
             if (FireballVolley_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBALLVOLLEY);
+                DoCast(me->GetVictim(), SPELL_FIREBALLVOLLEY);
                 FireballVolley_Timer = urand(12000, 15000);
             } else FireballVolley_Timer -= diff;
 
             //Conflagration_Timer
             if (Conflagration_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CONFLAGRATION);
+                DoCast(me->GetVictim(), SPELL_CONFLAGRATION);
                 //We will remove this threat reduction and add an aura check.
 
-                //if (DoGetThreat(me->getVictim()))
-                //DoModifyThreatPercent(me->getVictim(), -50);
+                //if (DoGetThreat(me->GetVictim()))
+                //DoModifyThreatPercent(me->GetVictim(), -50);
 
                 Conflagration_Timer = 12000;
             } else Conflagration_Timer -= diff;
 
             // Aura Check. If the gamer is affected by confliguration we attack a random gamer.
-            if (me->getVictim() && me->getVictim()->HasAura(SPELL_CONFLAGRATION))
+            if (me->GetVictim() && me->GetVictim()->HasAura(SPELL_CONFLAGRATION))
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     me->TauntApply(target);
 

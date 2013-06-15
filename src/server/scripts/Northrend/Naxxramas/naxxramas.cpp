@@ -54,7 +54,7 @@ class go_naxxramas_portal : public GameObjectScript
             if (!spell)
                 return false;
 
-            if (player->isInCombat())
+            if (player->IsInCombat())
             {
                 Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
                 return true;
@@ -77,7 +77,7 @@ class go_orb_of_naxxramas : public GameObjectScript
             switch (go->GetEntry())
             {
                 case 202278:
-                    if (player->isInCombat())
+                    if (player->IsInCombat())
                     {
                         Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
                         return true;
@@ -85,7 +85,7 @@ class go_orb_of_naxxramas : public GameObjectScript
                     player->CastSpell(player, SPELL_ORB_TELEPORT_1, true);
                     break;
                 case 202277:
-                    if (player->isInCombat())
+                    if (player->IsInCombat())
                     {
                         Spell::SendCastResult(player, spell2, 0, SPELL_FAILED_AFFECTING_COMBAT);
                         return true;

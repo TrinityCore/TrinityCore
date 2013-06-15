@@ -977,7 +977,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->LoadPet();
 
     // Set FFA PvP for non GM in non-rest mode
-    if (sWorld->IsFFAPvPRealm() && !pCurrChar->isGameMaster() && !pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
+    if (sWorld->IsFFAPvPRealm() && !pCurrChar->IsGameMaster() && !pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
         pCurrChar->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
 
     if (pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
@@ -1007,7 +1007,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (sWorld->getBoolConfig(CONFIG_ALL_TAXI_PATHS))
         pCurrChar->SetTaxiCheater(true);
 
-    if (pCurrChar->isGameMaster())
+    if (pCurrChar->IsGameMaster())
         SendNotification(LANG_GM_ON);
 
     std::string IP_str = GetRemoteAddress();
@@ -1579,7 +1579,7 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
 
 void WorldSession::HandleEquipmentSetUse(WorldPacket &recvData)
 {
-    if (_player->isInCombat())
+    if (_player->IsInCombat())
         return;
 
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");

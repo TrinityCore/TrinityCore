@@ -122,11 +122,11 @@ class boss_thaddius : public CreatureScript
             {
                 checkFeugenAlive = false;
                 if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
-                    checkFeugenAlive = pFeugen->isAlive();
+                    checkFeugenAlive = pFeugen->IsAlive();
 
                 checkStalaggAlive = false;
                 if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
-                    checkStalaggAlive = pStalagg->isAlive();
+                    checkStalaggAlive = pStalagg->IsAlive();
 
                 if (!checkFeugenAlive && !checkStalaggAlive)
                 {
@@ -256,7 +256,7 @@ class boss_thaddius : public CreatureScript
                             events.ScheduleEvent(EVENT_SHIFT, 30000);
                             break;
                         case EVENT_CHAIN:
-                            DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
+                            DoCast(me->GetVictim(), SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                             break;
                         case EVENT_BERSERK:
@@ -265,8 +265,8 @@ class boss_thaddius : public CreatureScript
                     }
                 }
 
-                    if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
-                        DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
+                    if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->GetVictim()))
+                        DoCast(me->GetVictim(), SPELL_BALL_LIGHTNING);
                     else
                         DoMeleeAttackIfReady();
             }
@@ -363,8 +363,8 @@ class mob_stalagg : public CreatureScript
                 {
                     if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
                     {
-                        Unit* pStalaggVictim = me->getVictim();
-                        Unit* pFeugenVictim = pFeugen->getVictim();
+                        Unit* pStalaggVictim = me->GetVictim();
+                        Unit* pFeugenVictim = pFeugen->GetVictim();
 
                         if (pFeugenVictim && pStalaggVictim)
                         {

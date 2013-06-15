@@ -140,7 +140,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 for (uint8 i=0; i<5; ++i)
                 {
                     Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
-                    if (who && channeler && !channeler->isInCombat())
+                    if (who && channeler && !channeler->IsInCombat())
                         channeler->AI()->AttackStart(who);
                 }
             }
@@ -150,7 +150,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 for (uint8 i=0; i<5; ++i)
                 {
                     Creature* channeler = Unit::GetCreature(*me, Channelers[i]);
-                    if (channeler && channeler->isAlive())
+                    if (channeler && channeler->IsAlive())
                         return;
                 }
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -361,7 +361,7 @@ class mob_shadowmoon_channeler : public CreatureScript
 
                 if (ShadowBolt_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
+                    DoCast(me->GetVictim(), SPELL_SHADOW_BOLT);
                     ShadowBolt_Timer = 5000+rand()%1000;
                 }
                 else

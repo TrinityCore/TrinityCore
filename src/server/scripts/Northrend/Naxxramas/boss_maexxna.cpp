@@ -121,7 +121,7 @@ class boss_maexxna : public CreatureScript
                             events.ScheduleEvent(EVENT_SHOCK, urand(10000, 20000));
                             break;
                         case EVENT_POISON:
-                            DoCast(me->getVictim(), SPELL_NECROTIC_POISON);
+                            DoCast(me->GetVictim(), SPELL_NECROTIC_POISON);
                             events.ScheduleEvent(EVENT_POISON, urand(10000, 20000));
                             break;
                         case EVENT_FRENZY:

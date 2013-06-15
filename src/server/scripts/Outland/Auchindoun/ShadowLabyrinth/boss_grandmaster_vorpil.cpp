@@ -125,7 +125,7 @@ public:
                     move = 500;
                     return;
                 }
-                if (!Vorpil->isInCombat() || Vorpil->isDead())
+                if (!Vorpil->IsInCombat() || Vorpil->isDead())
                 {
                     me->Kill(me);
                     return;
@@ -205,7 +205,7 @@ public:
                 for (uint8 i = 0; i < 5; ++i)
                 {
                     Unit* Portal = Unit::GetUnit(*me, PortalsGuid[i]);
-                    if (Portal && Portal->isAlive())
+                    if (Portal && Portal->IsAlive())
                         Portal->DealDamage(Portal, Portal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     PortalsGuid[i] = 0;
                 }
@@ -290,8 +290,8 @@ public:
                 Map* map = me->GetMap();
                 Map::PlayerList const &PlayerList = map->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* i_pl = i->getSource())
-                        if (i_pl->isAlive() && !i_pl->HasAura(SPELL_BANISH))
+                    if (Player* i_pl = i->GetSource())
+                        if (i_pl->IsAlive() && !i_pl->HasAura(SPELL_BANISH))
                             i_pl->TeleportTo(me->GetMapId(), VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
 
                 me->SetPosition(VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0.0f);

@@ -89,7 +89,7 @@ class boss_razuvious : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STRIKE:
-                            DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
+                            DoCast(me->GetVictim(), SPELL_UNBALANCING_STRIKE);
                             events.ScheduleEvent(EVENT_STRIKE, 30000);
                             break;
                         case EVENT_SHOUT:

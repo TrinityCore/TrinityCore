@@ -84,12 +84,12 @@ public:
 
             if (Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0))
             {
-                if (!pGuard1->isAlive())
+                if (!pGuard1->IsAlive())
                     pGuard1->Respawn();
             }
             if (Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0))
             {
-                if (!pGuard2->isAlive())
+                if (!pGuard2->IsAlive())
                     pGuard2->Respawn();
             }
         }
@@ -109,13 +109,13 @@ public:
                 if (Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0))
                 {
                     pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
-                    if (!pGuard1->getVictim() && pGuard1->AI())
+                    if (!pGuard1->GetVictim() && pGuard1->AI())
                         pGuard1->AI()->AttackStart(who);
                 }
                 if (Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0))
                 {
                     pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
-                    if (!pGuard2->getVictim() && pGuard2->AI())
+                    if (!pGuard2->GetVictim() && pGuard2->AI())
                         pGuard2->AI()->AttackStart(who);
                 }
             }
@@ -157,8 +157,8 @@ public:
                 {
                     if (Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0))
                     {
-                        if (!pGuard1->isAlive() && !pGuard2->isAlive())
-                            DoCast(me->getVictim(), SPELL_STORMSTRIKE);
+                        if (!pGuard1->IsAlive() && !pGuard2->IsAlive())
+                            DoCast(me->GetVictim(), SPELL_STORMSTRIKE);
                     }
                 }
             }
@@ -179,7 +179,7 @@ public:
                     //If one of the adds is dead spawn heals faster
                     Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0);
                     Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0);
-                    uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
+                    uiChainHealTimer = ((pGuard1 && !pGuard1->IsAlive()) || (pGuard2 && !pGuard2->IsAlive()) ? 3000 : 8000) + rand()%3000;
                 }
             } else uiChainHealTimer -= diff;
 
@@ -191,7 +191,7 @@ public:
 
             if (uiEarthShockTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_EARTH_SHOCK);
+                DoCast(me->GetVictim(), SPELL_EARTH_SHOCK);
                 uiEarthShockTimer = urand(8000, 13000);
             } else uiEarthShockTimer -= diff;
 
@@ -237,11 +237,11 @@ public:
                 return me->GetGUID();
 
             Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0);
-            if (pGuard1 && pGuard1->isAlive() && !pGuard1->HealthAbovePct(75))
+            if (pGuard1 && pGuard1->IsAlive() && !pGuard1->HealthAbovePct(75))
                 return pGuard1->GetGUID();
 
             Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0);
-            if (pGuard2 && pGuard2->isAlive() && !pGuard2->HealthAbovePct(75))
+            if (pGuard2 && pGuard2->IsAlive() && !pGuard2->HealthAbovePct(75))
                 return pGuard2->GetGUID();
 
             return 0;
@@ -312,19 +312,19 @@ public:
 
             if (uiStrikeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STRIKE);
+                DoCast(me->GetVictim(), SPELL_STRIKE);
                 uiStrikeTimer = urand(4000, 8000);
             } else uiStrikeTimer -= diff;
 
             if (uiHowlingScreechTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HOWLING_SCREECH);
+                DoCast(me->GetVictim(), SPELL_HOWLING_SCREECH);
                 uiHowlingScreechTimer = urand(8000, 13000);
             } else uiHowlingScreechTimer -= diff;
 
             if (uiGushingWoundTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GUSHING_WOUND);
+                DoCast(me->GetVictim(), SPELL_GUSHING_WOUND);
                 uiGushingWoundTimer = urand(7000, 12000);
             } else uiGushingWoundTimer -= diff;
         }

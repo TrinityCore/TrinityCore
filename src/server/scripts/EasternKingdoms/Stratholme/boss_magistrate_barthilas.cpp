@@ -63,7 +63,7 @@ public:
             FuriousAnger_Timer = 5000;
             AngerCount = 0;
 
-            if (me->isAlive())
+            if (me->IsAlive())
                 me->SetDisplayId(MODEL_NORMAL);
             else
                 me->SetDisplayId(MODEL_HUMAN);
@@ -104,21 +104,21 @@ public:
             //DrainingBlow
             if (DrainingBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DRAININGBLOW);
+                DoCast(me->GetVictim(), SPELL_DRAININGBLOW);
                 DrainingBlow_Timer = 15000;
             } else DrainingBlow_Timer -= diff;
 
             //CrowdPummel
             if (CrowdPummel_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CROWDPUMMEL);
+                DoCast(me->GetVictim(), SPELL_CROWDPUMMEL);
                 CrowdPummel_Timer = 15000;
             } else CrowdPummel_Timer -= diff;
 
             //MightyBlow
             if (MightyBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
+                DoCast(me->GetVictim(), SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 20000;
             } else MightyBlow_Timer -= diff;
 

@@ -360,7 +360,7 @@ class boss_algalon_the_observer : public CreatureScript
                     case EVENT_DESPAWN_ALGALON:
                         events.Reset();
                         events.SetPhase(PHASE_ROLE_PLAY);
-                        if (me->isInCombat())
+                        if (me->IsInCombat())
                             events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
                         events.ScheduleEvent(EVENT_DESPAWN_ALGALON_1, 5000);
                         events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17000);
@@ -1074,7 +1074,7 @@ class spell_algalon_phase_punch : public SpellScriptLoader
 class NotVictimFilter
 {
     public:
-        NotVictimFilter(Unit* caster) : _victim(caster->getVictim())
+        NotVictimFilter(Unit* caster) : _victim(caster->GetVictim())
         {
         }
 

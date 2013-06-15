@@ -198,12 +198,12 @@ class npc_tiger_matriarch_credit : public CreatureScript
                     {
                         for (std::list<Creature*>::iterator itr = tigers.begin(); itr != tigers.end(); ++itr)
                         {
-                            if (!(*itr)->isSummon())
+                            if (!(*itr)->IsSummon())
                                 continue;
 
                             if (Unit* summoner = (*itr)->ToTempSummon()->GetSummoner())
                                 if (!summoner->HasAura(SPELL_NO_SUMMON_AURA) && !summoner->HasAura(SPELL_SUMMON_ZENTABRA_TRIGGER)
-                                    && !summoner->isInCombat())
+                                    && !summoner->IsInCombat())
                                 {
                                     me->AddAura(SPELL_NO_SUMMON_AURA, summoner);
                                     me->AddAura(SPELL_DETECT_INVIS, summoner);
@@ -261,7 +261,7 @@ class npc_tiger_matriarch : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() != TYPEID_UNIT || !victim->isSummon())
+                if (victim->GetTypeId() != TYPEID_UNIT || !victim->IsSummon())
                     return;
 
                 if (Unit* vehSummoner = victim->ToTempSummon()->GetSummoner())
@@ -276,7 +276,7 @@ class npc_tiger_matriarch : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (!attacker->isSummon())
+                if (!attacker->IsSummon())
                     return;
 
                 if (HealthBelowPct(20))
@@ -319,7 +319,7 @@ class npc_tiger_matriarch : public CreatureScript
                         case EVENT_NOSUMMON: // Reapply SPELL_NO_SUMMON_AURA
                             if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
                             {
-                                if (tiger->isSummon())
+                                if (tiger->IsSummon())
                                     if (Unit* vehSummoner = tiger->ToTempSummon()->GetSummoner())
                                         me->AddAura(SPELL_NO_SUMMON_AURA, vehSummoner);
                             }

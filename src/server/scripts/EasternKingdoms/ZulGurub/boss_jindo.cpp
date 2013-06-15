@@ -110,7 +110,7 @@ class boss_jindo : public CreatureScript
                             events.ScheduleEvent(EVENT_POWERFULLHEALINGWARD, urand(14000, 20000));
                             break;
                         case EVENT_HEX:
-                            if (Unit* target = me->getVictim())
+                            if (Unit* target = me->GetVictim())
                             {
                                 DoCast(target, SPELL_HEX, true);
                                 if (DoGetThreat(target))
@@ -134,7 +134,7 @@ class boss_jindo : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 DoTeleportPlayer(target, TeleportLoc.m_positionX, TeleportLoc.m_positionY, TeleportLoc.m_positionZ, TeleportLoc.m_orientation);
-                                if (DoGetThreat(me->getVictim()))
+                                if (DoGetThreat(me->GetVictim()))
                                     DoModifyThreatPercent(target, -100);
                                 Creature* SacrificedTroll;
                                 SacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, target->GetPositionX()+2, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -266,7 +266,7 @@ class mob_shade_of_jindo : public CreatureScript
                 //ShadowShock_Timer
                 if (ShadowShock_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHADOWSHOCK);
+                    DoCast(me->GetVictim(), SPELL_SHADOWSHOCK);
                     ShadowShock_Timer = 2000;
                 } else ShadowShock_Timer -= diff;
 

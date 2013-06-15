@@ -80,11 +80,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SHOOT:
-                        DoCast(me->getVictim(), SPELL_SHOOT);
+                        DoCast(me->GetVictim(), SPELL_SHOOT);
                         events.ScheduleEvent(EVENT_SHOOT, 500);
                         break;
                     case EVENT_STUN_BOMB:
-                        DoCast(me->getVictim(), SPELL_STUNBOMB);
+                        DoCast(me->GetVictim(), SPELL_STUNBOMB);
                         events.ScheduleEvent(EVENT_STUN_BOMB, 14 * IN_MILLISECONDS);
                         break;
                 }

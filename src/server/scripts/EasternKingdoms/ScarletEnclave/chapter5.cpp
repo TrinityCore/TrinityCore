@@ -230,7 +230,7 @@ void UpdateWorldState(Map* map, uint32 id, uint32 state)
     {
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
-            if (Player* player = itr->getSource())
+            if (Player* player = itr->GetSource())
                 player->SendUpdateWorldState(id, state);
         }
     }
@@ -291,7 +291,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(12801) == QUEST_STATUS_INCOMPLETE)
@@ -1302,8 +1302,8 @@ public:
                                 if (!PlayerList.isEmpty())
                                 {
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                                        if (i->getSource()->isAlive() && me->IsWithinDistInMap(i->getSource(), 50))
-                                            i->getSource()->CastSpell(i->getSource(), SPELL_THE_LIGHT_OF_DAWN_Q, false);
+                                        if (i->GetSource()->IsAlive() && me->IsWithinDistInMap(i->GetSource(), 50))
+                                            i->GetSource()->CastSpell(i->GetSource(), SPELL_THE_LIGHT_OF_DAWN_Q, false);
                                 }
                             }
                             me->SetVisible(false); // respawns another Darion for quest turn in
@@ -1343,25 +1343,25 @@ public:
 
                 if (uiDeath_strike <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DEATH_STRIKE);
+                    DoCast(me->GetVictim(), SPELL_DEATH_STRIKE);
                     uiDeath_strike = urand(5000, 10000);
                 } else uiDeath_strike -= diff;
 
                 if (uiDeath_embrace <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DEATH_EMBRACE);
+                    DoCast(me->GetVictim(), SPELL_DEATH_EMBRACE);
                     uiDeath_embrace = urand(5000, 10000);
                 } else uiDeath_embrace -= diff;
 
                 if (uiIcy_touch <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ICY_TOUCH1);
+                    DoCast(me->GetVictim(), SPELL_ICY_TOUCH1);
                     uiIcy_touch = urand(5000, 10000);
                 } else uiIcy_touch -= diff;
 
                 if (uiUnholy_blight <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_UNHOLY_BLIGHT);
+                    DoCast(me->GetVictim(), SPELL_UNHOLY_BLIGHT);
                     uiUnholy_blight = urand(5000, 10000);
                 } else uiUnholy_blight -= diff;
 
@@ -1515,9 +1515,9 @@ public:
         void NPCChangeTarget(uint64 ui_GUID)
         {
             if (Creature* temp = Unit::GetCreature(*me, ui_GUID))
-                if (temp->isAlive())
+                if (temp->IsAlive())
                     if (Unit* pTarger = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        if (pTarger->isAlive())
+                        if (pTarger->IsAlive())
                         {
                             // temp->DeleteThreatList();
                             temp->AddThreat(pTarger, 0.0f);
@@ -1634,7 +1634,7 @@ public:
         void DespawnNPC(uint64 pGUID)
         {
             if (Creature* temp = Unit::GetCreature(*me, pGUID))
-                if (temp->isAlive())
+                if (temp->IsAlive())
                 {
                     temp->SetVisible(false);
                     temp->Kill(temp);

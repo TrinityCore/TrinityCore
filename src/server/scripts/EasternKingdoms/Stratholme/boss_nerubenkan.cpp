@@ -92,7 +92,7 @@ public:
             //EncasingWebs
             if (EncasingWebs_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ENCASINGWEBS);
+                DoCast(me->GetVictim(), SPELL_ENCASINGWEBS);
                 EncasingWebs_Timer = 30000;
             } else EncasingWebs_Timer -= diff;
 
@@ -100,21 +100,21 @@ public:
             if (PierceArmor_Timer <= diff)
             {
                 if (urand(0, 3) < 2)
-                    DoCast(me->getVictim(), SPELL_PIERCEARMOR);
+                    DoCast(me->GetVictim(), SPELL_PIERCEARMOR);
                 PierceArmor_Timer = 35000;
             } else PierceArmor_Timer -= diff;
 
             //CryptScarabs_Timer
             if (CryptScarabs_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CRYPT_SCARABS);
+                DoCast(me->GetVictim(), SPELL_CRYPT_SCARABS);
                 CryptScarabs_Timer = 20000;
             } else CryptScarabs_Timer -= diff;
 
             //RaiseUndeadScarab
             if (RaiseUndeadScarab_Timer <= diff)
             {
-                RaiseUndeadScarab(me->getVictim());
+                RaiseUndeadScarab(me->GetVictim());
                 RaiseUndeadScarab_Timer = 16000;
             } else RaiseUndeadScarab_Timer -= diff;
 
