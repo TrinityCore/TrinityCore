@@ -301,6 +301,7 @@ public:
                         //enrage at 20%
                         if (HealthBelowPct(20))
                             events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
+                        break;
                 }
             }
             DoMeleeAttackIfReady();
