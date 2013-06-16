@@ -12,7 +12,7 @@ UPDATE `waypoint_data` SET `id`=2034560 WHERE `id`=203591;
 DELETE FROM `creature` WHERE `id`=18996;
 
 -- Delete existing unblizzlike spawns
-DELETE FROM `creature` WHERE `id` IN (29064,29063,29062,29098,29096,29097,@AttackingNecromancer,@AttackingChampion,@AttackingFiend,@NoSpellNecromancer);
+DELETE FROM `creature` WHERE `id` IN (29064,29063,29062,29098,29096,29097);
 -- Delete addon data from previous mentioned wrong spanws
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN 127316 AND 127337;
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN 127340 AND 127375;
