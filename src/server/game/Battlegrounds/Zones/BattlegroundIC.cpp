@@ -326,11 +326,28 @@ void BattlegroundIC::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team
     }
 }
 
-void BattlegroundIC::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
+void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
+	// not really possible to get this with the ships being broken and all, but it's here nonetheless.
+
+	if(trigger == 5555 && player->GetTeamId() == TEAM_HORDE)
+	{
+		if(GateStatus[BG_IC_A_FRONT] != BG_IC_GATE_DESTROYED 
+			&& GateStatus[BG_IC_A_WEST] != BG_IC_GATE_DESTROYED 
+			&& GateStatus[BG_IC_A_EAST] != BG_IC_GATE_DESTROYED)
+		player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+	}
+	else if (trigger == 5535 && player->GetTeamId() == TEAM_ALLIANCE)
+	{
+		if(GateStatus[BG_IC_H_FRONT] != BG_IC_GATE_DESTROYED 
+			&& GateStatus[BG_IC_H_WEST] != BG_IC_GATE_DESTROYED 
+			&& GateStatus[BG_IC_H_EAST] != BG_IC_GATE_DESTROYED)
+		player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+	}
 }
 
 void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
