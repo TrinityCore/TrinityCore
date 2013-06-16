@@ -22238,6 +22238,27 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
     m_spellCooldowns[spellid] = sc;
 }
 
+void Player::ModifySpellCooldown(uint32 spellId, int32 cooldown)
+{
+    SpellCooldowns::iterator itr = m_spellCooldowns.find(spellId);
+    if (itr == m_spellCooldowns.end())
+        return;
+
+    time_t now = time(NULL);
+    if (itr->second.end + (cooldown / IN_MILLISECONDS) > now)
+        itr->second.end += (cooldown / IN_MILLISECONDS);
+    else
+        m_spellCooldowns.erase(itr);
+
+    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
+    data << uint32(spellId);            // Spell ID
+    data << uint64(GetGUID());          // Player GUID
+    data << int32(cooldown);            // Cooldown mod in milliseconds
+    GetSession()->SendPacket(&data);
+
+    TC_LOG_DEBUG(LOG_FILTER_GENERAL, "ModifySpellCooldown:: Player: %s (GUID: %u) Spell: %u cooldown: %u", GetName().c_str(), GetGUIDLow(), spellId, GetSpellCooldownDelay(spellId));
+}
+
 void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, Spell* spell /*= NULL*/, bool setCooldown /*= true*/)
 {
     // start cooldowns at server side, if any
