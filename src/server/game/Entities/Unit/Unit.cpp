@@ -1282,19 +1282,19 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     {
         bool HasAuraParry = false;
 
-		AuraEffectList const& mTotalAuraList = pVictim->GetAuraEffectsByType(SPELL_AURA_MOD_PARRY_PERCENT);
+		AuraEffectList const& mTotalAuraList = victim->GetAuraEffectsByType(SPELL_AURA_MOD_PARRY_PERCENT);
 		for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
 		{
 			if ((*i)->GetId() == 23547)
 			{
-				pVictim->RemoveAurasDueToSpell(23547);
+				victim->RemoveAurasDueToSpell(23547);
 				HasAuraParry = true;
 				break;
 			}
 		}
 
 		if (!HasAuraParry)
-			pVictim->CastSpell(pVictim, 23547, false);
+			victim->CastSpell(victim, 23547, false);
     }
 
     // Call default DealDamage
