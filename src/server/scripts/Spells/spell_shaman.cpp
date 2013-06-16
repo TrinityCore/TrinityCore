@@ -377,10 +377,10 @@ class spell_sha_feedback : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_MASTERY))
                     return false;
-               return true;
+                return true;
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction(); // will prevent default effect execution
                 if (Player* target = GetTarget()->ToPlayer())
@@ -389,7 +389,6 @@ class spell_sha_feedback : public SpellScriptLoader
 
             void Register()
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_feedback_AuraScript::DoCheck);
                 OnEffectProc += AuraEffectProcFn(spell_sha_feedback_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -638,7 +637,7 @@ class spell_sha_lava_surge : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_SURGE))
                     return false;
-               return true;
+                return true;
             }
 
             void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -673,7 +672,7 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_BURST))
                     return false;
-               return true;
+                return true;
             }
 
             bool Load()
