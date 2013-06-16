@@ -35,6 +35,7 @@ enum ShamanSpells
     SPELL_SHAMAN_ANCESTRAL_AWAKENING_PROC       = 52752,
     SPELL_SHAMAN_BIND_SIGHT                     = 6277,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
+    SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
@@ -359,6 +360,43 @@ class spell_sha_earthen_power : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_earthen_power_SpellScript();
+        }
+};
+
+// 86185 Feedback
+class spell_sha_feedback : public SpellScriptLoader
+{
+    public:
+        spell_sha_feedback() : SpellScriptLoader("spell_sha_feedback") { }
+
+        class spell_sha_feedback_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_feedback_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_MASTERY))
+                    return false;
+               return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction(); // will prevent default effect execution
+                if (Player* target = GetTarget()->ToPlayer())
+                    target->ModifySpellCooldown(SPELL_SHAMAN_ELEMENTAL_MASTERY, aurEff->GetBaseAmount());
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_sha_feedback_AuraScript::DoCheck);
+                OnEffectProc += AuraEffectProcFn(spell_sha_feedback_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_feedback_AuraScript();
         }
 };
 
@@ -729,6 +767,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earth_shield();
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
+    new spell_sha_feedback();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
     new spell_sha_healing_stream_totem();
