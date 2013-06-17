@@ -8,7 +8,7 @@ Generator command line args
                                     "map_id tile_x,tile_y (start_x start_y start_z) (end_x end_y end_z) size  //optional comments"
                                     Single mesh connection per line.
 
---silent                            Make us script friendly. Do not wait for user input
+--silent            []              Make us script friendly. Do not wait for user input
                                     on error or completion.
 
 --bigBaseUnit       [true|false]    Generate tile/map using bigger basic unit.
@@ -20,7 +20,7 @@ Generator command line args
 
                                     float between 45 and 90 degrees (default 60)
 
---skipLiquid                        liquid data for maps
+--skipLiquid        [true|false]    extract liquid data for maps
 
                                     false: include liquid data (default)
 
