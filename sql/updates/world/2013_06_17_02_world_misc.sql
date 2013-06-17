@@ -1,3 +1,43 @@
+-- Add option conditions for Alchemist Finklestein
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (15) AND `SourceGroup` IN (9668) AND `SourceEntry` IN (0) AND `ConditionValue1` IN (51216);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(15,9668,0,1,1,51216,0,0,1,0,'','Alchemist Finklestein - Show gossip option only if player does not have aura 51216');
+
+UPDATE `creature_template` SET `AIName`= '',`ScriptName`= 'npc_alchemist_finklestein' WHERE `entry`=28205;
+UPDATE `gameobject_template` SET `ScriptName`= 'go_finklesteins_cauldron' WHERE `entry`=190498;
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (51134,51105,51107,51015,51154,51157,51046,51018,51055,51057,
+51059,51062,51064,51067,51069,51072,51077,51079,51081,51083,51085,51087,51091,51093,51095,51097,51100,51102);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES 
+(51134,'spell_random_ingredient_easy'),
+(51105,'spell_random_ingredient_medium'),
+(51107,'spell_random_ingredient_hard'),
+(51015,'spell_random_ingredient_aura'),
+(51154,'spell_random_ingredient_aura'),
+(51157,'spell_random_ingredient_aura'),
+(51046,'spell_pot_check'),
+(51018,'spell_fetch_ingredient_aura'),
+(51055,'spell_fetch_ingredient_aura'),
+(51057,'spell_fetch_ingredient_aura'),
+(51059,'spell_fetch_ingredient_aura'),
+(51062,'spell_fetch_ingredient_aura'),
+(51064,'spell_fetch_ingredient_aura'),
+(51067,'spell_fetch_ingredient_aura'),
+(51069,'spell_fetch_ingredient_aura'),
+(51072,'spell_fetch_ingredient_aura'),
+(51077,'spell_fetch_ingredient_aura'),
+(51079,'spell_fetch_ingredient_aura'),
+(51081,'spell_fetch_ingredient_aura'),
+(51083,'spell_fetch_ingredient_aura'),
+(51085,'spell_fetch_ingredient_aura'),
+(51087,'spell_fetch_ingredient_aura'),
+(51091,'spell_fetch_ingredient_aura'),
+(51093,'spell_fetch_ingredient_aura'),
+(51095,'spell_fetch_ingredient_aura'),
+(51097,'spell_fetch_ingredient_aura'),
+(51100,'spell_fetch_ingredient_aura'),
+(51102,'spell_fetch_ingredient_aura');
+
 -- Add texts for Alchemist Finklestein
 DELETE FROM `creature_text` WHERE `entry`=28205;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
