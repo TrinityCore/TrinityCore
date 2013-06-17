@@ -36,7 +36,7 @@ namespace DisableMgr
 }
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 3
+#define MMAP_VERSION 4
 
 struct MmapTileHeader
 {
@@ -332,12 +332,12 @@ namespace MMAP
             buildNavMesh(mapID, navMesh);
             if (!navMesh)
             {
-                printf("[Map %i] Failed creating navmesh!\n", mapID);
+                printf("[Map %03i] Failed creating navmesh!\n", mapID);
                 return;
             }
 
             // now start building mmtiles for each tile
-            printf("[Map %i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
+            printf("[Map %03i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
             for (std::set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
             {
                 uint32 tileX, tileY;
@@ -354,13 +354,13 @@ namespace MMAP
             dtFreeNavMesh(navMesh);
         }
 
-        printf("[Map %i] Complete!\n", mapID);
+        printf("[Map %03i] Complete!\n", mapID);
     }
 
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        printf("[Map %i] Building tile [%02u,%02u]\n", mapID, tileX, tileY);
+        printf("[Map %03i] Building tile [%02u,%02u]\n", mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -446,10 +446,10 @@ namespace MMAP
         navMeshParams.maxPolys = maxPolysPerTile;
 
         navMesh = dtAllocNavMesh();
-        printf("[Map %i] Creating navMesh...\n", mapID);
+        printf("[Map %03i] Creating navMesh...\n", mapID);
         if (!navMesh->init(&navMeshParams))
         {
-            printf("[Map %i] Failed creating navmesh!                \n", mapID);
+            printf("[Map %03i] Failed creating navmesh!                \n", mapID);
             return;
         }
 
@@ -461,7 +461,7 @@ namespace MMAP
         {
             dtFreeNavMesh(navMesh);
             char message[1024];
-            sprintf(message, "[Map %i] Failed to open %s for writing!\n", mapID, fileName);
+            sprintf(message, "[Map %03i] Failed to open %s for writing!\n", mapID, fileName);
             perror(message);
             return;
         }
@@ -496,8 +496,8 @@ namespace MMAP
 
         // these are WORLD UNIT based metrics
         // this are basic unit dimentions
-        // value have to divide GRID_SIZE(533.33333f) ( aka: 0.5333, 0.2666, 0.3333, 0.1333, etc )
-        const static float BASE_UNIT_DIM = m_bigBaseUnit ? 0.533333f : 0.266666f;
+        // value have to divide GRID_SIZE(533.3333f) ( aka: 0.5333, 0.2666, 0.3333, 0.1333, etc )
+        const static float BASE_UNIT_DIM = m_bigBaseUnit ? 0.5333333f : 0.2666666f;
 
         // All are in UNIT metrics!
         const static int VERTEX_PER_MAP = int(GRID_SIZE/BASE_UNIT_DIM + 0.5f);
@@ -517,12 +517,12 @@ namespace MMAP
         config.tileSize = VERTEX_PER_TILE;
         config.walkableRadius = m_bigBaseUnit ? 1 : 2;
         config.borderSize = config.walkableRadius + 3;
-        config.maxEdgeLen = VERTEX_PER_TILE + 1;        //anything bigger than tileSize
-        config.walkableHeight = m_bigBaseUnit ? 3 : 6;
-        config.walkableClimb = m_bigBaseUnit ? 2 : 4;   // keep less than walkableHeight
+        config.maxEdgeLen = VERTEX_PER_TILE + 1;        // anything bigger than tileSize
+        config.walkableHeight = m_bigBaseUnit ? 2 : 4;
+        config.walkableClimb = m_bigBaseUnit ? 1 : 2;   // keep less than walkableHeight
         config.minRegionArea = rcSqr(60);
         config.mergeRegionArea = rcSqr(50);
-        config.maxSimplificationError = 2.0f;       // eliminates most jagged edges (tinny polygons)
+        config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
         config.detailSampleDist = config.cs * 64;
         config.detailSampleMaxError = config.ch * 2;
 
@@ -677,14 +677,6 @@ namespace MMAP
 
         delete[] tiles;
 
-        // remove padding for extraction
-        for (int i = 0; i < iv.polyMesh->nverts; ++i)
-        {
-            unsigned short* v = &iv.polyMesh->verts[i*3];
-            v[0] -= (unsigned short)config.borderSize;
-            v[2] -= (unsigned short)config.borderSize;
-        }
-
         // set polygons as walkable
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
@@ -723,8 +715,9 @@ namespace MMAP
         rcVcopy(params.bmax, bmax);
         params.cs = config.cs;
         params.ch = config.ch;
-        params.tileSize = VERTEX_PER_MAP;
-
+        params.tileLayer = 0;
+        params.buildBvTree = true; 
+ 
         // will hold final navmesh
         unsigned char* navData = NULL;
         int navDataSize = 0;
@@ -792,7 +785,7 @@ namespace MMAP
             if (!file)
             {
                 char message[1024];
-                sprintf(message, "[Map %i] Failed to open %s for writing!\n", mapID, fileName);
+                sprintf(message, "[Map %03i] Failed to open %s for writing!\n", mapID, fileName);
                 perror(message);
                 navMesh->removeTile(tileRef, NULL, NULL);
                 continue;
@@ -854,50 +847,50 @@ namespace MMAP
     {
         if (m_skipContinents)
             switch (mapID)
-        {
-            case 0:
-            case 1:
-            case 530:
-            case 571:
-                return true;
-            default:
-                break;
-        }
+            {
+                case 0:
+                case 1:
+                case 530:
+                case 571:
+                    return true;
+                default:
+                    break;
+            }
 
         if (m_skipJunkMaps)
             switch (mapID)
-        {
-            case 13:    // test.wdt
-            case 25:    // ScottTest.wdt
-            case 29:    // Test.wdt
-            case 42:    // Colin.wdt
-            case 169:   // EmeraldDream.wdt (unused, and very large)
-            case 451:   // development.wdt
-            case 573:   // ExteriorTest.wdt
-            case 597:   // CraigTest.wdt
-            case 605:   // development_nonweighted.wdt
-            case 606:   // QA_DVD.wdt
-                return true;
-            default:
-                if (isTransportMap(mapID))
+            {
+                case 13:    // test.wdt
+                case 25:    // ScottTest.wdt
+                case 29:    // Test.wdt
+                case 42:    // Colin.wdt
+                case 169:   // EmeraldDream.wdt (unused, and very large)
+                case 451:   // development.wdt
+                case 573:   // ExteriorTest.wdt
+                case 597:   // CraigTest.wdt
+                case 605:   // development_nonweighted.wdt
+                case 606:   // QA_DVD.wdt
                     return true;
-                break;
-        }
+                default:
+                    if (isTransportMap(mapID))
+                        return true;
+                    break;
+            }
 
         if (m_skipBattlegrounds)
             switch (mapID)
-        {
-            case 30:    // AV
-            case 37:    // ?
-            case 489:   // WSG
-            case 529:   // AB
-            case 566:   // EotS
-            case 607:   // SotA
-            case 628:   // IoC
-                return true;
-            default:
-                break;
-        }
+            {
+                case 30:    // AV
+                case 37:    // ?
+                case 489:   // WSG
+                case 529:   // AB
+                case 566:   // EotS
+                case 607:   // SotA
+                case 628:   // IoC
+                    return true;
+                default:
+                    break;
+            }
 
         return false;
     }
@@ -908,37 +901,37 @@ namespace MMAP
         switch (mapID)
         {
             // transport maps
-        case 582:
-        case 584:
-        case 586:
-        case 587:
-        case 588:
-        case 589:
-        case 590:
-        case 591:
-        case 592:
-        case 593:
-        case 594:
-        case 596:
-        case 610:
-        case 612:
-        case 613:
-        case 614:
-        case 620:
-        case 621:
-        case 622:
-        case 623:
-        case 641:
-        case 642:
-        case 647:
-        case 672:
-        case 673:
-        case 712:
-        case 713:
-        case 718:
-            return true;
-        default:
-            return false;
+            case 582:
+            case 584:
+            case 586:
+            case 587:
+            case 588:
+            case 589:
+            case 590:
+            case 591:
+            case 592:
+            case 593:
+            case 594:
+            case 596:
+            case 610:
+            case 612:
+            case 613:
+            case 614:
+            case 620:
+            case 621:
+            case 622:
+            case 623:
+            case 641:
+            case 642:
+            case 647:
+            case 672:
+            case 673:
+            case 712:
+            case 713:
+            case 718:
+                return true;
+            default:
+                return false;
         }
     }
 

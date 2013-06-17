@@ -238,6 +238,9 @@ bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b
 	return false;
 }
 
+/// @par
+///
+/// All points are projected onto the xz-plane, so the y-values are ignored.
 bool dtPointInPolygon(const float* pt, const float* verts, const int nverts)
 {
 	// TODO: Replace pnpoly with triArea2D tests?
@@ -291,6 +294,9 @@ inline bool overlapRange(const float amin, const float amax,
 	return ((amin+eps) > bmax || (amax-eps) < bmin) ? false : true;
 }
 
+/// @par
+///
+/// All vertices are projected onto the xz-plane, so the y-values are ignored.
 bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 						 const float* polyb, const int npolyb)
 {
@@ -324,6 +330,64 @@ bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 			return false;
 		}
 	}
+	return true;
+}
+
+// Returns a random point in a convex polygon.
+// Adapted from Graphics Gems article.
+void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
+							   const float s, const float t, float* out)
+{
+	// Calc triangle araes
+	float areasum = 0.0f;
+	for (int i = 2; i < npts; i++) {
+		areas[i] = dtTriArea2D(&pts[0], &pts[(i-1)*3], &pts[i*3]);
+		areasum += dtMax(0.001f, areas[i]);
+	}
+	// Find sub triangle weighted by area.
+	const float thr = s*areasum;
+	float acc = 0.0f;
+	float u = 0.0f;
+	int tri = 0;
+	for (int i = 2; i < npts; i++) {
+		const float dacc = areas[i];
+		if (thr >= acc && thr < (acc+dacc))
+		{
+			u = (thr - acc) / dacc;
+			tri = i;
+			break;
+		}
+		acc += dacc;
+	}
+	
+	float v = dtSqrt(t);
+	
+	const float a = 1 - v;
+	const float b = (1 - u) * v;
+	const float c = u * v;
+	const float* pa = &pts[0];
+	const float* pb = &pts[(tri-1)*3];
+	const float* pc = &pts[tri*3];
+	
+	out[0] = a*pa[0] + b*pb[0] + c*pc[0];
+	out[1] = a*pa[1] + b*pb[1] + c*pc[1];
+	out[2] = a*pa[2] + b*pb[2] + c*pc[2];
+}
+
+inline float vperpXZ(const float* a, const float* b) { return a[0]*b[2] - a[2]*b[0]; }
+
+bool dtIntersectSegSeg2D(const float* ap, const float* aq,
+						 const float* bp, const float* bq,
+						 float& s, float& t)
+{
+	float u[3], v[3], w[3];
+	dtVsub(u,aq,ap);
+	dtVsub(v,bq,bp);
+	dtVsub(w,ap,bp);
+	float d = vperpXZ(u,v);
+	if (fabsf(d) < 1e-6f) return false;
+	s = vperpXZ(v,w) / d;
+	t = vperpXZ(u,w) / d;
 	return true;
 }
 

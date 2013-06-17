@@ -154,6 +154,13 @@ static void addSpan(rcHeightfield& hf, const int x, const int y,
 	}
 }
 
+/// @par
+///
+/// The span addition can be set to favor flags. If the span is merged to
+/// another span and the new @p smax is within @p flagMergeThr units
+/// from the existing span, the span flags are merged.
+///
+/// @see rcHeightfield, rcSpan.
 void rcAddSpan(rcContext* /*ctx*/, rcHeightfield& hf, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
 			   const unsigned char area, const int flagMergeThr)
@@ -276,6 +283,11 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	}
 }
 
+/// @par
+///
+/// No spans will be added if the triangle does not overlap the heightfield grid.
+///
+/// @see rcHeightfield
 void rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const float* v2,
 						 const unsigned char area, rcHeightfield& solid,
 						 const int flagMergeThr)
@@ -291,6 +303,11 @@ void rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const
 	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
+/// @par
+///
+/// Spans will only be added for triangles that overlap the heightfield grid.
+///
+/// @see rcHeightfield
 void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 						  const int* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
@@ -314,6 +331,11 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
+/// @par
+///
+/// Spans will only be added for triangles that overlap the heightfield grid.
+///
+/// @see rcHeightfield
 void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 						  const unsigned short* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
@@ -337,6 +359,11 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
+/// @par
+///
+/// Spans will only be added for triangles that overlap the heightfield grid.
+///
+/// @see rcHeightfield
 void rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
