@@ -16,7 +16,6 @@ file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
 file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
 file(GLOB_RECURSE sources_Database Database/*.cpp Database/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
-file(GLOB_RECURSE sources_Debugging Debugging/*.cpp Debugging/*.h)
 file(GLOB_RECURSE sources_Dynamic Dynamic/*.cpp Dynamic/*.h)
 file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
 file(GLOB_RECURSE sources_Packets Packets/*.cpp Packets/*.h)
@@ -24,6 +23,11 @@ file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
 file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h)
 
 file(GLOB sources_localdir *.cpp *.h)
+
+# Manually set sources for Debugging directory as we don't want to include WheatyExceptionReport in shared project
+# It needs to be included both in authserver and worldserver for the static global variable to be properly initialized
+# and to handle crash logs on windows
+set(sources_Debugging Debugging/Errors.cpp Debugging/Errors.h)
 
 #
 # Build shared sourcelist

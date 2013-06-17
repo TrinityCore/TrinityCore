@@ -67,7 +67,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_THE_STORY_THUS_FAR) == QUEST_STATUS_INCOMPLETE)
@@ -921,7 +921,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                 if (id == POINT_GRAB_DECOY)
                     if (TempSummon* summon = me->ToTempSummon())
                         if (Unit* summoner = summon->GetSummoner())
-                            DoCast(summoner, SPELL_GRAB); 
+                            DoCast(summoner, SPELL_GRAB);
             }
 
             void UpdateAI(uint32 diff)

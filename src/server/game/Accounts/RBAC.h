@@ -95,6 +95,7 @@ enum RBACPermissions
     RBAC_PERM_SILENTLY_JOIN_CHANNEL                          = 45,
     RBAC_PERM_CHANGE_CHANNEL_NOT_MODERATOR                   = 46,
     RBAC_PERM_CHECK_FOR_LOWER_SECURITY                       = 47,
+    RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA             = 48,
     RBAC_PERM_MAX
 };
 

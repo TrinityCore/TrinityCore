@@ -59,7 +59,7 @@ class Vehicle : public TransportBase
 
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
-        void RemovePassenger(Unit* passenger);
+        Vehicle* RemovePassenger(Unit* passenger);
         void RelocatePassengers();
         void RemoveAllPassengers();
         bool IsVehicleInUse() const;
@@ -89,10 +89,10 @@ class Vehicle : public TransportBase
         void InitMovementInfoForBase();
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float& o) const;
+        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = NULL) const;
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float& o) const;
+        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = NULL) const;
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);

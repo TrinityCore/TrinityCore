@@ -276,7 +276,7 @@ public:
             //Infernal Cleanup
             for (std::vector<uint64>::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
                 if (Unit* pInfernal = Unit::GetUnit(*me, *itr))
-                    if (pInfernal->isAlive())
+                    if (pInfernal->IsAlive())
                     {
                         pInfernal->SetVisible(false);
                         pInfernal->setDeathState(JUST_DIED);
@@ -290,7 +290,7 @@ public:
             for (uint8 i = 0; i < 2; ++i)
             {
                 Unit* axe = Unit::GetUnit(*me, axes[i]);
-                if (axe && axe->isAlive())
+                if (axe && axe->IsAlive())
                     axe->Kill(axe);
                 axes[i] = 0;
             }
@@ -324,7 +324,7 @@ public:
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
                 if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                    if (target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                         targets.push_back(target);
 
             //cut down to size if we have more than 5 targets
@@ -348,7 +348,7 @@ public:
             for (uint8 i = 0; i < 5; ++i)
             {
                 Unit* target = Unit::GetUnit(*me, enfeeble_targets[i]);
-                if (target && target->isAlive())
+                if (target && target->IsAlive())
                     target->SetHealth(enfeeble_health[i]);
                 enfeeble_targets[i] = 0;
                 enfeeble_health[i] = 0;
@@ -400,8 +400,8 @@ public:
             if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
                 return;
 
-            if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->getVictim()->GetGUID())
-                me->SetTarget(me->getVictim()->GetGUID());
+            if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->GetVictim()->GetGUID())
+                me->SetTarget(me->GetVictim()->GetGUID());
 
             if (phase == 1)
             {
@@ -480,13 +480,13 @@ public:
 
                 if (SunderArmorTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SUNDER_ARMOR);
+                    DoCast(me->GetVictim(), SPELL_SUNDER_ARMOR);
                     SunderArmorTimer = urand(10000, 18000);
                 } else SunderArmorTimer -= diff;
 
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCast(me->GetVictim(), SPELL_CLEAVE);
                     Cleave_Timer = urand(6000, 12000);
                 } else Cleave_Timer -= diff;
             }
@@ -502,11 +502,11 @@ public:
                         {
                             if (Unit* axe = Unit::GetUnit(*me, axes[i]))
                             {
-                                if (axe->getVictim())
-                                    DoModifyThreatPercent(axe->getVictim(), -100);
+                                if (axe->GetVictim())
+                                    DoModifyThreatPercent(axe->GetVictim(), -100);
                                 if (target)
                                     axe->AddThreat(target, 1000000.0f);
-                                //axe->getThreatManager().tauntFadeOut(axe->getVictim());
+                                //axe->getThreatManager().tauntFadeOut(axe->GetVictim());
                                 //axe->getThreatManager().tauntApply(target);
                             }
                         }
@@ -530,7 +530,7 @@ public:
 
             if (ShadowNovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWNOVA);
+                DoCast(me->GetVictim(), SPELL_SHADOWNOVA);
                 ShadowNovaTimer = phase == 3 ? 31000 : uint32(-1);
             } else ShadowNovaTimer -= diff;
 
@@ -540,7 +540,7 @@ public:
                 {
                     Unit* target = NULL;
                     if (phase == 1)
-                        target = me->getVictim();        // the tank
+                        target = me->GetVictim();        // the tank
                     else                                          // anyone but the tank
                         target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
@@ -570,18 +570,18 @@ public:
 
         void DoMeleeAttacksIfReady()
         {
-            if (me->IsWithinMeleeRange(me->getVictim()) && !me->IsNonMeleeSpellCasted(false))
+            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCasted(false))
             {
                 //Check for base attack
-                if (me->isAttackReady() && me->getVictim())
+                if (me->isAttackReady() && me->GetVictim())
                 {
-                    me->AttackerStateUpdate(me->getVictim());
+                    me->AttackerStateUpdate(me->GetVictim());
                     me->resetAttackTimer();
                 }
                 //Check for offhand attack
-                if (me->isAttackReady(OFF_ATTACK) && me->getVictim())
+                if (me->isAttackReady(OFF_ATTACK) && me->GetVictim())
                 {
-                    me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
+                    me->AttackerStateUpdate(me->GetVictim(), OFF_ATTACK);
                     me->resetAttackTimer(OFF_ATTACK);
                 }
             }
@@ -605,7 +605,7 @@ void netherspite_infernal::netherspite_infernalAI::Cleanup()
 {
     Creature* pMalchezaar = Unit::GetCreature(*me, malchezaar);
 
-    if (pMalchezaar && pMalchezaar->isAlive())
+    if (pMalchezaar && pMalchezaar->IsAlive())
         CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);
 }
 

@@ -138,7 +138,7 @@ class boss_halazzi : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
-                summon->AI()->AttackStart(me->getVictim());
+                summon->AI()->AttackStart(me->GetVictim());
                 if (summon->GetEntry() == NPC_SPIRIT_LYNX)
                     LynxGUID = summon->GetGUID();
             }
@@ -169,8 +169,8 @@ class boss_halazzi : public CreatureScript
                     if (Phase == PHASE_MERGE)
                     {
                         DoCast(me, SPELL_TRANSFORM_MERGE, true);
-                        me->Attack(me->getVictim(), true);
-                        me->GetMotionMaster()->MoveChase(me->getVictim());
+                        me->Attack(me->GetVictim(), true);
+                        me->GetMotionMaster()->MoveChase(me->GetVictim());
                     }
                     if (Creature* Lynx = Unit::GetCreature(*me, LynxGUID))
                         Lynx->DisappearAndDie();
@@ -232,7 +232,7 @@ class boss_halazzi : public CreatureScript
                     {
                         // A tank with more than 490 defense skills should receive no critical hit
                         //DoCast(me, 41296, true);
-                        DoCast(me->getVictim(), SPELL_SABER_LASH, true);
+                        DoCast(me->GetVictim(), SPELL_SABER_LASH, true);
                         //me->RemoveAurasDueToSpell(41296);
                         SaberlashTimer = 30000;
                     } else SaberlashTimer -= diff;
@@ -397,7 +397,7 @@ class mob_halazzi_lynx : public CreatureScript
 
                 if (shredder_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHRED_ARMOR);
+                    DoCast(me->GetVictim(), SPELL_SHRED_ARMOR);
                     shredder_timer = 4000;
                 } else shredder_timer -= diff;
 

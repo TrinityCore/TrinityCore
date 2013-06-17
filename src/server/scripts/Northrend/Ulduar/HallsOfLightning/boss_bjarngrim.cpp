@@ -154,7 +154,7 @@ public:
             {
                 if (Creature* pStormforgedLieutenant = (Unit::GetCreature((*me), m_auiStormforgedLieutenantGUID[i])))
                 {
-                    if (!pStormforgedLieutenant->isAlive())
+                    if (!pStormforgedLieutenant->IsAlive())
                         pStormforgedLieutenant->Respawn();
                 }
             }
@@ -295,7 +295,7 @@ public:
 
                     if (m_uiPummel_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_PUMMEL);
+                        DoCast(me->GetVictim(), SPELL_PUMMEL);
                         m_uiPummel_Timer = urand(10000, 11000);
                     }
                     else
@@ -316,7 +316,7 @@ public:
                     if (m_uiIntercept_Timer <= uiDiff)
                     {
                         //not much point is this, better random target and more often?
-                        DoCast(me->getVictim(), SPELL_INTERCEPT);
+                        DoCast(me->GetVictim(), SPELL_INTERCEPT);
                         m_uiIntercept_Timer = urand(45000, 46000);
                     }
                     else
@@ -332,7 +332,7 @@ public:
 
                     if (m_uiCleave_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        DoCast(me->GetVictim(), SPELL_CLEAVE);
                         m_uiCleave_Timer = urand(8000, 9000);
                     }
                     else
@@ -344,7 +344,7 @@ public:
                 {
                     if (m_uiMortalStrike_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                        DoCast(me->GetVictim(), SPELL_MORTAL_STRIKE);
                         m_uiMortalStrike_Timer = urand(20000, 21000);
                     }
                     else
@@ -352,7 +352,7 @@ public:
 
                     if (m_uiSlam_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_SLAM);
+                        DoCast(me->GetVictim(), SPELL_SLAM);
                         m_uiSlam_Timer = urand(15000, 16000);
                     }
                     else
@@ -406,7 +406,7 @@ public:
             {
                 if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetData64(DATA_BJARNGRIM)))
                 {
-                    if (pBjarngrim->isAlive() && !pBjarngrim->getVictim())
+                    if (pBjarngrim->IsAlive() && !pBjarngrim->GetVictim())
                         pBjarngrim->AI()->AttackStart(who);
                 }
             }
@@ -420,7 +420,7 @@ public:
 
             if (m_uiArcWeld_Timer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_ARC_WELD);
+                DoCast(me->GetVictim(), SPELL_ARC_WELD);
                 m_uiArcWeld_Timer = urand(20000, 21000);
             }
             else
@@ -432,7 +432,7 @@ public:
                 {
                     if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetData64(DATA_BJARNGRIM)))
                     {
-                        if (pBjarngrim->isAlive())
+                        if (pBjarngrim->IsAlive())
                             DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
                     }
                 }

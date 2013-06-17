@@ -535,7 +535,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             // persistent area aura does not hit flying targets
             if (GetType() == DYNOBJ_AURA_TYPE)
             {
-                if (itr->first->isInFlight())
+                if (itr->first->IsInFlight())
                     addUnit = false;
             }
             // unit auras can not stack with each other
@@ -1600,6 +1600,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             switch (GetId())
             {
                 case 19746:
+                    if (!caster)
+                        break;
+
                     // Improved concentration aura - linked aura
                     if (caster->HasAura(20254) || caster->HasAura(20255) || caster->HasAura(20256))
                     {
@@ -1608,6 +1611,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         else
                             target->RemoveAura(63510);
                     }
+                    break;
                 case 31821:
                     // Aura Mastery Triggered Spell Handler
                     // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity

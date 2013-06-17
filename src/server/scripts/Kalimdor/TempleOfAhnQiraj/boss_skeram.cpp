@@ -40,10 +40,10 @@ enum Spells
 
 enum Events
 {
-    EVENT_ARCANE_EXPLOSION      = 0,
-    EVENT_FULLFILMENT           = 1,
-    EVENT_BLINK                 = 2,
-    EVENT_EARTH_SHOCK           = 3
+    EVENT_ARCANE_EXPLOSION      = 1,
+    EVENT_FULLFILMENT           = 2,
+    EVENT_BLINK                 = 3,
+    EVENT_EARTH_SHOCK           = 4
 };
 
 uint32 const BlinkSpells[3] = { 4801, 8195, 20449 };
@@ -72,7 +72,7 @@ class boss_skeram : public CreatureScript
             void EnterEvadeMode()
             {
                 ScriptedAI::EnterEvadeMode();
-                if (me->isSummon())
+                if (me->IsSummon())
                     ((TempSummon*)me)->UnSummon();
             }
 
@@ -115,7 +115,7 @@ class boss_skeram : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (!me->isSummon())
+                if (!me->IsSummon())
                     Talk(SAY_DEATH);
                 else
                     me->RemoveCorpse();
@@ -168,7 +168,7 @@ class boss_skeram : public CreatureScript
                     }
                 }
 
-                if (!me->isSummon() && me->GetHealthPct() < _hpct)
+                if (!me->IsSummon() && me->GetHealthPct() < _hpct)
                 {
                     DoCast(me, SPELL_SUMMON_IMAGES);
                     Talk(SAY_SPLIT);
@@ -177,7 +177,7 @@ class boss_skeram : public CreatureScript
                     events.RescheduleEvent(EVENT_BLINK, 2000);
                 }
 
-                if (me->IsWithinMeleeRange(me->getVictim()))
+                if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     events.RescheduleEvent(EVENT_EARTH_SHOCK, 2000);
                     DoMeleeAttackIfReady();
@@ -201,7 +201,7 @@ class PlayerOrPetCheck
         bool operator()(WorldObject* object) const
         {
             if (object->GetTypeId() != TYPEID_PLAYER)
-                if (!object->ToCreature()->isPet())
+                if (!object->ToCreature()->IsPet())
                     return true;
 
             return false;

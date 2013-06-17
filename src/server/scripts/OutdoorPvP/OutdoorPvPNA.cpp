@@ -27,6 +27,7 @@
 OutdoorPvPNA::OutdoorPvPNA()
 {
     m_TypeId = OUTDOOR_PVP_NA;
+    m_obj = NULL;
 }
 
 void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
@@ -64,7 +65,7 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
         case NA_NPC_GUARD_14:
         case NA_NPC_GUARD_15:
             if (Creature const* const cr = HashMapHolder<Creature>::Find(itr->second))
-                if (cr->isAlive())
+                if (cr->IsAlive())
                     ++cnt;
             break;
         default:
@@ -216,8 +217,8 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
     m_obj = new OPvPCapturePointNA(this);
     if (!m_obj)
         return false;
-    AddCapturePoint(m_obj);
 
+    AddCapturePoint(m_obj);
     return true;
 }
 

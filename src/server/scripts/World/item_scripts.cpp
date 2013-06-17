@@ -72,7 +72,7 @@ public:
         }
 
         // allow use in flight only
-        if (player->isInFlight() && !disabled)
+        if (player->IsInFlight() && !disabled)
             return false;
 
         // error

@@ -37,6 +37,9 @@ AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
 AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id);
 uint32 GetAreaFlagByMapId(uint32 mapid);
 
+char const* GetRaceName(uint8 race, uint8 locale);
+char const* GetClassName(uint8 class_, uint8 locale);
+
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid);
 
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);

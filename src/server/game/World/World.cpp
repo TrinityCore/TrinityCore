@@ -1222,6 +1222,13 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WINTERGRASP_NOBATTLETIME] = ConfigMgr::GetIntDefault("Wintergrasp.NoBattleTimer", 150);
     m_int_configs[CONFIG_WINTERGRASP_RESTART_AFTER_CRASH] = ConfigMgr::GetIntDefault("Wintergrasp.CrashRestartTimer", 10);
 
+    // Stats limits
+    m_bool_configs[CONFIG_STATS_LIMITS_ENABLE] = ConfigMgr::GetBoolDefault("Stats.Limits.Enable", false);
+    m_float_configs[CONFIG_STATS_LIMITS_DODGE] = ConfigMgr::GetFloatDefault("Stats.Limits.Dodge", 95.0f);
+    m_float_configs[CONFIG_STATS_LIMITS_PARRY] = ConfigMgr::GetFloatDefault("Stats.Limits.Parry", 95.0f);
+    m_float_configs[CONFIG_STATS_LIMITS_BLOCK] = ConfigMgr::GetFloatDefault("Stats.Limits.Block", 95.0f);
+    m_float_configs[CONFIG_STATS_LIMITS_CRIT] = ConfigMgr::GetFloatDefault("Stats.Limits.Crit", 95.0f);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -2167,7 +2174,7 @@ namespace Trinity
                 {
                     WorldPacket* data = new WorldPacket();
 
-                    uint32 lineLength = (line ? strlen(line) : 0) + 1;
+                    uint32 lineLength = strlen(line) + 1;
 
                     data->Initialize(SMSG_MESSAGECHAT, 100);                // guess size
                     *data << uint8(CHAT_MSG_SYSTEM);
@@ -2675,14 +2682,12 @@ void World::SendAutoBroadcast()
 
     if (abcenter == 0)
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
     else if (abcenter == 1)
     {
         WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
         data << msg;
         sWorld->SendGlobalMessage(&data);
     }
-
     else if (abcenter == 2)
     {
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());

@@ -160,7 +160,7 @@ class CreatureAI : public UnitAI
         virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}
 
         // Called when victim entered water and creature can not enter water
-        //virtual bool canReachByRangeAttack(Unit*) { return false; }
+        //virtual bool CanReachByRangeAttack(Unit*) { return false; }
 
         /// == Fields =======================================
 
@@ -169,7 +169,7 @@ class CreatureAI : public UnitAI
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) {}
 
-        virtual void OnSpellClick(Unit* /*clicker*/) { }
+        virtual void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
     protected:

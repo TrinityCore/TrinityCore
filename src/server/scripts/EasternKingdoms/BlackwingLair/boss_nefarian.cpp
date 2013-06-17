@@ -138,28 +138,28 @@ public:
             //ShadowFlame_Timer
             if (ShadowFlame_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWFLAME);
+                DoCast(me->GetVictim(), SPELL_SHADOWFLAME);
                 ShadowFlame_Timer = 12000;
             } else ShadowFlame_Timer -= diff;
 
             //BellowingRoar_Timer
             if (BellowingRoar_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BELLOWINGROAR);
+                DoCast(me->GetVictim(), SPELL_BELLOWINGROAR);
                 BellowingRoar_Timer = 30000;
             } else BellowingRoar_Timer -= diff;
 
             //VeilOfShadow_Timer
             if (VeilOfShadow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VEILOFSHADOW);
+                DoCast(me->GetVictim(), SPELL_VEILOFSHADOW);
                 VeilOfShadow_Timer = 15000;
             } else VeilOfShadow_Timer -= diff;
 
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast(me->GetVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 7000;
             } else Cleave_Timer -= diff;
 
@@ -167,7 +167,7 @@ public:
             if (TailLash_Timer <= diff)
             {
                 //Cast NYI since we need a better check for behind target
-                //DoCast(me->getVictim(), SPELL_TAILLASH);
+                //DoCast(me->GetVictim(), SPELL_TAILLASH);
 
                 TailLash_Timer = 10000;
             } else TailLash_Timer -= diff;

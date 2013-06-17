@@ -33,24 +33,45 @@ static void rcFreeDefault(void *ptr)
 static rcAllocFunc* sRecastAllocFunc = rcAllocDefault;
 static rcFreeFunc* sRecastFreeFunc = rcFreeDefault;
 
+/// @see rcAlloc, rcFree
 void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc)
 {
 	sRecastAllocFunc = allocFunc ? allocFunc : rcAllocDefault;
 	sRecastFreeFunc = freeFunc ? freeFunc : rcFreeDefault;
 }
 
+/// @see rcAllocSetCustom
 void* rcAlloc(int size, rcAllocHint hint)
 {
 	return sRecastAllocFunc(size, hint);
 }
 
+/// @par
+///
+/// @warning This function leaves the value of @p ptr unchanged.  So it still
+/// points to the same (now invalid) location, and not to null.
+/// 
+/// @see rcAllocSetCustom
 void rcFree(void* ptr)
 {
 	if (ptr)
 		sRecastFreeFunc(ptr);
 }
 
+/// @class rcIntArray
+///
+/// While it is possible to pre-allocate a specific array size during 
+/// construction or by using the #resize method, certain methods will 
+/// automatically resize the array as needed.
+///
+/// @warning The array memory is not initialized to zero when the size is 
+/// manually set during construction or when using #resize.
 
+/// @par
+///
+/// Using this method ensures the array is at least large enough to hold
+/// the specified number of elements.  This can improve performance by
+/// avoiding auto-resizing during use.
 void rcIntArray::resize(int n)
 {
 	if (n > m_cap)

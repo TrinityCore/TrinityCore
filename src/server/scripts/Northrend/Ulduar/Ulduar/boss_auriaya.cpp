@@ -146,8 +146,8 @@ class boss_auriaya : public CreatureScript
 
                 if (summoned->GetEntry() == NPC_FERAL_DEFENDER)
                 {
-                    if (!summoned->isInCombat() && me->getVictim())
-                        summoned->AI()->AttackStart(me->getVictim());
+                    if (!summoned->IsInCombat() && me->GetVictim())
+                        summoned->AI()->AttackStart(me->GetVictim());
                     summoned->SetAuraStack(SPELL_FERAL_ESSENCE, summoned, 9);
                     DefenderGUID = summoned->GetGUID();
                     DoZoneInCombat(summoned);
@@ -247,8 +247,8 @@ class boss_auriaya : public CreatureScript
                                 if (defenderLives)
                                     Defender->SetAuraStack(SPELL_FERAL_ESSENCE, Defender, defenderLives);
                                 Defender->SetInCombatWithZone();
-                                if (!Defender->isInCombat())
-                                    Defender->AI()->AttackStart(me->getVictim());
+                                if (!Defender->IsInCombat())
+                                    Defender->AI()->AttackStart(me->GetVictim());
                                 events.CancelEvent(EVENT_RESPAWN_DEFENDER);
                             }
                             break;

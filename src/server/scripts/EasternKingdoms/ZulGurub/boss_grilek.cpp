@@ -35,8 +35,8 @@ enum Spells
 
 enum Events
 {
-    EVENT_AVATAR                    = 0,
-    EVENT_GROUND_TREMOR             = 1
+    EVENT_AVATAR                    = 1,
+    EVENT_GROUND_TREMOR             = 2
 };
 
 class boss_grilek : public CreatureScript // grilek
@@ -80,7 +80,7 @@ class boss_grilek : public CreatureScript // grilek
                     {
                         case EVENT_AVATAR:
                             DoCast(me, SPELL_AVATAR);
-                            if (Unit* victim = me->getVictim())
+                            if (Unit* victim = me->GetVictim())
                             {
                                 if (DoGetThreat(victim))
                                     DoModifyThreatPercent(victim, -50);

@@ -95,7 +95,7 @@ enum Yells
     SAY_STORMWIND_ROLEPLAY_2                = 1,
     SAY_STORMWIND_ROLEPLAY_3                = 2,
     SAY_STORMWIND_ROLEPLAY_6                = 3,
-    
+
     // King Llane
     SAY_STORMWIND_ROLEPLAY_5                = 0,
 };
@@ -433,14 +433,14 @@ class boss_voice_of_yogg_saron : public CreatureScript
             void MoveInLineOfSight(Unit* who)
             {
                 // TODO: MoveInLineOfSight doesn't work for such a big distance
-                if (who->GetTypeId() == TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->isInCombat())
+                if (who->GetTypeId() == TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->IsInCombat())
                     me->SetInCombatWithZone();
             }
 
             void EnterEvadeMode()
             {
                 BossAI::EnterEvadeMode();
-                
+
                 for (uint8 i = DATA_SARA; i <= DATA_MIMIRON_YS; ++i)
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(i)))
                         creature->AI()->EnterEvadeMode();
@@ -448,7 +448,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 // not sure, spoken by Sara (sound), regarding to wowwiki Voice whispers it
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player *player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                     {
                         if (events.IsInPhase(PHASE_ONE))
                             Talk(WHISPER_VOICE_PHASE_1_WIPE, player->GetGUID());
@@ -670,16 +670,16 @@ class boss_sara : public CreatureScript
                 std::map<uint64, uint64>::const_iterator itr = _linkData.find(guid);
                 if (itr != _linkData.end())
                     return itr->second;
- 
+
                 return 0;
             }
- 
+
             void SetLinkBetween(uint64 player1, uint64 player2)
             {
                 _linkData[player1] = player2;
                 _linkData[player2] = player1;
             }
- 
+
             // called once for each target on aura remove
             void RemoveLinkFrom(uint64 player1)
             {
@@ -750,7 +750,7 @@ class boss_sara : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat())
+                if (!me->IsInCombat())
                     return;
 
                 if (me->HasAura(SPELL_SHATTERED_ILLUSION))
@@ -932,7 +932,7 @@ class boss_yogg_saron : public CreatureScript
 
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player *player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                     {
                         player->RemoveAurasDueToSpell(SPELL_SANITY);
                         player->RemoveAurasDueToSpell(SPELL_INSANE);
@@ -1069,7 +1069,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                         uint8 illusion = _instance->GetData(DATA_ILLUSION);
                         if (++_tentaclesKilled >= (illusion == ICECROWN_ILLUSION ? 9 : 8))
                         {
-                            sCreatureTextMgr->SendChat(me, EMOTE_BRAIN_ILLUSION_SHATTERED, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_AREA);
+                            sCreatureTextMgr->SendChat(me, EMOTE_BRAIN_ILLUSION_SHATTERED, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_AREA);
                             _summons.DespawnAll();
                             DoCastAOE(SPELL_SHATTERED_ILLUSION, true);
                             _instance->HandleGameObject(_instance->GetData64(GO_BRAIN_ROOM_DOOR_1 + illusion), true);
@@ -1421,8 +1421,10 @@ class npc_descend_into_madness : public CreatureScript
         {
             npc_descend_into_madnessAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void OnSpellClick(Unit* clicker)
+            void OnSpellClick(Unit* clicker, bool& result)
             {
+                if (!result)
+                    return;
                 clicker->RemoveAurasDueToSpell(SPELL_BRAIN_LINK);
                 me->DespawnOrUnsummon();
             }
@@ -1522,7 +1524,7 @@ class npc_observation_ring_keeper : public CreatureScript
                 DoCast(SPELL_TELEPORT);
                 Talk(SAY_KEEPER_CHOSEN_1, player->GetGUID());
                 Talk(SAY_KEEPER_CHOSEN_2, player->GetGUID());
-                
+
                 switch (me->GetEntry())
                 {
                     case NPC_FREYA_OBSERVATION_RING:
@@ -1607,7 +1609,7 @@ class npc_yogg_saron_keeper : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat())
+                if (!me->IsInCombat())
                     return;
 
                 _events.Update(diff);
@@ -2024,12 +2026,6 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
 
             PrepareSpellScript(spell_yogg_saron_malady_of_the_mind_SpellScript);
 
-            bool Load()
-            {
-                _applyHandlers = GetSpellInfo()->Id == SPELL_MALADY_OF_THE_MIND;
-                return true;
-            }
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(HighSanityTargetSelector());
@@ -2038,7 +2034,7 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
 
             void Register()
             {
-                if (_applyHandlers)
+                if (m_scriptSpellId == SPELL_MALADY_OF_THE_MIND)
                 {
                     OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_yogg_saron_malady_of_the_mind_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                     OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_yogg_saron_malady_of_the_mind_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -2047,8 +2043,6 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
 
                 OnEffectHitTarget += SpellEffectFn(spell_yogg_saron_malady_of_the_mind_SpellScript::RemoveSanity, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
-
-            bool _applyHandlers;
         };
 
         class spell_yogg_saron_malady_of_the_mind_AuraScript : public AuraScript
@@ -2093,16 +2087,16 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
             return new spell_yogg_saron_malady_of_the_mind_AuraScript();
         }
 };
- 
+
 class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
 {
     public:
         spell_yogg_saron_brain_link() : SpellScriptLoader("spell_yogg_saron_brain_link") { }
- 
+
         class spell_yogg_saron_brain_link_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_yogg_saron_brain_link_SpellScript);
- 
+
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
@@ -2112,17 +2106,17 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
                     targets.clear();
                     return;
                 }
- 
+
                 if (SaraAI* ai = CAST_AI(SaraAI, GetCaster()->GetAI()))
                     ai->SetLinkBetween(targets.front()->GetGUID(), targets.back()->GetGUID());
             }
- 
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_yogg_saron_brain_link_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
- 
+
         class spell_yogg_saron_brain_link_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_yogg_saron_brain_link_AuraScript);
@@ -2135,13 +2129,13 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
                     return false;
                 return true;
             }
- 
+
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
                     return;
- 
+
                 if (SaraAI* ai = CAST_AI(SaraAI, caster->GetAI()))
                 {
                     if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
@@ -2156,36 +2150,36 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
                     }
                 }
             }
- 
+
             void DummyTick(AuraEffect const* aurEff)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
                     return;
- 
+
                 SaraAI* ai = CAST_AI(SaraAI, caster->GetAI());
                 if (!ai)
                     return;
- 
+
                 Player* linked = ObjectAccessor::GetPlayer(*GetTarget(), ai->GetLinkedPlayerGUID(GetTarget()->GetGUID()));
                 if (!linked)
                     return;
- 
+
                 GetTarget()->CastSpell(linked, (GetTarget()->GetDistance(linked) > (float)aurEff->GetAmount()) ? SPELL_BRAIN_LINK_DAMAGE : SPELL_BRAIN_LINK_NO_DAMAGE, true);
             }
- 
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_yogg_saron_brain_link_AuraScript::DummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 OnEffectRemove += AuraEffectRemoveFn(spell_yogg_saron_brain_link_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
- 
+
         SpellScript* GetSpellScript() const
         {
             return new spell_yogg_saron_brain_link_SpellScript();
         }
- 
+
         AuraScript* GetAuraScript() const
         {
             return new spell_yogg_saron_brain_link_AuraScript();
@@ -2220,7 +2214,7 @@ class spell_yogg_saron_boil_ominously : public SpellScriptLoader    // 63030
 {
     public:
         spell_yogg_saron_boil_ominously() : SpellScriptLoader("spell_yogg_saron_boil_ominously") { }
- 
+
         class spell_yogg_saron_boil_ominously_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_yogg_saron_boil_ominously_SpellScript);
@@ -2231,7 +2225,7 @@ class spell_yogg_saron_boil_ominously : public SpellScriptLoader    // 63030
                     return false;
                 return true;
             }
- 
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
@@ -2243,7 +2237,7 @@ class spell_yogg_saron_boil_ominously : public SpellScriptLoader    // 63030
                         GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_GUARDIAN_1, true);
                     }
             }
- 
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_yogg_saron_boil_ominously_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
@@ -2434,7 +2428,7 @@ class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* vehicle = GetTarget()->GetVehicleBase())
-                    if (vehicle->isAlive())
+                    if (vehicle->IsAlive())
                         vehicle->Kill(vehicle); // should tentacle die or just release its target?
             }
 
@@ -2916,7 +2910,7 @@ class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTarget()->isAlive())
+                if (GetTarget()->IsAlive())
                     GetTarget()->Kill(GetTarget());
             }
 
@@ -3078,10 +3072,12 @@ class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     if (Creature* yogg = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(BOSS_YOGG_SARON)))
                         if (yogg->FindCurrentSpellBySpellId(SPELL_DEAFENING_ROAR))
+                        {
                             if (GetCaster()->GetDistance(yogg) > 20.0f)
                                 return SPELL_FAILED_OUT_OF_RANGE;
                             else
                                 return SPELL_CAST_OK;
+                        }
 
                 return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
             }

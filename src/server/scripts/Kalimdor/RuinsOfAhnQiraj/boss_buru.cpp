@@ -42,11 +42,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_DISMEMBER             = 0,
-    EVENT_GATHERING_SPEED       = 1,
-    EVENT_FULL_SPEED            = 2,
-    EVENT_CREEPING_PLAGUE       = 3,
-    EVENT_RESPAWN_EGG           = 4
+    EVENT_DISMEMBER             = 1,
+    EVENT_GATHERING_SPEED       = 2,
+    EVENT_FULL_SPEED            = 3,
+    EVENT_CREEPING_PLAGUE       = 4,
+    EVENT_RESPAWN_EGG           = 5
 };
 
 enum Phases
@@ -208,7 +208,7 @@ class npc_buru_egg : public CreatureScript
             void EnterCombat(Unit* attacker)
             {
                 if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
-                    if (!buru->isInCombat())
+                    if (!buru->IsInCombat())
                         buru->AI()->AttackStart(attacker);
             }
 

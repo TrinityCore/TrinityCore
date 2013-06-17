@@ -253,6 +253,15 @@ void AuctionHouseMgr::LoadAuctionItems()
 {
     uint32 oldMSTime = getMSTime();
 
+    // need to clear in case we are reloading
+    if (!mAitems.empty())
+    {
+        for (ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
+            delete itr->second;
+
+        mAitems.clear();
+    }
+
     // data needs to be at first place for Item::LoadFromDB
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);

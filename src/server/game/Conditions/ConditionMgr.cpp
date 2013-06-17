@@ -275,7 +275,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_ALIVE:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = unit->isAlive();
+                condMeets = unit->IsAlive();
             break;
         }
         case CONDITION_HP_VAL:
@@ -1110,6 +1110,9 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
                 if ((1<<firstEffIndex) & *itr)
                     break;
 
+            if (firstEffIndex >= MAX_SPELL_EFFECTS)
+                return false;
+
             // get shared data
             ConditionList* sharedList = spellInfo->Effects[firstEffIndex].ImplicitTargetConditions;
 
@@ -1129,9 +1132,18 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
             {
                 // add new list, create new shared mask
                 sharedList = new ConditionList();
+                bool assigned = false;
                 for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+                {
                     if ((1<<i) & commonMask)
+                    {
                         spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
+                        assigned = true;
+                    }
+                }
+
+                if (!assigned)
+                    delete sharedList;
             }
             sharedList->push_back(cond);
             break;
@@ -1626,7 +1638,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         {
             if (!sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Quest condition specifies non-existing quest (%u), skipped", cond->ConditionValue1);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Quest condition (Type: %u) points to non-existing quest (%u) for Source Entry %u. SourceGroup: %u, SourceTypeOrReferenceId: %u",
+                    cond->ConditionType, cond->ConditionValue1, cond->SourceEntry, cond->SourceGroup, cond->SourceType);
                 return false;
             }
 

@@ -59,15 +59,15 @@ enum Spells
 
 enum Events
 {
-    EVENT_MORTALCLEAVE        = 0, // Phase 1
-    EVENT_SILENCE             = 1, // Phase 1
-    EVENT_CHECK_TIMER         = 2, // Phase 1
-    EVENT_RESURRECT_TIMER     = 3, // Phase 1
-    EVENT_FRENZY              = 4, // Phase 2
-    EVENT_FORCEPUNCH          = 5, // Phase 2
-    EVENT_SPELL_CHARGE        = 6, // Phase 2
-    EVENT_ENRAGE              = 7, // Phase 2
-    EVENT_SUMMONTIGERS        = 8  // Phase 2
+    EVENT_MORTALCLEAVE        = 1, // Phase 1
+    EVENT_SILENCE             = 2, // Phase 1
+    EVENT_CHECK_TIMER         = 3, // Phase 1
+    EVENT_RESURRECT_TIMER     = 4, // Phase 1
+    EVENT_FRENZY              = 5, // Phase 2
+    EVENT_FORCEPUNCH          = 6, // Phase 2
+    EVENT_SPELL_CHARGE        = 7, // Phase 2
+    EVENT_ENRAGE              = 8, // Phase 2
+    EVENT_SUMMONTIGERS        = 9  // Phase 2
 };
 
 enum Phases
@@ -347,7 +347,7 @@ class mob_zealot_lorkhan : public CreatureScript
                 //Disarm_Timer
                 if (Disarm_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DISARM);
+                    DoCast(me->GetVictim(), SPELL_DISARM);
                     Disarm_Timer = 15000+rand()%10000;
                 } else Disarm_Timer -= diff;
 
@@ -468,24 +468,24 @@ class mob_zealot_zath : public CreatureScript
                 //SweepingStrikes_Timer
                 if (SweepingStrikes_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SWEEPINGSTRIKES);
+                    DoCast(me->GetVictim(), SPELL_SWEEPINGSTRIKES);
                     SweepingStrikes_Timer = 22000+rand()%4000;
                 } else SweepingStrikes_Timer -= diff;
 
                 //SinisterStrike_Timer
                 if (SinisterStrike_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SINISTERSTRIKE);
+                    DoCast(me->GetVictim(), SPELL_SINISTERSTRIKE);
                     SinisterStrike_Timer = 8000+rand()%8000;
                 } else SinisterStrike_Timer -= diff;
 
                 //Gouge_Timer
                 if (Gouge_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_GOUGE);
+                    DoCast(me->GetVictim(), SPELL_GOUGE);
 
-                    if (DoGetThreat(me->getVictim()))
-                        DoModifyThreatPercent(me->getVictim(), -100);
+                    if (DoGetThreat(me->GetVictim()))
+                        DoModifyThreatPercent(me->GetVictim(), -100);
 
                     Gouge_Timer = 17000+rand()%10000;
                 } else Gouge_Timer -= diff;
@@ -493,14 +493,14 @@ class mob_zealot_zath : public CreatureScript
                 //Kick_Timer
                 if (Kick_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KICK);
+                    DoCast(me->GetVictim(), SPELL_KICK);
                     Kick_Timer = 15000+rand()%10000;
                 } else Kick_Timer -= diff;
 
                 //Blind_Timer
                 if (Blind_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BLIND);
+                    DoCast(me->GetVictim(), SPELL_BLIND);
                     Blind_Timer = 10000+rand()%10000;
                 } else Blind_Timer -= diff;
 

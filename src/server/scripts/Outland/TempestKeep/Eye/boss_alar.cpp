@@ -214,7 +214,7 @@ class boss_alar : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat()) // sometimes isincombat but !incombat, faction bug?
+                if (!me->IsInCombat()) // sometimes IsInCombat but !incombat, faction bug?
                     return;
 
                 if (Berserk_Timer <= diff)
@@ -383,7 +383,7 @@ class boss_alar : public CreatureScript
 
                     if (MeltArmor_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_MELT_ARMOR);
+                        DoCast(me->GetVictim(), SPELL_MELT_ARMOR);
                         MeltArmor_Timer = 60000;
                     }
                     else
@@ -431,9 +431,9 @@ class boss_alar : public CreatureScript
             {
                 if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
                 {
-                    if (me->IsWithinMeleeRange(me->getVictim()))
+                    if (me->IsWithinMeleeRange(me->GetVictim()))
                     {
-                        me->AttackerStateUpdate(me->getVictim());
+                        me->AttackerStateUpdate(me->GetVictim());
                         me->resetAttackTimer();
                     }
                     else

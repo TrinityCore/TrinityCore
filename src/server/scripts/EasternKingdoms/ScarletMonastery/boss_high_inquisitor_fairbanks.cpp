@@ -130,7 +130,7 @@ public:
             //CurseOfBlood_Timer
             if (CurseOfBlood_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CURSEOFBLOOD);
+                DoCast(me->GetVictim(), SPELL_CURSEOFBLOOD);
                 CurseOfBlood_Timer = 25000;
             }
             else CurseOfBlood_Timer -= diff;

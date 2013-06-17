@@ -309,22 +309,12 @@ public:
 
         if (!pfactionid)
         {
-            if (target)
-            {
-                uint32 factionid = target->getFaction();
-                uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
-                uint32 npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
-                uint32 dyflag    = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
-                handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
-            }
+            uint32 factionid = target->getFaction();
+            uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
+            uint32 npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
+            uint32 dyflag    = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
             return true;
-        }
-
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
         }
 
         uint32 factionid = atoi(pfactionid);
@@ -340,7 +330,7 @@ public:
 
         uint32 npcflag;
         if (!pnpcflag)
-            npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
+            npcflag = target->GetUInt32Value(UNIT_NPC_FLAGS);
         else
             npcflag = atoi(pnpcflag);
 
@@ -348,7 +338,7 @@ public:
 
         uint32  dyflag;
         if (!pdyflag)
-            dyflag   = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
+            dyflag = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
         else
             dyflag = atoi(pdyflag);
 
@@ -452,7 +442,7 @@ public:
             target->ToPlayer()->SendTalentsInfoData(false);
             return true;
         }
-        else if (target->ToCreature()->isPet())
+        else if (target->ToCreature()->IsPet())
         {
             Unit* owner = target->GetOwner();
             if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet*)target)->IsPermanentPetFor(owner->ToPlayer()))
@@ -500,7 +490,7 @@ public:
 
         std::string targetNameLink = handler->GetNameLink(target);
 
-        if (target->isInFlight())
+        if (target->IsInFlight())
         {
             handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, targetNameLink.c_str());
             handler->SetSentErrorMessage(true);
@@ -548,7 +538,7 @@ public:
 
         std::string targetNameLink = handler->GetNameLink(target);
 
-        if (target->isInFlight())
+        if (target->IsInFlight())
         {
             handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, targetNameLink.c_str());
             handler->SetSentErrorMessage(true);
@@ -593,7 +583,7 @@ public:
 
         std::string targetNameLink = handler->GetNameLink(target);
 
-        if (target->isInFlight())
+        if (target->IsInFlight())
         {
             handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, targetNameLink.c_str());
             handler->SetSentErrorMessage(true);
@@ -638,7 +628,7 @@ public:
 
         std::string targetNameLink = handler->GetNameLink(target);
 
-        if (target->isInFlight())
+        if (target->IsInFlight())
         {
             handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, targetNameLink.c_str());
             handler->SetSentErrorMessage(true);

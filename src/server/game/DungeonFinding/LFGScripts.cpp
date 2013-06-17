@@ -110,7 +110,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
         }
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-            if (Player* member = itr->getSource())
+            if (Player* member = itr->GetSource())
                 player->GetSession()->SendNameQueryOpcode(member->GetGUID());
 
         if (sLFGMgr->selectedRandomLfgDungeon(player->GetGUID()))

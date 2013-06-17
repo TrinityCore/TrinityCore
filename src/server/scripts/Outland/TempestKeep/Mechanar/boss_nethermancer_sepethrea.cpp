@@ -52,11 +52,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_FROST_ATTACK             = 0,
-    EVENT_ARCANE_BLAST             = 1,
-    EVENT_DRAGONS_BREATH           = 2,
-    EVENT_KNOCKBACK                = 3,
-    EVENT_SOLARBURN                = 4
+    EVENT_FROST_ATTACK             = 1,
+    EVENT_ARCANE_BLAST             = 2,
+    EVENT_DRAGONS_BREATH           = 3,
+    EVENT_KNOCKBACK                = 4,
+    EVENT_SOLARBURN                = 5
 };
 
 class boss_nethermancer_sepethrea : public CreatureScript
@@ -206,8 +206,8 @@ class mob_ragin_flames : public CreatureScript
 
                     if (inferno_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_INFERNO);
-                        me->TauntApply(me->getVictim());
+                        DoCast(me->GetVictim(), SPELL_INFERNO);
+                        me->TauntApply(me->GetVictim());
                         inferno_Timer = 10000;
                     } else inferno_Timer -= diff;
 

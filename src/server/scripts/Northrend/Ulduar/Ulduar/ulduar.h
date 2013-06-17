@@ -21,7 +21,7 @@
 #include "ObjectMgr.h"
 #define UlduarScriptName "instance_ulduar"
 
-extern Position const ObservationRingKeepersPos[4]; 
+extern Position const ObservationRingKeepersPos[4];
 extern Position const YSKeepersPos[4];
 extern Position const AlgalonLandPos;
 
@@ -149,7 +149,7 @@ enum UlduarNPCs
     NPC_SANITY_WELL                         = 33991,
     NPC_DESCEND_INTO_MADNESS                = 34072,
     NPC_MARKED_IMMORTAL_GUARDIAN            = 36064,
-    
+
     // Algalon the Observer
     NPC_BRANN_BRONZBEARD_ALG                = 34064,
     NPC_AZEROTH                             = 34246,
@@ -355,7 +355,7 @@ class PlayerOrPetCheck
         bool operator()(WorldObject* object) const
         {
             if (object->GetTypeId() != TYPEID_PLAYER)
-                if (!object->ToCreature()->isPet())
+                if (!object->ToCreature()->IsPet())
                     return true;
 
             return false;

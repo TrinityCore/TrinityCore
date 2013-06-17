@@ -108,7 +108,7 @@ public:
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
         handler->PSendSysMessage("ActualEndPosition (%.3f, %.3f, %.3f)", actualEnd.x, actualEnd.y, actualEnd.z);
 
-        if (!player->isGameMaster())
+        if (!player->IsGameMaster())
             handler->PSendSysMessage("Enable GM mode to see the path points.");
 
         for (uint32 i = 0; i < pointPath.size(); ++i)
@@ -128,7 +128,7 @@ public:
         int32 gy = 32 - player->GetPositionY() / SIZE_OF_GRIDS;
 
         handler->PSendSysMessage("%03u%02i%02i.mmtile", player->GetMapId(), gy, gx);
-        handler->PSendSysMessage("gridloc [%i,%i]", gx, gy);
+        handler->PSendSysMessage("gridloc [%i, %i]", gx, gy);
 
         // calculate navmesh tile location
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
@@ -148,24 +148,33 @@ public:
         int32 tilex = int32((y - min[0]) / SIZE_OF_GRIDS);
         int32 tiley = int32((x - min[2]) / SIZE_OF_GRIDS);
 
-        handler->PSendSysMessage("Calc   [%02i,%02i]", tilex, tiley);
+        handler->PSendSysMessage("Calc   [%02i, %02i]", tilex, tiley);
 
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
         dtPolyRef polyRef = INVALID_POLYREF;
-        navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL);
+        if (dtStatusFailed(navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL)))
+        {
+            handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
+            return true;
+        }
 
         if (polyRef == INVALID_POLYREF)
-            handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
+            handler->PSendSysMessage("Dt     [??, ??] (invalid poly, probably no tile loaded)");
         else
         {
             dtMeshTile const* tile;
             dtPoly const* poly;
-            navmesh->getTileAndPolyByRef(polyRef, &tile, &poly);
-            if (tile)
-                handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
-            else
-                handler->PSendSysMessage("Dt     [??,??] (no tile loaded)");
+            if (dtStatusSucceed(navmesh->getTileAndPolyByRef(polyRef, &tile, &poly)))
+            {
+                if (tile)
+                {
+                    handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
+                    return false;
+                }
+            }
+
+            handler->PSendSysMessage("Dt     [??,??] (no tile loaded)");
         }
 
         return true;
@@ -190,7 +199,7 @@ public:
             if (!tile || !tile->header)
                 continue;
 
-            handler->PSendSysMessage("[%02i,%02i]", tile->header->x, tile->header->y);
+            handler->PSendSysMessage("[%02i, %02i]", tile->header->x, tile->header->y);
         }
 
         return true;

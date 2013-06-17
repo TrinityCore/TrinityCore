@@ -179,7 +179,7 @@ class instance_uldaman : public InstanceMapScript
                     for (std::vector<uint64>::const_iterator i = stoneKeepers.begin(); i != stoneKeepers.end(); ++i)
                     {
                         Creature* target = instance->GetCreature(*i);
-                        if (!target || !target->isAlive())
+                        if (!target || !target->IsAlive())
                             continue;
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                         target->setFaction(14);
@@ -201,7 +201,7 @@ class instance_uldaman : public InstanceMapScript
                 for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || !target->isAlive() || target->getFaction() == 14)
+                    if (!target || !target->IsAlive() || target->getFaction() == 14)
                         continue;
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
                     target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);

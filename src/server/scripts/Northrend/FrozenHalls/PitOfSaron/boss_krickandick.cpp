@@ -205,10 +205,10 @@ class boss_ick : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->isInCombat())
+                if (!me->IsInCombat())
                     return;
 
-                if (!me->getVictim() && me->getThreatManager().isThreatListEmpty())
+                if (!me->GetVictim() && me->getThreatManager().isThreatListEmpty())
                 {
                     EnterEvadeMode();
                     return;
@@ -530,7 +530,7 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
                     {
                         Map::PlayerList const &players = caster->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            if (Player* player = itr->getSource())
+                            if (Player* player = itr->GetSource())
                                 if (player->IsWithinDist(caster, 60.0f))    // don't know correct range
                                     caster->CastSpell(player, SPELL_EXPLOSIVE_BARRAGE_SUMMON, true);
                     }
@@ -570,7 +570,7 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
                     if (caster->GetTypeId() == TYPEID_UNIT)
                     {
                         caster->GetMotionMaster()->Clear();
-                        caster->GetMotionMaster()->MoveChase(caster->getVictim());
+                        caster->GetMotionMaster()->MoveChase(caster->GetVictim());
                     }
             }
 
