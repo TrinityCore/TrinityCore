@@ -21,12 +21,15 @@
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 
 /*####
 ## npc_drakuru_shackles
 ####*/
 
-enum eDrakuruShackles
+enum DrakuruShackles
 {
     SPELL_LEFT_CHAIN           = 59951,
     SPELL_RIGHT_CHAIN          = 59952,
@@ -34,7 +37,7 @@ enum eDrakuruShackles
     SPELL_FREE_RAGECLAW        = 55223,
 
     NPC_RAGECLAW               = 29686,
-    QUEST_TROLLS_IS_GONE_CRAZY = 12861,
+    QUEST_TROLLS_IS_GONE_CRAZY = 12861
 };
 
 class npc_drakuru_shackles : public CreatureScript
@@ -115,7 +118,7 @@ public:
 ## npc_captured_rageclaw
 ####*/
 
-enum eRageclaw
+enum Rageclaw
 {
     SPELL_UNSHACKLED           = 55085,
     SPELL_KNEEL                = 39656
@@ -1385,7 +1388,7 @@ public:
 ## go_scourge_enclosure
 ######*/
 
-enum eScourgeEnclosure
+enum ScourgeEnclosure
 {
     QUEST_OUR_ONLY_HOPE                           = 12916,
     NPC_GYMER_DUMMY                               = 29928   //from quest template
@@ -1413,6 +1416,686 @@ public:
     }
 };
 
+/*######
+## Quest: Troll Patrol: The Alchemist's Apprentice
+######*/
+
+enum Finklestein
+{
+    // Creatre
+    NPC_FINKLESTEIN                          = 28205,
+    // Quest
+    QUEST_THE_ALCHEMIST_APPRENTICE_DAILY     = 12541,
+    // Spells
+    SPELL_ALCHEMIST_APPRENTICE_INVISBUFF     = 51216,
+    SPELL_RANDOM_INGREDIENT_EASY_AURA        = 51015,
+    SPELL_RANDOM_INGREDIENT_MEDIUM_AURA      = 51154,
+    SPELL_RANDOM_INGREDIENT_HARD_AURA        = 51157,
+    SPELL_RANDOM_INGREDIENT_EASY             = 51134,
+    SPELL_RANDOM_INGREDIENT_MEDIUM           = 51105,
+    SPELL_RANDOM_INGREDIENT_HARD             = 51107,
+    SPELL_NEXT_INGREDIENT                    = 51049,
+    SPELL_POT_CHECK                          = 51046,
+    SPELL_THROW_INGREDIENT                   = 51025,
+    SPELL_KILL_CREDIT                        = 51111,
+    // Spell Fetch Easy
+    SPELL_FETCH_KNOTROOT                     = 51018,
+    SPELL_FETCH_PICKLED_EAGLE_EGG            = 51055,
+    SPELL_FETCH_SPECKLED_GUANO               = 51057,
+    SPELL_FETCH_WITHERED_BATWING             = 51059,
+    SPELL_FETCH_SEASONED_SLIDER_CIDER        = 51062,
+    SPELL_FETCH_PULVERIZED_GARGOYLE_TEETH    = 51064,
+    SPELL_FETCH_MUDDY_MIRE_MAGGOT            = 51067,
+    SPELL_FETCH_SPIKY_SPIDER_EGG             = 51069,
+    SPELL_FETCH_HAIRY_HERRING_HEAD           = 51072,
+    SPELL_FETCH_PUTRID_PIRATE_PERSPIRATION   = 51077,
+    SPELL_FETCH_ICECROWN_BOTTLED_WATER       = 51079,
+    // Spell Have Easy
+    SPELL_HAVE_KNOTROOT                      = 51047,
+    SPELL_HAVE_PICKLED_EAGLE_EGG             = 51056,
+    SPELL_HAVE_SPECKLED_GUANO                = 51058,
+    SPELL_HAVE_WITHERED_BATWING              = 51060,
+    SPELL_HAVE_SEASONED_SLIDER_CIDER         = 51063,
+    SPELL_HAVE_PULVERIZED_GARGOYLE_TEETH     = 51065,
+    SPELL_HAVE_MUDDY_MIRE_MAGGOT             = 51068,
+    SPELL_HAVE_SPIKY_SPIDER_EGG              = 51070,
+    SPELL_HAVE_HAIRY_HERRING_HEAD            = 51075,
+    SPELL_HAVE_PUTRID_PIRATE_PERSPIRATION    = 51078,
+    SPELL_HAVE_ICECROWN_BOTTLED_WATER        = 51080,
+    // Spell Fetch Medium
+    SPELL_FETCH_WASPS_WINGS                  = 51081,
+    SPELL_FETCH_PRISMATIC_MOJO               = 51083,
+    SPELL_FETCH_RAPTOR_CLAW                  = 51085,
+    SPELL_FETCH_AMBERSEED                    = 51087,
+    SPELL_FETCH_SHRUNKEN_DRAGONS_CLAW        = 51091,
+    // Spell Have Medium
+    SPELL_HAVE_WASPS_WINGS                   = 51082,
+    SPELL_HAVE_PRISMATIC_MOJO                = 51084,
+    SPELL_HAVE_RAPTOR_CLAW                   = 51086,
+    SPELL_HAVE_AMBERSEED                     = 51088,
+    SPELL_HAVE_SHRUNKEN_DRAGONS_CLAW         = 51092,
+    // Spell Fetch Hard
+    SPELL_FETCH_CHILLED_SERPENT_MUCUS        = 51093,
+    SPELL_FETCH_CRYSTALLIZED_HOGSNOT         = 51095,
+    SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS    = 51097,
+    SPELL_FETCH_TROLLBANE                    = 51100,
+    SPELL_FETCH_FROZEN_SPIDER_ICHOR          = 51102,
+    // Spell Have Hard
+    SPELL_HAVE_CHILLED_SERPENT_MUCUS         = 51094,
+    SPELL_HAVE_CRYSTALLIZED_HOGSNOT          = 51096,
+    SPELL_HAVE_CRUSHED_BASILISK_CRYSTALS     = 51098,
+    SPELL_HAVE_TROLLBANE                     = 51101,
+    SPELL_HAVE_FROZEN_SPIDER_ICHOR           = 51104,
+    // Text
+    SAY_EASY_123                             = 0,
+    SAY_MEDIUM_4                             = 1,
+    SAY_MEDIUM_5                             = 2,
+    SAY_HARD_6                               = 3,
+    SAY_RUINED                               = 4,
+    // Text Easy
+    SAY_KNOTROOT                             = 5,
+    SAY_PICKLED_EAGLE_EGG                    = 6,
+    SAY_SPECKLED_GUANO                       = 7,
+    SAY_WITHERED_BATWING                     = 8,
+    SAY_SEASONED_SLIDER_CIDER                = 9,
+    SAY_PULVERIZED_GARGOYLE_TEETH            = 10,
+    SAY_MUDDY_MIRE_MAGGOT                    = 11,
+    SAY_SPIKY_SPIDER_EGG                     = 12,
+    SAY_HAIRY_HERRING_HEAD                   = 13,
+    SAY_PUTRID_PIRATE_PERSPIRATION           = 14,
+    SAY_ICECROWN_BOTTLED_WATER               = 15,
+    // Text Medium
+    SAY_WASPS_WINGS                          = 16,
+    SAY_PRISMATIC_MOJO                       = 17,
+    SAY_RAPTOR_CLAW                          = 18,
+    SAY_AMBERSEED                            = 19,
+    SAY_SHRUNKEN_DRAGONS_CLAW                = 20,
+    // Text Hard
+    SAY_CHILLED_SERPENT_MUCUS                = 21,
+    SAY_CRYSTALLIZED_HOGSNOT                 = 22,
+    SAY_CRUSHED_BASILISK_CRYSTALS            = 23,
+    SAY_TROLLBANE                            = 24,
+    SAY_FROZEN_SPIDER_ICHOR                  = 25
+};
+
+enum FinklesteinEvents
+{
+    EVENT_TURN_TO_POT                      = 1,
+    EVENT_TURN_BACK                        = 2,
+    EVENT_EASY_123                         = 3,
+    EVENT_MEDIUM_4                         = 4,
+    EVENT_MEDIUM_5                         = 5,
+    EVENT_HARD_6                           = 6
+};
+
+class npc_alchemist_finklestein : public CreatureScript
+{
+public:
+    npc_alchemist_finklestein() : CreatureScript("npc_alchemist_finklestein") { }
+
+        struct npc_alchemist_finklesteinAI : public ScriptedAI
+        {
+            npc_alchemist_finklesteinAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
+            }
+
+            void SetData(uint32 Type, uint32 Data)
+            {
+                if (Type == 1 && Data == 1)
+                    switch (_getingredienttry)
+                   {
+                        case 2:
+                        case 3:
+                            _events.ScheduleEvent(EVENT_EASY_123, 100);
+                            break;
+                        case 4:
+                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100);
+                            break;
+                        case 5:
+                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100);
+                            break;
+                        case 6:
+                            _events.ScheduleEvent(EVENT_HARD_6, 100);
+                            break;
+                        default:
+                            break;
+                    }
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_TURN_TO_POT:
+                            me->SetFacingTo(6.230825f);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+                            _events.ScheduleEvent(EVENT_TURN_BACK, 11000);
+                            break;
+                        case EVENT_TURN_BACK:
+                            me->SetFacingTo(4.886922f);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                            _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(25000, 41000));
+                            break;
+                        case EVENT_EASY_123:
+                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            {
+                                Talk(SAY_EASY_123, _playerGUID);
+                                DoCast(player, SPELL_RANDOM_INGREDIENT_EASY_AURA);
+                                ++_getingredienttry;
+                            }
+                            break;
+                        case EVENT_MEDIUM_4:
+                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            {
+                                Talk(SAY_MEDIUM_4, _playerGUID);
+                                DoCast(player, SPELL_RANDOM_INGREDIENT_MEDIUM_AURA);
+                                ++_getingredienttry;
+                            }
+                            break;
+                        case EVENT_MEDIUM_5:
+                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            {
+                                Talk(SAY_MEDIUM_5, _playerGUID);
+                                DoCast(player, SPELL_RANDOM_INGREDIENT_MEDIUM_AURA);
+                                ++_getingredienttry;
+                            }
+                            break;
+                        case EVENT_HARD_6:
+                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            {
+                                Talk(SAY_HARD_6, _playerGUID);
+                                DoCast(player, SPELL_RANDOM_INGREDIENT_HARD_AURA);
+                                ++_getingredienttry;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
+                _playerGUID = player->GetGUID();
+                _getingredienttry = 1;
+                _events.ScheduleEvent(EVENT_EASY_123, 100);
+            }
+
+        private:
+            EventMap _events;
+            uint64   _playerGUID;
+            uint8    _getingredienttry;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_alchemist_finklesteinAI(creature);
+        }
+};
+
+class go_finklesteins_cauldron : public GameObjectScript
+{
+public:
+    go_finklesteins_cauldron() : GameObjectScript("go_finklesteins_cauldron") { }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        player->CastSpell(player, SPELL_POT_CHECK);
+        return true;
+    }
+};
+
+/*#####
+# spell_random_ingredient_aura
+#####*/
+
+class spell_random_ingredient_aura : public SpellScriptLoader
+{
+    public: spell_random_ingredient_aura() : SpellScriptLoader("spell_random_ingredient_aura") { }
+
+        class spell_random_ingredient_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_random_ingredient_aura_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_INGREDIENT_EASY) || !sSpellMgr->GetSpellInfo(SPELL_RANDOM_INGREDIENT_MEDIUM) || !sSpellMgr->GetSpellInfo(SPELL_RANDOM_INGREDIENT_HARD))
+                    return false;
+                return true;
+            }
+
+            void PeriodicTick(AuraEffect const* aurEff)
+            {
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_RANDOM_INGREDIENT_EASY_AURA:
+                        GetTarget()->CastSpell(GetTarget(), SPELL_RANDOM_INGREDIENT_EASY);
+                        break;
+                    case SPELL_RANDOM_INGREDIENT_MEDIUM_AURA:
+                        GetTarget()->CastSpell(GetTarget(), SPELL_RANDOM_INGREDIENT_MEDIUM);
+                        break;
+                    case SPELL_RANDOM_INGREDIENT_HARD_AURA:
+                        GetTarget()->CastSpell(GetTarget(), SPELL_RANDOM_INGREDIENT_HARD);
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_random_ingredient_aura_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_random_ingredient_aura_AuraScript();
+        }
+};
+
+/*#####
+# spell_random_ingredient_easy
+#####*/
+
+class spell_random_ingredient_easy : public SpellScriptLoader
+{
+    public: spell_random_ingredient_easy() : SpellScriptLoader("spell_random_ingredient_easy") { }
+
+        class spell_random_ingredient_easy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_random_ingredient_easy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FETCH_KNOTROOT) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PICKLED_EAGLE_EGG) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SPECKLED_GUANO) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_WITHERED_BATWING) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SEASONED_SLIDER_CIDER) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PULVERIZED_GARGOYLE_TEETH) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_MUDDY_MIRE_MAGGOT) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SPIKY_SPIDER_EGG) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_HAIRY_HERRING_HEAD) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_PUTRID_PIRATE_PERSPIRATION) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_ICECROWN_BOTTLED_WATER))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (Player* player = GetHitPlayer())
+                {
+                    uint8 spelltocast = urand(1, 11);
+
+                    Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f);
+
+                    if (!finklestein)
+                        return;
+
+                    switch (spelltocast)
+                    {
+                        case 1:
+                            finklestein->CastSpell(player, SPELL_FETCH_KNOTROOT, true, NULL);
+                            finklestein->AI()->Talk(SAY_KNOTROOT, player->GetGUID());
+                            break;
+                        case 2:
+                            finklestein->CastSpell(player, SPELL_FETCH_PICKLED_EAGLE_EGG, true, NULL);
+                            finklestein->AI()->Talk(SAY_PICKLED_EAGLE_EGG, player->GetGUID());
+                            break;
+                        case 3:
+                            finklestein->CastSpell(player, SPELL_FETCH_SPECKLED_GUANO, true, NULL);
+                            finklestein->AI()->Talk(SAY_SPECKLED_GUANO, player->GetGUID());
+                            break;
+                        case 4:
+                            finklestein->CastSpell(player, SPELL_FETCH_WITHERED_BATWING, true, NULL);
+                            finklestein->AI()->Talk(SAY_WITHERED_BATWING, player->GetGUID());
+                            break;
+                        case 5:
+                            finklestein->CastSpell(player, SPELL_FETCH_SEASONED_SLIDER_CIDER, true, NULL);
+                            finklestein->AI()->Talk(SAY_SEASONED_SLIDER_CIDER, player->GetGUID());
+                            break;
+                        case 6:
+                            finklestein->CastSpell(player, SPELL_FETCH_PULVERIZED_GARGOYLE_TEETH, true, NULL);
+                            finklestein->AI()->Talk(SAY_PULVERIZED_GARGOYLE_TEETH, player->GetGUID());
+                            break;
+                        case 7:
+                            finklestein->CastSpell(player, SPELL_FETCH_MUDDY_MIRE_MAGGOT, true, NULL);
+                            finklestein->AI()->Talk(SAY_MUDDY_MIRE_MAGGOT, player->GetGUID());
+                            break;
+                        case 8:
+                            finklestein->CastSpell(player, SPELL_FETCH_SPIKY_SPIDER_EGG, true, NULL);
+                            finklestein->AI()->Talk(SAY_SPIKY_SPIDER_EGG, player->GetGUID());
+                            break;
+                        case 9:
+                            finklestein->CastSpell(player, SPELL_FETCH_HAIRY_HERRING_HEAD, true, NULL);
+                            finklestein->AI()->Talk(SAY_HAIRY_HERRING_HEAD, player->GetGUID());
+                            break;
+                        case 10:
+                            finklestein->CastSpell(player, SPELL_FETCH_PUTRID_PIRATE_PERSPIRATION, true, NULL);
+                            finklestein->AI()->Talk(SAY_PUTRID_PIRATE_PERSPIRATION, player->GetGUID());
+                            break;
+                        case 11:
+                            finklestein->CastSpell(player, SPELL_FETCH_ICECROWN_BOTTLED_WATER, true, NULL);
+                            finklestein->AI()->Talk(SAY_ICECROWN_BOTTLED_WATER, player->GetGUID());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_random_ingredient_easy_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+    };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_random_ingredient_easy_SpellScript();
+        }
+};
+
+/*#####
+# spell_random_ingredient_medium
+#####*/
+
+class spell_random_ingredient_medium : public SpellScriptLoader
+{
+    public: spell_random_ingredient_medium() : SpellScriptLoader("spell_random_ingredient_medium") { }
+
+        class spell_random_ingredient_medium_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_random_ingredient_medium_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FETCH_WASPS_WINGS) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PRISMATIC_MOJO) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_RAPTOR_CLAW) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_AMBERSEED) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SHRUNKEN_DRAGONS_CLAW))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (Player* player = GetHitPlayer())
+                {
+                    uint8 spelltocast = urand(1, 5);
+
+                    Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f);
+
+                    if (!finklestein)
+                        return;
+
+                    switch (spelltocast)
+                    {
+                        case 1:
+                            finklestein->CastSpell(player, SPELL_FETCH_WASPS_WINGS, true, NULL);
+                            finklestein->AI()->Talk(SAY_WASPS_WINGS, player->GetGUID());
+                            break;
+                        case 2:
+                            finklestein->CastSpell(player, SPELL_FETCH_PRISMATIC_MOJO, true, NULL);
+                            finklestein->AI()->Talk(SAY_PRISMATIC_MOJO, player->GetGUID());
+                            break;
+                        case 3:
+                            finklestein->CastSpell(player, SPELL_FETCH_RAPTOR_CLAW, true, NULL);
+                            finklestein->AI()->Talk(SAY_RAPTOR_CLAW, player->GetGUID());
+                            break;
+                        case 4:
+                            finklestein->CastSpell(player, SPELL_FETCH_AMBERSEED, true, NULL);
+                            finklestein->AI()->Talk(SAY_AMBERSEED, player->GetGUID());
+                            break;
+                        case 5:
+                            finklestein->CastSpell(player, SPELL_FETCH_SHRUNKEN_DRAGONS_CLAW, true, NULL);
+                            finklestein->AI()->Talk(SAY_SHRUNKEN_DRAGONS_CLAW, player->GetGUID());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_random_ingredient_medium_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_random_ingredient_medium_SpellScript();
+        }
+};
+
+/*#####
+# spell_random_ingredient_hard
+#####*/
+
+class spell_random_ingredient_hard : public SpellScriptLoader
+{
+    public: spell_random_ingredient_hard() : SpellScriptLoader("spell_random_ingredient_hard") { }
+
+        class spell_random_ingredient_hard_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_random_ingredient_hard_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FETCH_CHILLED_SERPENT_MUCUS) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_CRYSTALLIZED_HOGSNOT) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_TROLLBANE) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_FROZEN_SPIDER_ICHOR))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (Player* player = GetHitPlayer())
+                {
+                    uint8 spelltocast = urand(1, 5);
+
+                    Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f);
+
+                    if (!finklestein)
+                        return;
+
+                    switch (spelltocast)
+                    {
+                        case 1:
+                            finklestein->CastSpell(player, SPELL_FETCH_CHILLED_SERPENT_MUCUS, true, NULL);
+                            finklestein->AI()->Talk(SAY_CHILLED_SERPENT_MUCUS, player->GetGUID());
+                            break;
+                        case 2:
+                            finklestein->CastSpell(player, SPELL_FETCH_CRYSTALLIZED_HOGSNOT, true, NULL);
+                            finklestein->AI()->Talk(SAY_CRYSTALLIZED_HOGSNOT, player->GetGUID());
+                            break;
+                        case 3:
+                            finklestein->CastSpell(player, SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS, true, NULL);
+                            finklestein->AI()->Talk(SAY_CRUSHED_BASILISK_CRYSTALS, player->GetGUID());
+                            break;
+                        case 4:
+                            finklestein->CastSpell(player, SPELL_FETCH_TROLLBANE, true, NULL);
+                            finklestein->AI()->Talk(SAY_TROLLBANE, player->GetGUID());
+                            break;
+                        case 5:
+                            finklestein->CastSpell(player, SPELL_FETCH_FROZEN_SPIDER_ICHOR, true, NULL);
+                            finklestein->AI()->Talk(SAY_FROZEN_SPIDER_ICHOR, player->GetGUID());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_random_ingredient_hard_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_random_ingredient_hard_SpellScript();
+        }
+};
+
+/*#####
+# spell_pot_check
+#####*/
+
+uint32 const FetchSpells[21] [4] =
+{
+    // { Fetch spell, Have spell, Item, Text }
+    { 51018, 51047, 38338,  6 }, // Knotroot
+    { 51055, 51056, 38341,  7 }, // Pickled Eagle Egg
+    { 51057, 51058, 38337,  8 }, // Speckled Guano
+    { 51059, 51060, 38339,  9 }, // Withered Batwing
+    { 51062, 51063, 38381, 10 }, // Seasoned Slider Cider
+    { 51064, 51065, 38384, 11 }, // Pulverized Gargoyle Teeth
+    { 51067, 51068, 38386, 12 }, // Muddy Mire Maggot
+    { 51069, 51070, 38393, 13 }, // Spiky Spider Egg
+    { 51072, 51075, 38396, 14 }, // Hairy Herring Head
+    { 51077, 51078, 38397, 15 }, // Putrid Pirate Perspiration
+    { 51079, 51080, 38398, 16 }, // Icecrown Bottled Water
+    { 51081, 51082, 38369, 17 }, // Wasp's Wings
+    { 51083, 51084, 38343, 18 }, // Prismatic Mojo
+    { 51085, 51086, 38370, 19 }, // Raptor Claw
+    { 51087, 51088, 38340, 20 }, // Amberseed
+    { 51091, 51092, 38344, 21 }, // Shrunken Dragon's Claw
+    { 51093, 51094, 38346, 22 }, // Chilled Serpent Mucus
+    { 51095, 51096, 38336, 23 }, // Crystallized Hogsnot
+    { 51097, 51098, 38379, 24 }, // Crushed Basilisk Crystals
+    { 51100, 51101, 38342, 25 }, // Trollbane
+    { 51102, 51104, 38345, 26 }  // Frozen Spider Ichor
+};
+
+class spell_pot_check : public SpellScriptLoader
+{
+    public: spell_pot_check() : SpellScriptLoader("spell_pot_check") { }
+
+        class spell_pot_check_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pot_check_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FETCH_KNOTROOT) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PICKLED_EAGLE_EGG) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SPECKLED_GUANO) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_WITHERED_BATWING) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SEASONED_SLIDER_CIDER) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PULVERIZED_GARGOYLE_TEETH) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_MUDDY_MIRE_MAGGOT) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SPIKY_SPIDER_EGG) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_HAIRY_HERRING_HEAD) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_PUTRID_PIRATE_PERSPIRATION) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_ICECROWN_BOTTLED_WATER) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_WASPS_WINGS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_PRISMATIC_MOJO) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_RAPTOR_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_AMBERSEED) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_SHRUNKEN_DRAGONS_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_CHILLED_SERPENT_MUCUS) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_CRYSTALLIZED_HOGSNOT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_TROLLBANE) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_FROZEN_SPIDER_ICHOR) ||   
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_KNOTROOT) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_PICKLED_EAGLE_EGG) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_SPECKLED_GUANO) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_WITHERED_BATWING) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_SEASONED_SLIDER_CIDER) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_PULVERIZED_GARGOYLE_TEETH) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_MUDDY_MIRE_MAGGOT) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_SPIKY_SPIDER_EGG) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_HAIRY_HERRING_HEAD) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_PUTRID_PIRATE_PERSPIRATION) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_ICECROWN_BOTTLED_WATER) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_WASPS_WINGS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_PRISMATIC_MOJO) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_RAPTOR_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_AMBERSEED) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_SHRUNKEN_DRAGONS_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_CHILLED_SERPENT_MUCUS) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_CRYSTALLIZED_HOGSNOT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_CRUSHED_BASILISK_CRYSTALS) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_TROLLBANE) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_FROZEN_SPIDER_ICHOR))   
+                    return false;
+                return true;
+            }
+
+        void HandleScriptEffect(SpellEffIndex /* effIndex */)
+        {
+            if (Player* player = GetHitPlayer())
+            {
+                for (uint8 i = 0; i < 21; ++i)
+                {
+                    if(player->HasAura(FetchSpells[i] [0]))
+                    {
+                        player->CastSpell(player, SPELL_THROW_INGREDIENT);
+                        player->RemoveAura(FetchSpells[i] [0]);
+                        if(player->HasAura(FetchSpells[i] [1]))
+                        {
+                            player->RemoveAura(FetchSpells[i] [1]);
+                            player->DestroyItemCount(FetchSpells[i] [2], 1, true);
+                            if (i < 15)
+                            {
+                                if (Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f))
+                                    finklestein->AI()->SetData(1, 1);
+                                return;
+                            }
+                            else
+                            {
+                                if (player->GetQuestStatus(QUEST_THE_ALCHEMIST_APPRENTICE_DAILY) == QUEST_STATUS_INCOMPLETE)
+                                {
+                                    player->RemoveAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
+                                    player->CastSpell(player, SPELL_KILL_CREDIT);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            RemoveItems(player);
+                            player->RemoveAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
+                            if (Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f))
+                                finklestein->AI()->Talk(SAY_RUINED, player->GetGUID());
+                            return;
+                        }
+                    }
+                 }
+             }
+         }
+
+        void RemoveItems(Player* player)
+        {
+            for (uint8 i = 0; i < 21; ++i)
+                if (player->HasItemCount(FetchSpells[i] [2], 1, true))
+                    player->DestroyItemCount(FetchSpells[i] [2], 1, true);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pot_check_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pot_check_SpellScript();
+        }
+};
+
+/*#####
+# spell_fetch_ingredient_aura
+#####*/
+
+class spell_fetch_ingredient_aura : public SpellScriptLoader
+{
+    public: spell_fetch_ingredient_aura() : SpellScriptLoader("spell_fetch_ingredient_aura") { }
+
+        class spell_fetch_ingredient_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_fetch_ingredient_aura_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                    if (Unit* target = GetTarget())
+                        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                            if (target->HasAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF))
+                                if (Creature* finklestein = GetClosestCreatureWithEntry(target, NPC_FINKLESTEIN, 100.0f))
+                                {
+                                    target->RemoveAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
+                                    finklestein->AI()->Talk(SAY_RUINED, target->GetGUID());
+                                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_fetch_ingredient_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_fetch_ingredient_aura_AuraScript();
+        }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles;
@@ -1428,4 +2111,12 @@ void AddSC_zuldrak()
     new npc_elemental_lord;
     new npc_fiend_elemental;
     new go_scourge_enclosure;
+    new npc_alchemist_finklestein;
+    new go_finklesteins_cauldron;
+    new spell_random_ingredient_aura;
+    new spell_random_ingredient_easy;
+    new spell_random_ingredient_medium;
+    new spell_random_ingredient_hard;
+    new spell_pot_check;
+    new spell_fetch_ingredient_aura;
 }
