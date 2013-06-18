@@ -2075,13 +2075,12 @@ class spell_fetch_ingredient_aura : public SpellScriptLoader
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     if (Unit* target = GetTarget())
-                        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                            if (target->HasAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF))
-                                if (Creature* finklestein = GetClosestCreatureWithEntry(target, NPC_FINKLESTEIN, 100.0f))
-                                {
-                                    target->RemoveAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
-                                    finklestein->AI()->Talk(SAY_RUINED, target->GetGUID());
-                                }
+                        if (target->HasAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF))
+                            if (Creature* finklestein = GetClosestCreatureWithEntry(target, NPC_FINKLESTEIN, 100.0f))
+                            {
+                                target->RemoveAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
+                                finklestein->AI()->Talk(SAY_RUINED, target->GetGUID());
+                            }
             }
 
             void Register()
