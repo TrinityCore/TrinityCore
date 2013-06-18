@@ -712,7 +712,7 @@ int LuaUnit::IsElite(lua_State* L, Unit* unit)
 {
     TO_CREATURE_BOOL();
 
-	sEluna->PushBoolean(L, creature->isElite());
+    sEluna->PushBoolean(L, creature->isElite());
     return 1;
 }
 
