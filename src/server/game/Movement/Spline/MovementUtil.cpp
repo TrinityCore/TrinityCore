@@ -43,7 +43,7 @@ namespace Movement
         if (isSafeFall)
         {
             if (path_length >= terminal_safeFall_length)
-                time = (path_length - terminal_safeFall_length) / terminalSafefallVelocity + terminalSafefallVelocity / gravity;
+                time = (path_length - terminal_safeFall_length) / terminalSafefallVelocity + terminal_safeFall_fallTime;
             else
                 time = sqrtf(2.0f * path_length / gravity);
         }
@@ -58,7 +58,7 @@ namespace Movement
         return time;
     }
 
-    float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity)
+    float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity /*= 0.0f*/)
     {
         float termVel;
         float result;
@@ -81,22 +81,6 @@ namespace Movement
         }
         else
             result = t_passed * (start_velocity + t_passed * gravity * 0.5f);
-
-        return result;
-    }
-
-    float computeFallElevation(float t_passed)
-    {
-        float result;
-
-        if (t_passed > terminal_fallTime)
-        {
-            //result = terminalVelocity * (t_passed - terminal_time) + gravity*terminal_time*terminal_time*0.5f;
-            // simplified view:
-            result = terminalVelocity * (t_passed - terminal_fallTime) + terminal_length;
-        }
-        else
-            result = t_passed * t_passed * gravity * 0.5f;
 
         return result;
     }
