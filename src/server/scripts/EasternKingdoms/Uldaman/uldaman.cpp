@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 mob_jadespine_basilisk
-npc_lore_keeper_of_norgannon
 go_keystone_chamber
 at_map_chamber
 EndContentData */
