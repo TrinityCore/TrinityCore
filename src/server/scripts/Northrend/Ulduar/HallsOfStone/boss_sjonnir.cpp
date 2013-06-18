@@ -221,10 +221,12 @@ public:
             if (instance)
                 instance->SetData(DATA_SJONNIR_EVENT, DONE);
         }
+
         void KilledUnit(Unit* victim)
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
+
             Talk(SAY_SLAY);
         }
 
