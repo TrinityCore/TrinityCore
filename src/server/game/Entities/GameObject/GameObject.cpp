@@ -2126,6 +2126,8 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         if (ActivateToQuest(target))
                             dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                         break;
+                    default:
+                        break;
                 }
 
                 fieldBuffer << uint16(dynFlags);
