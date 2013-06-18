@@ -36,7 +36,7 @@ class AreaTrigger;
 
 #define MAX_NUMBER_OF_GRIDS      64
 
-#define SIZE_OF_GRIDS            533.33333f
+#define SIZE_OF_GRIDS            533.3333f
 #define CENTER_GRID_ID           (MAX_NUMBER_OF_GRIDS/2)
 
 #define CENTER_GRID_OFFSET      (SIZE_OF_GRIDS/2)

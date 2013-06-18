@@ -1904,7 +1904,7 @@ public:
 
             //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             // Fly Away
-            me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
+            me->SetCanFly(true);
             me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
             me->SetSpeed(MOVE_RUN, 0.75f, true);
             float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());

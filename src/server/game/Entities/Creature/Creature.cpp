@@ -2416,53 +2416,6 @@ bool Creature::IsDungeonBoss() const
     return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
 
-bool Creature::SetWalk(bool enable)
-{
-    if (!Unit::SetWalk(enable))
-        return false;
-
-    if (!movespline->Initialized())
-        return true;
-
-    SendMovementWalkMode();
-    return true;
-}
-
-bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
-{
-    //! It's possible only a packet is sent but moveflags are not updated
-    //! Need more research on this
-    if (!packetOnly && !Unit::SetDisableGravity(disable))
-        return false;
-
-    if (!movespline->Initialized())
-        return true;
-
-    SendMovementDisableGravity();
-    return true;
-}
-
-bool Creature::SetHover(bool enable)
-{
-    if (!Unit::SetHover(enable))
-        return false;
-
-    //! Unconfirmed for players:
-    if (enable)
-        SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-    else
-        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-
-    if (!movespline->Initialized())
-        return true;
-
-    // If creature hovers using aura, the hover movement opcode is sent from aura handler
-    if (!HasAuraType(SPELL_AURA_HOVER))
-        SendMovementHover();
-
-    return true;
-}
-
 float Creature::GetAggroRange(Unit const* target) const
 {
     // Determines the aggro range for creatures (usually pets), used mainly for aggressive pet target selection.
@@ -2549,10 +2502,7 @@ void Creature::UpdateMovementFlags()
         SetDisableGravity(false);
     }
 
-    if (GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater())
-        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)

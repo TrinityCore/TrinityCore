@@ -986,7 +986,7 @@ class spell_gen_parachute_ic : public SpellScriptLoader
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 if (Player* target = GetTarget()->ToPlayer())
-                    if (target->m_movementInfo.fallTime > 2000)
+                    if (target->m_movementInfo.jump.fallTime > 2000)
                         target->CastSpell(target, SPELL_PARACHUTE_IC, true);
             }
 

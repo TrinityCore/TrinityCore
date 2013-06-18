@@ -21,57 +21,128 @@
 
 #include "DetourAlloc.h"
 
-
-// The units of the parameters are specified in parenthesis as follows:
-// (vx) voxels, (wu) world units
+/// Represents the source data used to build an navigation mesh tile.
+/// @ingroup detour
 struct dtNavMeshCreateParams
 {
-	// Navmesh vertices.
-	const unsigned short* verts;			// Array of vertices, each vertex has 3 components. (vx).
-	int vertCount;							// Vertex count
-	// Navmesh polygons
-	const unsigned short* polys;			// Array of polygons, uses same format as rcPolyMesh. 
-	const unsigned short* polyFlags;		// Array of flags per polygon.
-	const unsigned char* polyAreas;			// Array of area ids per polygon.
-	int polyCount;							// Number of polygons
-	int nvp;								// Number of verts per polygon.
-	// Navmesh Detail
-	const unsigned int* detailMeshes;		// Detail meshes, uses same format as rcPolyMeshDetail.
-	const float* detailVerts;				// Detail mesh vertices, uses same format as rcPolyMeshDetail (wu).
-	int detailVertsCount;					// Total number of detail vertices
-	const unsigned char* detailTris;		// Array of detail tris per detail mesh.
-	int detailTriCount;						// Total number of detail triangles.
-	// Off-Mesh Connections.
-	const float* offMeshConVerts;			// Off-mesh connection vertices (wu).
-	const float* offMeshConRad;				// Off-mesh connection radii (wu).
-	const unsigned short* offMeshConFlags;	// Off-mesh connection flags.
-	const unsigned char* offMeshConAreas;	// Off-mesh connection area ids.
-	const unsigned char* offMeshConDir;		// Off-mesh connection direction flags (1 = bidir, 0 = oneway).
-	const unsigned int* offMeshConUserID;	// Off-mesh connection user id (optional).
-	int offMeshConCount;					// Number of off-mesh connections
-	// Tile location
-	unsigned int userId;					// User ID bound to the tile.
-	int tileX, tileY;						// Tile location (tile coords).
-	float bmin[3], bmax[3];					// Tile bounds (wu).
-	// Settings
-	float walkableHeight;					// Agent height (wu).
-	float walkableRadius;					// Agent radius (wu).
-	float walkableClimb;					// Agent max climb (wu).
-	float cs;								// Cell size (xz) (wu).
-	float ch;								// Cell height (y) (wu).
-	int tileSize;							// Tile size (width & height) (vx).
+
+	/// @name Polygon Mesh Attributes
+	/// Used to create the base navigation graph.
+	/// See #rcPolyMesh for details related to these attributes.
+	/// @{
+
+	const unsigned short* verts;			///< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
+	int vertCount;							///< The number vertices in the polygon mesh. [Limit: >= 3]
+	const unsigned short* polys;			///< The polygon data. [Size: #polyCount * 2 * #nvp]
+	const unsigned short* polyFlags;		///< The user defined flags assigned to each polygon. [Size: #polyCount]
+	const unsigned char* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
+	int polyCount;							///< Number of polygons in the mesh. [Limit: >= 1]
+	int nvp;								///< Number maximum number of vertices per polygon. [Limit: >= 3]
+
+	/// @}
+	/// @name Height Detail Attributes (Optional)
+	/// See #rcPolyMeshDetail for details related to these attributes.
+	/// @{
+
+	const unsigned int* detailMeshes;		///< The height detail sub-mesh data. [Size: 4 * #polyCount]
+	const float* detailVerts;				///< The detail mesh vertices. [Size: 3 * #detailVertsCount] [Unit: wu]
+	int detailVertsCount;					///< The number of vertices in the detail mesh.
+	const unsigned char* detailTris;		///< The detail mesh triangles. [Size: 4 * #detailTriCount]
+	int detailTriCount;						///< The number of triangles in the detail mesh.
+
+	/// @}
+	/// @name Off-Mesh Connections Attributes (Optional)
+	/// Used to define a custom point-to-point edge within the navigation graph, an 
+	/// off-mesh connection is a user defined traversable connection made up to two vertices, 
+	/// at least one of which resides within a navigation mesh polygon.
+	/// @{
+
+	/// Off-mesh connection vertices. [(ax, ay, az, bx, by, bz) * #offMeshConCount] [Unit: wu]
+	const float* offMeshConVerts;
+	/// Off-mesh connection radii. [Size: #offMeshConCount] [Unit: wu]
+	const float* offMeshConRad;
+	/// User defined flags assigned to the off-mesh connections. [Size: #offMeshConCount]
+	const unsigned short* offMeshConFlags;
+	/// User defined area ids assigned to the off-mesh connections. [Size: #offMeshConCount]
+	const unsigned char* offMeshConAreas;
+	/// The permitted travel direction of the off-mesh connections. [Size: #offMeshConCount]
+	///
+	/// 0 = Travel only from endpoint A to endpoint B.<br/>
+	/// #DT_OFFMESH_CON_BIDIR = Bidirectional travel.
+	const unsigned char* offMeshConDir;	
+	/// The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
+	const unsigned int* offMeshConUserID;
+	/// The number of off-mesh connections. [Limit: >= 0]
+	int offMeshConCount;
+
+	/// @}
+	/// @name Tile Attributes
+	/// @note The tile grid/layer data can be left at zero if the destination is a single tile mesh.
+	/// @{
+
+	unsigned int userId;	///< The user defined id of the tile.
+	int tileX;				///< The tile's x-grid location within the multi-tile destination mesh. (Along the x-axis.)
+	int tileY;				///< The tile's y-grid location within the multi-tile desitation mesh. (Along the z-axis.)
+	int tileLayer;			///< The tile's layer within the layered destination mesh. [Limit: >= 0] (Along the y-axis.)
+	float bmin[3];			///< The minimum bounds of the tile. [(x, y, z)] [Unit: wu]
+	float bmax[3];			///< The maximum bounds of the tile. [(x, y, z)] [Unit: wu]
+
+	/// @}
+	/// @name General Configuration Attributes
+	/// @{
+
+	float walkableHeight;	///< The agent height. [Unit: wu]
+	float walkableRadius;	///< The agent radius. [Unit: wu]
+	float walkableClimb;	///< The agent maximum traversable ledge. (Up/Down) [Unit: wu]
+	float cs;				///< The xz-plane cell size of the polygon mesh. [Limit: > 0] [Unit: wu]
+	float ch;				///< The y-axis cell height of the polygon mesh. [Limit: > 0] [Unit: wu]
+
+	/// True if a bounding volume tree should be built for the tile.
+	/// @note The BVTree is not normally needed for layered navigation meshes.
+	bool buildBvTree;
+
+	/// @}
 };
 
-// Build navmesh data from given input data.
+/// Builds navigation mesh tile data from the provided tile creation data.
+/// @ingroup detour
+///  @param[in]		params		Tile creation data.
+///  @param[out]	outData		The resulting tile data.
+///  @param[out]	outDataSize	The size of the tile data array.
+/// @return True if the tile data was successfully created.
 bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize);
 
-// Swaps endianess of navmesh header.
+/// Swaps the endianess of the tile data's header (#dtMeshHeader).
+///  @param[in,out]	data		The tile data array.
+///  @param[in]		dataSize	The size of the data array.
 bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize);
 
-// Swaps endianess of the navmesh data. This function assumes that the header is in correct
-// endianess already. Call dtNavMeshHeaderSwapEndian() first on the data if the data is
-// assumed to be in wrong endianess to start with. If converting from native endianess to foreign,
-// call dtNavMeshHeaderSwapEndian() after the data has been swapped.
+/// Swaps endianess of the tile data.
+///  @param[in,out]	data		The tile data array.
+///  @param[in]		dataSize	The size of the data array.
 bool dtNavMeshDataSwapEndian(unsigned char* data, const int dataSize);
 
 #endif // DETOURNAVMESHBUILDER_H
+
+// This section contains detailed documentation for members that don't have
+// a source file. It reduces clutter in the main section of the header.
+
+/**
+
+@struct dtNavMeshCreateParams
+@par
+
+This structure is used to marshal data between the Recast mesh generation pipeline and Detour navigation components.
+
+See the rcPolyMesh and rcPolyMeshDetail documentation for detailed information related to mesh structure.
+
+Units are usually in voxels (vx) or world units (wu). The units for voxels, grid size, and cell size 
+are all based on the values of #cs and #ch.
+
+The standard navigation mesh build process is to create tile data using dtCreateNavMeshData, then add the tile 
+to a navigation mesh using either the dtNavMesh single tile <tt>init()</tt> function or the dtNavMesh::addTile()
+function.
+
+@see dtCreateNavMeshData
+
+*/
