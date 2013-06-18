@@ -407,7 +407,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
         if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
         {
-            Position& pos = m_movementInfo.t_pos;
+            Position& pos = m_movementInfo.transport.pos;
             pos.m_positionX = loc.x;
             pos.m_positionY = loc.y;
             pos.m_positionZ = loc.z;
@@ -16985,7 +16985,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << uint8 (GetTransSeat());
 
         if (GetExtraUnitMovementFlags() & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-            *data << uint32(m_movementInfo.t_time2);
+            *data << uint32(m_movementInfo.transport.time2);
     }
 
     // 0x02200000
@@ -16998,10 +16998,10 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     // 0x00001000
     if (GetUnitMovementFlags() & MOVEMENTFLAG_FALLING)
     {
-        *data << (float)m_movementInfo.j_zspeed;
-        *data << (float)m_movementInfo.j_sinAngle;
-        *data << (float)m_movementInfo.j_cosAngle;
-        *data << (float)m_movementInfo.j_xyspeed;
+        *data << (float)m_movementInfo.jump.zspeed;
+        *data << (float)m_movementInfo.jump.sinAngle;
+        *data << (float)m_movementInfo.jump.cosAngle;
+        *data << (float)m_movementInfo.jump.xyspeed;
     }
 
     // 0x04000000

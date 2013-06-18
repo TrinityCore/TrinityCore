@@ -148,7 +148,6 @@ public:
         {
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
             CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
-            creature->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
             creature->AI()->Talk(SAY_START_IRO);
 
             switch (player->GetTeam()){
