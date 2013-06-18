@@ -769,16 +769,16 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
-        data.readPackGUID(mi->t_guid);
+        data.readPackGUID(mi->transport.guid);
 
-        data >> mi->t_pos.PositionXYZOStream();
-        data >> mi->t_time;
-        data >> mi->t_seat;
+        data >> mi->transport.pos.PositionXYZOStream();
+        data >> mi->transport.time;
+        data >> mi->transport.seat;
 
         if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
-            data >> mi->t_time2;
+            data >> mi->transport.time2;
 
-        if (mi->pos.m_positionX != mi->t_pos.m_positionX)
+        if (mi->pos.m_positionX != mi->transport.pos.m_positionX)
             if (GetPlayer()->GetTransport())
                 GetPlayer()->GetTransport()->UpdatePosition(mi);
     }
@@ -790,10 +790,10 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
     {
-        data >> mi->j_zspeed;
-        data >> mi->j_sinAngle;
-        data >> mi->j_cosAngle;
-        data >> mi->j_xyspeed;
+        data >> mi->jump.zspeed;
+        data >> mi->jump.sinAngle;
+        data >> mi->jump.cosAngle;
+        data >> mi->jump.xyspeed;
     }
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
@@ -883,14 +883,14 @@ void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
-       data->appendPackGUID(mi->t_guid);
+       data->appendPackGUID(mi->transport.guid);
 
-       *data << mi->t_pos.PositionXYZOStream();
-       *data << mi->t_time;
-       *data << mi->t_seat;
+       *data << mi->transport.pos.PositionXYZOStream();
+       *data << mi->transport.time;
+       *data << mi->transport.seat;
 
        if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
-           *data << mi->t_time2;
+           *data << mi->transport.time2;
     }
 
     if (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || mi->HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
@@ -900,10 +900,10 @@ void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
     {
-        *data << mi->j_zspeed;
-        *data << mi->j_sinAngle;
-        *data << mi->j_cosAngle;
-        *data << mi->j_xyspeed;
+        *data << mi->jump.zspeed;
+        *data << mi->jump.sinAngle;
+        *data << mi->jump.cosAngle;
+        *data << mi->jump.xyspeed;
     }
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
