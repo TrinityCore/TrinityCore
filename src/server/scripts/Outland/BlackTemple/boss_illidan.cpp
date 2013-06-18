@@ -810,7 +810,7 @@ public:
             {
             case 1: // lift off
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->SetDisableGravity(true);
                 me->StopMoving();
                 me->MonsterYell(SAY_TAKEOFF, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_TAKEOFF);

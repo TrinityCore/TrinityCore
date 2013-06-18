@@ -636,7 +636,7 @@ class mob_janalai_hatchling : public CreatureScript
                 else
                     me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[1][3][2]);
 
-                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->SetDisableGravity(true);
             }
 
             void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}
