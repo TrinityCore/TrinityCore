@@ -248,7 +248,7 @@ public:
             case PHASE_GROUND:
                 me->CastStop(SPELL_FOG_BREATH);
                 me->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
-                me->SetUnitMovementFlags(MOVEMENTFLAG_NONE);
+                me->StopMoving();
                 me->SetSpeed(MOVE_RUN, 2.0f);
 
                 events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));

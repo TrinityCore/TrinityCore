@@ -519,7 +519,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     if (_me->IsInWorld())
     {
         unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-        unit->m_movementInfo.ClearTransport();
+        unit->m_movementInfo.transport.Reset();
     }
 
     // only for flyable vehicles
@@ -557,7 +557,7 @@ void Vehicle::RelocatePassengers()
             ASSERT(passenger->IsInWorld());
 
             float px, py, pz, po;
-            passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
+            passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
             CalculatePassengerPosition(px, py, pz, &po);
             passenger->UpdatePosition(px, py, pz, po);
         }
@@ -840,10 +840,10 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;
-    Passenger->m_movementInfo.t_pos.Relocate(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
-    Passenger->m_movementInfo.t_time = 0; // 1 for player
-    Passenger->m_movementInfo.t_seat = Seat->first;
-    Passenger->m_movementInfo.t_guid = Target->GetBase()->GetGUID();
+    Passenger->m_movementInfo.transport.pos.Relocate(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
+    Passenger->m_movementInfo.transport.time = 0;
+    Passenger->m_movementInfo.transport.seat = Seat->first;
+    Passenger->m_movementInfo.transport.guid = Target->GetBase()->GetGUID();
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
         Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
