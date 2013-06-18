@@ -29,18 +29,16 @@ set(worldserver_SRCS
 )
 
 if( WIN32 )
+  set(worldserver_SRCS
+    ${worldserver_SRCS}
+    ${sources_windows_Debugging}
+  )
   if ( MSVC )
     set(worldserver_SRCS
       ${worldserver_SRCS}
-      ${sources_Debugging}
       worldserver.rc
     )
-  else ( )
-    set(worldserver_SRCS
-      ${worldserver_SRCS}
-      ${sources_Debugging}
-    )
-  endif ()
+  endif()
 endif()
 
 include_directories(

@@ -503,10 +503,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         CreatureAI* AI() const { return (CreatureAI*)i_AI; }
 
-        bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable, bool packetOnly = false);
-        bool SetHover(bool enable);
-
         SpellSchoolMask GetMeleeDamageSchoolMask() const { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
 

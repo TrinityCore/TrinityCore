@@ -47,7 +47,7 @@ namespace MMAP
     static const int V9_SIZE_SQ = V9_SIZE*V9_SIZE;
     static const int V8_SIZE = 128;
     static const int V8_SIZE_SQ = V8_SIZE*V8_SIZE;
-    static const float GRID_SIZE = 533.33333f;
+    static const float GRID_SIZE = 533.3333f;
     static const float GRID_PART_SIZE = GRID_SIZE/V8_SIZE;
 
     // see contrib/extractor/system.cpp, CONF_use_minHeight

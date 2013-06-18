@@ -409,7 +409,7 @@ void Unit::UpdateSplinePosition()
     Movement::Location loc = movespline->ComputePosition();
     if (GetTransGUID())
     {
-        Position& pos = m_movementInfo.t_pos;
+        Position& pos = m_movementInfo.transport.pos;
         pos.m_positionX = loc.x;
         pos.m_positionY = loc.y;
         pos.m_positionZ = loc.z;
@@ -8594,10 +8594,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         _isWalkingBeforeCharm = charm->IsWalking();
         if (_isWalkingBeforeCharm)
-        {
             charm->SetWalk(false);
-            charm->SendMovementWalkMode();
-        }
 
         m_Controlled.insert(charm);
     }
@@ -8632,10 +8629,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
         }
 
         if (charm->IsWalking() != _isWalkingBeforeCharm)
-        {
             charm->SetWalk(_isWalkingBeforeCharm);
-            charm->SendMovementWalkMode();
-        }
 
         if (charm->GetTypeId() == TYPEID_PLAYER
                 || !charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_MINION)
@@ -16008,14 +16002,6 @@ bool Unit::IsFalling() const
     return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
 }
 
-void Unit::SetCanFly(bool apply)
-{
-    if (apply)
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-}
-
 void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
 {
     DisableSpline();
@@ -16218,11 +16204,11 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             break;
         case MSETransportTime2:
             if (hasTransportData && hasTransportTime2)
-                data << mi.t_time2;
+                data << mi.transport.time2;
             break;
         case MSETransportTime3:
             if (hasTransportData && hasTransportTime3)
-                data << mi.t_time3;
+                data << mi.transport.time3;
             break;
         case MSEPitch:
             if (hasPitch)
@@ -16230,23 +16216,23 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             break;
         case MSEFallTime:
             if (hasFallData)
-                data << mi.fallTime;
+                data << mi.jump.fallTime;
             break;
         case MSEFallVerticalSpeed:
             if (hasFallData)
-                data << mi.j_zspeed;
+                data << mi.jump.zspeed;
             break;
         case MSEFallCosAngle:
             if (hasFallData && hasFallDirection)
-                data << mi.j_cosAngle;
+                data << mi.jump.cosAngle;
             break;
         case MSEFallSinAngle:
             if (hasFallData && hasFallDirection)
-                data << mi.j_sinAngle;
+                data << mi.jump.sinAngle;
             break;
         case MSEFallHorizontalSpeed:
             if (hasFallData && hasFallDirection)
-                data << mi.j_xyspeed;
+                data << mi.jump.xyspeed;
             break;
         case MSESplineElevation:
             if (hasSplineElevation)
@@ -16700,103 +16686,146 @@ bool Unit::SetWalk(bool enable)
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
-    return true;
-}
-
-bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
-{
-    if (disable == IsLevitating())
-        return false;
-
-    if (disable)
-        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-
-    return true;
-}
-
-bool Unit::SetHover(bool enable)
-{
-    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        return false;
-
-    if (enable)
-    {
-        //! No need to check height on ascent
-        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
-            UpdateHeight(GetPositionZ() + hh);
-    }
-    else
-    {
-        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
-        {
-            float newZ = GetPositionZ() - hh;
-            UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
-            UpdateHeight(newZ);
-        }
-    }
-
-    return true;
-}
-
-void Unit::SendMovementHover()
-{
-    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_HOVER, SMSG_MOVE_SET_HOVER).Send();
-    else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
-}
-
-void Unit::SendMovementWaterWalking()
-{
-    if (HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_WATER_WALK, SMSG_MOVE_WATER_WALK).Send();
-    else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_LAND_WALK, SMSG_MOVE_LAND_WALK).Send();
-}
-
-void Unit::SendMovementFeatherFall()
-{
-    if (HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL).Send();
-    else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_NORMAL_FALL, SMSG_MOVE_NORMAL_FALL).Send();
-}
-
-void Unit::SendMovementCanFlyChange()
-{
-    if (HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FLYING, SMSG_MOVE_SET_CAN_FLY).Send();
-    else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY).Send();
-}
-
-void Unit::SendMovementDisableGravity()
-{
-    if (HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY))
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE).Send();
-    else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_ENABLE, SMSG_MOVE_GRAVITY_ENABLE).Send();
-}
-
-void Unit::SendMovementWalkMode()
-{
     ///@ TODO: Find proper opcode for walk mode setting in player mind controlling a player case
-    if (HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
+    if (enable)
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_WALK_MODE, SMSG_SPLINE_MOVE_SET_WALK_MODE).Send();
     else
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_RUN_MODE, SMSG_SPLINE_MOVE_SET_WALK_MODE).Send();
+
+    return true;
 }
 
-void Unit::SendMovementSwimming()
+bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
 {
-    if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
+    if (!packetOnly)
+    {
+        if (disable == IsLevitating())
+            return false;
+
+        if (disable)
+            AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+    }
+
+    if (disable)
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE).Send();
+    else
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_ENABLE, SMSG_MOVE_GRAVITY_ENABLE).Send();
+
+    return true;
+}
+
+bool Unit::SetSwim(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
+        return false;
+
+    if (enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+
+    if (enable)
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_START_SWIM, NULL_OPCODE).Send();
     else
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_STOP_SWIM, NULL_OPCODE).Send();
+
+    return true;
+}
+
+bool Unit::SetCanFly(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+        return false;
+
+    if (enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+
+    if (enable)
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FLYING, SMSG_MOVE_SET_CAN_FLY).Send();
+    else
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY).Send();
+
+    return true;
+}
+
+bool Unit::SetWaterWalking(bool enable, bool packetOnly /*= false */)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
+            return false;
+
+        if (enable)
+            AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+    }
+
+    if (enable)
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_WATER_WALK, SMSG_MOVE_WATER_WALK).Send();
+    else
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_LAND_WALK, SMSG_MOVE_LAND_WALK).Send();
+
+    return true;
+}
+
+bool Unit::SetFeatherFall(bool enable, bool packetOnly /*= false */)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
+            return false;
+
+        if (enable)
+            AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+    }
+
+    if (enable)
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL).Send();
+    else
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_NORMAL_FALL, SMSG_MOVE_NORMAL_FALL).Send();
+
+    return true;
+}
+
+bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+            return false;
+
+        if (enable)
+        {
+            //! No need to check height on ascent
+            AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+            if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
+                UpdateHeight(GetPositionZ() + hh);
+        }
+        else
+        {
+            RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+            if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
+            {
+                float newZ = GetPositionZ() - hh;
+                UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
+                UpdateHeight(newZ);
+            }
+        }
+    }
+
+    if (enable)
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_HOVER, SMSG_MOVE_SET_HOVER).Send();
+    else
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
+
+    return true;
 }
 
 void Unit::SendSetPlayHoverAnim(bool enable)
@@ -16873,4 +16902,178 @@ void Unit::ReleaseFocus(Spell const* focusSpell)
 
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         ClearUnitState(UNIT_STATE_ROTATING);
+}
+
+void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
+{
+    if (!target)
+        return;
+
+    ByteBuffer fieldBuffer;
+
+    UpdateMask updateMask;
+    updateMask.SetCount(m_valuesCount);
+
+    uint32* flags = UnitUpdateFieldFlags;
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+
+    Player* plr = GetCharmerOrOwnerPlayerOrPlayerItself();
+    if (GetOwnerGUID() == target->GetGUID())
+        visibleFlag |= UF_FLAG_OWNER;
+
+    if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+        if (HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+            visibleFlag |= UF_FLAG_SPECIAL_INFO;
+
+    if (plr && plr->IsInSameRaidWith(target))
+        visibleFlag |= UF_FLAG_PARTY_MEMBER;
+
+    Creature const* creature = ToCreature();
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+    {
+        if (_fieldNotifyFlags & flags[index] ||
+            ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) ||
+            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            (index == UNIT_FIELD_AURASTATE && HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK)))
+        {
+            updateMask.SetBit(index);
+
+            if (index == UNIT_NPC_FLAGS)
+            {
+                uint32 appendValue = m_uint32Values[UNIT_NPC_FLAGS];
+
+                if (creature)
+                    if (!target->CanSeeSpellClickOn(creature))
+                        appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
+
+                fieldBuffer << uint32(appendValue);
+            }
+            else if (index == UNIT_FIELD_AURASTATE)
+            {
+                // Check per caster aura states to not enable using a spell in client if specified aura is not by target
+                fieldBuffer << BuildAuraStateUpdateForTarget(target);
+            }
+            // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
+            else if (index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
+            {
+                // convert from float to uint32 and send
+                fieldBuffer << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
+            }
+            // there are some float values which may be negative or can't get negative due to other checks
+            else if ((index >= UNIT_FIELD_NEGSTAT0   && index <= UNIT_FIELD_NEGSTAT4) ||
+                (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 6)) ||
+                (index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)) ||
+                (index >= UNIT_FIELD_POSSTAT0   && index <= UNIT_FIELD_POSSTAT4))
+            {
+                fieldBuffer << uint32(m_floatValues[index]);
+            }
+            // Gamemasters should be always able to select units - remove not selectable flag
+            else if (index == UNIT_FIELD_FLAGS)
+            {
+                uint32 appendValue = m_uint32Values[UNIT_FIELD_FLAGS];
+                if (target->IsGameMaster())
+                    appendValue &= ~UNIT_FLAG_NOT_SELECTABLE;
+
+                fieldBuffer << uint32(appendValue);
+            }
+            // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
+            else if (index == UNIT_FIELD_DISPLAYID)
+            {
+                uint32 displayId = m_uint32Values[UNIT_FIELD_DISPLAYID];
+                if (creature)
+                {
+                    CreatureTemplate const* cinfo = creature->GetCreatureTemplate();
+
+                    // this also applies for transform auras
+                    if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(getTransForm()))
+                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                            if (transform->Effects[i].IsAura(SPELL_AURA_TRANSFORM))
+                                if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(transform->Effects[i].MiscValue))
+                                {
+                                    cinfo = transformInfo;
+                                    break;
+                                }
+
+                    if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                    {
+                        if (target->IsGameMaster())
+                        {
+                            if (cinfo->Modelid1)
+                                displayId = cinfo->Modelid1;    // Modelid1 is a visible model for gms
+                            else
+                                displayId = 17519;              // world visible trigger's model
+                        }
+                        else
+                        {
+                            if (cinfo->Modelid2)
+                                displayId = cinfo->Modelid2;    // Modelid2 is an invisible model for players
+                            else
+                                displayId = 11686;              // world invisible trigger's model
+                        }
+                    }
+                }
+
+                fieldBuffer << uint32(displayId);
+            }
+            // hide lootable animation for unallowed players
+            else if (index == UNIT_DYNAMIC_FLAGS)
+            {
+                uint32 dynamicFlags = m_uint32Values[UNIT_DYNAMIC_FLAGS] & ~(UNIT_DYNFLAG_TAPPED | UNIT_DYNFLAG_TAPPED_BY_PLAYER);
+
+                if (creature)
+                {
+                    if (creature->hasLootRecipient())
+                    {
+                        dynamicFlags |= UNIT_DYNFLAG_TAPPED;
+                        if (creature->isTappedBy(target))
+                            dynamicFlags |= UNIT_DYNFLAG_TAPPED_BY_PLAYER;
+                    }
+
+                    if (!target->isAllowedToLoot(creature))
+                        dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
+                }
+
+                // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
+                if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
+                    if (!HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
+                        dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
+
+                fieldBuffer << dynamicFlags;
+            }
+            // FG: pretend that OTHER players in own group are friendly ("blue")
+            else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
+            {
+                if (IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && IsInRaidWith(target))
+                {
+                    FactionTemplateEntry const* ft1 = GetFactionTemplateEntry();
+                    FactionTemplateEntry const* ft2 = target->GetFactionTemplateEntry();
+                    if (ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
+                    {
+                        if (index == UNIT_FIELD_BYTES_2)
+                            // Allow targetting opposite faction in party when enabled in config
+                            fieldBuffer << (m_uint32Values[UNIT_FIELD_BYTES_2] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8)); // this flag is at uint8 offset 1 !!
+                        else
+                            // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
+                            fieldBuffer << uint32(target->getFaction());
+                    }
+                    else
+                        fieldBuffer << m_uint32Values[index];
+                }
+                else
+                    fieldBuffer << m_uint32Values[index];
+            }
+            else
+            {
+                // send in current format (float as float, uint32 as uint32)
+                fieldBuffer << m_uint32Values[index];
+            }
+        }
+    }
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
 }

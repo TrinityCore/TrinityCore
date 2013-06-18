@@ -186,7 +186,7 @@ public:
             if (!summonerGUID)
                 return;
 
-            me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+            me->SetWalk(true);
             Start(false, false, summonerGUID);
         }
 

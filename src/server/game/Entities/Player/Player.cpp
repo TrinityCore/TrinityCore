@@ -24,15 +24,14 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
-#include "BattlegroundAV.h"
 #include "Battleground.h"
+#include "BattlegroundAV.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
-#include <cmath>
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -50,8 +49,8 @@
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
-#include "Language.h"
 #include "LFGMgr.h"
+#include "Language.h"
 #include "Log.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
@@ -60,17 +59,18 @@
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
-#include "ReputationMgr.h"
 #include "Pet.h"
 #include "QuestDef.h"
+#include "ReputationMgr.h"
 #include "SkillDiscovery.h"
 #include "SocialMgr.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
-#include "Spell.h"
 #include "SpellMgr.h"
 #include "Transport.h"
 #include "UpdateData.h"
+#include "UpdateFieldFlags.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "Vehicle.h"
@@ -2135,7 +2135,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             m_transport->RemovePassenger(this);
             m_transport = NULL;
-            m_movementInfo.ClearTransport();
+            m_movementInfo.ResetTransport();
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
         }
 
@@ -2159,7 +2159,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             m_transport->RemovePassenger(this);
             m_transport = NULL;
-            m_movementInfo.ClearTransport();
+            m_movementInfo.ResetTransport();
         }
     }
 
@@ -2317,10 +2317,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (m_transport)
             {
-                final_x += m_movementInfo.t_pos.GetPositionX();
-                final_y += m_movementInfo.t_pos.GetPositionY();
-                final_z += m_movementInfo.t_pos.GetPositionZ();
-                final_o += m_movementInfo.t_pos.GetOrientation();
+                final_x += m_movementInfo.transport.pos.GetPositionX();
+                final_y += m_movementInfo.transport.pos.GetPositionY();
+                final_z += m_movementInfo.transport.pos.GetPositionZ();
+                final_o += m_movementInfo.transport.pos.GetOrientation();
             }
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
@@ -5137,8 +5137,7 @@ void Player::BuildPlayerRepop()
     // convert player body to ghost
     SetHealth(1);
 
-    AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-    SendMovementWaterWalking();
+    SetWaterWalking(true);
     if (!GetSession()->isLogingOut())
         SetRooted(false);
 
@@ -5178,8 +5177,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     setDeathState(ALIVE);
 
-    RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-    SendMovementWaterWalking();
+    SetWaterWalking(false);
     SetRooted(false);
 
     m_deathTimer = 0;
@@ -17244,18 +17242,18 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // currently we do not support transport in bg
     else if (transGUID)
     {
-        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
-        m_movementInfo.t_pos.Relocate(fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat(), fields[30].GetFloat());
+        m_movementInfo.transport.guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
+        m_movementInfo.transport.pos.Relocate(fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat(), fields[30].GetFloat());
 
         if (!Trinity::IsValidMapCoord(
-            GetPositionX()+m_movementInfo.t_pos.m_positionX, GetPositionY()+m_movementInfo.t_pos.m_positionY,
-            GetPositionZ()+m_movementInfo.t_pos.m_positionZ, GetOrientation()+m_movementInfo.t_pos.GetOrientation()) ||
+            GetPositionX()+m_movementInfo.transport.pos.GetPositionX(), GetPositionY()+m_movementInfo.transport.pos.GetPositionY(),
+            GetPositionZ()+m_movementInfo.transport.pos.GetPositionZ(), GetOrientation()+m_movementInfo.transport.pos.GetOrientation()) ||
             // transport size limited
-            m_movementInfo.t_pos.m_positionX > 250 || m_movementInfo.t_pos.m_positionY > 250 || m_movementInfo.t_pos.m_positionZ > 250)
+            m_movementInfo.transport.pos.m_positionX > 250 || m_movementInfo.transport.pos.m_positionY > 250 || m_movementInfo.transport.pos.m_positionZ > 250)
         {
             TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
-                guid, GetPositionX()+m_movementInfo.t_pos.m_positionX, GetPositionY()+m_movementInfo.t_pos.m_positionY,
-                GetPositionZ()+m_movementInfo.t_pos.m_positionZ, GetOrientation()+m_movementInfo.t_pos.GetOrientation());
+                guid, GetPositionX()+m_movementInfo.transport.pos.GetPositionX(), GetPositionY()+m_movementInfo.transport.pos.GetPositionY(),
+                GetPositionZ()+m_movementInfo.transport.pos.GetPositionZ(), GetOrientation()+m_movementInfo.transport.pos.GetOrientation());
 
             RelocateToHomebind();
         }
@@ -22760,13 +22758,29 @@ void Player::UpdateTriggerVisibility()
     {
         if (IS_CREATURE_GUID(*itr))
         {
-            Creature* obj = GetMap()->GetCreature(*itr);
-            if (!obj || !(obj->IsTrigger() || obj->HasAuraType(SPELL_AURA_TRANSFORM)))  // can transform into triggers
+            Creature* creature = GetMap()->GetCreature(*itr);
+            // Update fields of triggers, transformed units or unselectable units (values dependent on GM state)
+            if (!creature || (!creature->IsTrigger() && !creature->HasAuraType(SPELL_AURA_TRANSFORM) && !creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE)))
                 continue;
 
-            obj->BuildValuesUpdateBlockForPlayer(&udata, this);
+            creature->SetFieldNotifyFlag(UF_FLAG_PUBLIC);
+            creature->BuildValuesUpdateBlockForPlayer(&udata, this);
+            creature->RemoveFieldNotifyFlag(UF_FLAG_PUBLIC);
+        }
+        else if (IS_GAMEOBJECT_GUID((*itr)))
+        {
+            GameObject* go = GetMap()->GetGameObject(*itr);
+            if (!go)
+                continue;
+
+            go->SetFieldNotifyFlag(UF_FLAG_PUBLIC);
+            go->BuildValuesUpdateBlockForPlayer(&udata, this);
+            go->RemoveFieldNotifyFlag(UF_FLAG_PUBLIC);
         }
     }
+
+    if (!udata.HasData())
+        return;
 
     udata.BuildPacket(&packet);
     GetSession()->SendPacket(&packet);
@@ -23387,13 +23401,13 @@ void Player::SendAurasForTarget(Unit* target)
         These movement packets are usually found in SMSG_COMPRESSED_MOVES
     */
     if (target->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        target->SendMovementFeatherFall();
+        target->SetFeatherFall(true, true);
 
     if (target->HasAuraType(SPELL_AURA_WATER_WALK))
-        target->SendMovementWaterWalking();
+        target->SetWaterWalking(true, true);
 
     if (target->HasAuraType(SPELL_AURA_HOVER))
-        target->SendMovementHover();
+        target->SetHover(true, true);
 
     WorldPacket data(SMSG_AURA_UPDATE_ALL);
     data.append(target->GetPackGUID());
@@ -25319,7 +25333,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             }
 
             //Z given by moveinfo, LastZ, FallTime, WaterZ, MapZ, Damage, Safefall reduction
-            TC_LOG_DEBUG(LOG_FILTER_PLAYER, "FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d", movementInfo.pos.GetPositionZ(), height, GetPositionZ(), movementInfo.fallTime, height, damage, safe_fall);
+            TC_LOG_DEBUG(LOG_FILTER_PLAYER, "FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d", movementInfo.pos.GetPositionZ(), height, GetPositionZ(), movementInfo.jump.fallTime, height, damage, safe_fall);
         }
     }
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
@@ -25659,8 +25673,8 @@ void Player::AddKnownCurrency(uint32 itemId)
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
 {
-    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
-        SetFallInformation(minfo.fallTime, minfo.pos.GetPositionZ());
+    if (m_lastFallTime >= minfo.jump.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
+        SetFallInformation(minfo.jump.fallTime, minfo.pos.GetPositionZ());
 }
 
 void Player::UnsummonPetTemporaryIfAny()
@@ -26829,10 +26843,9 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
 bool Player::IsInWhisperWhiteList(uint64 guid)
 {
     for (WhisperListContainer::const_iterator itr = WhisperList.begin(); itr != WhisperList.end(); ++itr)
-    {
         if (*itr == guid)
             return true;
-    }
+
     return false;
 }
 
@@ -27240,35 +27253,35 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 break;
             case MSETransportPositionX:
                 if (hasTransportData)
-                    data >> mi->t_pos.m_positionX;
+                    data >> mi->transport.pos.m_positionX;
                 break;
             case MSETransportPositionY:
                 if (hasTransportData)
-                    data >> mi->t_pos.m_positionY;
+                    data >> mi->transport.pos.m_positionY;
                 break;
             case MSETransportPositionZ:
                 if (hasTransportData)
-                    data >> mi->t_pos.m_positionZ;
+                    data >> mi->transport.pos.m_positionZ;
                 break;
             case MSETransportOrientation:
                 if (hasTransportData)
-                    mi->t_pos.SetOrientation(data.read<float>());
+                    mi->transport.pos.SetOrientation(data.read<float>());
                 break;
             case MSETransportSeat:
                 if (hasTransportData)
-                    data >> mi->t_seat;
+                    data >> mi->transport.seat;
                 break;
             case MSETransportTime:
                 if (hasTransportData)
-                    data >> mi->t_time;
+                    data >> mi->transport.time;
                 break;
             case MSETransportTime2:
                 if (hasTransportData && mi->bits.hasTransportTime2)
-                    data >> mi->t_time2;
+                    data >> mi->transport.time2;
                 break;
             case MSETransportTime3:
                 if (hasTransportData && mi->bits.hasTransportTime3)
-                    data >> mi->t_time3;
+                    data >> mi->transport.time3;
                 break;
             case MSEPitch:
                 if (mi->bits.hasPitch)
@@ -27276,23 +27289,23 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 break;
             case MSEFallTime:
                 if (mi->bits.hasFallData)
-                    data >> mi->fallTime;
+                    data >> mi->jump.fallTime;
                 break;
             case MSEFallVerticalSpeed:
                 if (mi->bits.hasFallData)
-                    data >> mi->j_zspeed;
+                    data >> mi->jump.zspeed;
                 break;
             case MSEFallCosAngle:
                 if (mi->bits.hasFallData && mi->bits.hasFallDirection)
-                    data >> mi->j_cosAngle;
+                    data >> mi->jump.cosAngle;
                 break;
             case MSEFallSinAngle:
                 if (mi->bits.hasFallData && mi->bits.hasFallDirection)
-                    data >> mi->j_sinAngle;
+                    data >> mi->jump.sinAngle;
                 break;
             case MSEFallHorizontalSpeed:
                 if (mi->bits.hasFallData && mi->bits.hasFallDirection)
-                    data >> mi->j_xyspeed;
+                    data >> mi->jump.xyspeed;
                 break;
             case MSESplineElevation:
                 if (mi->bits.hasSplineElevation)
@@ -27315,9 +27328,9 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     }
 
     mi->guid = guid;
-    mi->t_guid = tguid;
+    mi->transport.guid = tguid;
 
-   if (hasTransportData && mi->pos.m_positionX != mi->t_pos.m_positionX)
+   if (hasTransportData && mi->pos.m_positionX != mi->transport.pos.m_positionX)
        if (GetTransport())
            GetTransport()->UpdatePosition(mi);
 

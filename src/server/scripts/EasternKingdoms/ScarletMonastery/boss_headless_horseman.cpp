@@ -443,7 +443,7 @@ public:
         {
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            me->SetDisableGravity(true);
             me->SetSpeed(MOVE_WALK, 5.0f, true);
             wp_reached = false;
             count = 0;
@@ -476,7 +476,7 @@ public:
                         instance->SetData(GAMEOBJECT_PUMPKIN_SHRINE, 0);   //hide gameobject
                     break;
                 case 19:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+                    me->SetDisableGravity(false);
                     break;
                 case 20:
                 {
