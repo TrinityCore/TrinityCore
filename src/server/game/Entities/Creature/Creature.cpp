@@ -2441,9 +2441,65 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
     return true;
 }
 
-bool Creature::SetHover(bool enable)
+bool Creature::SetSwim(bool enable)
 {
-    if (!Unit::SetHover(enable))
+    if (!Unit::SetSwim(enable))
+        return false;
+
+    if (!movespline->Initialized())
+        return true;
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_START_SWIM : SMSG_SPLINE_MOVE_STOP_SWIM);
+    data.append(GetPackGUID());
+    SendMessageToSet(&data, true);
+    return true;
+}
+
+bool Creature::SetCanFly(bool enable)
+{
+    if (!Unit::SetCanFly(enable))
+        return false;
+
+    if (!movespline->Initialized())
+        return true;
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_FLYING : SMSG_SPLINE_MOVE_UNSET_FLYING, 9);
+    data.append(GetPackGUID());
+    SendMessageToSet(&data, false);
+    return true;
+}
+
+bool Creature::SetWaterWalking(bool enable, bool packetOnly /* = false */)
+{
+    if (!packetOnly && !Unit::SetWaterWalking(enable))
+        return false;
+
+    if (!movespline->Initialized())
+        return true;
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_WATER_WALK : SMSG_SPLINE_MOVE_LAND_WALK);
+    data.append(GetPackGUID());
+    SendMessageToSet(&data, true);
+    return true;
+}
+
+bool Creature::SetFeatherFall(bool enable, bool packetOnly /* = false */)
+{
+    if (!packetOnly && !Unit::SetFeatherFall(enable))
+        return false;
+
+    if (!movespline->Initialized())
+        return true;
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_FEATHER_FALL : SMSG_SPLINE_MOVE_NORMAL_FALL);
+    data.append(GetPackGUID());
+    SendMessageToSet(&data, true);
+    return true;
+}
+
+bool Creature::SetHover(bool enable, bool packetOnly /*= false*/)
+{
+    if (!packetOnly && !Unit::SetHover(enable))
         return false;
 
     //! Unconfirmed for players:
@@ -2548,10 +2604,7 @@ void Creature::UpdateMovementFlags()
         SetDisableGravity(false);
     }
 
-    if (GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater())
-        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)
