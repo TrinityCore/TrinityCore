@@ -19,11 +19,18 @@
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 
-enum Spells
+enum Says
 {
+    SAY_AGGRO               = 0,
+    SAY_PLAYER_KILL         = 1,
+    SAY_SUMMON_HATCHER      = 2,
+    SAY_FIRE_BOMB           = 3,
+    SAY_HATCH_ALL_EGGS      = 4,
+    EMOTE_FRENZY            = 5,
+    SAY_DEATH               = 6
 };
 
-enum Says
+enum Spells
 {
 };
 
@@ -46,23 +53,22 @@ class boss_janalai : public CreatureScript
                 _Reset();
             }
 
+            void EnterCombat(Unit* /*who*/)
+            {
+                Talk(SAY_AGGRO);
+                _EnterCombat();
+            }
+
             void JustDied(Unit* /*killer*/)
             {
-                //Talk(SAY_DEATH);
-
+                Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* victim)
             {
-                //Talk(SAY_KILL_PLAYER);
-            }
-
-            void EnterCombat(Unit* /*who*/)
-            {
-                _EnterCombat();
-
-                //Talk(SAY_AGGRO);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 diff)

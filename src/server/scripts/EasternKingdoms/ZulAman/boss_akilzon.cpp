@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,24 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_Akilzon
-SD%Complete: 75%
-SDComment: Missing timer for Call Lightning and Sound ID's
-SQLUpdate:
-#Temporary fix for Soaring Eagles
-
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 
-enum Spells
+enum Says
 {
+    SAY_AGGRO               = 0,
+    SAY_PLAYER_KILL         = 1,
+    EMOTE_ELECTRICAL_STORM  = 2,
+    SAY_SUMMON_EAGLE        = 3,
+    SAY_SUMMON_BIRDS        = 4,
+    SAY_BERSERK             = 5,
+    SAY_DEATH               = 6
 };
 
-enum Says
+enum Spells
 {
 };
 
@@ -58,19 +55,20 @@ class boss_akilzon : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                //Talk(SAY_AGGRO);
+                Talk(SAY_AGGRO);
                 _EnterCombat();
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                //Talk(SAY_DEATH);
+                Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* victim)
             {
-                //Talk(SAY_KILL);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 diff)

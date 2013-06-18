@@ -35,6 +35,7 @@ enum ShamanSpells
     SPELL_SHAMAN_ANCESTRAL_AWAKENING_PROC       = 52752,
     SPELL_SHAMAN_BIND_SIGHT                     = 6277,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
+    SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
@@ -42,8 +43,10 @@ enum ShamanSpells
     SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM  = 55456,
     SPELL_SHAMAN_GLYPH_OF_MANA_TIDE             = 55441,
     SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM          = 62132,
+    SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 65264,
+    SPELL_SHAMAN_LAVA_SURGE                     = 77762,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
@@ -360,6 +363,42 @@ class spell_sha_earthen_power : public SpellScriptLoader
         }
 };
 
+// 86185 Feedback
+class spell_sha_feedback : public SpellScriptLoader
+{
+    public:
+        spell_sha_feedback() : SpellScriptLoader("spell_sha_feedback") { }
+
+        class spell_sha_feedback_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_feedback_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_MASTERY))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction(); // will prevent default effect execution
+                if (Player* target = GetTarget()->ToPlayer())
+                    target->ModifySpellCooldown(SPELL_SHAMAN_ELEMENTAL_MASTERY, aurEff->GetBaseAmount());
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_feedback_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_feedback_AuraScript();
+        }
+};
+
 // 1535 Fire Nova
 /// Updated 4.3.4
 class spell_sha_fire_nova : public SpellScriptLoader
@@ -585,6 +624,80 @@ class spell_sha_lava_lash : public SpellScriptLoader
         }
 };
 
+class spell_sha_lava_surge : public SpellScriptLoader
+{
+    public:
+        spell_sha_lava_surge() : SpellScriptLoader("spell_sha_lava_surge") { }
+
+        class spell_sha_lava_surge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_lava_surge_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_SURGE))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction(); // will prevent default effect execution
+
+                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_lava_surge_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_lava_surge_AuraScript();
+        }
+};
+
+class spell_sha_lava_surge_proc : public SpellScriptLoader
+{
+    public:
+        spell_sha_lava_surge_proc() : SpellScriptLoader("spell_sha_lava_surge_proc") { }
+
+        class spell_sha_lava_surge_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_lava_surge_proc_SpellScript)
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_BURST))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_SHAMAN_LAVA_BURST, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_surge_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_lava_surge_proc_SpellScript();
+        }
+};
+
 // 16191 - Mana Tide
 /// Updated 4.3.4
 class spell_sha_mana_tide_totem : public SpellScriptLoader
@@ -653,11 +766,14 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earth_shield();
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
+    new spell_sha_feedback();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();
     new spell_sha_lava_lash();
+    new spell_sha_lava_surge();
+    new spell_sha_lava_surge_proc();
     new spell_sha_mana_tide_totem();
     new spell_sha_thunderstorm();
 }
