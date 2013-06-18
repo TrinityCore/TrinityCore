@@ -38,6 +38,7 @@ enum MageSpells
     SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED    = 44413,
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
+    SPELL_MAGE_SLOW                              = 31589,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
@@ -794,6 +795,51 @@ class spell_mage_master_of_elements : public SpellScriptLoader
         }
 };
 
+// 86181 - Nether Vortex
+class spell_mage_nether_vortex : public SpellScriptLoader
+{
+    public:
+        spell_mage_nether_vortex() : SpellScriptLoader("spell_mage_nether_vortex") { }
+
+        class spell_mage_nether_vortex_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_nether_vortex_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_SLOW))
+                    return false;
+               return true;
+            }
+
+            bool DoCheck(ProcEventInfo& eventInfo)
+            {
+                if (Aura* aura = eventInfo.GetProcTarget()->GetAura(SPELL_MAGE_SLOW))
+                    if (aura->GetCasterGUID() != GetTarget()->GetGUID())
+                        return false;
+
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_SLOW, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_nether_vortex_AuraScript::DoCheck);
+                OnEffectProc += AuraEffectProcFn(spell_mage_nether_vortex_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_nether_vortex_AuraScript();
+        }
+};
+
 enum SilvermoonPolymorph
 {
     NPC_AUROSALIA       = 18744
@@ -1157,6 +1203,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mage_ward();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
+    new spell_mage_nether_vortex();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
