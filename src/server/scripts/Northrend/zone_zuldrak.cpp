@@ -1669,7 +1669,7 @@ class go_finklesteins_cauldron : public GameObjectScript
 public:
     go_finklesteins_cauldron() : GameObjectScript("go_finklesteins_cauldron") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         player->CastSpell(player, SPELL_POT_CHECK);
         return true;
@@ -1720,7 +1720,7 @@ class spell_random_ingredient_aura : public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 switch (GetSpellInfo()->Id)
                 {
