@@ -506,7 +506,11 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool SetWalk(bool enable);
         bool SetDisableGravity(bool disable, bool packetOnly = false);
-        bool SetHover(bool enable);
+        bool SetSwim(bool enable);
+        bool SetCanFly(bool enable);
+        bool SetWaterWalking(bool enable, bool packetOnly = false);
+        bool SetFeatherFall(bool enable, bool packetOnly = false);
+        bool SetHover(bool enable, bool packetOnly = false);
 
         uint32 GetShieldBlockValue() const;
 

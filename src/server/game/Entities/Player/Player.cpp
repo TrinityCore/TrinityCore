@@ -22890,13 +22890,13 @@ void Player::SendAurasForTarget(Unit* target)
         These movement packets are usually found in SMSG_COMPRESSED_MOVES
     */
     if (target->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        target->SendMovementFeatherFall();
+        target->SetFeatherFall(true, true);
 
     if (target->HasAuraType(SPELL_AURA_WATER_WALK))
-        target->SendMovementWaterWalking();
+        target->SetWaterWalking(true, true);
 
     if (target->HasAuraType(SPELL_AURA_HOVER))
-        target->SendMovementHover();
+        target->SetHover(true, true);
 
     WorldPacket data(SMSG_AURA_UPDATE_ALL);
     data.append(target->GetPackGUID());
@@ -26138,53 +26138,95 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
 bool Player::IsInWhisperWhiteList(uint64 guid)
 {
     for (WhisperListContainer::const_iterator itr = WhisperList.begin(); itr != WhisperList.end(); ++itr)
-    {
         if (*itr == guid)
             return true;
-    }
+
     return false;
 }
 
-void Player::SendMovementSetCanFly(bool apply)
+bool Player::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
 {
+    if (!packetOnly && !Unit::SetDisableGravity(disable))
+        return false;
+
+    WorldPacket data(disable ? SMSG_MOVE_GRAVITY_DISABLE : SMSG_MOVE_GRAVITY_ENABLE, 12);
+    data.append(GetPackGUID());
+    data << uint32(0);          //! movement counter
+    SendDirectMessage(&data);
+
+    data.Initialize(MSG_MOVE_GRAVITY_CHNG, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+    return true;
+}
+
+bool Player::SetCanFly(bool apply)
+{
+    if (!Unit::SetCanFly(apply))
+        return false;
+
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
-}
 
-void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
-{
-    WorldPacket data(apply ?
-        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY :
-        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
+    data.Initialize(MSG_MOVE_UPDATE_CAN_FLY, 64);
     data.append(GetPackGUID());
-    data << uint32(0);          //! movement counter
-    SendDirectMessage(&data);
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+    return true;
 }
 
-void Player::SendMovementSetHover(bool apply)
+bool Player::SetHover(bool apply, bool packetOnly /*= false*/)
 {
+    if (!packetOnly && !Unit::SetHover(apply))
+        return false;
+
     WorldPacket data(apply ? SMSG_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
+
+    data.Initialize(MSG_MOVE_HOVER, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+    return true;
 }
 
-void Player::SendMovementSetWaterWalking(bool apply)
+bool Player::SetWaterWalking(bool apply, bool packetOnly /*= false*/)
 {
+    if (!packetOnly && !Unit::SetWaterWalking(apply))
+        return false;
+
     WorldPacket data(apply ? SMSG_MOVE_WATER_WALK : SMSG_MOVE_LAND_WALK, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
+
+    data.Initialize(MSG_MOVE_WATER_WALK, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+    return true;
 }
 
-void Player::SendMovementSetFeatherFall(bool apply)
+bool Player::SetFeatherFall(bool apply, bool packetOnly /*= false*/)
 {
+    if (!packetOnly && !Unit::SetFeatherFall(apply))
+        return false;
+
     WorldPacket data(apply ? SMSG_MOVE_FEATHER_FALL : SMSG_MOVE_NORMAL_FALL, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
+
+    data.Initialize(MSG_MOVE_FEATHER_FALL, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+    return true;
 }
 
 float Player::GetCollisionHeight(bool mounted) const

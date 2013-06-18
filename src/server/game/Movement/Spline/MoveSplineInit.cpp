@@ -100,6 +100,8 @@ namespace Movement
             uint32 moveFlagsForSpeed = moveFlags;
             if (args.flags.walkmode)
                 moveFlagsForSpeed |= MOVEMENTFLAG_WALKING;
+            else
+                moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
 
             args.velocity = unit->GetSpeed(SelectSpeedType(moveFlagsForSpeed));
         }
