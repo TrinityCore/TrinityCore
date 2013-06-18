@@ -550,17 +550,29 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 {
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
+	
+    uint64 guid;
+    recv_data.readPackGUID(guid);
 
-    MovementInfo movementInfo;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
-
-    if (_player->m_mover->GetGUID() != movementInfo.guid)
+    if (_player->m_mover->GetGUID() != guid)
         return;
 
+    recv_data.read_skip<uint32>();
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recv_data, &movementInfo);
     _player->m_movementInfo = movementInfo;
 
-    WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
-    _player->WriteMovementInfo(data);
+    WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
+    data.appendPackGUID(guid);
+    _player->BuildMovementPacket(&data);
+
+    // Información específica para cualquier movimiento.
+    data << movementInfo.j_sinAngle;
+    data << movementInfo.j_cosAngle;
+    data << movementInfo.j_xyspeed;
+    data << movementInfo.j_zspeed;
+
     _player->SendMessageToSet(&data, false);
 }
 
@@ -570,7 +582,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 
     uint64 guid;                                            // guid - unused
     recvData.readPackGUID(guid);
-
+		
     recvData.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
