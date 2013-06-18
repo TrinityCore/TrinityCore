@@ -238,7 +238,7 @@ namespace LuaGlobalFunctions
         {
             if (Player* player = it->second->GetPlayer())
             {
-                if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->isGameMaster())))
+                if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->IsGameMaster())))
                 {
                     ++i;
                     sEluna->PushUnsigned(L, i);
@@ -270,7 +270,7 @@ namespace LuaGlobalFunctions
         Map::PlayerList const& players = map->GetPlayers();
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
-            Player* player = itr->getSource();
+            Player* player = itr->GetSource();
             if (!player)
                 continue;
             if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))

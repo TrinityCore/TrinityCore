@@ -394,7 +394,7 @@ public:
             {
                 if (Unit* unit = u->ToUnit())
                 {
-                    if (!unit->isAlive())
+                    if (!unit->IsAlive())
                         return false;
                 }
 

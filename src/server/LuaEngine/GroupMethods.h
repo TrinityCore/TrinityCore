@@ -16,7 +16,7 @@ public:
 
         for (GroupReference* itr = group->GetFirstMember(); itr; itr = itr->next())
         {
-            Player* member = itr->getSource();
+            Player* member = itr->GetSource();
 
             if (!member || !member->GetSession())
                 continue;
