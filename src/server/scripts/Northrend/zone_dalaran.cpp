@@ -80,7 +80,7 @@ public:
 
             Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
 
-            if (!player || player->isGameMaster() || player->IsBeingTeleported() ||
+            if (!player || player->IsGameMaster() || player->IsBeingTeleported() ||
                 // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
                 player->HasAura(SPELL_SUNREAVER_DISGUISE_FEMALE) || player->HasAura(SPELL_SUNREAVER_DISGUISE_MALE) ||
                 player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE))
@@ -144,7 +144,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (!creature->isVendor() || !creature->isTrainer())
+        if (!creature->IsVendor() || !creature->IsTrainer())
             return false;
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);

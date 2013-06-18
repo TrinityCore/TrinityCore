@@ -107,14 +107,14 @@ public:
             //Spit Timer
             if (Spit_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ACIDSPIT);
+                DoCast(me->GetVictim(), SPELL_ACIDSPIT);
                 Spit_Timer = urand(5000, 10000);
             } else Spit_Timer -= diff;
 
             //NoxiousPoison_Timer
             if (NoxiousPoison_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_NOXIOUSPOISON);
+                DoCast(me->GetVictim(), SPELL_NOXIOUSPOISON);
                 NoxiousPoison_Timer = urand(12000, 24000);
             } else NoxiousPoison_Timer -= diff;
 
@@ -123,7 +123,7 @@ public:
             {
                 if (PoisonBolt_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_POISONBOLT);
+                    DoCast(me->GetVictim(), SPELL_POISONBOLT);
                     PoisonBolt_Timer = 3000;
                 } else PoisonBolt_Timer -= diff;
             }

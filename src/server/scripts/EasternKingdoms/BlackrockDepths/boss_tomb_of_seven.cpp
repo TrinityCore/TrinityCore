@@ -189,7 +189,7 @@ public:
             me->DeleteThreatList();
             me->CombatStop(true);
             me->LoadCreaturesAddon();
-            if (me->isAlive())
+            if (me->IsAlive())
                 me->GetMotionMaster()->MoveTargetedHome();
             me->SetLootRecipient(NULL);
             if (instance)
@@ -210,7 +210,7 @@ public:
             //ShadowVolley_Timer
             if (ShadowVolley_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWBOLTVOLLEY);
+                DoCast(me->GetVictim(), SPELL_SHADOWBOLTVOLLEY);
                 ShadowVolley_Timer = 12000;
             } else ShadowVolley_Timer -= diff;
 
@@ -226,7 +226,7 @@ public:
             //CurseOfWeakness_Timer
             if (CurseOfWeakness_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CURSEOFWEAKNESS);
+                DoCast(me->GetVictim(), SPELL_CURSEOFWEAKNESS);
                 CurseOfWeakness_Timer = 45000;
             } else CurseOfWeakness_Timer -= diff;
 
@@ -240,7 +240,7 @@ public:
             //Summon Voidwalkers
             if (!Voidwalkers && HealthBelowPct(51))
             {
-                DoCast(me->getVictim(), SPELL_SUMMON_VOIDWALKERS, true);
+                DoCast(me->GetVictim(), SPELL_SUMMON_VOIDWALKERS, true);
                 Voidwalkers = true;
             }
 

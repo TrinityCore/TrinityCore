@@ -80,7 +80,7 @@ class boss_grilek : public CreatureScript // grilek
                     {
                         case EVENT_AVATAR:
                             DoCast(me, SPELL_AVATAR);
-                            if (Unit* victim = me->getVictim())
+                            if (Unit* victim = me->GetVictim())
                             {
                                 if (DoGetThreat(victim))
                                     DoModifyThreatPercent(victim, -50);

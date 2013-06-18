@@ -90,27 +90,27 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SNAP_KICK:
-                        DoCast(me->getVictim(), SPELL_SNAPKICK);
+                        DoCast(me->GetVictim(), SPELL_SNAPKICK);
                         events.ScheduleEvent(EVENT_SNAP_KICK, 6 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        DoCast(me->GetVictim(), SPELL_CLEAVE);
                         events.ScheduleEvent(EVENT_CLEAVE, 12 * IN_MILLISECONDS);
                         break;
                     case EVENT_UPPERCUT:
-                        DoCast(me->getVictim(), SPELL_UPPERCUT);
+                        DoCast(me->GetVictim(), SPELL_UPPERCUT);
                         events.ScheduleEvent(EVENT_UPPERCUT, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_MORTAL_STRIKE:
-                        DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
+                        DoCast(me->GetVictim(), SPELL_MORTALSTRIKE);
                         events.ScheduleEvent(EVENT_MORTAL_STRIKE, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_PUMMEL:
-                        DoCast(me->getVictim(), SPELL_PUMMEL);
+                        DoCast(me->GetVictim(), SPELL_PUMMEL);
                         events.ScheduleEvent(EVENT_MORTAL_STRIKE, 16 * IN_MILLISECONDS);
                         break;
                     case EVENT_THROW_AXE:
-                        DoCast(me->getVictim(), SPELL_THROWAXE);
+                        DoCast(me->GetVictim(), SPELL_THROWAXE);
                         events.ScheduleEvent(EVENT_THROW_AXE, 8 * IN_MILLISECONDS);
                         break;
                 }

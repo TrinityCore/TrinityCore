@@ -29,16 +29,14 @@ set(authserver_SRCS
 )
 
 if( WIN32 )
+  set(authserver_SRCS
+    ${authserver_SRCS}
+    ${sources_windows_Debugging}
+  )
   if ( MSVC )
     set(authserver_SRCS
       ${authserver_SRCS}
-      ${sources_Debugging}
-    authserver.rc
-    )
-  else ( )
-    set(authserver_SRCS
-      ${authserver_SRCS}
-      ${sources_Debugging}
+      authserver.rc
     )
   endif ()
 endif()

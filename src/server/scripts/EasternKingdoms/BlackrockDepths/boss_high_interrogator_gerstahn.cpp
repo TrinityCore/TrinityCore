@@ -81,7 +81,7 @@ public:
             //PsychicScream_Timer
             if (PsychicScream_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_PSYCHICSCREAM);
+                DoCast(me->GetVictim(), SPELL_PSYCHICSCREAM);
                 PsychicScream_Timer = 30000;
             } else PsychicScream_Timer -= diff;
 

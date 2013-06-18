@@ -63,7 +63,7 @@ public:
             else GlobalCooldown = 0;
 
             //Buff timer (only buff when we are alive and not in combat
-            if (!me->isInCombat() && me->isAlive())
+            if (!me->IsInCombat() && me->IsAlive())
             {
                 if (BuffTimer <= diff)
                 {
@@ -90,7 +90,7 @@ public:
                 return;
 
             //If we are within range melee the target
-            if (me->IsWithinMeleeRange(me->getVictim()))
+            if (me->IsWithinMeleeRange(me->GetVictim()))
             {
                 //Make sure our attack is ready and we arn't currently casting
                 if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
@@ -104,19 +104,19 @@ public:
 
                     //No healing spell available, select a hostile spell
                     if (info) Healing = true;
-                    else info = SelectSpell(me->getVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
+                    else info = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
 
                     //50% chance if elite or higher, 20% chance if not, to replace our white hit with a spell
                     if (info && (rand() % (me->GetCreatureTemplate()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
                     {
                         //Cast the spell
                         if (Healing)DoCastSpell(me, info);
-                        else DoCastSpell(me->getVictim(), info);
+                        else DoCastSpell(me->GetVictim(), info);
 
                         //Set our global cooldown
                         GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
                     }
-                    else me->AttackerStateUpdate(me->getVictim());
+                    else me->AttackerStateUpdate(me->GetVictim());
 
                     me->resetAttackTimer();
                 }
@@ -135,7 +135,7 @@ public:
 
                     //No healing spell available, See if we can cast a ranged spell (Range must be greater than ATTACK_DISTANCE)
                     if (info) Healing = true;
-                    else info = SelectSpell(me->getVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
+                    else info = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
 
                     //Found a spell, check if we arn't on cooldown
                     if (info && !GlobalCooldown)
@@ -146,7 +146,7 @@ public:
 
                         //Cast spell
                         if (Healing) DoCastSpell(me, info);
-                        else DoCastSpell(me->getVictim(), info);
+                        else DoCastSpell(me->GetVictim(), info);
 
                         //Set our global cooldown
                         GlobalCooldown = GENERIC_CREATURE_COOLDOWN;

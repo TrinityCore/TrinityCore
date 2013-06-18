@@ -126,7 +126,7 @@ public:
                 Talk(YELL_SKARVALD_AGGRO);
 
                 Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
-                if (dalronn && dalronn->isAlive() && !dalronn->getVictim())
+                if (dalronn && dalronn->IsAlive() && !dalronn->GetVictim())
                     dalronn->getThreatManager().addThreat(who, 0.0f);
 
                 instance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
@@ -226,7 +226,7 @@ public:
 
             if (StoneStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STONE_STRIKE);
+                DoCast(me->GetVictim(), SPELL_STONE_STRIKE);
                 StoneStrike_Timer = 5000+rand()%5000;
             } else StoneStrike_Timer -= diff;
 
@@ -291,7 +291,7 @@ public:
             if (!ghost && instance)
             {
                 Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
-                if (skarvald && skarvald->isAlive() && !skarvald->getVictim())
+                if (skarvald && skarvald->IsAlive() && !skarvald->GetVictim())
                     skarvald->getThreatManager().addThreat(who, 0.0f);
 
                 AggroYell_Timer = 5000;

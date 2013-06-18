@@ -254,7 +254,7 @@ public:
                 Map* map = me->GetMap();
                 Map::PlayerList const &PlayerList = map->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                         player->DestroyItemCount(31088, 1, true);
             }
             StartEvent(); // this is EnterCombat(), so were are 100% in combat, start the event
@@ -272,15 +272,15 @@ public:
             }
             if (!CanAttack)
                 return;
-            if (!who || me->getVictim())
+            if (!who || me->GetVictim())
                 return;
 
-            if (me->canCreatureAttack(who))
+            if (me->CanCreatureAttack(who))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius) && me->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && me->IsWithinLOSInMap(who))
                 {
-                    if (!me->isInCombat()) // AttackStart() sets UNIT_FLAG_IN_COMBAT, so this msut be before attacking
+                    if (!me->IsInCombat()) // AttackStart() sets UNIT_FLAG_IN_COMBAT, so this msut be before attacking
                         StartEvent();
 
                     if (Phase != 2)
@@ -296,12 +296,12 @@ public:
                 case 0:
                     // Shoot
                     // Used in Phases 1 and 3 after Entangle or while having nobody in melee range. A shot that hits her target for 4097-5543 Physical damage.
-                    DoCast(me->getVictim(), SPELL_SHOOT);
+                    DoCast(me->GetVictim(), SPELL_SHOOT);
                     break;
                 case 1:
                     // Multishot
                     // Used in Phases 1 and 3 after Entangle or while having nobody in melee range. A shot that hits 1 person and 4 people around him for 6475-7525 physical damage.
-                    DoCast(me->getVictim(), SPELL_MULTI_SHOT);
+                    DoCast(me->GetVictim(), SPELL_MULTI_SHOT);
                     break;
             }
             if (rand()%3)
@@ -327,7 +327,7 @@ public:
                 }
             }
             // to prevent abuses during phase 2
-            if (Phase == 2 && !me->getVictim() && me->isInCombat())
+            if (Phase == 2 && !me->GetVictim() && me->IsInCombat())
             {
                 EnterEvadeMode();
                 return;
@@ -343,8 +343,8 @@ public:
                 {
                     // Shock Burst
                     // Randomly used in Phases 1 and 3 on Vashj's target, it's a Shock spell doing 8325-9675 nature damage and stunning the target for 5 seconds, during which she will not attack her target but switch to the next person on the aggro list.
-                    DoCast(me->getVictim(), SPELL_SHOCK_BLAST);
-                    me->TauntApply(me->getVictim());
+                    DoCast(me->GetVictim(), SPELL_SHOCK_BLAST);
+                    me->TauntApply(me->GetVictim());
 
                     ShockBlastTimer = 1000+rand()%14000;       // random cooldown
                 } else ShockBlastTimer -= diff;
@@ -368,7 +368,7 @@ public:
                     {
                         // Entangle
                         // Used in Phases 1 and 3, it casts Entangling Roots on everybody in a 15 yard radius of Vashj, immobilzing them for 10 seconds and dealing 500 damage every 2 seconds. It's not a magic effect so it cannot be dispelled, but is removed by various buffs such as Cloak of Shadows or Blessing of Freedom.
-                        DoCast(me->getVictim(), SPELL_ENTANGLE);
+                        DoCast(me->GetVictim(), SPELL_ENTANGLE);
                         Entangle = true;
                         EntangleTimer = 10000;
                     }
@@ -457,7 +457,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (!target)
-                        target = me->getVictim();
+                        target = me->GetVictim();
 
                     DoCast(target, SPELL_FORKED_LIGHTNING);
 
@@ -495,8 +495,8 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             coilfangElite->AI()->AttackStart(target);
-                        else if (me->getVictim())
-                            coilfangElite->AI()->AttackStart(me->getVictim());
+                        else if (me->GetVictim())
+                            coilfangElite->AI()->AttackStart(me->GetVictim());
                     }
                     CoilfangEliteTimer = 45000+rand()%5000;
                 } else CoilfangEliteTimer -= diff;
@@ -509,8 +509,8 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             CoilfangStrider->AI()->AttackStart(target);
-                        else if (me->getVictim())
-                            CoilfangStrider->AI()->AttackStart(me->getVictim());
+                        else if (me->GetVictim())
+                            CoilfangStrider->AI()->AttackStart(me->GetVictim());
                     }
                     CoilfangStriderTimer = 60000+rand()%10000;
                 } else CoilfangStriderTimer -= diff;
@@ -531,7 +531,7 @@ public:
                         Phase = 3;
 
                         // return to the tank
-                        me->GetMotionMaster()->MoveChase(me->getVictim());
+                        me->GetMotionMaster()->MoveChase(me->GetVictim());
                     }
                     CheckTimer = 1000;
                 } else CheckTimer -= diff;
@@ -626,7 +626,7 @@ public:
                         DoCast(me, SPELL_SURGE);
                 }
                 if (Creature* vashj = Unit::GetCreature(*me, VashjGUID))
-                    if (!vashj->isInCombat() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase != 2 || vashj->isDead())
+                    if (!vashj->IsInCombat() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase != 2 || vashj->isDead())
                         me->Kill(me);
                 Move = 1000;
             } else Move -= diff;
@@ -786,7 +786,7 @@ public:
                 {
                     // check if vashj is death
                     Unit* Vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
-                    if (!Vashj || !Vashj->isAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
+                    if (!Vashj || !Vashj->IsAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                     {
                         // remove
                         me->setDeathState(DEAD);
@@ -845,7 +845,7 @@ public:
             {
                 Unit* vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
 
-                if (vashj && vashj->isAlive())
+                if (vashj && vashj->IsAlive())
                 {
                     // start visual channel
                     if (!Casted || !vashj->HasAura(SPELL_MAGIC_BARRIER))

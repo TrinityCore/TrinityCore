@@ -362,7 +362,7 @@ public:
         void EnterEvadeMode()
         {
             Player* player = Unit::GetPlayer(*me, PlayerGUID);
-            if (player && player->isInCombat() && player->getAttackerForHelper())
+            if (player && player->IsInCombat() && player->getAttackerForHelper())
             {
                 AttackStart(player->getAttackerForHelper());
                 return;
@@ -394,12 +394,12 @@ public:
                 return;
             }
 
-            if (!me->isInCombat() && !EventOnWait)
+            if (!me->IsInCombat() && !EventOnWait)
             {
                 if (checkPlayerTimer <= diff)
                 {
                     Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                    if (player && player->isInCombat() && player->getAttackerForHelper())
+                    if (player && player->IsInCombat() && player->getAttackerForHelper())
                         AttackStart(player->getAttackerForHelper());
                     checkPlayerTimer = 1000;
                 } else checkPlayerTimer -= diff;

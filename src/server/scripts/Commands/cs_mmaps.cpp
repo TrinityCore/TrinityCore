@@ -108,7 +108,7 @@ public:
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
         handler->PSendSysMessage("ActualEndPosition (%.3f, %.3f, %.3f)", actualEnd.x, actualEnd.y, actualEnd.z);
 
-        if (!player->isGameMaster())
+        if (!player->IsGameMaster())
             handler->PSendSysMessage("Enable GM mode to see the path points.");
 
         for (uint32 i = 0; i < pointPath.size(); ++i)
@@ -153,7 +153,11 @@ public:
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
         dtPolyRef polyRef = INVALID_POLYREF;
-        navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL);
+        if (dtStatusFailed(navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL)))
+        {
+            handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
+            return true;
+        }
 
         if (polyRef == INVALID_POLYREF)
             handler->PSendSysMessage("Dt     [??, ??] (invalid poly, probably no tile loaded)");
@@ -161,11 +165,16 @@ public:
         {
             dtMeshTile const* tile;
             dtPoly const* poly;
-            navmesh->getTileAndPolyByRef(polyRef, &tile, &poly);
-            if (tile)
-                handler->PSendSysMessage("Dt     [%02i, %02i]", tile->header->x, tile->header->y);
-            else
-                handler->PSendSysMessage("Dt     [??, ??] (no tile loaded)");
+            if (dtStatusSucceed(navmesh->getTileAndPolyByRef(polyRef, &tile, &poly)))
+            {
+                if (tile)
+                {
+                    handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
+                    return false;
+                }
+            }
+
+            handler->PSendSysMessage("Dt     [??,??] (no tile loaded)");
         }
 
         return true;

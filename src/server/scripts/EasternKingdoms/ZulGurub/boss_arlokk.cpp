@@ -224,7 +224,7 @@ class boss_arlokk : public CreatureScript
                         {
                             Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, urand(1, 3), 0.0f, false, -SPELL_MARK_OF_ARLOKK);
                             if (!target)
-                                target = me->getVictim();
+                                target = me->GetVictim();
                             if (target)
                             {
                                 DoCast(target, SPELL_MARK_OF_ARLOKK, true);
@@ -379,7 +379,7 @@ class npc_zulian_prowler : public CreatureScript
                 {
                     if (Unit* arlokk = me->GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
                     {
-                        if (arlokk->isAlive())
+                        if (arlokk->IsAlive())
                             arlokk->GetAI()->SetData(_sideData, 0);
                     }
                 }

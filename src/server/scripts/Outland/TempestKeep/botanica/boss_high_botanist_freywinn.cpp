@@ -150,7 +150,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                             {
                                 if (Unit* temp = Unit::GetUnit(*me, *itr))
                                 {
-                                    if (!temp->isAlive())
+                                    if (!temp->IsAlive())
                                     {
                                         Adds_List.erase(itr);
                                         ++DeadAddsCount;
@@ -170,7 +170,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAllAuras();
-                            me->GetMotionMaster()->MoveChase(me->getVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetVictim());
                             MoveFree = true;
                         }
                         MoveCheck_Timer = 500;

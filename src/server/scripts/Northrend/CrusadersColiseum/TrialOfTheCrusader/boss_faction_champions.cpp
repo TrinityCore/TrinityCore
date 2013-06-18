@@ -632,7 +632,7 @@ struct boss_faction_championsAI : public BossAI
             uint32 TeamInInstance = 0;
 
             if (!players.isEmpty())
-                if (Player* player = players.begin()->getSource())
+                if (Player* player = players.begin()->GetSource())
                     TeamInInstance = player->GetTeam();
 
             if (instance)
@@ -1484,7 +1484,7 @@ class mob_toc_hunter : public CreatureScript
                             events.ScheduleEvent(EVENT_STEADY_SHOT, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_WING_CLIP:
-                            if (Unit* target = me->getVictim())
+                            if (Unit* target = me->GetVictim())
                             {
                                 if (me->GetDistance2d(target) < 6.0f)
                                     DoCast(target, SPELL_WING_CLIP);
@@ -1673,7 +1673,7 @@ class mob_toc_warrior : public CreatureScript
                             events.ScheduleEvent(EVENT_SUNDER_ARMOR, urand(2*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                             return;
                         case EVENT_SHATTERING_THROW:
-                            if (Unit* target = me->getVictim())
+                            if (Unit* target = me->GetVictim())
                             {
                                 if (target->HasAuraWithMechanic(1 << MECHANIC_IMMUNE_SHIELD))
                                 {
@@ -1752,7 +1752,7 @@ class mob_toc_dk : public CreatureScript
                             events.ScheduleEvent(EVENT_DEATH_COIL, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_DEATH_GRIP:
-                            if (Unit* target = me->getVictim())
+                            if (Unit* target = me->GetVictim())
                             {
                                 if (me->IsInRange(target, 5.0f, 30.0f, false))
                                 {
@@ -1871,7 +1871,7 @@ class mob_toc_rogue : public CreatureScript
                                 events.RescheduleEvent(EVENT_BLADE_FLURRY, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_SHADOWSTEP:
-                            if (Unit* target = me->getVictim())
+                            if (Unit* target = me->GetVictim())
                             {
                                 if (me->IsInRange(target, 10.0f, 40.0f, false))
                                 {

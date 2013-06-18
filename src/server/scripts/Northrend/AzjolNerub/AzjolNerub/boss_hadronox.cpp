@@ -94,7 +94,7 @@ public:
         void KilledUnit(Unit* Victim)
         {
             // not sure if this aura check is correct, I think it is though
-            if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->isAlive())
+            if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->IsAlive())
                 return;
 
             me->ModifyHealth(int32(me->CountPctFromMaxHealth(10)));
@@ -115,7 +115,7 @@ public:
 
         void CheckDistance(float dist, const uint32 uiDiff)
         {
-            if (!me->isInCombat())
+            if (!me->IsInCombat())
                 return;
 
             float x=0.0f, y=0.0f, z=0.0f;
@@ -128,7 +128,7 @@ public:
                 uiCheckDistanceTimer -= uiDiff;
                 return;
             }
-            if (me->IsInEvadeMode() || !me->getVictim())
+            if (me->IsInEvadeMode() || !me->GetVictim())
                 return;
             if (me->GetDistance(x, y, z) > dist)
                 EnterEvadeMode();
@@ -153,7 +153,7 @@ public:
 
             if (uiPierceTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_PIERCE_ARMOR);
+                DoCast(me->GetVictim(), SPELL_PIERCE_ARMOR);
                 uiPierceTimer = 8*IN_MILLISECONDS;
             } else uiPierceTimer -= diff;
 
