@@ -431,7 +431,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     // Spawn LK in front of door, and make him move to the sword.
                     if (Creature* lichking = me->SummonCreature(NPC_LICH_KING_PART1, LichKingSpawnPos, TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        lichking->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                        lichking->SetWalk(true);
                         lichking->GetMotionMaster()->MovePoint(0, LichKingMoveThronePos);
                         //lichking->SetReactState(REACT_PASSIVE);
                         lichkingGUID = lichking->GetGUID();
@@ -494,7 +494,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     if (Creature* lichking = me->GetCreature(*me, lichkingGUID))
                     {
                         lichking->AI()->Talk(SAY_LK_INTRO_3);
-                        lichking->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                        lichking->SetWalk(true);
                         lichking->GetMotionMaster()->MovePoint(0, LichKingMoveAwayPos);
                     }
                     events.ScheduleEvent(EVENT_INTRO_LK_7, 10000);
@@ -554,7 +554,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     /// @todo Loralen/Koreln shall run also
                     if (Creature* lichking = me->SummonCreature(NPC_LICH_KING_PART1, LichKingSpawnPos, TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        lichking->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                        lichking->SetWalk(true);
                         lichking->GetMotionMaster()->MovePoint(0, LichKingMoveThronePos);
                         lichking->SetReactState(REACT_PASSIVE);
                         lichkingGUID = lichking->GetGUID();

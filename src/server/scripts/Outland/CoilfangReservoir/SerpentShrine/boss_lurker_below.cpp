@@ -112,7 +112,8 @@ public:
         }
         void Reset()
         {
-            me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_DISABLE_GRAVITY);
+            me->SetSwim(true);
+            me->SetDisableGravity(true);
             SpoutAnimTimer = 1000;
             RotTimer = 0;
             WaterboltTimer = 15000; // give time to get in range when fight starts

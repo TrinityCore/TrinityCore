@@ -84,7 +84,7 @@ public:
             if (!player)
                 return;
 
-            if (waypointId >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
+            if (waypointId >= 65)
                 me->SetWalk(false);
 
             switch (waypointId)
