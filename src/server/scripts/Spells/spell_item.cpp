@@ -339,6 +339,98 @@ class spell_item_flask_of_the_north : public SpellScriptLoader
         }
 };
 
+// By Shinn
+// http://www.wowhead.com/item=58149 Flask of Enhancement
+// 79637 Flask of Enhancement
+enum eFlaskOfEnhancementSpells
+{
+    SPELL_FLASK_OF_ENHANCEMENT_IN = 79640,
+    SPELL_FLASK_OF_ENHANCEMENT_AG = 79639,
+    SPELL_FLASK_OF_ENHANCEMENT_STR = 79638,
+};
+
+class spell_item_flask_of_enhancement : public SpellScriptLoader
+{
+public:
+    spell_item_flask_of_enhancement() : SpellScriptLoader("spell_item_flask_of_enhancement") { }
+
+    class spell_item_flask_of_enhancement_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_item_flask_of_enhancement_SpellScript)
+        bool Validate(SpellInfo const * /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_ENHANCEMENT_IN) || !sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_ENHANCEMENT_AG) || !sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_ENHANCEMENT_STR))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+
+			uint32 spell_to_apply;
+
+            Unit* caster = GetCaster();
+            if (caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+			if (caster->HasAura(SPELL_FLASK_OF_ENHANCEMENT_IN))
+				caster->RemoveAurasDueToSpell(SPELL_FLASK_OF_ENHANCEMENT_IN);
+			if (caster->HasAura(SPELL_FLASK_OF_ENHANCEMENT_AG))
+				caster->RemoveAurasDueToSpell(SPELL_FLASK_OF_ENHANCEMENT_AG);
+			if (caster->HasAura(SPELL_FLASK_OF_ENHANCEMENT_STR))
+				caster->RemoveAurasDueToSpell(SPELL_FLASK_OF_ENHANCEMENT_STR);
+
+            switch (caster->getClass())
+            {
+                case CLASS_WARLOCK:
+                case CLASS_MAGE:
+                case CLASS_PRIEST:
+                    spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_IN;
+                    break;
+                case CLASS_DEATH_KNIGHT:
+                case CLASS_WARRIOR:
+                    spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_STR;
+                    break;
+                case CLASS_ROGUE:
+                case CLASS_HUNTER:
+                    spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_AG;
+                    break;
+                case CLASS_PALADIN:
+					if(caster->GetStat(STAT_INTELLECT) > caster->GetStat(STAT_STRENGTH))
+						spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_IN;
+                    spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_STR;
+                    break;
+                case CLASS_SHAMAN:
+					if(caster->GetStat(STAT_INTELLECT) > caster->GetStat(STAT_AGILITY))
+						spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_IN;
+                    spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_AG;
+                    break;
+                case CLASS_DRUID:
+					if((caster->GetStat(STAT_STRENGTH) > caster->GetStat(STAT_INTELLECT)) && (caster->GetStat(STAT_STRENGTH) > caster->GetStat(STAT_AGILITY)))
+						spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_STR;
+                    if((caster->GetStat(STAT_INTELLECT) > caster->GetStat(STAT_STRENGTH)) && (caster->GetStat(STAT_INTELLECT) > caster->GetStat(STAT_AGILITY)))
+						spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_IN;
+					if((caster->GetStat(STAT_AGILITY) > caster->GetStat(STAT_STRENGTH)) && (caster->GetStat(STAT_AGILITY) > caster->GetStat(STAT_INTELLECT)))
+						spell_to_apply = SPELL_FLASK_OF_ENHANCEMENT_AG;
+                    break;
+            }
+
+            caster->CastSpell(caster, spell_to_apply , true, NULL);
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_item_flask_of_enhancement_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_flask_of_enhancement_SpellScript();
+    }
+};
+
 // http://www.wowhead.com/item=10645 Gnomish Death Ray
 // 13280 Gnomish Death Ray
 enum GnomishDeathRay
@@ -2484,6 +2576,7 @@ void AddSC_item_spell_scripts()
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
     new spell_item_deviate_fish();
     new spell_item_flask_of_the_north();
+	new spell_item_flask_of_enhancement();
     new spell_item_gnomish_death_ray();
     new spell_item_make_a_wish();
     new spell_item_mingos_fortune_generator();
