@@ -50,6 +50,7 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
     SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT         = 59665,
+    SPELL_WARRIOR_HEROIC_LEAP						= 6544,
 
     SPELL_PALADIN_BLESSING_OF_SANCTUARY             = 20911,
     SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
@@ -723,6 +724,38 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
             return new spell_warr_vigilance_trigger_SpellScript();
         }
 };
+// Heroic Leap
+// Spell Id: 6544
+//|***********|//
+//| By Rubba  |//
+//|***********|//
+class spell_warr_heroic_leap : public SpellScriptLoader
+{
+public:
+    spell_warr_heroic_leap() : SpellScriptLoader("spell_warr_heroic_leap") { }
+
+    class spell_warr_heroic_leap_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
+
+        void CalculateDamage(SpellEffIndex /*effect*/)
+        {
+            // Formula: 0 + AttackPower
+            if (Unit* caster = GetCaster())
+                SetHitDamage(int32(1.2 + (0.5 * caster->GetTotalAttackPowerValue(BASE_ATTACK)));
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_heroic_leap::spell_warr_heroic_leap_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_heroic_leap_SpellScript();
+    }
+};
 
 void AddSC_warrior_spell_scripts()
 {
@@ -742,4 +775,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+    new spell_warr_heroic_leap();
 }
