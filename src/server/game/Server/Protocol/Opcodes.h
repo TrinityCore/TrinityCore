@@ -1295,7 +1295,7 @@ enum Opcodes
     SMSG_SPLINE_MOVE_SET_TURN_RATE                    = 0x78B5,
     SMSG_SPLINE_MOVE_SET_WALK_MODE                    = 0x54B6,
     SMSG_SPLINE_MOVE_SET_WALK_SPEED                   = 0x34A5,
-    SMSG_SPLINE_MOVE_SET_WATER_WALK                   = 0x0000,
+    SMSG_SPLINE_MOVE_SET_WATER_WALK                   = 0x50A2,
     SMSG_SPLINE_MOVE_START_SWIM                       = 0x31A5,
     SMSG_SPLINE_MOVE_STOP_SWIM                        = 0x1DA2,
     SMSG_SPLINE_MOVE_UNROOT                           = 0x75B6,

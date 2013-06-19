@@ -44,6 +44,9 @@ namespace Movement
         return ms / 1000.f;
     }
 
+    float computeFallTime(float path_length, bool isSafeFall);
+    float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f);
+
 #ifndef static_assert
     #define CONCAT(x, y) CONCAT1 (x, y)
     #define CONCAT1(x, y) x##y
@@ -75,7 +78,6 @@ namespace Movement
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
     extern double gravity;
-    extern float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity);
     extern UInt32Counter splineIdGen;
     extern std::string MovementFlags_ToString(uint32 flags);
     extern std::string MovementFlagsExtra_ToString(uint32 flags);

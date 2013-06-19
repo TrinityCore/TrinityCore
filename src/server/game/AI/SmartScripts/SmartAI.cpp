@@ -724,27 +724,18 @@ uint64 SmartAI::GetGUID(int32 /*id*/) const
 
 void SmartAI::SetRun(bool run)
 {
-    if (run)
-        me->SetWalk(false);
-    else
-        me->SetWalk(true);
-
+    me->SetWalk(!run);
     mRun = run;
 }
 
 void SmartAI::SetFly(bool fly)
 {
     me->SetDisableGravity(fly);
-    me->SendMovementDisableGravity();
 }
 
 void SmartAI::SetSwim(bool swim)
 {
-    if (swim)
-        me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    else
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    me->SendMovementSwimming();
+    me->SetSwim(swim);
 }
 
 void SmartAI::sGossipHello(Player* player)

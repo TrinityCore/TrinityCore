@@ -248,7 +248,7 @@ public:
             case PHASE_GROUND:
                 me->CastStop(SPELL_FOG_BREATH);
                 me->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
-                me->SetUnitMovementFlags(MOVEMENTFLAG_NONE);
+                me->StopMoving();
                 me->SetSpeed(MOVE_RUN, 2.0f);
 
                 events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
@@ -258,7 +258,7 @@ public:
                 events.ScheduleEvent(EVENT_FLIGHT, 60000);
                 break;
             case PHASE_FLIGHT:
-                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->SetDisableGravity(true);
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1000);
                 uiFlightCount = 0;
                 uiBreathCount = 0;

@@ -277,7 +277,7 @@ public:
 
                     me->NearTeleportTo(pPos.GetPositionX(), pPos.GetPositionY(), pPos.GetPositionZ(), pPos.GetOrientation());
                     me->GetMotionMaster()->MoveChase(me->GetVictim(), 0, 0);
-                    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(true);
 
                     Talk(EMOTE_ARCANE_EXPLOSION);
                     Talk(SAY_ARCANE_EXPLOSION);

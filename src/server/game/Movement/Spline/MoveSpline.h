@@ -49,6 +49,7 @@ namespace Movement
             Result_NextSegment  = 0x08
         };
         friend class PacketBuilder;
+
     protected:
         MySpline        spline;
 
@@ -69,30 +70,30 @@ namespace Movement
         int32           point_Idx_offset;
 
         void init_spline(const MoveSplineInitArgs& args);
-    protected:
 
-        const MySpline::ControlArray& getPath() const { return spline.getPoints(); }
+    protected:
+        MySpline::ControlArray const& getPath() const { return spline.getPoints(); }
         void computeParabolicElevation(float& el) const;
         void computeFallElevation(float& el) const;
 
         UpdateResult _updateState(int32& ms_time_diff);
-        int32 next_timestamp() const { return spline.length(point_Idx+1); }
-        int32 segment_time_elapsed() const { return next_timestamp()-time_passed; }
+        int32 next_timestamp() const { return spline.length(point_Idx + 1); }
+        int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
         int32 timeElapsed() const { return Duration() - time_passed; }
         int32 timePassed() const { return time_passed; }
 
     public:
         int32 Duration() const { return spline.length(); }
-        const MySpline& _Spline() const { return spline; }
+        MySpline const& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
         void _Finalize();
-        void _Interrupt() { splineflags.done = true;}
+        void _Interrupt() { splineflags.done = true; }
 
     public:
         void Initialize(const MoveSplineInitArgs&);
         bool Initialized() const { return !spline.empty(); }
 
-        explicit MoveSpline();
+        MoveSpline();
 
         template<class UpdateHandler>
         void updateState(int32 difftime, UpdateHandler& handler)
@@ -116,8 +117,8 @@ namespace Movement
         bool Finalized() const { return splineflags.done; }
         bool isCyclic() const { return splineflags.cyclic; }
         bool isFalling() const { return splineflags.falling; }
-        const Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
-        const Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx+1) : Vector3(); }
+        Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
+        Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
         int32 currentPathIdx() const;
 
         bool onTransport;

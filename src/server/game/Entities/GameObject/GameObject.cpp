@@ -17,22 +17,22 @@
  */
 
 #include "GameObjectAI.h"
-#include "ObjectMgr.h"
-#include "GroupMgr.h"
-#include "PoolMgr.h"
-#include "SpellMgr.h"
-#include "World.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "OutdoorPvPMgr.h"
 #include "BattlegroundAV.h"
-#include "ScriptMgr.h"
+#include "CellImpl.h"
 #include "CreatureAISelector.h"
-#include "Group.h"
-#include "MapManager.h"
-#include "GameObjectModel.h"
 #include "DynamicTree.h"
-
+#include "GameObjectModel.h"
+#include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "GroupMgr.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "PoolMgr.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "UpdateFieldFlags.h"
+#include "World.h"
+#include "MapManager.h"
 GameObject::GameObject(): WorldObject(false), m_model(NULL), m_goValue(), m_AI(NULL)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
@@ -2083,4 +2083,72 @@ bool GameObject::IsLootAllowedFor(Player const* player) const
         return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
 
     return true;
+}
+
+void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
+{
+    if (!target)
+        return;
+
+    bool forcedFlags = GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.groupLootRules && HasLootRecipient();
+    bool targetIsGM = target->IsGameMaster();
+
+    ByteBuffer fieldBuffer;
+
+    UpdateMask updateMask;
+    updateMask.SetCount(m_valuesCount);
+
+    uint32* flags = GameObjectUpdateFieldFlags;
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+    if (GetOwnerGUID() == target->GetGUID())
+        visibleFlag |= UF_FLAG_OWNER;
+
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+    {
+        if (_fieldNotifyFlags & flags[index] ||
+            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            (index == GAMEOBJECT_FLAGS && forcedFlags))
+        {
+            updateMask.SetBit(index);
+
+            if (index == GAMEOBJECT_DYNAMIC)
+            {
+                uint16 dynFlags = 0;
+                switch (GetGoType())
+                {
+                    case GAMEOBJECT_TYPE_CHEST:
+                    case GAMEOBJECT_TYPE_GOOBER:
+                        if (ActivateToQuest(target))
+                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
+                        else if (targetIsGM)
+                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                        break;
+                    case GAMEOBJECT_TYPE_GENERIC:
+                        if (ActivateToQuest(target))
+                            dynFlags |= GO_DYNFLAG_LO_SPARKLE;
+                        break;
+                    default:
+                        break;
+                }
+
+                fieldBuffer << uint16(dynFlags);
+                fieldBuffer << uint16(-1);
+            }
+            else if (index == GAMEOBJECT_FLAGS)
+            {
+                uint32 flags = m_uint32Values[GAMEOBJECT_FLAGS];
+                if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
+                    if (GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target))
+                        flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+
+                fieldBuffer << flags;
+            }
+            else
+                fieldBuffer << m_uint32Values[index];                // other cases
+        }
+    }
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
 }

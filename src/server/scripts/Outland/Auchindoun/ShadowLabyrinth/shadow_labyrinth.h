@@ -19,11 +19,23 @@
 #ifndef DEF_SHADOW_LABYRINTH_H
 #define DEF_SHADOW_LABYRINTH_H
 
-#define TYPE_HELLMAW 1
-#define TYPE_OVERSEER 2
-#define DATA_BLACKHEARTTHEINCITEREVENT 3
-#define DATA_GRANDMASTERVORPILEVENT 4
-#define DATA_MURMUREVENT 5
-#define DATA_GRANDMASTERVORPIL 6
+uint32 const EncounterCount             = 5;
+
+enum DataTypes
+{
+    TYPE_HELLMAW                        = 1,
+    TYPE_OVERSEER                       = 2,
+    DATA_BLACKHEARTTHEINCITEREVENT      = 3,
+    DATA_GRANDMASTERVORPILEVENT         = 4,
+    DATA_MURMUREVENT                    = 5,
+    DATA_GRANDMASTERVORPIL              = 6
+};
+
+enum Objects
+{
+    REFECTORY_DOOR                      = 183296, // door opened when blackheart the inciter dies
+    SCREAMING_HALL_DOOR                 = 183295  // door opened when grandmaster vorpil dies
+};
+
 #endif
 

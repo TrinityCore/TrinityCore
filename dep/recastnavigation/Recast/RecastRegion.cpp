@@ -283,6 +283,8 @@ static bool floodRegion(int x, int y, int i,
 				if (chf.areas[ai] != area)
 					continue;
 				unsigned short nr = srcReg[ai];
+				if (nr & RC_BORDER_REG) // Do not take borders into account.
+					continue;
 				if (nr != 0 && nr != r)
 					ar = nr;
 				
@@ -296,9 +298,9 @@ static bool floodRegion(int x, int y, int i,
 					const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
 					if (chf.areas[ai2] != area)
 						continue;
-					unsigned short nr = srcReg[ai2];
-					if (nr != 0 && nr != r)
-						ar = nr;
+					unsigned short nr2 = srcReg[ai2];
+					if (nr2 != 0 && nr2 != r)
+						ar = nr2;
 				}				
 			}
 		}
@@ -319,16 +321,13 @@ static bool floodRegion(int x, int y, int i,
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
-				if (chf.dist[ai] >= lev)
+				if (chf.dist[ai] >= lev && srcReg[ai] == 0)
 				{
-					if (srcReg[ai] == 0)
-					{
-						srcReg[ai] = r;
-						srcDist[ai] = 0;
-						stack.push(ax);
-						stack.push(ay);
-						stack.push(ai);
-					}
+					srcReg[ai] = r;
+					srcDist[ai] = 0;
+					stack.push(ax);
+					stack.push(ay);
+					stack.push(ai);
 				}
 			}
 		}
@@ -679,17 +678,17 @@ static void walkContour(int x, int y, int i, int dir,
 	// Remove adjacent duplicates.
 	if (cont.size() > 1)
 	{
-		for (int i = 0; i < cont.size(); )
+		for (int j = 0; j < cont.size(); )
 		{
-			int ni = (i+1) % cont.size();
-			if (cont[i] == cont[ni])
+			int nj = (j+1) % cont.size();
+			if (cont[j] == cont[nj])
 			{
-				for (int j = i; j < cont.size()-1; ++j)
-					cont[j] = cont[j+1];
+				for (int k = j; k < cont.size()-1; ++k)
+					cont[k] = cont[k+1];
 				cont.pop();
 			}
 			else
-				++i;
+				++j;
 		}
 	}
 }
@@ -807,14 +806,14 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 					connectsToBorder = true;
 					continue;
 				}
-				rcRegion& nreg = regions[creg.connections[j]];
-				if (nreg.visited)
+				rcRegion& neireg = regions[creg.connections[j]];
+				if (neireg.visited)
 					continue;
-				if (nreg.id == 0 || (nreg.id & RC_BORDER_REG))
+				if (neireg.id == 0 || (neireg.id & RC_BORDER_REG))
 					continue;
 				// Visit
-				stack.push(nreg.id);
-				nreg.visited = true;
+				stack.push(neireg.id);
+				neireg.visited = true;
 			}
 		}
 		
@@ -937,7 +936,16 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 	return true;
 }
 
-
+/// @par
+/// 
+/// This is usually the second to the last step in creating a fully built
+/// compact heightfield.  This step is required before regions are built
+/// using #rcBuildRegions or #rcBuildRegionsMonotone.
+/// 
+/// After this step, the distance data is available via the rcCompactHeightfield::maxDistance
+/// and rcCompactHeightfield::dist fields.
+///
+/// @see rcCompactHeightfield, rcBuildRegions, rcBuildRegionsMonotone
 bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 {
 	rcAssert(ctx);
@@ -1020,6 +1028,25 @@ struct rcSweepSpan
 	unsigned short nei;	// neighbour id
 };
 
+/// @par
+/// 
+/// Non-null regions will consist of connected, non-overlapping walkable spans that form a single contour.
+/// Contours will form simple polygons.
+/// 
+/// If multiple regions form an area that is smaller than @p minRegionArea, then all spans will be
+/// re-assigned to the zero (null) region.
+/// 
+/// Partitioning can result in smaller than necessary regions. @p mergeRegionArea helps 
+/// reduce unecessarily small regions.
+/// 
+/// See the #rcConfig documentation for more information on the configuration parameters.
+/// 
+/// The region data will be available via the rcCompactHeightfield::maxRegions
+/// and rcCompactSpan::reg fields.
+/// 
+/// @warning The distance field must be created using #rcBuildDistanceField before attempting to build regions.
+/// 
+/// @see rcCompactHeightfield, rcCompactSpan, rcBuildDistanceField, rcBuildRegionsMonotone, rcConfig
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 							const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {
@@ -1059,6 +1086,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, 0, bh, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, h-bh, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		
+		chf.borderSize = borderSize;
 	}
 	
 	rcIntArray prev(256);
@@ -1170,6 +1199,25 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	return true;
 }
 
+/// @par
+/// 
+/// Non-null regions will consist of connected, non-overlapping walkable spans that form a single contour.
+/// Contours will form simple polygons.
+/// 
+/// If multiple regions form an area that is smaller than @p minRegionArea, then all spans will be
+/// re-assigned to the zero (null) region.
+/// 
+/// Watershed partitioning can result in smaller than necessary regions, especially in diagonal corridors. 
+/// @p mergeRegionArea helps reduce unecessarily small regions.
+/// 
+/// See the #rcConfig documentation for more information on the configuration parameters.
+/// 
+/// The region data will be available via the rcCompactHeightfield::maxRegions
+/// and rcCompactSpan::reg fields.
+/// 
+/// @warning The distance field must be created using #rcBuildDistanceField before attempting to build regions.
+/// 
+/// @see rcCompactHeightfield, rcCompactSpan, rcBuildDistanceField, rcBuildRegionsMonotone, rcConfig
 bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 					const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {
@@ -1209,11 +1257,19 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 //	const int expandIters = 4 + walkableRadius * 2;
 	const int expandIters = 8;
 
-	// Mark border regions.
-	paintRectRegion(0, borderSize, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-	paintRectRegion(w-borderSize, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-	paintRectRegion(0, w, 0, borderSize, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-	paintRectRegion(0, w, h-borderSize, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+	if (borderSize > 0)
+	{
+		// Make sure border will not overflow.
+		const int bw = rcMin(w, borderSize);
+		const int bh = rcMin(h, borderSize);
+		// Paint regions
+		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+
+		chf.borderSize = borderSize;
+	}
 	
 	while (level > 0)
 	{
@@ -1242,7 +1298,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 				{
 					if (chf.dist[i] < level || srcReg[i] != 0 || chf.areas[i] == RC_NULL_AREA)
 						continue;
-					
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
 						regionId++;
 				}
@@ -1250,7 +1305,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		}
 		
 		ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FLOOD);
-		
 	}
 	
 	// Expand current regions until no empty connected cells found.
