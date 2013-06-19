@@ -2151,6 +2151,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     // reset movement flags at teleport, because player will continue move with these flags after teleport
     SetUnitMovementFlags(0);
+    m_movementInfo.ResetJump();
+    m_movementInfo.bits.hasPitch = false;
+    m_movementInfo.bits.hasSplineElevation = false;
     DisableSpline();
 
     if (m_transport)
