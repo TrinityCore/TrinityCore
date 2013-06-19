@@ -724,11 +724,7 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
             return new spell_warr_vigilance_trigger_SpellScript();
         }
 };
-// Heroic Leap
-// Spell Id: 6544
-//|***********|//
-//| By Rubba  |//
-//|***********|//
+// 6544 Heroic Leap
 class spell_warr_heroic_leap : public SpellScriptLoader
 {
 public:
