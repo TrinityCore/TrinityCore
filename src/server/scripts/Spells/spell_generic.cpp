@@ -3601,6 +3601,44 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
         }
 };
 
+enum SpectatorCheerTrigger
+
+{
+    EMOTE_ONE_SHOT_CHEER        = 4,
+    EMOTE_ONE_SHOT_EXCLAMATION  = 5,
+    EMOTE_ONE_SHOT_APPLAUD      = 21
+};
+
+uint8 const EmoteArray [3] = { EMOTE_ONE_SHOT_CHEER, EMOTE_ONE_SHOT_EXCLAMATION, EMOTE_ONE_SHOT_APPLAUD };
+
+class spell_gen_spectator_cheer_trigger : public SpellScriptLoader
+{
+    public:
+        spell_gen_spectator_cheer_trigger() : SpellScriptLoader("spell_gen_spectator_cheer_trigger") { }
+
+        class spell_gen_spectator_cheer_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_spectator_cheer_trigger_SpellScript)
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->HandleEmoteCommand(EmoteArray [urand(0,2)]);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_spectator_cheer_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_spectator_cheer_trigger_SpellScript();
+        }
+
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3682,4 +3720,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_aura_service_uniform();
     new spell_gen_orc_disguise();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
+    new spell_gen_spectator_cheer_trigger;
 }
