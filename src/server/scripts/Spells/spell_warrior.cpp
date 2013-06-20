@@ -200,6 +200,7 @@ class spell_warr_concussion_blow : public SpellScriptLoader
 };
 
 /// Updated 4.3.4
+// 12834, 12848, 12867 - Deep Wounds R1, R2 & R3
 class spell_warr_deep_wounds : public SpellScriptLoader
 {
     public:
@@ -244,7 +245,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_deep_wounds_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_deep_wounds_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
