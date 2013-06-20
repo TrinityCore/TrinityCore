@@ -2862,7 +2862,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_ChampioningFaction;
 
-        uint32 m_timeSyncCounter;
+        std::queue<uint32> m_timeSyncQueue;
         uint32 m_timeSyncTimer;
         uint32 m_timeSyncClient;
         uint32 m_timeSyncServer;
