@@ -40,7 +40,7 @@ typedef UNORDERED_MAP<uint32, AchievementEntryList>         AchievementListByRef
 
 struct CriteriaProgress
 {
-    uint32 counter;
+    uint64 counter;
     time_t date;                                            // latest update time.
     uint64 CompletedGUID;                                   // GUID of the player that completed this criteria (guild achievements)
     bool changed;
