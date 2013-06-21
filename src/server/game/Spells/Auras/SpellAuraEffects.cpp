@@ -1771,39 +1771,21 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             if (target->getPowerType() != PowerType)
                 target->setPowerType(PowerType);
 
-            switch (form)
+            if (form == FORM_CAT || form == FORM_BEAR)
             {
-                case FORM_CAT:
-                case FORM_BEAR:
-                {
-                    // get furor proc chance
-                    int32 FurorChance = 0;
-                    if (AuraEffect const* dummy = target->GetDummyAuraEffect(SPELLFAMILY_DRUID, 238, 0))
-                        FurorChance = std::max(dummy->GetAmount(), 0);
+                // get furor proc chance
+                int32 FurorChance = 0;
+                if (AuraEffect const* dummy = target->GetDummyAuraEffect(SPELLFAMILY_DRUID, 238, 0))
+                    FurorChance = std::max(dummy->GetAmount(), 0);
 
-                    switch (GetMiscValue())
-                    {
-                        case FORM_CAT:
-                        {
-                            int32 basePoints = std::min<int32>(oldPower, FurorChance);
-                            target->SetPower(POWER_ENERGY, 0);
-                            target->CastCustomSpell(target, 17099, &basePoints, NULL, NULL, true, NULL, this);
-                            break;
-                        }
-                        case FORM_BEAR:
-                        if (urand(0, 99) < FurorChance)
-                            target->CastSpell(target, 17057, true);
-                        default:
-                        {
-                            int32 newEnergy = std::min(target->GetPower(POWER_ENERGY), FurorChance);
-                            target->SetPower(POWER_ENERGY, newEnergy);
-                            break;
-                        }
-                    }
-                    break;
+                if (form == FORM_CAT)
+                {
+                    int32 basePoints = std::min<int32>(oldPower, FurorChance);
+                    target->SetPower(POWER_ENERGY, 0);
+                    target->CastCustomSpell(target, 17099, &basePoints, NULL, NULL, true, NULL, this);
                 }
-                default:
-                    break;
+                else if (roll_chance_i(FurorChance))
+                    target->CastSpell(target, 17057, true);
             }
         }
         // stop handling the effect if it was removed by linked event
