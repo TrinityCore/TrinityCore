@@ -156,14 +156,6 @@ public:
                 me->DespawnOrUnsummon(10000);
             }
         }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -1699,8 +1691,8 @@ class spell_random_ingredient : public SpellScriptLoader
 
                     if (Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f))
                     {
-                        finklestein->CastSpell(player, FetchIngredients[ingredient] [0], true, NULL);
-                        finklestein->AI()->Talk(FetchIngredients[ingredient] [3], player->GetGUID());
+                        finklestein->CastSpell(player, FetchIngredients[ingredient][0], true, NULL);
+                        finklestein->AI()->Talk(FetchIngredients[ingredient][3], player->GetGUID());
                     }
                 }
             }
@@ -1737,14 +1729,14 @@ class spell_pot_check : public SpellScriptLoader
                     !sSpellMgr->GetSpellInfo(SPELL_FETCH_PUTRID_PIRATE_PERSPIRATION) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_ICECROWN_BOTTLED_WATER) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_WASPS_WINGS) ||
                     !sSpellMgr->GetSpellInfo(SPELL_FETCH_PRISMATIC_MOJO) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_RAPTOR_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_AMBERSEED) ||
                     !sSpellMgr->GetSpellInfo(SPELL_FETCH_SHRUNKEN_DRAGONS_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_CHILLED_SERPENT_MUCUS) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_CRYSTALLIZED_HOGSNOT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_TROLLBANE) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_FROZEN_SPIDER_ICHOR) ||   
+                    !sSpellMgr->GetSpellInfo(SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_TROLLBANE) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_FROZEN_SPIDER_ICHOR) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HAVE_KNOTROOT) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_PICKLED_EAGLE_EGG) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_SPECKLED_GUANO) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HAVE_WITHERED_BATWING) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_SEASONED_SLIDER_CIDER) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_PULVERIZED_GARGOYLE_TEETH) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HAVE_MUDDY_MIRE_MAGGOT) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_SPIKY_SPIDER_EGG) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_HAIRY_HERRING_HEAD) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HAVE_PUTRID_PIRATE_PERSPIRATION) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_ICECROWN_BOTTLED_WATER) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_WASPS_WINGS) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HAVE_PRISMATIC_MOJO) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_RAPTOR_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_AMBERSEED) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HAVE_SHRUNKEN_DRAGONS_CLAW) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_CHILLED_SERPENT_MUCUS) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_CRYSTALLIZED_HOGSNOT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_CRUSHED_BASILISK_CRYSTALS) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_TROLLBANE) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_FROZEN_SPIDER_ICHOR))   
+                    !sSpellMgr->GetSpellInfo(SPELL_HAVE_CRUSHED_BASILISK_CRYSTALS) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_TROLLBANE) || !sSpellMgr->GetSpellInfo(SPELL_HAVE_FROZEN_SPIDER_ICHOR))
                     return false;
                 return true;
             }
@@ -1755,14 +1747,14 @@ class spell_pot_check : public SpellScriptLoader
             {
                 for (uint8 i = 0; i < 21; ++i)
                 {
-                    if(player->HasAura(FetchIngredients[i] [0]))
+                    if (player->HasAura(FetchIngredients[i][0]))
                     {
                         player->CastSpell(player, SPELL_THROW_INGREDIENT);
-                        player->RemoveAura(FetchIngredients[i] [0]);
-                        if(player->HasAura(FetchIngredients[i] [1]))
+                        player->RemoveAura(FetchIngredients[i][0]);
+                        if (player->HasAura(FetchIngredients[i][1]))
                         {
-                            player->RemoveAura(FetchIngredients[i] [1]);
-                            player->DestroyItemCount(FetchIngredients[i] [2], 1, true);
+                            player->RemoveAura(FetchIngredients[i][1]);
+                            player->DestroyItemCount(FetchIngredients[i][2], 1, true);
                             if (i < 15)
                             {
                                 if (Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f))
@@ -1794,8 +1786,8 @@ class spell_pot_check : public SpellScriptLoader
         void RemoveItems(Player* player)
         {
             for (uint8 i = 0; i < 21; ++i)
-                if (player->HasItemCount(FetchIngredients[i] [2], 1, true))
-                    player->DestroyItemCount(FetchIngredients[i] [2], 1, true);
+                if (player->HasItemCount(FetchIngredients[i][2], 1, true))
+                    player->DestroyItemCount(FetchIngredients[i][2], 1, true);
         }
 
         void Register()
@@ -1824,14 +1816,14 @@ class spell_fetch_ingredient_aura : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+                Unit* target = GetTarget();
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    if (Unit* target = GetTarget())
-                        if (target->HasAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF))
-                            if (Creature* finklestein = GetClosestCreatureWithEntry(target, NPC_FINKLESTEIN, 100.0f))
-                            {
-                                target->RemoveAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
-                                finklestein->AI()->Talk(SAY_RUINED, target->GetGUID());
-                            }
+                    if (target->HasAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF))
+                        if (Creature* finklestein = GetClosestCreatureWithEntry(target, NPC_FINKLESTEIN, 100.0f))
+                        {
+                            target->RemoveAura(SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
+                            finklestein->AI()->Talk(SAY_RUINED, target->GetGUID());
+                        }
             }
 
             void Register()
@@ -1848,22 +1840,22 @@ class spell_fetch_ingredient_aura : public SpellScriptLoader
 
 void AddSC_zuldrak()
 {
-    new npc_drakuru_shackles;
-    new npc_captured_rageclaw;
-    new npc_gurgthock;
-    new npc_orinoko_tuskbreaker;
-    new npc_korrak_bloodrager;
-    new npc_yggdras;
-    new npc_stinkbeard;
-    new npc_released_offspring_harkoa;
-    new npc_crusade_recruit;
-    new npc_elemental_lord;
-    new npc_fiend_elemental;
-    new go_scourge_enclosure;
-    new npc_alchemist_finklestein;
-    new go_finklesteins_cauldron;
-    new spell_random_ingredient_aura;
-    new spell_random_ingredient;
-    new spell_pot_check;
-    new spell_fetch_ingredient_aura;
+    new npc_drakuru_shackles();
+    new npc_captured_rageclaw();
+    new npc_gurgthock();
+    new npc_orinoko_tuskbreaker();
+    new npc_korrak_bloodrager();
+    new npc_yggdras();
+    new npc_stinkbeard();
+    new npc_released_offspring_harkoa();
+    new npc_crusade_recruit();
+    new npc_elemental_lord();
+    new npc_fiend_elemental();
+    new go_scourge_enclosure();
+    new npc_alchemist_finklestein();
+    new go_finklesteins_cauldron();
+    new spell_random_ingredient_aura();
+    new spell_random_ingredient();
+    new spell_pot_check();
+    new spell_fetch_ingredient_aura();
 }
