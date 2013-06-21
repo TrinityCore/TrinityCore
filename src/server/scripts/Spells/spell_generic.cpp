@@ -3638,6 +3638,41 @@ class spell_gen_spectator_cheer_trigger : public SpellScriptLoader
         }
 
 };
+enum VendorBarkTrigger
+
+{
+    NPC_AMPHITHEATER_VENDOR     = 30098,
+    SAY_AMPHITHEATER_VENDOR     = 0
+};
+
+class spell_gen_vendor_bark_trigger : public SpellScriptLoader
+{
+    public:
+        spell_gen_vendor_bark_trigger() : SpellScriptLoader("spell_gen_vendor_bark_trigger") { }
+
+        class spell_gen_vendor_bark_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_vendor_bark_trigger_SpellScript)
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                if (Creature* vendor = GetCaster()->ToCreature())
+                    if (vendor->GetEntry() == NPC_AMPHITHEATER_VENDOR)
+                        vendor->AI()->Talk(SAY_AMPHITHEATER_VENDOR);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_vendor_bark_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_vendor_bark_trigger_SpellScript();
+        }
+
+};
 
 void AddSC_generic_spell_scripts()
 {
@@ -3721,4 +3756,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_orc_disguise();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
     new spell_gen_spectator_cheer_trigger;
+    new spell_gen_vendor_bark_trigger;
 }
