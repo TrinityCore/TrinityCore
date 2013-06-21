@@ -1262,8 +1262,8 @@ public:
         {
             _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
             player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, SPELL_QUEST_CREDIT, true);
-            creature->SetFacingToObject(player);
+            me->CastSpell(player, SPELL_QUEST_CREDIT, true);
+            me->SetFacingToObject(player);
         }
 
         private:
