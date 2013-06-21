@@ -392,8 +392,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             hasTransportTime2 = self->m_movementInfo.bits.hasTransportTime2;
             hasTransportTime3 = self->m_movementInfo.bits.hasTransportTime3;
             hasPitch = self->m_movementInfo.bits.hasPitch;
-            hasFallData = self->m_movementInfo.bits.hasFallData;
-            hasFallDirection = self->m_movementInfo.bits.hasFallDirection;
+            //hasFallData = self->m_movementInfo.bits.hasFallData;
+            //hasFallDirection = self->m_movementInfo.bits.hasFallDirection;
             hasSplineElevation = self->m_movementInfo.bits.hasSplineElevation;
         }
         else
