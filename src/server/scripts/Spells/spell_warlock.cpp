@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -51,10 +51,10 @@ enum WarlockSpells
     SPELL_WARLOCK_IMMOLATE                          = 348,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
+    //SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
+    //SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
+    //SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
+    //SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
@@ -160,7 +160,10 @@ class spell_warl_conflagrate : public SpellScriptLoader
 };
 
 // 6201 - Create Healthstone
-class spell_warl_create_healthstone : public SpellScriptLoader
+// Se eliminan los rangos en el parche 401, ahora solo hay una piedra de salud
+// La mayoría de los spells que se usan aquí ya no existen.
+// Comprobar que la piedra se crea bien.
+/*class spell_warl_create_healthstone : public SpellScriptLoader
 {
     public:
         spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
@@ -170,9 +173,9 @@ class spell_warl_create_healthstone : public SpellScriptLoader
             PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
 
             static uint32 const iTypes[8][3];
-
-            bool Validate(SpellInfo const* /*spellInfo*/)
-            {
+*/
+//            bool Validate(SpellInfo const* /*spellInfo*/)
+/*            {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1) || !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2))
                     return false;
                 return true;
@@ -241,7 +244,7 @@ uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellS
     {22103, 22104, 22105},              // Master Healthstone
     {36889, 36890, 36891},              // Demonic Healthstone
     {36892, 36893, 36894}               // Fel Healthstone
-};
+};*/
 
 // 603 - Bane of Doom
 /// Updated 4.3.4
@@ -683,6 +686,8 @@ class spell_warl_haunt : public SpellScriptLoader
 
 // 755 - Health Funnel
 /// Updated 4.3.4
+// Improved health funnel se elimina del juego en el parche 401.
+/*
 class spell_warl_health_funnel : public SpellScriptLoader
 {
     public:
@@ -691,9 +696,9 @@ class spell_warl_health_funnel : public SpellScriptLoader
         class spell_warl_health_funnel_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warl_health_funnel_AuraScript);
-
-            void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
+*/
+//            void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+/*            {
                 Unit* caster = GetCaster();
                 if (!caster)
                     return;
@@ -704,9 +709,9 @@ class spell_warl_health_funnel : public SpellScriptLoader
                 else if (caster->HasAura(SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1))
                     target->CastSpell(target, SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
             }
-
-            void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
+*/
+//            void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+/*            {
                 Unit* target = GetTarget();
                 target->RemoveAurasDueToSpell(SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1);
                 target->RemoveAurasDueToSpell(SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2);
@@ -723,7 +728,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
         {
             return new spell_warl_health_funnel_AuraScript();
         }
-};
+};*/
 
 // 1454 - Life Tap
 /// Updated 4.3.4
@@ -1022,7 +1027,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
     new spell_warl_conflagrate();
-    new spell_warl_create_healthstone();
+    //new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
@@ -1031,7 +1036,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_fel_flame();
     new spell_warl_fel_synergy();
     new spell_warl_haunt();
-    new spell_warl_health_funnel();
+    //new spell_warl_health_funnel();
     new spell_warl_life_tap();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seed_of_corruption();
