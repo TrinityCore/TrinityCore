@@ -270,7 +270,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             Unit* pEmbraceTarget = GetEmbraceTarget();
