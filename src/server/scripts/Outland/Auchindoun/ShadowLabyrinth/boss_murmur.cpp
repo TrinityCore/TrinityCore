@@ -71,10 +71,10 @@ public:
             events.ScheduleEvent(EVENT_RESONANCE, 5000);
             events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
             if (IsHeroic())
-			{
+            {
                 events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
                 events.ScheduleEvent(EVENT_SONIC_SHOCK, 10000);
-			}
+            }
 
             //database should have `RegenHealth`=0 to prevent regen
             uint32 hp = me->CountPctFromMaxHealth(40);
@@ -160,7 +160,7 @@ public:
                                     DoCast(target, SPELL_THUNDERING_STORM, true);
                         events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
                         break;
-					}
+                    }
                     case EVENT_SONIC_SHOCK:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20, false))
                             if (target->IsAlive())
