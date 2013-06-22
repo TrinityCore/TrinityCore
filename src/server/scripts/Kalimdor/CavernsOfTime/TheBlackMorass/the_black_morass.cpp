@@ -16,12 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Dark_Portal
-SD%Complete: 30
-SDComment: Misc NPC's and mobs for instance. Most here far from complete.
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: The_Black_Morass
+%Complete: 30
+Comment: Misc NPC's and mobs for instance. Most here far from complete.
+Category: Caverns of Time, The Black Morass
+*/
 
 /* ContentData
 npc_medivh_bm
@@ -32,7 +32,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 #include "Player.h"
 #include "SpellInfo.h"
 
@@ -414,7 +414,7 @@ public:
 
 };
 
-void AddSC_dark_portal()
+void AddSC_the_black_morass()
 {
     new npc_medivh_bm();
     new npc_time_rift();

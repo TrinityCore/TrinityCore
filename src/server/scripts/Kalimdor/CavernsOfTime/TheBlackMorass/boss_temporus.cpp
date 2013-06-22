@@ -16,16 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Temporus
-SD%Complete: 75
-SDComment: More abilities need to be implemented
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: Boss_Temporus
+%Complete: 75
+Comment: More abilities need to be implemented
+Category: Caverns of Time, The Black Morass
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 
 enum Enums
 {

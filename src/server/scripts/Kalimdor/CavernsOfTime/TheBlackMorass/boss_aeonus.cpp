@@ -25,7 +25,7 @@ Category: Caverns of Time, The Dark Portal
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 
 enum Enums
 {
