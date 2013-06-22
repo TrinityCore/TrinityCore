@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_DARKPORTAL_H
-#define DEF_DARKPORTAL_H
+#ifndef DEF_THEBLACKMORASS_H
+#define DEF_THEBLACKMORASS_H
 
 uint32 const EncounterCount             = 2;
 
