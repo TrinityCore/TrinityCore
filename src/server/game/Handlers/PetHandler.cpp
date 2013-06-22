@@ -398,7 +398,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 if (pet->isPossessed() || pet->IsVehicle())
                     Spell::SendCastResult(GetPlayer(), spellInfo, 0, result);
                 else
-                    pet->SendPetCastFail(spellid, result);
+                    pet->SendPetCastFail(0, spellInfo, result);
 
                 if (!pet->ToCreature()->HasSpellCooldown(spellid))
                     GetPlayer()->SendClearCooldown(spellid, pet);
@@ -783,7 +783,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     if (spellInfo->StartRecoveryCategory > 0) // Check if spell is affected by GCD
         if (caster->GetTypeId() == TYPEID_UNIT && caster->GetCharmInfo() && caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
         {
-            caster->SendPetCastFail(spellId, SPELL_FAILED_NOT_READY);
+            caster->SendPetCastFail(castCount, spellInfo, SPELL_FAILED_NOT_READY);
             return;
         }
 
@@ -829,7 +829,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     }
     else
     {
-        caster->SendPetCastFail(spellId, result);
+        caster->SendPetCastFail(castCount, spellInfo, result);
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
             if (!caster->ToPlayer()->HasSpellCooldown(spellId))
@@ -851,14 +851,11 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     WorldPacket data(SMSG_PET_NAME_INVALID, 4 + name.size() + 1 + 1);
     data << uint32(error);
     data << name;
+    data << uint8(declinedName ? 1 : 0);
     if (declinedName)
-    {
-        data << uint8(1);
         for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data << declinedName->name[i];
-    }
-    else
-        data << uint8(0);
+
     SendPacket(&data);
 }
 
