@@ -103,7 +103,6 @@ class boss_akilzon : public CreatureScript
                 memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
 
                 StormCount = 0;
-                StormSequenceTimer = 0;
 
                 isRaining = false;
 
@@ -242,6 +241,7 @@ class boss_akilzon : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STATIC_DISRUPTION:
+                            {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                             if (!target) target = me->GetVictim();
                             TargetGUID = target->GetGUID();
@@ -251,48 +251,54 @@ class boss_akilzon : public CreatureScript
                             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
                             events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 18000));
                             break;
+                            }
                         case EVENT_GUST_OF_WIND:
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                            if (!target) target = me->GetVictim();
-                            DoCast(target, SPELL_GUST_OF_WIND);
-                            events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));
-                            break;
+                            {
+                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                                if (!target) target = me->GetVictim();
+                                DoCast(target, SPELL_GUST_OF_WIND);
+                                events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));
+                                break;
+                            }
                         case EVENT_CALL_LIGHTNING:
                             DoCast(me->GetVictim(), SPELL_CALL_LIGHTNING);
                             events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(12000, 17000)); // totaly random timer. can't find any info on this
                             break;
                         case EVENT_ELECTRICAL_STORM:
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
-                            if (!target)
                             {
-                                EnterEvadeMode();
-                                return;
+                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
+                                if (!target)
+                                {
+                                    EnterEvadeMode();
+                                    return;
+                                }
+                                target->CastSpell(target, 44007, true); // cloud visual
+                                DoCast(target, SPELL_ELECTRICAL_STORM, false); // storm cyclon + visual
+                                float x, y, z;
+                                target->GetPosition(x, y, z);
+                                if (target)
+                                {
+                                    target->SetDisableGravity(true);
+                                    target->MonsterMoveWithSpeed(x, y, me->GetPositionZ()+15, 0);
+                                }
+
+                                Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
+                                if (Cloud)
+                                    {
+                                        CloudGUID = Cloud->GetGUID();
+                                        Cloud->SetDisableGravity(true);
+                                        Cloud->StopMoving();
+                                        Cloud->SetObjectScale(1.0f);
+                                        Cloud->setFaction(35);
+                                        Cloud->SetMaxHealth(9999999);
+                                        Cloud->SetHealth(9999999);
+                                        Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    }
+                                StormCount = 1;
+                                events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60000); // 60 seconds(bosskillers)
+                                events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
+                                break;
                             }
-                            target->CastSpell(target, 44007, true); // cloud visual
-                            DoCast(target, SPELL_ELECTRICAL_STORM, false); // storm cyclon + visual
-                            float x, y, z;
-                            target->GetPosition(x, y, z);
-                            if (target)
-                            {
-                                target->SetDisableGravity(true);
-                                target->MonsterMoveWithSpeed(x, y, me->GetPositionZ()+15, 0);
-                            }
-                            Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
-                            if (Cloud)
-                            {
-                                CloudGUID = Cloud->GetGUID();
-                                Cloud->SetDisableGravity(true);
-                                Cloud->StopMoving();
-                                Cloud->SetObjectScale(1.0f);
-                                Cloud->setFaction(35);
-                                Cloud->SetMaxHealth(9999999);
-                                Cloud->SetHealth(9999999);
-                                Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            }
-                            StormCount = 1;
-                            events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60000); // 60 seconds(bosskillers)
-                            events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
-                            break;
                         case EVENT_RAIN:
                             if (!isRaining)
                             {
@@ -303,16 +309,18 @@ class boss_akilzon : public CreatureScript
                                 events.ScheduleEvent(EVENT_RAIN, 1000);
                             break;
                         case EVENT_STORM_SEQUENCE:
-                            Unit* target = Unit::GetUnit(*me, CloudGUID);
-                            if (!target || !target->IsAlive())
                             {
-                                EnterEvadeMode();
-                                return;
+                                Unit* target = Unit::GetUnit(*me, CloudGUID);
+                                if (!target || !target->IsAlive())
+                                {
+                                    EnterEvadeMode();
+                                    return;
+                                }
+                                else if (Unit* Cyclone = Unit::GetUnit(*me, CycloneGUID))
+                                    Cyclone->CastSpell(target, SPELL_SAND_STORM, true); // keep casting or...
+                                HandleStormSequence(target);
+                                break;
                             }
-                            else if (Unit* Cyclone = Unit::GetUnit(*me, CycloneGUID))
-                                Cyclone->CastSpell(target, SPELL_SAND_STORM, true); // keep casting or...
-                            HandleStormSequence(target);
-                            break;
                         case EVENT_SUMMON_EAGLES:
                             Talk(SAY_SUMMON);
 
