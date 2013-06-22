@@ -134,7 +134,7 @@ public:
 
             if (DemoralizingShoutTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_DEMORALIZINGSHOUT);
+                DoCastVictim(SPELL_DEMORALIZINGSHOUT);
                 DemoralizingShoutTimer = 70000;
             } else DemoralizingShoutTimer -= diff;
         }

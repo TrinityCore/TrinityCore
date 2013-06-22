@@ -300,7 +300,7 @@ public:
                 if (Channeling == true)
                 {
                     for (uint8 i = 0; i < 8; ++i)
-                    DoCast(me->GetVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
+                    DoCastVictim(SPELL_SUMMON_CARRION_BEETLES, true);
                     Channeling = false;
                 }
                 else if (CarrionBeetlesTimer <= diff)

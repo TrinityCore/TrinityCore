@@ -71,7 +71,7 @@ public:
                 //SoulSiphon_Timer
                 if (SoulSiphon_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SOULSIPHON);
+                    DoCastVictim(SPELL_SOULSIPHON);
                     return;
 
                     //SoulSiphon_Timer = 20000;
@@ -82,7 +82,7 @@ public:
             //CallOfTheGrave_Timer
             if (CallOftheGrave_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CALLOFTHEGRAVE);
+                DoCastVictim(SPELL_CALLOFTHEGRAVE);
                 CallOftheGrave_Timer = 30000;
             }
             else CallOftheGrave_Timer -= diff;
@@ -90,7 +90,7 @@ public:
             //Terrify_Timer
             if (Terrify_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_TERRIFY);
+                DoCastVictim(SPELL_TERRIFY);
                 Terrify_Timer = 20000;
             }
             else Terrify_Timer -= diff;

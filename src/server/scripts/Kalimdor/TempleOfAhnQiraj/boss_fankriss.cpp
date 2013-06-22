@@ -106,7 +106,7 @@ public:
             //MortalWound_Timer
             if (MortalWound_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MORTAL_WOUND);
+                DoCastVictim(SPELL_MORTAL_WOUND);
                 MortalWound_Timer = urand(10000, 20000);
             } else MortalWound_Timer -= diff;
 

@@ -153,7 +153,7 @@ public:
 
             if (uiPierceTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_PIERCE_ARMOR);
+                DoCastVictim(SPELL_PIERCE_ARMOR);
                 uiPierceTimer = 8*IN_MILLISECONDS;
             } else uiPierceTimer -= diff;
 

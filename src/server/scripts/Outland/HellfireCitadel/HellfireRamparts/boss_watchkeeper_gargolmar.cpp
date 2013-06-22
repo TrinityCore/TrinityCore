@@ -119,7 +119,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
                 if (MortalWound_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_MORTAL_WOUND);
+                    DoCastVictim(SPELL_MORTAL_WOUND);
                     MortalWound_Timer = 5000+rand()%8000;
                 }
                 else

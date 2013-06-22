@@ -362,7 +362,7 @@ public:
                                 DoCast(target, SPELL_PRIMARY(id));
                         }
                         else
-                            DoCast(me->GetVictim(), SPELL_PRIMARY(id));
+                            DoCastVictim(SPELL_PRIMARY(id));
 
                         events.ScheduleEvent(EVENT_CAST, 15000);
                         break;

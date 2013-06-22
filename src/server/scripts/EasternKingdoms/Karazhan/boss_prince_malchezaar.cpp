@@ -480,13 +480,13 @@ public:
 
                 if (SunderArmorTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SUNDER_ARMOR);
+                    DoCastVictim(SPELL_SUNDER_ARMOR);
                     SunderArmorTimer = urand(10000, 18000);
                 } else SunderArmorTimer -= diff;
 
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_CLEAVE);
+                    DoCastVictim(SPELL_CLEAVE);
                     Cleave_Timer = urand(6000, 12000);
                 } else Cleave_Timer -= diff;
             }
@@ -530,7 +530,7 @@ public:
 
             if (ShadowNovaTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHADOWNOVA);
+                DoCastVictim(SPELL_SHADOWNOVA);
                 ShadowNovaTimer = phase == 3 ? 31000 : uint32(-1);
             } else ShadowNovaTimer -= diff;
 

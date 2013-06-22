@@ -266,13 +266,13 @@ public:
 
                 if (m_uiFetidRot_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_FETID_ROT);
+                    DoCastVictim(SPELL_FETID_ROT);
                     m_uiFetidRot_Timer = urand(10000, 15000);
                 } else m_uiFetidRot_Timer -= diff;
 
                 if (m_uiDarkSlash_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_DARK_SLASH);
+                    DoCastVictim(SPELL_DARK_SLASH);
                     m_uiDarkSlash_Timer = urand(30000, 35000);
                 } else m_uiDarkSlash_Timer -= diff;
 
@@ -299,7 +299,7 @@ public:
 
                 if (m_bIsActiveWithHALDOR && m_uiAbility_HALDOR_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SPIRIT_STRIKE);
+                    DoCastVictim(SPELL_SPIRIT_STRIKE);
                     m_uiAbility_HALDOR_Timer = 5000; // overtime
                 } else m_uiAbility_HALDOR_Timer -= diff;
 

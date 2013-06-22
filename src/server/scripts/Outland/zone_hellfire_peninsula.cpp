@@ -113,13 +113,13 @@ public:
 
             if (Shock_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHOCK);
+                DoCastVictim(SPELL_SHOCK);
                 Shock_Timer = 10000;
             } else Shock_Timer -= diff;
 
             if (EnvelopingWinds_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_ENVELOPING_WINDS);
+                DoCastVictim(SPELL_ENVELOPING_WINDS);
                 EnvelopingWinds_Timer = 25000;
             } else EnvelopingWinds_Timer -= diff;
 

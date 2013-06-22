@@ -149,7 +149,7 @@ class boss_renataki : public CreatureScript
 
                     if (ThousandBlades_Timer <= diff)
                     {
-                        DoCast(me->GetVictim(), SPELL_THOUSANDBLADES);
+                        DoCastVictim(SPELL_THOUSANDBLADES);
                         ThousandBlades_Timer = urand(7000, 12000);
                     } else ThousandBlades_Timer -= diff;
                 }

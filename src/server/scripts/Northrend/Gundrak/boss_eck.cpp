@@ -83,13 +83,13 @@ public:
 
             if (uiBiteTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_ECK_BITE);
+                DoCastVictim(SPELL_ECK_BITE);
                 uiBiteTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
             } else uiBiteTimer -= diff;
 
             if (uiSpitTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_ECK_SPIT);
+                DoCastVictim(SPELL_ECK_SPIT);
                 uiSpitTimer = urand(6*IN_MILLISECONDS, 14*IN_MILLISECONDS);
             } else uiSpitTimer -= diff;
 

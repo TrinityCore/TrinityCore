@@ -107,27 +107,27 @@ public:
             {
                 Talk(SAY_QUAKE);
                 if (bPhase)
-                    DoCast(me->GetVictim(), SPELL_QUAKE, true);
+                    DoCastVictim(SPELL_QUAKE, true);
                 else
-                    DoCast(me->GetVictim(), SPELL_GROUND_TREMOR, true);
+                    DoCastVictim(SPELL_GROUND_TREMOR, true);
                 uiGroundTremorTimer = 10*IN_MILLISECONDS;
             } else uiGroundTremorTimer -= uiDiff;
 
             if (uiNumblingShoutTimer <= uiDiff)
             {
                 if (bPhase)
-                    DoCast(me->GetVictim(), SPELL_NUMBING_ROAR, true);
+                    DoCastVictim(SPELL_NUMBING_ROAR, true);
                 else
-                    DoCast(me->GetVictim(), SPELL_NUMBING_SHOUT, true);
+                    DoCastVictim(SPELL_NUMBING_SHOUT, true);
                 uiNumblingShoutTimer = 10*IN_MILLISECONDS;
             } else uiNumblingShoutTimer -=uiDiff;
 
             if (uiDeterminedStabTimer <= uiDiff)
             {
                 if (bPhase)
-                    DoCast(me->GetVictim(), SPELL_DETERMINED_GORE);
+                    DoCastVictim(SPELL_DETERMINED_GORE);
                 else
-                    DoCast(me->GetVictim(), SPELL_DETERMINED_STAB, true);
+                    DoCastVictim(SPELL_DETERMINED_STAB, true);
                 uiDeterminedStabTimer = 8*IN_MILLISECONDS;
             } else uiDeterminedStabTimer -=uiDiff;
 

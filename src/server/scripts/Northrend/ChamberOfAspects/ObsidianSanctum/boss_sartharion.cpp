@@ -619,7 +619,7 @@ public:
             if (m_uiFlameBreathTimer <= uiDiff)
             {
                 Talk(SAY_SARTHARION_BREATH);
-                DoCast(me->GetVictim(), RAID_MODE(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
+                DoCastVictim(RAID_MODE(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
                 m_uiFlameBreathTimer = urand(25000, 35000);
             }
             else
@@ -628,7 +628,7 @@ public:
             // Tail Sweep
             if (m_uiTailSweepTimer <= uiDiff)
             {
-                DoCast(me->GetVictim(), RAID_MODE(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
+                DoCastVictim(RAID_MODE(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
                 m_uiTailSweepTimer = urand(15000, 20000);
             }
             else
@@ -637,7 +637,7 @@ public:
             // Cleave
             if (m_uiCleaveTimer <= uiDiff)
             {
-                DoCast(me->GetVictim(), SPELL_CLEAVE);
+                DoCastVictim(SPELL_CLEAVE);
                 m_uiCleaveTimer = urand(7000, 10000);
             }
             else
@@ -1049,7 +1049,7 @@ public:
             if (m_uiShadowBreathTimer <= uiDiff)
             {
                 Talk(SAY_TENEBRON_BREATH);
-                DoCast(me->GetVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
                 m_uiShadowBreathTimer = urand(20000, 25000);
             }
             else
@@ -1153,7 +1153,7 @@ public:
             if (m_uiShadowBreathTimer <= uiDiff)
             {
                 Talk(SAY_SHADRON_BREATH);
-                DoCast(me->GetVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
                 m_uiShadowBreathTimer = urand(20000, 25000);
             }
             else
@@ -1237,7 +1237,7 @@ public:
                 else
                 {
                     OpenPortal();
-                    DoCast(me->GetVictim(), SPELL_TWILIGHT_TORMENT_VESP);
+                    DoCastVictim(SPELL_TWILIGHT_TORMENT_VESP);
                     m_uiAcolyteVesperonTimer = urand(60000, 70000);
                 }
             }
@@ -1248,7 +1248,7 @@ public:
             if (m_uiShadowBreathTimer <= uiDiff)
             {
                 Talk(SAY_VESPERON_BREATH);
-                DoCast(me->GetVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
                 m_uiShadowBreathTimer = urand(20000, 25000);
             }
             else
@@ -1626,8 +1626,8 @@ public:
             {
                 DoCastAOE(RAID_MODE(SPELL_VOID_BLAST, SPELL_VOID_BLAST_H));
                 ////twilight realm
-                //DoCast(me->GetVictim(), 57620, true);
-                //DoCast(me->GetVictim(), 57874, true);
+                //DoCastVictim(57620, true);
+                //DoCastVictim(57874, true);
                 VoidBlast_Timer = 9000;
                 me->RemoveAllAuras();
                 me->Kill(me);
@@ -1676,7 +1676,7 @@ public:
             // twilight torment
             if (m_uiFadeArmorTimer <= uiDiff)
             {
-                DoCast(me->GetVictim(), SPELL_FADE_ARMOR);
+                DoCastVictim(SPELL_FADE_ARMOR);
                 m_uiFadeArmorTimer = urand(5000, 10000);
             }
             else

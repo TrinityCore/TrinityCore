@@ -110,7 +110,7 @@ public:
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CLEAVE);
+                DoCastVictim(SPELL_CLEAVE);
                 Cleave_Timer = 12000;
             }
             else Cleave_Timer -= diff;
@@ -119,7 +119,7 @@ public:
             if (Whirlwind_Timer <= diff)
             {
                 Talk(SAY_WHIRLWIND);
-                DoCast(me->GetVictim(), SPELL_WHIRLWIND);
+                DoCastVictim(SPELL_WHIRLWIND);
                 Whirlwind_Timer = 30000;
             }
             else Whirlwind_Timer -= diff;
