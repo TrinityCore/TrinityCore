@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Group.h"
 
 enum WarriorSpells
 {
@@ -746,11 +747,36 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
+			int32 healthModSpellBasePoints0 = 0;
             if (Unit* caster = GetCaster())
             {
-                int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
+				Player* pPlayer = caster->ToPlayer();
+				Group* pGroup = pPlayer->GetGroup();
+				
+				if(!pGroup)
+				{
+                healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
                 caster->CastCustomSpell(caster, SPELL_WARRIOR_RALLYING_CRY, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-            }
+				}
+
+				if(pGroup)
+				{
+					Group::MemberSlotList const& members = pGroup->GetMemberSlots();
+					for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+					{
+						Player* pMember = ObjectAccessor::FindPlayer((*itr).guid);
+						if(pMember && pMember->IsInWorld())
+						{
+							if(pMember->IsWithinDist(pPlayer,30.0f))
+							{
+							healthModSpellBasePoints0 = int32(pMember->CountPctFromMaxHealth(GetEffectValue()));
+							pMember->CastCustomSpell(pMember, SPELL_WARRIOR_RALLYING_CRY, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+							}
+						}
+						
+					}
+				}
+			}
         }
 
         void Register()
