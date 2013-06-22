@@ -139,7 +139,7 @@ enum ServerEvents
     GROUP_EVENT_ON_DISBAND                  =     73,           // (event, group)
 
     // Custom
-    PLAYER_EVENT_ON_EQUIP                   =     74,           // (event, player, item, dest, src)
+    PLAYER_EVENT_ON_EQUIP                   =     74,           // (event, player, item, bag, slot)
     PLAYER_EVENT_ON_LOGIN_FIRST             =     75,           // (event, player)
     PLAYER_EVENT_ON_CAN_USE_ITEM            =     76,           // (event, player, itemEntry)
     PLAYER_EVENT_ON_LOOT_ITEM               =     77,           // (event, player, item, count)

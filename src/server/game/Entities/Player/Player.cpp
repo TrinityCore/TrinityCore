@@ -1213,7 +1213,6 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
         Item* item = EquipNewItem(eDest, titem_id, true);
         AutoUnequipOffhandIfNeed();
         --titem_amount;
-        sHookMgr->OnEquip(this, item, eDest, 0);
     }
 
     if (titem_amount == 0)
@@ -12418,13 +12417,15 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
         ApplyEquipCooldown(pItem2);
 
+        sHookMgr->OnEquip(this, pItem2, bag, slot);
         return pItem2;
     }
 
     // only for full equip instead adding to stack
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
-
+    
+    sHookMgr->OnEquip(this, pItem, bag, slot);
     return pItem;
 }
 
@@ -12446,6 +12447,8 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
+
+        sHookMgr->OnEquip(this, pItem, (pos >> 8), slot);
     }
 }
 
@@ -13129,7 +13132,6 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         pSrcItem->SetState(ITEM_CHANGED, this);
         EquipItem(dest, pNewItem, true);
         AutoUnequipOffhandIfNeed();
-        sHookMgr->OnEquip(this, pNewItem, dest, src);
     }
 }
 
@@ -13262,7 +13264,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
             RemoveItem(srcbag, srcslot, true);
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
-            sHookMgr->OnEquip(this, pSrcItem, dest, src);
         }
 
         return;
@@ -13298,7 +13299,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 {
                     EquipItem(eDest, pSrcItem, true);
                     AutoUnequipOffhandIfNeed();
-                    sHookMgr->OnEquip(this, pSrcItem, eDest, src);
                 }
             }
             else
@@ -13489,10 +13489,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     }
 
     AutoUnequipOffhandIfNeed();
-    if(IsEquipmentPos(src))
-        sHookMgr->OnEquip(this, pSrcItem, eDest, src);
-    if(IsEquipmentPos(dst))
-        sHookMgr->OnEquip(this, pDstItem, eDest2, src);
 }
 
 void Player::AddItemToBuyBackSlot(Item* pItem)
@@ -21339,8 +21335,6 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 
         if (!bStore)
             AutoUnequipOffhandIfNeed();
-        if (!bStore)
-            sHookMgr->OnEquip(this, it, uiDest, 0);
 
         if (pProto->Flags & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {

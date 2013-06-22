@@ -32,7 +32,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnEquip(Player* player, Item* item, uint16 dest, uint16 src)
+    void OnEquip(Player* player, Item* item, uint8 bag, uint8 slot)
     {
         for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_EQUIP].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_EQUIP].end(); ++itr)
@@ -41,8 +41,8 @@ public:
             sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_EQUIP);
             sEluna->PushUnit(sEluna->LuaState, player);
             sEluna->PushItem(sEluna->LuaState, item);
-            sEluna->PushUnsigned(sEluna->LuaState, dest);
-            sEluna->PushUnsigned(sEluna->LuaState, src);
+            sEluna->PushUnsigned(sEluna->LuaState, bag);
+            sEluna->PushUnsigned(sEluna->LuaState, slot);
             sEluna->ExecuteCall(5, 0);
         }
     }

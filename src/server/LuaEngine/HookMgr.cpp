@@ -12,11 +12,10 @@ void HookMgr::OnFirstLogin(Player* player)
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
         (*it)->OnFirstLogin(player);
 }
-void HookMgr::OnEquip(const Player* player, Item* item, uint16 dest, uint16 src)
+void HookMgr::OnEquip(Player* player, Item* item, uint8 bag, uint8 slot)
 {
-    Player* player2 = const_cast<Player*>(player);
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        (*it)->OnEquip(player2, item, dest, src);
+        (*it)->OnEquip(player, item, bag, slot);
 }
 InventoryResult HookMgr::OnCanUseItem(const Player* player, uint32 itemEntry)
 {

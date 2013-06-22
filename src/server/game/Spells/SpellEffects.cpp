@@ -2212,7 +2212,6 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
 
             player->EquipItem(dest, pNewItem, true);
             player->AutoUnequipOffhandIfNeed();
-            sHookMgr->OnEquip(player, pNewItem, dest, 0);
             return;
         }
     }
