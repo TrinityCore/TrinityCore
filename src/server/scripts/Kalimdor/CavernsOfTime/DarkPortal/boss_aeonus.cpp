@@ -16,18 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Aeonus
-SD%Complete: 80
-SDComment: Some spells not implemented
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: Boss_Aeonus
+%Complete: 80
+Comment: Some spells not implemented
+Category: Caverns of Time, The Dark Portal
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "dark_portal.h"
 
-enum eEnums
+enum Enums
 {
     SAY_ENTER           = 0,
     SAY_AGGRO           = 1,
@@ -43,45 +43,37 @@ enum eEnums
     H_SPELL_SAND_BREATH = 39049
 };
 
+enum Events
+{
+    EVENT_SANDBREATH    = 1,
+    EVENT_TIMESTOP      = 2,
+    EVENT_FRENZY        = 3
+};
+
 class boss_aeonus : public CreatureScript
 {
 public:
     boss_aeonus() : CreatureScript("boss_aeonus") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_aeonusAI : public BossAI
     {
-        return new boss_aeonusAI (creature);
-    }
+        boss_aeonusAI(Creature* creature) : BossAI(creature, TYPE_AEONUS) { }
 
-    struct boss_aeonusAI : public ScriptedAI
-    {
-        boss_aeonusAI(Creature* creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 SandBreath_Timer;
-        uint32 TimeStop_Timer;
-        uint32 Frenzy_Timer;
-
-        void Reset()
-        {
-            SandBreath_Timer = 15000+rand()%15000;
-            TimeStop_Timer = 10000+rand()%5000;
-            Frenzy_Timer = 30000+rand()%15000;
-        }
+        void Reset() { }
 
         void EnterCombat(Unit* /*who*/)
         {
+            events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 30000));
+            events.ScheduleEvent(EVENT_TIMESTOP, urand(10000, 15000));
+            events.ScheduleEvent(EVENT_FRENZY, urand(30000, 45000));
+
             Talk(SAY_AGGRO);
         }
 
         void MoveInLineOfSight(Unit* who)
         {
             //Despawn Time Keeper
-            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
+            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_TIME_KEEPER)
             {
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
@@ -100,7 +92,7 @@ public:
              if (instance)
              {
                  instance->SetData(TYPE_RIFT, DONE);
-                 instance->SetData(TYPE_MEDIVH, DONE);//FIXME: later should be removed
+                 instance->SetData(TYPE_MEDIVH, DONE); // FIXME: later should be removed
              }
         }
 
@@ -115,32 +107,40 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //Sand Breath
-            if (SandBreath_Timer <= diff)
-            {
-                DoCast(me->GetVictim(), SPELL_SAND_BREATH);
-                SandBreath_Timer = 15000+rand()%10000;
-            } else SandBreath_Timer -= diff;
+                events.Update(diff);
 
-            //Time Stop
-            if (TimeStop_Timer <= diff)
-            {
-                DoCast(me->GetVictim(), SPELL_TIME_STOP);
-                TimeStop_Timer = 20000+rand()%15000;
-            } else TimeStop_Timer -= diff;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-            //Frenzy
-            if (Frenzy_Timer <= diff)
-            {
-                Talk(EMOTE_FRENZY);
-                DoCast(me, SPELL_ENRAGE);
-                Frenzy_Timer = 20000+rand()%15000;
-            } else Frenzy_Timer -= diff;
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SANDBREATH:
+                            DoCast(me->GetVictim(), SPELL_SAND_BREATH);
+                            events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 25000));
+                            break;
+                        case EVENT_TIMESTOP:
+                            DoCast(me->GetVictim(), SPELL_TIME_STOP);
+                            events.ScheduleEvent(EVENT_TIMESTOP, urand(20000, 35000));
+                            break;
+                        case EVENT_FRENZY:
+                             Talk(EMOTE_FRENZY);
+                             DoCast(me, SPELL_ENRAGE);
+                            events.ScheduleEvent(EVENT_FRENZY, urand(20000, 35000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+        }
 
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_aeonusAI (creature);
         }
     };
-
 };
 
 void AddSC_boss_aeonus()
