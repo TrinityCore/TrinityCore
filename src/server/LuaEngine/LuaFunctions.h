@@ -378,6 +378,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
     {"GetOwner", &LuaUnit::GetOwner},                                                                       // :GetOwner() - Returns the owner
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
+    {"GetFriendlyUnitsInRange", &LuaUnit::GetFriendlyUnitsInRange},                                         // :GetFriendlyUnitsInRange([range]) - Returns a list of friendly units in range, can return nil
+    {"GetUnfriendlyUnitsInRange", &LuaUnit::GetUnfriendlyUnitsInRange},                                     // :GetUnfriendlyUnitsInRange([range]) - Returns a list of unfriendly units in range, can return nil
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                                                                   // :SetFaction(factionId) - Sets the unit's faction
@@ -538,8 +540,8 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetUInt16Value", &LuaGameObject::GetUInt16Value},                                                     // :GetUInt16Value(index, offset) - returns a uint16 value from object fields
     {"GetGUIDLow", &LuaGameObject::GetGUIDLow},                                                             // :GetGUIDLow() - Returns uint32 guid (low guid) that is used in database.
     {"GetNearestPlayer", &LuaGameObject::GetNearestPlayer},                                                 // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius.
-    {"GetNearestGameObject", &LuaGameObject::GetNearestGameObject},                                         // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius.
-    {"GetNearestCreature", &LuaGameObject::GetNearestCreature},                                             // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius.
+    {"GetNearestGameObject", &LuaGameObject::GetNearestGameObject},                                         // :GetNearestGameObject([radius, entry]) - Returns nearest gameobject with given entry in sight or given radius.
+    {"GetNearestCreature", &LuaGameObject::GetNearestCreature},                                             // :GetNearestCreatureEntry([radius, entry]) - Returns nearest creature with given entry in sight or given radius.
     {"GetRelativePoint", &LuaGameObject::GetRelativePoint},                                                 // :GetRelativePoint(dist, radians) - Returns the X, Y and orientation of a point dist away from gob. Radian 0 point is the direction the unit is facing.
     {"GetHeight", &LuaGameObject::GetHeight},                                                               // :GetHeight(X, Y) - Returns returns the Z coord of the given location. If no valid position found, returns gob Z coordinate.
 

@@ -4886,15 +4886,15 @@ int LuaUnit::AddVehiclePassenger(lua_State* L, Unit* unit)
 /* Not coded in core
 int LuaUnit::EjectPassenger(lua_State* L, Unit* unit)
 {
-    TO_UNIT();
+TO_UNIT();
 
-    Unit* passenger = sEluna->CHECK_UNIT(L, 1);
-    Vehicle* _vehicle = unit->GetVehicle();
-    if (!_vehicle)
-        return 0;
+Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+Vehicle* _vehicle = unit->GetVehicle();
+if (!_vehicle)
+return 0;
 
-    _vehicle->EjectPassenger(passenger, unit);
-    return 0;
+_vehicle->EjectPassenger(passenger, unit);
+return 0;
 }
 */
 
@@ -5033,8 +5033,8 @@ int LuaUnit::GetNearestGameObject(lua_State* L, Unit* unit)
 {
     TO_UNIT();
 
-    uint32 entry = luaL_optunsigned(L, 1, 0);
-    float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+    float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+    uint32 entry = luaL_optunsigned(L, 2, 0);
 
     GameObject* target = NULL;
     Eluna::NearestTypeWithEntryInRangeCheck checker(unit, range, TYPEID_GAMEOBJECT, entry);
@@ -5049,8 +5049,8 @@ int LuaUnit::GetNearestCreature(lua_State* L, Unit* unit)
 {
     TO_UNIT();
 
-    uint32 entry = luaL_optunsigned(L, 1, 0);
-    float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+    float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+    uint32 entry = luaL_optunsigned(L, 2, 0);
 
     Creature* target = NULL;
     Eluna::NearestTypeWithEntryInRangeCheck checker(unit, range, TYPEID_UNIT, entry);
@@ -5058,6 +5058,56 @@ int LuaUnit::GetNearestCreature(lua_State* L, Unit* unit)
     unit->VisitNearbyGridObject(range, searcher);
 
     sEluna->PushUnit(L, target);
+    return 1;
+}
+
+int LuaUnit::GetFriendlyUnitsInRange(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+    float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+
+    UnitList list;
+    Trinity::AnyFriendlyUnitInObjectRangeCheck checker(unit, unit, range);
+    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
+    unit->VisitNearbyGridObject(range, searcher);
+
+    lua_newtable(L);
+    int tbl = lua_gettop(L);
+    uint32 i = 0;
+
+    for (UnitList::iterator it = list.begin(); it != list.end(); ++it)
+    {
+        sEluna->PushUnsigned(L, ++i);
+        sEluna->PushUnit(L, *it);
+        lua_settable(L, tbl);
+    }
+
+    lua_settop(L, tbl);
+    return 1;
+}
+
+int LuaUnit::GetUnfriendlyUnitsInRange(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+    float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+
+    UnitList list;
+    Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, unit, range);
+    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
+    unit->VisitNearbyGridObject(range, searcher);
+
+    lua_newtable(L);
+    int tbl = lua_gettop(L);
+    uint32 i = 0;
+
+    for (UnitList::iterator it = list.begin(); it != list.end(); ++it)
+    {
+        sEluna->PushUnsigned(L, ++i);
+        sEluna->PushUnit(L, *it);
+        lua_settable(L, tbl);
+    }
+
+    lua_settop(L, tbl);
     return 1;
 }
 

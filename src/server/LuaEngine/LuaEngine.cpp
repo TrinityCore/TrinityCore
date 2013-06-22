@@ -148,6 +148,9 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "bit_or", &LuaGlobalFunctions::bit_or);                                 // bit_or(a, b) - Returns a | b UNDOCUMENTED
     lua_register(L, "bit_and", &LuaGlobalFunctions::bit_and);                               // bit_and(a, b) - Returns a & b UNDOCUMENTED
     lua_register(L, "GetItemLink", &LuaGlobalFunctions::GetItemLink);                       // GetItemLink(entry[, localeIndex]) - Returns the shift clickable link of the item. Item name translated if translate available for provided locale index UNDOCUMENTED
+    lua_register(L, "GetPlayersInRange", &LuaGlobalFunctions::GetPlayersInRange);           // GetPlayersInRange(WorldObject[, range]) - Returns a table with players in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
+    lua_register(L, "GetCreaturesInRange", &LuaGlobalFunctions::GetCreaturesInRange);       // GetCreaturesInRange(WorldObject[, range]) - Returns a table with creatures in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
+    lua_register(L, "GetGameObjectsInRange", &LuaGlobalFunctions::GetGameObjectsInRange);   // GetGameObjectsInRange(WorldObject[, range]) - Returns a table with gameobjects in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                       // ReloadEluna() - Reload's Eluna engine

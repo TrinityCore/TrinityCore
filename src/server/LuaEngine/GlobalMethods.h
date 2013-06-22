@@ -928,5 +928,90 @@ namespace LuaGlobalFunctions
         sEluna->PushString(L, oss.str().c_str());
         return 1;
     }
+
+    static int GetPlayersInRange(lua_State* L)
+    {
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+        if (!obj)
+            return 0;
+
+        std::list<Player*> list;
+        Trinity::AnyPlayerInObjectRangeCheck checker(obj, range, true);
+        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(obj, list, checker);
+        obj->VisitNearbyGridObject(range, searcher);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (std::list<Player*>::iterator it = list.begin(); it != list.end(); ++it)
+        {
+            sEluna->PushUnsigned(L, ++i);
+            sEluna->PushUnit(L, *it);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    static int GetCreaturesInRange(lua_State* L)
+    {
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+        if (!obj)
+            return 0;
+
+        std::list<Creature*> list;
+        Trinity::AnyUnitInObjectRangeCheck checker(obj, range);
+        Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(obj, list, checker);
+        obj->VisitNearbyGridObject(range, searcher);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (std::list<Creature*>::iterator it = list.begin(); it != list.end(); ++it)
+        {
+            sEluna->PushUnsigned(L, ++i);
+            sEluna->PushUnit(L, *it);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    static int GetGameObjectsInRange(lua_State* L)
+    {
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+        if (!obj)
+            return 0;
+
+        float x, y, z;
+        obj->GetPosition(x, y, z);
+        std::list<GameObject*> list;
+        Trinity::GameObjectInRangeCheck checker(x, y, z, range);
+        Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(obj, list, checker);
+        obj->VisitNearbyGridObject(range, searcher);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (std::list<GameObject*>::iterator it = list.begin(); it != list.end(); ++it)
+        {
+            if((*it)->GetGUID() == obj->GetGUID()) // used coords to search, self in list, skip
+                continue;
+            sEluna->PushUnsigned(L, ++i);
+            sEluna->PushGO(L, *it);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
 }
 #endif
