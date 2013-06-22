@@ -3776,12 +3776,12 @@ void Spell::SendCastResult(SpellCastResult result)
     SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, Opcodes opcode /*= SMSG_CAST_FAILED*/)
 {
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPacket data(SMSG_CAST_FAILED, (4+1+1));
+    WorldPacket data(opcode, (4+1+1));
     data << uint8(cast_count);                              // single cast or multi 2.3 (0/1)
     data << uint32(spellInfo->Id);
     data << uint8(result);                                  // problem
@@ -4202,11 +4202,49 @@ void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 at
     *m_effectExecuteData[effIndex] << uint32(attCount);
 }
 
-void Spell::ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId)
+void Spell::ExecuteLogEffectInterruptCast(uint8 /*effIndex*/, Unit* victim, uint32 spellId)
 {
-    InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(victim->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(spellId);
+    ObjectGuid casterGuid = m_caster->GetGUID();
+    ObjectGuid targetGuid = victim->GetGUID();
+
+    WorldPacket data(SMSG_SPELLINTERRUPTLOG, 8 + 8 + 4 + 4);
+    data.WriteBit(targetGuid[4]);
+    data.WriteBit(casterGuid[5]);
+    data.WriteBit(casterGuid[6]);
+    data.WriteBit(casterGuid[1]);
+    data.WriteBit(casterGuid[3]);
+    data.WriteBit(casterGuid[0]);
+    data.WriteBit(targetGuid[3]);
+    data.WriteBit(targetGuid[5]);
+    data.WriteBit(targetGuid[1]);
+    data.WriteBit(casterGuid[4]);
+    data.WriteBit(casterGuid[7]);
+    data.WriteBit(targetGuid[7]);
+    data.WriteBit(targetGuid[6]);
+    data.WriteBit(targetGuid[2]);
+    data.WriteBit(casterGuid[2]);
+    data.WriteBit(targetGuid[0]);
+
+    data.WriteByteSeq(casterGuid[7]);
+    data.WriteByteSeq(casterGuid[6]);
+    data.WriteByteSeq(casterGuid[3]);
+    data.WriteByteSeq(casterGuid[2]);
+    data.WriteByteSeq(targetGuid[3]);
+    data.WriteByteSeq(targetGuid[6]);
+    data.WriteByteSeq(targetGuid[2]);
+    data.WriteByteSeq(targetGuid[4]);
+    data.WriteByteSeq(targetGuid[7]);
+    data.WriteByteSeq(targetGuid[0]);
+    data.WriteByteSeq(casterGuid[4]);
+    data << uint32(m_spellInfo->Id);
+    data.WriteByteSeq(targetGuid[1]);
+    data.WriteByteSeq(casterGuid[0]);
+    data.WriteByteSeq(casterGuid[5]);
+    data.WriteByteSeq(casterGuid[1]);
+    data << uint32(spellId);
+    data.WriteByteSeq(targetGuid[5]);
+
+    m_caster->SendMessageToSet(&data, true);
 }
 
 void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, int32 itemId, int32 slot)
