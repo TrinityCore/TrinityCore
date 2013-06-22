@@ -101,7 +101,7 @@ public:
         {
             Map::PlayerList const& players = instance->GetPlayers();
             if (!players.isEmpty())
-                if (Player* player = players.begin()->getSource())
+                if (Player* player = players.begin()->GetSource())
                     _teamInInstance = player->GetTeam();
 
             switch (creature->GetEntry())
@@ -271,11 +271,11 @@ public:
                     for (std::set<uint64>::const_iterator itr = waveGuidList[waveId].begin(); itr != waveGuidList[waveId].end(); ++itr)
                     {
                         Creature* npc = instance->GetCreature(*itr);
-                        if (!npc || !npc->isAlive())
+                        if (!npc || !npc->IsAlive())
                             ++deadNpcs;
                     }
 
-                    // because the current npc returns isAlive when OnUnitDeath happens
+                    // because the current npc returns IsAlive when OnUnitDeath happens
                     // we check if the number of dead npcs is equal to the list-1
                     if (deadNpcs == waveGuidList[waveId].size() - 1)
                     {

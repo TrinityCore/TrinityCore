@@ -24,6 +24,7 @@
 
 inline unsigned int dtHashRef(dtPolyRef a)
 {
+    // Edited by TC
     a = (~a) + (a << 18);
     a = a ^ (a >> 31);
     a = a * 21;
@@ -46,15 +47,15 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	dtAssert(m_maxNodes > 0);
 
 	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode)*m_maxNodes, DT_ALLOC_PERM);
-	m_next = (unsigned short*)dtAlloc(sizeof(unsigned short)*m_maxNodes, DT_ALLOC_PERM);
-	m_first = (unsigned short*)dtAlloc(sizeof(unsigned short)*hashSize, DT_ALLOC_PERM);
+	m_next = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*m_maxNodes, DT_ALLOC_PERM);
+	m_first = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*hashSize, DT_ALLOC_PERM);
 
 	dtAssert(m_nodes);
 	dtAssert(m_next);
 	dtAssert(m_first);
 
-	memset(m_first, 0xff, sizeof(unsigned short)*m_hashSize);
-	memset(m_next, 0xff, sizeof(unsigned short)*m_maxNodes);
+	memset(m_first, 0xff, sizeof(dtNodeIndex)*m_hashSize);
+	memset(m_next, 0xff, sizeof(dtNodeIndex)*m_maxNodes);
 }
 
 dtNodePool::~dtNodePool()
@@ -66,14 +67,14 @@ dtNodePool::~dtNodePool()
 
 void dtNodePool::clear()
 {
-	memset(m_first, 0xff, sizeof(unsigned short)*m_hashSize);
+	memset(m_first, 0xff, sizeof(dtNodeIndex)*m_hashSize);
 	m_nodeCount = 0;
 }
 
 dtNode* dtNodePool::findNode(dtPolyRef id)
 {
 	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
-	unsigned short i = m_first[bucket];
+	dtNodeIndex i = m_first[bucket];
 	while (i != DT_NULL_IDX)
 	{
 		if (m_nodes[i].id == id)
@@ -86,7 +87,7 @@ dtNode* dtNodePool::findNode(dtPolyRef id)
 dtNode* dtNodePool::getNode(dtPolyRef id)
 {
 	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
-	unsigned short i = m_first[bucket];
+	dtNodeIndex i = m_first[bucket];
 	dtNode* node = 0;
 	while (i != DT_NULL_IDX)
 	{
@@ -98,7 +99,7 @@ dtNode* dtNodePool::getNode(dtPolyRef id)
 	if (m_nodeCount >= m_maxNodes)
 		return 0;
 	
-	i = (unsigned short)m_nodeCount;
+	i = (dtNodeIndex)m_nodeCount;
 	m_nodeCount++;
 	
 	// Init node

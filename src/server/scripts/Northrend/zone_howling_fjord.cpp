@@ -178,7 +178,7 @@ public:
         {
             uint64 summonerGUID = 0;
 
-            if (me->isSummon())
+            if (me->IsSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                     if (summoner->GetTypeId() == TYPEID_PLAYER)
                         summonerGUID = summoner->GetGUID();
@@ -230,7 +230,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
@@ -340,7 +340,7 @@ public:
         {
             if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
-                if (player->isAlive())
+                if (player->IsAlive())
                 {
                     summon->SetWalk(false);
                     summon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);

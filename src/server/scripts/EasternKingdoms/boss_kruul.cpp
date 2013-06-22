@@ -96,7 +96,7 @@ public:
             if (ShadowVolley_Timer <= diff)
             {
                 if (urand(0, 99) < 45)
-                    DoCast(me->getVictim(), SPELL_SHADOWVOLLEY);
+                    DoCast(me->GetVictim(), SPELL_SHADOWVOLLEY);
 
                 ShadowVolley_Timer = 5000;
             } else ShadowVolley_Timer -= diff;
@@ -105,7 +105,7 @@ public:
             if (Cleave_Timer <= diff)
             {
                 if (urand(0, 1))
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCast(me->GetVictim(), SPELL_CLEAVE);
 
                 Cleave_Timer = 10000;
             } else Cleave_Timer -= diff;
@@ -114,7 +114,7 @@ public:
             if (ThunderClap_Timer <= diff)
             {
                 if (urand(0, 9) < 2)
-                    DoCast(me->getVictim(), SPELL_THUNDERCLAP);
+                    DoCast(me->GetVictim(), SPELL_THUNDERCLAP);
 
                 ThunderClap_Timer = 12000;
             } else ThunderClap_Timer -= diff;
@@ -122,7 +122,7 @@ public:
             //TwistedReflection_Timer
             if (TwistedReflection_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TWISTEDREFLECTION);
+                DoCast(me->GetVictim(), SPELL_TWISTEDREFLECTION);
                 TwistedReflection_Timer = 30000;
             } else TwistedReflection_Timer -= diff;
 
@@ -130,7 +130,7 @@ public:
             if (VoidBolt_Timer <= diff)
             {
                 if (urand(0, 9) < 4)
-                    DoCast(me->getVictim(), SPELL_VOIDBOLT);
+                    DoCast(me->GetVictim(), SPELL_VOIDBOLT);
 
                 VoidBolt_Timer = 18000;
             } else VoidBolt_Timer -= diff;
@@ -145,9 +145,9 @@ public:
             //Hound_Timer
             if (Hound_Timer <= diff)
             {
-                SummonHounds(me->getVictim());
-                SummonHounds(me->getVictim());
-                SummonHounds(me->getVictim());
+                SummonHounds(me->GetVictim());
+                SummonHounds(me->GetVictim());
+                SummonHounds(me->GetVictim());
 
                 Hound_Timer = 45000;
             } else Hound_Timer -= diff;

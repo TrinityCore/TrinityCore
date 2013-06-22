@@ -887,7 +887,7 @@ public:
                     events.ScheduleEvent(EVENT_SHADOW_STEP, 8000);
                     break;
                 case EVENT_DEADLY_POISON:
-                    DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                    DoCast(me->GetVictim(), SPELL_DEADLY_POISON);
                     events.ScheduleEvent(EVENT_DEADLY_POISON, 10000);
                     break;
                 case EVENT_ENVENOMED_DAGGER_THROW:
@@ -896,7 +896,7 @@ public:
                     events.ScheduleEvent(EVENT_ENVENOMED_DAGGER_THROW, 10000);
                     break;
                 case EVENT_KIDNEY_SHOT:
-                    DoCast(me->getVictim(), SPELL_KIDNEY_SHOT);
+                    DoCast(me->GetVictim(), SPELL_KIDNEY_SHOT);
                     events.ScheduleEvent(EVENT_KIDNEY_SHOT, 10000);
                     break;
             }
@@ -942,11 +942,11 @@ public:
             switch (events.ExecuteEvent())
             {
                 case EVENT_SPECTRAL_STRIKE:
-                    DoCast(me->getVictim(), SPELL_SPECTRAL_STRIKE);
+                    DoCast(me->GetVictim(), SPELL_SPECTRAL_STRIKE);
                     events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000);
                     break;
                 case EVENT_SHIELD_BASH:
-                    DoCast(me->getVictim(), SPELL_SHIELD_BASH);
+                    DoCast(me->GetVictim(), SPELL_SHIELD_BASH);
                     events.ScheduleEvent(EVENT_SHIELD_BASH, 5000);
                     break;
                 case EVENT_TORTURED_ENRAGE:
@@ -1209,7 +1209,7 @@ public:
     {
         InstanceScript* instance = player->GetInstanceScript();
 
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             return true;
 
         if (instance->GetData(DATA_INTRO_EVENT) == NOT_STARTED)
@@ -1230,7 +1230,7 @@ public:
     {
         InstanceScript* instance = player->GetInstanceScript();
 
-        if (player->isGameMaster())
+        if (player->IsGameMaster())
             return true;
 
         if (instance->GetData(DATA_WAVE_COUNT))

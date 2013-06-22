@@ -515,7 +515,7 @@ int LuaUnit::CanStartAttack(lua_State* L, Unit* unit)
     if (!target)
         return 0;
 
-    sEluna->PushBoolean(L, creature->canStartAttack(target, force));
+    sEluna->PushBoolean(L, creature->CanStartAttack(target, force));
     return 1;
 }
 
@@ -667,7 +667,7 @@ int LuaUnit::CanSwim(lua_State* L, Unit* unit)
 {
     TO_CREATURE_BOOL();
 
-    sEluna->PushBoolean(L, creature->canSwim());
+    sEluna->PushBoolean(L, creature->CanSwim());
     return 1;
 }
 
@@ -675,7 +675,7 @@ int LuaUnit::CanWalk(lua_State* L, Unit* unit)
 {
     TO_CREATURE_BOOL();
 
-    sEluna->PushBoolean(L, creature->canWalk());
+    sEluna->PushBoolean(L, creature->CanWalk());
     return 1;
 }
 
@@ -720,7 +720,7 @@ int LuaUnit::IsGuard(lua_State* L, Unit* unit)
 {
     TO_CREATURE_BOOL();
 
-    sEluna->PushBoolean(L, creature->isGuard());
+    sEluna->PushBoolean(L, creature->IsGuard());
     return 1;
 }
 
@@ -728,7 +728,7 @@ int LuaUnit::IsTrigger(lua_State* L, Unit* unit)
 {
     TO_CREATURE_BOOL();
 
-    sEluna->PushBoolean(L, creature->isTrigger());
+    sEluna->PushBoolean(L, creature->IsTrigger());
     return 1;
 }
 
@@ -736,7 +736,7 @@ int LuaUnit::IsCivilian(lua_State* L, Unit* unit)
 {
     TO_CREATURE_BOOL();
 
-    sEluna->PushBoolean(L, creature->isCivilian());
+    sEluna->PushBoolean(L, creature->IsCivilian());
     return 1;
 }
 
@@ -744,7 +744,7 @@ int LuaUnit::IsRacialLeader(lua_State* L, Unit* unit)
 {
     TO_CREATURE_BOOL();
 
-    sEluna->PushBoolean(L, creature->isRacialLeader());
+    sEluna->PushBoolean(L, creature->IsRacialLeader());
     return 1;
 }
 
@@ -1812,7 +1812,7 @@ int LuaUnit::IsAuctioneer(lua_State* L, Unit* unit)
 {
     TO_UNIT_BOOL();
 
-    sEluna->PushBoolean(L, unit->isAuctioner());
+    sEluna->PushBoolean(L, unit->IsAuctioner());
     return 1;
 }
 
@@ -3838,7 +3838,7 @@ int LuaUnit::IsGM(lua_State* L, Unit* unit)
 {
     TO_PLAYER_BOOL();
 
-    sEluna->PushBoolean(L, player->isGameMaster());
+    sEluna->PushBoolean(L, player->IsGameMaster());
     return 1;
 }
 
@@ -3846,7 +3846,7 @@ int LuaUnit::IsAlive(lua_State* L, Unit* unit)
 {
     TO_UNIT_BOOL();
 
-    sEluna->PushBoolean(L, unit->isAlive());
+    sEluna->PushBoolean(L, unit->IsAlive());
     return 1;
 }
 
@@ -3870,7 +3870,7 @@ int LuaUnit::IsBanker(lua_State* L, Unit* unit)
 {
     TO_UNIT_BOOL();
 
-    sEluna->PushBoolean(L, unit->isBanker());
+    sEluna->PushBoolean(L, unit->IsBanker());
     return 1;
 }
 
@@ -3878,7 +3878,7 @@ int LuaUnit::IsBattleMaster(lua_State* L, Unit* unit)
 {
     TO_UNIT_BOOL();
 
-    sEluna->PushBoolean(L, unit->isBattleMaster());
+    sEluna->PushBoolean(L, unit->IsBattleMaster());
     return 1;
 }
 
@@ -3886,7 +3886,7 @@ int LuaUnit::IsCharmed(lua_State* L, Unit* unit)
 {
     TO_UNIT_BOOL();
 
-    sEluna->PushBoolean(L, unit->isCharmed());
+    sEluna->PushBoolean(L, unit->IsCharmed());
     return 1;
 }
 
@@ -3894,7 +3894,7 @@ int LuaUnit::IsArmorer(lua_State* L, Unit* unit)
 {
     TO_UNIT_BOOL();
 
-    sEluna->PushBoolean(L, unit->isArmorer());
+    sEluna->PushBoolean(L, unit->IsArmorer());
     return 1;
 }
 
@@ -3969,7 +3969,7 @@ int LuaUnit::IsInCombat(lua_State* L, Unit* unit)
 {
     TO_UNIT_BOOL();
 
-    sEluna->PushBoolean(L, unit->isInCombat());
+    sEluna->PushBoolean(L, unit->IsInCombat());
     return 1;
 }
 
@@ -4020,7 +4020,7 @@ int LuaUnit::Teleport(lua_State* L, Unit* unit)
     float Y = luaL_checknumber(L, 3);
     float Z = luaL_checknumber(L, 4);
     float O = luaL_checknumber(L, 5);
-    if (player->isInFlight())
+    if (player->IsInFlight())
     {
         player->GetMotionMaster()->MovementExpired();
         player->CleanupAfterTaxiFlight();

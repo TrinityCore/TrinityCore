@@ -24,7 +24,7 @@
 namespace Movement{
 
 extern float computeFallTime(float path_length, bool isSafeFall);
-extern float computeFallElevation(float time_passed, bool isSafeFall, float start_velocy);
+extern float computeFallElevation(float time_passed, bool isSafeFall, float start_velocity);
 extern float computeFallElevation(float time_passed);
 
 Location MoveSpline::ComputePosition() const

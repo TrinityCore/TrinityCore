@@ -273,7 +273,7 @@ class instance_stratholme : public InstanceMapScript
                             for (std::set<uint64>::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
                             {
                                 if (Creature* pAbom = instance->GetCreature(*i))
-                                    if (!pAbom->isAlive())
+                                    if (!pAbom->IsAlive())
                                         --count;
                             }
 
@@ -310,7 +310,7 @@ class instance_stratholme : public InstanceMapScript
                                 Map::PlayerList const& players = instance->GetPlayers();
                                 if (!players.isEmpty())
                                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                        if (Player* player = itr->getSource())
+                                        if (Player* player = itr->GetSource())
                                             if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE)
                                                 player->AreaExploredOrEventHappens(QUEST_DEAD_MAN_PLEA);
 

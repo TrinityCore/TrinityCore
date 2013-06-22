@@ -675,7 +675,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!me->isInCombat() || _phase != PHASE_ONE)
+            if (!me->IsInCombat() || _phase != PHASE_ONE)
                 return;
 
             if (who->GetEntry() == NPC_POWER_SPARK)
@@ -819,7 +819,7 @@ public:
                             break;
                         }
 
-                        me->CastSpell(me->getVictim(), SPELL_ARCANE_BREATH);
+                        me->CastSpell(me->GetVictim(), SPELL_ARCANE_BREATH);
                         events.ScheduleEvent(EVENT_ARCANE_BREATH, 20*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_ARCANE_STORM:
@@ -1046,7 +1046,7 @@ public:
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                         if (player->GetAreaId() == AREA_EYE_OF_ETERNITY)
                             player->GetSession()->SendPacket(data);
         }
@@ -1426,7 +1426,7 @@ class npc_nexus_lord : public CreatureScript
                             _events.ScheduleEvent(EVENT_HASTE_BUFF, 15*IN_MILLISECONDS);
                             break;
                         case EVENT_NUKE_DUMMY:
-                            DoCast(me->getVictim(), SPELL_DUMMY_NUKE, true);
+                            DoCast(me->GetVictim(), SPELL_DUMMY_NUKE, true);
                             DoCast(me, SPELL_ALIGN_DISK_AGGRO, true);
                             _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1*IN_MILLISECONDS);
                             break;
@@ -1901,7 +1901,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                         if (Unit* target = (*itr)->getTarget())
                         {
                             Player* targetPlayer = target->ToPlayer();
-                            if (!targetPlayer || targetPlayer->isGameMaster())
+                            if (!targetPlayer || targetPlayer->IsGameMaster())
                                 continue;
 
                             if (InstanceScript* instance = caster->GetInstanceScript())
@@ -1999,7 +1999,7 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
             {
                 Creature* caster = GetCaster()->ToCreature();
                 if (Creature* target = GetHitCreature())
-                    target->GetMotionMaster()->MoveChase(caster->getVictim());
+                    target->GetMotionMaster()->MoveChase(caster->GetVictim());
             }
 
             void Register()
