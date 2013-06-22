@@ -103,40 +103,42 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_ARCANE_BLAST:
-                            DoCast(me->GetVictim(), SPELL_ARCANE_BLAST);
-                            events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(15000, 25000));
-                            break;
-                        case EVENT_TIME_LAPSE:
-                            Talk(SAY_BANISH);
-                            DoCast(me, SPELL_TIME_LAPSE);
-                            events.ScheduleEvent(EVENT_TIME_LAPSE, urand(15000, 25000));
-                            break;
-                        case EVENT_ARCANE_DISCHARGE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_ARCANE_DISCHARGE);
-                            events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, urand(20000, 30000));
-                            break;
-                        case EVENT_ATTRACTION: // Only in Heroic
-                            DoCast(me, SPELL_ATTRACTION);
-                            events.ScheduleEvent(EVENT_ATTRACTION, urand(25000, 35000));
-                            break;
-                        default:
-                            break;
-                    }
+                    case EVENT_ARCANE_BLAST:
+                        DoCast(me->GetVictim(), SPELL_ARCANE_BLAST);
+                        events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(15000, 25000));
+                        break;
+                    case EVENT_TIME_LAPSE:
+                        Talk(SAY_BANISH);
+                        DoCast(me, SPELL_TIME_LAPSE);
+                        events.ScheduleEvent(EVENT_TIME_LAPSE, urand(15000, 25000));
+                        break;
+                    case EVENT_ARCANE_DISCHARGE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ARCANE_DISCHARGE);
+                        events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, urand(20000, 30000));
+                        break;
+                    case EVENT_ATTRACTION: // Only in Heroic
+                        DoCast(me, SPELL_ATTRACTION);
+                        events.ScheduleEvent(EVENT_ATTRACTION, urand(25000, 35000));
+                        break;
+                    default:
+                        break;
                 }
-                DoMeleeAttackIfReady();
+            }
+
+            DoMeleeAttackIfReady();
         }
 
         CreatureAI* GetAI(Creature* creature) const
