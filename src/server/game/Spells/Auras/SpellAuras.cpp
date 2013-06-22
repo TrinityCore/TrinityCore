@@ -937,6 +937,31 @@ bool Aura::CanBeSentToClient() const
     return !IsPassive() || GetSpellInfo()->HasAreaAuraEffect() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
 }
 
+bool Aura::IsSingleTargetWith(Aura const* aura) const
+{
+    // Same spell?
+    if (GetSpellInfo()->IsRankOf(aura->GetSpellInfo()))
+        return true;
+
+    SpellSpecificType spec = GetSpellInfo()->GetSpellSpecific();
+    // spell with single target specific types
+    switch (spec)
+    {
+        case SPELL_SPECIFIC_JUDGEMENT:
+        case SPELL_SPECIFIC_MAGE_POLYMORPH:
+            if (aura->GetSpellInfo()->GetSpellSpecific() == spec)
+                return true;
+            break;
+        default:
+            break;
+    }
+
+    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
+        return true;
+
+    return false;
+}
+
 void Aura::UnregisterSingleTarget()
 {
     ASSERT(m_isSingleTarget);
@@ -1890,7 +1915,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         if (!veh->GetAvailableSeatCount())
             return false;   // No empty seat available
 
-        return !sameCaster; // Empty seat available (skip rest) and different caster
+        return true; // Empty seat available (skip rest)
     }
 
     // spell of same spell rank chain
