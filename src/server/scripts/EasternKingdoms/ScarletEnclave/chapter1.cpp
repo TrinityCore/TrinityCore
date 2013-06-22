@@ -252,7 +252,7 @@ public:
                     case EVENT_PLAGUE_STRIKE:
                         DoCastVictim(SPELL_PLAGUE_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(SPELL_PLAGUE_STRIKE, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5000, GCD_CAST);
                         break;
                     case EVENT_BLOOD_STRIKE:
                         DoCastVictim(SPELL_BLOOD_STRIKE);
