@@ -125,12 +125,12 @@ public:
                     return;
 
                 uint32 entry = who->GetEntry();
-                if (entry == C_ASSAS || entry == C_WHELP || entry == C_CHRON || entry == C_EXECU || entry == C_VANQU)
+                if (entry == NPC_INFINITE_ASSASIN || entry == NPC_INFINITE_WHELP || entry == NPC_INFINITE_CRONOMANCER || entry == NPC_INFINITE_EXECUTIONER || entry == NPC_INFINITE_VANQUISHER)
                 {
                     who->StopMoving();
                     who->CastSpell(me, SPELL_CORRUPT, false);
                 }
-                else if (entry == C_AEONUS)
+                else if (entry == NPC_AEONUS)
                 {
                     who->StopMoving();
                     who->CastSpell(me, SPELL_CORRUPT_AEONUS, false);
@@ -251,9 +251,9 @@ struct Wave
 
 static Wave PortalWaves[]=
 {
-    { {C_ASSAS, C_WHELP, C_CHRON, 0} },
-    { {C_EXECU, C_CHRON, C_WHELP, C_ASSAS} },
-    { {C_EXECU, C_VANQU, C_CHRON, C_ASSAS} }
+    { {NPC_INFINITE_ASSASIN, NPC_INFINITE_WHELP, NPC_INFINITE_CRONOMANCER, 0} },
+    { {NPC_INFINITE_EXECUTIONER, NPC_INFINITE_CRONOMANCER, NPC_INFINITE_WHELP, NPC_INFINITE_ASSASIN} },
+    { {NPC_INFINITE_EXECUTIONER, NPC_INFINITE_VANQUISHER, NPC_INFINITE_CRONOMANCER, NPC_INFINITE_ASSASIN} }
 };
 
 class npc_time_rift : public CreatureScript
@@ -335,7 +335,7 @@ public:
 
             ++mRiftWaveCount;
 
-            if (entry == C_WHELP)
+            if (entry == NPC_INFINITE_WHELP)
             {
                 for (uint8 i = 0; i < 3; ++i)
                     DoSummonAtRift(entry);

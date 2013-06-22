@@ -19,31 +19,49 @@
 #ifndef DEF_DARKPORTAL_H
 #define DEF_DARKPORTAL_H
 
-#define TYPE_MEDIVH             1
-#define TYPE_RIFT               2
+uint32 const EncounterCount             = 2;
 
-#define DATA_MEDIVH             10
-#define DATA_PORTAL_COUNT       11
-#define DATA_SHIELD             12
+enum DataTypes
+{
+    TYPE_MEDIVH                         = 1,
+    TYPE_RIFT                           = 2,
+    TYPE_AEONUS                         = 3,
+    TYPE_TEMPORUS                       = 4,
+    TYPE_CRONO_LORD_DEJA                = 5,
+    DATA_MEDIVH                         = 10,
+    DATA_PORTAL_COUNT                   = 11,
+    DATA_SHIELD                         = 12
+};
 
-#define WORLD_STATE_BM          2541
-#define WORLD_STATE_BM_SHIELD   2540
-#define WORLD_STATE_BM_RIFT     2784
+enum WorldStateIds
+{
+    WORLD_STATE_BM                      = 2541,
+    WORLD_STATE_BM_SHIELD               = 2540,
+    WORLD_STATE_BM_RIFT                 = 2784
+};
 
-#define QUEST_OPENING_PORTAL    10297
-#define QUEST_MASTER_TOUCH      9836
+enum QuestIds
+{
+    QUEST_OPENING_PORTAL                = 10297,
+    QUEST_MASTER_TOUCH                  = 9836
+};
 
-#define C_TIME_KEEPER           17918
-#define C_RKEEP                 21104
-#define C_RLORD                 17839
-#define C_DEJA                  17879
-#define C_TEMPO                 17880
-#define C_AEONUS                17881
-#define C_ASSAS                 17835
-#define C_WHELP                 21818
-#define C_CHRON                 17892
-#define C_EXECU                 18994
-#define C_VANQU                 18995
+enum CreatureIds
+{
+    NPC_MEDIVH                          = 15608,
+    NPC_TIME_RIFT                       = 17838,
+    NPC_TIME_KEEPER                     = 17918,
+    NPC_RIFT_KEEPER                     = 21104,
+    NPC_RIFT_LORD                       = 17839,
+    NPC_CRONO_LORD_DEJA                 = 17879,
+    NPC_TEMPORUS                        = 17880,
+    NPC_AEONUS                          = 17881,
+    NPC_INFINITE_ASSASIN                = 17835,
+    NPC_INFINITE_WHELP                  = 21818,
+    NPC_INFINITE_CRONOMANCER            = 17892,
+    NPC_INFINITE_EXECUTIONER            = 18994,
+    NPC_INFINITE_VANQUISHER             = 18995
+};
 
 #endif
 
