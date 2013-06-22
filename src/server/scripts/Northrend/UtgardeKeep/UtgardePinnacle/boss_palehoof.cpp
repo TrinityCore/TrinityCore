@@ -320,7 +320,7 @@ public:
 
             if (uiChainLightingTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CHAIN_LIGHTING);
+                DoCastVictim(SPELL_CHAIN_LIGHTING);
                 uiChainLightingTimer = 5000 + rand() % 5000;
             } else uiChainLightingTimer -=  diff;
 
@@ -433,7 +433,7 @@ public:
 
             if (uiMortalWoundTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MORTAL_WOUND);
+                DoCastVictim(SPELL_MORTAL_WOUND);
                 uiMortalWoundTimer = 3000 + rand() % 4000;
             } else uiMortalWoundTimer -= diff;
 
@@ -549,13 +549,13 @@ public:
 
             if (uiStompTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_STOMP);
+                DoCastVictim(SPELL_STOMP);
                 uiStompTimer = 8000 + rand() % 4000;
             } else uiStompTimer -= diff;
 
             if (uiGoreTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_GORE);
+                DoCastVictim(SPELL_GORE);
                 uiGoreTimer = 13000 + rand() % 4000;
             } else uiGoreTimer -= diff;
 

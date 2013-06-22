@@ -260,7 +260,7 @@ public:
                         events.ScheduleEvent(EVENT_SHIFT, 30000);
                         return;
                     case EVENT_CHAIN:
-                        DoCast(me->GetVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
+                        DoCastVictim(RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
                         events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                         return;
                     case EVENT_BERSERK:
@@ -270,7 +270,7 @@ public:
             }
 
             if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->GetVictim()))
-                DoCast(me->GetVictim(), SPELL_BALL_LIGHTNING);
+                DoCastVictim(SPELL_BALL_LIGHTNING);
             else
                 DoMeleeAttackIfReady();
         }

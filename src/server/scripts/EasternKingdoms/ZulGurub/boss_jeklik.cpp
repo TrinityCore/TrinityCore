@@ -119,13 +119,13 @@ class boss_jeklik : public CreatureScript //jeklik
 
                         if (SonicBurst_Timer <= diff)
                         {
-                            DoCast(me->GetVictim(), SPELL_SONICBURST);
+                            DoCastVictim(SPELL_SONICBURST);
                             SonicBurst_Timer = urand(8000, 13000);
                         } else SonicBurst_Timer -= diff;
 
                         if (Screech_Timer <= diff)
                         {
-                            DoCast(me->GetVictim(), SPELL_SCREECH);
+                            DoCastVictim(SPELL_SCREECH);
                             Screech_Timer = urand(18000, 26000);
                         } else Screech_Timer -= diff;
 
@@ -169,14 +169,14 @@ class boss_jeklik : public CreatureScript //jeklik
 
                             if (MindFlay_Timer <= diff)
                             {
-                                DoCast(me->GetVictim(), SPELL_MIND_FLAY);
+                                DoCastVictim(SPELL_MIND_FLAY);
                                 MindFlay_Timer = 16000;
                             }MindFlay_Timer -=diff;
 
                             if (ChainMindFlay_Timer <= diff)
                             {
                                 me->InterruptNonMeleeSpells(false);
-                                DoCast(me->GetVictim(), SPELL_CHAIN_MIND_FLAY);
+                                DoCastVictim(SPELL_CHAIN_MIND_FLAY);
                                 ChainMindFlay_Timer = urand(15000, 30000);
                             }ChainMindFlay_Timer -=diff;
 

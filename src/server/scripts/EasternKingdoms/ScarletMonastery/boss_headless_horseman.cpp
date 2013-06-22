@@ -731,7 +731,7 @@ public:
                     DoMeleeAttackIfReady();
                     if (cleave <= diff)
                     {
-                        DoCast(me->GetVictim(), SPELL_CLEAVE);
+                        DoCastVictim(SPELL_CLEAVE);
                         cleave = urand(2000, 6000);       //1 cleave per 2.0f-6.0fsec
                     }
                     else cleave -= diff;

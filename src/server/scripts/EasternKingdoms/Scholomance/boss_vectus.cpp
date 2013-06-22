@@ -77,7 +77,7 @@ public:
             //BlastWave_Timer
             if (m_uiBlastWave_Timer <= uiDiff)
             {
-                DoCast(me->GetVictim(), SPELL_BLAST_WAVE);
+                DoCastVictim(SPELL_BLAST_WAVE);
                 m_uiBlastWave_Timer = 12000;
             }
             else

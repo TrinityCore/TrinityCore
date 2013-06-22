@@ -262,13 +262,13 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
 
     if (CleaveTimer <= diff)
     {
-        DoCast(me->GetVictim(), SPELL_SHADOWCLEAVE);
+        DoCastVictim(SPELL_SHADOWCLEAVE);
         CleaveTimer = urand(10000, 15000);
     } else CleaveTimer -= diff;
 
     if (CurseTimer <= diff)
     {
-        DoCast(me->GetVictim(), SPELL_INTANGIBLE_PRESENCE);
+        DoCastVictim(SPELL_INTANGIBLE_PRESENCE);
         CurseTimer = 30000;
     } else CurseTimer -= diff;
 

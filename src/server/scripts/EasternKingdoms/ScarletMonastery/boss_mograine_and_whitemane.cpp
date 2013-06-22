@@ -206,7 +206,7 @@ public:
             //CrusaderStrike_Timer
             if (CrusaderStrike_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CRUSADERSTRIKE);
+                DoCastVictim(SPELL_CRUSADERSTRIKE);
                 CrusaderStrike_Timer = 10000;
             }
             else CrusaderStrike_Timer -= diff;
@@ -214,7 +214,7 @@ public:
             //HammerOfJustice_Timer
             if (HammerOfJustice_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HAMMEROFJUSTICE);
+                DoCastVictim(SPELL_HAMMEROFJUSTICE);
                 HammerOfJustice_Timer = 60000;
             }
             else HammerOfJustice_Timer -= diff;
@@ -316,7 +316,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                DoCast(me->GetVictim(), SPELL_DEEPSLEEP);
+                DoCastVictim(SPELL_DEEPSLEEP);
                 _bCanResurrectCheck = true;
                 _bCanResurrect = true;
                 return;
@@ -362,7 +362,7 @@ public:
             //HolySmite_Timer
             if (HolySmite_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HOLYSMITE);
+                DoCastVictim(SPELL_HOLYSMITE);
                 HolySmite_Timer = 6000;
             }
             else HolySmite_Timer -= diff;

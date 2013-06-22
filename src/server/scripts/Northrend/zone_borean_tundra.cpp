@@ -1381,19 +1381,19 @@ public:
             {
                 if (shadowBoltTimer <= uiDiff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SHADOW_BOLT);
+                    DoCastVictim(SPELL_SHADOW_BOLT);
                     shadowBoltTimer = urand(5000, 12000);
                 } else shadowBoltTimer -= uiDiff;
 
                 if (deflectionTimer <= uiDiff)
                 {
-                    DoCast(me->GetVictim(), SPELL_DEFLECTION);
+                    DoCastVictim(SPELL_DEFLECTION);
                     deflectionTimer = urand(20000, 25000);
                 } else deflectionTimer -= uiDiff;
 
                 if (soulBlastTimer <= uiDiff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SOUL_BLAST);
+                    DoCastVictim(SPELL_SOUL_BLAST);
                     soulBlastTimer  = urand (12000, 18000);
                 } else soulBlastTimer -= uiDiff;
             }

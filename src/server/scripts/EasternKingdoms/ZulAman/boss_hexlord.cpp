@@ -529,7 +529,7 @@ class boss_thurg : public CreatureScript
 
                 if (cleave_timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_CLEAVE, false);
+                    DoCastVictim(SPELL_CLEAVE, false);
                     cleave_timer = 12000; //3 sec cast
                 } else cleave_timer -= diff;
 
@@ -679,7 +679,7 @@ struct boss_gazakrothAI : public boss_hexlord_addAI
 
         if (firebolt_timer <= diff)
         {
-            DoCast(me->GetVictim(), SPELL_FIREBOLT, false);
+            DoCastVictim(SPELL_FIREBOLT, false);
             firebolt_timer = 700;
         } else firebolt_timer -= diff;
 
@@ -721,13 +721,13 @@ class boss_lord_raadan : public CreatureScript
 
                 if (thunderclap_timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_THUNDERCLAP, false);
+                    DoCastVictim(SPELL_THUNDERCLAP, false);
                     thunderclap_timer = 12000;
                 } else thunderclap_timer -= diff;
 
                 if (flamebreath_timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_FLAME_BREATH, false);
+                    DoCastVictim(SPELL_FLAME_BREATH, false);
                     flamebreath_timer = 12000;
                 } else flamebreath_timer -= diff;
 
@@ -770,7 +770,7 @@ class boss_darkheart : public CreatureScript
 
                 if (psychicwail_timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_PSYCHIC_WAIL, false);
+                    DoCastVictim(SPELL_PSYCHIC_WAIL, false);
                     psychicwail_timer = 12000;
                 } else psychicwail_timer -= diff;
 
@@ -923,7 +923,7 @@ class boss_koragg : public CreatureScript
 
                 if (mightyblow_timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_MIGHTY_BLOW, false);
+                    DoCastVictim(SPELL_MIGHTY_BLOW, false);
                     mightyblow_timer = 12000;
                 }
                 if (coldstare_timer <= diff)

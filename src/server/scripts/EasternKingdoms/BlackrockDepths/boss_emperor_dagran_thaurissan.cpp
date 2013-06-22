@@ -108,7 +108,7 @@ public:
             //AvatarOfFlame_Timer
             if (AvatarOfFlame_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_AVATAROFFLAME);
+                DoCastVictim(SPELL_AVATAROFFLAME);
                 AvatarOfFlame_Timer = 18000;
             } else AvatarOfFlame_Timer -= diff;
 

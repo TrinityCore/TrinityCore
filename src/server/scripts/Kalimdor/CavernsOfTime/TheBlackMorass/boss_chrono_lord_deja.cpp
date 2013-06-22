@@ -116,7 +116,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ARCANE_BLAST:
-                        DoCast(me->GetVictim(), SPELL_ARCANE_BLAST);
+                        DoCastVictim(SPELL_ARCANE_BLAST);
                         events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(15000, 25000));
                         break;
                     case EVENT_TIME_LAPSE:

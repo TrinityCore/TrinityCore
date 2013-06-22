@@ -203,13 +203,13 @@ public:
 
             if (ArcingSmashTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_ARCING_SMASH);
+                DoCastVictim(SPELL_ARCING_SMASH);
                 ArcingSmashTimer = 10000;
             } else ArcingSmashTimer -= diff;
 
             if (FelAcidTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FEL_ACID);
+                DoCastVictim(SPELL_FEL_ACID);
                 FelAcidTimer = 25000;
             } else FelAcidTimer -= diff;
 
@@ -226,7 +226,7 @@ public:
             {
                 if (BewilderingStrikeTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_BEWILDERING_STRIKE);
+                    DoCastVictim(SPELL_BEWILDERING_STRIKE);
                     float mt_threat = DoGetThreat(me->GetVictim());
                     if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
                         me->AddThreat(target, mt_threat);
@@ -235,14 +235,14 @@ public:
 
                 if (EjectTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_EJECT1);
+                    DoCastVictim(SPELL_EJECT1);
                     DoModifyThreatPercent(me->GetVictim(), -40);
                     EjectTimer = 15000;
                 } else EjectTimer -= diff;
 
                 if (AcidicWoundTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_ACIDIC_WOUND);
+                    DoCastVictim(SPELL_ACIDIC_WOUND);
                     AcidicWoundTimer = 10000;
                 } else AcidicWoundTimer -= diff;
 
@@ -251,7 +251,7 @@ public:
                     if (BloodboilCount < 5)                      // Only cast it five times.
                     {
                         //CastBloodboil(); // Causes issues on windows, so is commented out.
-                        DoCast(me->GetVictim(), SPELL_BLOODBOIL);
+                        DoCastVictim(SPELL_BLOODBOIL);
                         ++BloodboilCount;
                         BloodboilTimer = 10000*BloodboilCount;
                     }
@@ -262,13 +262,13 @@ public:
             {
                 if (AcidGeyserTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_ACID_GEYSER);
+                    DoCastVictim(SPELL_ACID_GEYSER);
                     AcidGeyserTimer = 30000;
                 } else AcidGeyserTimer -= diff;
 
                 if (EjectTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_EJECT2);
+                    DoCastVictim(SPELL_EJECT2);
                     EjectTimer = 15000;
                 } else EjectTimer -= diff;
             }

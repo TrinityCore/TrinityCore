@@ -92,7 +92,7 @@ class boss_broggok : public CreatureScript
                     return;
                 if (AcidSpray_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SLIME_SPRAY);
+                    DoCastVictim(SPELL_SLIME_SPRAY);
                     AcidSpray_Timer = 4000+rand()%8000;
                 }
                 else
@@ -100,7 +100,7 @@ class boss_broggok : public CreatureScript
 
                 if (PoisonBolt_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_POISON_BOLT);
+                    DoCastVictim(SPELL_POISON_BOLT);
                     PoisonBolt_Timer = 4000+rand()%8000;
                 }
                 else

@@ -132,7 +132,7 @@ public:
 
             if (FrostShockTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FROST_SHOCK);
+                DoCastVictim(SPELL_FROST_SHOCK);
                 FrostShockTimer = 15000;
             } else FrostShockTimer -= diff;
 

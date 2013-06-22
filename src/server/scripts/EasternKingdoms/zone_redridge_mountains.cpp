@@ -152,13 +152,13 @@ public:
 
             if (uiMockingBlowTimer <= uiDiff)
             {
-                DoCast(me->GetVictim(), SPELL_MOCKING_BLOW);
+                DoCastVictim(SPELL_MOCKING_BLOW);
                 uiMockingBlowTimer = 5000;
             } else uiMockingBlowTimer -= uiDiff;
 
             if (uiShieldBashTimer <= uiDiff)
             {
-                DoCast(me->GetVictim(), SPELL_MOCKING_BLOW);
+                DoCastVictim(SPELL_MOCKING_BLOW);
                 uiShieldBashTimer = 8000;
             } else uiShieldBashTimer -= uiDiff;
 

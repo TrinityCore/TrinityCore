@@ -498,14 +498,14 @@ public:
             if (uiInquisitor_Penance_timer <= diff)
             {
                 Shout();
-                DoCast(me->GetVictim(), SPELL_INQUISITOR_PENANCE);
+                DoCastVictim(SPELL_INQUISITOR_PENANCE);
                 uiInquisitor_Penance_timer = urand(2000, 7000);
             } else uiInquisitor_Penance_timer -= diff;
 
             if (uiValroth_Smite_timer <= diff)
             {
                 Shout();
-                DoCast(me->GetVictim(), SPELL_VALROTH_SMITE);
+                DoCastVictim(SPELL_VALROTH_SMITE);
                 uiValroth_Smite_timer = urand(1000, 6000);
             } else uiValroth_Smite_timer -= diff;
 

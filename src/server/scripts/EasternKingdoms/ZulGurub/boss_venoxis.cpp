@@ -190,7 +190,7 @@ class boss_venoxis : public CreatureScript
 
                             // trigger spellcast only if we have 3 or more targets to affect
                             if (_inMeleeRange >= 3)
-                                DoCast(me->GetVictim(), SPELL_HOLY_NOVA);
+                                DoCastVictim(SPELL_HOLY_NOVA);
 
                             events.ScheduleEvent(EVENT_HOLY_NOVA, urand(45000, 75000), 0, PHASE_ONE);
                             break;

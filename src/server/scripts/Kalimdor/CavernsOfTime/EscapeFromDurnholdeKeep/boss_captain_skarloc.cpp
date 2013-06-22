@@ -126,7 +126,7 @@ public:
             //Hammer of Justice
             if (HammerOfJustice_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HAMMER_OF_JUSTICE);
+                DoCastVictim(SPELL_HAMMER_OF_JUSTICE);
                 HammerOfJustice_Timer = 60000;
             } else HammerOfJustice_Timer -= diff;
 
@@ -147,7 +147,7 @@ public:
             //Consecration
             if (Consecration_Timer <= diff)
             {
-                //DoCast(me->GetVictim(), SPELL_CONSECRATION);
+                //DoCastVictim(SPELL_CONSECRATION);
                 Consecration_Timer = urand(5000, 10000);
             } else Consecration_Timer -= diff;
 

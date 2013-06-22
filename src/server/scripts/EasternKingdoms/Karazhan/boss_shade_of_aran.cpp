@@ -538,7 +538,7 @@ public:
 
             if (CastTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_WATERBOLT);
+                DoCastVictim(SPELL_WATERBOLT);
                 CastTimer = urand(2000, 5000);
             } else CastTimer -= diff;
         }
