@@ -266,13 +266,13 @@ public:
 
             if (ShriekTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SILENCING_SHRIEK);
+                DoCastVictim(SPELL_SILENCING_SHRIEK);
                 ShriekTimer = 25000+rand()%10 * 1000;
             } else ShriekTimer -= diff;
 
             if (SaberTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SABER_LASH);
+                DoCastVictim(SPELL_SABER_LASH);
                 SaberTimer = 25000+rand()%10 * 1000;
             } else SaberTimer -= diff;
 

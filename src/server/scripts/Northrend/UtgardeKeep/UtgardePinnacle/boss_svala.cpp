@@ -366,7 +366,7 @@ public:
 
                 if (sinsterStrikeTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SINSTER_STRIKE);
+                    DoCastVictim(SPELL_SINSTER_STRIKE);
                     sinsterStrikeTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
                 }
                 else

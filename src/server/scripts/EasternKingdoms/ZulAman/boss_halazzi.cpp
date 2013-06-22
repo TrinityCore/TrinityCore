@@ -232,7 +232,7 @@ class boss_halazzi : public CreatureScript
                     {
                         // A tank with more than 490 defense skills should receive no critical hit
                         //DoCast(me, 41296, true);
-                        DoCast(me->GetVictim(), SPELL_SABER_LASH, true);
+                        DoCastVictim(SPELL_SABER_LASH, true);
                         //me->RemoveAurasDueToSpell(41296);
                         SaberlashTimer = 30000;
                     } else SaberlashTimer -= diff;
@@ -397,7 +397,7 @@ class mob_halazzi_lynx : public CreatureScript
 
                 if (shredder_timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SHRED_ARMOR);
+                    DoCastVictim(SPELL_SHRED_ARMOR);
                     shredder_timer = 4000;
                 } else shredder_timer -= diff;
 

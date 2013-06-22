@@ -117,11 +117,11 @@ public:
                     switch (eventId)
                     {
                         case EVENT_SANDBREATH:
-                            DoCast(me->GetVictim(), SPELL_SAND_BREATH);
+                            DoCastVictim(SPELL_SAND_BREATH);
                             events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 25000));
                             break;
                         case EVENT_TIMESTOP:
-                            DoCast(me->GetVictim(), SPELL_TIME_STOP);
+                            DoCastVictim(SPELL_TIME_STOP);
                             events.ScheduleEvent(EVENT_TIMESTOP, urand(20000, 35000));
                             break;
                         case EVENT_FRENZY:

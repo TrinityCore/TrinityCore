@@ -155,7 +155,7 @@ public:
 
             if (Link_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SOUL_LINK, true);
+                DoCastVictim(SPELL_SOUL_LINK, true);
                 Link_Timer = 1000;
             } else Link_Timer -= diff;
 
@@ -164,7 +164,7 @@ public:
 
             if (ShadowBolt_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHADOWBOLT, false);
+                DoCastVictim(SPELL_SHADOWBOLT, false);
                 ShadowBolt_Timer = 10000;
             } else ShadowBolt_Timer -= diff;
 
@@ -507,7 +507,7 @@ public:
                     // will cast only when in range of spell
                     if (me->IsWithinDist(me->GetVictim(), 30))
                     {
-                        //DoCast(me->GetVictim(), SPELL_CHAOS_BLAST, true);
+                        //DoCastVictim(SPELL_CHAOS_BLAST, true);
                         int damage = 100;
                         me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, me->GetGUID());
                     }
@@ -657,7 +657,7 @@ public:
                 // will cast only when in range od spell
                 if (me->IsWithinDist(me->GetVictim(), 30))
                 {
-                    //DoCast(me->GetVictim(), SPELL_CHAOS_BLAST, true);
+                    //DoCastVictim(SPELL_CHAOS_BLAST, true);
                     int damage = 100;
                     me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, me->GetGUID());
                     ChaosBlast_Timer = 3000;

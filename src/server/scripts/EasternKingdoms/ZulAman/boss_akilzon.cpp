@@ -261,7 +261,7 @@ class boss_akilzon : public CreatureScript
                                 break;
                             }
                         case EVENT_CALL_LIGHTNING:
-                            DoCast(me->GetVictim(), SPELL_CALL_LIGHTNING);
+                            DoCastVictim(SPELL_CALL_LIGHTNING);
                             events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(12000, 17000)); // totaly random timer. can't find any info on this
                             break;
                         case EVENT_ELECTRICAL_STORM:

@@ -108,7 +108,7 @@ public:
 
             if (Repentance_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_REPENTANCE);
+                DoCastVictim(SPELL_REPENTANCE);
                 Talk(SAY_REPENTANCE);
 
                 Repentance_Timer = urand(25000, 35000);        //A little randomness on that spell

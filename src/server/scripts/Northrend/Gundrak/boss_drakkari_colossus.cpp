@@ -223,7 +223,7 @@ class boss_drakkari_colossus : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_MIGHTY_BLOW:
-                            DoCast(me->GetVictim(), SPELL_MIGHTY_BLOW);
+                            DoCastVictim(SPELL_MIGHTY_BLOW);
                             events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(5000, 15000));
                             break;
                     }
@@ -474,13 +474,13 @@ public:
 
             if (mojoWaveTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MOJO_WAVE);
+                DoCastVictim(SPELL_MOJO_WAVE);
                 mojoWaveTimer = 15*IN_MILLISECONDS;
             } else mojoWaveTimer -= diff;
 
             if (mojoPuddleTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MOJO_PUDDLE);
+                DoCastVictim(SPELL_MOJO_PUDDLE);
                 mojoPuddleTimer = 18*IN_MILLISECONDS;
             } else mojoPuddleTimer -= diff;
 
