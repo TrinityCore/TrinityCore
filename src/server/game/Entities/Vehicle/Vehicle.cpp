@@ -803,6 +803,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     ASSERT(Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
 
     Target->RemovePendingEventsForSeat(Seat->first);
+    Target->RemovePendingEventsForPassenger(Passenger);
 
     Passenger->SetVehicle(Target);
     Seat->second.Passenger = Passenger->GetGUID();
@@ -835,7 +836,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         player->UnsummonPetTemporaryIfAny();
     }
 
-    if (Seat->second.SeatInfo->m_flags && !(Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING))
+    if (Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_HIDE_PASSENGER)
         Passenger->AddUnitState(UNIT_STATE_ONVEHICLE);
 
     Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
