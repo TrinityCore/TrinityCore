@@ -16,16 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Chrono_Lord_Deja
-SD%Complete: 65
-SDComment: All abilities not implemented
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: Boss_Chrono_Lord_Deja
+%Complete: 65
+Comment: All abilities not implemented
+Category: Caverns of Time, The Black Morass
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 
 enum Enums
 {

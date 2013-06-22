@@ -16,19 +16,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Dark_Portal
-SD%Complete: 50
-SDComment: Quest support: 9836, 10297. Currently in progress.
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: Instance_The_Black_Morass
+%Complete: 50
+Comment: Quest support: 9836, 10297. Currently in progress.
+Category: Caverns of Time, The Black Morass
+*/
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "SpellInfo.h"
+#include "ScriptedCreature.h"
 
 enum Misc
 {
@@ -67,19 +68,19 @@ enum EventIds
     EVENT_NEXT_PORTAL = 1
 };
 
-class instance_dark_portal : public InstanceMapScript
+class instance_the_black_morass : public InstanceMapScript
 {
 public:
-    instance_dark_portal() : InstanceMapScript("instance_dark_portal", 269) { }
+    instance_the_black_morass() : InstanceMapScript("instance_the_black_morass", 269) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_dark_portal_InstanceMapScript(map);
+        return new instance_the_black_morass_InstanceMapScript(map);
     }
 
-    struct instance_dark_portal_InstanceMapScript : public InstanceScript
+    struct instance_the_black_morass_InstanceMapScript : public InstanceScript
     {
-        instance_dark_portal_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_the_black_morass_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[EncounterCount];
 
@@ -192,16 +193,16 @@ public:
                 {
                     if (data == IN_PROGRESS)
                     {
-                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Starting event.");
+                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Starting event.");
                         InitWorldState();
                         m_auiEncounter[1] = IN_PROGRESS;
-                        _events.ScheduleEvent(EVENT_NEXT_PORTAL, 15000);
+                        Events.ScheduleEvent(EVENT_NEXT_PORTAL, 15000);
                     }
 
                     if (data == DONE)
                     {
                         //this may be completed further out in the post-event
-                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Event completed.");
+                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Event completed.");
                         Map::PlayerList const& players = instance->GetPlayers();
 
                         if (!players.isEmpty())
@@ -227,7 +228,7 @@ public:
                 if (data == SPECIAL)
                 {
                     if (mRiftPortalCount < 7)
-                        _events.ScheduleEvent(EVENT_NEXT_PORTAL, 5000);
+                        Events.ScheduleEvent(EVENT_NEXT_PORTAL, 5000);
                 }
                 else
                     m_auiEncounter[1] = data;
@@ -266,7 +267,7 @@ public:
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
 
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Summoning rift boss entry %u.", entry);
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Summoning rift boss entry %u.", entry);
 
             Position pos;
             me->GetRandomNearPosition(pos, 10.0f);
@@ -277,7 +278,7 @@ public:
             if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
                 return summon;
 
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
             return NULL;
         }
 
@@ -290,7 +291,7 @@ public:
                 if (tmp >= _currentRiftId)
                     ++tmp;
 
-                TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).", tmp, _currentRiftId);
+                TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Creating Time Rift at locationId %i (old locationId was %u).", tmp, _currentRiftId);
 
                 _currentRiftId = tmp;
 
@@ -328,31 +329,24 @@ public:
                 return;
             }
 
-            _events.Update(diff);
+            Events.Update(diff);
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            if (Events.ExecuteEvent() == EVENT_NEXT_PORTAL)
             {
-                switch (eventId)
-                {
-                    case EVENT_NEXT_PORTAL:
-                        ++mRiftPortalCount;
-                        DoUpdateWorldState(WORLD_STATE_BM_RIFT, mRiftPortalCount);
-                        DoSpawnPortal();
-                        _events.ScheduleEvent(EVENT_NEXT_PORTAL, RiftWaves[GetRiftWaveId()].NextPortalTime);
-                        break;
-                    default:
-                        break;
-                }
+                ++mRiftPortalCount;
+                DoUpdateWorldState(WORLD_STATE_BM_RIFT, mRiftPortalCount);
+                DoSpawnPortal();
+                Events.ScheduleEvent(EVENT_NEXT_PORTAL, RiftWaves[GetRiftWaveId()].NextPortalTime);
             }
         }
 
-        private:
-            EventMap _events;
+        protected:
+            EventMap Events;
     };
 
 };
 
-void AddSC_instance_dark_portal()
+void AddSC_instance_the_black_morass()
 {
-    new instance_dark_portal();
+    new instance_the_black_morass();
 }
