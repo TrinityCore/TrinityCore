@@ -63,7 +63,7 @@ public:
             go_emberseerout         = 0;
         }
 
-        void OnPlayerEnter(Player* player)
+        void OnPlayerEnter(Player* /*player*/)
         {
             if ((GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE))
                 Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 4000);
