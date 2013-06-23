@@ -50,6 +50,8 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
     SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT         = 59665,
+	SPELL_WARRIOR_RALLYING_CRY						= 97463,
+
 
     SPELL_PALADIN_BLESSING_OF_SANCTUARY             = 20911,
     SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
@@ -724,6 +726,70 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
         }
 };
 
+//Rallyng Cry
+class spell_warr_rallying_cry : public SpellScriptLoader
+{
+public:
+    spell_warr_rallying_cry() : SpellScriptLoader("spell_warr_rallying_cry") { }
+
+    class spell_warr_rallying_cry_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_rallying_cry_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_RALLYING_CRY))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+			int32 bp0 = 0;
+            if (Unit* caster = GetCaster())
+            {
+				Player* pPlayer = caster->ToPlayer();
+				Group* pGroup = pPlayer->GetGroup();
+				
+				if(!pGroup)
+				{
+                bp0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
+                caster->CastCustomSpell(caster, SPELL_WARRIOR_RALLYING_CRY, &bp0, NULL, NULL, true, NULL);
+				}
+
+				if(pGroup)
+				{
+					Group::MemberSlotList const& members = pGroup->GetMemberSlots();
+					for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+					{
+						Player* pMember = ObjectAccessor::FindPlayer((*itr).guid);
+						if(pMember && pMember->IsInWorld())
+						{
+							if(pMember->IsWithinDist(pPlayer,30.0f))
+							{
+							bp0 = int32(pMember->CountPctFromMaxHealth(GetEffectValue()));
+							pMember->CastCustomSpell(pMember, SPELL_WARRIOR_RALLYING_CRY, &bp0, NULL, NULL, true, NULL);
+							}
+						}
+						
+					}
+				}
+			}
+        }
+
+        void Register()
+        {
+            // add dummy effect spell handler to Last Stand
+            OnEffectHitTarget += SpellEffectFn(spell_warr_rallying_cry_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_rallying_cry_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -742,4 +808,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+	new spell_warr_rallying_cry();
 }
