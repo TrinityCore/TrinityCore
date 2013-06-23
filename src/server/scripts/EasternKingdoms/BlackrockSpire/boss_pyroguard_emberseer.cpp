@@ -75,9 +75,9 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_FIRENOVA,    6 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_FLAMEBUFFET, 3 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_PYROBLAST,  14 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_FIRENOVA,    6000);
+            events.ScheduleEvent(EVENT_FLAMEBUFFET, 3000);
+            events.ScheduleEvent(EVENT_PYROBLAST,  14000);
         }
 
         void JustDied(Unit* /*killer*/)

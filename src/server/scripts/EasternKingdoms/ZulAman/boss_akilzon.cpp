@@ -93,17 +93,13 @@ class boss_akilzon : public CreatureScript
 
             void Reset()
             {
-                if (instance)
-                    instance->SetData(DATA_AKILZONEVENT, NOT_STARTED);
+                _Reset();
 
                 TargetGUID = 0;
                 CloudGUID = 0;
                 CycloneGUID = 0;
-                DespawnSummons();
                 memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
-
                 StormCount = 0;
-
                 isRaining = false;
 
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
@@ -127,27 +123,12 @@ class boss_akilzon : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_AKILZONEVENT, DONE);
-                DespawnSummons();
+                _JustDied();
             }
 
             void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
-            }
-
-            void DespawnSummons()
-            {
-                for (uint8 i = 0; i < 8; ++i)
-                {
-                    Unit* bird = Unit::GetUnit(*me, BirdGUIDs[i]);
-                    if (bird && bird->IsAlive())
-                    {
-                        bird->SetVisible(false);
-                        bird->setDeathState(JUST_DIED);
-                    }
-                }
             }
 
             void SetWeather(uint32 weather, float grade)
@@ -187,7 +168,8 @@ class boss_akilzon : public CreatureScript
                         cell.Visit(p, world_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
                         cell.Visit(p, grid_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
                     }
-                    //dealdamege
+
+                    // deal damage
                     for (std::list<Unit*>::const_iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
                     {
                         if (Unit* target = (*i))
@@ -196,6 +178,7 @@ class boss_akilzon : public CreatureScript
                                 Cloud->CastCustomSpell(target, SPELL_ZAP, &bp0, NULL, NULL, true, 0, 0, me->GetGUID());
                         }
                     }
+
                     // visual
                     float x, y, z;
                     z = me->GetPositionZ();
@@ -214,7 +197,9 @@ class boss_akilzon : public CreatureScript
                         }
                     }
                 }
+
                 ++StormCount;
+
                 if (StormCount > 10)
                 {
                     StormCount = 0; // finish
