@@ -3266,7 +3266,13 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
     aura->SetIsSingleTarget(caster && (aura->GetSpellInfo()->IsSingleTarget() || aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
     if (aura->IsSingleTarget())
     {
-        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (aura->GetCasterGUID() == GetGUID()));
+        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (aura->GetCasterGUID() == GetGUID()) ||
+                (isBeingLoaded() && aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
+                /* @HACK: Player is not in world during loading auras.
+                 *        Single target auras are not saved or loaded from database
+                 *        but may be created as a result of aura links (player mounts with passengers)
+                 */
+
         // register single target aura
         caster->GetSingleCastAuras().push_back(aura);
         // remove other single target auras
