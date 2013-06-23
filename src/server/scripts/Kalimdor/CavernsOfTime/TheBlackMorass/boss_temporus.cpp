@@ -138,13 +138,12 @@ public:
                 }
                 DoMeleeAttackIfReady();
         }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_temporusAI (creature);
-        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_temporusAI (creature);
+    }
 };
 
 void AddSC_boss_temporus()
