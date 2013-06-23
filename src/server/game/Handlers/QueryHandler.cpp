@@ -392,8 +392,8 @@ void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
 {
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
 
-    uint32 unk;
-    recvData >> unk;
+    uint32 transportGuidLow;
+    recvData >> transportGuidLow;
 
     WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
     data << float(0);

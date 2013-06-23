@@ -606,16 +606,16 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
         uint8(playerVote == lfg::LFG_ANSWER_AGREE), GUID_LOPART(boot.victim), votesNum, agreeNum,
         secsleft, lfg::LFG_GROUP_KICK_VOTES_NEEDED, boot.reason.c_str());
     WorldPacket data(SMSG_LFG_BOOT_PROPOSAL_UPDATE, 1 + 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + boot.reason.length());
-    data << uint8(boot.inProgress);                        // Vote in progress
-    data << uint8(playerVote != lfg::LFG_ANSWER_PENDING);       // Did Vote
-    data << uint8(playerVote == lfg::LFG_ANSWER_AGREE);         // Agree
-    data << uint8(0);                                      // Unknown 4.2.2
-    data << uint64(boot.victim);                           // Victim GUID
-    data << uint32(votesNum);                              // Total Votes
-    data << uint32(agreeNum);                              // Agree Count
-    data << uint32(secsleft);                              // Time Left
-    data << uint32(lfg::LFG_GROUP_KICK_VOTES_NEEDED);      // Needed Votes
-    data << boot.reason.c_str();                           // Kick reason
+    data << uint8(boot.inProgress);                                 // Vote in progress
+    data << uint8(agreeNum >= lfg::LFG_GROUP_KICK_VOTES_NEEDED);    // Did succeed
+    data << uint8(playerVote != lfg::LFG_ANSWER_PENDING);           // Did Vote
+    data << uint8(playerVote == lfg::LFG_ANSWER_AGREE);             // Agree
+    data << uint64(boot.victim);                                    // Victim GUID
+    data << uint32(votesNum);                                       // Total Votes
+    data << uint32(agreeNum);                                       // Agree Count
+    data << uint32(secsleft);                                       // Time Left
+    data << uint32(lfg::LFG_GROUP_KICK_VOTES_NEEDED);               // Needed Votes
+    data << boot.reason.c_str();                                    // Kick reason
     SendPacket(&data);
 }
 
