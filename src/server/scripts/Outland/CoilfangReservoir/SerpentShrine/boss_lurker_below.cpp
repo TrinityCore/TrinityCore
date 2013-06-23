@@ -399,7 +399,7 @@ public:
             if (MultiShotTimer <= diff)
             {
                 if (me->GetVictim())
-                    DoCast(me->GetVictim(), SPELL_SPREAD_SHOT, true);
+                    DoCastVictim(SPELL_SPREAD_SHOT, true);
 
                 MultiShotTimer = 10000+rand()%10000;
                 ShootBowTimer += 1500; // add global cooldown

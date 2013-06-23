@@ -656,7 +656,7 @@ public:
                         break;
                     case EVENT_CHOP:
                         if (UpdateVictim())
-                            DoCast(me->GetVictim(), SPELL_CHOP);
+                            DoCastVictim(SPELL_CHOP);
                         _events.ScheduleEvent(EVENT_CHOP, 10000, 12000);
                         break;
                     default:

@@ -181,7 +181,7 @@ public:
 
             if (uiCrystalfireBreathTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CRYSTALFIRE_BREATH);
+                DoCastVictim(SPELL_CRYSTALFIRE_BREATH);
                 uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
             } else uiCrystalfireBreathTimer -= diff;
 

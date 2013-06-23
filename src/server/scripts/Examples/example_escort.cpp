@@ -147,7 +147,7 @@ class example_escort : public CreatureScript
                     if (m_uiDeathCoilTimer <= uiDiff)
                     {
                         Talk(SAY_SPELL);
-                        DoCast(me->GetVictim(), SPELL_DEATH_COIL, false);
+                        DoCastVictim(SPELL_DEATH_COIL, false);
                         m_uiDeathCoilTimer = 4000;
                     }
                     else

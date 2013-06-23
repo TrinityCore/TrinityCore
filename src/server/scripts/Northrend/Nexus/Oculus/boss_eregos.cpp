@@ -210,7 +210,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ARCANE_BARRAGE:
-                        DoCast(me->GetVictim(), SPELL_ARCANE_BARRAGE);
+                        DoCastVictim(SPELL_ARCANE_BARRAGE);
                         events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 10) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_ARCANE_VOLLEY:

@@ -16,18 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Chrono_Lord_Deja
-SD%Complete: 65
-SDComment: All abilities not implemented
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: Boss_Chrono_Lord_Deja
+%Complete: 65
+Comment: All abilities not implemented
+Category: Caverns of Time, The Black Morass
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 
-enum eEnums
+enum Enums
 {
     SAY_ENTER                   = 0,
     SAY_AGGRO                   = 1,
@@ -43,47 +43,40 @@ enum eEnums
     SPELL_ATTRACTION            = 38540                       //Not Implemented (Heroic mode)
 };
 
+enum Events
+{
+    EVENT_ARCANE_BLAST          = 1,
+    EVENT_TIME_LAPSE            = 2,
+    EVENT_ARCANE_DISCHARGE      = 3,
+    EVENT_ATTRACTION            = 4
+};
+
 class boss_chrono_lord_deja : public CreatureScript
 {
 public:
     boss_chrono_lord_deja() : CreatureScript("boss_chrono_lord_deja") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_chrono_lord_dejaAI : public BossAI
     {
-        return new boss_chrono_lord_dejaAI (creature);
-    }
+        boss_chrono_lord_dejaAI(Creature* creature) : BossAI(creature, TYPE_CRONO_LORD_DEJA) { }
 
-    struct boss_chrono_lord_dejaAI : public ScriptedAI
-    {
-        boss_chrono_lord_dejaAI(Creature* creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 ArcaneBlast_Timer;
-        uint32 TimeLapse_Timer;
-        uint32 Attraction_Timer;
-        uint32 ArcaneDischarge_Timer;
-
-        void Reset()
-        {
-            ArcaneBlast_Timer = 18000+rand()%5000;
-            TimeLapse_Timer = 10000+rand()%5000;
-            ArcaneDischarge_Timer = 20000+rand()%10000;
-            Attraction_Timer = 25000+rand()%10000;
-        }
+        void Reset() { }
 
         void EnterCombat(Unit* /*who*/)
         {
+            events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(18000, 23000));
+            events.ScheduleEvent(EVENT_TIME_LAPSE, urand(10000, 15000));
+            events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, urand(20000, 30000));
+            if (IsHeroic())
+                events.ScheduleEvent(EVENT_ATTRACTION, urand(25000, 35000));
+
             Talk(SAY_AGGRO);
         }
 
         void MoveInLineOfSight(Unit* who)
         {
             //Despawn Time Keeper
-            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
+            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_TIME_KEEPER)
             {
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
@@ -110,46 +103,49 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
-            //Arcane Blast
-            if (ArcaneBlast_Timer <= diff)
-            {
-                DoCast(me->GetVictim(), SPELL_ARCANE_BLAST);
-                ArcaneBlast_Timer = 15000+rand()%10000;
-            } else ArcaneBlast_Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            //Arcane Discharge
-            if (ArcaneDischarge_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_ARCANE_DISCHARGE);
-                ArcaneDischarge_Timer = 20000+rand()%10000;
-            } else ArcaneDischarge_Timer -= diff;
+            events.Update(diff);
 
-            //Time Lapse
-            if (TimeLapse_Timer <= diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                Talk(SAY_BANISH);
-                DoCast(me, SPELL_TIME_LAPSE);
-                TimeLapse_Timer = 15000+rand()%10000;
-            } else TimeLapse_Timer -= diff;
-
-            if (IsHeroic())
-            {
-                if (Attraction_Timer <= diff)
+                switch (eventId)
                 {
-                    DoCast(me, SPELL_ATTRACTION);
-                    Attraction_Timer = 25000+rand()%10000;
-                } else Attraction_Timer -= diff;
+                    case EVENT_ARCANE_BLAST:
+                        DoCastVictim(SPELL_ARCANE_BLAST);
+                        events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(15000, 25000));
+                        break;
+                    case EVENT_TIME_LAPSE:
+                        Talk(SAY_BANISH);
+                        DoCast(me, SPELL_TIME_LAPSE);
+                        events.ScheduleEvent(EVENT_TIME_LAPSE, urand(15000, 25000));
+                        break;
+                    case EVENT_ARCANE_DISCHARGE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ARCANE_DISCHARGE);
+                        events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, urand(20000, 30000));
+                        break;
+                    case EVENT_ATTRACTION: // Only in Heroic
+                        DoCast(me, SPELL_ATTRACTION);
+                        events.ScheduleEvent(EVENT_ATTRACTION, urand(25000, 35000));
+                        break;
+                    default:
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();
         }
-    };
 
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_chrono_lord_dejaAI (creature);
+        }
+    };
 };
 
 void AddSC_boss_chrono_lord_deja()

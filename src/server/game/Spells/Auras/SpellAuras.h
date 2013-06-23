@@ -165,8 +165,9 @@ class Aura
         bool IsRemoved() const { return m_isRemoved; }
         bool CanBeSentToClient() const;
         // Single cast aura helpers
-        bool IsSingleTarget() const {return m_isSingleTarget;}
-        void SetIsSingleTarget(bool val) { m_isSingleTarget = val;}
+        bool IsSingleTarget() const {return m_isSingleTarget; }
+        bool IsSingleTargetWith(Aura const* aura) const;
+        void SetIsSingleTarget(bool val) { m_isSingleTarget = val; }
         void UnregisterSingleTarget();
         int32 CalcDispelChance(Unit* auraTarget, bool offensive) const;
 

@@ -16,18 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Temporus
-SD%Complete: 75
-SDComment: More abilities need to be implemented
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: Boss_Temporus
+%Complete: 75
+Comment: More abilities need to be implemented
+Category: Caverns of Time, The Black Morass
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 
-enum eEnums
+enum Enums
 {
     SAY_ENTER               = 0,
     SAY_AGGRO               = 1,
@@ -42,40 +42,33 @@ enum eEnums
     SPELL_REFLECT           = 38592                       //Not Implemented (Heroic mod)
 };
 
+enum Events
+{
+    EVENT_HASTE             = 1,
+    EVENT_MORTAL_WOUND      = 2,
+    EVENT_WING_BUFFET       = 3,
+    EVENT_SPELL_REFLECTION  = 4
+};
+
 class boss_temporus : public CreatureScript
 {
 public:
     boss_temporus() : CreatureScript("boss_temporus") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_temporusAI : public BossAI
     {
-        return new boss_temporusAI (creature);
-    }
+        boss_temporusAI(Creature* creature) : BossAI(creature, TYPE_TEMPORUS) { }
 
-    struct boss_temporusAI : public ScriptedAI
-    {
-        boss_temporusAI(Creature* creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 Haste_Timer;
-        uint32 SpellReflection_Timer;
-        uint32 MortalWound_Timer;
-        uint32 WingBuffet_Timer;
-
-        void Reset()
-        {
-            Haste_Timer = 15000+rand()%8000;
-            SpellReflection_Timer = 30000;
-            MortalWound_Timer = 8000;
-            WingBuffet_Timer = 25000+rand()%10000;
-        }
+        void Reset() { }
 
         void EnterCombat(Unit* /*who*/)
         {
+            events.ScheduleEvent(EVENT_HASTE, urand(15000, 23000));
+            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
+            events.ScheduleEvent(EVENT_WING_BUFFET, urand(25000, 35000));
+            if (IsHeroic())
+                events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+
             Talk(SAY_AGGRO);
         }
 
@@ -95,7 +88,7 @@ public:
         void MoveInLineOfSight(Unit* who)
         {
             //Despawn Time Keeper
-            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
+            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_TIME_KEEPER)
             {
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
@@ -114,37 +107,41 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //Attack Haste
-            if (Haste_Timer <= diff)
-            {
-                DoCast(me, SPELL_HASTE);
-                Haste_Timer = 20000+rand()%5000;
-            } else Haste_Timer -= diff;
+                events.Update(diff);
 
-            //MortalWound_Timer
-            if (MortalWound_Timer <= diff)
-            {
-                DoCast(me, SPELL_MORTAL_WOUND);
-                MortalWound_Timer = 10000+rand()%10000;
-            } else MortalWound_Timer -= diff;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-            //Wing ruffet
-            if (WingBuffet_Timer <= diff)
-            {
-                DoCast(me, SPELL_WING_BUFFET);
-                WingBuffet_Timer = 20000+rand()%10000;
-            } else WingBuffet_Timer -= diff;
-
-            if (IsHeroic())
-            {
-                if (SpellReflection_Timer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(me, SPELL_REFLECT);
-                    SpellReflection_Timer = 25000+rand()%10000;
-                } else SpellReflection_Timer -= diff;
-            }
+                    switch (eventId)
+                    {
+                        case EVENT_HASTE:
+                            DoCast(me, SPELL_HASTE);
+                            events.ScheduleEvent(EVENT_HASTE, urand(20000, 25000));
+                            break;
+                        case EVENT_MORTAL_WOUND:
+                            DoCast(me, SPELL_MORTAL_WOUND);
+                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 20000));
+                            break;
+                        case EVENT_WING_BUFFET:
+                             DoCast(me, SPELL_WING_BUFFET);
+                            events.ScheduleEvent(EVENT_WING_BUFFET, urand(20000, 30000));
+                            break;
+                        case EVENT_SPELL_REFLECTION: // Only in Heroic
+                            DoCast(me, SPELL_REFLECT);
+                            events.ScheduleEvent(EVENT_SPELL_REFLECTION, urand(25000, 35000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+        }
 
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_temporusAI (creature);
         }
     };
 

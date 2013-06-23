@@ -240,7 +240,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     {
                         if (BlindingLight)
                         {
-                            DoCast(me->GetVictim(), SPELL_BLINDING_LIGHT);
+                            DoCastVictim(SPELL_BLINDING_LIGHT);
                             BlindingLight = false;
                         }
                         else
@@ -381,7 +381,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 //VoidBolt_Timer
                                 if (VoidBolt_Timer <= diff)
                                 {
-                                    DoCast(me->GetVictim(), SPELL_VOID_BOLT);
+                                    DoCastVictim(SPELL_VOID_BOLT);
                                     VoidBolt_Timer = 10000;
                                 }
                                 else
@@ -473,7 +473,7 @@ class mob_solarium_priest : public CreatureScript
 
                 if (holysmiteTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SOLARIUM_HOLY_SMITE);
+                    DoCastVictim(SPELL_SOLARIUM_HOLY_SMITE);
                     holysmiteTimer = 4000;
                 }
                 else
@@ -481,7 +481,7 @@ class mob_solarium_priest : public CreatureScript
 
                 if (aoesilenceTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SOLARIUM_ARCANE_TORRENT);
+                    DoCastVictim(SPELL_SOLARIUM_ARCANE_TORRENT);
                     aoesilenceTimer = 13000;
                 }
                 else

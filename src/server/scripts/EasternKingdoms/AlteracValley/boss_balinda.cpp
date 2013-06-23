@@ -69,7 +69,7 @@ public:
 
             if (waterBoltTimer < diff)
             {
-                DoCast(me->GetVictim(), SPELL_WATERBOLT);
+                DoCastVictim(SPELL_WATERBOLT);
                 waterBoltTimer = 5 * IN_MILLISECONDS;
             } else waterBoltTimer -= diff;
 
@@ -159,25 +159,25 @@ public:
 
             if (arcaneExplosionTimer < diff)
             {
-                DoCast(me->GetVictim(), SPELL_ARCANE_EXPLOSION);
+                DoCastVictim(SPELL_ARCANE_EXPLOSION);
                 arcaneExplosionTimer =  urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
             } else arcaneExplosionTimer -= diff;
 
             if (coneOfColdTimer < diff)
             {
-                DoCast(me->GetVictim(), SPELL_CONE_OF_COLD);
+                DoCastVictim(SPELL_CONE_OF_COLD);
                 coneOfColdTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
             } else coneOfColdTimer -= diff;
 
             if (fireBoltTimer < diff)
             {
-                DoCast(me->GetVictim(), SPELL_FIREBALL);
+                DoCastVictim(SPELL_FIREBALL);
                 fireBoltTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
             } else fireBoltTimer -= diff;
 
             if (frostboltTimer < diff)
             {
-                DoCast(me->GetVictim(), SPELL_FROSTBOLT);
+                DoCastVictim(SPELL_FROSTBOLT);
                 frostboltTimer = urand(4 * IN_MILLISECONDS, 12 * IN_MILLISECONDS);
             } else frostboltTimer -= diff;
 

@@ -110,7 +110,7 @@ public:
             if (uiSlamTimer <= uiDiff)
             {
                 if (bCheckChances())
-                    DoCast(me->GetVictim(), SPELL_SMITE_SLAM);
+                    DoCastVictim(SPELL_SMITE_SLAM);
                 uiSlamTimer = 11000;
             } else uiSlamTimer -= uiDiff;
 

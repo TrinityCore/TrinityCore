@@ -559,7 +559,7 @@ public:
 
             if (VoidBlastTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_VOID_BLAST, false);
+                DoCastVictim(SPELL_VOID_BLAST, false);
                 VoidBlastTimer = 45000;
             } else VoidBlastTimer -= diff;
 

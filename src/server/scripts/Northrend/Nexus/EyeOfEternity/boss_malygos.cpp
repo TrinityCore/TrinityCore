@@ -1426,7 +1426,7 @@ class npc_nexus_lord : public CreatureScript
                             _events.ScheduleEvent(EVENT_HASTE_BUFF, 15*IN_MILLISECONDS);
                             break;
                         case EVENT_NUKE_DUMMY:
-                            DoCast(me->GetVictim(), SPELL_DUMMY_NUKE, true);
+                            DoCastVictim(SPELL_DUMMY_NUKE, true);
                             DoCast(me, SPELL_ALIGN_DISK_AGGRO, true);
                             _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1*IN_MILLISECONDS);
                             break;

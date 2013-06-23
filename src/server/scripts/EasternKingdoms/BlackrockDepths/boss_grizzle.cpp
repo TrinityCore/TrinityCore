@@ -60,7 +60,7 @@ public:
             //GroundTremor_Timer
             if (GroundTremor_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_GROUNDTREMOR);
+                DoCastVictim(SPELL_GROUNDTREMOR);
                 GroundTremor_Timer = 8000;
             } else GroundTremor_Timer -= diff;
 

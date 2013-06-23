@@ -265,7 +265,7 @@ public:
 
             if (uiBallLightningTimer <= uiDiff)
             {
-                DoCast(me->GetVictim(), SPELL_BALL_LIGHTNING);
+                DoCastVictim(SPELL_BALL_LIGHTNING);
                 uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
             }
             else

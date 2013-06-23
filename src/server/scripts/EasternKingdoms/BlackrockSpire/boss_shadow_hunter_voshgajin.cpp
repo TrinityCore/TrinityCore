@@ -82,7 +82,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CURSE_OF_BLOOD:
-                        DoCast(me->GetVictim(), SPELL_CURSEOFBLOOD);
+                        DoCastVictim(SPELL_CURSEOFBLOOD);
                         events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45 * IN_MILLISECONDS);
                         break;
                     case EVENT_HEX:
@@ -91,7 +91,7 @@ public:
                         events.ScheduleEvent(EVENT_HEX, 15 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->GetVictim(), SPELL_CLEAVE);
+                        DoCastVictim(SPELL_CLEAVE);
                         events.ScheduleEvent(EVENT_CLEAVE, 7 * IN_MILLISECONDS);
                         break;
                 }
