@@ -2597,8 +2597,9 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         target->Mount(displayId, vehicleId, creatureEntry);
 
         // cast speed aura
-        if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
-            target->CastSpell(target, mountCapability->SpeedModSpell, true);
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+            if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
+                target->CastSpell(target, mountCapability->SpeedModSpell, true);
     }
     else
     {

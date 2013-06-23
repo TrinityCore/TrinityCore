@@ -948,7 +948,6 @@ bool Aura::CanBeSaved() const
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
             return false;
-            break;
     }
 
     // When a druid logins, he doesnt have either eclipse power, nor the marker auras, nor the eclipse buffs. Dont save them.
