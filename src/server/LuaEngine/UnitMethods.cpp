@@ -2459,8 +2459,65 @@ int LuaUnit::GiveXP(lua_State* L, Unit* unit)
     uint32 xp = luaL_checkunsigned(L, 1);
     Unit* victim = sEluna->CHECK_UNIT(L, 2);
     float group_rate = luaL_optnumber(L, 3, 1.0f);
+    bool pureXP = luaL_optbool(L, 4, true);
+    bool triggerHook = luaL_optbool(L, 5, true);
+    
+    if (xp < 1)
+        return 0;
+    if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN))
+        return 0;
+    if (victim && victim->GetTypeId() == TYPEID_UNIT && !victim->ToCreature()->hasLootRecipient())
+        return 0;
 
-    player->GiveXP(xp, victim, group_rate);
+    uint8 level = player->getLevel();
+
+    if (triggerHook)
+        sScriptMgr->OnGivePlayerXP(player, xp, victim);
+
+    if (!pureXP)
+    {
+        // Favored experience increase START
+        uint32 zone = player->GetZoneId();
+        float favored_exp_mult = 0;
+        if ((player->HasAura(32096) || player->HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714))
+            favored_exp_mult = 0.05f; // Thrallmar's Favor and Honor Hold's Favor
+        xp = uint32(xp * (1 + favored_exp_mult));
+        // Favored experience increase END
+    }
+
+    // XP to money conversion processed in Player::RewardQuest
+    if (level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        return 0;
+    
+    uint32 bonus_xp = 0;
+    bool recruitAFriend = pureXP ? false : player->GetsRecruitAFriendBonus(true);
+    if (!pureXP)
+    {
+        // RaF does NOT stack with rested experience
+        if (recruitAFriend)
+            bonus_xp = 2 * xp; // xp + bonus_xp must add up to 3 * xp for RaF; calculation for quests done client-side
+        else
+            bonus_xp = victim ? player->GetXPRestBonus(xp) : 0; // XP resting bonus
+    }
+
+    player->SendLogXPGain(xp, victim, bonus_xp, recruitAFriend, group_rate);
+
+    uint32 curXP = player->GetUInt32Value(PLAYER_XP);
+    uint32 nextLvlXP = player->GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+    uint32 newXP = curXP + xp + bonus_xp;
+
+    while (newXP >= nextLvlXP && level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    {
+        newXP -= nextLvlXP;
+
+        if (level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            player->GiveLevel(level + 1);
+
+        level = player->getLevel();
+        nextLvlXP = player->GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+    }
+
+    player->SetUInt32Value(PLAYER_XP, newXP);
     return 0;
 }
 

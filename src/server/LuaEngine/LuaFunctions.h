@@ -190,7 +190,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"ResetTypeCooldowns", &LuaUnit::ResetTypeCooldowns},                                                   // :ResetTypeCooldowns(category, update(bool~optional)) - Resets all cooldowns for the spell category(type). If update is true, it will send WorldPacket SMSG_CLEAR_COOLDOWN to the player, else it will just clear the spellId from m_spellCooldowns. This is true by default
     {"ResetAllCooldowns", &LuaUnit::ResetAllCooldowns},                                                     // :ResetAllCooldowns() - Resets all spell cooldowns
     {"GiveLevel", &LuaUnit::GiveLevel},                                                                     // :GiveLevel(level) - Gives levels to the player
-    {"GiveXP", &LuaUnit::GiveXP},                                                                           // :GiveXP(xp[, victim, group_rate]) - Gives XP to the player
+    {"GiveXP", &LuaUnit::GiveXP},                                                                           // :GiveXP(xp[, victim, group_rate, pureXP, triggerHook]) - Gives XP to the player. If pure is false, bonuses are count in. If triggerHook is false, GiveXp hook is not triggered.
     {"RemovePet", &LuaUnit::RemovePet},                                                                     // :RemovePet([mode, returnreagent]) - Removes the player's pet. Mode determines if the pet is saved and how
     {"SummonPet", &LuaUnit::SummonPet},                                                                     // :SummonPet(entry, x, y, z, o, petType, despwtime) - Summons a pet for the player
     {"Say", &LuaUnit::Say},                                                                                 // :Say(text, lang) - The player says the text
