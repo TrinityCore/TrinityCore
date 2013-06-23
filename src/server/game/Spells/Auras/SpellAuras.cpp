@@ -1597,19 +1597,19 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         }
     }
 
-    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && existingAura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)) //Chequeando que exista el aura de control de vehiculo para evitar el crash.
+    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && existingAura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
     {
         Vehicle* veh = NULL;
         if (GetOwner()->ToUnit())
             veh = GetOwner()->ToUnit()->GetVehicleKit();
 
-        if (!veh)
+        if (!veh)           // We should probably just let it stack. Vehicle system will prevent undefined behaviour later
             return true;
 
         if (!veh->GetAvailableSeatCount())
             return false;   // No empty seat available
 
-        return !sameCaster; // Asiento vacio libre y que sea diferente que el del caster.
+        return !sameCaster; // Empty seat available (skip rest) and different caster
     }
 
     // spell of same spell rank chain

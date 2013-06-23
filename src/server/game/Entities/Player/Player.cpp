@@ -20291,10 +20291,9 @@ void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendResetFailedNotify(uint32 mapid)
+void Player::SendResetFailedNotify(uint32 /*mapid*/)
 {
     WorldPacket data(SMSG_RESET_FAILED_NOTIFY, 4);
-    data << uint32(mapid);
     GetSession()->SendPacket(&data);
 }
 

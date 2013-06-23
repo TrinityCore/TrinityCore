@@ -747,6 +747,7 @@ void WorldSession::HandleRequestCategoryCooldowns(WorldPacket& /*recvPacket*/)
 
     WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 11);
     data.WriteBits(categoryMods.size(), 23);
+    data.FlushBits();
     for (std::map<uint32, int32>::const_iterator itr = categoryMods.begin(); itr != categoryMods.end(); ++itr)
     {
         data << uint32(itr->first);
