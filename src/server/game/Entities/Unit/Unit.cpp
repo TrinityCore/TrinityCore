@@ -13215,7 +13215,7 @@ void Unit::SendPetCastFail(uint8 castCount, SpellInfo const* spellInfo, SpellCas
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Spell::SendCastResult(owner->ToPlayer(), spellInfo, 0, result, SPELL_CUSTOM_ERROR_NONE, SMSG_PET_CAST_FAILED);
+    Spell::SendCastResult(owner->ToPlayer(), spellInfo, castCount, result, SPELL_CUSTOM_ERROR_NONE, SMSG_PET_CAST_FAILED);
 }
 
 void Unit::SendPetActionFeedback(uint8 msg)
