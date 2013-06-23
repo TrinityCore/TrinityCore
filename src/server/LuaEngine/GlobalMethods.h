@@ -466,24 +466,25 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-    // PerformIngameSpawn(spawntype, entry, mapid, x, y, z, o[, save, DurOrResptime, phase])
+    // PerformIngameSpawn(spawntype, entry, mapid, instanceid, x, y, z, o[, save, DurOrResptime, phase])
     // spawntype: 1 Creature, 2 Object. DurOrResptime is respawntime for gameobjects and despawntime for creatures if creature is not saved
     static int PerformIngameSpawn(lua_State* L)
     {
         int spawntype = luaL_checkinteger(L, 1);
         uint32 entry = luaL_checkunsigned(L, 2);
         uint32 mapID = luaL_checkunsigned(L, 3);
-        float x = luaL_checknumber(L, 4);
-        float y = luaL_checknumber(L, 5);
-        float z = luaL_checknumber(L, 6);
-        float o = luaL_checknumber(L, 7);
-        bool save = luaL_optbool(L, 8, false);
-        uint32 durorresptime = luaL_optunsigned(L, 9, 0);
-        uint32 phase = luaL_optunsigned(L, 10, PHASEMASK_NORMAL);
+        uint32 instanceID = luaL_checkunsigned(L, 4);
+        float x = luaL_checknumber(L, 5);
+        float y = luaL_checknumber(L, 6);
+        float z = luaL_checknumber(L, 7);
+        float o = luaL_checknumber(L, 8);
+        bool save = luaL_optbool(L, 9, false);
+        uint32 durorresptime = luaL_optunsigned(L, 10, 0);
+        uint32 phase = luaL_optunsigned(L, 11, PHASEMASK_NORMAL);
         if (!phase)
             return 0;
 
-        Map* map = sMapMgr->FindMap(mapID, 0);
+        Map* map = sMapMgr->FindMap(mapID, instanceID);
         if (!map)
             return 0;
 
@@ -937,15 +938,17 @@ namespace LuaGlobalFunctions
             return 0;
 
         std::list<Player*> list;
-        Trinity::AnyPlayerInObjectRangeCheck checker(obj, range, true);
+        Trinity::AnyPlayerInObjectRangeCheck checker(obj, range);
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(obj, list, checker);
-        obj->VisitNearbyGridObject(range, searcher);
+        obj->VisitNearbyWorldObject(range, searcher);
+        Trinity::ObjectGUIDCheck guidCheck(obj->GetGUID());
+        list.remove_if(guidCheck);
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
         uint32 i = 0;
 
-        for (std::list<Player*>::iterator it = list.begin(); it != list.end(); ++it)
+        for (std::list<Player*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
             sEluna->PushUnsigned(L, ++i);
             sEluna->PushUnit(L, *it);
@@ -967,12 +970,14 @@ namespace LuaGlobalFunctions
         Trinity::AnyUnitInObjectRangeCheck checker(obj, range);
         Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(obj, list, checker);
         obj->VisitNearbyGridObject(range, searcher);
+        Trinity::ObjectGUIDCheck guidCheck(obj->GetGUID());
+        list.remove_if(guidCheck);
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
         uint32 i = 0;
 
-        for (std::list<Creature*>::iterator it = list.begin(); it != list.end(); ++it)
+        for (std::list<Creature*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
             sEluna->PushUnsigned(L, ++i);
             sEluna->PushUnit(L, *it);
@@ -996,15 +1001,15 @@ namespace LuaGlobalFunctions
         Trinity::GameObjectInRangeCheck checker(x, y, z, range);
         Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(obj, list, checker);
         obj->VisitNearbyGridObject(range, searcher);
+        Trinity::ObjectGUIDCheck guidCheck(obj->GetGUID());
+        list.remove_if(guidCheck);
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
         uint32 i = 0;
 
-        for (std::list<GameObject*>::iterator it = list.begin(); it != list.end(); ++it)
+        for (std::list<GameObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            if((*it)->GetGUID() == obj->GetGUID()) // used coords to search, self in list, skip
-                continue;
             sEluna->PushUnsigned(L, ++i);
             sEluna->PushGO(L, *it);
             lua_settable(L, tbl);

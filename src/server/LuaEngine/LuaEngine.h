@@ -631,7 +631,7 @@ public:
     {
         if (!obj)
             return NULL;
-        UNORDERED_MAP<uint64, LuaEventMap*>::iterator it = LuaEventMaps.find(obj->GetGUID());
+        UNORDERED_MAP<uint64, LuaEventMap*>::const_iterator it = LuaEventMaps.find(obj->GetGUID());
         if (it != LuaEventMaps.end())
             return it->second;
         return NULL;
@@ -670,7 +670,7 @@ public:
 
     void OnOpenStateChange(bool open)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_OPEN_STATE_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_OPEN_STATE_CHANGE].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_OPEN_STATE_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -681,7 +681,7 @@ public:
     }
     void OnConfigLoad(bool reload)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_CONFIG_LOAD].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_CONFIG_LOAD].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_CONFIG_LOAD].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -692,7 +692,7 @@ public:
     }
     void OnMotdChange(std::string& newMotd)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_MOTD_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_MOTD_CHANGE].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_MOTD_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -703,7 +703,7 @@ public:
     }
     void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_INIT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_INIT].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_INIT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -715,7 +715,7 @@ public:
     }
     void OnShutdownCancel()
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_CANCEL].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_CANCEL].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_CANCEL].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -727,7 +727,7 @@ public:
     {
         ScriptEventsUpdate(diff);
         ScriptEventsExecute();
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_UPDATE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_UPDATE].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_UPDATE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -747,7 +747,7 @@ public:
     }
     void OnStartup()
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_STARTUP].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_STARTUP].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_STARTUP].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -757,7 +757,7 @@ public:
     }
     void OnShutdown()
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN].end(); ++itr)
         {
             sEluna->BeginCall((*itr));

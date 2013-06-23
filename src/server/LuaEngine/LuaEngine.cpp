@@ -46,7 +46,7 @@ void Eluna::StartEluna(bool restart)
             // Remove bindings
             for (std::map<int, std::vector<int> >::iterator itr = ServerEventBindings.begin(); itr != ServerEventBindings.end(); ++itr)
             {
-                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
                     luaL_unref(LuaState, LUA_REGISTRYINDEX, (*it));
                 itr->second.clear();
             }
@@ -86,7 +86,7 @@ void Eluna::StartEluna(bool restart)
 
     uint32 count = 0;
     char filename[200];
-    for (std::set<std::string>::iterator itr = loadedScripts.luaFiles.begin(); itr !=  loadedScripts.luaFiles.end(); ++itr)
+    for (std::set<std::string>::const_iterator itr = loadedScripts.luaFiles.begin(); itr !=  loadedScripts.luaFiles.end(); ++itr)
     {
         strcpy(filename, itr->c_str());
         if (luaL_loadfile(LuaState, filename) != 0)
@@ -165,7 +165,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent);             // RegisterTimedEvent(function, delay, calls) - Creates a timed event. Returns Event ID
     lua_register(L, "DestroyEventByID", &LuaGlobalFunctions::DestroyEventByID);             // DestroyEventByID(eventId) - Removes a global timed event by it's ID
     lua_register(L, "DestroyEvents", &LuaGlobalFunctions::DestroyEvents);                   // DestroyEvents([allEvents]) - Removes all global timed events. Removes all timed events (creature and gameobject) if allEvents is true
-    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);         // PerformIngameSpawn(spawntype, entry, mapid, x, y, z, o[, save, DurOrResptime, phase]) - spawntype: 1 Creature, 2 Object. DurOrResptime is respawntime for gameobjects and despawntime for creatures if creature is not saved. Returns spawned creature/gameobject
+    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);         // PerformIngameSpawn(spawntype, entry, mapid, instanceid, x, y, z, o[, save, DurOrResptime, phase]) - spawntype: 1 Creature, 2 Object. DurOrResptime is respawntime for gameobjects and despawntime for creatures if creature is not saved. Returns spawned creature/gameobject
     lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);                     // CreatePacket(opcode, size) - Creates a new packet object
     lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);                   // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost[, persist(bool)]) - Adds an item to vendor entry. If persist is false, wont be saved to database.
     lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);             // VendorRemoveItem(entry, item[, persist(bool)]) - Removes an item from vendor entry. If persist is false, wont be saved to database.
@@ -680,7 +680,7 @@ void Eluna::ElunaBind::Clear()
 {
     for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
     {
-        for (ElunaBindingMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        for (ElunaBindingMap::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
             luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, it->second);
         itr->second.clear();
     }
@@ -705,7 +705,7 @@ void Eluna::LuaEventMap::ScriptEventsResetAll()
 {
     // GameObject && Creature events reset
     if (!LuaEventMaps.empty())
-        for (UNORDERED_MAP<uint64, LuaEventMap*>::iterator itr = LuaEventMaps.begin(); itr != LuaEventMaps.end(); ++itr)
+        for (UNORDERED_MAP<uint64, LuaEventMap*>::const_iterator itr = LuaEventMaps.begin(); itr != LuaEventMaps.end(); ++itr)
             if (itr->second)
                 itr->second->ScriptEventsReset();
     // Global events reset
@@ -716,7 +716,7 @@ void Eluna::LuaEventMap::ScriptEventsReset()
     _time = 0;
     if (ScriptEventsEmpty())
         return;
-    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end();)
     {
         luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, itr->second.funcRef);
         ++itr;
@@ -728,7 +728,7 @@ void Eluna::LuaEventMap::ScriptEventCancel(int funcRef)
     if (ScriptEventsEmpty())
         return;
 
-    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end();)
     {
         if (funcRef == itr->second.funcRef)
         {
@@ -796,7 +796,7 @@ uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, ui
     sTaxiPathNodesByPath[pathId].resize(nodes.size());
     uint32 startNode = nodeId;
     uint32 index = 0;
-    for (std::list<TaxiPathNodeEntry>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+    for (std::list<TaxiPathNodeEntry>::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
     {
         TaxiPathNodeEntry entry = *it;
         entry.path = pathId;

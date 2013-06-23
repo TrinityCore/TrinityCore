@@ -9,7 +9,7 @@ public:
     // misc
     void OnLootItem(Player* player, Item* item, uint32 count, uint64 guid)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOOT_ITEM].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOOT_ITEM].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOOT_ITEM].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -23,7 +23,7 @@ public:
     }
     void OnFirstLogin(Player* player)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN_FIRST].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN_FIRST].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN_FIRST].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -34,7 +34,7 @@ public:
     }
     void OnEquip(Player* player, Item* item, uint8 bag, uint8 slot)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_EQUIP].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_EQUIP].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_EQUIP].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -49,7 +49,7 @@ public:
     InventoryResult OnCanUseItem(Player* player, uint32 itemEntry)
     {
         InventoryResult result = EQUIP_ERR_OK;
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CAN_USE_ITEM].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CAN_USE_ITEM].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_CAN_USE_ITEM].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -123,7 +123,7 @@ public:
     bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg)
     {
         bool Result = true;
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHAT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHAT].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHAT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -145,7 +145,7 @@ public:
     bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
     {
         bool Result = true;
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_GROUP_CHAT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_GROUP_CHAT].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_GROUP_CHAT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -168,7 +168,7 @@ public:
     bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
     {
         bool Result = true;
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_GUILD_CHAT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_GUILD_CHAT].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_GUILD_CHAT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -191,7 +191,7 @@ public:
     bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
     {
         bool Result = true;
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHANNEL_CHAT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHANNEL_CHAT].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHANNEL_CHAT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -213,7 +213,7 @@ public:
     }
     void OnEngineRestart()
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[ELUNA_EVENT_ON_RESTART].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[ELUNA_EVENT_ON_RESTART].begin();
             itr != sEluna->ServerEventBindings[ELUNA_EVENT_ON_RESTART].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -565,7 +565,7 @@ public:
     // areatrigger
     bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[TRIGGER_EVENT_ON_TRIGGER].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[TRIGGER_EVENT_ON_TRIGGER].begin();
             itr != sEluna->ServerEventBindings[TRIGGER_EVENT_ON_TRIGGER].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -579,7 +579,7 @@ public:
     // weather
     void OnChange(Weather* weather, WeatherState state, float grade)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[WEATHER_EVENT_ON_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WEATHER_EVENT_ON_CHANGE].begin();
             itr != sEluna->ServerEventBindings[WEATHER_EVENT_ON_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -795,7 +795,7 @@ public:
     Eluna_PlayerScript() : PlayerScript("Eluna_PlayerScript") { }
     void OnPlayerEnterCombat(Player* player, Unit* enemy)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_ENTER_COMBAT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_ENTER_COMBAT].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_ENTER_COMBAT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -807,7 +807,7 @@ public:
     }
     void OnPlayerLeaveCombat(Player* player)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEAVE_COMBAT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEAVE_COMBAT].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEAVE_COMBAT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -818,7 +818,7 @@ public:
     }
     void OnPVPKill(Player* killer, Player* killed)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILL_PLAYER].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILL_PLAYER].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILL_PLAYER].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -830,7 +830,7 @@ public:
     }
     void OnCreatureKill(Player* killer, Creature* killed)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILL_CREATURE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILL_CREATURE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILL_CREATURE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -842,7 +842,7 @@ public:
     }
     void OnPlayerKilledByCreature(Creature* killer, Player* killed)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILLED_BY_CREATURE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILLED_BY_CREATURE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILLED_BY_CREATURE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -854,7 +854,7 @@ public:
     }
     void OnLevelChanged(Player* player, uint8 oldLevel)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEVEL_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEVEL_CHANGE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEVEL_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -866,7 +866,7 @@ public:
     }
     void OnFreeTalentPointsChanged(Player* player, uint32 newPoints)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_TALENTS_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_TALENTS_CHANGE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_TALENTS_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -878,7 +878,7 @@ public:
     }
     void OnTalentsReset(Player* player, bool noCost)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_TALENTS_RESET].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_TALENTS_RESET].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_TALENTS_RESET].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -890,7 +890,7 @@ public:
     }
     void OnMoneyChanged(Player* player, int32& amount)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_MONEY_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_MONEY_CHANGE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_MONEY_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -902,7 +902,7 @@ public:
     }
     void OnGiveXP(Player* player, uint32& amount, Unit* victim)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_GIVE_XP].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_GIVE_XP].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_GIVE_XP].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -915,7 +915,7 @@ public:
     }
     void OnReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_REPUTATION_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_REPUTATION_CHANGE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_REPUTATION_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -929,7 +929,7 @@ public:
     }
     void OnDuelRequest(Player* target, Player* challenger)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_REQUEST].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_REQUEST].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_REQUEST].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -941,7 +941,7 @@ public:
     }
     void OnDuelStart(Player* player1, Player* player2)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_START].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_START].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_START].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -953,7 +953,7 @@ public:
     }
     void OnDuelEnd(Player* winner, Player* loser, DuelCompleteType type)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_END].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_END].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_DUEL_END].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -970,7 +970,7 @@ public:
     }
     void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Player* receiver)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_WHISPER].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_WHISPER].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_WHISPER].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -997,7 +997,7 @@ public:
     }
     void OnEmote(Player* player, uint32 emote)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_EMOTE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_EMOTE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_EMOTE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1009,7 +1009,7 @@ public:
     }
     void OnTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_TEXT_EMOTE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_TEXT_EMOTE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_TEXT_EMOTE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1023,7 +1023,7 @@ public:
     }
     void OnSpellCast(Player* player, Spell* spell, bool skipCheck)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_SPELL_CAST].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_SPELL_CAST].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_SPELL_CAST].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1036,7 +1036,7 @@ public:
     }
     void OnLogin(Player* player)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1047,7 +1047,7 @@ public:
     }
     void OnLogout(Player* player)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGOUT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGOUT].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGOUT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1058,7 +1058,7 @@ public:
     }
     void OnCreate(Player* player)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHARACTER_CREATE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHARACTER_CREATE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHARACTER_CREATE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1069,7 +1069,7 @@ public:
     }
     void OnDelete(uint64 guid)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHARACTER_DELETE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHARACTER_DELETE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_CHARACTER_DELETE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1080,7 +1080,7 @@ public:
     }
     void OnSave(Player* player)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_SAVE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_SAVE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_SAVE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1091,7 +1091,7 @@ public:
     }
     void OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_BIND_TO_INSTANCE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_BIND_TO_INSTANCE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_BIND_TO_INSTANCE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1105,7 +1105,7 @@ public:
     }
     void OnUpdateZone(Player* player, uint32 newZone, uint32 newArea)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_UPDATE_ZONE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_UPDATE_ZONE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_UPDATE_ZONE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1118,7 +1118,7 @@ public:
     }
     void OnMapChanged(Player* player)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_MAP_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_MAP_CHANGE].begin();
             itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_MAP_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1134,7 +1134,7 @@ public:
     Eluna_GuildScript() : GuildScript("Eluna_GuildScript") { }
     void OnAddMember(Guild* guild, Player* player, uint8& plRank)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_ADD_MEMBER].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_ADD_MEMBER].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_ADD_MEMBER].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1147,7 +1147,7 @@ public:
     }
     void OnRemoveMember(Guild* guild, Player* player, bool isDisbanding, bool isKicked)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_REMOVE_MEMBER].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_REMOVE_MEMBER].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_REMOVE_MEMBER].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1161,7 +1161,7 @@ public:
     }
     void OnMOTDChanged(Guild* guild, const std::string& newMotd)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_MOTD_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_MOTD_CHANGE].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_MOTD_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1173,7 +1173,7 @@ public:
     }
     void OnInfoChanged(Guild* guild, const std::string& newInfo)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_INFO_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_INFO_CHANGE].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_INFO_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1185,7 +1185,7 @@ public:
     }
     void OnCreate(Guild* guild, Player* leader, const std::string& name)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_CREATE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_CREATE].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_CREATE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1198,7 +1198,7 @@ public:
     }
     void OnDisband(Guild* guild)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_DISBAND].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_DISBAND].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_DISBAND].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1209,7 +1209,7 @@ public:
     }
     void OnMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_MONEY_WITHDRAW].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_MONEY_WITHDRAW].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_MONEY_WITHDRAW].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1223,7 +1223,7 @@ public:
     }
     void OnMemberDepositMoney(Guild* guild, Player* player, uint32 &amount)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_MONEY_DEPOSIT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_MONEY_DEPOSIT].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_MONEY_DEPOSIT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1237,7 +1237,7 @@ public:
     void OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
         bool isDestBank, uint8 destContainer, uint8 destSlotId)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_ITEM_MOVE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_ITEM_MOVE].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_ITEM_MOVE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1256,7 +1256,7 @@ public:
     }
     void OnEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_EVENT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_EVENT].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_EVENT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1271,7 +1271,7 @@ public:
     }
     void OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_BANK_EVENT].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GUILD_EVENT_ON_BANK_EVENT].begin();
             itr != sEluna->ServerEventBindings[GUILD_EVENT_ON_BANK_EVENT].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1293,7 +1293,7 @@ public:
     Eluna_GroupScript() : GroupScript("Eluna_GroupScript") { }
     void OnAddMember(Group* group, uint64 guid)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_ADD].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_ADD].begin();
             itr != sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_ADD].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1305,7 +1305,7 @@ public:
     }
     void OnInviteMember(Group* group, uint64 guid)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_INVITE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_INVITE].begin();
             itr != sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_INVITE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1317,7 +1317,7 @@ public:
     }
     void OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_REMOVE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_REMOVE].begin();
             itr != sEluna->ServerEventBindings[GROUP_EVENT_ON_MEMBER_REMOVE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1332,7 +1332,7 @@ public:
     }
     void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_LEADER_CHANGE].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_LEADER_CHANGE].begin();
             itr != sEluna->ServerEventBindings[GROUP_EVENT_ON_LEADER_CHANGE].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
@@ -1345,7 +1345,7 @@ public:
     }
     void OnDisband(Group* group)
     {
-        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_DISBAND].begin();
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[GROUP_EVENT_ON_DISBAND].begin();
             itr != sEluna->ServerEventBindings[GROUP_EVENT_ON_DISBAND].end(); ++itr)
         {
             sEluna->BeginCall((*itr));

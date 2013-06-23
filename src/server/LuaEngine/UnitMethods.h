@@ -487,5 +487,6 @@ namespace LuaUnit
     int DisableMelee(lua_State*, Unit*);
     int GetFriendlyUnitsInRange(lua_State*, Unit*);
     int GetUnfriendlyUnitsInRange(lua_State*, Unit*);
+    int SummonGuardian(lua_State*, Unit*);
 };
 #endif

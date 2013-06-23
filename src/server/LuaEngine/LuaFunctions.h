@@ -371,8 +371,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetDistance", &LuaUnit::GetDistance},                                                                 // :GetDistance(WorldObject or x, y, z)
     {"GetGUIDLow", &LuaUnit::GetGUIDLow},                                                                   // :GetGUIDLow() - Returns uint32 guid (low guid) that is used in database.
     {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},                                                       // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius.
-    {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},                                               // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius.
-    {"GetNearestCreature", &LuaUnit::GetNearestCreature},                                                   // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius.
+    {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},                                               // :GetNearestGameObject([radius, entry]) - Returns nearest gameobject with given entry in sight or given radius.
+    {"GetNearestCreature", &LuaUnit::GetNearestCreature},                                                   // :GetNearestCreatureEntry([radius, entry]) - Returns nearest creature with given entry in sight or given radius.
     {"GetRelativePoint", &LuaUnit::GetRelativePoint},                                                       // :GetRelativePoint(dist, degrees) - Returns the X, Y and orientation of a point dist away from unit. Degrees are - 90 for right and 90 for left.
     {"GetHeight", &LuaUnit::GetHeight},                                                                     // :GetHeight(X, Y) - Returns the Z coord of the given location. If no valid position found, returns unit Z coordinate.
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
@@ -500,6 +500,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"ClearUnitState", &LuaUnit::ClearUnitState},                                                           // :ClearUnitState(state)
     {"AddUnitState", &LuaUnit::AddUnitState},                                                               // :AddUnitState(state)
     {"DisableMelee", &LuaUnit::DisableMelee},                                                               // :DisableMelee([disable]) - if true, enables
+    {"SummonGuardian", &LuaUnit::SummonGuardian},                                                           // :SummonGuardian(entry, x, y, z, o[, duration]) - summons a guardian to location. Scales with summoner, is friendly to him and guards him.
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},                                                 // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId

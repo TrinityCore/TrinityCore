@@ -1379,7 +1379,7 @@ int LuaUnit::GetSpellCooldowns(lua_State* L, Unit* unit)
     int tbl = lua_gettop(L);
     uint32 i = 0;
 
-    for (SpellCooldowns::iterator it = player->GetSpellCooldowns().begin(); it != player->GetSpellCooldowns().end(); ++it)
+    for (SpellCooldowns::const_iterator it = player->GetSpellCooldowns().begin(); it != player->GetSpellCooldowns().end(); ++it)
     {
         ++i;
         sEluna->PushUnsigned(L, it->first);
@@ -4415,7 +4415,7 @@ int LuaUnit::GetAITarget(lua_State* L, Unit* unit)
     case SELECT_TARGET_NEAREST:
     case SELECT_TARGET_TOPAGGRO:
         {
-            std::list<Unit*>::iterator itr = targetList.begin();
+            std::list<Unit*>::const_iterator itr = targetList.begin();
             std::advance(itr, position);
             sEluna->PushUnit(L, *itr);
             return 1;
@@ -4430,7 +4430,7 @@ int LuaUnit::GetAITarget(lua_State* L, Unit* unit)
         }
     case SELECT_TARGET_RANDOM:
         {
-            std::list<Unit*>::iterator itr = targetList.begin();
+            std::list<Unit*>::const_iterator itr = targetList.begin();
             std::advance(itr, urand(position, targetList.size() - 1));
             sEluna->PushUnit(L, *itr);
             return 1;
@@ -5023,7 +5023,7 @@ int LuaUnit::GetNearestPlayer(lua_State* L, Unit* unit)
     Player* target = NULL;
     Eluna::NearestTypeWithEntryInRangeCheck checker(unit, distance, TYPEID_PLAYER);
     Trinity::PlayerLastSearcher<Eluna::NearestTypeWithEntryInRangeCheck> searcher(unit, target, checker);
-    unit->VisitNearbyObject(distance, searcher);
+    unit->VisitNearbyWorldObject(distance, searcher);
 
     sEluna->PushUnit(L, target);
     return 1;
@@ -5033,8 +5033,8 @@ int LuaUnit::GetNearestGameObject(lua_State* L, Unit* unit)
 {
     TO_UNIT();
 
-    float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
-    uint32 entry = luaL_optunsigned(L, 2, 0);
+    uint32 entry = luaL_optunsigned(L, 1, 0);
+    float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
 
     GameObject* target = NULL;
     Eluna::NearestTypeWithEntryInRangeCheck checker(unit, range, TYPEID_GAMEOBJECT, entry);
@@ -5049,8 +5049,8 @@ int LuaUnit::GetNearestCreature(lua_State* L, Unit* unit)
 {
     TO_UNIT();
 
-    float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
-    uint32 entry = luaL_optunsigned(L, 2, 0);
+    uint32 entry = luaL_optunsigned(L, 1, 0);
+    float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
 
     Creature* target = NULL;
     Eluna::NearestTypeWithEntryInRangeCheck checker(unit, range, TYPEID_UNIT, entry);
@@ -5069,13 +5069,15 @@ int LuaUnit::GetFriendlyUnitsInRange(lua_State* L, Unit* unit)
     UnitList list;
     Trinity::AnyFriendlyUnitInObjectRangeCheck checker(unit, unit, range);
     Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
-    unit->VisitNearbyGridObject(range, searcher);
+    unit->VisitNearbyObject(range, searcher);
+    Trinity::ObjectGUIDCheck guidCheck(unit->GetGUID());
+    list.remove_if(guidCheck);
 
     lua_newtable(L);
     int tbl = lua_gettop(L);
     uint32 i = 0;
 
-    for (UnitList::iterator it = list.begin(); it != list.end(); ++it)
+    for (UnitList::const_iterator it = list.begin(); it != list.end(); ++it)
     {
         sEluna->PushUnsigned(L, ++i);
         sEluna->PushUnit(L, *it);
@@ -5094,13 +5096,15 @@ int LuaUnit::GetUnfriendlyUnitsInRange(lua_State* L, Unit* unit)
     UnitList list;
     Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, unit, range);
     Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
-    unit->VisitNearbyGridObject(range, searcher);
+    unit->VisitNearbyObject(range, searcher);
+    Trinity::ObjectGUIDCheck guidCheck(unit->GetGUID());
+    list.remove_if(guidCheck);
 
     lua_newtable(L);
     int tbl = lua_gettop(L);
     uint32 i = 0;
 
-    for (UnitList::iterator it = list.begin(); it != list.end(); ++it)
+    for (UnitList::const_iterator it = list.begin(); it != list.end(); ++it)
     {
         sEluna->PushUnsigned(L, ++i);
         sEluna->PushUnit(L, *it);
@@ -5293,4 +5297,44 @@ int LuaUnit::DisableMelee(lua_State* L, Unit* unit)
     else
         unit->ClearUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
     return 0;
+}
+
+int LuaUnit::SummonGuardian(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint32 entry = luaL_checkunsigned(L, 1);
+    float x = luaL_checknumber(L, 2);
+    float y = luaL_checknumber(L, 3);
+    float z = luaL_checknumber(L, 4);
+    float o = luaL_checknumber(L, 5);
+    uint32 desp = luaL_optunsigned(L, 6, 0);
+
+    SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(61);
+    if (!properties)
+        return 0;
+    Position pos;
+    pos.Relocate(x,y,z,o);
+    TempSummon* summon = unit->GetMap()->SummonCreature(entry, pos, properties, desp, unit);
+
+    if (!summon)
+        return 0;
+    if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+        ((Guardian*)summon)->InitStatsForLevel(unit->getLevel());
+    if (properties && properties->Category == SUMMON_CATEGORY_ALLY)
+        summon->setFaction(unit->getFaction());
+    if (summon->GetEntry() == 27893)
+    {
+        if (uint32 weapon = unit->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
+        {
+            summon->SetDisplayId(11686);
+            summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
+        }
+        else
+            summon->SetDisplayId(1126);
+    }
+    summon->AI()->EnterEvadeMode();
+
+    sEluna->PushUnit(L, summon);
+    return 1;
 }
