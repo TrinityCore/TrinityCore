@@ -962,7 +962,6 @@ enum Opcodes
     SMSG_INSPECT_RATED_BG_STATS                       = 0x19A5,
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x0C14,
     SMSG_INSPECT_TALENT                               = 0x4014,
-    SMSG_INSTANCE_DIFFICULTY                          = 0x0000,
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0x4F17,
     SMSG_INSTANCE_RESET                               = 0x6F05,
     SMSG_INSTANCE_RESET_FAILED                        = 0x4725,
