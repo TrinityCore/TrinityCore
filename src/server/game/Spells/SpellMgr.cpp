@@ -3381,6 +3381,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 64444: // Mimiron - Magnetic Core
                 spellInfo->rangeIndex = 6; // 100yd
                 break;
+            case 63036: // Mimiron - Rochet Strike
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
+                break;
             case 64014: // Expedition Base Camp Teleport
             case 64024: // Conservatory Teleport
             case 64025: // Halls of Invention Teleport

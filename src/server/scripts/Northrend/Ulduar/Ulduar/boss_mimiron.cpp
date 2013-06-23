@@ -159,6 +159,17 @@ enum Events
     EVENT_FLAME,
     EVENT_NONE,
     EVENT_CRAWL,
+    EVENT_9MINS,
+    EVENT_8MINS,
+    EVENT_7MINS,
+    EVENT_6MINS,
+    EVENT_5MINS,
+    EVENT_4MINS,
+    EVENT_3MINS,
+    EVENT_2MINS,
+    EVENT_1MINS,
+    EVENT_TIMEUP,
+    EVENT_OVERRIDE,
     // Leviathan MK II
     EVENT_PROXIMITY_MINE,
     EVENT_NAPALM_SHELL,
@@ -322,7 +333,7 @@ class boss_mimiron : public CreatureScript
                 events.SetPhase(PHASE_INTRO);
                 if (MimironHardMode)
                 {
-                    events.ScheduleEvent(EVENT_HARD_1, 2500, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_HARD_1, 2000, 0, PHASE_INTRO);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                 }
                 else
@@ -490,21 +501,21 @@ class boss_mimiron : public CreatureScript
                             if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
                                 computer->AI()->TalkToMap(SAY_10_MIN);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                            events.ScheduleEvent(EVENT_HARD_2, 500, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_HARD_2, 1000, 0, PHASE_INTRO);
                             break;
                         case EVENT_HARD_2:
                             if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                 me->EnterVehicle(Leviathan,5);
                             TalkToMap(SAY_HARDMODE_ON);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                            events.ScheduleEvent(EVENT_INTRO_3, 6000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_3, 10000, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_2:
                             if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                 me->EnterVehicle(Leviathan,5);
                             TalkToMap(SAY_MKII_ACTIVATE);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                            events.ScheduleEvent(EVENT_INTRO_3, 6000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_3, 10000, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_3:
                             me->ChangeSeat(6);
@@ -515,6 +526,19 @@ class boss_mimiron : public CreatureScript
                                 if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                 {
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                                    if (MimironHardMode)
+                                    {
+                                        events.ScheduleEvent(EVENT_9MINS, 60000);
+                                        events.ScheduleEvent(EVENT_8MINS, 120000);
+                                        events.ScheduleEvent(EVENT_7MINS, 180000);
+                                        events.ScheduleEvent(EVENT_6MINS, 240000);
+                                        events.ScheduleEvent(EVENT_5MINS, 300000);
+                                        events.ScheduleEvent(EVENT_4MINS, 360000);
+                                        events.ScheduleEvent(EVENT_3MINS, 420000);
+                                        events.ScheduleEvent(EVENT_2MINS, 480000);
+                                        events.ScheduleEvent(EVENT_1MINS, 540000);
+                                        events.ScheduleEvent(EVENT_TIMEUP, 600000);
+                                    }
                                     Leviathan->AI()->DoAction(DO_START_ENCOUNTER);
                                     events.SetPhase(PHASE_COMBAT);
                                 }
@@ -675,13 +699,64 @@ class boss_mimiron : public CreatureScript
                                  if (Creature* creature = me->GetCreature(*me, instance->GetData64(data)))
                                      creature->AI()->DoAction(DO_ENTER_ENRAGE);
                             Enraged = true;
+                            if (MimironHardMode)
+                            {
+                                 DoCast(me, SPELL_SELF_DESTRUCTION, true);
+                                 DoCast(me, SPELL_SELF_DESTRUCTION_VISUAL, true);
+                            }
                             break;
                         case EVENT_FLAME:
-                            for (uint8 i = 0; i < 3; ++i)
-                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                     if (Creature* Flame = me->SummonCreature(NPC_FLAME, target->GetPositionX() + irand(-6,6), target->GetPositionY() + irand(-6,6), target->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
-                                         Flame->AI()->AttackStart(target);
-                            events.ScheduleEvent(EVENT_FLAME, 30000);
+                            if (MimironHardMode)
+                            {
+                               for (uint8 i = 0; i < 3; ++i)
+                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                        DoCast(target, SPELL_SUMMON_FLAMES_INITIAL, true);
+                               events.ScheduleEvent(EVENT_FLAME, 30000);
+                            }
+                            break;
+                        case EVENT_9MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_9_MIN);
+                            break;
+                        case EVENT_8MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_8_MIN);
+                            break;
+                        case EVENT_7MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_7_MIN);
+                            break;
+                        case EVENT_6MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_6_MIN);
+                            break;
+                        case EVENT_5MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_5_MIN);
+                            break;
+                        case EVENT_4MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_4_MIN);
+                            break;
+                        case EVENT_3MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_3_MIN);
+                            break;
+                        case EVENT_2MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_2_MIN);
+                            break;
+                        case EVENT_1MINS:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_1_MIN);
+                            break;
+                        case EVENT_TIMEUP:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_DESTROY_MIN);
+                            break;
+                        case EVENT_OVERRIDE:
+                            if (Creature* computer = me->FindNearestCreature(NPC_COMPUTER,100.0f))
+                                computer->AI()->TalkToMap(SAY_OVERRIDE_MIN);
                             break;
                     }
                 }
