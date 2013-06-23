@@ -323,6 +323,25 @@ public:
 };
 
 /*######
+## npc_eye_of_acherus
+######*/
+
+void SpeedFunction(Player* player){
+{;
+enum EyeOfAcherus
+{
+SPELL_THE_EYE_OF_ACHERUS = 51852
+};
+void SetSpeed(uint32 uiDiff)
+
+;
+if (player -> HasAura(SPELL_THE_EYE_OF_ACHERUS))
+
+player -> SetSpeed(MOVE_FLIGHT, 1.0f);
+return;
+}};
+
+/*######
 ## npc_death_knight_initiate
 ######*/
 
@@ -881,6 +900,7 @@ class npc_scarlet_miner_cart : public CreatureScript
             npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature), _minerGUID(0), _playerGUID(0)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
             }
 
