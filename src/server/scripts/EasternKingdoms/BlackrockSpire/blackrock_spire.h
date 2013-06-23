@@ -67,13 +67,13 @@ enum CreaturesIds
     NPC_GENERAL_DRAKKISATH          = 10363,
     NPC_BLACKHAND_DREADWEAVER       = 9817,
     NPC_BLACKHAND_SUMMONER          = 9818,
-    NPC_BLACKHAND_VETERAN           = 9819
+    NPC_BLACKHAND_VETERAN           = 9819,
+    NPC_BLACKHAND_INCARCERATOR      = 10316
 };
 
 enum AdditionalData
 {
     SPELL_SUMMON_ROOKERY_WHELP      = 15745,
-    MAX_DRAGONSPIRE_HALL_RUNES      = 7,
     EVENT_PYROGUARD_EMBERSEER       = 4884,
     AREATRIGGER_ENTER_UBRS          = 2046,
     AREATRIGGER_STADIUM             = 2026
@@ -91,6 +91,7 @@ enum GameObjectsIds
     GO_GYTH_EXIT_DOOR               = 175186,
     GO_DRAKKISATH_DOOR_1            = 175946,
     GO_DRAKKISATH_DOOR_2            = 175947,
+    GO_BLACKROCK_ALTAR              = 175706,
     // Runes in dragonspire hall
     GO_ROOM_1_RUNE                  = 175197,
     GO_ROOM_2_RUNE                  = 175199,
