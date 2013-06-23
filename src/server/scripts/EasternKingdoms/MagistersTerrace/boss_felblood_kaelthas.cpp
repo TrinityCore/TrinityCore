@@ -298,14 +298,14 @@ public:
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
                             DoCast(me, SPELL_SHOCK_BARRIER, true);
-                            DoCast(me->GetVictim(), SPELL_PYROBLAST);
+                            DoCastVictim(SPELL_PYROBLAST);
                             PyroblastTimer = 60000;
                         } else PyroblastTimer -= diff;
                     }
 
                     if (FireballTimer <= diff)
                     {
-                        DoCast(me->GetVictim(), SPELL_FIREBALL_NORMAL);
+                        DoCastVictim(SPELL_FIREBALL_NORMAL);
                         FireballTimer = urand(2000, 6000);
                     } else FireballTimer -= diff;
 

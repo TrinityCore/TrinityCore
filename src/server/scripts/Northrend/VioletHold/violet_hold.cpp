@@ -844,7 +844,7 @@ public:
             {
                 if (uiCleaveTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_CLEAVE);
+                    DoCastVictim(SPELL_CLEAVE);
                     uiCleaveTimer = 5000;
                 } else uiCleaveTimer -= diff;
 
@@ -861,13 +861,13 @@ public:
             {
                 if (uiBrutalStrikeTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_BRUTAL_STRIKE);
+                    DoCastVictim(SPELL_BRUTAL_STRIKE);
                     uiBrutalStrikeTimer = 5000;
                 } else uiBrutalStrikeTimer -= diff;
 
                 if (uiSunderArmorTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SUNDER_ARMOR);
+                    DoCastVictim(SPELL_SUNDER_ARMOR);
                     uiSunderArmorTimer = urand(8000, 10000);
                 } else uiSunderArmorTimer -= diff;
 
@@ -1054,7 +1054,7 @@ public:
 
             if (uiConcussionBlowTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CONCUSSION_BLOW);
+                DoCastVictim(SPELL_CONCUSSION_BLOW);
                 uiConcussionBlowTimer = 5000;
             } else uiConcussionBlowTimer -= diff;
 
@@ -1249,7 +1249,7 @@ public:
 
             if (uiMortalStrikeTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MORTAL_STRIKE);
+                DoCastVictim(SPELL_MORTAL_STRIKE);
                 uiMortalStrikeTimer = 5000;
             } else uiMortalStrikeTimer -= diff;
 

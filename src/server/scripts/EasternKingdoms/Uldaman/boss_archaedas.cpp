@@ -185,7 +185,7 @@ class boss_archaedas : public CreatureScript
                 if (uiTremorTimer <= uiDiff)
                 {
                     //Cast
-                    DoCast(me->GetVictim(), SPELL_GROUND_TREMOR);
+                    DoCastVictim(SPELL_GROUND_TREMOR);
 
                     //45 seconds until we should cast this agian
                     uiTremorTimer  = 45000;

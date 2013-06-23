@@ -84,19 +84,19 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FIRE_NOVA:
-                        DoCast(me->GetVictim(), SPELL_FIRENOVA);
+                        DoCastVictim(SPELL_FIRENOVA);
                         events.ScheduleEvent(EVENT_FIRE_NOVA, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->GetVictim(), SPELL_CLEAVE);
+                        DoCastVictim(SPELL_CLEAVE);
                         events.ScheduleEvent(EVENT_CLEAVE, 8 * IN_MILLISECONDS);
                         break;
                     case EVENT_CONFLIGURATION:
-                        DoCast(me->GetVictim(), SPELL_CONFLIGURATION);
+                        DoCastVictim(SPELL_CONFLIGURATION);
                         events.ScheduleEvent(EVENT_CONFLIGURATION, 18 * IN_MILLISECONDS);
                         break;
                     case EVENT_THUNDERCLAP:
-                        DoCast(me->GetVictim(), SPELL_THUNDERCLAP);
+                        DoCastVictim(SPELL_THUNDERCLAP);
                         events.ScheduleEvent(EVENT_THUNDERCLAP, 20 * IN_MILLISECONDS);
                         break;
                 }

@@ -205,14 +205,14 @@ public:
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CLEAVE);
+                DoCastVictim(SPELL_CLEAVE);
                 Cleave_Timer = 15000;
             } else Cleave_Timer -= diff;
 
             //FlameBreath_Timer
             if (FlameBreath_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FLAMEBREATH);
+                DoCastVictim(SPELL_FLAMEBREATH);
                 FlameBreath_Timer = urand(4000, 8000);
             } else FlameBreath_Timer -= diff;
 
@@ -248,7 +248,7 @@ public:
             //FireNova_Timer
             if (FireNova_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FIRENOVA);
+                DoCastVictim(SPELL_FIRENOVA);
                 FireNova_Timer = 5000;
             } else FireNova_Timer -= diff;
 
@@ -258,7 +258,7 @@ public:
                 //Only cast if we are behind
                 /*if (!me->HasInArc(M_PI, me->GetVictim()))
                 {
-                DoCast(me->GetVictim(), SPELL_TAILSWIPE);
+                DoCastVictim(SPELL_TAILSWIPE);
                 }*/
 
                 TailSwipe_Timer = 20000;

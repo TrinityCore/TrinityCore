@@ -89,14 +89,14 @@ public:
             //AmnenarsWrath_Timer
             if (AmnenarsWrath_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_AMNENNARSWRATH);
+                DoCastVictim(SPELL_AMNENNARSWRATH);
                 AmnenarsWrath_Timer = 12000;
             } else AmnenarsWrath_Timer -= diff;
 
             //FrostBolt_Timer
             if (FrostBolt_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FROSTBOLT);
+                DoCastVictim(SPELL_FROSTBOLT);
                 FrostBolt_Timer = 8000;
             } else FrostBolt_Timer -= diff;
 
@@ -109,7 +109,7 @@ public:
             if (!Spectrals60 && HealthBelowPct(60))
             {
                 Talk(SAY_SUMMON60);
-                DoCast(me->GetVictim(), SPELL_FROST_SPECTRES);
+                DoCastVictim(SPELL_FROST_SPECTRES);
                 Spectrals60 = true;
             }
 
@@ -122,7 +122,7 @@ public:
             if (!Spectrals30 && HealthBelowPct(30))
             {
                 Talk(SAY_SUMMON30);
-                DoCast(me->GetVictim(), SPELL_FROST_SPECTRES);
+                DoCastVictim(SPELL_FROST_SPECTRES);
                 Spectrals30 = true;
             }
 

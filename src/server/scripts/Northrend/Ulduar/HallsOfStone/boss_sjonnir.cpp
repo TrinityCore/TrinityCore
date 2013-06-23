@@ -168,7 +168,7 @@ public:
 
             if (uiStaticChargeTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_STATIC_CHARGE);
+                DoCastVictim(SPELL_STATIC_CHARGE);
                 uiStaticChargeTimer = urand(20000, 25000);
             } uiStaticChargeTimer -= diff;
 

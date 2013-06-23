@@ -131,7 +131,7 @@ public:
                         if (healing)
                             DoCast(me, info->Id);
                         else
-                            DoCast(me->GetVictim(), info->Id);
+                            DoCastVictim(info->Id);
 
                         //Set our global cooldown
                         globalCooldown = GENERIC_CREATURE_COOLDOWN;
@@ -174,7 +174,7 @@ public:
                         if (healing)
                             DoCast(me, info->Id);
                         else
-                            DoCast(me->GetVictim(), info->Id);
+                            DoCastVictim(info->Id);
 
                         //Set our global cooldown
                         globalCooldown = GENERIC_CREATURE_COOLDOWN;

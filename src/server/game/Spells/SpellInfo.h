@@ -464,7 +464,6 @@ public:
     bool CanDispelAura(SpellInfo const* aura) const;
 
     bool IsSingleTarget() const;
-    bool IsSingleTargetWith(SpellInfo const* spellInfo) const;
     bool IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const;
     bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const;
 

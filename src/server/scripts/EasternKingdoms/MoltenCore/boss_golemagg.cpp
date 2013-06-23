@@ -163,7 +163,7 @@ class mob_core_rager : public CreatureScript
                 // Mangle
                 if (mangleTimer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_MANGLE);
+                    DoCastVictim(SPELL_MANGLE);
                     mangleTimer = 10*IN_MILLISECONDS;
                 }
                 else

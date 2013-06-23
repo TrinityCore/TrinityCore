@@ -209,7 +209,7 @@ public:
 
             if (FearTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SCREAM);
+                DoCastVictim(SPELL_SCREAM);
                 FearTimer = 30000;
             } else FearTimer -= diff;
 
@@ -270,7 +270,7 @@ public:
 
             if (YipTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_YIPPING);
+                DoCastVictim(SPELL_YIPPING);
                 YipTimer = 10000;
             } else YipTimer -= diff;
 
@@ -389,7 +389,7 @@ public:
 
             if (BrainBashTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_BRAIN_BASH);
+                DoCastVictim(SPELL_BRAIN_BASH);
                 BrainBashTimer = 15000;
             } else BrainBashTimer -= diff;
 
@@ -494,7 +494,7 @@ public:
 
             if (CleaveTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CLEAVE);
+                DoCastVictim(SPELL_CLEAVE);
                 CleaveTimer = 5000;
             } else CleaveTimer -= diff;
 
@@ -601,19 +601,19 @@ public:
 
             if (MangleTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MANGLE);
+                DoCastVictim(SPELL_MANGLE);
                 MangleTimer = urand(5000, 8000);
             } else MangleTimer -= diff;
 
             if (ShredTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHRED);
+                DoCastVictim(SPELL_SHRED);
                 ShredTimer = urand(10000, 15000);
             } else ShredTimer -= diff;
 
             if (ScreamTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FRIGHTENED_SCREAM);
+                DoCastVictim(SPELL_FRIGHTENED_SCREAM);
                 ScreamTimer = urand(20000, 30000);
             } else ScreamTimer -= diff;
 
@@ -699,7 +699,7 @@ public:
 
             if (ChainLightningTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CHAIN_LIGHTNING);
+                DoCastVictim(SPELL_CHAIN_LIGHTNING);
                 ChainLightningTimer = 15000;
             } else ChainLightningTimer -= diff;
 
@@ -917,13 +917,13 @@ public:
 
             if (FearTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_TERRIFYING_HOWL);
+                DoCastVictim(SPELL_TERRIFYING_HOWL);
                 FearTimer = urand(25000, 35000);
             } else FearTimer -= diff;
 
             if (SwipeTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_WIDE_SWIPE);
+                DoCastVictim(SPELL_WIDE_SWIPE);
                 SwipeTimer = urand(25000, 30000);
             } else SwipeTimer -= diff;
         }
@@ -1322,7 +1322,7 @@ public:
 
             if (PoisonThrustTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_POISON_THRUST);
+                DoCastVictim(SPELL_POISON_THRUST);
                 PoisonThrustTimer = urand(10000, 20000);
             } else PoisonThrustTimer -= diff;
 

@@ -76,31 +76,31 @@ public:
 
             if (CleaveTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CLEAVE);
+                DoCastVictim(SPELL_CLEAVE);
                 CleaveTimer =  urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS);
             } else CleaveTimer -= diff;
 
             if (FrighteningShoutTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FRIGHTENING_SHOUT);
+                DoCastVictim(SPELL_FRIGHTENING_SHOUT);
                 FrighteningShoutTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
             } else FrighteningShoutTimer -= diff;
 
             if (Whirlwind1Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_WHIRLWIND1);
+                DoCastVictim(SPELL_WHIRLWIND1);
                 Whirlwind1Timer = urand(6 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
             } else Whirlwind1Timer -= diff;
 
             if (Whirlwind2Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_WHIRLWIND2);
+                DoCastVictim(SPELL_WHIRLWIND2);
                 Whirlwind2Timer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
             } else Whirlwind2Timer -= diff;
 
             if (MortalStrikeTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MORTAL_STRIKE);
+                DoCastVictim(SPELL_MORTAL_STRIKE);
                 MortalStrikeTimer = urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
             } else MortalStrikeTimer -= diff;
 
