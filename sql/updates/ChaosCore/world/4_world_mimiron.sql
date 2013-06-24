@@ -23,6 +23,10 @@ DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (33432,33651);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (33651, 46598, 1, 0),
 (33432, 46598, 1, 0);
+DELETE FROM `creature_text` WHERE `entry` = 33432;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(33432, 0, 0, 'Leviathan MK II begins to cast Plasma Blast!', 41, 0, 100, 0, 0, 0, 'Leviathan MK II EMOTE_PLASMA_BLAST');
+
 -- VX-001
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `flags_extra` = 1, `vehicleid` = 371, `ScriptName` = 'boss_vx_001' WHERE `entry` = 33651;
 UPDATE `creature_template` SET `minlevel` = 83, `maxlevel` = 83, `mechanic_immune_mask` = 650854235, `flags_extra` = 1 WHERE `entry` = 34108;
@@ -81,5 +85,5 @@ DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (10450,10463);
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450,10463) AND `type`=11;
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`)
 VALUES
-(10450,11,0,0, 'achievement_firefighter'),
-(10463,11,0,0, 'achievement_firefighter');
+(10450,11,0,0, 'achievement_mimiron_firefighter'),
+(10463,11,0,0, 'achievement_mimiron_firefighter');
