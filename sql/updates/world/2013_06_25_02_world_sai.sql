@@ -1,6 +1,7 @@
 SET @ENTRY  := 29732;
 SET @GOSSIP := 9891;
 SET @EAGLE  := 29736;
+SET @DRAKE  := 29753;
 
 UPDATE `creature_template` SET `VehicleId`=243,`InhabitType`=3,`AIName`= 'SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY;
