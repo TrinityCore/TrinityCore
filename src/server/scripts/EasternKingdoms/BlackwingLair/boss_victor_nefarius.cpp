@@ -86,40 +86,6 @@ class boss_victor_nefarius : public CreatureScript
 public:
     boss_victor_nefarius() : CreatureScript("boss_victor_nefarius") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(7198, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(7199, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->CLOSE_GOSSIP_MENU();
-                creature->AI()->Talk(SAY_GAMESBEGIN_1);
-                CAST_AI(boss_victor_nefarius::boss_victor_nefariusAI, creature->AI())->BeginEvent(player);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->SEND_GOSSIP_MENU(7134, creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_victor_nefariusAI (creature);
-    }
-
     struct boss_victor_nefariusAI : public ScriptedAI
     {
         boss_victor_nefariusAI(Creature* creature) : ScriptedAI(creature)
@@ -210,30 +176,21 @@ public:
             }
         }
 
-        uint32 SpawnedAdds;
-        uint32 AddSpawnTimer;
-        uint32 ShadowBoltTimer;
-        uint32 FearTimer;
-        uint32 MindControlTimer;
-        uint32 ResetTimer;
-        uint32 DrakType1;
-        uint32 DrakType2;
-        uint64 NefarianGUID;
-        uint32 NefCheckTime;
-
         void Reset()
         {
-            SpawnedAdds = 0;
-            AddSpawnTimer = 10000;
-            ShadowBoltTimer = 5000;
-            FearTimer = 8000;
-            ResetTimer = 900000;                                // On official it takes him 15 minutes(900 seconds) to reset. We are only doing 1 minute to make testing easier
-            NefarianGUID = 0;
-            NefCheckTime = 2000;
-
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-            me->setFaction(35);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            if(me->GetMapId() == 469)
+            {
+                SpawnedAdds = 0;
+                AddSpawnTimer = 10000;
+                ShadowBoltTimer = 5000;
+                FearTimer = 8000;
+                ResetTimer = 900000;                                // On official it takes him 15 minutes(900 seconds) to reset. We are only doing 1 minute to make testing easier
+                NefarianGUID = 0;
+                NefCheckTime = 2000;
+                me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+                me->setFaction(35);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
         }
 
         void BeginEvent(Player* target)
@@ -389,7 +346,53 @@ public:
                 } else NefCheckTime -= diff;
             }
         }
+
+        private:
+            uint32 SpawnedAdds;
+            uint32 AddSpawnTimer;
+            uint32 ShadowBoltTimer;
+            uint32 FearTimer;
+            uint32 MindControlTimer;
+            uint32 ResetTimer;
+            uint32 DrakType1;
+            uint32 DrakType2;
+            uint64 NefarianGUID;
+            uint32 NefCheckTime;
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_victor_nefariusAI (creature);
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch (action)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(7198, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                player->SEND_GOSSIP_MENU(7199, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                player->CLOSE_GOSSIP_MENU();
+                creature->AI()->Talk(SAY_GAMESBEGIN_1);
+                CAST_AI(boss_victor_nefarius::boss_victor_nefariusAI, creature->AI())->BeginEvent(player);
+                break;
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(7134, creature->GetGUID());
+        return true;
+    }
 };
 
 void AddSC_boss_victor_nefarius()
