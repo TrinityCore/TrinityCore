@@ -30,24 +30,39 @@ enum Text
 
 enum Spells
 {
-    SPELL_ENCAGED_EMBERSEER         = 15282, // Self on spawn
-    SPELL_FIRE_SHIELD_TRIGGER       = 13377, // Self on spawn missing from 335 dbc
+    SPELL_ENCAGED_EMBERSEER         = 15282,
+    SPELL_FIRE_SHIELD_TRIGGER       = 13377, // Self on spawn missing from 335 dbc triggers SPELL_FIRE_SHIELD every 3 sec
+    SPELL_FIRE_SHIELD               = 13376, // Triggered by SPELL_FIRE_SHIELD_TRIGGER
     SPELL_FREEZE_ANIM               = 16245, // Self on event start
     SPELL_EMBERSEER_GROWING         = 16048, // Self on event start
+    SPELL_EMBERSEER_GROWING_TRIGGER = 16049, // Triggered by SPELL_EMBERSEER_GROWING
     SPELL_EMBERSEER_FULL_STRENGTH   = 16047, // Emberseer Full Strength
     SPELL_FIRENOVA                  = 23462, // Combat
     SPELL_FLAMEBUFFET               = 23341, // Combat
-    SPELL_PYROBLAST                 = 17274  // Combat
+    SPELL_PYROBLAST                 = 17274, // Combat
+    // Blackhand Incarcerator Spells
+    SPELL_ENCAGE_EMBERSEER          = 15281, // Emberseer on spawn
+    SPELL_STRIKE                    = 15580, // Combat
+    SPELL_ENCAGE                    = 16045  // Combat
 };
 
 enum Events
 {
-    // OOC
+    // Respawn
     EVENT_RESPAWN                   = 1,
+    // Pre fight
+    EVENT_PRE_FIGHT_1               = 2,
+    EVENT_PRE_FIGHT_2               = 3,
     // Combat
-    EVENT_FIRENOVA                  = 2,
-    EVENT_FLAMEBUFFET               = 3,
-    EVENT_PYROBLAST                 = 4
+    EVENT_FIRENOVA                  = 4,
+    EVENT_FLAMEBUFFET               = 5,
+    EVENT_PYROBLAST                 = 6,
+    // Reset
+    EVENT_RESET_ALTAR               = 7,
+    // Hack due to trigger spell not in dbc
+    EVENT_FIRE_SHIELD               = 8,
+    // Make sure all players have aura from altar
+    EVENT_PLAYER_CHECK              = 9
 };
 
 class boss_pyroguard_emberseer : public CreatureScript
@@ -68,22 +83,29 @@ public:
         {
             if (instance)
             {
-                // Apply auras on spawn and reset
-                DoCast(me, SPELL_ENCAGED_EMBERSEER);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
 
+                // Apply auras on spawn and reset
                 // DoCast(me, SPELL_FIRE_SHIELD_TRIGGER); // Need to find this in old DBC if possible
 
                 // Open doors on reset
                 if (instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
                     OpenDoors(false); // Opens 2 entrance doors
 
-                // ### TODO Reset Blackrock Altar ###
-
-                // respawn any dead Blackhand Incarcerators
-                events.ScheduleEvent(EVENT_RESPAWN, 1000);
-
-
                 instance->SetBossState(DATA_PYROGAURD_EMBERSEER, NOT_STARTED);
+
+                // Hack for missing trigger spell
+                events.ScheduleEvent(EVENT_FIRE_SHIELD, 3000);
+            }
+        }
+
+        void JustReachedHome()
+        {
+            if (instance)
+            {
+                // respawn any dead Blackhand Incarcerators & reset Altar
+                events.ScheduleEvent(EVENT_RESPAWN, 1000);
+                events.ScheduleEvent(EVENT_RESET_ALTAR, 6000);
             }
         }
 
@@ -91,20 +113,19 @@ public:
         {
             if (instance && type == 1 && data == 1)
             {
-                instance->SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
-
-               // Close these two doors on encounter start
-               if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_IN)))
-                   door1->SetGoState(GO_STATE_READY);
-               if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetData64(GO_DOORS)))
-                   door2->SetGoState(GO_STATE_READY);
-
-                // ### TODO Script pre fight scripting of Emberseer ###
-                // ### TODO Set data on Blackhand Incarcerator ###
-                // ### TODO disable Blackrock Altar ###
+                events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
             }
 
-
+            if (instance && type == 1 && data == 2)
+            {
+               // Close these two doors on Blackhand Incarcerators aggro
+               if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_IN)))
+                   if (door1->GetGoState() == GO_STATE_ACTIVE)
+                       door1->SetGoState(GO_STATE_READY);
+               if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetData64(GO_DOORS)))
+                   if (door2->GetGoState() == GO_STATE_ACTIVE)
+                       door2->SetGoState(GO_STATE_READY);
+            }
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -117,7 +138,6 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-
             if (instance)
             {
                 // Activate all the runes
@@ -143,6 +163,31 @@ public:
             }
         }
 
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_ENCAGE_EMBERSEER)
+                if (me->GetAuraCount(SPELL_ENCAGED_EMBERSEER) == 0)
+                    DoCast(me, SPELL_ENCAGED_EMBERSEER);
+
+            if (spell->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
+            {
+                if (me->GetAuraCount(SPELL_EMBERSEER_GROWING_TRIGGER) == 10)
+                    Talk(EMOTE_TEN_STACK);
+
+                if (me->GetAuraCount(SPELL_EMBERSEER_GROWING_TRIGGER) == 20)
+                {
+                    me->RemoveAura(SPELL_ENCAGED_EMBERSEER);
+                    me->RemoveAura(SPELL_FREEZE_ANIM);
+                    me->CastSpell(me, SPELL_EMBERSEER_FULL_STRENGTH);
+                    Talk(EMOTE_FREE_OF_BONDS);
+                    Talk(YELL_FREE_OF_BONDS);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
+                    AttackStart(me->SelectNearestPlayer(30.0f));
+                }
+            }
+
+        }
+
        void OpenDoors(bool Boss_Killed)
        {
            // These two doors reopen on reset or boss kill
@@ -161,24 +206,59 @@ public:
         {
             events.Update(diff);
 
-            if (!UpdateVictim())
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                while (uint32 eventId = events.ExecuteEvent())
+                switch (eventId)
                 {
-                    switch (eventId)
+                    case EVENT_RESPAWN:
                     {
-                        case EVENT_RESPAWN:
-                            std::list<Creature*> creatureList;
-                            GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
-                            for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
-                                if (Creature* creatureList = *itr)
-                                    if (!creatureList->IsAlive())
-                                        creatureList->Respawn();
-                            break;
+                        // Respawn all Blackhand Incarcerators
+                        std::list<Creature*> creatureList;
+                        GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
+                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                            if (Creature* creatureList = *itr)
+                                if (!creatureList->IsAlive())
+                                    creatureList->Respawn();
+                        break;
                     }
+                    case EVENT_PRE_FIGHT_1:
+                    {
+                        // Set data on all Blackhand Incarcerators
+                        std::list<Creature*> creatureList;
+                        GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
+                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                            if (Creature* creatureList = *itr)
+                                creatureList->AI()->SetData(1, 1);
+
+                        // Lock Blackrock Altar
+                        if (GameObject* altar = me->GetMap()->GetGameObject(instance->GetData64(GO_BLACKROCK_ALTAR)))
+                            altar->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        events.ScheduleEvent(EVENT_PRE_FIGHT_2, 32000);
+                        break;
+                    }
+                    case EVENT_PRE_FIGHT_2:
+                        me->CastSpell(me, SPELL_FREEZE_ANIM);
+                        me->CastSpell(me, SPELL_EMBERSEER_GROWING);
+                        Talk(EMOTE_ONE_STACK);
+                        break;
+                    case EVENT_RESET_ALTAR:
+                        if (GameObject* altar = me->GetMap()->GetGameObject(instance->GetData64(GO_BLACKROCK_ALTAR)))
+                            altar->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        break;
+                    case EVENT_FIRE_SHIELD:
+                        DoCast(SPELL_FIRE_SHIELD);
+                        events.ScheduleEvent(SPELL_FIRE_SHIELD, 3000);
+                        break;
+                    case EVENT_PLAYER_CHECK:
+                        // TODO add check to ensure all players are clicking altar
+                        events.ScheduleEvent(EVENT_PRE_FIGHT_1, 1000);
+                        instance->SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
+                        break;
                 }
-                return;
             }
+
+            if (!UpdateVictim())
+                return;
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -211,16 +291,9 @@ public:
 ## npc_blackhand_incarcerator
 ####*/
 
-enum IncarceratorSpells
-{
-    SPELL_ENCAGE_EMBERSEER          = 15281, // Emberseer on spawn
-    SPELL_STRIKE                    = 15580, // Combat
-    SPELL_ENCAGE                    = 16045  // Combat
-};
-
 enum IncarceratorEvents
 {
-    // Out of combat
+    // OOC
     EVENT_ENCAGED_EMBERSEER         = 1,
     // Combat
     EVENT_STRIKE                    = 2,
@@ -239,7 +312,6 @@ public:
         void Reset()
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
-
             _events.ScheduleEvent(EVENT_ENCAGED_EMBERSEER, 1000);
         }
 
@@ -253,13 +325,17 @@ public:
             if (data == 1 && value == 1)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
-                me->RemoveAura(SPELL_ENCAGE_EMBERSEER);
-                // ### TODO attack nearest target ###
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                _events.CancelEvent(EVENT_ENCAGED_EMBERSEER);
             }
-
         }
+
         void EnterCombat(Unit* /*who*/)
         {
+            // Used to close doors
+            if (Creature* Emberseer = me->FindNearestCreature(NPC_PYROGAURD_EMBERSEER, 30.0f, true))
+                Emberseer->AI()->SetData(1, 2);
+
             _events.ScheduleEvent(EVENT_STRIKE, urand(8000, 16000));
             _events.ScheduleEvent(EVENT_ENCAGE, urand(10000, 20000));
         }
@@ -275,10 +351,11 @@ public:
                     switch (eventId)
                     {
                         case EVENT_ENCAGED_EMBERSEER:
-                            if(!me->HasAura(SPELL_ENCAGE_EMBERSEER))
-                                if (Creature* Emberseer = me->FindNearestCreature(NPC_PYROGAURD_EMBERSEER, 30.0f, true))
-                                    DoCast(Emberseer, SPELL_ENCAGE_EMBERSEER);
-                            _events.ScheduleEvent(EVENT_ENCAGED_EMBERSEER, 1000);
+                            if(me->GetPositionX() == me->GetHomePosition().GetPositionX())
+                                if(!me->HasAura(SPELL_ENCAGE_EMBERSEER))
+                                    if (Creature* Emberseer = me->FindNearestCreature(NPC_PYROGAURD_EMBERSEER, 30.0f, true))
+                                        DoCast(Emberseer, SPELL_ENCAGE_EMBERSEER);
+                            _events.ScheduleEvent(EVENT_ENCAGED_EMBERSEER, 5000);
                             break;
                     }
                 }

@@ -20,7 +20,7 @@
 
 uint32 const EncounterCount         = 22;
 
-#define UBRSScriptName "instance_blackrock_spire"
+#define BRSScriptName "instance_blackrock_spire"
 
 enum DataTypes
 {
@@ -91,7 +91,7 @@ enum GameObjectsIds
     GO_GYTH_EXIT_DOOR               = 175186,
     GO_DRAKKISATH_DOOR_1            = 175946,
     GO_DRAKKISATH_DOOR_2            = 175947,
-    GO_BLACKROCK_ALTAR              = 175706,
+    GO_BLACKROCK_ALTAR              = 175706, // Altar used to start Pyroguard Emberseer event
     // Runes in dragonspire hall
     GO_ROOM_1_RUNE                  = 175197,
     GO_ROOM_2_RUNE                  = 175199,
