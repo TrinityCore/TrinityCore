@@ -53,7 +53,8 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEM_EARTHBIND_TOTEM          = 6474,
     SPELL_SHAMAN_TOTEM_EARTHEN_POWER            = 59566,
     SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL      = 52042,
-	SPELL_SHAMAN_TIDAL_WAVES                    = 53390
+	SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
+	SPELL_SHAMAN_EARTHLIVING                    = 51945
 };
 
 enum ShamanSpellIcons
@@ -796,6 +797,41 @@ class spell_sha_tidal_waves : public SpellScriptLoader
         }
 };
 
+class spell_sha_earthliving : public SpellScriptLoader
+{
+    public:
+        spell_sha_earthliving() : SpellScriptLoader("spell_sha_earthliving") { }
+        
+		class spell_sha_earthliving_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_earthliving_AuraScript);
+			bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHLIVING))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                int32 basePoints0 = aurEff->GetAmount();
+                int32 basePoints1 = aurEff->GetAmount();
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_EARTHLIVING, &basePoints0, &basePoints1, NULL, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_earthliving_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_earthliving_AuraScript();
+        }
+};
+
 // 73920 - Healing Rain
 class spell_sha_healing_rain : public SpellScriptLoader
 {
@@ -846,4 +882,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mana_tide_totem();
     new spell_sha_thunderstorm();
 	new spell_sha_tidal_waves();
+	new spell_sha_earthliving();
 }
