@@ -16,37 +16,49 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Vaelastrasz
-SD%Complete: 75
-SDComment: Burning Adrenaline not correctly implemented in core
-SDCategory: Blackwing Lair
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "blackwing_lair.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
 
 enum Says
 {
-   SAY_LINE1           = 0,
-   SAY_LINE2           = 1,
-   SAY_LINE3           = 2,
-   SAY_HALFLIFE        = 3,
-   SAY_KILLTARGET      = 4
+   SAY_LINE1                         = 0,
+   SAY_LINE2                         = 1,
+   SAY_LINE3                         = 2,
+   SAY_HALFLIFE                      = 3,
+   SAY_KILLTARGET                    = 4
 };
 
-#define GOSSIP_ITEM         "Start Event <Needs Gossip Text>"
+enum Gossip
+{
+   GOSSIP_ID                         = 21334,
+};
 
 enum Spells
 {
-   SPELL_ESSENCEOFTHERED       = 23513,
-   SPELL_FLAMEBREATH           = 23461,
-   SPELL_FIRENOVA              = 23462,
-   SPELL_TAILSWIPE             = 15847,
-   SPELL_BURNINGADRENALINE     = 23620,
-   SPELL_CLEAVE                = 20684   //Chain cleave is most likely named something different and contains a dummy effect
+   SPELL_ESSENCEOFTHERED             = 23513,
+   SPELL_FLAMEBREATH                 = 23461,
+   SPELL_FIRENOVA                    = 23462,
+   SPELL_TAILSWIPE                   = 15847,
+   SPELL_BURNINGADRENALINE           = 23620,
+   SPELL_CLEAVE                      = 20684   //Chain cleave is most likely named something different and contains a dummy effect
+};
+
+enum Events
+{
+    EVENT_SPEECH_1                  = 1,
+    EVENT_SPEECH_2                  = 2,
+    EVENT_SPEECH_3                  = 3,
+    EVENT_SPEECH_4                  = 4,
+    EVENT_ESSENCEOFTHERED           = 5,
+    EVENT_FLAMEBREATH               = 6,
+    EVENT_FIRENOVA                  = 7,
+    EVENT_TAILSWIPE                 = 8,
+    EVENT_CLEAVE                    = 9,
+    EVENT_BURNINGADRENALINE_CASTER  = 10,
+    EVENT_BURNINGADRENALINE_TANK    = 11
 };
 
 class boss_vaelastrasz : public CreatureScript
@@ -54,89 +66,47 @@ class boss_vaelastrasz : public CreatureScript
 public:
     boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }
 
-    void SendDefaultMenu(Player* player, Creature* creature, uint32 action)
+    struct boss_vaelAI : public BossAI
     {
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
-        {
-            player->CLOSE_GOSSIP_MENU();
-            CAST_AI(boss_vaelastrasz::boss_vaelAI, creature->AI())->BeginSpeech(player);
-        }
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (sender == GOSSIP_SENDER_MAIN)
-            SendDefaultMenu(player, creature, action);
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(907, creature->GetGUID());
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_vaelAI (creature);
-    }
-
-    struct boss_vaelAI : public ScriptedAI
-    {
-        boss_vaelAI(Creature* creature) : ScriptedAI(creature)
+        boss_vaelAI(Creature* creature) : BossAI(creature, BOSS_VAELASTRAZ)
         {
             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             creature->setFaction(35);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        uint64 PlayerGUID;
-        uint32 SpeechTimer;
-        uint32 SpeechNum;
-        uint32 Cleave_Timer;
-        uint32 FlameBreath_Timer;
-        uint32 FireNova_Timer;
-        uint32 BurningAdrenalineCaster_Timer;
-        uint32 BurningAdrenalineTank_Timer;
-        uint32 TailSwipe_Timer;
-        bool HasYelled;
-        bool DoingSpeech;
-
         void Reset()
         {
+            _Reset();
+
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
             PlayerGUID = 0;
-            SpeechTimer = 0;
-            SpeechNum = 0;
-            Cleave_Timer = 8000;                                // These times are probably wrong
-            FlameBreath_Timer = 11000;
-            BurningAdrenalineCaster_Timer = 15000;
-            BurningAdrenalineTank_Timer = 45000;
-            FireNova_Timer = 5000;
-            TailSwipe_Timer = 20000;
+
             HasYelled = false;
-            DoingSpeech = false;
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            _EnterCombat();
+
+            DoCast(me, SPELL_ESSENCEOFTHERED);
+            me->SetHealth(me->CountPctFromMaxHealth(30));
+            // now drop damage requirement to be able to take loot
+            me->ResetPlayerDamageReq();
+
+            events.ScheduleEvent(EVENT_CLEAVE, 10000);
+            events.ScheduleEvent(EVENT_FLAMEBREATH, 15000);
+            events.ScheduleEvent(EVENT_FIRENOVA, 20000);
+            events.ScheduleEvent(EVENT_TAILSWIPE, 11000);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
         }
 
         void BeginSpeech(Unit* target)
         {
-            //Stand up and begin speach
             PlayerGUID = target->GetGUID();
-
-            //10 seconds
-            Talk(SAY_LINE1);
-
-            SpeechTimer = 10000;
-            SpeechNum = 0;
-            DoingSpeech = true;
-
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            events.ScheduleEvent(EVENT_SPEECH_1, 1000);
         }
 
         void KilledUnit(Unit* victim)
@@ -147,53 +117,94 @@ public:
             Talk(SAY_KILLTARGET, victim->GetGUID());
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoCast(me, SPELL_ESSENCEOFTHERED);
-            DoZoneInCombat();
-            me->SetHealth(me->CountPctFromMaxHealth(30));
-            // now drop damage requirement to be able to take loot
-            me->ResetPlayerDamageReq();
-        }
-
         void UpdateAI(uint32 diff)
         {
-            //Speech
-            if (DoingSpeech)
+            events.Update(diff);
+
+            // Speech
+            if (!UpdateVictim())
             {
-                if (SpeechTimer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (SpeechNum)
+                    switch (eventId)
                     {
-                        case 0:
-                            //16 seconds till next line
+                        case EVENT_SPEECH_1:
+                            Talk(SAY_LINE1);
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                            events.ScheduleEvent(EVENT_SPEECH_2, 12000);
+                            break;
+                        case EVENT_SPEECH_2:
                             Talk(SAY_LINE2);
-                            SpeechTimer = 16000;
-                            ++SpeechNum;
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                            events.ScheduleEvent(EVENT_SPEECH_3, 12000);
                             break;
-                        case 1:
-                            //This one is actually 16 seconds but we only go to 10 seconds because he starts attacking after he says "I must fight this!"
+                        case EVENT_SPEECH_3:
                             Talk(SAY_LINE3);
-                            SpeechTimer = 10000;
-                            ++SpeechNum;
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                            events.ScheduleEvent(EVENT_SPEECH_4, 16000);
                             break;
-                        case 2:
+                        case EVENT_SPEECH_4:
                             me->setFaction(103);
                             if (PlayerGUID && Unit::GetUnit(*me, PlayerGUID))
-                            {
-                                AttackStart(Unit::GetUnit(*me, PlayerGUID));
-                                DoCast(me, SPELL_ESSENCEOFTHERED);
-                            }
-                            SpeechTimer = 0;
-                            DoingSpeech = false;
+                                AttackStart(Unit::GetUnit(*me, PlayerGUID));;
                             break;
                     }
-                } else SpeechTimer -= diff;
+                }
+                return;
             }
 
-            //Return since we have no target
-            if (!UpdateVictim())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CLEAVE:
+                        events.ScheduleEvent(EVENT_CLEAVE, 15000);
+                        DoCastVictim(SPELL_CLEAVE);
+                        break;
+                    case EVENT_FLAMEBREATH:
+                        DoCastVictim(SPELL_FLAMEBREATH);
+                        events.ScheduleEvent(EVENT_FLAMEBREATH, urand(8000, 14000));
+                        break;
+                    case EVENT_FIRENOVA:
+                        DoCastVictim(SPELL_FIRENOVA);
+                        events.ScheduleEvent(EVENT_FIRENOVA, 15000);
+                        break;
+                    case EVENT_TAILSWIPE:
+                        //Only cast if we are behind
+                        /*if (!me->HasInArc(M_PI, me->GetVictim()))
+                        {
+                        DoCast(me->GetVictim(), SPELL_TAILSWIPE);
+                        }*/
+                        events.ScheduleEvent(EVENT_TAILSWIPE, 15000);
+                        break;
+                    case EVENT_BURNINGADRENALINE_CASTER:
+                        {
+                            Unit* target = NULL;
+
+                            uint8 i = 0;
+                            while (i < 3)   // max 3 tries to get a random target with power_mana
+                            {
+                                ++i;
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); // not aggro leader
+                                if (target && target->getPowerType() == POWER_MANA)
+                                    i = 3;
+                            }
+                            if (target)                                     // cast on self (see below)
+                                target->CastSpell(target, SPELL_BURNINGADRENALINE, true);
+                        }
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
+                        break;
+                    case EVENT_BURNINGADRENALINE_TANK:
+                        // have the victim cast the spell on himself otherwise the third effect aura will be applied to Vael instead of the player
+                        me->GetVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
+                        break;
+                }
+            }
 
             // Yell if hp lower than 15%
             if (HealthBelowPct(15) && !HasYelled)
@@ -202,74 +213,30 @@ public:
                 HasYelled = true;
             }
 
-            //Cleave_Timer
-            if (Cleave_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CLEAVE);
-                Cleave_Timer = 15000;
-            } else Cleave_Timer -= diff;
-
-            //FlameBreath_Timer
-            if (FlameBreath_Timer <= diff)
-            {
-                DoCastVictim(SPELL_FLAMEBREATH);
-                FlameBreath_Timer = urand(4000, 8000);
-            } else FlameBreath_Timer -= diff;
-
-            //BurningAdrenalineCaster_Timer
-            if (BurningAdrenalineCaster_Timer <= diff)
-            {
-                Unit* target = NULL;
-
-                uint8 i = 0;
-                while (i < 3)   // max 3 tries to get a random target with power_mana
-                {
-                    ++i;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); //not aggro leader
-                    if (target && target->getPowerType() == POWER_MANA)
-                            i = 3;
-                }
-                if (target)                                     // cast on self (see below)
-                    target->CastSpell(target, SPELL_BURNINGADRENALINE, 1);
-
-                BurningAdrenalineCaster_Timer = 15000;
-            } else BurningAdrenalineCaster_Timer -= diff;
-
-            //BurningAdrenalineTank_Timer
-            if (BurningAdrenalineTank_Timer <= diff)
-            {
-                // have the victim cast the spell on himself otherwise the third effect aura will be applied
-                // to Vael instead of the player
-                me->GetVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, 1);
-
-                BurningAdrenalineTank_Timer = 45000;
-            } else BurningAdrenalineTank_Timer -= diff;
-
-            //FireNova_Timer
-            if (FireNova_Timer <= diff)
-            {
-                DoCastVictim(SPELL_FIRENOVA);
-                FireNova_Timer = 5000;
-            } else FireNova_Timer -= diff;
-
-            //TailSwipe_Timer
-            if (TailSwipe_Timer <= diff)
-            {
-                //Only cast if we are behind
-                /*if (!me->HasInArc(M_PI, me->GetVictim()))
-                {
-                DoCastVictim(SPELL_TAILSWIPE);
-                }*/
-
-                TailSwipe_Timer = 20000;
-            } else TailSwipe_Timer -= diff;
-
             DoMeleeAttackIfReady();
         }
+
+        void sGossipSelect(Player* player, uint32 sender, uint32 action)
+        {
+            if (sender == GOSSIP_ID && action == 0)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                BeginSpeech(player);
+            }
+        }
+
+        private:
+            uint64 PlayerGUID;
+            bool HasYelled;
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_vaelAI (creature);
+    }
 };
 
-void AddSC_boss_vael()
+void AddSC_boss_vaelastrasz()
 {
     new boss_vaelastrasz();
 }
