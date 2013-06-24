@@ -127,15 +127,23 @@ int Master::Run()
     TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
     TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, " ______                       __");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "/\\__  _\\       __          __/\\ \\__");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "                                 C O R E  /\\___/");
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "http://TrinityCore.org                    \\/__/\n");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "       __________   ___         ___   ______");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "      /  _______/\\ /  /\\       /  /\\ /  __  \\");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "     /  /\\______\\//  / /      /  / //  /\\_\\  \\");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "    /  /_/____   /  / /      /  / //  / / /  /\\");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "   /_______  /\\ /  / /      /  / //  / / /  / /");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "   \\______/ / //  / / __   /  / //  / / /  / /");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, " ________/ / //  /_/_/ /__/  / //  /_/_/  / /");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "/_________/ / \\_____/\\/\\____/ //_________/ /");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "\\_________\\/   \\____\\/  \\___\\/ \\_________\\/");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "      ______     _______   ______      ________");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "     /  ___ \\   / ___  /\\ /  __  \\    /  ___   /\\");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "    /  /\\_/_/\\ / /  / / //  / /  /\\  /  /__/  / /");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "   /  / / \\_\\// /  / / //  /_/  / / /  ______/ /");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "  /  / /__   / /  / / //  __   / / /  /\\_____\\/");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, " /  /_// /\\ / /__/ / //  /\\ \\  \\/ /  /_/___");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "/_______/ //______/ //__/ / /__/\\/________/\\");
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "\\_______\\/ \\______\\/ \\__\\/  \\__\\/\\________\\/ ");
 
     /// worldserver PID file creation
     std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
