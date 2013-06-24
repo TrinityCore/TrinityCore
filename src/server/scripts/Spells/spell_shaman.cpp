@@ -796,6 +796,34 @@ class spell_sha_tidal_waves : public SpellScriptLoader
         }
 };
 
+// 73920 - Healing Rain
+class spell_sha_healing_rain : public SpellScriptLoader
+{
+public:
+    spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
+
+    class spell_sha_healing_rain_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_healing_rain_AuraScript);
+
+        void OnTick(AuraEffect const* /*aurEff*/)
+        {
+            if (DynamicObject* dynObj = GetCaster()->GetDynObject(73920))
+                GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 73921, true);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_healing_rain_AuraScript();
+    }
+};
+
 
 
 void AddSC_shaman_spell_scripts()
@@ -809,6 +837,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_feedback();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
+	new spell_sha_healing_rain();
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();
     new spell_sha_lava_lash();
