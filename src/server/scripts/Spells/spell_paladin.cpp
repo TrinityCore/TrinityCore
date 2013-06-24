@@ -703,8 +703,8 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_FORBEARANCE))
                     return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_AVENGING_WRATH_MARKER))
-                    return false;
+                /*if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_AVENGING_WRATH_MARKER))
+                    return false; // empty spell cata*/
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
                     return false;
                 return true;
