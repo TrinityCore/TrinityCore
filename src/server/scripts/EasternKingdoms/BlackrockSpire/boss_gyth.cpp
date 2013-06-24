@@ -25,7 +25,7 @@ enum Spells
     SPELL_CORROSIVE_ACID            = 20667,
     SPELL_FREEZE                    = 18763,
     SPELL_FLAMEBREATH               = 20712,
-    SPELL_SELF_ROOT_FOREVER         = 33356,
+    SPELL_SELF_ROOT_FOREVER         = 33356
 };
 
 enum Adds
@@ -34,7 +34,7 @@ enum Adds
     NPC_RAGE_TALON_FIRE_TONG        = 10372,
     NPC_CHROMATIC_WHELP             = 10442,
     NPC_CHROMATIC_DRAGONSPAWN       = 10447,
-    NPC_BLACKHAND_ELITE             = 10317,
+    NPC_BLACKHAND_ELITE             = 10317
 };
 
 enum Events
@@ -45,7 +45,7 @@ enum Events
     EVENT_SUMMON_ORC_PACK           = 4,
     EVENT_CORROSIVE_ACID            = 5,
     EVENT_FREEZE                    = 6,
-    EVENT_FLAME_BREATH              = 7,
+    EVENT_FLAME_BREATH              = 7
 };
 
 class boss_gyth : public CreatureScript
@@ -74,9 +74,9 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_SUMMON_DRAGON_PACK, 3 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SUMMON_ORC_PACK, 60 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_AGGRO, 60 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUMMON_DRAGON_PACK, 3000);
+            events.ScheduleEvent(EVENT_SUMMON_ORC_PACK, 60000);
+            events.ScheduleEvent(EVENT_AGGRO, 60000);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -99,7 +99,7 @@ public:
 
             if (!SummonedRend && HealthBelowPct(11))
             {
-                events.ScheduleEvent(EVENT_SUMMON_REND, 8 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_REND, 8000);
                 SummonedRend = true;
             }
 
