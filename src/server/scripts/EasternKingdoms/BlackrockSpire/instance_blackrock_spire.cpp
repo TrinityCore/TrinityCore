@@ -35,7 +35,7 @@ enum EventIds
 class instance_blackrock_spire : public InstanceMapScript
 {
 public:
-    instance_blackrock_spire() : InstanceMapScript(UBRSScriptName, 229) { }
+    instance_blackrock_spire() : InstanceMapScript(BRSScriptName, 229) { }
 
     struct instance_blackrock_spireMapScript : public InstanceScript
     {
@@ -61,6 +61,7 @@ public:
             go_emberseerin          = 0;
             go_doors                = 0;
             go_emberseerout         = 0;
+            go_blackrockaltar       = 0;
         }
 
         void OnPlayerEnter(Player* /*player*/)
@@ -155,6 +156,11 @@ public:
                     go_emberseerout = go->GetGUID();
                     if ((GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE))
                         go->SetGoState(GO_STATE_ACTIVE);
+                    break;
+                case GO_BLACKROCK_ALTAR:
+                    go_blackrockaltar = go->GetGUID();
+                    if ((GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE))
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     break;
                 case GO_ROOM_1_RUNE:
                     go_roomrunes[0] = go->GetGUID();
@@ -326,6 +332,9 @@ public:
                     break;
                 case GO_EMBERSEER_OUT:
                     return go_emberseerout;
+                    break;
+                case GO_BLACKROCK_ALTAR:
+                    return go_blackrockaltar;
                     break;
                 case GO_ROOM_1_RUNE:
                     return go_roomrunes[0];
@@ -548,6 +557,7 @@ public:
             uint64 go_emberseerin;
             uint64 go_doors;
             uint64 go_emberseerout;
+            uint64 go_blackrockaltar;
             uint64 go_roomrunes[7];
             uint64 go_emberseerrunes[7];
             uint64 runecreaturelist[7] [5];
