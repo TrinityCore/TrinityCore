@@ -251,10 +251,23 @@ public:
                         events.ScheduleEvent(SPELL_FIRE_SHIELD, 3000);
                         break;
                     case EVENT_PLAYER_CHECK:
-                        // #### TODO Check to see if all players in instance have aura SPELL_EMBERSEER_START ####
-                        // #### If true do following events ####
-                        events.ScheduleEvent(EVENT_PRE_FIGHT_1, 1000);
-                        instance->SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
+                        {
+                            // Check to see if all players in instance have aura SPELL_EMBERSEER_START before starting event
+                            bool _hasAura = true;
+                            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                if (Player* player = itr->GetSource()->ToPlayer())
+                                    if (!player->HasAura(SPELL_EMBERSEER_START))
+                                        _hasAura = false;
+
+                            if (_hasAura)
+                            {
+                                events.ScheduleEvent(EVENT_PRE_FIGHT_1, 1000);
+                                instance->SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
+                            }
+                        break;
+                        }
+                    default:
                         break;
                 }
             }
@@ -270,11 +283,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FIRENOVA:
-                        DoCastVictim(SPELL_FIRENOVA);
+                        DoCast(SPELL_FIRENOVA);
                         events.ScheduleEvent(EVENT_FIRENOVA, 6000);
                         break;
                     case EVENT_FLAMEBUFFET:
-                        DoCastVictim(SPELL_FLAMEBUFFET);
+                        DoCast(SPELL_FLAMEBUFFET);
                         events.ScheduleEvent(EVENT_FLAMEBUFFET, 14000);
                         break;
                     case EVENT_PYROBLAST:
