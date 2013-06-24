@@ -18,8 +18,9 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "blackrock_spire.h"
+#include "Player.h"
 #include "Spell.h"
+#include "blackrock_spire.h"
 
 enum Text
 {
