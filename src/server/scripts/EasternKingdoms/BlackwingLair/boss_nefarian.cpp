@@ -161,12 +161,10 @@ public:
 
         void Reset()
         {
-            if(me->GetMapId() == 229)
-            {
+            if (me->GetMapId() == 229)
                 events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
-            }
 
-            if(me->GetMapId() == 469)
+            if (me->GetMapId() == 469)
             {
                 if (!me->FindNearestCreature(NPC_NEFARIAN, 1000.0f, true))
                     _Reset();
@@ -220,14 +218,14 @@ public:
         {
             events.Update(diff);
 
-            if(me->GetMapId() == 229) // UBRS EVENTS
+            if (me->GetMapId() == 229) // UBRS EVENTS
             {
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_PLAYER_CHECK:
-                            if (Unit* player = SelectTarget(SELECT_TARGET_NEAREST, 0, 30.0f, false))
+                            if (SelectTarget(SELECT_TARGET_NEAREST, 0, 30.0f, true))
                                 events.ScheduleEvent(EVENT_GYTH_REND_1, 1000);
                             else
                                 events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
@@ -262,7 +260,7 @@ public:
                 }
             }
 
-            if(me->GetMapId() != 469)
+            if (me->GetMapId() != 469)
                 return;
 
             // Only do this if we haven't spawned nefarian yet
@@ -378,7 +376,7 @@ public:
             canDespawn = true;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_SHADOWFLAME, 12000);
             events.ScheduleEvent(EVENT_FEAR, urand(25000, 35000));
