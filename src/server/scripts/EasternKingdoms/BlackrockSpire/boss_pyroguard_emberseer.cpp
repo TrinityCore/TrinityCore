@@ -167,8 +167,10 @@ public:
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
             if (spell->Id == SPELL_ENCAGE_EMBERSEER)
-                if (me->GetAuraCount(SPELL_ENCAGED_EMBERSEER) == 0)
-                    DoCast(me, SPELL_ENCAGED_EMBERSEER);
+            {
+                if (!me->GetAuraCount(SPELL_ENCAGED_EMBERSEER))
+                    me->CastSpell(me, SPELL_ENCAGED_EMBERSEER);
+            }
 
             if (spell->Id == SPELL_EMBERSEER_GROWING_TRIGGER)
             {
