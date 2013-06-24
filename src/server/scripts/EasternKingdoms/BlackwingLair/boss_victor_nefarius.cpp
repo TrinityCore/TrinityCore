@@ -30,9 +30,21 @@ EndScriptData */
 
 enum Says
 {
-    SAY_GAMESBEGIN_1        = 0,
-    SAY_GAMESBEGIN_2        = 1,
-  //SAY_VAEL_INTRO          = 2, Not used - when he corrupts Vaelastrasz
+    // UBRS text
+    SAY_GYTH_REND_1         = 0,
+    SAY_GYTH_REND_2         = 1,
+    SAY_GYTH_REND_3         = 2,
+    SAY_GYTH_REND_4         = 3,
+    SAY_GYTH_REND_5         = 4,
+    SAY_GYTH_REND_6         = 5,
+    SAY_GYTH_REND_7         = 6,
+    SAY_GYTH_REND_8         = 7,
+    SAY_GYTH_REND_9         = 8,
+    SAY_GYTH_REND_10        = 9,
+    // BWL text
+    SAY_GAMESBEGIN_1        = 10,
+    SAY_GAMESBEGIN_2        = 11,
+  //SAY_VAEL_INTRO          = 12, Not used - when he corrupts Vaelastrasz
 };
 
 #define GOSSIP_ITEM_1           "I've made no mistakes."
@@ -41,6 +53,7 @@ enum Says
 
 enum Creatures
 {
+    NPC_REND_BLACKHAND              = 10429,
     CREATURE_BRONZE_DRAKANOID       = 14263,
     CREATURE_BLUE_DRAKANOID         = 14261,
     CREATURE_RED_DRAKANOID          = 14264,
@@ -68,8 +81,23 @@ enum Creatures
 
 enum Spells
 {
-   SPELL_SHADOWBOLT        = 21077,
-   SPELL_FEAR              = 26070
+   // UBRS Spells
+   SPELL_CHROMATIC_CHAOS            = 16337, // Self Cast hits 10339
+   SPELL_VAELASTRASZZ_SPAWN         = 16354, // Self Cast Depawn one sec after
+   // BWL Spells
+   SPELL_SHADOWBOLT                 = 21077,
+   SPELL_FEAR                       = 26070
+};
+
+enum Events
+{
+    // UBRS Events
+    EVENT_PLAYER_CHECK              = 0,
+    EVENT_GYTH_REND_1               = 1,
+    EVENT_GYTH_REND_2               = 2,
+    EVENT_GYTH_REND_3               = 3,
+    EVENT_GYTH_REND_4               = 4,
+    EVENT_GYTH_REND_5               = 5,
 };
 
 //This script is complicated
@@ -178,6 +206,11 @@ public:
 
         void Reset()
         {
+            if(me->GetMapId() == 229)
+            {
+                _events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
+            }
+
             if(me->GetMapId() == 469)
             {
                 SpawnedAdds = 0;
@@ -229,6 +262,51 @@ public:
 
         void UpdateAI(uint32 diff)
         {
+
+            if(me->GetMapId() == 229) // UBRS EVENTS
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_PLAYER_CHECK:
+                            // If player found within 30.0f
+                                // _events.ScheduleEvent(EVENT_GYTH_REND_1, 1000);
+                            // else
+                            // events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
+                            break;
+                        case EVENT_GYTH_REND_1:
+                            Talk(SAY_GYTH_REND_1);
+                            _events.ScheduleEvent(EVENT_GYTH_REND_2, 4000);
+                            break;
+                        case EVENT_GYTH_REND_2:
+                            if (Unit* player = SelectTarget(SELECT_TARGET_NEAREST, 0, 30.0f, false))
+                                me->SetInFront(player);
+                            me->SendMovementFlagUpdate();
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+                            _events.ScheduleEvent(EVENT_GYTH_REND_3, 4000);
+                            break;
+                        case EVENT_GYTH_REND_3:
+                            Talk(SAY_GYTH_REND_2);
+                            _events.ScheduleEvent(EVENT_GYTH_REND_4, 4000);
+                            break;
+                        case EVENT_GYTH_REND_4:
+                            if (Creature* rend = me->FindNearestCreature(NPC_REND_BLACKHAND, 5.0f, true))
+                                me->SetInFront(rend);
+                            me->SendMovementFlagUpdate();
+                            _events.ScheduleEvent(EVENT_GYTH_REND_5, 4000);
+                            break;
+                        case EVENT_GYTH_REND_5:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                            _events.ScheduleEvent(EVENT_GYTH_REND_5, 4000);
+                        default:
+                            break;
+                    }
+                }
+            }
+
             if (!UpdateVictim())
                 return;
 
@@ -348,6 +426,10 @@ public:
         }
 
         private:
+            EventMap _events;
+            // UBRS
+
+            // BWL
             uint32 SpawnedAdds;
             uint32 AddSpawnTimer;
             uint32 ShadowBoltTimer;
