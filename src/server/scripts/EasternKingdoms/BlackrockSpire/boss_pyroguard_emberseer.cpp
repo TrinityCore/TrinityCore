@@ -19,7 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "blackrock_spire.h"
-#include "SpellAuraEffects.h"
+#include "Spell.h"
 
 enum Text
 {
@@ -72,11 +72,6 @@ class boss_pyroguard_emberseer : public CreatureScript
 {
 public:
     boss_pyroguard_emberseer() : CreatureScript("boss_pyroguard_emberseer") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_pyroguard_emberseerAI(creature);
-    }
 
     struct boss_pyroguard_emberseerAI : public BossAI
     {
@@ -291,6 +286,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_pyroguard_emberseerAI(creature);
+    }
 };
 
 /*####
