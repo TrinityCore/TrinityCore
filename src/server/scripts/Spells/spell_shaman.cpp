@@ -47,6 +47,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 65264,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
+    SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
@@ -729,6 +730,44 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
         }
 };
 
+// 88756 - Rolling Thunder
+class spell_sha_rolling_thunder : public SpellScriptLoader
+{
+    public:
+        spell_sha_rolling_thunder() : SpellScriptLoader("spell_sha_rolling_thunder") { }
+
+        class spell_sha_rolling_thunder_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_rolling_thunder_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                if (Aura* aura = GetTarget()->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD))
+                {
+                    aura->SetCharges(std::min(aura->GetCharges() + 1, aurEff->GetAmount()));
+                    aura->RefreshDuration();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_rolling_thunder_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_rolling_thunder_AuraScript();
+        }
+};
+
 // 51490 - Thunderstorm
 class spell_sha_thunderstorm : public SpellScriptLoader
 {
@@ -813,6 +852,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
     new spell_sha_mana_tide_totem();
+    new spell_sha_rolling_thunder();
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
 }
