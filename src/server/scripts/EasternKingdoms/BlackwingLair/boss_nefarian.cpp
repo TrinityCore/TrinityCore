@@ -156,11 +156,6 @@ public:
             Reset();
         }
 
-        void SetData(uint32 type, uint32 data)
-        {
-
-        }
-
         void BeginEvent(Player* target)
         {
             _EnterCombat();
