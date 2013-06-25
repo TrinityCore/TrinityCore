@@ -82,7 +82,7 @@ public:
         {
             if (instance)
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
 
                 // Apply auras on spawn and reset
                 // DoCast(me, SPELL_FIRE_SHIELD_TRIGGER); // Need to find this in old DBC if possible
@@ -111,9 +111,7 @@ public:
         void SetData(uint32 type, uint32 data)
         {
             if (instance && type == 1 && data == 1)
-            {
                 events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
-            }
 
             if (instance && type == 1 && data == 2)
             {
