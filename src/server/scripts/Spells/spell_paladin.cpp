@@ -704,7 +704,7 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_FORBEARANCE))
                     return false;
                 /*if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_AVENGING_WRATH_MARKER))
-                    return false; // empty spell cata*/
+                    return false; // empty spell cataclisme*/
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
                     return false;
                 return true;
@@ -715,7 +715,7 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* target = GetExplTargetUnit())
                     if (caster == target)
-                        if (target->HasAura(SPELL_PALADIN_FORBEARANCE) || target->HasAura(SPELL_PALADIN_AVENGING_WRATH_MARKER) || target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
+                        if (target->HasAura(SPELL_PALADIN_FORBEARANCE) || target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
                             return SPELL_FAILED_TARGET_AURASTATE;
 
                 return SPELL_CAST_OK;
@@ -727,7 +727,6 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
                 if (caster == GetHitUnit())
                 {
                     caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
-                    caster->CastSpell(caster, SPELL_PALADIN_AVENGING_WRATH_MARKER, true);
                     caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
                 }
             }
