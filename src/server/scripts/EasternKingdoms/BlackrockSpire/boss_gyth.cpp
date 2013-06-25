@@ -66,7 +66,6 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            // Open doors
         }
 
         void IsSummonedBy(Unit* /*summoner*/)
