@@ -56,9 +56,9 @@ under Windows or cat *.sql > world_updates under Linux.
 
 You need to update your core (recompile and overwrite binaries) when updating
 your database, usually you can't use one older core with a newer database or a
-newer core with a older database.
+newer core with an older database.
 When updating your core you also need to import the files at sql/updates/auth
-and sql/updates/characters along with sql/updates/world files.
+and sql/updates/characters along with the sql/updates/world files.
 You can't merge all the sql files on sql/updates into a single file, because
 they belong to 3 different databases and they don't use database name.
 
@@ -76,5 +76,5 @@ if wiki refers to TDB 50 and you see TDB 52 get the higher number.
 Some reading skills, search forum, read http://www.trinitycore.org/f/topic/1518-
 and http://www.trinitycore.org/f/topic/37- before posting a bug report or ask for
 help on forum. 
-Search for existing bug reports before post your bug report, don't post multiple
+Search for existing bug reports before posting your own bug reports; don't post multiple
 bugs on a single ticket.
