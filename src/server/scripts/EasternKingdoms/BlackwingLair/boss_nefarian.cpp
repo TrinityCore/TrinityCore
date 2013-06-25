@@ -29,39 +29,16 @@ enum Events
     EVENT_SHADOW_BOLT          = 2,
     EVENT_FEAR                 = 3,
     EVENT_MIND_CONTROL         = 4,
-
-    // Victor Nefarius UBRS Events
-    EVENT_PLAYER_CHECK         = 5,
-    EVENT_GYTH_REND_1          = 6,
-    EVENT_GYTH_REND_2          = 7,
-    EVENT_GYTH_REND_3          = 8,
-    EVENT_GYTH_REND_4          = 9,
-    EVENT_GYTH_REND_5          = 10,
-    EVENT_GYTH_REND_6          = 11,
-
     // Nefarian
-    EVENT_SHADOWFLAME          = 12,
-    EVENT_VEILOFSHADOW         = 13,
-    EVENT_CLEAVE               = 14,
-    EVENT_TAILLASH             = 15,
-    EVENT_CLASSCALL            = 16
+    EVENT_SHADOWFLAME          = 5,
+    EVENT_VEILOFSHADOW         = 6,
+    EVENT_CLEAVE               = 7,
+    EVENT_TAILLASH             = 8,
+    EVENT_CLASSCALL            = 9
 };
 
 enum Says
 {
-    // Victor Nefarius
-    // UBRS text
-    SAY_GYTH_REND_1            = 0,
-    SAY_GYTH_REND_2            = 1,
-    SAY_GYTH_REND_3            = 2,
-    SAY_GYTH_REND_4            = 3,
-    SAY_GYTH_REND_5            = 4,
-    SAY_GYTH_REND_6            = 5,
-    SAY_GYTH_REND_7            = 6,
-    SAY_GYTH_REND_8            = 7,
-    SAY_GYTH_REND_9            = 8,
-    SAY_GYTH_REND_10           = 9,
-    // BWL text
     SAY_GAMESBEGIN_1           = 10,
     SAY_GAMESBEGIN_2           = 11,
  // SAY_VAEL_INTRO             = 12, Not used - when he corrupts Vaelastrasz
@@ -84,12 +61,6 @@ enum Says
     SAY_DEATH_KNIGHT           = 13
 };
 
-enum Gameobjects
-{
-    // UBRS
-    OBJECT_DR_PORTCULLIS       = 175185
-};
-
 enum Gossip
 {
    GOSSIP_ID                   = 21332,
@@ -97,9 +68,6 @@ enum Gossip
 
 enum Creatures
 {
-    // UBRS
-    NPC_REND_BLACKHAND         = 10429,
-    // BWL
     NPC_BRONZE_DRAKANOID       = 14263,
     NPC_BLUE_DRAKANOID         = 14261,
     NPC_RED_DRAKANOID          = 14264,
@@ -168,12 +136,6 @@ public:
 
         void Reset()
         {
-            if (me->GetMapId() == 229)
-            {
-                playerGUID = 0;
-                events.ScheduleEvent(EVENT_PLAYER_CHECK, 10000);
-            }
-
             if (me->GetMapId() == 469)
             {
                 if (!me->FindNearestCreature(NPC_NEFARIAN, 1000.0f, true))
@@ -192,6 +154,11 @@ public:
         void JustReachedHome()
         {
             Reset();
+        }
+
+        void SetData(uint32 type, uint32 data)
+        {
+
         }
 
         void BeginEvent(Player* target)
@@ -226,70 +193,11 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            events.Update(diff);
-
-            if (me->GetMapId() == 229) // UBRS EVENTS
-            {
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_PLAYER_CHECK:
-                        {
-                            Map::PlayerList const &players = me->GetMap()->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                if (Player* player = itr->GetSource()->ToPlayer())
-                                {
-                                    if (me->GetDistance(player) < 30.0f && player->IsAlive() && !player->IsGameMaster())
-                                    {
-                                        playerGUID = player->GetGUID();
-                                        me->SetInFront(player);
-                                        me->SendMovementFlagUpdate();
-                                        events.ScheduleEvent(EVENT_GYTH_REND_1, 1000);
-                                    }
-                                    else
-                                        events.ScheduleEvent(EVENT_PLAYER_CHECK, 10000);
-                                }
-                            break;
-                        }
-                        case EVENT_GYTH_REND_1:
-                            Talk(SAY_GYTH_REND_1);
-                            events.ScheduleEvent(EVENT_GYTH_REND_2, 4000);
-                            break;
-                        case EVENT_GYTH_REND_2:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
-                            events.ScheduleEvent(EVENT_GYTH_REND_3, 4000);
-                            break;
-                        case EVENT_GYTH_REND_3:
-                            Talk(SAY_GYTH_REND_2);
-                            events.ScheduleEvent(EVENT_GYTH_REND_4, 2000);
-                            break;
-                        case EVENT_GYTH_REND_4:
-                            if (GameObject* portcullis = me->FindNearestGameObject(OBJECT_DR_PORTCULLIS, 50.0f))
-                                portcullis->SetGoState(GO_STATE_READY);
-                            events.ScheduleEvent(EVENT_GYTH_REND_5, 2000);
-                            break;
-                        case EVENT_GYTH_REND_5:
-                            if (Creature* rend = me->FindNearestCreature(NPC_REND_BLACKHAND, 5.0f, true))
-                                me->SetInFront(rend);
-                            me->SendMovementFlagUpdate();
-                            events.ScheduleEvent(EVENT_GYTH_REND_5, 4000);
-                            break;
-                        case EVENT_GYTH_REND_6:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                            events.ScheduleEvent(EVENT_GYTH_REND_6, 4000);
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            if (me->GetMapId() != 469)
-                return;
-
             // Only do this if we haven't spawned nefarian yet
             if (UpdateVictim() && SpawnedAdds <= 42)
             {
+                events.Update(diff);
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -370,9 +278,6 @@ public:
         }
 
         private:
-            // UBRS
-            uint64 playerGUID;
-            // BWL
             uint32 SpawnedAdds;
     };
 
