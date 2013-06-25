@@ -55,7 +55,7 @@ enum Adds
     NPC_CHROMATIC_DRAGONSPAWN       = 10447,
     NPC_BLACKHAND_DRAGON_HANDLER    = 10742
 };
-
+/*
 struct Wave
 {
     uint32 entry;
@@ -105,7 +105,7 @@ static Wave Wave6[]= // 27 sec
     { 10442, 210.8935f, -423.913f,  111.0125f, 5.969026f  },
     { 10442, 212.2642f, -430.7648f, 110.9807f, 5.934119f  }
 };
-
+*/
 enum Events
 {
     EVENT_WHIRLWIND                 = 1,

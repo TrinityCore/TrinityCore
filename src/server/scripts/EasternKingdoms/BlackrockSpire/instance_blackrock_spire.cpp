@@ -448,22 +448,21 @@ public:
 
         void Dragonspireroomcheck()
         {
-            Creature* mob = 0;
-            GameObject* rune = 0;
+            Creature* mob = NULL;
+            GameObject* rune = NULL;
 
             for (uint8 i = 0; i < 7; ++i)
             {
                 bool _mobAlive = false;
-
-                if (rune = instance->GetGameObject(go_roomrunes[i]))
+                rune = instance->GetGameObject(go_roomrunes[i]);
+                if (rune && rune->GetGoState() == GO_STATE_ACTIVE)
                 {
-                    if (rune->GetGoState() == GO_STATE_ACTIVE)
-                        for (uint8 ii = 0; ii < 5; ++ii)
-                        {
-                            if (mob = instance->GetCreature(runecreaturelist[i] [ii]))
-                                if (mob->IsAlive())
-                                    _mobAlive = true;
-                        }
+                    for (uint8 ii = 0; ii < 5; ++ii)
+                    {
+                        mob = instance->GetCreature(runecreaturelist[i][ii]);
+                        if (mob && mob->IsAlive())
+                            _mobAlive = true;
+                    }
                 }
 
                 if (!_mobAlive && rune->GetGoState() == GO_STATE_ACTIVE)
@@ -582,7 +581,6 @@ public:
     {
         return new instance_blackrock_spireMapScript(map);
     }
-
 };
 
 /*#####
@@ -599,13 +597,14 @@ public:
         if (player && player->IsAlive())
         {
             if (InstanceScript* instance = player->GetInstanceScript())
+            {
                 instance->SetData(AREATRIGGER, AREATRIGGER_DRAGONSPIRE_HALL);
-                    return true;
+                return true;
+            }
         }
-        else
-            return false;
-    }
 
+        return false;
+    }
 };
 
 /*#####
@@ -621,15 +620,19 @@ public:
     {
         if (player && player->IsAlive())
         {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* rend = player->FindNearestCreature(NPC_REND_BLACKHAND, 50.0f))
-                    rend->AI()->SetData(AREATRIGGER, AREATRIGGER_BLACKROCK_STADIUM);
-                        return true;
-        }
-        else
-            return false;
-    }
+            InstanceScript* instance = player->GetInstanceScript();
+            if (!instance)
+                return false;
 
+            if (Creature* rend = player->FindNearestCreature(NPC_REND_BLACKHAND, 50.0f))
+            {
+                rend->AI()->SetData(AREATRIGGER, AREATRIGGER_BLACKROCK_STADIUM);
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 void AddSC_instance_blackrock_spire()
