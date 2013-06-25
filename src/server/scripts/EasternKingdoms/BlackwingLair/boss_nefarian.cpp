@@ -37,13 +37,14 @@ enum Events
     EVENT_GYTH_REND_3          = 8,
     EVENT_GYTH_REND_4          = 9,
     EVENT_GYTH_REND_5          = 10,
+    EVENT_GYTH_REND_6          = 11,
 
     // Nefarian
-    EVENT_SHADOWFLAME          = 11,
-    EVENT_VEILOFSHADOW         = 12,
-    EVENT_CLEAVE               = 13,
-    EVENT_TAILLASH             = 14,
-    EVENT_CLASSCALL            = 15
+    EVENT_SHADOWFLAME          = 12,
+    EVENT_VEILOFSHADOW         = 13,
+    EVENT_CLEAVE               = 14,
+    EVENT_TAILLASH             = 15,
+    EVENT_CLASSCALL            = 16
 };
 
 enum Says
@@ -81,6 +82,12 @@ enum Says
     SAY_HUNTER                 = 11,
     SAY_ROGUE                  = 12,
     SAY_DEATH_KNIGHT           = 13
+};
+
+enum Gameobjects
+{
+    // UBRS
+    OBJECT_DR_PORTCULLIS       = 175185
 };
 
 enum Gossip
@@ -162,7 +169,10 @@ public:
         void Reset()
         {
             if (me->GetMapId() == 229)
-                events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
+            {
+                playerGUID = 0;
+                events.ScheduleEvent(EVENT_PLAYER_CHECK, 10000);
+            }
 
             if (me->GetMapId() == 469)
             {
@@ -225,35 +235,49 @@ public:
                     switch (eventId)
                     {
                         case EVENT_PLAYER_CHECK:
-                            if (SelectTarget(SELECT_TARGET_NEAREST, 0, 30.0f, true))
-                                events.ScheduleEvent(EVENT_GYTH_REND_1, 1000);
-                            else
-                                events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
+                        {
+                            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                if (Player* player = itr->GetSource()->ToPlayer())
+                                {
+                                    if (me->GetDistance(player) < 30.0f && player->IsAlive() && !player->IsGameMaster())
+                                    {
+                                        playerGUID = player->GetGUID();
+                                        me->SetInFront(player);
+                                        me->SendMovementFlagUpdate();
+                                        events.ScheduleEvent(EVENT_GYTH_REND_1, 1000);
+                                    }
+                                    else
+                                        events.ScheduleEvent(EVENT_PLAYER_CHECK, 10000);
+                                }
                             break;
+                        }
                         case EVENT_GYTH_REND_1:
                             Talk(SAY_GYTH_REND_1);
                             events.ScheduleEvent(EVENT_GYTH_REND_2, 4000);
                             break;
                         case EVENT_GYTH_REND_2:
-                            if (Unit* player = SelectTarget(SELECT_TARGET_NEAREST, 0, 30.0f, false))
-                                me->SetInFront(player);
-                            me->SendMovementFlagUpdate();
                             me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
                             events.ScheduleEvent(EVENT_GYTH_REND_3, 4000);
                             break;
                         case EVENT_GYTH_REND_3:
                             Talk(SAY_GYTH_REND_2);
-                            events.ScheduleEvent(EVENT_GYTH_REND_4, 4000);
+                            events.ScheduleEvent(EVENT_GYTH_REND_4, 2000);
                             break;
                         case EVENT_GYTH_REND_4:
+                            if (GameObject* portcullis = me->FindNearestGameObject(OBJECT_DR_PORTCULLIS, 50.0f))
+                                portcullis->SetGoState(GO_STATE_READY);
+                            events.ScheduleEvent(EVENT_GYTH_REND_5, 2000);
+                            break;
+                        case EVENT_GYTH_REND_5:
                             if (Creature* rend = me->FindNearestCreature(NPC_REND_BLACKHAND, 5.0f, true))
                                 me->SetInFront(rend);
                             me->SendMovementFlagUpdate();
                             events.ScheduleEvent(EVENT_GYTH_REND_5, 4000);
                             break;
-                        case EVENT_GYTH_REND_5:
+                        case EVENT_GYTH_REND_6:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                            events.ScheduleEvent(EVENT_GYTH_REND_5, 4000);
+                            events.ScheduleEvent(EVENT_GYTH_REND_6, 4000);
                         default:
                             break;
                     }
@@ -346,6 +370,9 @@ public:
         }
 
         private:
+            // UBRS
+            uint64 playerGUID;
+            // BWL
             uint32 SpawnedAdds;
     };
 
