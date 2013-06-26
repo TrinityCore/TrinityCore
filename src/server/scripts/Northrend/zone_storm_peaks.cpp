@@ -26,103 +26,6 @@
 #include "Player.h"
 #include "WorldSession.h"
 
-/*######
-## npc_agnetta_tyrsdottar for QUEST_ITS_THAT_YOUR_GOBLIN 12969
-######*/
-
-enum eAgnetta
-{
-    FACTION_HOSTILE_AT1             = 45,
-    SAY_AGGRO                       = 0,
-    GOSSIP_ID                       = 9874,
-    GOSSIP_OPTION_ID                = 0
-};
-
-class npc_agnetta_tyrsdottar : public CreatureScript
-{
-public:
-    npc_agnetta_tyrsdottar() : CreatureScript("npc_agnetta_tyrsdottar") { }
-
-    struct npc_agnetta_tyrsdottarAI : public ScriptedAI
-    {
-        npc_agnetta_tyrsdottarAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
-        {
-            me->RestoreFaction();
-        }
-
-        void sGossipSelect(Player* player, uint32 sender, uint32 action)
-        {
-            if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                me->setFaction(FACTION_HOSTILE_AT1);
-                Talk(SAY_AGGRO);
-                AttackStart(player);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_agnetta_tyrsdottarAI(creature);
-    }
-};
-
-/*######
-## npc_frostborn_scout
-######*/
-
-#define GOSSIP_ITEM1    "Are you okay? I've come to take you back to Frosthold if you can stand."
-#define GOSSIP_ITEM2    "I'm sorry that I didn't get here sooner. What happened?"
-#define GOSSIP_ITEM3    "I'll go get some help. Hang in there."
-
-enum eFrostbornScout
-{
-    QUEST_MISSING_SCOUTS  =  12864
-};
-
-class npc_frostborn_scout : public CreatureScript
-{
-public:
-    npc_frostborn_scout() : CreatureScript("npc_frostborn_scout") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-
-        if (player->GetQuestStatus(QUEST_MISSING_SCOUTS) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->PlayerTalkClass->SendGossipMenu(13611, creature->GetGUID());
-        }
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->PlayerTalkClass->SendGossipMenu(13612, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            player->PlayerTalkClass->SendGossipMenu(13613, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+3:
-            player->PlayerTalkClass->SendGossipMenu(13614, creature->GetGUID());
-            player->AreaExploredOrEventHappens(QUEST_MISSING_SCOUTS);
-            break;
-        }
-
-        return true;
-    }
-};
-
 /////////////////////
 ///npc_injured_goblin
 /////////////////////
@@ -576,8 +479,6 @@ class spell_close_rift : public SpellScriptLoader
 
 void AddSC_storm_peaks()
 {
-    new npc_agnetta_tyrsdottar();
-    new npc_frostborn_scout();
     new npc_injured_goblin();
     new npc_roxi_ramrocket();
     new npc_brunnhildar_prisoner();
