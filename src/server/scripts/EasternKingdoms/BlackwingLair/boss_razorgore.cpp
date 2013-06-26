@@ -47,7 +47,7 @@ enum Summons
     NPC_ELITE_DRACHKIN      = 12422,
     NPC_ELITE_WARRIOR       = 12458,
     NPC_WARRIOR             = 12416,
-    NPC_MAGE                = 12402,
+    NPC_MAGE                = 12420,
     NPC_WARLOCK             = 12459,
 
     GO_EGG                  = 177807
