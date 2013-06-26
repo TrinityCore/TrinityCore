@@ -18,35 +18,35 @@
 #ifndef DEF_BLACKROCK_SPIRE_H
 #define DEF_BLACKROCK_SPIRE_H
 
-uint32 const EncounterCount         = 23;
+uint32 const EncounterCount         = 22;
 
 #define BRSScriptName "instance_blackrock_spire"
 
 enum DataTypes
 {
-    DATA_OMOKK                      = 1,
-    DATA_SHADOW_HUNTER_VOSHGAJIN    = 2,
-    DATA_WARMASTER_VOONE            = 3,
-    DATA_MOTHER_SMOLDERWEB          = 4,
-    DATA_UROK_DOOMHOWL              = 5,  // not scripted
-    DATA_QUARTERMASTER_ZIGRIS       = 6,
-    DATA_GIZRUL_THE_SLAVENER        = 7,  // not scripted
-    DATA_HALYCON                    = 8,
-    DATA_OVERLORD_WYRMTHALAK        = 9,
-    DATA_PYROGAURD_EMBERSEER        = 10,
-    DATA_WARCHIEF_REND_BLACKHAND    = 11,
-    DATA_GYTH                       = 12,
-    DATA_THE_BEAST                  = 13,
-    DATA_GENERAL_DRAKKISATH         = 14,
+    DATA_OMOKK                      = 0,
+    DATA_SHADOW_HUNTER_VOSHGAJIN    = 1,
+    DATA_WARMASTER_VOONE            = 2,
+    DATA_MOTHER_SMOLDERWEB          = 3,
+    DATA_UROK_DOOMHOWL              = 4,  // not scripted
+    DATA_QUARTERMASTER_ZIGRIS       = 5,
+    DATA_GIZRUL_THE_SLAVENER        = 6,  // not scripted
+    DATA_HALYCON                    = 7,
+    DATA_OVERLORD_WYRMTHALAK        = 8,
+    DATA_PYROGAURD_EMBERSEER        = 9,
+    DATA_WARCHIEF_REND_BLACKHAND    = 10,
+    DATA_GYTH                       = 11,
+    DATA_THE_BEAST                  = 12,
+    DATA_GENERAL_DRAKKISATH         = 13,
     // Extra
-    DATA_DRAGONSPIRE_ROOM           = 15,
-    DATA_HALL_RUNE_1                = 16,
-    DATA_HALL_RUNE_2                = 17,
-    DATA_HALL_RUNE_3                = 18,
-    DATA_HALL_RUNE_4                = 19,
-    DATA_HALL_RUNE_5                = 20,
-    DATA_HALL_RUNE_6                = 21,
-    DATA_HALL_RUNE_7                = 22
+    DATA_DRAGONSPIRE_ROOM           = 14,
+    DATA_HALL_RUNE_1                = 15,
+    DATA_HALL_RUNE_2                = 16,
+    DATA_HALL_RUNE_3                = 17,
+    DATA_HALL_RUNE_4                = 18,
+    DATA_HALL_RUNE_5                = 19,
+    DATA_HALL_RUNE_6                = 20,
+    DATA_HALL_RUNE_7                = 21
 };
 
 enum CreaturesIds
@@ -94,7 +94,6 @@ enum GameObjectsIds
     GO_GYTH_EXIT_DOOR               = 175186,
     GO_DRAKKISATH_DOOR_1            = 175946,
     GO_DRAKKISATH_DOOR_2            = 175947,
-    GO_BLACKROCK_ALTAR              = 175706, // Altar used to start Pyroguard Emberseer event
     // Runes in dragonspire hall
     GO_HALL_RUNE_1                  = 175197,
     GO_HALL_RUNE_2                  = 175199,
