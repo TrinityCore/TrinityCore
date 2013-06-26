@@ -22,10 +22,10 @@
 enum Spells
 {
     SPELL_REND_MOUNTS               = 16167, // Change model
-    SPELL_FREEZE                    = 16350, // Combat
-    SPELL_KNOCK_AWAY                = 10101, // Combat
-    SPELL_FLAMEBREATH               = 16390, // Combat (Self cast)
     SPELL_CORROSIVE_ACID            = 16359, // Combat (self cast)
+    SPELL_FLAMEBREATH               = 16390, // Combat (Self cast)
+    SPELL_FREEZE                    = 16350, // Combat (Self cast)
+    SPELL_KNOCK_AWAY                = 10101, // Combat
     SPELL_SUMMON_REND               = 16328  // Summons Rend near death
 };
 
@@ -34,7 +34,8 @@ enum Events
     EVENT_CORROSIVE_ACID            = 1,
     EVENT_FREEZE                    = 2,
     EVENT_FLAME_BREATH              = 3,
-    EVENT_SUMMONED                  = 4,
+    EVENT_KNOCK_AWAY                = 4,
+    EVENT_SUMMONED                  = 5,
 };
 
 class boss_gyth : public CreatureScript
@@ -52,15 +53,21 @@ public:
         {
             _Reset();
             SummonedRend = false;
+            if (instance->GetBossState(DATA_GYTH) == IN_PROGRESS)
+            {
+                instance->SetBossState(DATA_GYTH, DONE);
+                me->DespawnOrUnsummon();
+            }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
 
-            events.ScheduleEvent(EVENT_CORROSIVE_ACID, 18000);
-            events.ScheduleEvent(EVENT_FREEZE, 20000);
-            events.ScheduleEvent(EVENT_FLAME_BREATH, 16000);
+            events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(8000, 16000));
+            events.ScheduleEvent(EVENT_FREEZE, urand(8000, 16000));
+            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(8000, 16000));
+            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(12000, 18000));
         }
 
         void JustDied(Unit* /*killer*/)
@@ -80,15 +87,12 @@ public:
 
             if (!SummonedRend && HealthBelowPct(5))
             {
-                DoCast(me, SPELL_REND_MOUNTS);
+                DoCast(me, SPELL_SUMMON_REND);
                 me->RemoveAura(SPELL_REND_MOUNTS);
                 SummonedRend = true;
             }
 
             events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -99,16 +103,22 @@ public:
                         // Load Path
                         break;
                     case EVENT_CORROSIVE_ACID:
-                        DoCastVictim(SPELL_CORROSIVE_ACID);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 20000);
+                        DoCast(me, SPELL_CORROSIVE_ACID);
+                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(10000, 16000));
                         break;
                     case EVENT_FREEZE:
-                        DoCastVictim(SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, 16000);
+                        DoCast(me, SPELL_FREEZE);
+                        events.ScheduleEvent(EVENT_FREEZE, urand(10000, 16000));
                         break;
                     case EVENT_FLAME_BREATH:
-                        DoCastVictim(SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, 10000);
+                        DoCast(me, SPELL_FLAMEBREATH);
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 16000));
+                        break;
+                    case EVENT_KNOCK_AWAY:
+                        DoCastVictim(SPELL_KNOCK_AWAY);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(14000, 20000));
+                        break;
+                    default:
                         break;
                 }
             }
