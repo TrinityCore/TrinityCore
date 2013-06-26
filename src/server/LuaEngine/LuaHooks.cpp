@@ -23,11 +23,11 @@ public:
     }
     void OnFirstLogin(Player* player)
     {
-        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN_FIRST].begin();
-            itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN_FIRST].end(); ++itr)
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_FIRST_LOGIN].begin();
+            itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_FIRST_LOGIN].end(); ++itr)
         {
             sEluna->BeginCall((*itr));
-            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_LOGIN_FIRST);
+            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_FIRST_LOGIN);
             sEluna->PushUnit(sEluna->LuaState, player);
             sEluna->ExecuteCall(2, 0);
         }

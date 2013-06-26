@@ -145,7 +145,7 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            sEluna->PushULong(L, 0);
+            sEluna->PushLong(L, 0);
         else
             sEluna->PushLong(L, result->get()->Fetch()[col].GetInt64());
         return 1;

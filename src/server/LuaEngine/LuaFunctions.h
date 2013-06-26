@@ -1,6 +1,75 @@
 #ifndef FUNCTION_TABLES_H
 #define FUNCTION_TABLES_H
 
+void RegisterGlobals(lua_State* L)
+{
+    // Hooks
+    lua_register(L, "RegisterServerHook", &LuaGlobalFunctions::RegisterServerHook);                         // RegisterServerHook(event, function)
+    lua_register(L, "RegisterCreatureEvent", &LuaGlobalFunctions::RegisterCreatureEvent);                   // RegisterCreatureEvent(entry, event, function)
+    lua_register(L, "RegisterCreatureGossipEvent", &LuaGlobalFunctions::RegisterCreatureGossipEvent);       // RegisterCreatureGossipEvent(entry, event, function)
+    lua_register(L, "RegisterGameObjectEvent", &LuaGlobalFunctions::RegisterGameObjectEvent);               // RegisterGameObjectEvent(entry, event, function)
+    lua_register(L, "RegisterGameObjectGossipEvent", &LuaGlobalFunctions::RegisterGameObjectGossipEvent);   // RegisterGameObjectGossipEvent(entry, event, function)
+    lua_register(L, "RegisterItemEvent", &LuaGlobalFunctions::RegisterItemEvent);                           // RegisterItemEvent(entry, event, function)
+    lua_register(L, "RegisterItemGossipEvent", &LuaGlobalFunctions::RegisterItemGossipEvent);               // RegisterItemGossipEvent(entry, event, function)
+    lua_register(L, "RegisterPlayerGossipEvent", &LuaGlobalFunctions::RegisterPlayerGossipEvent);           // RegisterPlayerGossipEvent(menu_id, event, function)
+
+    // Getters
+    lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);                                     // GetLuaEngine() - Returns ElunaEngine
+    lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);                                     // GetLUAEngine() - Returns ElunaEngine
+    lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);                                 // GetCoreVersion() - Returns core version string
+    lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);                                             // GetQuest(questId) - Returns quest object
+    lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);                               // GetPlayerByGUID(guid) - Returns player object by GUID
+    lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);                               // GetPlayerByName(name) - Returns player object by player name
+    lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);                                       // GetGameTime() - Returns game time
+    lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);                           // GetPlayersInWorld([team, onlyGM]) - Returns a table with all player objects. Team can be 0 for ally, 1 for horde and 2 for neutral
+    lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);                               // GetPlayersInWorld(mapId[, instanceId, team]) - Returns a table with all player objects in map. Team can be 0 for ally, 1 for horde and 2 for neutral
+    lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);                                 // GetGuildByName(name) - Returns guild object by the guild name
+    lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);                     // GetGuildByLeaderGUID(guid) - Returns guild by it's leader's guid
+    lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);                                 // GetPlayerCount() - Returns the server's player count
+    lua_register(L, "FindUnit", &LuaGlobalFunctions::FindUnit);                                             // FindUnit(guid) - Returns unit by it's guid
+    lua_register(L, "GetPlayerGUID", &LuaGlobalFunctions::GetPlayerGUID);                                   // GetPlayerGUID(lowguid) - Generates GUID (uint64) string from player lowguid UNDOCUMENTED
+    lua_register(L, "GetItemGUID", &LuaGlobalFunctions::GetItemGUID);                                       // GetItemGUID(lowguid) - Generates GUID (uint64) string from item lowguid UNDOCUMENTED
+    lua_register(L, "GetObjectGUID", &LuaGlobalFunctions::GetObjectGUID);                                   // GetObjectGUID(lowguid, entry) - Generates GUID (uint64) string from gameobject lowguid and entry UNDOCUMENTED
+    lua_register(L, "GetUnitGUID", &LuaGlobalFunctions::GetUnitGUID);                                       // GetUnitGUID(lowguid, entry) - Generates GUID (uint64) string from unit (creature) lowguid and entry UNDOCUMENTED
+    lua_register(L, "GetGUIDLow", &LuaGlobalFunctions::GetGUIDLow);                                         // GetGUIDLow(guid) - Returns GUIDLow (uint32) from guid (uint64 as string) UNDOCUMENTED
+    lua_register(L, "GetGUIDType", &LuaGlobalFunctions::GetGUIDType);                                       // GetGUIDType(guid) - Returns Type (uint32) from guid (uint64 as string) UNDOCUMENTED
+    lua_register(L, "GetGUIDEntry", &LuaGlobalFunctions::GetGUIDEntry);                                     // GetGUIDLow(guid) - Returns Entry (uint32) from guid (uint64 as string), may be always 0 UNDOCUMENTED
+    lua_register(L, "bit_not", &LuaGlobalFunctions::bit_not);                                               // bit_not(a) - Returns ~a UNDOCUMENTED
+    lua_register(L, "bit_xor", &LuaGlobalFunctions::bit_xor);                                               // bit_xor(a, b) - Returns a ^ b UNDOCUMENTED
+    lua_register(L, "bit_rshift", &LuaGlobalFunctions::bit_rshift);                                         // bit_rshift(a, b) - Returns a >> b UNDOCUMENTED
+    lua_register(L, "bit_lshift", &LuaGlobalFunctions::bit_lshift);                                         // bit_lshift(a, b) - Returns a << b UNDOCUMENTED
+    lua_register(L, "bit_or", &LuaGlobalFunctions::bit_or);                                                 // bit_or(a, b) - Returns a | b UNDOCUMENTED
+    lua_register(L, "bit_and", &LuaGlobalFunctions::bit_and);                                               // bit_and(a, b) - Returns a & b UNDOCUMENTED
+    lua_register(L, "GetItemLink", &LuaGlobalFunctions::GetItemLink);                                       // GetItemLink(entry[, localeIndex]) - Returns the shift clickable link of the item. Item name translated if translate available for provided locale index UNDOCUMENTED
+    lua_register(L, "GetPlayersInRange", &LuaGlobalFunctions::GetPlayersInRange);                           // GetPlayersInRange(WorldObject[, range]) - Returns a table with players in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
+    lua_register(L, "GetCreaturesInRange", &LuaGlobalFunctions::GetCreaturesInRange);                       // GetCreaturesInRange(WorldObject[, range]) - Returns a table with creatures in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
+    lua_register(L, "GetGameObjectsInRange", &LuaGlobalFunctions::GetGameObjectsInRange);                   // GetGameObjectsInRange(WorldObject[, range]) - Returns a table with gameobjects in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
+
+    // Other
+    lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                                       // ReloadEluna() - Reload's Eluna engine
+    lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);                             // SendWorldMessage(msg) - Sends a broadcast message to everyone
+    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);                                     // WorldDBQuery(sql) - Executes given SQL query to world database instantly and returns a QueryResult object
+    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);                                 // WorldDBExecute(sql) - Executes given SQL query to world database (not instant)
+    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);                                       // CharDBQuery(sql) - Executes given SQL query to character database instantly and returns a QueryResult object
+    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);                                   // CharDBExecute(sql) - Executes given SQL query to character database (not instant)
+    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);                                       // AuthDBQuery(sql) - Executes given SQL query to auth/logon database instantly and returns a QueryResult object
+    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);                                   // AuthDBExecute(sql) - Executes given SQL query to auth/logon database (not instant)
+    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);                                 // CreateLuaEvent(function, delay, calls) - Creates a timed event. Returns Event ID
+    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent);                             // RegisterTimedEvent(function, delay, calls) - Creates a timed event. Returns Event ID
+    lua_register(L, "DestroyEventByID", &LuaGlobalFunctions::DestroyEventByID);                             // DestroyEventByID(eventId) - Removes a global timed event by it's ID
+    lua_register(L, "DestroyEvents", &LuaGlobalFunctions::DestroyEvents);                                   // DestroyEvents([allEvents]) - Removes all global timed events. Removes all timed events (creature and gameobject) if allEvents is true
+    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);                         // PerformIngameSpawn(spawntype, entry, mapid, instanceid, x, y, z, o[, save, DurOrResptime, phase]) - spawntype: 1 Creature, 2 Object. DurOrResptime is respawntime for gameobjects and despawntime for creatures if creature is not saved. Returns spawned creature/gameobject
+    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);                                     // CreatePacket(opcode, size) - Creates a new packet object
+    lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);                                   // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost[, persist(bool)]) - Adds an item to vendor entry. If persist is false, wont be saved to database.
+    lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);                             // VendorRemoveItem(entry, item[, persist(bool)]) - Removes an item from vendor entry. If persist is false, wont be saved to database.
+    lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems);                     // VendorRemoveAllItems(entry[, persist(bool)]) - Removes all items from vendor entry. If persist is false, wont be saved to database.
+    lua_register(L, "Kick", &LuaGlobalFunctions::Kick);                                                     // Kick(player) - Kicks given player
+    lua_register(L, "Ban", &LuaGlobalFunctions::Ban);                                                       // Ban(banMode(integer), nameOrIP(string), duration(string), reason(string), player(whoBanned)) - Banmode: 0 account, 1 character, 2 IP
+    lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);                                 // SaveAllPlayers() - Saves all players
+    lua_register(L, "SendMail", &LuaGlobalFunctions::SendMail);                                             // SendMail(subject, text, receiverLowGUID[, sender, stationary, delay, itemEntry, itemAmount, itemEntry2, itemAmount2...]) - Sends a mail to player with lowguid. use nil to use default values on optional arguments. Sender is an optional player object. UNDOCUMENTED
+    lua_register(L, "AddTaxiPath", &LuaGlobalFunctions::AddTaxiPath);                                       // AddTaxiPath(pathTable, mountA, mountH[, price, pathId]) - Adds a new taxi path. Returns the path's ID. Will replace an existing path if pathId provided and already used. path table structure: T = {{map, x, y, z[, actionFlag, delay, arrivalEvId, departEvId]}, {...}, ...} UDOCUMENTED
+}
+
 ElunaRegister<Unit> UnitMethods[] =
 {
     // Player Methods
@@ -811,36 +880,36 @@ ElunaRegister<QueryResult> QueryMethods[] =
 ElunaRegister<WorldPacket> PacketMethods[] =
 {
     // Getters
-    {"GetOpcode", &LuaPacket::GetOpcode},                                                                   // :GetOpcode() - Returns an opcode ()
-    {"GetSize", &LuaPacket::GetSize},                                                                       // :GetSize() - Returns the packet size ()
-    {"GetUnitType", &LuaPacket::GetOpcode},                                                                 // :GetUnitType() - Returns the unit type: Packet ()
+    {"GetOpcode", &LuaPacket::GetOpcode},                                                                   // :GetOpcode() - Returns an opcode
+    {"GetSize", &LuaPacket::GetSize},                                                                       // :GetSize() - Returns the packet size
+    {"GetUnitType", &LuaPacket::GetOpcode},                                                                 // :GetUnitType() - Returns the unit type: Packet
 
     // Setters
-    {"SetOpcode", &LuaPacket::SetOpcode},                                                                   // :SetOpcode(opcode) - Sets the opcode by specifying an opcode ()
+    {"SetOpcode", &LuaPacket::SetOpcode},                                                                   // :SetOpcode(opcode) - Sets the opcode by specifying an opcode
 
     // Readers
-    {"ReadByte", &LuaPacket::ReadByte},                                                                     // :ReadByte() - Reads an int8 value ()
-    {"ReadUByte", &LuaPacket::ReadUByte},                                                                   // :ReadUByte() - Reads a uint8 value ()
-    {"ReadShort", &LuaPacket::ReadShort},                                                                   // :ReadShort() - Reads an int16 value ()
-    {"ReadUShort", &LuaPacket::ReadUShort},                                                                 // :ReadUShort() - Reads a uint16 value ()
-    {"ReadString", &LuaPacket::ReadString},                                                                 // :ReadString() - Reads a string value ()
-    {"ReadFloat", &LuaPacket::ReadFloat},                                                                   // :ReadFloat() - Reads a float value ()
-    {"ReadDouble", &LuaPacket::ReadDouble},                                                                 // :ReadDouble() - Reads a double value ()
-    {"ReadLong", &LuaPacket::ReadLong},                                                                     // :ReadLong() - Reads an int32 value ()
-    {"ReadULong", &LuaPacket::ReadULong},                                                                   // :ReadULong() - Reads a uint32 value ()
-    {"ReadGUID", &LuaPacket::ReadGUID},                                                                     // :ReadGUID() - Reads a uint64 GUID value ()
+    {"ReadByte", &LuaPacket::ReadByte},                                                                     // :ReadByte() - Reads an int8 value
+    {"ReadUByte", &LuaPacket::ReadUByte},                                                                   // :ReadUByte() - Reads an uint8 value
+    {"ReadShort", &LuaPacket::ReadShort},                                                                   // :ReadShort() - Reads an int16 value
+    {"ReadUShort", &LuaPacket::ReadUShort},                                                                 // :ReadUShort() - Reads an uint16 value
+    {"ReadLong", &LuaPacket::ReadLong},                                                                     // :ReadLong() - Reads an int32 value
+    {"ReadULong", &LuaPacket::ReadULong},                                                                   // :ReadULong() - Reads an uint32 value
+    {"ReadGUID", &LuaPacket::ReadGUID},                                                                     // :ReadGUID() - Reads an uint64 value
+    {"ReadString", &LuaPacket::ReadString},                                                                 // :ReadString() - Reads a string value
+    {"ReadFloat", &LuaPacket::ReadFloat},                                                                   // :ReadFloat() - Reads a float value
+    {"ReadDouble", &LuaPacket::ReadDouble},                                                                 // :ReadDouble() - Reads a double value
 
     // Writers
-    {"WriteByte", &LuaPacket::WriteByte},                                                                   // :WriteByte(val) - Writes an int8 byte value ()
-    {"WriteUByte", &LuaPacket::WriteUByte},                                                                 // :WriteUByte(val) - Writes a uint8 ubyte value ()
-    {"WriteShort", &LuaPacket::WriteShort},                                                                 // :WriteShort(val) - Writes an int16 short value ()
-    {"WriteUShort", &LuaPacket::WriteUShort},                                                               // :WriteUShort(val) - Writes a uint16 ushort value ()
-    {"WriteString", &LuaPacket::WriteString},                                                               // :WriteString(val) - Writes a string value ()
-    {"WriteFloat", &LuaPacket::WriteFloat},                                                                 // :WriteFloat(val) - Writes a float value ()
-    {"WriteDouble", &LuaPacket::WriteDouble},                                                               // :WriteDouble(val) - Writes a double value ()
-    {"WriteGUID", &LuaPacket::WriteGUID},                                                                   // :WriteGUID(guid) - Writes a uint64 guid value. ()
-    {"WriteLong", &LuaPacket::WriteLong},                                                                   // :WriteLong(val) - Writes an int32 long value ()
-    {"WriteULong", &LuaPacket::WriteULong},                                                                 // :WriteULong(val) - Writes a uint32 ulong value ()
+    {"WriteByte", &LuaPacket::WriteByte},                                                                   // :WriteByte(val) - Writes an int8 value
+    {"WriteUByte", &LuaPacket::WriteUByte},                                                                 // :WriteUByte(val) - Writes a uint8 value
+    {"WriteShort", &LuaPacket::WriteShort},                                                                 // :WriteShort(val) - Writes an int16 value
+    {"WriteUShort", &LuaPacket::WriteUShort},                                                               // :WriteUShort(val) - Writes a uint16 value
+    {"WriteLong", &LuaPacket::WriteLong},                                                                   // :WriteLong(val) - Writes an int32 value
+    {"WriteULong", &LuaPacket::WriteULong},                                                                 // :WriteULong(val) - Writes a uint32 value
+    {"WriteGUID", &LuaPacket::WriteGUID},                                                                   // :WriteGUID(guid) - Writes a uint64 value
+    {"WriteString", &LuaPacket::WriteString},                                                               // :WriteString(val) - Writes a string value
+    {"WriteFloat", &LuaPacket::WriteFloat},                                                                 // :WriteFloat(val) - Writes a float value
+    {"WriteDouble", &LuaPacket::WriteDouble},                                                               // :WriteDouble(val) - Writes a double value
     {NULL, NULL},
 };
 

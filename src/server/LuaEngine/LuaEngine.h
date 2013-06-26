@@ -43,6 +43,7 @@ enum RegisterTypes
     REGTYPE_COUNT
 };
 
+// RegisterServerHook(EventId, function)
 enum ServerEvents
 {
     // Player
@@ -63,15 +64,15 @@ enum ServerEvents
     PLAYER_EVENT_ON_REPUTATION_CHANGE       =     15,           // (event, player, factionId, standing, incremental)
     PLAYER_EVENT_ON_TALENTS_CHANGE          =     16,           // (event, player, points)
     PLAYER_EVENT_ON_TALENTS_RESET           =     17,           // (event, player, noCost)
-    PLAYER_EVENT_ON_CHAT                    =     18,           // (event, player, msg, Type, lang)
+    PLAYER_EVENT_ON_CHAT                    =     18,           // (event, player, msg, Type, lang) - Can return false
     PLAYER_EVENT_ON_WHISPER                 =     19,           // (event, player, msg, Type, lang, receiver)
-    PLAYER_EVENT_ON_GROUP_CHAT              =     20,           // (event, player, msg, Type, lang, group)
-    PLAYER_EVENT_ON_GUILD_CHAT              =     21,           // (event, player, msg, Type, lang, guild)
-    PLAYER_EVENT_ON_CHANNEL_CHAT            =     22,           // (event, player, msg, Type, lang, channel)
-    PLAYER_EVENT_ON_EMOTE                   =     23,           // (event, player, emote) -- Not triggered on any known emote
+    PLAYER_EVENT_ON_GROUP_CHAT              =     20,           // (event, player, msg, Type, lang, group) - Can return false
+    PLAYER_EVENT_ON_GUILD_CHAT              =     21,           // (event, player, msg, Type, lang, guild) - Can return false
+    PLAYER_EVENT_ON_CHANNEL_CHAT            =     22,           // (event, player, msg, Type, lang, channel) - Can return false
+    PLAYER_EVENT_ON_EMOTE                   =     23,           // (event, player, emote) - Not triggered on any known emote
     PLAYER_EVENT_ON_TEXT_EMOTE              =     24,           // (event, player, textEmote, emoteNum, guid)
     PLAYER_EVENT_ON_SAVE                    =     25,           // (event, player)
-    PLAYER_EVENT_ON_BIND_TO_INSTANCE        =     26,           // (event, player, difficulty, std::mapid, permanent)
+    PLAYER_EVENT_ON_BIND_TO_INSTANCE        =     26,           // (event, player, difficulty, mapid, permanent)
     PLAYER_EVENT_ON_UPDATE_ZONE             =     27,           // (event, player, newZone, newArea)
     PLAYER_EVENT_ON_MAP_CHANGE              =     28,           // (event, player)
 
@@ -140,7 +141,7 @@ enum ServerEvents
 
     // Custom
     PLAYER_EVENT_ON_EQUIP                   =     74,           // (event, player, item, bag, slot)
-    PLAYER_EVENT_ON_LOGIN_FIRST             =     75,           // (event, player)
+    PLAYER_EVENT_ON_FIRST_LOGIN             =     75,           // (event, player)
     PLAYER_EVENT_ON_CAN_USE_ITEM            =     76,           // (event, player, itemEntry)
     PLAYER_EVENT_ON_LOOT_ITEM               =     77,           // (event, player, item, count)
     PLAYER_EVENT_ON_ENTER_COMBAT            =     78,           // (event, player, enemy)
@@ -149,74 +150,81 @@ enum ServerEvents
     SERVER_EVENT_COUNT
 };
 
+// RegisterCreatureEvent(entry, EventId, function)
 enum CreatureEvents
 {
-    CREATURE_EVENT_ON_ENTER_COMBAT                    = 1,      //Implemented
-    CREATURE_EVENT_ON_LEAVE_COMBAT                    = 2,      //Implemented
-    CREATURE_EVENT_ON_TARGET_DIED                     = 3,      //Implemented
-    CREATURE_EVENT_ON_DIED                            = 4,      //Implemented
-    CREATURE_EVENT_ON_SPAWN                           = 5,      //Implemented
-    CREATURE_EVENT_ON_REACH_WP                        = 6,      //Implemented
-    CREATURE_EVENT_ON_AIUPDATE                        = 7,      //Implemented
-    CREATURE_EVENT_ON_RECEIVE_EMOTE                   = 8,      //Implemented
-    CREATURE_EVENT_ON_DAMAGE_TAKEN                    = 9,      //Implemented
-    CREATURE_EVENT_ON_PRE_COMBAT                      = 10,     //Implemented
-    CREATURE_EVENT_ON_ATTACKED_AT                     = 11,     //Implemented
-    CREATURE_EVENT_ON_OWNER_ATTACKED                  = 12,     //Implemented
-    CREATURE_EVENT_ON_OWNER_ATTACKED_AT               = 13,     //Implemented
-    CREATURE_EVENT_ON_HIT_BY_SPELL                    = 14,     //Implemented
-    CREATURE_EVENT_ON_SPELL_HIT_TARGET                = 15,     //Implemented
-    CREATURE_EVENT_ON_SPELL_CLICK                     = 16,     //Implemented
-    CREATURE_EVENT_ON_CHARMED                         = 17,     //Implemented
-    CREATURE_EVENT_ON_POSSESS                         = 18,     //Implemented
-    CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE          = 19,     //Implemented
-    CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN       = 20,     //Implemented
-    CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED          = 21,     //Implemented
-    CREATURE_EVENT_ON_SUMMONED                        = 22,     //Implemented
-    CREATURE_EVENT_ON_RESET                           = 23,     //Implemented
-    CREATURE_EVENT_ON_REACH_HOME                      = 24,     //Implemented
-    CREATURE_EVENT_ON_CAN_RESPAWN                     = 25,     //Implemented
-    CREATURE_EVENT_ON_CORPSE_REMOVED                  = 26,     //Implemented
-    CREATURE_EVENT_ON_MOVE_IN_LOS                     = 27,     //Implemented
-    CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS             = 28,     //Implemented
-    CREATURE_EVENT_ON_PASSANGER_BOARDED               = 29,     //Implemented
-    CREATURE_EVENT_ON_DUMMY_EFFECT                    = 30,     //Implemented
-    CREATURE_EVENT_ON_QUEST_ACCEPT                    = 31,     //Implemented
-    CREATURE_EVENT_ON_QUEST_SELECT                    = 32,     //Implemented
-    CREATURE_EVENT_ON_QUEST_COMPLETE                  = 33,     //Implemented
-    CREATURE_EVENT_ON_QUEST_REWARD                    = 34,     //Implemented
-    CREATURE_EVENT_ON_DIALOG_STATUS                   = 35,     //Implemented
+    CREATURE_EVENT_ON_ENTER_COMBAT                    = 1,      // (event, creature, target)
+    CREATURE_EVENT_ON_LEAVE_COMBAT                    = 2,      // (event, creature)
+    CREATURE_EVENT_ON_TARGET_DIED                     = 3,      // (event, creature, victim)
+    CREATURE_EVENT_ON_DIED                            = 4,      // (event, creature, killer)
+    CREATURE_EVENT_ON_SPAWN                           = 5,      // (event, creature)
+    CREATURE_EVENT_ON_REACH_WP                        = 6,      // (event, creature, type, id)
+    CREATURE_EVENT_ON_AIUPDATE                        = 7,      // (event, creature, diff)
+    CREATURE_EVENT_ON_RECEIVE_EMOTE                   = 8,      // (event, creature, player, emoteid)
+    CREATURE_EVENT_ON_DAMAGE_TAKEN                    = 9,      // (event, creature, attacker, damage)
+    CREATURE_EVENT_ON_PRE_COMBAT                      = 10,     // (event, creature, target)
+    CREATURE_EVENT_ON_ATTACKED_AT                     = 11,     // (event, creature, attacker)
+    CREATURE_EVENT_ON_OWNER_ATTACKED                  = 12,     // (event, creature, target)
+    CREATURE_EVENT_ON_OWNER_ATTACKED_AT               = 13,     // (event, creature, attacker)
+    CREATURE_EVENT_ON_HIT_BY_SPELL                    = 14,     // (event, creature, caster, spellid)
+    CREATURE_EVENT_ON_SPELL_HIT_TARGET                = 15,     // (event, creature, target, spellid)
+    CREATURE_EVENT_ON_SPELL_CLICK                     = 16,     // (event, creature, clicker)
+    CREATURE_EVENT_ON_CHARMED                         = 17,     // (event, creature, apply)
+    CREATURE_EVENT_ON_POSSESS                         = 18,     // (event, creature, apply)
+    CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE          = 19,     // (event, creature, summon)
+    CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN       = 20,     // (event, creature, summon)
+    CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED          = 21,     // (event, creature, summon, killer)
+    CREATURE_EVENT_ON_SUMMONED                        = 22,     // (event, creature, summoner)
+    CREATURE_EVENT_ON_RESET                           = 23,     // (event, creature)
+    CREATURE_EVENT_ON_REACH_HOME                      = 24,     // (event, creature)
+    CREATURE_EVENT_ON_CAN_RESPAWN                     = 25,     // (event, creature)
+    CREATURE_EVENT_ON_CORPSE_REMOVED                  = 26,     // (event, creature, respawndelay)
+    CREATURE_EVENT_ON_MOVE_IN_LOS                     = 27,     // (event, creature, unit)
+    CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS             = 28,     // (event, creature, unit)
+    CREATURE_EVENT_ON_PASSANGER_BOARDED               = 29,     // (event, creature, passanger, seatid, apply)
+    CREATURE_EVENT_ON_DUMMY_EFFECT                    = 30,     // (event, caster, spellid, effindex, creature)
+    CREATURE_EVENT_ON_QUEST_ACCEPT                    = 31,     // (event, player, creature, quest)
+    CREATURE_EVENT_ON_QUEST_SELECT                    = 32,     // (event, player, creature, quest)
+    CREATURE_EVENT_ON_QUEST_COMPLETE                  = 33,     // (event, player, creature, quest)
+    CREATURE_EVENT_ON_QUEST_REWARD                    = 34,     // (event, player, creature, quest, opt)
+    CREATURE_EVENT_ON_DIALOG_STATUS                   = 35,     // (event, player, creature)
     CREATURE_EVENT_COUNT
 };
 
+// RegisterGameObjectEvent(entry, EventId, function)
 enum GameObjectEvents
 {
-    GAMEOBJECT_EVENT_ON_AIUPDATE                    = 1,    // Implemented
-    GAMEOBJECT_EVENT_ON_RESET                       = 2,    // Implemented
-    GAMEOBJECT_EVENT_ON_DUMMY_EFFECT                = 3,    // Implemented
-    GAMEOBJECT_EVENT_ON_QUEST_ACCEPT                = 4,    // Implemented
-    GAMEOBJECT_EVENT_ON_QUEST_REWARD                = 5,    // Implemented
-    GAMEOBJECT_EVENT_ON_DIALOG_STATUS               = 6,    // Implemented
-    GAMEOBJECT_EVENT_ON_DESTROYED                   = 7,    // Implemented
-    GAMEOBJECT_EVENT_ON_DAMAGED                     = 8,    // Implemented
-    GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE           = 9,    // Implemented
-    GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED            = 10,   // Implemented
+    GAMEOBJECT_EVENT_ON_AIUPDATE                    = 1,        // (event, go, diff)
+    GAMEOBJECT_EVENT_ON_RESET                       = 2,        // (event, go)
+    GAMEOBJECT_EVENT_ON_DUMMY_EFFECT                = 3,        // (event, caster, spellid, effindex, go)
+    GAMEOBJECT_EVENT_ON_QUEST_ACCEPT                = 4,        // (event, player, go, quest)
+    GAMEOBJECT_EVENT_ON_QUEST_REWARD                = 5,        // (event, player, go, quest, opt)
+    GAMEOBJECT_EVENT_ON_DIALOG_STATUS               = 6,        // (event, player, go)
+    GAMEOBJECT_EVENT_ON_DESTROYED                   = 7,        // (event, go, player)
+    GAMEOBJECT_EVENT_ON_DAMAGED                     = 8,        // (event, go, player)
+    GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE           = 9,        // (event, go, state, unit)
+    GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED            = 10,       // (event, go, state)
     GAMEOBJECT_EVENT_COUNT
 };
 
+// RegisterItemEvent(entry, EventId, function)
 enum ItemEvents
 {
-    ITEM_EVENT_ON_DUMMY_EFFECT                      = 1,    // Implemented
-    ITEM_EVENT_ON_USE                               = 2,    // Implemented
-    ITEM_EVENT_ON_QUEST_ACCEPT                      = 3,    // Implemented
-    ITEM_EVENT_ON_EXPIRE                            = 4,    // Implemented
+    ITEM_EVENT_ON_DUMMY_EFFECT                      = 1,        // (event, caster, spellid, effindex, item)
+    ITEM_EVENT_ON_USE                               = 2,        // (event, player, item, target)
+    ITEM_EVENT_ON_QUEST_ACCEPT                      = 3,        // (event, player, item, quest)
+    ITEM_EVENT_ON_EXPIRE                            = 4,        // (event, player, itemid)
     ITEM_EVENT_COUNT
 };
 
+// RegisterCreatureGossipEvent(entry, EventId, function)
+// RegisterGameObjectGossipEvent(entry, EventId, function)
+// RegisterItemGossipEvent(entry, EventId, function)
+// RegisterPlayerGossipEvent(menu_id, EventId, function)
 enum GossipEvents
 {
-    GOSSIP_EVENT_ON_HELLO = 1,
-    GOSSIP_EVENT_ON_SELECT = 2,
+    GOSSIP_EVENT_ON_HELLO                           = 1,        // (event, player, object) - Object is the Creature/GameObject/Item
+    GOSSIP_EVENT_ON_SELECT                          = 2,        // (event, player, object, sender, intid, code, menu_id) - Object is the Creature/GameObject/Item/Player, menu_id is only for player gossip
     GOSSIP_EVENT_COUNT
 };
 
@@ -269,7 +277,6 @@ public:
     void BeginCall(int fReference);
     bool ExecuteCall(uint8 params, uint8 res);
     void EndCall(uint8 res);
-    void RegisterGlobals(lua_State* L);
     void LoadDirectory(char* directory, LoadedScripts* scr);
     // Pushes
     void PushULong(lua_State*, uint64);
