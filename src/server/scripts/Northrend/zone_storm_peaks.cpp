@@ -27,16 +27,15 @@
 #include "WorldSession.h"
 
 /*######
-## npc_agnetta_tyrsdottar
+## npc_agnetta_tyrsdottar for QUEST_ITS_THAT_YOUR_GOBLIN 12969
 ######*/
-
-#define GOSSIP_AGNETTA             "Skip the warmup, sister... or are you too scared to face soemeone your own size?"
 
 enum eAgnetta
 {
-    QUEST_ITS_THAT_YOUR_GOBLIN      = 12969,
     FACTION_HOSTILE_AT1             = 45,
-    SAY_AGGRO                       = 0
+    SAY_AGGRO                       = 0,
+    GOSSIP_ID                       = 9874,
+    GOSSIP_OPTION_ID                = 0
 };
 
 class npc_agnetta_tyrsdottar : public CreatureScript
@@ -52,34 +51,22 @@ public:
         {
             me->RestoreFaction();
         }
+
+        void sGossipSelect(Player* player, uint32 sender, uint32 action)
+        {
+            if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                me->setFaction(FACTION_HOSTILE_AT1);
+                Talk(SAY_AGGRO);
+                AttackStart(player);
+            }
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_agnetta_tyrsdottarAI(creature);
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_ITS_THAT_YOUR_GOBLIN) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AGNETTA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(13691, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            creature->AI()->Talk(SAY_AGGRO);
-            player->CLOSE_GOSSIP_MENU();
-            creature->setFaction(FACTION_HOSTILE_AT1);
-            creature->AI()->AttackStart(player);
-        }
-
-        return true;
     }
 };
 
