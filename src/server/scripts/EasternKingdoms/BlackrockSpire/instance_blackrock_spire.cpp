@@ -66,16 +66,6 @@ public:
             go_blackrockaltar       = 0;
         }
 
-        bool IsEncounterInProgress() const
-        {
-            for (uint8 i = 0; i < EncounterCount; ++i)
-            {
-                if (encounter[i] == IN_PROGRESS)
-                    return true;
-            }
-            return false;
-        }
-
         void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
@@ -152,11 +142,6 @@ public:
                     go_emberseerout = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(0, true, go);
-                    break;
-                case GO_BLACKROCK_ALTAR:
-                    go_blackrockaltar = go->GetGUID();
-                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     break;
                 case GO_HALL_RUNE_1:
                     go_roomrunes[0] = go->GetGUID();
@@ -346,9 +331,6 @@ public:
                     break;
                 case GO_EMBERSEER_OUT:
                     return go_emberseerout;
-                    break;
-                case GO_BLACKROCK_ALTAR:
-                    return go_blackrockaltar;
                     break;
                 case GO_HALL_RUNE_1:
                     return go_roomrunes[0];
@@ -544,8 +526,11 @@ public:
                     loadStream >> tmpState;
                     if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                         tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
                 }
             }
+            else
+                OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }

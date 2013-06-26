@@ -64,6 +64,7 @@ enum Says
 enum Gossip
 {
    GOSSIP_ID                   = 21332,
+   GOSSIP_OPTION_ID            = 0
 };
 
 enum Creatures
@@ -269,7 +270,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 sender, uint32 action)
         {
-            if (sender == GOSSIP_ID && action == 0)
+            if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
             {
                 player->CLOSE_GOSSIP_MENU();
                 Talk(SAY_GAMESBEGIN_1);
