@@ -50,6 +50,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
+    SPELL_SHAMAN_TELLURIC_CURRENTS              = 82987,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
     SPELL_SHAMAN_TOTEM_EARTHBIND_TOTEM          = 6474,
     SPELL_SHAMAN_TOTEM_EARTHEN_POWER            = 59566,
@@ -768,6 +769,43 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
         }
 };
 
+// 82984 - Telluric Currents
+class spell_sha_telluric_currents : public SpellScriptLoader
+{
+    public:
+        spell_sha_telluric_currents() : SpellScriptLoader("spell_sha_telluric_currents") { }
+
+        class spell_sha_telluric_currents_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_telluric_currents_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TELLURIC_CURRENTS))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 basePoints0 = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_TELLURIC_CURRENTS, &basePoints0, NULL, NULL, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_telluric_currents_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_telluric_currents_AuraScript();
+        }
+};
+
 // 51490 - Thunderstorm
 class spell_sha_thunderstorm : public SpellScriptLoader
 {
@@ -853,6 +891,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_surge_proc();
     new spell_sha_mana_tide_totem();
     new spell_sha_rolling_thunder();
+    new spell_sha_telluric_currents();
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
 }
