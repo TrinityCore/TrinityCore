@@ -30,14 +30,14 @@
 ///npc_injured_goblin
 /////////////////////
 
-enum eInjuredGoblin
+enum InjuredGoblinMiner
 {
     QUEST_BITTER_DEPARTURE     = 12832,
     SAY_QUEST_ACCEPT           = 0,
-    SAY_END_WP_REACHED         = 1
+    SAY_END_WP_REACHED         = 1,
+    GOSSIP_ID                  = 9859,
+    GOSSIP_OPTION_ID           = 0
 };
-
-#define GOSSIP_ITEM_1       "I am ready, lets get you out of here"
 
 class npc_injured_goblin : public CreatureScript
 {
@@ -83,26 +83,21 @@ public:
                 return;
             DoMeleeAttackIfReady();
         }
+
+        void sGossipSelect(Player* player, uint32 sender, uint32 action)
+        {
+            if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                me->setFaction(113);
+                npc_escortAI::Start(true, true, player->GetGUID());
+            }
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_injured_goblinAI(creature);
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_BITTER_DEPARTURE) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->PlayerTalkClass->SendGossipMenu(9999999, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(999999, creature->GetGUID());
-        return true;
     }
 
     bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
@@ -111,19 +106,6 @@ public:
             creature->AI()->Talk(SAY_QUEST_ACCEPT);
 
         return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        npc_escortAI* pEscortAI = CAST_AI(npc_injured_goblin::npc_injured_goblinAI, creature->AI());
-
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            pEscortAI->Start(true, true, player->GetGUID());
-            creature->setFaction(113);
-        }
-        return true;
     }
 };
 
