@@ -39,9 +39,9 @@ enum Events
 
 enum Says
 {
-    SAY_GAMESBEGIN_1           = 10,
-    SAY_GAMESBEGIN_2           = 11,
- // SAY_VAEL_INTRO             = 12, Not used - when he corrupts Vaelastrasz
+    SAY_GAMESBEGIN_1           = 11,
+    SAY_GAMESBEGIN_2           = 12,
+ // SAY_VAEL_INTRO             = 13, Not used - when he corrupts Vaelastrasz
 
     // Nefarian
     SAY_RANDOM                 = 0,
@@ -109,6 +109,11 @@ enum Spells
     SPELL_HUNTER                = 23436,     // bow broke
     SPELL_ROGUE                 = 23414,     // Paralise
     SPELL_DEATH_KNIGHT          = 49576      // Death Grip
+
+// 19484
+// 22664
+// 22674
+// 22666
 };
 
 Position const DrakeSpawnLoc[2] = // drakonid
