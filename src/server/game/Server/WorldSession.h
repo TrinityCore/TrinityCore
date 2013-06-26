@@ -807,8 +807,9 @@ class WorldSession
 
         // Looking for Dungeon/Raid
         void HandleLfgSetCommentOpcode(WorldPacket& recvData);
-        void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData);
-        void HandleLfgPartyLockInfoRequestOpcode(WorldPacket& recvData);
+        void HandleLfgGetLockInfoOpcode(WorldPacket& recvData);
+        void SendLfgPlayerLockInfo();
+        void SendLfgPartyLockInfo();
         void HandleLfgJoinOpcode(WorldPacket& recvData);
         void HandleLfgLeaveOpcode(WorldPacket& recvData);
         void HandleLfgSetRolesOpcode(WorldPacket& recvData);

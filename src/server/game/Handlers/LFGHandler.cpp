@@ -196,11 +196,20 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
 
-void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLfgGetLockInfoOpcode(WorldPacket& recvData)
+{
+    bool forPlayer = recvData.ReadBit();
+    TC_LOG_DEBUG(LOG_FILTER_LFG, "CMSG_LFG_LOCK_INFO_REQUEST %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
+
+    if (forPlayer)
+        SendLfgPlayerLockInfo();
+    else
+        SendLfgPartyLockInfo();
+}
+
+void WorldSession::SendLfgPlayerLockInfo()
 {
     uint64 guid = GetPlayer()->GetGUID();
-    TC_LOG_DEBUG(LOG_FILTER_LFG, "CMSG_LFG_PLAYER_LOCK_INFO_REQUEST %s",
-        GetPlayerInfo().c_str());
 
     // Get Random dungeons that can be done at a certain level and expansion
     uint8 level = GetPlayer()->getLevel();
@@ -291,11 +300,9 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
     SendPacket(&data);
 }
 
-void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket&  /*recvData*/)
+void WorldSession::SendLfgPartyLockInfo()
 {
     uint64 guid = GetPlayer()->GetGUID();
-    TC_LOG_DEBUG(LOG_FILTER_LFG, "CMSG_LFG_PARTY_LOCK_INFO_REQUEST %s", GetPlayerInfo().c_str());
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
