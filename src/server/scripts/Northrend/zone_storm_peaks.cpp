@@ -30,7 +30,7 @@
 ## npc_agnetta_tyrsdottar
 ######*/
 
-#define GOSSIP_AGNETTA             "Skip the warmup, sister... or are you too scared to face soemeone your own size?"
+#define GOSSIP_AGNETTA             "Skip the warmup, sister... or are you too scared to face someone your own size?"
 
 enum eAgnetta
 {
