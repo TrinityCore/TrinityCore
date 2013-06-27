@@ -22,7 +22,7 @@ Gracias a quienes hacen este proyecto posible y su respectivo crédito a:
  Copyright (C) Oceanor (https://github.com/Oceanor)
  Copyright (C) Gin (https://github.com/Gin88)
  Copyright (C) FrozenSoul (https://github.com/FrozenSouL)
- Copyright (C) Dany (https://github.com/Dekzqw)
+ Copyright (C) Dany (https://github.com/DanyCuartiella)
  Copyright (C) Rinsewind (https://github.com/Rinsewind)
  Copyright (C) Zevran (https://github.com/Zevran)
  Copyright (C) Angarius (https://github.com/Angarius)
@@ -43,6 +43,20 @@ Milestone0.0: Reiniciando el repo y readaptando cosas varias, inclusion de nuevo
               eficiente de codigo reestructurando modo de trabajo y organizando 
               carpetas, branches, etc, adicion de codigo utilitario en general 
               para complemento del nucleo y funciones de soporte.
+Milestone1.0: Jugabilidad en general, adecuaciones de codigo vario en mapas
+              comportamiento de bgs, arenas, players-units-pets y mejoras.
+Milestone2.0: Mejoras en Instances y dungeons, escencialmente para darles funcionalidad
+              y detalles para tenerlas lo mas cercano a blizzlike, solucion de bugs
+              relativos a las mismas, implementacion de nuevas scripts, prioridad tlk.
+Milestone3.0: Arreglos a Spells, sobre todo para estabilidad del pve y del
+              pvp dentro de los reinos.
+Milestone4.0: Arreglos en quests, y cadenas de mision, esto incluye scripts
+              en C++ y SmartAI.
+Milestone5.0: Traducciones, e inclusion de varios dentro de tablas y strings
+              del emulador, ya sea en c++ o en sqls.
+Milestone6.0: Arreglos en eventos de mundo, logros y varios, con SAI, c++ y sql para
+              items, criaturas, spells, etc. Que no encajen en las demas milestones.
+Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 
 
 ############################
@@ -55,47 +69,1034 @@ Milestone0.0: Reiniciando el repo y readaptando cosas varias, inclusion de nuevo
 ###############
 0.1  - 28/10/2011: Batch sqlcombinado.BAT to unify all sql files into one by Eilo
 0.2  - 11/08/2012: TDB_full_335.49_2012_09_16.rar file added to avoid search and etc by Eilo
+0.3  - 06/03/2013: Ip2Nation sql data added by Eilo
+0.4  - 28/10/2011: Pvp Ranks, honor & titles original by Spgm, improved by Eilo
+0.10 - 11/02/2012: Rates Weekend by Kline, improved by Eilo
+0.18 - 20/04/2012: Wowarmory with arena chart & 3d models original by Shadez, improvements by Eilo
+0.20 - 23/04/2012: CharacterHistory nuevo con logs extendidos en db por Eilo
+0.22 - 23/04/2012: RaidInfo Announce & Log script por Eilo
+0.23 - 08/04/2012: ArenaQueue Improved announcements by Oceanor, improvements and more code/options by Eilo
+0.26 - 26/05/2012: GM ticket surveys by Hispano
 0.28 - 06/06/2012: Jar Merge Utility added by ZuSe
+0.29 - 17/06/2012: Progressive MMR queue by Hexa
+0.31 - 24/07/2012: GM Ticket complete command by Hispano
+0.32 - 15/12/2011: DoCompleteAchievement re added to core by Eilo
+0.33 - 15/12/2011: DoAttackerAreaInCombat re added to core by Eilo
+0.34 - 15/12/2011: DoAttackerGroupInCombat re added to core by Eilo
+0.35 - 15/12/2011: _DoAggroPulse, inFightAggroCheck_Timer re added to core by Eilo
+0.36 - 16/12/2011: UnsummonSpecificCreaturesNearby added to icc scripting by Eilo
+0.37 - 30/12/2011: HasAchieved support function re added by Eilo
+0.38 - 30/12/2011: FindNearestPlayer & GetNearestPlayersList re added by Eilo
+0.40 - 30/12/2011: SetImmuneToPushPullEffects support function re added by Eilo
+0.41 - 25/07/2012: GetGearScore method scripted by Eilo
+0.42 - 10/08/2012: GetPrimarySpec method scripted by Eilo
+0.43 - 10/08/2012: GetPossibleRole method scripted by Eilo
+0.44 - 06/02/2012: BuildWaitMovePacket function added to core by Eilo
+0.45 - 06/02/2012: AddNPCPassengerInInstance re added to core by Eilo
+0.46 - 06/02/2012: UpdatePlayerPositions re added to core and updates by Eilo
+0.47 - 06/02/2012: LoadTransportInMap, UnLoadTransportFromMap, LoadTransportForPlayers, UnLoadTransportForPlayers scripted by Eilo
+0.48 - 16/12/2012: GM Ticket Responses by Hispano
 0.50 - 11/10/2012: Sh Merge Utility added by Badanni
+0.51 - 09/08/2012: GetCompletedEncountersReadable & GetTotalEncountersReadable scriptadas por Eilo
+0.52 - 04/08/2012: Adding GetGroupByInstanceId() method, including a new Prepared Statement, this is a very new feature hasnt any core by Eilo
+0.53 - 25/07/2012: Player Info & Raid Info commands por Eilo
+0.54 - 29/10/2012: UpdateEncounterState forced to write normal content on encountermask by Eilo
+0.55 - 16/11/2012: SMART_ACTION_GO_SET_GO_TYPE implementada por Muzashi
+0.56 - 18/11/2012: SMART_ACTION_MOVE_UP implementada por Muzashi
+0.60 - 31/08/2012: Log de error en SelectImplicitAreaTargets por Shauren
+0.62 - 13/01/2013: Duel Reset cds nueva script por Eilo
+0.63 - 14/01/2013: External Mail por Varios
+0.64 - 22/01/2013: FailQuest solo funciona con misiones aceptadas e incompletas por Muzashi
+0.65 - 24/01/2013: Abandonar misiones de profesiones cuando se olvidan por Muzashi
+0.66 - 25/01/2013: Implementada CONDITION_SOURCE_TYPE_NPC_VENDOR por Vincent-Michael
+0.67 - 26/01/2013: Send Completed Tickets, sistema automatico de actualizaciones, soporte de respuesta tickets via web y para evitar uso de dos comandos por ticket ingame por Eilo
+0.68 - 26/01/2013: Adecuaciones varias en la lógica de tickets para que funcionela opcion "need more help" por Eilo
+0.69 - 27/01/2013: Sistema de guardado de responses, guardara el guid y el nombre de quien responde ademas de mostrar ingame en el ticket list los que ya estan respondidos pero estan offline por Eilo
+0.70 - 08/02/2013: Corregido llamado del metodo OnSpellclick por Muzashi
+0.71 - 17/02/2013: UpdateEntry tambien recarga las spells de los vehiculos por Trista
+0.72 - 08/03/2013: Los npc de transports no se detienen en OnGossipHello por Zwerg
+0.73 - 21/03/2013: Nuevo appender (43) LOG_FILTER_INSTANCES por Eilo
+0.77 - 03/05/2013: Nuevo appender (44) LOG_FILTER_PHANTONS_TEST por Phantons
+0.79 - 21/05/2013: Arena Espectador nuevo, base general wowrean, mejoras e implementaciones nuevas, incluyendo contenedores y otros por Eilo
+0.80 - 04/06/2013: Gm command log en DB por Eilo
+0.81 - 04/06/2013: Anti-rollback quests por Eilo basado en codigo de Demonid
+0.82 - 04/06/2013: Anti-rollback loot por Eilo basado en raidinfo de Eilo
+0.83 - 18/06/2013: Funciones base para el sistema anti-caidas debajo del suelo en arenas por Eilo
+0.84 - 20/06/2013: Sistema anti-caida debajo del suelo en RoV por Eilo
 
 
 ###############
 # Jugabilidad #
 ###############
+1.1  - 02/12/2011: Who List max 49 results by Eilo
+1.3  - 05/10/2011: Join LFG channel without being on a city by Opcode187
+1.4  - 18/10/2011: Vehicle Immunities by Karlos
+1.7  - 24/12/2011: Bindeo instance players que se salen y lotean por Tobmaps
+1.8  - 18/10/2011: Parry calculation adjusted by Faelon
+1.9  - 18/10/2011: Dodge calculation and behaviour adjusted by Faelon
+1.11 - 11/05/2011: EyeOfStorm: Fix Flag behaviour over FelReaver by Tobmaps updated by Eilo
+1.16 - 13/01/2012: Prevent exploit login inside instances by Tobmaps
+1.17 - 03/11/2011: Improving bg weight & min-max players on random bg queues by Eilo
+1.18 - 15/10/2011: Disabled Nefarian exploit spells by Havenard
+1.20 - 20/01/2012: Mejoras altura(z) criaturas que vuelan o nadan by Eilo
+1.24 - 02/01/2012: Magic Absortion adjusted by Maxxx
+1.27 - 10/02/2012: Each player has to have normal achievement to get heroic mode by Eilo
+1.37 - 07/01/2011: Low lvl will not gain exp in Northrend by Vlad
+1.40 - 19/04/2012: Double stacking aura issues corrected by Jildor
+1.42 - 27/03/2012: Pets size adjustments by Eze
+1.43 - 27/03/2012: Pets stamina adjustments by S@m
+1.44 - 10/07/2012: Opening a gameobject (flag) under absorb effects should result in an interrupt by Hispano
+1.46 - 14/07/2012: Set correct emblem of triumph loot on FoS, PoS & HoR bosses by Eilo
+1.47 - 17/07/2012: Professions: fixed specialization switching for Engineering by Xanvial
+1.53 - 12/09/2012: Recluta a un amigo corregida spell de invocación por Gecko32
+1.54 - 14/05/2012: Spells de cambio de facción por Muzashi
+1.55 - 29/09/2012: Fix exploit eat/drink in mount by Jildor
+1.56 - 01/10/2012: Misiones semanales de Dalaran no se pueden compartir por Rincewind
+1.59 - 24/10/2012: Arreglado Dynamic LoS adecuado de algunos gameobjects por Eilo
+1.62 - 18/10/2012: Los integrantes del raid ahora veran el loot en MasterLooter por tibbi
+1.63 - 04/11/2012: Vehicles: Exclude player from vehicle gear scaling effect por Xanvial
+1.64 - 05/11/2012: Mechanics: Arreglando varios issues con el evade por Ille
+1.67 - 12/11/2012: Fix exploit al entrar en arena con fear, ahora entras en la posición que debes y no en el medio por hermida
+1.68 - 19/11/2012: Teletransportes de Isla de la Conquista por Muzashi
+1.69 - 20/11/2012: Crashfix de SelectImplicitAreaTargets por blipi
+1.70 - 27/11/2012: Bugs de estado de puertas en SoTA (playa de ancestros) por Eilo
+1.71 - 27/11/2012: Deshabilitar monturas de varios ocupantes en arenas por Gildor
+1.72 - 04/12/2012: Deshabilitar Isla de Conquista y Ring of Valor y habilitar Dalaran Sewers por Gildor
+1.73 - 04/12/2012: Fix Wintergrasp Tower Cannon, ahora no se moverán al subirse por Gildor
+1.74 - 04/12/2012: Fix Vehicle spells target damage on buildings, ahora no fallarán las spells, por ejemplo en wintergrasp a las torres por LiMCrosS
+1.75 - 04/12/2012: Wintergrasp: Temp fix para poder cruzar la puerta de la reliquia de Wintergrasp por Gildor
+1.76 - 13/12/2012: Armas s6 (Furious) y s7 (Relentless) añadidas en tanaris a los npcs correspondientes por Eilo
+1.77 - 14/12/2012: Fix exploit Alt + F4 cuando el encuentro está en progreso y estás en un vehículo (Fix ICC LK valkyrs) por zouzoul
+1.78 - 01/02/2013: Vehiculos, evitando crash por Eilo
+1.79 - 19/12/2012: Deshabilitando SoTA por Gildor
+1.81 - 02/01/2013: Evitando crashes del IntersectRay por Eilo
+1.83 - 30/12/2012: Fix LoS problems con varías spells, entre ellas los totems, por ejemplo earthbind totem o magma totem por Retriman
+1.84 - 10/01/2013: Fix de arena frames por 3kids
+1.85 - 10/01/2013: Fix Root auras, ahora eliminarán los efectos de sigilo por elecyb
+1.86 - 02/02/2013: Eye of Storm: Fix exploit saliendo de la burbuja, ahora colocará a los jugadores que hayan bajado de la zona inicial si no ha empezado la BG por Tobmaps actualizado por Gildor
+1.87 - 06/01/2013: SpellMods: Fix all spells which use spellmods por Dany
+1.88 - 10/02/2013: Arreglo de las fechas de eventos por Winnie
+1.90 - 16/02/2013: Fix spell Shadow Sight, ahora será debuff por Gildor
+1.91 - 16/02/2013: Dalaran Sewers: Corregida la posición de Shadow Sight en la arena por Gildor
+1.92 - 18/02/2013: Implement Resilience and basic armor penetration por Dany
+1.94 - 28/02/2013: Remove glow vision in arena por Dany
+1.97 - 29/03/2013: The eye of Eternity cerrada hasta proximo aviso por Eilo
+1.99 - 31/03/2013: Correcciones menores al llamado del LeaveChannel en LogoutPlayer por Eilo
+1.100 - 02/04/2013: Avisos de Join/Leave desactivados por Eilo
+1.101 - 07/04/2013: Pets will not attack when they are under cc effects by Phantons
+1.103 - 09/04/2013: Evitando crashes de warden, en teoria siempre debe destruirlo por Spp
+1.105 - 14/04/2013: No debemos guardar 2 veces las cosas en el mismo proceso, hay uno en el destructor tb por Eilo
+1.108 - 14/04/2013: Evitando crashes en el Unload del mapa, esto pasa frecuentemente aunque tengas unloadgrid = 0 por Eilo
+1.110 - 19/04/2013: Ampliando la dimension de los pilares de colision para evitar que se pongan en el filo y curen/peguen por Eilo
+1.111 - 19/04/2013: Habilitando RoV por Eilo
+1.112 - 19/04/2013: Arreglo para los estados correctos de los pilares visuales y las poleas/piñones por Eilo
+1.113 - 20/04/2013: Duplicados rates de plantas y minerales de Rasganorte por Muzashi
+1.115 - 23/04/2013: Propiedades de puertas de las arenas por Walkline
+1.116 - 25/04/2013: Implement Gargoyle except in CharmInfo, now behave as a pet in some cases and then you can use pet commands for it by Phantons
+1.118 - 25/04/2013: Core/TempSummon: Fix Action Bar, now will not create when summon gargoyle by Phantons
+1.119 - 27/04/2013: Core/Pets: Except for some summons, that not have threat list but can be taunt by Phantons
+1.120 - 28/04/2013: Core/Unit: Rename GetOnlyPetCommands and SetOnlyPetCommands to GetPetCommandsOnly and SetPetCommandsOnly by Phantons based on Dany
+1.121 - 28/04/2013: Core/DK: Implement Rune Grace Period (2SR) by Phantons
+1.122 - 01/05/2013: Core/DK: Fixed convert to death runes after 2SR changes by Phantons
+1.124 - 02/05/2013: Core/DK: When Dk changes spec, reset last pet number for do not summon ghoul in BG as pet by Phantons
+1.126 - 01/05/2013: Prevenir posible error al llamar AreaExploredOrEventHappens en SAI por Muzashi
+1.127 - 02/05/2013: Core/Codestyle: some small improvements for Doxygen Purposes by Phantons
+1.128 - 02/05/2013: Prevenir exploits de stats en wintergrasp por L30m4nc3r
+1.129 - 15/05/2013: DB/LoginDatabase: Utilización de PreparedStatements en la actualizacion de flag online por Eilo
+1.130 - 03/06/2013: Saves: obligando a eliminar registros en db a su vez que elimina el boundary por Eilo
+1.131 - 04/06/2013: Saves: separando las ejecuciones sobre la base de datos por Eilo
+1.132 - 04/06/2013: InstanceReset: kickeando a los players de un mapa cuando esta a punto de resetear, asegurando la eliminacion de datos y otros por Eilo
+1.133 - 05/06/2013: Anti-Flood: Control de flood solo en canales por Eilo
 
 
 ########################
 # Dungeons e Instances #
 ########################
+- TrialOfCrusader -
+2.1.1  - 08/10/2011: TrialOfTheCrusader: Grip & knockback immunities on script by Karlos
+2.1.3  - 01/11/2011: TrialOfTheCrusader: DB Immunities on bosses and adds by Eilo
+2.1.5  - 01/05/2012: TrialOfTheCrusader: AnubArak begins combat within 20y by Eilo
+2.1.6  - 16/12/2012: TrialOfTheCrusader: Gormok no debe dejar id al matarlo por Kroenen
+2.1.7  - 16/12/2012: TrialOfTheCrusader: Dreadscale y Acidmaw no deben dejar id al matarlos por Kroenen
+2.1.8  - 24/01/2013: TrialOfTheCrusader: Jaraxxus inmune a taunt mientras se ejectua el evento de intro por Eilo
+2.1.9  - 24/03/2013: TrialOfTheCrusader: AnubArak invoca los Nerubian Burrower mas pausado en fase 3 por Eilo
+2.1.10 - 24/03/2013: TrialOfTheCrusader: AnubArak spike (dummy) añadidas las inmunidades por Eilo
+- IcecrownCitadel - 
+2.2.4  - 26/11/2011: Inmunidades en script para todos los bosses y mini bosses por Eilo
+2.2.6  - 24/10/2011: Trash mob Deathbound Ward disminuido rango de aggro por Plangcoder
+2.2.7  - 02/11/2011: LichKing apaño a tirion cuando se congela por Retriman
+2.2.15 - 24/11/2011: Marrowgar begin combat approaching within 25y by Eilo
+2.2.17 - 24/11/2011: Saurfang begins combat on approaching within 20y and at the end of the dialog by Eilo
+2.2.20 - 24/11/2011: Putricide begins combat approaching near him by Eilo
+2.2.21 - 24/11/2011: Sindragosa prevention aiming to get target on landing por Eilo
+2.2.22 - 24/11/2011: BloodCouncil begins combat approaching near him por Eilo
+2.2.24 - 25/11/2011: LichKing begins combat at the end of the intro dialog by Eilo
+2.2.25 - 24/11/2011: Correcciones en npcs Nerubar Broodkeeper por Eilo y Muzashi
+2.2.26 - 24/11/2011: Putricidio ajuste velocidad de Volatile Ooze por Eilo
+2.2.27 - 26/11/2011: Rotface ajuste triggers por Eilo
+2.2.28 - 26/11/2011: Putricidio ajuste inmunidades de Volatile Ooze por Eilo
+2.2.29 - 04/12/2011: LichKing Valkyrs ajuste inmunidades por Eilo
+2.2.30 - 25/11/2011: ICC Trashmob implementacion original por Eilo, en sai y mejoras por Muzashi
+2.2.31 - 21/11/2011: Inmunidades en db para todos los bosses y mini bosses por Eilo
+2.2.33 - 04/12/2011: LichKing Valkyrs ajuste velocidad en script por Eilo
+2.2.35 - 08/07/2012: Daño fisico de todos los bosses ajustado por Eilo
+2.2.36 - 13/11/2011: Sindragosa arreglo para no perder target apenas baje por Retriman
+2.2.40 - 13/01/2012: LichKing inmune a taunt en cambio de fase por Odyssey
+2.2.43 - 09/11/2011: Trashmob Valkyr lower spire añadida AI por Macavity
+2.2.44 - 06/02/2012: LadyDeathwhisper añadiendo dificultades de la spell Death&Decay por AliveShiro
+2.2.47 - 04/05/2012: Marrowgar añadido resistencia al fuego para players por Xanvial
+2.2.48 - 04/05/2012: Putricidio añadiendo inmunidades a la ooze y gas cloud por Xanvial
+2.2.49 - 04/05/2012: Rotface añadiendo el visual correcto a slime spray por Xanvial
+2.2.51 - 04/05/2012: Lanathel arreglando el requisito para blood quickening por Xanvial
+2.2.52 - 04/05/2012: Festergut y Rotface añadiendo el requisito para completar el residue rendezvouz por Xanvial
+2.2.58 - 04/05/2012: Sindragosa Gauntlet event, original por Cemak, actualizado por Eilo y mejoras por Muzashi
+2.2.59 - 08/05/2012: Rotface inmunidades de las oozes por Jildor
+2.2.61 - 20/03/2012: Marrowgar amenorando el tiempo del bone storm en heroico por Eilo
+2.2.62 - 26/05/2012: Marrowgar priorizando el target mas lejano en bone storm por Eilo
+2.2.64 - 20/03/2012: Lanathel removiendo el gunshing wounds para los que lleven la shadowmourne por Eilo
+2.2.69 - 28/05/2012: Sindragosa cambiando los timers para el frost bomb por Eilo
+2.2.70 - 26/03/2012: Sindragosa inmunidad a Mystic Buffet por Elron
+2.2.71 - 17/06/2012: Sindragosa frost bomb LoS por Frozensoul
+2.2.75 - 13/06/2012: Svalna some correction to the script by FrozenSoul
+2.2.76 - 17/06/2012: Saurfang outro event by FrozenSoul
+2.2.79 - 23/06/2012: LadyDeathwhisper frostbolts should be interruptable by Angarius
+2.2.82 - 13/07/2012: Marrowgar bone spikes should be immune to drath grip by Eilo
+2.2.83 - 17/07/2012: Nerubar Broodkeeper now fall in hover mode and remove it when reach the floor by Muzashi
+2.2.84 - 18/07/2012: Putricide Gas Cloud adds reduced speed by Eilo
+2.2.85 - 19/07/2012: Valithria Dreamwalker loot, only 2 equip items should drop by Amilicious
+2.2.86 - 20/07/2012: Rotface Immunity added to big oozes avoiding cast interrupt by Eilo
+2.2.87 - 28/07/2012: Precious & Stinky, added immunitys to some ccs by Amilicious
+2.2.90 - 06/08/2012: Putricide Ooze channel cant be canceled by taunt by Eilo
+2.2.91 - 20/08/2012: Added some text to teleports by Eilo
+2.2.92 - 20/08/2012: Saurfang added some texts by Eilo
+2.2.93 - 19/03/2012: Un respiro para un alma atormentada se entrega en Kalecgos por Muzashi
+2.2.94 - 25/09/2012: Saurfang Ensuring Scent of Blood effect on Blood Beasts by Hexa
+2.2.95 - 03/09/2012: Rampart of Skulls trashmob añadido por Muzashi
+2.2.96 - 30/09/2012: TheLichKing Temp fix heal player when Harvest Soul by Jildor
+2.2.97 - 30/09/2012: TheLichKing Valkyr become selectable on Life Syphon use by Jildor
+2.2.98 - 30/09/2012: TheLichKing Valkyr Shadowguard drop player prematurely when stunned or similar effect by Xanvial
+2.2.99 - 30/09/2012: Marrowgar Impaled players can be healed by Jildor
+2.2.100 - 30/09/2012: LadyDeathwhisper Temp fix spell dark martyrdom by Jildor
+2.2.102 - 25/10/2012: Putricidio Evitando que las babosas targeteen a la abominacion por Eilo
+2.2.103 - 26/10/2012: Putricidio rotface arreglando el comportamiento de la spell ooze flood por Eilo
+2.2.105 - 22/08/2012: GunshipBattle añadido scripts de instancia y transportes por Eilo
+2.2.106 - 10/09/2012: GunshipBattle correcciones al rocket pack y overheat por Eilo
+2.2.107 - 27/10/2012: GunshipBattle script completa por Eilo
+2.2.108 - 27/10/2012: Infusion Profana, de Sangre y Escarcha solo pueden completarse en 25man por Muzashi
+2.2.109 - 28/10/2012: Putricidio Mutacion quitando la regeneracion incorrecta por Muzashi
+2.2.110 - 28/10/2012: FrostWing Trash Svalna asegurando que sea atacable por Eilo
+2.2.112 - 13/11/2012: Encuentro de Saurfang se guarda correctamente en db por Muzashi
+2.2.113 - 13/11/2012: GunshipBattle habilitando la pelea por Eilo
+2.2.114 - 13/11/2012: GunshipBattle evitando exploits con el RocketPack, usable solo si el aura del boombox esta presente por Eilo
+2.2.115 - 16/11/2012: Core/Spells: Fix Essence of the Blood Queen healing interrupting spell casts por Elron103
+2.2.118 - 23/11/2012: TheLichKing: corregido el loot del Cofre Sellado por Muzashi
+2.2.119 - 16/12/2012: LadyDeathwhisper: Arreglado el logro FullHouse, cancelando eventos en fase dos por Hexa modificaciones por Eilo
+2.2.120 - 17/12/2012: LichKing: Valkyr Shadowguard ajuste de velocidades en db para la ralentizacion apropiada por Eilo
+2.2.121 - 17/12/2012: LichKing: Vile Spirit ajuste de velocidades en db para el RandomMovement por Eilo
+2.2.123 - 17/12/2012: Sindragosa arreglada la tumba de la tercera fase por Eilo
+2.2.124 - 17/12/2012: TheLichKing Valkyrs ajuste de comportamiento de altura por Eilo
+2.2.125 - 19/12/2012: TheLichKing Wicked Spirit ajuste de velocidades en la db por Eilo
+2.2.126 - 19/12/2012: TheLichKing Spirit Bomb ajuste de velocidades en la db por Eilo
+2.2.127 - 23/12/2012: Saurfang retoque de contenedores para targets por Shauren
+2.2.128 - 02/01/2012: BloodCouncil arreglando la velocidad y comportamiento de explosion de las kinetic bomb por Elron103
+2.2.129 - 31/05/2012: TheLichKing arreglada la velocidad de las spirit bomb por Xanvial
+2.2.130 - 05/01/2012: BloodCouncil disminuida la velocidad de las kinetic bomb en la db por Eilo
+2.2.131 - 06/01/2013: Valithria arreglos en la mecanica de reinicio por Elron103
+2.2.132 - 06/01/2013: Festergut mejora del vile gas en modo 25man, 3 targets por Eilo
+2.2.133 - 06/01/2013: GunshipBattle añadidas inmunidades a los magos por Dolanpls
+2.2.134 - 05/11/2012: Valithria arreglado el escalamiento del Twisted Nightmare por Elron103
+2.2.135 - 11/01/2013: Marrowgar inmune a taunt mientras hace bone storm por Eilo
+2.2.136 - 02/01/2013: Putricide ahora choking gas bomb no stuneara a la abominacion por Elron103
+2.2.137 - 02/01/2013: Putricide arreglo de las condiciones del vile gas en heroico por Elron103
+2.2.138 - 14/01/2013: Lana'thel arreglo de cantidad de targets del Pact of the Darkfallen por Eilo
+2.2.139 - 15/01/2013: Saurfang evitando que se buguee el evento de salida por Eilo
+2.2.140 - 16/01/2013: Lana'thel arreglo del buff Presence of the Darkfallen por Eilo
+2.2.141 - 18/01/2013: Sindragosa el Permeating Chill solo debe ponerlo si estan en rango de Frost Aura por Eilo
+2.2.142 - 18/01/2013: Putricide arreglado para que los mocos no cojan el mismo target por Eilo
+2.2.143 - 20/01/2013: Festergut el Inoculated entrará al acabarse el efecto de Blighted Spores por Eilo
+2.2.144 - 20/01/2013: Trashmob Spell Dark Reckoning scriptada por Eilo
+2.2.145 - 24/01/2013: GunshipBattle inmunidades por Eilo
+2.2.146 - 03/02/2013: Sindragosa evitando que puedan curar en la tumba por Eilo
+2.2.147 - 03/02/2013: Saurfang mejoras en la script para el manejo del done y el raidinfo por Eilo
+2.2.149 - 03/02/2013: Festergut arreglo del comportamiento de las Blighted Spores por Eilo
+2.2.150 - 01/02/2013: Corregidos procs de la spell Shadow's Fate por Gacko
+2.2.151 - 25/01/2013: Sindragosa arreglo del efecto de ubicación del Icy Grip por Aknl
+2.2.152 - 12/02/2013: Saurfang los npcs de los eventos en pasivo, evitando bugs con gunship por Eilo
+2.2.153 - 12/02/2013: Sindragosa arreglo del asfixiar individualmente para la fase 3 por Eilo
+2.2.154 - 23/03/2013: LadyDeathwhisper implementado nueva AI para las vengeful shade y multiple spawn en 25man por Eilo
+2.2.155 - 23/03/2013: LadyDeathwhisper ajuste de velocidad de las vengeful shade por Eilo
+2.2.156 - 23/03/2013: Saurfang corregido el rate de curación del Blood Link por Eilo
+2.2.157 - 25/03/2013: Buffs las pets tambien ganan el buff de ICC por Eilo
+2.2.158 - 26/03/2013: Eventos de recompensa de la Agonía y Filo de las Sombras por Muzashi
+2.2.159 - 06/12/2012: Sindragosa evitando que alguien de las tumbas se quede fuera de combate y de res por Hexa
+2.2.160 - 08/04/2013: TheLichKing apaño para velocidades de los wicked spirit por Eilo
+2.2.161 - 20/06/2012: TheLichKing Destroy Soul de Terenas matará a los pjs asi sean inmunes o esten fuera de LoS por Elron103
+2.2.162 - 20/06/2012: TheLichKing visuales de la espada por Elron103
+2.2.163 - 22/07/2012: TheLichKing interrumpiendo casts en el outro, para que Fury of Frostmourne se castee con seguridad por Elron103
+2.2.164 - 05/04/2013: TheLichKing evitando exploits con las columnas, quitandoles el LoS por Elron103
+2.2.165 - 09/04/2013: TheLichKing evitando explits con la spell Harvest Soul por Eilo
+2.2.166 - 11/04/2013: Fix spell Chill of the Throne (ICC), ahora no se eliminará el debuff al recibir Divine Intervention por Havenard
+2.2.167 - 14/04/2013: Rotface ajustes de estabilidad en la spell Large Ooze Combine por Eilo
+2.2.168 - 18/04/2013: Putricide la spell Expunged Gas ahora no es inmune a hand of protection ni otras por Eilo
+2.2.169 - 23/04/2013: Putricide las babosas ahora no se quedaran despues de un wipe por Eilo
+- Naxxramas -
+2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
+2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
+- Onyxia'sLair -
+2.4.1  - 28/03/2011: Onyxia'sLair: Immunities on script by Souler
+- Eye of Eternity -
+2.5.1  - 16/01/2013: EyeOfEternity: Malygos añadidas inmunidades a knockbac y grip en script por Eilo
+2.5.2  - 16/01/2013: EyeOfEternity: Malygos añadidas las inmunidades en db por Eilo
+- Ulduar -
+2.6.0  - 15/08/2012: Ulduar: Inmunidades generales por DorianGrey
+2.6.1  - 13/02/2012: Ulduar: XT002 Evitando la fase del corazon por Eilo
+2.6.2  - 06/05/2012: Ulduar: Mimiron nueva script, original por Darkman, actualizada por Eilo
+2.6.3  - 07/05/2012: Ulduar: Thorim nueva script, original por Darkman, mejoras y actualizaciones por Eilo
+2.6.4  - 07/05/2012: Ulduar: YoggSaron nueva script, original por Darkman, mejoras por Shaco, actualizaciones por Eilo
+2.6.5  - 07/05/2012: Ulduar: Trashmob por Darkman y correcciones/soporte de scripts por Eilo
+2.6.6  - 16/01/2013: Ulduar: Vezax se puede interrumpir el casteo de Searing Flames por Evef añadidos por Eilo
+2.6.7  - 24/03/2013: Ulduar: Freya arreglado el model de los sunbeams por Eilo
+2.6.8  - 24/03/2013: Ulduar: Freya aumentando el tiempo de los sunbeams del Elder Bightleaf por Eilo
+2.6.9  - 24/03/2013: Ulduar: Razorscale corrigiendo los models de las Devouring Flames por Eilo
+2.6.10 - 24/03/2013: Ulduar: Razorscale añadiendo las spells por dificultad por DorianGrey
+2.6.11 - 24/03/2013: Ulduar: Razorscale inmunizando al Flame Breath para que no mate a los Controllers por Eilo
+2.6.12 - 24/03/2013: Ulduar: Razorscale corrigiendo los models de los controllers por Eilo
+2.6.13 - 11/04/2013: Ulduar: Hodir spameara el rare chest si se cumple el hard mode por Dolanpls
+2.6.14 - 21/04/2013: Ulduar: El combate contra Freya no dejera el aura "Esencia de Hojabrillante" a todos los mobs cercanos por Dolanpls
+2.6.15 - 25/04/2013: Ulduar: El combate contra Freya no dejera el aura "Esencia de Hierrorrama" a todos los mobs cercanos por Dolanpls
+2.6.16 - 13/06/2013: Ulduar: Los npc del camino hasta Thorim ya no seran inmunes al ataque de jugadores por Dolanpls
+2.6.17 - 15/06/2013: Ulduar: Las trampas que hay antes del boss Thorim ya no perseguiran al jugador ni seran seleccionables y atacables por Dolanpls
+- Vault of Archavon -
+2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
+2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
+- ObsidianSanctum -
+2.8.1  - 01/05/2012: ObsidianSanctum: Añadido trashmob e inmunidades por Zwerg, actualizado por Eilo
+- RubySanctum -
+2.9.1  - 17/06/2012: RubySanctum: Trashmob añadido, inmunidades y script en SAI por Muzashi
+2.9.2  - 27/05/2012: RubySanctum: Baltharus inmune a knockback por Xanvial
+2.9.3  - 15/08/2012: RubySanctum: Zarithrian ajustes trahmob por Eilo
+2.9.6  - 15/08/2012: RubySanctum: Bosses spawntime & binding, original por LordOfDomm, actualizada por Eilo
+2.9.7  - 15/08/2012: RubySanctum: Ajuste de damage & inmunidades por Eilo
+2.9.8  - 01/11/2012: RubySanctum: Twilight Halion inmune a knockback por Xanvial
+2.9.9  - 16/01/2012: RubySanctum: Halion y TwilightHalion inmune a grip por Eilo
+2.9.10 - 19/01/2013: RubySanctum: Circulo de fuego de Halion al inicio del combate y si el boss sale de el se reinicia el evento by Dolanpls
+2.9.11 - 21/01/2013: RubySanctum: Halion lanzará correctamente la spell Soul Consumption en el reino de las sombras by Evef
+2.9.12 - 26/01/2013: RubySanctum: El daño de los Halion ya no los compartiran y arreglos de las diferentes vidas entre fases por Dolanpls y Evef
+2.9.13 - 28/01/2013: RubySanctum: Halion corregido agro de inicio, la fase 2 empezara al 70%, corregida vida de twilight_halion para el inicio de la fase 2 e interfase de la 2 a 3 by Evef y Dolanpls
+2.9.14 - 28/01/2013: RubySanctum: Otro retoque a los porcentajes de vida y cambio de fase de Halion por Dolanpls
+2.9.15 - 07/02/2013: RubySanctum: Durante el encuentro con Halion nadie se podrá quedar fuera de combate una vez empieza por Evef
+2.9.16 - 09/02/2013: RubySanctum: Halion en la 3º phase no reseteará las variables cada vez que haga check para darle mas estabilidad a la corporeality por Evef y Dolanpls
+2.9.17 - 10/02/2013: RubySanctum: El halion crepuscular morira al morir el material por Evef y Dolanpls.
+2.9.18 - 11/02/2013: RubySanctum: La corporalidad de Halion en la fase 3 es más precisa, y no se desboca facil. En la interfase a la 3ª, halion pierde todas las auras para evitar que los dragones esten descompensados en vida por Evef.
+2.9.19 - 11/02/2013: RubySanctum: Si uno de los 2 Halion no redibe daño se curaran por Dolanpls.
+2.9.20 - 16/02/2013: RubySanctum: La copia del boss Baltharus ya no compartira vida con el por Dolanpls.
+2.9.21 - 21/02/2013: RubySanctum: Halion comprobara la gente viva y en su rango de aggro para evitar quedarse en combate por Dolanpls.
+2.9.22 - 01/03/2013: RubySanctum: Halion invocara adds en las dificultades heroicas por Dolanpls.
+2.9.23 - 01/03/2013: RubySanctum: Aparecerán y funcionarán los 4 orbes en modo heroico por Evef
+2.9.24 - 03/03/2013: RubySanctum: Ahora si aparecerán de forma correcta los orbes, y un pequeño arreglo al spawn de orbes hero por Evef
+2.9.25 - 03/03/2013: RubySanctum: Añadido damage a los adds en 25h, solo spawneará un Inferno, añadido el check de distancia entre Living Inferno y Living Embers por Evef
+2.9.26 - 11/03/2013: RubySanctum: Baltharus invocara las copias aunque este casteando por Dolanpls.
+2.9.27 - 23/03/2013: RubySanctum: Halion twilight cutter dará el aviso 3 segundos antes de lanzarlo por Eilo
+- Ahn'Kahet -
+2.10.1 - 03/08/2011: Ahn'Kahet: Taldaram combate en invisible por Greymane
+2.10.2 - 16/12/2011: Ahn'Kahet: Taldaram daño esferas ajustado por Eilo
+2.10.3 - 18/04/2012: Ahn'Kahet: Heraldo Volazj ajustado daño de adds por Asleen
+2.10.4 - 23/05/2012: Ahn'Kahet: Taldaram movimiento de las esferas por Luriel
+- AzjolNerub -
+2.11.1 - 02/05/2012: AzjolNerub: AnubArak corregido exploit de la zona de combate por Eilo
+- CullingOfStratholme -
+2.12.1 - 17/12/2011: CullingOfStratholme: Arthas no desaparece a distancia por Eilo
+2.12.4 - 19/07/2012: CullingOfStratholme: Infinite Corruptor added and improved script/achievements por Eilo
+2.12.5 - 19/07/2012: CullingOfStratholme: Traducciones por Souler
+2.12.6 - 19/07/2012: CullingOfStratholme: Added an extra option to skip intro event por Eilo
+2.12.7 - 15/08/2012: CullingOfStratholme: Added a cryer to notify players about next trash wave por Eilo
+2.12.8 - 04/02/2013: CullingOfStratholme: Quitadas las flags de inmune en la 2ª oleada cuando empezamos a seguir a arthas para evitar el bug por Dolanpls
+- TrialOfTheChampion -
+2.13.1 - 15/08/2012: TrialOfTheChampions: Reimplementacion y soporte spells por Souler, mejoras, reordenacion y complementos por Eilo
+- Drak'Tharon -
+2.14.1 - 17/12/2011: Drak'Tharon: Visuales y flags varias del trash y reward de LFG por Treak y Eilo
+2.14.2 - 11/02/2011: Drak'Tharon: Novos permitir reinicio boss por Odyssey
+2.14.3 - 24/03/2011: Drak'Tharon: Tharon'Ja no atacable hasta terminar demas bosses por Souler
+2.14.4 - 12/03/2013: Drak'Tharon: Añadido soporte para las quest Búsqueda y rescate - Juegos mentales por Muzashi
+- Gundrak -
+2.15.1 - 09/08/2011: Gundrak: Colossus desactiva el aura de MojoVolley al morir por Odyssey
+2.15.2 - 16/08/2012: Gundrak: Colossus eliminado doble loot por Eilo
+- HallsOfReflection -
+2.16.1 - 08/10/2011: HallsOfReflection: Reimplementacion y añadido LichKing por Odyssey, editada por Eilo
+2.16.2 - 07/11/2012: HallsOfReflection: Fix waves, ahora no se juntara una oleada con otra al pasar por la zona del altar por Gildor
+2.16.3 - 16/12/2012: HallsOfReflection: Falric y Marwyn deben dejar id por Kroenen
+- PitOfSaron -
+2.17.1 - 24/12/2011: PitOfSaron: Correccion de varios mobs por Eilo
+2.17.3 - 16/08/2012: PitOfSaron: Krickandick ajuste de efectos visuales y timers en pursuit por Eilo
+- ForgeOfSouls -
+2.18.1 - 16/08/2012: ForgeOfSouls: Bronjahm ajuste de inmunidades por Eilo
+2.18.2 - 16/08/2012: ForgeOfSouls: Adding some texts by Eilo
+2.18.3 - 23/10/2012: ForgeOfSouls: Correcciones a las Unleashed Souls por tibbi
+- TheNexus -
+2.19.1 - 05/12/2011: TheNexus: Correccion de trash mob y varias flags por Treak
+2.19.2 - 21/07/2012: TheNexus: Fixed quest "Buying Time" and the white dragons falling to the ground by Muzashi
+- TheOculus -
+2.20.1 - 13/07/2012: TheOculus: All mount spells should enable on dragonking targets, due to exploits by Zwerg
+2.20.2 - 13/07/2012: TheOculus: Reward workaround for heroic mode by Darkman
+2.20.4 - 13/07/2012: TheOculus: Drakos adding some texts by Souler
+2.20.5 - 13/07/2012: TheOculus: Drakos moved achivement to an upper scope by Eilo
+2.20.6 - 13/07/2012: TheOculus: Varos adding some texts by Souler
+2.20.7 - 13/07/2012: TheOculus: Varos added arcane beam visuals and tweaks by Eilo
+2.20.8 - 13/07/2012: TheOculus: Varos added stop time (mounts) spell immunity by Karlos
+2.20.9 - 13/07/2012: TheOculus: Urom added some texts by Souler
+2.20.10- 13/07/2012: TheOculus: Urom some tweaks by Eilo
+2.20.11- 13/07/2012: TheOculus: Urom added stop time (mounts) spell immunity by Karlos
+2.20.12- 13/07/2012: TheOculus: Eregos added some texts by Souler
+2.20.13- 13/07/2012: TheOculus: Eregos changed planar anomalies spell into creaturescript by Zwerg
+2.20.15- 13/07/2012: TheOculus: Eregos some tweaks by Eilo
+2.20.16- 13/07/2012: TheOculus: Loot cache adding a spotlight after encounter by Darkman
+2.20.17- 13/07/2012: TheOculus: Drakes proper visuals and unmount/mount behaviour original by Zwerg and Souler, improvements by Eilo
+2.20.18- 13/07/2012: TheOculus: Some gold loot, immunities and skinloot data by Zwerg
+2.20.20- 13/07/2012: TheOculus: Some define gossips by Souler
+- TheVioletHold -
+2.21.1 TheVioletHold: Ichoron stuck on 1hp
+2.21.2 - 13/06/2012: TheVioletHold: Xevozz heroic mode improvements by Eilo
+2.21.3 - 13/06/2012: TheVioletHold: Text improvements by Eilo
+2.21.4 - 22/03/2013: TheVioletHold: Ichoron lanzara Water Blast antes de desaparecer por Dolanpls.
+2.21.5 - 25/03/2013: TheVioletHold: Añadidas las 2 habilidades faltantes a Moragg por Dolanpls.
+- HallsOfStone -
+2.23.1 - 20/07/2012: HallsOfStone: TribunalOfAegis Added motionmaster to summons to avoid exploits by Eilo
+2.23.2 - 16/08/2012: HallsOfStone: adding some texts by Eilo
+2.23.3 - 07/01/2013: HallsOfStone: Tribunalevent añadidos los AI a trash por Evef.
+- UtgardeKeep -
+2.24.1 - 01/10/2011: UtgardeKeep: Ingvar permitiendo que se le pueda atacar en el reseteo por Eilo
+- UtgardePinnacle -
+2.25.1 - 25/12/2011: UtgardePinnacle: Svala ahora es atacable con normalidad por Eilo
+2.25.3 - 16/08/2012: UtgardePinnacle: Skadi fixed encounter phase two by Eilo
+2.25.4 - 16/08/2012: UtgardePinnacle: Skadi delete Grauf duplicated spawn by Eilo
+2.25.5 - 30/09/2012: UtgardePinnacle: KingYmiron Fix exploit atacar al rey sin matar los demas bosses by HyD
 
 
 ###############################
 # Hechizos, Glifos y Talentos #
 ###############################
+3.2  - 25/22/2011: Mago: Reflejo Exacto ahora no atacan a objetivos que están bajo los efectos de Polimorfia 
+3.3  - 05/11/2011: Brujo: Mejoras en pet felhunter por Locknes
+3.4  - 02/09/2011: Druida: Trabazon con la naturaleza: añadido CD interno por Retriman
+3.5  - 09/09/2011: Cazador: Trampla explosiva corregido el daño periodico por Retriman
+3.7  - 10/09/2011: Chaman: Maremoto ahora dará el bonus de critico correspondiente por Retriman
+3.8  - 11/08/2011: Cazador: Golpes de cobra por Jildor
+3.12 - 02/09/2011: Guerrero: Reflejar efecto de Multi-Reflect por Retriman
+3.16 - 28/10/2011: Paladin: Defensa recta por Chaplain
+3.19 - 22/09/2011: Cazador: Pet Demosaurio Mordedura monstruosa fix efecto aplicado al target por Retriman
+3.20 - 22/09/2011: Sacerdote: Rezo de Alivio (33076) ahora es afectado por Disciplinas gemelas (47588), Sanacion espiritual (87336) y Divina providencia (47567) por Retriman
+3.33 - 13/03/2012: Mago: Congelacion Cerebral (44546) y Dedos de Escarcha (44543) solo se activarán si Cono de Frio (120) golpea el target por oMadMano.
+3.36 - 26/03/2012: Picaro: Capa de las Sombras (31224) ya no remueve Aullido Perforador (12323), Grito Desmoralizador (25203) y Rugido Desmoralizador (26998) por Bigpwn.
+3.40 - 10/05/2012: Brujo: Descarga de caos (50796) no puede ser desvíada por hechizos como Disuasión por Oceanor
+3.42 - 23/05/2012: Shaman: Línea de Visión de los totems por Dany
+3.43 - 03/06/2012: Pets: Allowing revive pets on BG por Frozensoul
+3.44 - 31/05/2012: Warrior: Heroic Strike should deal bonus dmg to dazed targets por tibbi
+3.46 - 28/05/2012: Spell delays por Dany
+3.47 - 09/06/2012: Mixology (53042) por mweinelt
+3.48 - 09/06/2012: DK: Dancing Rune Weapon (49028) should also copy disease application and damage copy although copied damage account target armor, so make it less than 50% of owner por oMadMano
+3.51 - 13/06/2012: DK: Raise ally (61999) por FrozenSoul
+3.52 - 20/08/2012: Paladín: Cólera santificada (53376): revierte las modificaciones del bonus de daño hechas por Kandera en 7f960fe porque rompía el funcionamiento de otros spells del paladín por Hispano
+3.53 - 11/07/2012: Warrior: Taunt (355) cooldown is refreshed when a group member with Vigilance (50720) aura is hit por Corfen
+3.55 - 13/07/2012: Warrior: Fix titans grip exploits/bugs por Exe
+3.56 - 13/07/2012: Dispell: If you dispell should put you in combat por tobmaps
+3.58 - 13/07/2012: Druid: Savage Roar (52610) should only proc on cat form por sam
+3.59 - 13/07/2012: Druid: Survival Instincts (61336) should only usable on cat or bear forms por avalonfr
+3.60 - 13/07/2012: Hunter: Tame Beast (1515) should have some basic checks, due to some db errors por avalonfr
+3.61 - 13/07/2012: Warrior: Deep wounds (12867) prevented from exceeding more than 20k damage, temp fix for really high damage when server has high diff
+3.69 - 16/07/2012: Paladin: Blessing of Sanctuary (20911) and Blessing of Kings (20217) shouldn't stack
+3.70 - 21/08/2012: Warlock: Spell Lock (19647) should also prevent any spell from the school of magic that was being casted when the spell is used from being casted for 6 sec por A-Metaphysical-Drama
+3.71 - 18/07/2012: Shaman: Grounding totem (8177) should also absorb polymorph effect por Vincent-Michael
+3.75 - 22/07/2012: Druid: fix King of the Jungle (48495) was broken by a kandera's commit por Hispano
+3.76 - 29/09/2012: Mago: Hack fix for arcane blast damage buff applied before spell that triggered it deals damage por Xanvial
+3.77 - 30/09/2012: Warrior: Fixed stacking behavior for warrior's Enrage effects from talents by tobmaps
+3.78 - 01/10/2012: Warlock: Fixed talent Improved Succubus by tobmaps
+3.79 - 01/10/2012: Warlock: Fixed glyph of succubus by Vincent-Michael
+3.80 - 02/10/2012: DK: Fix Ebon Plaguebringer/Crypt Fever stacking by Xanvial
+3.81 - 04/10/2012: Druid: Fixed armor reduction for druid's spell Enrage by tobmaps and fix exploit Scaling armor by Gildor
+3.82 - 04/10/2012: DK: fix self-cast visual caused by Glyph of Chains of Ice by tobmaps
+3.83 - 04/10/2012: Rogue: Fix exploit exterminar al cambiar talentos by Gildor
+3.84 - 05/10/2012: Hunter: Fixed hunter's talent Rapid Recuperation by tobmaps
+3.85 - 23/10/2012: Undead: Revert "Core/Spells: Fixed WotF and PvP trinket shared cooldown"
+3.86 - 07/10/2012: DK: Escudo Antimagia debe ayudar contra magias, venenos y enfermedades por tibbi
+3.87 - 04/11/2012: Chaman: Fix Grounding Totem (Es compatible con 3.71), ahora se destruirá al recibir las spells correctamente por Havenard
+3.88 - 01/11/2012: Druida: Arreglando talento tierra y luna, efecto aumento de daño spell por Axium
+3.89 - 08/03/2013: Rogue: Fix spell Vanish, ahora saldrá de combate al instante si no está en un encuentro contra un boss por Gildor
+3.90 - 03/11/2012: Sacerdote: shadowform arreglado bugs de casteo por Garyfisher
+3.91 - 09/10/2012: DK: DeathandDecay debe dañar tambien a los oponentes invisibles por Garyfisher
+3.93 - 07/06/2012: DK: Gargolyte debe ganar efectos de celeridad de las auras del dk por tibbi
+3.94 - 23/12/2012: DK: Fix spell Gargoyle Strike, ahora hará el daño correcto y se incrementará con el talento Impurity por Gildor
+3.96 - 08/11/2012: DK: Wandering Plague no incrementará su daño por las auras del player por tobmaps
+3.97 - 09/11/2012: Shaman: Fix talent Storm, Earth and Fire (Earthbind Totem root effect) ya no tendrá Diminishing Returns consigo mismo por Vincent-Michael
+3.98 - 11/11/2012: Temp Fix Renewed hope stack with vigilance, ya no eliminará vigilancia al obtener esperanza renovada por rdoo
+3.99 - 12/11/2012: Rogue: Fix del stealth en combo vanish+ccDelayed por Eilo
+3.101 - 12/11/2012: Mago: Añadido delay a traslación por Gildor
+3.102 - 15/11/2012: Mago: Fix temporal para que invisibilidad no genere agro a los NPCs de alrededor por Gildor
+3.103 - 17/11/2012: Rogue: Fix temporal para que Sigilo no elimine Danza de las Sombras por Gildor (con ayuda de muza :) )
+3.104 - 19/11/2012: Chaman: Fix spell power coeficient del escudo de tierra por Gildor
+3.106 - 22/11/2012: Hunter: Fix spell Master's Call, ahora si la pet está muerta o atontada no aplicará el efecto por Gildor
+3.107 - 22/11/2012: Druida: Fix spell Omen of Clarity, ahora solo se accionará la spell al causar daño o sanación por Gildor
+3.108 - 22/11/2012: Rogue: Fix spell Honor Among Thieves, ahora no pondrá en combate y dará los puntos de combo correctamente por Tobmaps y editado por Gildor
+3.110 - 24/11/2012: Mago: Fix spell Invocar elemental de agua, ahora se podrá invocar correctamente al usar Cold Snap por Axium
+3.111 - 27/11/2012: Hunter: Fix spell Flare, ahora su efecto actuará antes de tocar el suelo por Gildor
+3.112 - 28/11/2012: Rogue: Fix spell Slice and Dice, ahora no pondrá en combate por Gildor
+3.113 - 30/11/2012: Chaman: Fix spell Stormstrike, ahora no se reemplazará si hay mas de uno por Gildor
+3.114 - 30/11/2012: DK: Fix Death runes, ahora se reemplazarán correctamente por Gildor
+3.115 - 01/12/2012: Brujo: Fix spell Ritual de Almas, ahora dará las piedras mejoradas al tener el talento por Gildor
+3.116 - 03/12/2012: Druida: Fix spell Infected Wounds, ahora se podrá aplicar al objetivo que tiene/tenía el efecto de Thunder Clap por Gildor
+3.117 - 04/12/2012: Wintergrasp: Fix spell Flame Breath (Wintergrasp Catapult), ahora no aumentará su daño en función del nivel por Gildor
+3.118 - 07/12/2012: Mago: Fix spell Ralentizar, ahora durará en PvP 10 segundos y no 15 por elecyb
+3.119 - 07/12/2012: Chaman: Fix Glyph of Earth Shield, ahora aumentará la sanación del escudo de tierra al portador del escudo y no solo cuando lo lleva el chaman por elecyb
+3.120 - 08/12/2012: DK: Fix Spell Death Coil, ahora su daño aumentará con el talento Impurity y su sanación hará el cálculo correcto por Gildor
+3.121 - 14/12/2012: DK: Fix Spell Chilblains, ahora su efecto se eliminará si se disipa Frost Fever por elecyb y arreglado por Gildor
+3.122 - 15/12/2012: DK: Fix Spell Blood-Caked Blade, ahora hará el daño correcto con enfermedades por Retriman
+3.123 - 15/12/2012: Mago: Fix spell Burning Determination, ahora se eliminará el buff al recibir el siguiente silencio/interrupción por elecyb
+3.124 - 19/12/2012: Paladin: fix monturas paladin, ahora su lanzamiento no será afectado por la celeridad por Vincent-Michael
+3.125 - 20/12/2012: Blood elf: Fix racial Arcane Torrent, ahora sacará del sigilo por Gildor
+3.126 - 22/12/2012: Hunter: Fix spell Master's Call, ahora eliminará el efecto root al objetivo aunque la pet esté rooted (Es diferente a 3.106) por Gildor
+3.127 - 27/12/2012: DK: Fix spell Magic Suppression, ahora caparazón antimagia no perderá el % de absorción extra por Greymane
+3.128 - 06/01/2013: Paladin: Fix spell Beacon of Light, ahora no pondrá en combate si el paladin la tiene o se la castea a si mismo por Gildor
+3.129 - 07/01/2013: DK: Fix spell Blood Tap, ahora funcionará tambien con Runas de Muerte por Gildor
+3.131 - 07/01/2013: Rogue: Fix spell Capa de las Sombras, ahora eliminará el efecto Chilled to the Bone de Sindragosa por Gildor
+3.132 - 08/01/2013: Mago: Fix spell Living Bomb, ahora explotará aunque el objetivo este fuera de la línea de visión por Gildor
+3.133 - 09/01/2013: DK: Fix spell Rune Strike, ahora no se eliminará el efecto para poder usar la spell al usar otra spell por Gildor
+3.135 - 13/01/2013: DK: Fix spell Death Grip, ahora no atraerá a los enemigos afectados por auras con efecto Root y Death Grip ahora llevará al DK hacía el objetivo si este refleja la spell por Gildor
+3.136 - 19/01/2013: Priest: Fix spell Prayer of Mending, ahora sus golpes críticos activarán Inspiration por kandera
+3.137 - 30/01/2013: DK: Fix spell Death Grip, ahora su movimiento será mas blizzlike por Gildor
+3.138 - 30/01/2013: DK: Fix spell Death Grip, ahora no se podrá usar si el DK está saltando o cayendo por Gildor
+3.139 - 30/01/2013: DK: Fix spell Death Grip, previniendo que se aplique el efecto de atraer al objetivo si este lo refleja por Gildor
+3.140 - 31/01/2013: DK: Fix spell Death Grip, ahora funcionará si el objetivo (o DK si le reflejan) está fuera de LOS en el momento de atraerlo por Gildor
+3.141 - 02/02/2013: Hunter: Fix spell Animal Handler, ahora aumentará el AP de la Pet por tibbi
+3.142 - 08/02/2013: DK: Fix spell Bloodworms, ahora invocará de 2 a 4 gusanos por Gildor
+3.143 - 08/02/2013: Warrior: Añadido delay a Charge and Intercept por Gildor
+3.144 - 13/02/2013: DK: Fix spell Anti-magic Shell, ahora no será inmune a cargar e interceptar del Guerrero, Druida y Hunter (Pet) por Gildor
+3.145 - 18/02/2013: Undead: Fix Cannibalize in battleground por Dany
+3.146 - 19/02/2013: DK: Fix spell Explode (ghoul), ahora casteará la spell aunque tenga GCD el ghoul por Gildor
+3.147 - 19/02/2013: Warlock: Fix spell Death Coil, ahora no eliminará stealth en CCDelayed por Gildor
+3.148 - 22/02/2013: Priest: Fix spell Spirit of Redemption, ahora será completamente inmune cuando se tenga el aura por boomy
+3.150 - 06/03/2013: Night Elf: Fix spell Shadowmeld, ahora no saldrá de combate al estar en un encuentro con un boss, saldrá de forma instantánea en 1vs1 o contra un NPC y saldrá pasados 6 segundos si algún compañero cercano esta en combate contra otro jugador por devilcoredev y modificado por Gildor
+3.151 - 09/03/2013: Warrior: Fix spell Bladestorm, ahora se cortará al desarmar al guerrero por Gildor
+3.152 - 09/03/2013: Warrior: Fix spell Bladestorm, ahora será inmune a Cyclone del Druida por Gildor
+3.153 - 09/03/2013: Warrior: Fix spell Bladestorm, ahora no se cancelará Bladestorm al usarla y cambiar de arma durante su efecto por iconskater
+3.154 - 10/03/2013: DK: Fix Summon Gargoyle attacking the nearby enemy instead of the target that was selected by the DK por Dany
+3.155 - 12/03/2013: Chaman: Fix spell Fire Nova (totem), ahora se podrá usar aunque el chaman este fuera de LoS por Gildor
+3.156 - 12/03/2013: Chaman: Fix spell Thunderstorm, ahora no se podrá usar si el chaman esta saltando o cayendo por Gildor
+3.157 - 16/03/2013: Hunter: Fix spell Roar of Sacrifice (Pet), ahora la mascota recibirá el 20% del daño causado al objetivo que tenga el efecto por A-Metaphysical-Drama y modificado para que funcione por Gildor
+3.158 - 19/03/2013: DK: Fix Glyph of Scourge Strike, ahora también aumentará los segundos de Crypt Fever y Ebon Plague por Gildor
+3.159 - 19/03/2013: DK: Fix spell Frost Fever and Blood Plague, ahora quitarán el 15% más que deben quitar por Gildor
+3.160 - 06/04/2013: Fixed Avoidance effects, now will affect PersitentAA with periodic damage by Phantons
+3.162 - 09/04/2013: Paladin: Fix spell Guarded by the Light, ahora hará tambien su efecto cuando el golpe del paladin se absorba o se bloquee por Gildor
+3.163 - 09/04/2013: DK: Fix spell Anti-magic Shell, ahora no será inmune a Volatile Ooze Adhesive (ICC putricide) por Gildor
+3.164 - 05/05/2013: Warrior: Fix spell Bladestorm, ahora no será un debuff por Gildor
+3.165 - 24/05/2013: Stacks: Fix Mana Spring Totem (Shaman) and Blessing of Wisdom/Greater Blessing of Wisdom (Paladin), ahora no se acumularán por Gildor
+3.166 - 28/05/2013: Stacks: Fix Totem of Wrath/Flametongue Totem (Shaman) and Demonic Pact (Warlock), ahora no se acumularán por Gildor
+3.167 - 07/06/2013: Fix spells Pvp Trinket, Every Man For Himself(Racial - Humano), ahora aplicarán su inmunidad correspondiente en la duración (0.1 secs) por Gildor
+3.168 - 07/06/2013: Mago: Fix spell Hot Streak, ahora se eliminará al lanzar piroexplosión y no al impactar al objetivo con ella por Gildor
+3.169 - 12/06/2013: DK: Fix spell Dark Command, ahora al usar la spell podrá activar los encantamientos de runas de las armas del DK por Gildor
 
 
 #################
 # Items y Tiers #
 #################
+3.21 - 22/09/2011: Gemas Meta: Reducción de duración de silencio (55366) snare/root (55378) miedo (55357) stun (55358) por Retriman
+3.27 - 09/03/2012: Navaja gnómica (40772) solamente puede ser usado si se es Gran Maestro Ingeniero por Oceanor
+3.28 - 26/08/2011: Chamán T10 Restauración 4p bonus (70808) por Ramusik
+3.29 - 26/09/2011: Druida T10 Equilibrio 2p bonus (70718) por Laighto
+3.30 - 26/02/2012: Pícaro T10 4p bonus (70802) por Eze
+3.67 - 21/08/2012: Warrior T10 Melee 4p bonus, ahora muerte súbita no consume las 2 cargas a la vez por Gildor
+3.73 - 21/07/2012: Hunter: Fix T10 Boni - 2nd & 4th por amilicius
+3.74 - 21/07/2012: Druid: Fix T10 Boni - 4th por amilicius
+3.109 - 24/11/2012: DK: Fix Wrathful Gladiator's Dreadplate Gauntlet, ahora recibirá los 5 puntos extra de poder rúnico por Garyfisher
+3.130 - 07/01/2013: Rogue: Fix T10 2P Bonus, ahora no dará dos veces el bonus de +15 energía por Gildor
+3.149 - 04/03/2013: Reign of the Dead (47316,47477) / Reign of the Unliving (47182,47188), ahora respetarán los 2 segundos de cooldown por Elron103
+3.170 - 16/06/2013: Mago: Fix t10 2p bonus, ahora Hot Streak tambien dará el bonus (causado por 3.168) por Gildor
 
 
 ############
 # Misiones #
 ############
+- Misiones de clases -
+4.0.0 - 14/01/2012: Clases: El Vínculo (Brujo) por Strolch y Muzashi
+4.0.1 - 02/04/2012: Clases: La Llamada del Agua (Chamán) por Muzashi
+4.0.2 - 02/04/2012: Clases: El Núcleo de Kroshius (Brujo) por Muzashi
+4.0.3 - 25/07/2012: Clases: El Gran Robo de Palomino (DK) por Muzashi
+4.0.4 - 02/08/2012: Clases: Masacre en la Punta de la Luz (DK) por Muzashi
+4.0.5 - 04/08/2012: Clases: Estallido Sangriento (DK) por Muzashi
+4.0.6 - 04/08/2012: Clases: Un final para todas las cosas (DK) por Muzashi
+4.0.7 - 29/08/2012: Clases: Supresión (Brujo) por Kroenen
+4.0.8 - 08/09/2012: Clases: correcciones en cadenas de pets (Brujo) por Muzashi
+4.0.9 - 07/10/2012: Clases: En el Reino de las Sombras (DK) por Muzashi correcciones de Gildor
+4.0.10 - 21/03/2013: Clases: La invocación (Guerrero) por Rincewind
+4.0.11 - 20/04/2013: Clases: Los mortacechadores (Picaro) por YTDB
+4.0.12 - 20/04/2013: Clases: La hoja antigua (Cazador) por YTDB
+4.0.13 - 17/05/2013: Clases: El báculo de los antiguos (Cazador) por Rincewind
+- Especiales -
+4.1.0 - 26/03/2012: Quel'Delar: loot de Empuñadura Maltrecha por Skull
+4.1.1 - 16/03/2012: Quel'Delar: Un disfraz apropiado por Discovered, adecuaciones por Muzashi y Strolch
+4.1.2 - 16/03/2012: Quel'Delar: Las Cámaras de Reflexión por Muzashi y Strolch
+4.1.3 - 26/03/2012: Quel'Delar: Isla de Quel'Danas spawns y fases por Muzashi
+4.1.4 - 26/03/2012: Quel'Delar: Thalorien Buscalba por Muzashi
+4.1.5 - 26/03/2012: Quel'Delar: La Purificación de Quel'Delar por Muzashi
+4.1.6 - 30/10/2012: Quel'Delar: Templar la Hoja por Muzashi
+4.1.7 - 08/11/2012: Kalu'ak: corregida la reputacion de misiones diarias por Muzashi
+4.1.8 - 16/12/2012: Profesion(Pesca): Receta encharcada por Mizhael y Rincewind
+4.1.9 - 13/06/2013: Profesion(Alquimia): Serie Componentes de Tierras Inhóspitas por Rincewind
+- Las Cumbres Tormentosas -
+4.2.0 - 25/03/2012: Hijos de Hodir: Correcciones generales en fases y quests por Muzashi
+4.2.1 - 25/03/2012: Hijos de Hodir: Disciplina y Seguir con la Disciplina por Muzashi
+4.2.2 - 25/03/2012: Hijos de Hodir: Castigos ejemplares por Muzashi
+4.2.3 - 25/03/2012: Hijos de Hodir: Poblado Brunnhildar por Muzashin
+4.2.4 - 30/10/2012: Hijos de Hodir: Corazón Helado por Muzashi
+4.2.5 - 25/03/2012: Hijos de Hodir: Spawn Yunque de Fjorn por Muzashi
+4.2.7 - 24/04/2012: Hijos de Hodir: ¡Se llevaron a nuestros Hombres! por Malcrom y Muzashi
+4.2.8 - 28/04/2012: Hijos de Hodir: Corrección loot Metal cubierto de escoria por Muzashi
+4.2.9 - 23/01/2013: Cumbres Tormentosas: Alcanzar a Brann por Kirkhammett
+4.2.10 - 11/07/2012: Cumbres Tormentosas: Esclavos de los Tronaforjado por Muzashi y Nelegalno
+4.2.11 - 08/09/2012: Hijos de Hodir: Forjar una cabeza por Muzashi
+4.2.12 - 15/09/2012: Hijos de Hodir: El calentamiento por Muzashi
+4.2.13 - 30/10/2012: Hijos de Hodir: La última de su raza por Muzashi
+4.2.14 - 08/11/2012: Cumbres Tormentosas: El caparazón de Norgannon por Muzashi
+4.2.15 - 15/11/2012: Hijos de Hodir: Luchar contra los elementales por Muzashi
+4.2.16 - 15/11/2012: Hijos de Hodir: Sistema de gameobjects invisibles por Muzashi
+4.2.17 - 16/11/2012: Hijos de Hodir: Violación territorial original por WishToDie ajustes de Muzashi
+4.2.18 - 17/11/2012: Hijos de Hodir: Caliente y frío por Muzashi
+4.2.19 - 17/11/2012: Hijos de Hodir: Jormuttar está taaan gorda... por Muzashi
+4.2.20 - 17/11/2012: Hijos de Hodir: En memoria spawns de YTDB
+4.2.21 - 17/11/2012: Hijos de Hodir: Pulir el yelmo por Muzashi
+4.2.22 - 18/11/2012: Hijos de Hodir: Tocar el cuerno de Hodir por Muzashi
+4.2.23 - 26/11/2012: Cumbres Tormentosas: Valduran el Natormento por Muzashi
+4.2.24 - 01/01/2013: Cumbres Tormentosas: Encontrar al culpable por Rincewind y Muzashi
+4.2.25 - 22/01/2013: Cumbres Tormentosas: Requisitos de misiones por Rincewind y Muzashi
+4.2.26 - 22/01/2013: Cumbres Tormentosas: Recuerdos de Pezuña Tempestuosa por Muzashi
+4.2.27 - 22/01/2013: Cumbres Tormentosas: Un plan perfecto por Muzashi
+4.2.28 - 22/01/2013: Hijos de Hodir: Cazador de espías por Muzashi
+4.2.29 - 23/01/2013: Cumbres Tormentosas: Valkyrion debe arder por Muzashi
+4.2.30 - 23/01/2013: Cumbres Tormentosas: Cambiar el curso del viento por Rincewind
+4.2.31 - 23/01/2013: Cumbres Tormentosas: La forja de la piedra angular por Pitcrawler, Muzashi y Nelegalno
+4.2.32 - 24/01/2013: Cumbres Tormentosas: Opciones para recuperar el Comunicador de Brann por Muzashi
+4.2.33 - 24/01/2013: Cumbres Tormentosas: Fervor de los Natoescarcha por Muzashi
+4.2.34 - 24/01/2013: Cumbres Tormentosas: Un guía con experiencia por Pitcrawler y Nelegalno
+4.2.35 - 26/01/2013: Cumbres Tormentosas: El guardián solitario por Muzashi
+4.2.36 - 07/02/2013: Cumbres Tormentosas: ¡Destruye las forjas! por Muzashi
+4.2.37 - 07/02/2013: Cumbres Tormentosas: El Corazón de la Tormenta por Muzashi
+4.2.38 - 07/02/2013: Cumbres Tormentosas: El destino de los titanes por Muzashi
+4.2.39 - 07/02/2013: Cumbres Tormentosas: La furia del rey Natoescarcha - El maestro expedicionario por YTDB
+4.2.40 - 14/02/2013: Hijos de Hodir: Alzar la lanza de Hodir por YTDB
+4.2.41 - 14/02/2013: Hijos de Hodir: Siemprescarcha - ¡Acuérdate de siemprescarcha! por Muzashi
+- Corona de Hielo -
+4.3.0  - 17/04/2012: Corona de Hielo: Sangre en el agua por Muzashi
+4.3.1  - 03/04/2012: Corona de Hielo: Pura diversión por Muzashi
+4.3.2  - 01/05/2012: Torneo Argenta: El Desafío del Aspirante por Muzashi
+4.3.3  - 01/05/2012: Torneo Argenta: Un arma digna por Muzashi
+4.3.4  - 12/05/2012: Torneo Argenta: ¡Toma Kraken! por Muzashi
+4.3.5  - 12/05/2012: Torneo Argenta: La piedad de la Luz por Muzashi
+4.3.6  - 13/05/2012: Torneo Argenta: correcciones en orden de misiones por Gecko22 y Muzashi
+4.3.7  - 16/05/2012: Torneo Argenta: El gran combate cuerpo a cuerpo por Muzashi
+4.3.8  - 17/05/2012: Torneo Argenta: El Desafío del Valeroso por Muzashi
+4.3.9  - 17/05/2012: Torneo Argenta: Algo pasa con el escudero por Muzashi
+4.3.10 - 18/05/2012: Torneo Argenta: Historias que cuentan los muertos por Muzashi
+4.3.11 - 19/05/2012: Torneo Argenta: La Caída del Caballero Negro por Muzashi
+4.3.12 - 19/05/2012: Torneo Argenta: La Maldición del Caballero Negro por Muzashi
+4.3.13 - 19/05/2012: Torneo Argenta: El clamaneblina Yngvar por Muzashi, Xarzo y Mizhael
+4.3.14 - 19/05/2012: Torneo Argenta: ¿Y que comen los Yetis? por Muzashi
+4.3.15 - 20/05/2012: Torneo Argenta: Una Espada de Campeón por Muzashi
+4.3.16 - 21/05/2012: Torneo Argenta: Entre los campeones por Muzashi
+4.3.17 - 21/05/2012: Torneo Argenta: Vendedores por Muzashi
+4.3.18 - 19/05/2012: Torneo Argenta: Escudero y Brutito Argenta por Gecko22 ajustes de Muzashi
+4.3.19 - 13/06/2012: Corona de Hielo: Consigue la Llave por Kade
+4.3.20 - 13/06/2012: Corona de Hielo: Dentro del Gran Verdor por Muzashi
+4.3.21 - 13/06/2012: Corona de Hielo: La Última Línea de Defensa por Muzashi
+4.3.22 - 01/09/2012: Corona de Hielo: Regalos de Despedida por Muzashi
+4.3.23 - 26/09/2012: Corona de Hielo: A través del ojo por Rincewind y Muzashi
+4.3.24 - 28/09/2012: Corona de Hielo: El mal nunca duerme por Trista y Nelegalno
+4.3.25 - 22/11/2012: Torneo Argenta: Las órdenes del Caballero Negro por Aaron126
+4.3.26 - 22/01/2012: Torneo Argenta: Objetivo de cargar y romper escudo no suben habilidades con armas por Muzashi
+4.3.27 - 06/02/2013: Corona de Hielo: Encuentra al antiguo héroe por Trista
+4.3.28 - 06/02/2013: Corona de Hielo: Ante el Portal del Horror por Trista
+4.3.29 - 06/02/2013: Corona de Hielo: Destruir los altares por Nelegalno
+4.3.30 - 06/02/2013: Corona de Hielo: Eliminar a la competencia por WishToDie
+4.3.31 - 22/03/2013: Corona de Hielo: Matar dos plagas con un esqueleto por kade y Rincewind
+4.3.32 - 02/04/2013: Corona de Hielo: Los muertos sin descanso original por Frostmourne ajustes de Muzashi
+4.3.33 - 03/04/2013: Corona de Hielo: El aire permanece quieto original por Trista ajustes de Muzashi
+4.3.34 - 03/04/2013: Corona de Hielo: Requisitos de misiones por Muzashi, Gacko y Exodius
+4.3.35 - 03/04/2013: Corona de Hielo: La batalla por el Pináculo de los Cruzados por WishToDie
+4.3.36 - 06/04/2013: Corona de Hielo: Un Relato de Valor por Muzashi
+4.3.37 - 06/04/2013: Corona de Hielo: El Favor del Guardián por Muzashi
+4.3.38 - 06/04/2013: Corona de Hielo: Esperanza dentro de la Pesadilla Esmeralda por Discovered y Muzashi
+4.3.39 - 06/04/2013: Corona de Hielo: El Favor de Rémulos por Muzashi
+4.3.40 - 06/04/2013: Corona de Hielo: El favor de Alexstrasza por Muzashi
+4.3.41 - 06/04/2013: Corona de Hielo: La voluntad de los Naaru por Muzashi
+4.3.42 - 06/04/2013: Corona de Hielo: El favor de A'dal por Muzashi
+4.3.43 - 09/04/2013: Corona de Hielo: Oportunidad - Explotar una entrada por Muzashi
+4.3.44 - 09/04/2013: Corona de Hielo: Establecer la superioridad por YTDB
+4.3.45 - 10/04/2013: Corona de Hielo: Haz lo peor por Muzashi spawns de YTDB
+4.3.46 - 12/04/2013: Corona de Hielo: El ejército de los malditos por Muzashi spawns de YTDB
+4.3.47 - 12/04/2013: Corona de Hielo: Donde perecieron los dragones por Muzashi
+4.3.48 - 12/04/2013: Corona de Hielo: El momento de respuestas por YTDB
+4.3.49 - 19/04/2013: Corona de Hielo: El cazador y el príncipe por Muzashi
+4.3.50 - 21/04/2013: Corona de Hielo: Gambito de Tirion por Muzashi
+4.3.51 - 21/04/2013: Corona de Hielo: Libera tu mente por Muzashi
+4.3.52 - 21/04/2013: Corona de Hielo: Si no puede ser transformado por Muzashi
+4.3.53 - 25/04/2013: Corona de Hielo: Decreto de La Cámara de las Sombras por Muzashi
+4.3.54 - 26/04/2013: Corona de Hielo: Venganza para los vargul por Trista
+4.3.55 - 26/04/2013: Corona de Hielo: La suma es mayor que las partes por WishToDie
+4.3.56 - 26/04/2013: Corona de Hielo: El arte de ser un terror de agua por Muzashi
+4.3.57 - 27/04/2013: Corona de Hielo: Combate no tan honorable por Muzashi
+4.3.58 - 16/05/2013: Corona de Hielo: La revancha del alma en pena por Muzashi
+4.3.59 - 23/05/2013: Corona de Hielo: Purgar con fuego por Muzashi
+4.3.60 - 23/05/2013: Corona de Hielo: Una visita al doctor por Muzashi
+4.3.61 - 06/06/2013: Corona de Hielo: Dispárales por Rincewind
+4.3.62 - 10/06/2013: Corona de Hielo: ¡A Vil gustar fuego! por Muzashi y Rincewind
+4.3.63 - 12/06/2013: Corona de Hielo: Por donde vinieron - El mejor amigo de un no-muerto por Muzashi y Rincewind
+4.3.64 - 12/06/2013: Corona de Hielo: Semillas de caos por Muzashi
+4.3.65 - 14/06/2013: Corona de Hielo: El Frente Roto por Muzashi
+4.3.66 - 15/06/2013: Corona de Hielo: Segundas Oportunidades por Kirkhammett ajustes de Muzashi
+- Cuenca de Sholazar -
+4.4.0  - 16/04/2012: Cuenca de Sholazar: Seguir la corriente por Muzashi
+4.4.1  - 16/04/2012: Cuenca de Sholazar: Atormentar a los badanudillos por Muzashi
+4.4.2  - 16/04/2012: Cuenca de Sholazar: Un viaje complicado, correcciones en waypoints por Muzashi
+4.4.3  - 16/04/2012: Cuenca de Sholazar: El rayo golpea dos veces sin duda por Muzashi
+4.4.4  - 16/04/2012: Cuenca de Sholazar: Serfex el Atracador por Muzashi
+4.4.5  - 16/04/2012: Cuenca de Sholazar: Oráculo hablalluvia herido por Muzashi
+4.4.6  - 16/04/2012: Cuenca de Sholazar: Hacer las paces por Hispano y Muzashi
+4.4.7  - 16/04/2012: Cuenca de Sholazar: A los dioses les gustan las cosas brillantes por Muzashi y Oceanor
+4.4.8  - 16/04/2012: Cuenca de Sholazar: ¿Ya has vuelto? por Muzashi y Oceanor
+4.4.9  - 16/04/2012: Cuenca de Sholazar: El tesoro Susurraneblina perdido por Muzashi
+4.4.10 - 16/04/2012: Cuenca de Sholazar: El gorloc enfadado por Muzashi
+4.4.11 - 16/04/2012: Cuenca de Sholazar: El salvador de los caminamoho por Muzashi
+4.4.12 - 16/04/2012: Cuenca de Sholazar: La carga de un heroe por Muzashi
+4.4.13 - 16/04/2012: Cuenca de Sholazar: Fix para flag en guerra por Xanvial
+4.4.14 - 21/04/2012: Cuenca de Sholazar: Añadidos gossip Oráculo Soo-pistán por Muzashi
+4.4.15 - 14/07/2012: Cuenca de Sholazar: Corregido InhabitType de criaturas voladoras por Muzashi
+4.4.16 - 14/07/2012: Cuenca de Sholazar: Spawns faltantes por Kade y Muzashi
+4.4.17 - 27/09/2012: Cuenca de Sholazar: Canción de Reflexión por Muzashi y Rincewind
+4.4.18 - 14/11/2012: Cuenca de Sholazar: Un casco de héroe por Muzashi
+4.4.19 - 17/02/2013: Cuenca de Sholazar: Canción de viento y agua por Trista
+4.4.20 - 16/02/2013: Cuenca de Sholazar: Rejek: Primeras manchas de sangre por Muzashi
+4.4.21 - 16/02/2013: Cuenca de Sholazar: La locura de Kartak por Muzashi
+4.4.22 - 16/02/2013: Cuenca de Sholazar: Voluntad de los titanes por Muzashi
+4.4.23 - 17/02/2013: Cuenca de Sholazar: Correcciones en orden de misiones y pools por Muzashi
+4.4.24 - 22/02/2013: Cuenca de Sholazar: Añadidos gossip Anciano Harkek por Muzashi
+4.4.25 - 12/03/2013: Cuenca de Sholazar: Seguimos destilando original por Malcrom convertido a cpp por Muzashi
+4.4.26 - 14/03/2013: Cuenca de Sholazar: Conseguir el cebo por Muzashi
+4.4.27 - 14/03/2013: Cuenca de Sholazar: Cazar un mamut por Muzashi
+4.4.28 - 14/03/2013: Cuenca de Sholazar: ¿Retroceso? ¿Qué retroceso? por Muzashi
+4.4.29 - 15/03/2013: Cuenca de Sholazar: El gran desafío del cazador por Muzashi
+- Cementerio de Dragones -
+4.5.0  - 15/08/2012: Cementerio de Dragones: Correcciones en requisitos de las quest por Muzashi
+4.5.1  - 17/08/2012: Cementerio de Dragones: Rescátalos de Plaza de la Ciudad por Muzashi
+4.5.2  - 18/08/2012: Cementerio de Dragones: Pocos restos por Muzashi
+4.5.3  - 30/08/2012: Cementerio de Dragones: La Pluma de Alystros por Muzashi
+4.5.4  - 31/08/2012: Cementerio de Dragones: Persecución por el cañón por Kroenen
+4.5.5  - 02/09/2012: Cementerio de Dragones: El foco de la playa por Mizhael
+4.5.6  - 02/09/2012: Cementerio de Dragones: En lo alto del bosque por Mizhael
+4.5.7  - 02/09/2012: Cementerio de Dragones: El final de la línea por Mizhael
+4.5.8  - 04/09/2012: Cementerio de Dragones: El misterio del Infinito por Kroenen y Muzashi
+4.5.9  - 04/09/2012: Cementerio de Dragones: El poder de la Horda por Muzashi
+4.5.10 - 04/09/2012: Cementerio de Dragones: ¡Malditas bestias de añublo! por Muzashi
+4.5.11 - 08/09/2012: Cementerio de Dragones: El misterio del Infinito, Vuelta atrás por Muzashi
+4.5.12 - 09/09/2012: Cementerio de Dragones: El juramento de sangre de la Horda por Mizhael
+4.5.13 - 17/09/2012: Cementerio de Dragones: Defender el Templo del Reposo del Dragón por Mizhael y Trista
+4.5.14 - 04/10/2012: Cementerio de Dragones: Medios para un fin por Muzashi
+4.5.15 - 04/10/2012: Cementerio de Dragones: ¡Más madera! por Malcrom
+4.5.16 - 04/10/2012: Cementerio de Dragones: Un Señor de la Guerra Atroz por Muzashi
+4.5.17 - 04/10/2012: Cementerio de Dragones: Donde vagan las cosas salvajes por Muzashi
+4.5.18 - 05/10/2012: Cementerio de Dragones: Ninguna piedad con los cautivos por Muzashi, gossips de YTDB
+4.5.19 - 20/11/2012: Cementerio de Dragones: El regreso del Gran Jefe por Muzashi
+4.5.20 - 20/11/2012: Cementerio de Dragones: ¡Viva Roanauk! por Muzashi
+4.5.21 - 21/11/2012: Cementerio de Dragones: Vuelo del defensor de Hibergarde por Muzashi
+4.5.22 - 24/11/2012: Cementerio de Dragones: Tanque de vapor con sorpresa por Muzashi
+4.5.23 - 24/11/2012: Cementerio de Dragones: Conversando con las profundidades por Muzashi
+4.5.24 - 22/11/2012: Cementerio de Dragones: Secretos de la Plaga por Muzashi
+4.5.25 - 27/11/2012: Cementerio de Dragones: Caída en desgracia por Muzashi
+4.5.26 - 27/11/2012: Cementerio de Dragones: Hacer a los demás por Muzashi
+4.5.27 - 02/12/2012: Cementerio de Dragones: La ametralladora y tú por Muzashi
+4.5.28 - 02/12/2012: Cementerio de Dragones: Persiguiendo a Tormenta de Hielo: la filacteria de Thel'zan por Malcrom
+4.5.29 - 03/12/2012: Cementerio de Dragones: Un final y un principio por Muzashi
+4.5.30 - 21/11/2012: Cementerio de Dragones: Sobre unas alas rubí por Muzashi
+4.5.31 - 03/12/2012: Cementerio de Dragones: ¡Al Bastión de Fordragón! por Muzashi
+4.5.32 - 03/12/2012: Cementerio de Dragones: Regresa a Angrathar por Muzashi
+- Zul'Drak -
+4.6.0  - 15/08/2012: Zul'Drak: Horizonte Oscuro - Reunidos por Pitcrawler
+4.6.1  - 26/11/2012: Zul'Drak: La venganza del Rey de la Tormenta spawns de YTDB scripts de CoolerSAI
+4.6.2  - 28/11/2012: Zul'Drak: El campeón de Angustia por Overy y Muzashi
+4.6.3  - 18/12/2012: Zul'Drak: Requisitos en quests y drops por Muzashi
+4.6.4  - 04/12/2012: Zul'Drak: Da'd de comedd a ezoz necrófagoz por Lendan
+4.6.5  - 05/12/2012: Zul'Drak: Donde hay patrón… por Muzashi
+4.6.6  - 18/12/2012: Zul'Drak: Combustible para el fuego por Muzashi
+4.6.7  - 18/12/2012: Zul'Drak: Revelación por Muzashi
+4.6.8  - 18/12/2012: Zul'Drak: Sabotaje por Muzashi
+4.6.9  - 20/12/2012: Zul'Drak: Traición original por ca699546 convertido a SAI y corregido Muzashi
+4.6.10 - 21/12/2012: Zul'Drak: Noto una alteración por Muzashi
+4.6.11 - 21/12/2012: Zul'Drak: Busca a la diosa serpiente alada por YTDB y Pitcrawler
+4.6.12 - 21/12/2012: Zul'Drak: Preparando el escenario por YTDB
+4.6.13 - 30/12/2012: Zul'Drak: Cimientos de venganza por Muzashi
+4.6.14 - 13/01/2013: Zul'Drak: Que nadie se quede atrás por Rincewind
+4.6.15 - 17/01/2013: Zul'Drak: Trabajo de laboratorio por Muzashi
+4.6.16 - 20/01/2013: Zul'Drak: Patrulla trol: ¿Qué quieres, una medalla? por Muzashi
+4.6.17 - 20/01/2013: Zul'Drak: Patrulla trol: Estandartes en alto por Muzashi
+4.6.18 - 22/01/2013: Zul'Drak: Patrulla trol: el aprendiz de alquimista por Muzashi y Varios
+4.6.19 - 22/02/2013: Zul'Drak: Patrulla trol - ¡Felicidades! por Muzashi
+4.6.20 - 13/03/2013: Zul'Drak: Los líderes de Jin'Alai por Muzashi
+4.6.21 - 14/03/2013: Zul'Drak: Ira de mujer… por Pitcrawler
+4.6.22 - 16/03/2013: Zul'Drak: Una madeja enredada por Muzashi
+4.6.23 - 16/03/2013: Zul'Drak: Arriba la cola original por Discovered ajustes de WishToDie y Muzashi
+4.6.24 - 17/03/2013: Zul'Drak: Por ahora todo mal por Muzashi
+4.6.25 - 18/03/2013: Zul'Drak: El peso de la justicia por Trista
+4.6.26 - 18/03/2013: Zul'Drak: En busca de respuestas por Muzashi
+4.6.27 - 19/03/2013: Zul'Drak: Arrasando por Muzashi
+4.6.28 - 20/03/2013: Zul'Drak: Convocatoria en Zol'Heb por Muzashi
+4.6.29 - 15/04/2013: Zul'Drak: Rondadores glotones por Rincewind
+- Colinas Pardas -
+4.7.0  - 15/08/2012: Colinas Pardas: Una influencia oscura por Muzashi
+4.7.1  - 30/09/2012: Colinas Pardas: Runas de coacción por Xanvial y Muzashi
+4.7.2  - 30/09/2012: Colinas Pardas: Plaga chamuscada por Muzashi
+4.7.3  - 31/10/2012: Colinas Pardas: Llenar las jaulas por Muzashi y CoolerSAI
+4.7.4  - 31/10/2012: Colinas Pardas: Limpiar Drak'Tharon por Gildor, Rincewind y Muzashi
+4.7.5  - 14/11/2012: Colinas Pardas: Alentando a las tropas por Rincewind
+4.7.6  - 14/12/2012: Colinas Pardas: Monta y La horda que susurraba a los caballos por Rincewind
+4.7.7  - 30/12/2012: Colinas Pardas: ¿Duro como una piedra? por Muzashi
+4.7.8  - 06/02/2013: Colinas Pardas: Acaba con el señor feudal férreo por Trista y Avepaige
+4.7.9  - 07/02/2013: Colinas Pardas: Machaca a la Alianza y Reparación de trituradoras por Rincewind
+4.7.10  - 23/02/2013: Colinas Pardas: Una experiencia extracorporal por LordPsyan
+4.7.11  - 28/02/2013: Colinas Pardas: Raíz aterralobos por Muzashi
+4.7.12  - 28/02/2013: Colinas Pardas: Prueba de valor por Muzashi
+4.7.13  - 06/03/2013: Colinas Pardas: Huye de Arroyoplata por Muzashi
+4.7.14  - 07/03/2013: Colinas Pardas: Requisitos en quests y drops por Muzashi
+4.7.15  - 07/03/2013: Colinas Pardas: Ursoc, el dios oso original por Trista correcciones de Muzashi
+4.7.16  - 08/03/2013: Colinas Pardas: Los prospectores cautivos por Muzashi
+4.7.17  - 08/03/2013: Colinas Pardas: Cultivando una imagen por Muzashi
+4.7.18  - 08/03/2013: Colinas Pardas: Ponte tu mejor cara para Loken - Las órdenes de Loken por Muzashi
+4.7.19  - 08/03/2013: Colinas Pardas: El destino de Orlond por Muzashi
+4.7.20  - 08/03/2013: Colinas Pardas: Las profecías rúnicas por Muzashi
+4.7.21  - 09/03/2013: Colinas Pardas: Anatoly hablará por Pitcrawler
+4.7.22  - 09/03/2013: Colinas Pardas: La promesa de una hermana por Pitcrawler
+4.7.23  - 10/03/2013: Colinas Pardas: Por fin libres por Muzashi
+4.7.24  - 11/03/2013: Colinas Pardas: El Foso de la Conquista por Muzashi
+4.7.25  - 12/03/2013: Colinas Pardas: Cabalgando sobre el cohete rojo por Muzashi
+4.7.26  - 12/03/2013: Colinas Pardas: ¡Tralarí, tralará! por Pitcrawler
+- Tundra Boreal -
+4.8.0  - 26/05/2012: Tundra Boreal: Tecnologia con otro proposito por Muzashi
+4.8.1  - 26/05/2012: Tundra Boreal: La muerte cae desde el cielo por Muzashi
+4.8.2  - 27/05/2012: Tundra Boreal: Palabras de Poder por Trista y Muzashi
+4.8.3  - 02/06/2012: Tundra Boreal: Las llanuras de Nasam por Muzashi
+4.8.4  - 05/06/2012: Tundra Boreal: Traelos de vuelta con vida por Muzashi
+4.8.5  - 05/06/2012: Tundra Boreal: Clemente Libertad por Muzashi
+4.8.6  - 30/05/2012: Tundra Boreal: El villano maestro de almejas... por Muzashi
+4.8.7  - 30/05/2012: Tundra Boreal: La llegada de la Asesina por Muzashi
+4.8.8  - 05/06/2012: Tundra Boreal: Nedar, señor de rinocerontes... por Muzashi
+4.8.9  - 05/06/2012: Tundra Boreal: Kaw el Destructor de Mamuts por Muzashi e Inky
+4.8.10 - 10/06/2012: Tundra Boreal: Remaldeciente - Las almas de los desembrujados por Muzashi
+4.8.11 - 10/06/2012: Tundra Boreal: Dando media vuelta... Otra vuelta mas - Los subtenientes por Muzashi
+4.8.12 - 10/06/2012: Tundra Boreal: El maestro de palancas - Vence al maestro de palancas por Muzashi
+4.8.13 - 10/06/2012: Tundra Boreal: Añadido aura al npc Magnatauro apestado por Muzashi
+4.8.14 - 10/06/2012: Tundra Boreal: Estoy encerrada en esta maldita jaula... ¡Pero no por mucho tiempo! por Muzashi
+4.8.15 - 12/06/2012: Tundra Boreal: ¡Ja!... ¡Ya no eres tan grande! por Muzashi
+4.8.16 - 12/06/2012: Tundra Boreal: Plan B original por Valcorb correcciones en condiciones por Muzashi
+4.8.17 - 13/06/2012: Tundra Boreal: ¡Han sido los orcos! ¡Lo juro! por Muzashi
+4.8.18 - 13/06/2012: Tundra Boreal: Protocolo de emergencia: sección 8.2, parrafo D por Inky
+4.8.19 - 14/06/2012: Tundra Boreal: Marcando los sumideros por Muzashi
+4.8.20 - 15/06/2012: Tundra Boreal: ¡Utiliza el Vibro-Motor 5000! - El derrumbamiento por Inky
+4.8.21 - 21/06/2012: Tundra Boreal: El poder de los elementos por Muzashi
+4.8.22 - 21/06/2012: Tundra Boreal: Homenaje a los difuntos por Kroenen
+4.8.23 - 21/06/2012: Tundra Boreal: Yo lo remendaba, yo lo remende por Muzashi
+4.8.24 - 21/06/2012: Tundra Boreal: Pasar desapercibido por Muzashi
+4.8.25 - 21/06/2012: Tundra Boreal: Abriendose paso por Muzashi
+4.8.26 - 24/06/2012: Tundra Boreal: Neutralizar las calderas por Muzashi
+4.8.27 - 24/06/2012: Tundra Boreal: Añadidas flags al npc Globo de sangre de En'kilah por Muzashi
+4.8.28 - 27/05/2012: Tundra Boreal: Encuentra la filacteria por Muzashi
+4.8.29 - 28/06/2012: Tundra Boreal: Los últimos ritos por Muzashi
+4.8.30 - 28/06/2012: Tundra Boreal: Condiciones para misiones del Bastión Grito de Guerra por Muzashi
+4.8.31 - 30/06/2012: Tundra Boreal: Una empresa insensata por Muzashi
+4.8.32 - 07/07/2012: Tundra Boreal: Rescata como puedas por Muzashi e Inky
+4.8.33 - 07/07/2012: Tundra Boreal: El arte de la persuasion por Muzashi
+4.8.34 - 07/07/2012: Tundra Boreal: Carrera a contrarreloj por Inky
+4.8.35 - 07/07/2012: Tundra Boreal: Rescatar a Evanor por Muzashi
+4.8.36 - 08/07/2012: Tundra Boreal: Caza de dracos por Muzashi
+4.8.37 - 08/07/2012: Tundra Boreal: Loot del Fragmento Centelleante por Muzashi
+4.8.38 - 10/07/2012: Tundra Boreal: El Final de Saragosa por Muzashi y Kade
+4.8.39 - 10/07/2012: Tundra Boreal: Reunir a los Rojos por Muzashi
+4.8.40 - 11/07/2012: Tundra Boreal: Ases del Aire por Muzashi
+4.8.41 - 12/07/2012: Tundra Boreal: Ayuda a aquellos que no pueden valerse por sí mismos por Muzashi
+4.8.42 - 12/07/2012: Tundra Boreal: No se merecen la muerte por Muzashi
+4.8.43 - 21/07/2012: Tundra Boreal: Soltar la Trampa por Muzashi
+4.8.44 - 21/07/2012: Tundra Boreal: Aprendiendo a comunicarse por Muzashi
+4.8.45 - 21/07/2012: Tundra Boreal: ¡Oh no! ¡Los renacuajos! por Muzashi
+4.8.46 - 21/07/2012: Tundra Boreal: El maestro de llaves Urmgrgl por Muzashi
+4.8.47 - 22/07/2012: Tundra Boreal: Heiggar el Horrible por coolerSAI
+4.8.48 - 24/09/2012: Tundra Boreal: ¡Atacamos! por Muzashi
+4.8.49 - 07/10/2012: Tundra Boreal: Cruzando Transborea por Muzashi
+4.8.50 - 07/10/2012: Tundra Boreal: Entrega de cobardes... en menos de 30 minutos, o será gratis por Muzashi
+4.8.51 - 07/10/2012: Tundra Boreal: Punto de Ebullición por Muzashi
+4.8.52 - 07/10/2012: Tundra Boreal: ¡Entierra a esas cucarachas! por Muzashi
+4.8.53 - 08/10/2012: Tundra Boreal: El juramento de Karuk por Muzashi
+4.8.54 - 06/02/2013: Tundra Boreal: Los espíritus perdidos por Gecko32 y Nelegalno
+4.8.55 - 18/02/2013: Tundra Boreal: Las orejas de nuestros enemigos por Rincewind
+4.8.56 - 15/04/2013: Tundra Boreal: Llevar a los ancestros a casa por Rincewind
+- Fiordo Aquilonal -
+4.9.0  - 26/08/2012: Fiordo Aquilonal: Déjalo y Ondéalo por Kroenen
+4.9.1  - 26/08/2012: Fiordo Aquilonal: El Eco de Ymiron por Muzashi
+4.9.2  - 29/08/2012: Fiordo Aquilonal: Los Ojos del Águila por Nevadas
+4.9.3  - 04/09/2012: Fiordo Aquilonal: La vermis de escarcha y su maestro por Angarius
+4.9.4  - 20/09/2012: Fiordo Aquilonal: Ensayo de campo por Angarius
+4.9.5  - 29/09/2012: Fiordo Aquilonal: Derriba esos escudos por Inky
+4.9.6  - 29/09/2012: Fiordo Aquilonal: La guerra es un infierno por Muzashi
+4.9.7  - 04/10/2012: Fiordo Aquilonal: El camino a su corazón por Muzashi
+4.9.8  - 04/10/2012: Fiordo Aquilonal: ¡Dales un susto de guano! por Muzashi
+4.9.9  - 10/10/2012: Fiordo Aquilonal: Rescatar a los rescatadores por Muzashi
+4.9.10 - 11/10/2012: Fiordo Aquilonal: Prisioneros de Calavermis por Muzashi
+4.9.11 - 11/10/2012: Fiordo Aquilonal: Reúnete con el teniente Martillo de Hielo por Muzashi
+4.9.12 - 11/10/2012: Fiordo Aquilonal: La luz brillante original por Trista ajuste de Muzashi
+4.9.13 - 11/10/2012: Fiordo Aquilonal: Guiado por el honor por Muzashi
+4.9.14 - 13/10/2012: Fiordo Aquilonal: ¡Vamos a hacer surf! por Muzashi
+4.9.15 - 15/10/2012: Fiordo Aquilonal: Estos llegan hasta el 11... por Muzashi
+4.9.16 - 16/10/2012: Fiordo Aquilonal: Misión: Llama eterna por Muzashi
+4.9.17 - 16/10/2012: Fiordo Aquilonal: Ensamblajes Runaférrea y tú: salto con cohete por Muzashi
+4.9.18 - 17/10/2012: Fiordo Aquilonal: Envíalas de vuelta por Muzashi
+4.9.19 - 23/10/2012: Fiordo Aquilonal: Ensamblajes Runaférrea y tú: recopilación de datos por Muzashi y Rincewind
+4.9.20 - 23/10/2012: Fiordo Aquilonal: Ensamblajes Runaférrea y tú: el engaño por Muzashi
+4.9.21 - 24/10/2012: Fiordo Aquilonal: No hay honor entre los pájaros por Muzashi
+4.9.22 - 24/10/2012: Fiordo Aquilonal: ¡Detén la ascensión! por Muzashi y CoolerSAI
+4.9.23 - 24/10/2012: Fiordo Aquilonal: De llaves y jaulas original por Discovered ajuste de Muzashi
+4.9.24 - 03/11/2012: Fiordo Aquilonal: Una derrota asombrosa en el Círculo por Muzashi
+4.9.25 - 03/11/2012: Fiordo Aquilonal: Las hermanas caídas por Xanvial
+4.9.26 - 03/11/2012: Fiordo Aquilonal: Deuda de juego por Discovered
+4.9.27 - 03/11/2012: Fiordo Aquilonal: A Jack le gusta su bebida original por Discovered ajustes de Muzashi
+4.9.28 - 03/11/2012: Fiordo Aquilonal: La deuda de un hombre muerto por CoolerSAI y Muzashi, spawns y event de YTDB
+4.9.29 - 03/11/2012: Fiordo Aquilonal: ¡Los muertos se levantan! por Muzashi
+4.9.30 - 05/11/2012: Fiordo Aquilonal: Huargo alfa por Muzashi
+4.9.31 - 10/11/2012: Fiordo Aquilonal: Reliquias imbuidas de relámpagos - El delicado sonido del trueno por Muzashi
+4.9.32 - 10/11/2012: Fiordo Aquilonal: El Rey Durmiente por Muzashi
+4.9.33 - 14/11/2012: Fiordo Aquilonal: Un cuchillo y un croador por Rinsewind
+4.9.34 - 13/11/2012: Fiordo Aquilonal: Acechando a los débiles por Muzashi
+4.9.35 - 31/12/2012: Fiordo Aquilonal: La runa de mando por Muzashi
+4.9.36 - 06/02/2013: Fiordo Aquilonal: Aquel que se escapó por Trista
+4.9.37 - 17/02/2013: Fiordo Aquilonal: Huevos verdes con crías por Muzashi
+4.9.38 - 21/02/2013: Fiordo Aquilonal: ¡Peligro! ¡Explosivos! por Muzashi
+4.9.39 - 21/03/2013: Fiordo Aquilonal: Misión: Echar pestes por Muzashi
+- Terrallende -
+4.10.0 - 17/04/2012: Valle Sombraluna: Deshabilitada Aliado del Ala Abisal (versión de testeo) por Muzashi
+4.10.1 - 18/01/2012: Nagrand: El Círculo de Sangre: el desafío final por Strolch
+4.10.2 - 14/01/2012: Valle Sombraluna: Zuluhed el Demente por Strolch
+4.10.3 - 10/06/2012: Península de Fuego Infernal: La Cresta del Vacío por Angarius
+4.10.4 - 24/06/2012: Bosque de Terokkar: Sangre adversaria por Angarius
+4.10.5 - 06/09/2012: Península de Fuego Infernal: Amish Martillo Salvaje por Kroenen
+4.10.6 - 26/09/2012: Bosque de Terokkar: El cañón de almas de Reth'hedron por Inky
+4.10.7 - 14/11/2012: Montañas Filospada: Susurros del dios cuervo por Rinsewind
+4.10.8 - 14/11/2012: Montañas Filospada: Una situacion extrema por Rinsewind
+4.10.9 - 18/11/2012: Montañas Filospada: Gorgrom el Comedragones por Rinsewind y Muzashi
+4.10.10 - 19/11/2012: Tormenta Abisal: Punto de triangulación uno por Muzashi
+4.10.11 - 19/11/2012: Tormenta Abisal: Punto de triangulación dos por Muzashi
+4.10.12 - 19/11/2012: Montañas Filospada: Medir la frecuencia resonante por Muzashi
+4.10.13 - 28/11/2012: Montañas Filospada: Requisitos de las misiones corregidos por Muzashi
+4.10.14 - 28/11/2012: Montañas Filospada: Un asunto grimoso por Muzashi
+4.10.15 - 29/11/2012: Montañas Filospada: Dentro del Moledor de Almas por Muzashi
+4.10.16 - 29/11/2012: Montañas Filospada: La obligación de un padre por YTDB
+4.10.17 - 14/12/2012: Tormenta Abisal: Es un atracador vil... pero con corazón por Rincewind
+4.10.18 - 16/12/2012: Montañas Filospada: Cámaras de Estasis de Bash'ir por Rincewind
+4.10.19 - 16/12/2012: Marisma de Zangar: Tráeme una mata y su diaria por Mizhael
+4.10.20 - 16/12/2012: Bosque de terokkar: Rayas abisales hambrientas por Mizhael
+4.10.21 - 20/12/2012: Montañas Filospada: Atrapar la Luz fantástica por Rincewind
+4.10.22 - 29/12/2012: Valle Sombraluna: Disensión entre las filas por Kroenen correcciones de Muzashi
+4.10.23 - 05/02/2013: Montañas Filospada: La Puerta de la Muerte por Trista, Malcrom y Nelegalno
+4.10.24 - 05/02/2013: Bosque de Terokkar: El mal se acerca por Durotar
+4.10.25 - 05/02/2013: Valle Sombraluna: Francamente, no tiene ningún sentido por Trista
+4.10.26 - 06/02/2013: Bosque de Terokkar: Un entierro indecoroso por Nelegalno
+4.10.27 - 06/02/2013: Montañas Filospada: Destierra a los demonios por Vladkata7979
+4.10.28 - 06/02/2013: Bosque de Terokkar: Almas vengativas por ZxBiohazardZx
+4.10.29 - 06/02/2013: Nagrand: ¡No durante mi guardia! por JunkyBulgaria
+4.10.30 - 14/02/2013: Tormenta Abisal: Potencial de daño cerebral = Alto por Rincewind
+4.10.31 - 12/04/2013: Marisma de Zangar: Planos de conducto por Rincewind
+4.10.32 - 12/04/2013: Bosque de Terokkar: Velo Skith: Rocanegra de Terokk por Rincewind
+4.10.33 - 10/06/2013: Bosque de Terokkar: Y ahora, el momento de la verdad por Rincewind
+4.10.34 - 10/06/2013: Bosque de Terokkar: El Código Final por Rincewind
+- Kalimdor y Reinos del Este -
+4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
+4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
+4.11.2 - 29/06/2012: Claro de la Luna: La Pesadilla se manifiesta por Shlomi1515
+4.11.3 - 08/07/2012: Dun Morogh: Poblado Peloescarcha por Muzashi
+4.11.4 - 02/09/2012: Bosque Canción Eterna: Resultados Inesperados por Muzashi
+4.11.5 - 02/09/2012: Costa Oscura: Un Tiro. Un Muerto por Muzashi
+4.11.6 - 01/11/2012: Entrañas: Lamento de los Altonato
+4.11.7 - 05/02/2013: Una propuesta seria por Rincewind
+4.11.8 - 05/02/2013: Crater de Un'Goro: Fusión de influencias por Trista
+4.11.9 - 05/02/2013: Marjal Revolcafango: La prueba de los cráneos, Somnus por Shlomi1515
+4.11.10 - 06/02/2013: Silithus: Los grabados de los glifos por Nelegalno
+4.11.11 - 06/02/2013: Marjal Revolcafango: El sello de ascensión por Nelegalno
+4.11.12 - 18/02/2013: Una compensación justa por Rincewind
+4.11.13 - 24/05/2013: Armonización con el Núcleo por Rincewind
+4.11.14 - 13/06/2013: Costa Oscura: SE BUSCA: ¡Viscoso! por Rincewind
 
 
 ################
 # Traducciones #
 ################
+5.1  - 29/12/2011: Traducciones de eswow2 de varias tablas de world, actualizadas por Eilo
+5.2  - 01/11/2011: Traducciones de los nombres de gemas erroneas, cata por Reisa y Drazgul
+5.3  - 08/12/2011: Adecuaciones de nombres de 2 game_tele por Eilo
+5.4  - 19/08/2012: Traducciones en los diálogos de ICC por Abismo
+5.5  - 31/08/2012: Traducciones en los diálogos de Quel'Delar por Abismo y Muzashi
 
 
 ##########
 # Varios #
 ##########
+6.1  - 23/06/2012: Fix for Northrend Rare Elites by Angarius
+6.3  - 23/06/2012: Fix for Vacillating Voidcaller, they should be attackable by Angarius
+6.4  - 23/06/2012: Fix of Modelsize of Archimonde by Angarius
+6.5  - 23/06/2012: Fix Skettis - You should be abtle to attack them after drinking Item 32446 by Angarius
+6.6  - 23/06/2012: Fix for achievement Giddy up! by Angarius
+6.7  - 28/07/2012: Fix model for gravis splipknot (alterac, strahnbrad)
+6.9  - 29/09/2012: Items: Encrypted Twilight Text (20404)
+6.10 - 29/09/2012: Creature: Scourge Death Knight (32486) & Instructor Hroegar (29915)
+6.11 - 29/09/2012: Items: Carved Stone Idol (2636)
+6.12 - 09/06/2012: Corregidas daños de minions Voidwalker e Imp por Angarius
+6.13 - 27/10/2012: Correccion al respawntime de remendejo por Gildor
+6.14 - 22/07/2012: Items: Huevo Misterioso y Tarro desagradable por Muzashi, Nanaki y Angarius
+6.15 - 09/11/2012: Items: Nibelungo correcciones por Muzashi
+6.16 - 09/11/2012: Corregido SAI del Campesino Escarlata por Muzashi
+6.17 - 10/11/2012: Añadido items 47937_48009 para cambio de faccion por Rinsewind
+6.18 - 14/11/2012: Festival de Invierno: Hermanos antes del ho ho ho por Muzashi
+6.19 - 17/11/2012: Murallas de Fuego infernal: Fix cofre del boss Nazan H, ahora se puede abrir por Gildor
+6.20 - 17/11/2012: Fix temporal para que no crashee el boss Lethon por Muzashi
+6.23 - 24/11/2012: Cumbre de Roca Negra: ahora se podrán abrir las puertas necesarias para poder acceder a Guarida Alanegra por Gildor
+6.24 - 23/11/2012: Criaturas inatacables para evitar problemas con totems o trampas por Muzashi
+6.25 - 18/12/2012: Festival de Invierno: Coches de choque por Muzashi
+6.26 - 18/12/2012: Festival de Invierno: Rey del Rifle por Muzashi
+6.27 - 02/01/2013: AQ40: respawn de bosses a 7 dias por Muzashi
+6.28 - 02/01/2013: AQ20: respawn de bosses a 7 dias por Muzashi
+6.29 - 02/01/2013: Guarida de Alanegra: respawn de bosses a 7 dias por Muzashi
+6.30 - 10/01/2013: El Bancal del Magister: Fix daño de los NPCs Wretched en modo heroico por Gildor
+6.31 - 11/01/2013: ZulAman quitando las puertas de la entrada por Reisa
+6.32 - 12/01/2013: Guarida de Alanegra: El evento de Nefarian ya no se podra repetir por Dolanpls
+6.33 - 15/01/2013: Darkmoon faire: duracion 7 dias y dias de inicio por Rincewind
+6.34 - 15/01/2013: SerpentShrine: Lady Vashj no pierde inmune al desactivar cualquier mecanismo por Evef
+6.35 - 15/01/2013: BlackTemple arreglo de shade of akama por Elron103
+6.36 - 25/01/2013: Condiciones para compra de encantamientos ligados a la cuenta por Vincent-Michael y Rincewind
+6.37 - 05/02/2013: Amor en el aire: q24849 - q24851 Hot On The Trail por Rincewind
+6.38 - 06/02/2013: Amor en el aire: q24576 - q24657 A Friendly Chat... por Rincewind
+6.39 - 07/02/2013: Amor en el aire: apaño para que la spell Throw Love Rocket sea isntantanea y se pueda hacer el ultimo logro por Phantons
+6.40 - 19/02/2013: Guarida de Alanegra: Arreglo de Nefarian por si lo alejan y buguean que no caiga el servidor por Dolanpls
+6.41 - 27/04/2013: Semana de los niños: correcciones en misiones y opciones para recuperar huerfanos por Rincewind y Muzashi
+6.42 - 21/05/2013: Corregido exploit con Fragmentos de Apices por Muzashi
+6.43 - 24/05/2013: Condiciones para dialogo de recuperacion del elixir de Drakuru por Rincewind
+6.44 - 28/05/2013: Zul aman arreglo de un sobre spawneo de Amanishi Warbringer por Kirkhammett
+6.45 - 07/06/2013: Condiciones para objetivos de spells de Wyrmrest Defender por Rincewind
+6.46 - 14/06/2013: Stratholme: La súplica de un muerto por Muzashi
+6.47 - 17/06/2013: Shadow Labyrinth: El boss Negrozon el incitador no lanzara la spell Incitar Caos al tanque por Dolanpls
+6.48 - 21/06/2013: Festival del Solsticio de verano: Campamentos por Rincewind
 
 
 ##########
 # Custom #
 ##########
+7.4  - 15/05/2012: Comandos staff wowrean por Winnie
+7.9  - 08/07/2012: Misiones autocompletables por Winnie y Muzashi
+7.10 - 03/09/2012: Pancho el Loco y los Cofres Misteriosos por Muzashi
+7.11 - 08/07/2012: Zonas pvp y santuario custom por Oceanor
+7.12 - 09/11/2012: Autobroadcast por Eilo
+7.13 - 13/11/2012: Implementación de Transfigurar por Gildor
+7.15 - 10/12/2012: Transfigurar: Ligar el item al transfigurar si se liga al equiparlo/usarlo/recogerlo (incluye BOP Items Trade) por Gildor
+7.16 - 15/05/2013: Isla de maestros de juego: Añadir banquero, buzon y banco de hermandad por Rincewind
+7.17 - 15/05/2013: El más sabio de Azeroth por Muzashi y Abismo
 
 
