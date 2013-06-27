@@ -288,7 +288,7 @@ public:
                 {
                     case EVENT_RAZOR_SPAWN:
                         for (uint8 i = urand(2, 5); i > 0 ; --i)
-                            if (Creature* summon =  instance->SummonCreature(Entry[urand(0, 5)], SummonPosition[urand(0, 8)]))
+                            if (Creature* summon =  instance->SummonCreature(Entry[urand(0, 4)], SummonPosition[urand(0, 7)]))
                                 summon->SetInCombatWithZone();
                         _events.ScheduleEvent(EVENT_RAZOR_SPAWN, urand(12, 17)*IN_MILLISECONDS);
                         break;
