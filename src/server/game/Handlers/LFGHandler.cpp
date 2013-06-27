@@ -161,10 +161,7 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
 {
-    uint32 lfgGroupID;  // Internal group ID
-    uint32 joinTime;    // Join time
     uint32 proposalID;  // Proposal ID
-    uint32 unk1;        // unknown
     bool accept;
 
     ObjectGuid guid1;
