@@ -47,7 +47,7 @@ bool Model::open()
     _unload();
 
     memcpy(&header, f.getBuffer(), sizeof(ModelHeader));
-    if(header.nBoundingTriangles > 0)
+    if (header.nBoundingTriangles > 0)
     {
         f.seek(0);
         f.seekRelative(header.ofsBoundingVertices);
@@ -201,8 +201,8 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
 
         std::string ModelInstName = GetPlainName(&doodadData.Paths[doodad.NameIndex]);
         uint32 nlen = ModelInstName.length();
-        fixnamen(ModelInstName.data(), nlen);
-        fixname2(ModelInstName.data(), nlen);
+        FixNameCase(ModelInstName.data(), nlen);
+        FixNameSpaces(ModelInstName.data(), nlen);
         if (ModelInstName.ends_with(".mdx") || ModelInstName.ends_with(".mdl"))
             ModelInstName.replace(ModelInstName.length() - 2, 2, "2");
 

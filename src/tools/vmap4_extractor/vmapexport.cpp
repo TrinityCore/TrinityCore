@@ -88,8 +88,8 @@ bool ExtractSingleWmo(std::string& fname)
     std::string originalName = fname;
 
     char* plain_name = GetPlainName(&fname[0]);
-    fixnamen(plain_name, strlen(plain_name));
-    fixname2(plain_name, strlen(plain_name));
+    FixNameCase(plain_name, strlen(plain_name));
+    FixNameSpaces(plain_name, strlen(plain_name));
     std::string szLocalFile = Trinity::StringFormat("{}/{}", szWorkDirWmo, plain_name);
 
     if (FileExists(szLocalFile.c_str()))
