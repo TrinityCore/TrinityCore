@@ -83,7 +83,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 while (p < buf + size)
                 {
                     char* s=wdtGetPlainName(p);
-                    fixnamen(s,strlen(s));
+                    FixNameCase(s,strlen(s));
                     p=p+strlen(p)+1;
                     gWmoInstansName[q++] = s;
                 }

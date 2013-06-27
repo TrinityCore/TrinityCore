@@ -395,13 +395,14 @@ namespace VMAP
         fclose(model_list);
         fclose(model_list_copy);
     }
-        // temporary use defines to simplify read/check code (close file and return at fail)
-        #define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }
-        #define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); };
-        #define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
-                                        fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
+
+// temporary use defines to simplify read/check code (close file and return at fail)
+#define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
+                                fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }
+#define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
+                                fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); };
+#define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
+                                fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
 
     bool GroupModel_Raw::Read(FILE* rf)
     {
