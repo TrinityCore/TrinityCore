@@ -47,7 +47,7 @@ You need to run sql/create/create_mysql.sql 1st and then
 sql/base/auth_database.sql and sql/base/characters_database.sql
 You need to download world database from http://www.trinitycore.org/f/files/
 be sure you get the higher numbered database.
-When installing a core the 1st time you need to import also the files at
+When installing a core the 1st time you need to import also all the files at
 sql/updates/world directory.
 sql/updates/auth and sql/updates/characters databases only needs to be run
 when updating one existing server.
@@ -67,7 +67,7 @@ Platform: Linux, Windows or Mac
 Processor with SSE2 support
 ACE ≥ 5.8.3
 MySQL ≥ 5.1.0
-CMake ≥ 2.8.0 (max 2.8.9 under linux)
+CMake ≥ 2.8.0
 OpenSSL ≥ 0.9.8o
 GCC ≥ 4.3 (Linux only)
 MS Visual Studio ≥ 9 (2008) (Windows only)
