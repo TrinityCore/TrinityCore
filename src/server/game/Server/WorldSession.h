@@ -820,8 +820,7 @@ class WorldSession
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
         void HandleLfgGetStatus(WorldPacket& recvData);
 
-        void SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData);
-        void SendLfgUpdateParty(lfg::LfgUpdateData const& updateData);
+        void SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, bool party);
         void SendLfgRoleChosen(uint64 guid, uint8 roles);
         void SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& pRoleCheck);
         void SendLfgLfrList(bool update);

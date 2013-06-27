@@ -94,23 +94,24 @@ enum LfgTeleportError
 enum LfgJoinResult
 {
     // 3 = No client reaction | 18 = "Rolecheck failed"
-    LFG_JOIN_OK                                  = 0,      // Joined (no client msg)
-    LFG_JOIN_FAILED                              = 1,      // RoleCheck Failed
-    LFG_JOIN_GROUPFULL                           = 2,      // Your group is full
-    LFG_JOIN_INTERNAL_ERROR                      = 4,      // Internal LFG Error
-    LFG_JOIN_NOT_MEET_REQS                       = 5,      // You do not meet the requirements for the chosen dungeons
-    LFG_JOIN_PARTY_NOT_MEET_REQS                 = 6,      // One or more party members do not meet the requirements for the chosen dungeons
-    LFG_JOIN_MIXED_RAID_DUNGEON                  = 7,      // You cannot mix dungeons, raids, and random when picking dungeons
-    LFG_JOIN_MULTI_REALM                         = 8,      // The dungeon you chose does not support players from multiple realms
-    LFG_JOIN_DISCONNECTED                        = 9,      // One or more party members are pending invites or disconnected
-    LFG_JOIN_PARTY_INFO_FAILED                   = 10,     // Could not retrieve information about some party members
-    LFG_JOIN_DUNGEON_INVALID                     = 11,     // One or more dungeons was not valid
-    LFG_JOIN_DESERTER                            = 12,     // You can not queue for dungeons until your deserter debuff wears off
-    LFG_JOIN_PARTY_DESERTER                      = 13,     // One or more party members has a deserter debuff
-    LFG_JOIN_RANDOM_COOLDOWN                     = 14,     // You can not queue for random dungeons while on random dungeon cooldown
-    LFG_JOIN_PARTY_RANDOM_COOLDOWN               = 15,     // One or more party members are on random dungeon cooldown
-    LFG_JOIN_TOO_MUCH_MEMBERS                    = 16,     // You can not enter dungeons with more that 5 party members
-    LFG_JOIN_USING_BG_SYSTEM                     = 17      // You can not use the dungeon system while in BG or arenas
+    LFG_JOIN_OK                                  = 0x00,   // Joined (no client msg)
+    LFG_JOIN_FAILED                              = 0x1B,   // RoleCheck Failed
+    LFG_JOIN_GROUPFULL                           = 0x1C,   // Your group is full
+    LFG_JOIN_INTERNAL_ERROR                      = 0x1E,   // Internal LFG Error
+    LFG_JOIN_NOT_MEET_REQS                       = 0x1F,   // You do not meet the requirements for the chosen dungeons
+    //LFG_JOIN_PARTY_NOT_MEET_REQS                 = 6,      // One or more party members do not meet the requirements for the chosen dungeons
+    LFG_JOIN_MIXED_RAID_DUNGEON                  = 0x20,   // You cannot mix dungeons, raids, and random when picking dungeons
+    LFG_JOIN_MULTI_REALM                         = 0x21,   // The dungeon you chose does not support players from multiple realms
+    LFG_JOIN_DISCONNECTED                        = 0x22,   // One or more party members are pending invites or disconnected
+    LFG_JOIN_PARTY_INFO_FAILED                   = 0x23,   // Could not retrieve information about some party members
+    LFG_JOIN_DUNGEON_INVALID                     = 0x24,   // One or more dungeons was not valid
+    LFG_JOIN_DESERTER                            = 0x25,   // You can not queue for dungeons until your deserter debuff wears off
+    LFG_JOIN_PARTY_DESERTER                      = 0x26,   // One or more party members has a deserter debuff
+    LFG_JOIN_RANDOM_COOLDOWN                     = 0x27,   // You can not queue for random dungeons while on random dungeon cooldown
+    LFG_JOIN_PARTY_RANDOM_COOLDOWN               = 0x28,   // One or more party members are on random dungeon cooldown
+    LFG_JOIN_TOO_MUCH_MEMBERS                    = 0x29,   // You can not enter dungeons with more that 5 party members
+    LFG_JOIN_USING_BG_SYSTEM                     = 0x2A,   // You can not use the dungeon system while in BG or arenas
+    LFG_JOIN_ROLE_CHECK_FAILED                   = 0x2B    // Role check failed, client shows special error
 };
 
 /// Role check states
@@ -157,7 +158,7 @@ struct LfgJoinResultData
     LfgLockPartyMap lockmap;
 };
 
-// Data needed by SMSG_LFG_UPDATE_PARTY and SMSG_LFG_UPDATE_PLAYER
+// Data needed by SMSG_LFG_UPDATE_STATUS
 struct LfgUpdateData
 {
     LfgUpdateData(LfgUpdateType _type = LFG_UPDATETYPE_DEFAULT): updateType(_type), state(LFG_STATE_NONE), comment("") { }
@@ -409,8 +410,12 @@ class LFGMgr
         uint8 GetPlayerCount(uint64 guid);
         /// Add a new Proposal
         uint32 AddProposal(LfgProposal& proposal);
+        /// Returns queue id
+        uint8 GetQueueId(uint64 guid);
         /// Checks if all players are queued
         bool AllQueued(LfgGuidList const& check);
+        /// Gets queue join time
+        time_t GetQueueJoinTime(uint64 guid);
         /// Checks if given roles match, modifies given roles map with new roles
         static bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
         /// Checks if given players are ignoring each other
@@ -437,7 +442,8 @@ class LFGMgr
         void MakeNewGroup(LfgProposal const& proposal);
 
         // Generic
-        LFGQueue &GetQueue(uint64 guid);
+        LFGQueue& GetQueue(uint64 guid);
+
         LfgDungeonSet const& GetDungeonsByRandom(uint32 randomdungeon);
         LfgType GetDungeonType(uint32 dungeon);
 
@@ -445,8 +451,7 @@ class LFGMgr
         void SendLfgJoinResult(uint64 guid, LfgJoinResultData const& data);
         void SendLfgRoleChosen(uint64 guid, uint64 pguid, uint8 roles);
         void SendLfgRoleCheckUpdate(uint64 guid, LfgRoleCheck const& roleCheck);
-        void SendLfgUpdateParty(uint64 guid, LfgUpdateData const& data);
-        void SendLfgUpdatePlayer(uint64 guid, LfgUpdateData const& data);
+        void SendLfgUpdateStatus(uint64 guid, LfgUpdateData const& data, bool party);
         void SendLfgUpdateProposal(uint64 guid, LfgProposal const& proposal);
 
         LfgGuidSet const& GetPlayers(uint64 guid);
