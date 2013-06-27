@@ -44,17 +44,21 @@ enum LfgUpdateType
     LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
     LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
     LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
-    LFG_UPDATETYPE_JOIN_QUEUE                    = 5,
-    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,
-    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 7,
-    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,
-    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,
-    LFG_UPDATETYPE_GROUP_FOUND                   = 10,
-    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 12,
-    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
-    LFG_UPDATETYPE_UPDATE_STATUS                 = 14,
-    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
-    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 16,     // FIXME: Sometimes at group disband
+    LFG_UPDATETYPE_JOIN_QUEUE                    = 6,
+    LFG_UPDATETYPE_ROLECHECK_FAILED              = 7,
+    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,
+    LFG_UPDATETYPE_PROPOSAL_FAILED               = 9,
+    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 10,
+    LFG_UPDATETYPE_GROUP_FOUND                   = 11,
+    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 13,
+    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 14,
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 15,
+    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16,
+    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17,     // FIXME: Sometimes at group disband
+    LFG_UPDATETYPE_JOIN_QUEUE_INITIAL            = 24,
+    LFG_UPDATETYPE_DUNGEON_FINISHED              = 25,
+    LFG_UPDATETYPE_PARTY_ROLE_NOT_AVAILABLE      = 43,
+    LFG_UPDATETYPE_JOIN_LFG_OBJECT_FAILED        = 45,
 };
 
 enum LfgState
