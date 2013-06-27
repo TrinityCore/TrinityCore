@@ -887,7 +887,7 @@ public:
 
             if (LightningBoltTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_LIGHTNING_BOLT);
+                DoCastVictim(SPELL_LIGHTNING_BOLT);
                 LightningBoltTimer = 10000;
             } else LightningBoltTimer -= diff;
 

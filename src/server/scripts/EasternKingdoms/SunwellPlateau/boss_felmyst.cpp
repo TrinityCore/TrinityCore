@@ -428,11 +428,11 @@ public:
                         events.ScheduleEvent(EVENT_BERSERK, 10000);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->GetVictim(), SPELL_CLEAVE, false);
+                        DoCastVictim(SPELL_CLEAVE, false);
                         events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
                         break;
                     case EVENT_CORROSION:
-                        DoCast(me->GetVictim(), SPELL_CORROSION, false);
+                        DoCastVictim(SPELL_CORROSION, false);
                         events.ScheduleEvent(EVENT_CORROSION, urand(20000, 30000));
                         break;
                     case EVENT_GAS_NOVA:

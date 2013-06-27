@@ -81,15 +81,15 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WHIRLWIND:
-                        DoCast(me->GetVictim(), SPELL_WHIRLWIND);
+                        DoCastVictim(SPELL_WHIRLWIND);
                         events.ScheduleEvent(EVENT_WHIRLWIND, 18 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->GetVictim(), SPELL_CLEAVE);
+                        DoCastVictim(SPELL_CLEAVE);
                         events.ScheduleEvent(EVENT_CLEAVE, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_THUNDERCLAP:
-                        DoCast(me->GetVictim(), SPELL_THUNDERCLAP);
+                        DoCastVictim(SPELL_THUNDERCLAP);
                         events.ScheduleEvent(EVENT_THUNDERCLAP, 16 * IN_MILLISECONDS);
                         break;
                 }

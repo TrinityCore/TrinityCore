@@ -226,14 +226,14 @@ public:
             //Breath1_Timer
             if (Breath1_Timer <= diff)
             {
-                DoCast(me->GetVictim(), Breath1_Spell);
+                DoCastVictim(Breath1_Spell);
                 Breath1_Timer = 60000;
             } else Breath1_Timer -= diff;
 
             //Breath2_Timer
             if (Breath2_Timer <= diff)
             {
-                DoCast(me->GetVictim(), Breath2_Spell);
+                DoCastVictim(Breath2_Spell);
                 Breath2_Timer = 60000;
             } else Breath2_Timer -= diff;
 

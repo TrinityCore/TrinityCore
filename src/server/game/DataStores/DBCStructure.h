@@ -904,7 +904,7 @@ struct DungeonEncounterEntry
 {
     uint32 id;                                              // 0        unique id
     uint32 mapId;                                           // 1        map id
-    uint32 difficulty;                                      // 2        instance mode
+    int32 difficulty;                                       // 2        instance mode
     //uint32 unk0;                                          // 3
     uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
     char* encounterName;                                    // 5        encounter name

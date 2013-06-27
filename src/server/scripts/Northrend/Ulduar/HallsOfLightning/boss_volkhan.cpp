@@ -443,7 +443,7 @@ public:
 
             if (m_uiImmolation_Timer <= uiDiff)
             {
-                DoCast(me->GetVictim(), SPELL_IMMOLATION_STRIKE_N);
+                DoCastVictim(SPELL_IMMOLATION_STRIKE_N);
                 m_uiImmolation_Timer = 5000;
             }
             else

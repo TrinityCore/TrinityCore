@@ -130,7 +130,7 @@ public:
 
             if (SpellSummonVoidTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SUMMON_VOID_SENTRY, false);
+                DoCastVictim(SPELL_SUMMON_VOID_SENTRY, false);
                 SpellSummonVoidTimer = 20000;
             } else SpellSummonVoidTimer -=diff;
 
@@ -143,7 +143,7 @@ public:
 
             if (SpellShroudOfDarknessTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHROUD_OF_DARKNESS);
+                DoCastVictim(SPELL_SHROUD_OF_DARKNESS);
                 SpellShroudOfDarknessTimer = 20000;
             } else SpellShroudOfDarknessTimer -=diff;
 

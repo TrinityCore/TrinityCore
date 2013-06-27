@@ -123,7 +123,7 @@ typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 struct ObjectGuid
 {
     public:
-        ObjectGuid() { _data.u64 = 0LL; }
+        ObjectGuid() { _data.u64 = UI64LIT(0); }
         ObjectGuid(uint64 guid) { _data.u64 = guid; }
         ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
 

@@ -290,11 +290,11 @@ void AddSC_boss_epoch_hunter();
 void AddSC_boss_lieutenant_drake();
 void AddSC_instance_old_hillsbrad();
 void AddSC_old_hillsbrad();
-void AddSC_boss_aeonus();                    //CoT The Dark Portal
+void AddSC_boss_aeonus();                    //CoT The Black Morass
 void AddSC_boss_chrono_lord_deja();
 void AddSC_boss_temporus();
-void AddSC_dark_portal();
-void AddSC_instance_dark_portal();
+void AddSC_the_black_morass();
+void AddSC_instance_the_black_morass();
 void AddSC_boss_epoch();                     //CoT Culling Of Stratholme
 void AddSC_boss_infinite_corruptor();
 void AddSC_boss_salramm();
@@ -937,11 +937,11 @@ void AddKalimdorScripts()
     AddSC_boss_lieutenant_drake();
     AddSC_instance_old_hillsbrad();
     AddSC_old_hillsbrad();
-    AddSC_boss_aeonus();                    //CoT The Dark Portal
+    AddSC_boss_aeonus();                    //CoT The Black Morass
     AddSC_boss_chrono_lord_deja();
     AddSC_boss_temporus();
-    AddSC_dark_portal();
-    AddSC_instance_dark_portal();
+    AddSC_the_black_morass();
+    AddSC_instance_the_black_morass();
     AddSC_boss_epoch();                     //CoT Culling Of Stratholme
     AddSC_boss_infinite_corruptor();
     AddSC_boss_salramm();

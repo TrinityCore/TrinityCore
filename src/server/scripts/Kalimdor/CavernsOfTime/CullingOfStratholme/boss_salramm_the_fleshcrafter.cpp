@@ -105,7 +105,7 @@ public:
             //Curse of twisted flesh timer
             if (uiCurseFleshTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
+                DoCastVictim(SPELL_CURSE_OF_TWISTED_FLESH);
                 uiCurseFleshTimer = 37000;
             } else uiCurseFleshTimer -= diff;
 

@@ -383,7 +383,7 @@ class boss_alar : public CreatureScript
 
                     if (MeltArmor_Timer <= diff)
                     {
-                        DoCast(me->GetVictim(), SPELL_MELT_ARMOR);
+                        DoCastVictim(SPELL_MELT_ARMOR);
                         MeltArmor_Timer = 60000;
                     }
                     else

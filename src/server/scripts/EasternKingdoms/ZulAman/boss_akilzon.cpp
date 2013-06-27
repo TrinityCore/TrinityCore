@@ -30,18 +30,9 @@ enum Says
     SAY_DEATH               = 6
 };
 
-enum Spells
-{
-};
-
-enum Events
-{
-};
-
 class boss_akilzon : public CreatureScript
 {
     public:
-
         boss_akilzon() : CreatureScript("boss_akilzon") { }
 
         struct boss_akilzonAI : public BossAI

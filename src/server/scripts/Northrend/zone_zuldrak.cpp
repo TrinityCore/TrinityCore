@@ -577,7 +577,7 @@ public:
             if (!_summoned && !HealthAbovePct(50))
             {
                 Talk(SAY_CALL_FOR_HELP);
-                //DoCast(me->GetVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
+                //DoCastVictim(SPELL_SUMMON_WHISKER); petai is not working correctly???
 
                 if (Creature* whisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     _whiskerGUID = whisker->GetGUID();
@@ -780,13 +780,13 @@ public:
 
             if (_cleaveTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CLEAVE);
+                DoCastVictim(SPELL_CLEAVE);
                 _cleaveTimer = 9000;
             } else _cleaveTimer -= diff;
 
             if (_corrodeFleshTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CORRODE_FLESH);
+                DoCastVictim(SPELL_CORRODE_FLESH);
                 _corrodeFleshTimer = 6000;
             } else _corrodeFleshTimer -= diff;
 

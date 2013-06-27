@@ -209,7 +209,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_MIND_REND);
                     else
-                        DoCast(me->GetVictim(), SPELL_MIND_REND);
+                        DoCastVictim(SPELL_MIND_REND);
 
                     MindRend_Timer = 8000;
                 }
@@ -226,7 +226,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_FEAR);
                     else
-                        DoCast(me->GetVictim(), SPELL_FEAR);
+                        DoCastVictim(SPELL_FEAR);
 
                     Fear_Timer = 25000;
                 }
@@ -243,7 +243,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_DOMINATION);
                     else
-                        DoCast(me->GetVictim(), SPELL_DOMINATION);
+                        DoCastVictim(SPELL_DOMINATION);
 
                     Domination_Timer = 16000+rand()%16000;
                 }

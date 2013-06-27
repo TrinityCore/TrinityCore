@@ -46,12 +46,12 @@ set(scripts_STAT_SRCS
   Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.cpp
   Kalimdor/CavernsOfTime/CullingOfStratholme/instance_culling_of_stratholme.cpp
   Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.h
-  Kalimdor/CavernsOfTime/DarkPortal/dark_portal.h
-  Kalimdor/CavernsOfTime/DarkPortal/instance_dark_portal.cpp
-  Kalimdor/CavernsOfTime/DarkPortal/boss_chrono_lord_deja.cpp
-  Kalimdor/CavernsOfTime/DarkPortal/dark_portal.cpp
-  Kalimdor/CavernsOfTime/DarkPortal/boss_aeonus.cpp
-  Kalimdor/CavernsOfTime/DarkPortal/boss_temporus.cpp
+  Kalimdor/CavernsOfTime/TheBlackMorass/the_black_morass.h
+  Kalimdor/CavernsOfTime/TheBlackMorass/instance_the_black_morass.cpp
+  Kalimdor/CavernsOfTime/TheBlackMorass/boss_chrono_lord_deja.cpp
+  Kalimdor/CavernsOfTime/TheBlackMorass/the_black_morass.cpp
+  Kalimdor/CavernsOfTime/TheBlackMorass/boss_aeonus.cpp
+  Kalimdor/CavernsOfTime/TheBlackMorass/boss_temporus.cpp
   Kalimdor/BlackfathomDeeps/boss_kelris.cpp
   Kalimdor/BlackfathomDeeps/instance_blackfathom_deeps.cpp
   Kalimdor/BlackfathomDeeps/boss_gelihast.cpp
