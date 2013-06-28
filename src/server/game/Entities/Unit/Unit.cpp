@@ -6131,9 +6131,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     target = this;
                     break;
                 }
-                    if (!victim)
-                        return false;
-
                 // Holy Power (Redemption Armor set)
                 case 28789:
                 {
@@ -7146,13 +7143,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         if (charge && charge->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL))
                             RemoveAurasDueToSpell(50240);
                         break;
-                    }
-                    // Warrior - Vigilance, SPELLFAMILY_GENERIC
-                    if (auraSpellInfo->Id == 50720)
-                    {
-                        target = triggeredByAura->GetCaster();
-                        if (!target)
-                            return false;
                     }
                 }
                 break;
