@@ -161,8 +161,6 @@ set(scripts_STAT_SRCS
   Northrend/VioletHold/boss_xevozz.cpp
   Northrend/VioletHold/boss_erekem.cpp
   Northrend/VioletHold/violet_hold.cpp
-  Northrend/VioletHold/arcane_sphere.cpp
-  Northrend/VioletHold/activation_crystal.cpp
   Northrend/IcecrownCitadel/instance_icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.h

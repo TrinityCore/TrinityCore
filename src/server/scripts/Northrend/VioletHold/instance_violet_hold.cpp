@@ -66,6 +66,7 @@ enum AzureSaboteurSpells
 enum CrystalSpells
 {
     SPELL_ARCANE_LIGHTNING                          = 57930
+    SPELL_ARCANE_SPHERE_PASSIVE			    = 44263
 };
 
 enum Events
@@ -841,7 +842,59 @@ public:
     };
 };
 
+class VH_arcane_sphere : public CreatureScript
+{
+public:
+    VH_arcane_sphere() : CreatureScript("VH_arcane_sphere") { }
+
+    CreatureAI* GetAI(Creature* c) const
+    {
+        return new VH_arcane_sphereAI(c);
+    }
+
+    struct VH_arcane_sphereAI : public ScriptedAI
+    {
+        VH_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+
+        uint32 DespawnTimer;
+
+        void Reset()
+        {
+            DespawnTimer = 3000;
+
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetDisableGravity(true);
+            //me->setFaction(14);
+            DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
+        }
+
+        void EnterCombat(Unit* /*who*/) {}
+
+        void UpdateAI(uint32 diff)
+        {
+            if (DespawnTimer <= diff)
+                me->Kill(me);
+            else
+                DespawnTimer -= diff;
+        }
+    };
+};
+
+class go_activation_crystal : public GameObjectScript
+{
+public:
+    go_activation_crystal() : GameObjectScript("go_activation_crystal") { }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        go->EventInform(EVENT_ACTIVATE_CRYSTAL);
+        return false;
+    }
+};
+
 void AddSC_instance_violet_hold()
 {
+    new go_activation_crystal();
+    new VH_arcane_sphere();
     new instance_violet_hold();
 }
