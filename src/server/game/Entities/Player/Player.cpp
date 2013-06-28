@@ -5141,7 +5141,7 @@ void Player::BuildPlayerRepop()
     SetHealth(1);
 
     SetWaterWalking(true);
-    if (!GetSession()->isLogingOut())
+    if (!GetSession()->isLogingOut() && !HasUnitState(UNIT_STATE_STUNNED))
         SetRooted(false);
 
     // BG - remove insignia related
@@ -5181,7 +5181,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     setDeathState(ALIVE);
 
     SetWaterWalking(false);
-    SetRooted(false);
+    if (!HasUnitState(UNIT_STATE_STUNNED))
+        SetRooted(false);
 
     m_deathTimer = 0;
 
@@ -23125,7 +23126,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
-        SendMoveRoot(2);
+        SetRooted(true, true);
 
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map

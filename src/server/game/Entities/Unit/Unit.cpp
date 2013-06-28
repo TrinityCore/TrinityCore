@@ -14329,7 +14329,8 @@ void Unit::SetControlled(bool apply, UnitState state)
                 if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())
                     return;
 
-                SetRooted(false);
+                if (!HasUnitState(UNIT_STATE_STUNNED))
+                    SetRooted(false);
                 break;
             case UNIT_STATE_CONFUSED:
                 if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
@@ -14364,63 +14365,6 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
-void Unit::SendMoveRoot(uint32 value)
-{
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[5]);
-
-    data << uint32(value);
-
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[6]);
-
-    SendMessageToSet(&data, true);
-}
-
-void Unit::SendMoveUnroot(uint32 value)
-{
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-
-    data << uint32(value);
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-
-    SendMessageToSet(&data, true);
-}
-
 void Unit::SetStunned(bool apply)
 {
     if (apply)
@@ -14453,76 +14397,29 @@ void Unit::SetStunned(bool apply)
     }
 }
 
-void Unit::SetRooted(bool apply)
+void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
 {
-    if (apply)
+    if (!packetOnly)
     {
-        // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
-        // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
-        // setting MOVEMENTFLAG_ROOT
-        RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
-        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        if (apply == HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
+            return;
 
-        if (GetTypeId() == TYPEID_PLAYER)
-            SendMoveRoot(m_movementCounter++);
+        if (apply)
+        {
+            // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
+            // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
+            // setting MOVEMENTFLAG_ROOT
+            RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
+            AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        }
         else
-        {
-            ObjectGuid guid = GetGUID();
-            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
-            data.WriteBit(guid[5]);
-            data.WriteBit(guid[4]);
-            data.WriteBit(guid[6]);
-            data.WriteBit(guid[1]);
-            data.WriteBit(guid[3]);
-            data.WriteBit(guid[7]);
-            data.WriteBit(guid[2]);
-            data.WriteBit(guid[0]);
-            data.FlushBits();
-            data.WriteByteSeq(guid[2]);
-            data.WriteByteSeq(guid[1]);
-            data.WriteByteSeq(guid[7]);
-            data.WriteByteSeq(guid[3]);
-            data.WriteByteSeq(guid[5]);
-            data.WriteByteSeq(guid[0]);
-            data.WriteByteSeq(guid[6]);
-            data.WriteByteSeq(guid[4]);
-            SendMessageToSet(&data, true);
-            StopMoving();
-        }
-    }
-    else
-    {
-        if (!HasUnitState(UNIT_STATE_STUNNED))      // prevent moving if it also has stun effect
-        {
-            if (GetTypeId() == TYPEID_PLAYER)
-                SendMoveUnroot(m_movementCounter++);
-            else
-            {
-                ObjectGuid guid = GetGUID();
-                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-                data.WriteBit(guid[0]);
-                data.WriteBit(guid[1]);
-                data.WriteBit(guid[6]);
-                data.WriteBit(guid[5]);
-                data.WriteBit(guid[3]);
-                data.WriteBit(guid[2]);
-                data.WriteBit(guid[7]);
-                data.WriteBit(guid[4]);
-                data.FlushBits();
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[4]);
-                SendMessageToSet(&data, true);
-            }
-
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
-        }
     }
+
+    if (apply)
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_ROOT, SMSG_MOVE_ROOT, SMSG_MOVE_ROOT).Send();
+    else
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNROOT, SMSG_MOVE_UNROOT, SMSG_MOVE_UNROOT).Send();
 }
 
 void Unit::SetFeared(bool apply)
