@@ -2136,7 +2136,7 @@ Battleground.Random.ResetHour = 6
 #         Default:     0 - (Disabled)
 #                      1 - (Enabled, Experimental as of still being in development)
 
-Wintergrasp.Enable = 0
+Wintergrasp.Enable = 1
 
 #
 #     Wintergrasp.PlayerMax

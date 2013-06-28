@@ -1,5 +1,0 @@
-ALTER TABLE `character_reputation`
-ROW_FORMAT=DEFAULT,
-CHANGE `guid` `guid` INT(10) UNSIGNED DEFAULT '0' NOT NULL COMMENT 'Global Unique Identifier',
-CHANGE `faction` `faction` SMALLINT(5) UNSIGNED DEFAULT '0' NOT NULL,
-CHANGE `flags` `flags` SMALLINT(5) UNSIGNED DEFAULT '0' NOT NULL;
