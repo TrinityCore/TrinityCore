@@ -86,6 +86,11 @@ class DBCFile
 
                 friend class DBCFile;
                 friend class DBCFile::Iterator;
+
+                Record& operator=(Record const&);
+                Record(Record const& right) : file(right.file), offset(right.offset)
+                {
+                }
         };
         /** Iterator that iterates over records
         */
@@ -93,6 +98,10 @@ class DBCFile
         {
             public:
                 Iterator(DBCFile &file, unsigned char* offset) : record(file, offset) { }
+
+                Iterator(Iterator const& right) : record(right.record)
+                {
+                }
 
                 /// Advance (prefix only)
                 Iterator& operator++()
@@ -116,8 +125,14 @@ class DBCFile
                     return record.offset != b.record.offset;
                 }
 
+                Iterator& operator=(Iterator const& right)
+                {
+                    record.offset = right.record.offset;
+                    return *this;
+                }
             private:
                 Record record;
+
         };
 
         // Get record by id
