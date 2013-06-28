@@ -2240,12 +2240,10 @@ class Unit : public WorldObject
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
     protected:
-        void SendMoveRoot(uint32 value);
-        void SendMoveUnroot(uint32 value);
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
-        void SetRooted(bool apply);
+        void SetRooted(bool apply, bool packetOnly = false);
 
         uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
 
