@@ -469,6 +469,7 @@ void AddSC_boss_novos();
 void AddSC_boss_dred();
 void AddSC_boss_tharon_ja();
 void AddSC_instance_drak_tharon();
+void AddSC_VH_arcane_sphere();
 void AddSC_boss_cyanigosa();             //Violet Hold
 void AddSC_boss_erekem();
 void AddSC_boss_ichoron();
@@ -1219,6 +1220,7 @@ void AddNorthrendScripts()
     AddSC_boss_zuramat();
     AddSC_instance_violet_hold();
     AddSC_violet_hold();
+    AddSC_VH_arcane_sphere();
     AddSC_instance_forge_of_souls();   //Forge of Souls
     AddSC_forge_of_souls();
     AddSC_boss_bronjahm();
