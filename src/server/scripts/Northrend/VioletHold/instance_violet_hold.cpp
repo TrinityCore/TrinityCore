@@ -84,8 +84,7 @@ const Position PortalLocation[] =
     {1908.31f, 809.657f, 38.7037f, 3.08701f}      // WP 6
 };
 
-const Position ArcaneSphere = {1887.060059f, 806.151001f, 61.321602f,
-0.0f};
+const Position ArcaneSphere = {1887.060059f, 806.151001f, 61.321602f, 0.0f};
 const Position BossStartMove1  = {1894.684448f, 739.390503f, 47.668003f, 0.0f};
 const Position BossStartMove2  = {1875.173950f, 860.832703f, 43.333565f, 0.0f};
 const Position BossStartMove21 = {1858.854614f, 855.071411f, 43.333565f, 0.0f};
@@ -802,21 +801,21 @@ public:
 
         void ActivateCrystal()
         {
-	    // just to make things easier we'll get the a gameobject from the map
+            // just to make things easier we'll get the a gameobject from the map
             GameObject* invoker=instance->GetGameObject(uiActivationCrystal[0]);
-            
-	    SpellInfo const* spellInfoLightning=sSpellMgr->GetSpellInfo(SPELL_ARCANE_LIGHTNING);
+
+            SpellInfo const* spellInfoLightning=sSpellMgr->GetSpellInfo(SPELL_ARCANE_LIGHTNING);
             if (!spellInfoLightning)
                 return;
-            
+
             // the orb
-            TempSummon* trigger=invoker->SummonCreature(DEFENSE_SYSTEM,ArcaneSphere,TEMPSUMMON_MANUAL_DESPAWN,0);
-            
-	    if (!trigger)
+            TempSummon* trigger=invoker->SummonCreature(DEFENSE_SYSTEM, ArcaneSphere, TEMPSUMMON_MANUAL_DESPAWN, 0);
+
+            if ( !trigger )
                 return;
-            
-	    // visuals
-	    trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
+
+            // visuals
+            trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
 
             // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
             for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
@@ -862,9 +861,7 @@ public:
         {
             DespawnTimer = 3000;
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetDisableGravity(true);
-            //me->setFaction(14);
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 
