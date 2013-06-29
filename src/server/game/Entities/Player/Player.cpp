@@ -3177,10 +3177,10 @@ void Player::GiveLevel(uint8 level)
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
 
-    PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddConditionType(CONDITION_LEVEL);
+    PhaseUpdateData phaseUpdateData;
+    phaseUpdateData.AddConditionType(CONDITION_LEVEL);
 
-    phaseMgr.NotifyConditionChanged(phaseUdateData);
+    phaseMgr.NotifyConditionChanged(phaseUpdateData);
 
     // Refer-A-Friend
     if (GetSession()->GetRecruiterId())
@@ -15396,6 +15396,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     m_RewardedQuests.insert(quest_id);
     m_RewardedQuestsSave[quest_id] = true;
 
+    PhaseUpdateData phaseUpdateData;
+    phaseUpdateData.AddQuestUpdate(quest_id);
+    phaseMgr.NotifyConditionChanged(phaseUpdateData);
+
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
     // (to prevent rewarding this quest another time while rewards were already given out)
@@ -15973,10 +15977,10 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
         m_QuestStatusSave[quest_id] = true;
     }
 
-    PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddQuestUpdate(quest_id);
+    PhaseUpdateData phaseUpdateData;
+    phaseUpdateData.AddQuestUpdate(quest_id);
 
-    phaseMgr.NotifyConditionChanged(phaseUdateData);
+    phaseMgr.NotifyConditionChanged(phaseUpdateData);
 
     uint32 zone = 0, area = 0;
 
@@ -16013,10 +16017,10 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         m_QuestStatus.erase(itr);
         m_QuestStatusSave[quest_id] = false;
 
-        PhaseUpdateData phaseUdateData;
-        phaseUdateData.AddQuestUpdate(quest_id);
+        PhaseUpdateData phaseUpdateData;
+        phaseUpdateData.AddQuestUpdate(quest_id);
 
-        phaseMgr.NotifyConditionChanged(phaseUdateData);
+        phaseMgr.NotifyConditionChanged(phaseUpdateData);
         return;
     }
 }
@@ -16029,10 +16033,10 @@ void Player::RemoveRewardedQuest(uint32 quest_id)
         m_RewardedQuests.erase(rewItr);
         m_RewardedQuestsSave[quest_id] = false;
 
-        PhaseUpdateData phaseUdateData;
-        phaseUdateData.AddQuestUpdate(quest_id);
+        PhaseUpdateData phaseUpdateData;
+        phaseUpdateData.AddQuestUpdate(quest_id);
 
-        phaseMgr.NotifyConditionChanged(phaseUdateData);
+        phaseMgr.NotifyConditionChanged(phaseUpdateData);
     }
 }
 
