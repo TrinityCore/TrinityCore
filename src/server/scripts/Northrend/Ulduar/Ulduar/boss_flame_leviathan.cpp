@@ -1632,7 +1632,7 @@ class FlameLeviathanPursuedTargetSelector
             //! Vehicle must be in use by player
             bool playerFound = false;
             for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end() && !playerFound; ++itr)
-                if (IS_PLAYER_GUID(itr->second.Passenger))
+                if (IS_PLAYER_GUID(itr->second.Passenger.Guid))
                     playerFound = true;
 
             return !playerFound;
@@ -1690,9 +1690,9 @@ class spell_pursue : public SpellScriptLoader
 
                 for (SeatMap::const_iterator itr = caster->GetVehicleKit()->Seats.begin(); itr != caster->GetVehicleKit()->Seats.end(); ++itr)
                 {
-                    if (IS_PLAYER_GUID(itr->second.Passenger))
+                    if (IS_PLAYER_GUID(itr->second.Passenger.Guid))
                     {
-                        caster->AI()->Talk(EMOTE_PURSUE, itr->second.Passenger);
+                        caster->AI()->Talk(EMOTE_PURSUE, itr->second.Passenger.Guid);
                         return;
                     }
                 }

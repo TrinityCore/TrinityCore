@@ -53,11 +53,29 @@ enum VehicleSpells
     VEHICLE_SPELL_PARACHUTE                      = 45472
 };
 
+struct PassengerInfo
+{
+    uint64 Guid;
+    bool IsUnselectable;
+
+    void Reset()
+    {
+        Guid = 0;
+        IsUnselectable = false;
+    }
+};
+
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const* seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
+    explicit VehicleSeat(VehicleSeatEntry const* seatInfo) : SeatInfo(seatInfo)
+    {
+        Passenger.Reset();
+    }
+
+    bool IsEmpty() const { return !Passenger.Guid; }
+
     VehicleSeatEntry const* SeatInfo;
-    uint64 Passenger;
+    PassengerInfo Passenger;
 };
 
 struct VehicleAccessory
