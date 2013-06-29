@@ -195,10 +195,8 @@ public:
             if (!freed)
                 return;
 
-            if (!me->HasUnitState(UNIT_STATE_ONVEHICLE))
-            {
+            if (!me->GetVehicle())
                 me->DespawnOrUnsummon();
-            }
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
