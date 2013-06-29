@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,30 +21,21 @@
 
 enum Spells
 {
-    SPELL_CORROSIVE_ACID            = 20667,
-    SPELL_FREEZE                    = 18763,
-    SPELL_FLAMEBREATH               = 20712,
-    SPELL_SELF_ROOT_FOREVER         = 33356,
-};
-
-enum Adds
-{
-    MODEL_REND_ON_DRAKE             = 9723, /// @todo use creature_template 10459 instead of its modelid
-    NPC_RAGE_TALON_FIRE_TONG        = 10372,
-    NPC_CHROMATIC_WHELP             = 10442,
-    NPC_CHROMATIC_DRAGONSPAWN       = 10447,
-    NPC_BLACKHAND_ELITE             = 10317,
+    SPELL_REND_MOUNTS               = 16167, // Change model
+    SPELL_CORROSIVE_ACID            = 16359, // Combat (self cast)
+    SPELL_FLAMEBREATH               = 16390, // Combat (Self cast)
+    SPELL_FREEZE                    = 16350, // Combat (Self cast)
+    SPELL_KNOCK_AWAY                = 10101, // Combat
+    SPELL_SUMMON_REND               = 16328  // Summons Rend near death
 };
 
 enum Events
 {
-    EVENT_SUMMON_REND               = 1,
-    EVENT_AGGRO                     = 2,
-    EVENT_SUMMON_DRAGON_PACK        = 3,
-    EVENT_SUMMON_ORC_PACK           = 4,
-    EVENT_CORROSIVE_ACID            = 5,
-    EVENT_FREEZE                    = 6,
-    EVENT_FLAME_BREATH              = 7,
+    EVENT_CORROSIVE_ACID            = 1,
+    EVENT_FREEZE                    = 2,
+    EVENT_FLAME_BREATH              = 3,
+    EVENT_KNOCK_AWAY                = 4,
+    EVENT_SUMMONED                  = 5,
 };
 
 class boss_gyth : public CreatureScript
@@ -55,10 +45,7 @@ public:
 
     struct boss_gythAI : public BossAI
     {
-        boss_gythAI(Creature* creature) : BossAI(creature, DATA_GYTH)
-        {
-            DoCast(me, SPELL_SELF_ROOT_FOREVER);
-        }
+        boss_gythAI(Creature* creature) : BossAI(creature, DATA_GYTH) { }
 
         bool SummonedRend;
 
@@ -66,17 +53,21 @@ public:
         {
             _Reset();
             SummonedRend = false;
-            //Invisible for event start
-            me->SetVisible(false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            if (instance->GetBossState(DATA_GYTH) == IN_PROGRESS)
+            {
+                instance->SetBossState(DATA_GYTH, DONE);
+                me->DespawnOrUnsummon();
+            }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_SUMMON_DRAGON_PACK, 3 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SUMMON_ORC_PACK, 60 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_AGGRO, 60 * IN_MILLISECONDS);
+
+            events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(8000, 16000));
+            events.ScheduleEvent(EVENT_FREEZE, urand(8000, 16000));
+            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(8000, 16000));
+            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(12000, 18000));
         }
 
         void JustDied(Unit* /*killer*/)
@@ -84,12 +75,9 @@ public:
             _JustDied();
         }
 
-        void SummonCreatureWithRandomTarget(uint32 creatureId, uint8 count)
+        void IsSummonedBy(Unit* /*summoner*/)
         {
-            for (uint8 n = 0; n < count; n++)
-                if (Unit* Summoned = me->SummonCreature(creatureId, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240 * IN_MILLISECONDS))
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        Summoned->AddThreat(target, 250.0f);
+            events.ScheduleEvent(EVENT_SUMMONED, 8000);
         }
 
         void UpdateAI(uint32 diff)
@@ -97,70 +85,40 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!SummonedRend && HealthBelowPct(11))
+            if (!SummonedRend && HealthBelowPct(5))
             {
-                events.ScheduleEvent(EVENT_SUMMON_REND, 8 * IN_MILLISECONDS);
+                DoCast(me, SPELL_SUMMON_REND);
+                me->RemoveAura(SPELL_REND_MOUNTS);
                 SummonedRend = true;
             }
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                    case EVENT_SUMMON_REND:
-                        // Summon Rend and Change model to normal Gyth
-                        // Interrupt any spell casting
-                        me->InterruptNonMeleeSpells(false);
-                        // Gyth model
-                        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                        me->SummonCreature(NPC_WARCHIEF_REND_BLACKHAND, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900 * IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8 * IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_FREEZE, 11 * IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, 4 * IN_MILLISECONDS);
-                        events.CancelEvent(EVENT_SUMMON_REND);
-                        break;
-                    case EVENT_AGGRO:
-                        me->SetVisible(true);
-                        me->SetDisplayId(MODEL_REND_ON_DRAKE);
-                        me->setFaction(14);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        events.CancelEvent(EVENT_AGGRO);
-                        break;
-                    // Summon Dragon pack. 2 Dragons and 3 Whelps
-                    case EVENT_SUMMON_DRAGON_PACK:
-                        for (uint8 i = 0; i < urand(0, 3) + 2; ++i)
-                        {
-                            SummonCreatureWithRandomTarget(NPC_RAGE_TALON_FIRE_TONG, 2);
-                            SummonCreatureWithRandomTarget(NPC_CHROMATIC_WHELP, 3);
-                        }
-                        events.CancelEvent(EVENT_SUMMON_DRAGON_PACK);
-                        break;
-                    // Summon Orc pack. 1 Orc Handler 1 Elite Dragonkin and 3 Whelps
-                    case EVENT_SUMMON_ORC_PACK:
-                        for (uint8 i = 0; i < urand (0, 5) + 2; ++i)
-                        {
-                            SummonCreatureWithRandomTarget(NPC_CHROMATIC_DRAGONSPAWN, 1);
-                            SummonCreatureWithRandomTarget(NPC_BLACKHAND_ELITE, 1);
-                            SummonCreatureWithRandomTarget(NPC_CHROMATIC_WHELP, 3);
-                        }
-                        events.CancelEvent(EVENT_SUMMON_ORC_PACK);
+                    case EVENT_SUMMONED:
+                        DoCast(me, SPELL_REND_MOUNTS);
+                        // Load Path
                         break;
                     case EVENT_CORROSIVE_ACID:
-                        DoCastVictim(SPELL_CORROSIVE_ACID);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 7 * IN_MILLISECONDS);
+                        DoCast(me, SPELL_CORROSIVE_ACID);
+                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(10000, 16000));
                         break;
                     case EVENT_FREEZE:
-                        DoCastVictim(SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, 16 * IN_MILLISECONDS);
+                        DoCast(me, SPELL_FREEZE);
+                        events.ScheduleEvent(EVENT_FREEZE, urand(10000, 16000));
                         break;
                     case EVENT_FLAME_BREATH:
-                        DoCastVictim(SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, 10500);
+                        DoCast(me, SPELL_FLAMEBREATH);
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 16000));
+                        break;
+                    case EVENT_KNOCK_AWAY:
+                        DoCastVictim(SPELL_KNOCK_AWAY);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(14000, 20000));
+                        break;
+                    default:
                         break;
                 }
             }

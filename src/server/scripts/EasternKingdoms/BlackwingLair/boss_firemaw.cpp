@@ -16,48 +16,45 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Firemaw
-SD%Complete: 100
-SDComment:
-SDCategory: Blackwing Lair
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "blackwing_lair.h"
 
-#define SPELL_SHADOWFLAME       22539
-#define SPELL_WINGBUFFET        23339
-#define SPELL_FLAMEBUFFET       23341
+enum Spells
+{
+    SPELL_SHADOWFLAME       = 22539,
+    SPELL_WINGBUFFET        = 23339,
+    SPELL_FLAMEBUFFET       = 23341
+};
+
+enum Events
+{
+    EVENT_SHADOWFLAME       = 1,
+    EVENT_WINGBUFFET        = 2,
+    EVENT_FLAMEBUFFET       = 3
+};
 
 class boss_firemaw : public CreatureScript
 {
 public:
     boss_firemaw() : CreatureScript("boss_firemaw") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_firemawAI : public BossAI
     {
-        return new boss_firemawAI (creature);
-    }
-
-    struct boss_firemawAI : public ScriptedAI
-    {
-        boss_firemawAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 ShadowFlame_Timer;
-        uint32 WingBuffet_Timer;
-        uint32 FlameBuffet_Timer;
-
-        void Reset()
-        {
-            ShadowFlame_Timer = 30000;                          //These times are probably wrong
-            WingBuffet_Timer = 24000;
-            FlameBuffet_Timer = 5000;
-        }
+        boss_firemawAI(Creature* creature) : BossAI(creature, BOSS_FIREMAW) { }
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoZoneInCombat();
+            if (instance && instance->GetBossState(BOSS_BROODLORD) != DONE)
+            {
+                EnterEvadeMode();
+                return;
+            }
+            _EnterCombat();
+
+            events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
+            events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
+            events.ScheduleEvent(EVENT_FLAMEBUFFET, 5000);
         }
 
         void UpdateAI(uint32 diff)
@@ -65,35 +62,40 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //ShadowFlame_Timer
-            if (ShadowFlame_Timer <= diff)
-            {
-                DoCastVictim(SPELL_SHADOWFLAME);
-                ShadowFlame_Timer = urand(15000, 18000);
-            } else ShadowFlame_Timer -= diff;
+            events.Update(diff);
 
-            //WingBuffet_Timer
-            if (WingBuffet_Timer <= diff)
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                if (Unit* target = me->GetVictim())
+                switch (eventId)
                 {
-                    DoCast(target, SPELL_WINGBUFFET);
-                    if (DoGetThreat(target))
-                        DoModifyThreatPercent(target, -75);
+                    case EVENT_SHADOWFLAME:
+                        DoCastVictim(SPELL_SHADOWFLAME);
+                        events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
+                        break;
+                    case EVENT_WINGBUFFET:
+                        DoCastVictim(SPELL_WINGBUFFET);
+                        if (DoGetThreat(me->GetVictim()))
+                            DoModifyThreatPercent(me->GetVictim(), -75);
+                        events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
+                        break;
+                    case EVENT_FLAMEBUFFET:
+                        DoCastVictim(SPELL_FLAMEBUFFET);
+                        events.ScheduleEvent(EVENT_FLAMEBUFFET, 5000);
+                        break;
                 }
-                WingBuffet_Timer = 25000;
-            } else WingBuffet_Timer -= diff;
-
-            //FlameBuffet_Timer
-            if (FlameBuffet_Timer <= diff)
-            {
-                DoCastVictim(SPELL_FLAMEBUFFET);
-                FlameBuffet_Timer = 5000;
-            } else FlameBuffet_Timer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_firemawAI (creature);
+    }
 };
 
 void AddSC_boss_firemaw()

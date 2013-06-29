@@ -41,11 +41,6 @@ class boss_drakkisath : public CreatureScript
 public:
     boss_drakkisath() : CreatureScript("boss_drakkisath") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_drakkisathAI(creature);
-    }
-
     struct boss_drakkisathAI : public BossAI
     {
         boss_drakkisathAI(Creature* creature) : BossAI(creature, DATA_GENERAL_DRAKKISATH) {}
@@ -58,10 +53,10 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_FIRE_NOVA, 6 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE,    8 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CONFLIGURATION, 15 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_THUNDERCLAP,    17 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_FIRE_NOVA, 6000);
+            events.ScheduleEvent(EVENT_CLEAVE,    8000);
+            events.ScheduleEvent(EVENT_CONFLIGURATION, 15000);
+            events.ScheduleEvent(EVENT_THUNDERCLAP,    17000);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -85,25 +80,30 @@ public:
                 {
                     case EVENT_FIRE_NOVA:
                         DoCastVictim(SPELL_FIRENOVA);
-                        events.ScheduleEvent(EVENT_FIRE_NOVA, 10 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_FIRE_NOVA, 10000);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 8 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 8000);
                         break;
                     case EVENT_CONFLIGURATION:
                         DoCastVictim(SPELL_CONFLIGURATION);
-                        events.ScheduleEvent(EVENT_CONFLIGURATION, 18 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CONFLIGURATION, 18000);
                         break;
                     case EVENT_THUNDERCLAP:
                         DoCastVictim(SPELL_THUNDERCLAP);
-                        events.ScheduleEvent(EVENT_THUNDERCLAP, 20 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_THUNDERCLAP, 20000);
                         break;
                 }
             }
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_drakkisathAI(creature);
+    }
 };
 
 void AddSC_boss_drakkisath()

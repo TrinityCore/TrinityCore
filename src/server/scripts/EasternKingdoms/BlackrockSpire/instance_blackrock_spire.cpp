@@ -15,50 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "ObjectDefines.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+
+uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
+
+uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
+
+enum EventIds
+{
+    EVENT_DARGONSPIRE_ROOM_STORE           = 1,
+    EVENT_DARGONSPIRE_ROOM_CHECK           = 2
+};
 
 class instance_blackrock_spire : public InstanceMapScript
 {
 public:
-    instance_blackrock_spire() : InstanceMapScript("instance_blackrock_spire", 229) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
-    {
-        return new instance_blackrock_spireMapScript(map);
-    }
+    instance_blackrock_spire() : InstanceMapScript(BRSScriptName, 229) { }
 
     struct instance_blackrock_spireMapScript : public InstanceScript
     {
-        instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map) {}
-
-        uint32 encounter[MAX_ENCOUNTER];
-        std::string m_strInstData;
-        uint64 HighlordOmokk;
-        uint64 ShadowHunterVoshgajin;
-        uint64 WarMasterVoone;
-        uint64 MotherSmolderweb;
-        uint64 UrokDoomhowl;
-        uint64 QuartermasterZigris;
-        uint64 GizrultheSlavener;
-        uint64 Halycon;
-        uint64 OverlordWyrmthalak;
-        uint64 PyroguardEmberseer;
-        uint64 WarchiefRendBlackhand;
-        uint64 Gyth;
-        uint64 TheBeast;
-        uint64 GeneralDrakkisath;
-        uint64 go_emberseerin;
-        uint64 go_doors;
-        uint64 go_emberseerout;
-        uint64 go_roomrunes[MAX_DRAGONSPIRE_HALL_RUNES];
-        uint8 Runemaxprotectors[MAX_DRAGONSPIRE_HALL_RUNES];
-        uint8 Runeprotectorsdead[MAX_DRAGONSPIRE_HALL_RUNES];
-
-        void Initialize()
+        instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map)
         {
-            SetBossNumber(MAX_ENCOUNTER);
+            SetBossNumber(EncounterCount);
             HighlordOmokk           = 0;
             ShadowHunterVoshgajin   = 0;
             WarMasterVoone          = 0;
@@ -76,16 +63,7 @@ public:
             go_emberseerin          = 0;
             go_doors                = 0;
             go_emberseerout         = 0;
-        }
-
-        bool IsEncounterInProgress() const
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            {
-                if (encounter[i] == IN_PROGRESS)
-                    return true;
-            }
-            return false;
+            go_blackrockaltar       = 0;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -121,6 +99,8 @@ public:
                     break;
                 case  NPC_PYROGAURD_EMBERSEER:
                     PyroguardEmberseer = creature->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        creature->DisappearAndDie();
                     break;
                 case  NPC_WARCHIEF_REND_BLACKHAND:
                     WarchiefRendBlackhand = creature->GetGUID();
@@ -150,33 +130,88 @@ public:
                     break;
                 case GO_EMBERSEER_IN:
                     go_emberseerin = go->GetGUID();
+                    if (GetBossState(DATA_DRAGONSPIRE_ROOM) == DONE)
+                        HandleGameObject(0, true, go);
                     break;
                 case GO_DOORS:
                     go_doors = go->GetGUID();
+                    if (GetBossState(DATA_DRAGONSPIRE_ROOM) == DONE)
+                        HandleGameObject(0, true, go);
                     break;
                 case GO_EMBERSEER_OUT:
                     go_emberseerout = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, true, go);
                     break;
-                case GO_ROOM_1_RUNE:
+                case GO_HALL_RUNE_1:
                     go_roomrunes[0] = go->GetGUID();
+                    if (GetBossState(DATA_HALL_RUNE_1) == DONE)
+                        HandleGameObject(0, false, go);
                     break;
-                case GO_ROOM_2_RUNE:
+                case GO_HALL_RUNE_2:
                     go_roomrunes[1] = go->GetGUID();
+                    if (GetBossState(DATA_HALL_RUNE_2) == DONE)
+                        HandleGameObject(0, false, go);
                     break;
-                case GO_ROOM_3_RUNE:
+                case GO_HALL_RUNE_3:
                     go_roomrunes[2] = go->GetGUID();
+                    if (GetBossState(DATA_HALL_RUNE_3) == DONE)
+                        HandleGameObject(0, false, go);
                     break;
-                case GO_ROOM_4_RUNE:
+                case GO_HALL_RUNE_4:
                     go_roomrunes[3] = go->GetGUID();
+                    if (GetBossState(DATA_HALL_RUNE_4) == DONE)
+                        HandleGameObject(0, false, go);
                     break;
-                case GO_ROOM_5_RUNE:
+                case GO_HALL_RUNE_5:
                     go_roomrunes[4] = go->GetGUID();
+                    if (GetBossState(DATA_HALL_RUNE_5) == DONE)
+                        HandleGameObject(0, false, go);
                     break;
-                case GO_ROOM_6_RUNE:
+                case GO_HALL_RUNE_6:
                     go_roomrunes[5] = go->GetGUID();
+                    if (GetBossState(DATA_HALL_RUNE_6) == DONE)
+                        HandleGameObject(0, false, go);
                     break;
-                case GO_ROOM_7_RUNE:
+                case GO_HALL_RUNE_7:
                     go_roomrunes[6] = go->GetGUID();
+                    if (GetBossState(DATA_HALL_RUNE_7) == DONE)
+                        HandleGameObject(0, false, go);
+                    break;
+                case GO_EMBERSEER_RUNE_1:
+                    go_emberseerrunes[0] = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, false, go);
+                    break;
+                case GO_EMBERSEER_RUNE_2:
+                    go_emberseerrunes[1] = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, false, go);
+                    break;
+                case GO_EMBERSEER_RUNE_3:
+                    go_emberseerrunes[2] = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, false, go);
+                    break;
+                case GO_EMBERSEER_RUNE_4:
+                    go_emberseerrunes[3] = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, false, go);
+                    break;
+                case GO_EMBERSEER_RUNE_5:
+                    go_emberseerrunes[4] = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, false, go);
+                    break;
+                case GO_EMBERSEER_RUNE_6:
+                    go_emberseerrunes[5] = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, false, go);
+                    break;
+                case GO_EMBERSEER_RUNE_7:
+                    go_emberseerrunes[6] = go->GetGUID();
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                        HandleGameObject(0, false, go);
                     break;
             }
         }
@@ -202,6 +237,7 @@ public:
                 case DATA_GYTH:
                 case DATA_THE_BEAST:
                 case DATA_GENERAL_DRAKKISATH:
+                case DATA_DRAGONSPIRE_ROOM:
                     break;
                 default:
                     break;
@@ -216,8 +252,26 @@ public:
             {
                 case EVENT_PYROGUARD_EMBERSEER:
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == NOT_STARTED)
-                        SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
+                    {
+                        if (Creature* Emberseer = instance->GetCreature(PyroguardEmberseer))
+                            Emberseer->AI()->SetData(1, 1);
+                    }
                     break;
+                default:
+                    break;
+            }
+        }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            switch (type)
+            {
+                case AREATRIGGER:
+                    if (data == AREATRIGGER_DRAGONSPIRE_HALL)
+                    {
+                        if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
+                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1000);
+                    }
                 default:
                     break;
             }
@@ -229,55 +283,213 @@ public:
             {
                 case DATA_OMOKK:
                     return HighlordOmokk;
+                    break;
                 case DATA_SHADOW_HUNTER_VOSHGAJIN:
                     return ShadowHunterVoshgajin;
+                    break;
                 case DATA_WARMASTER_VOONE:
                     return WarMasterVoone;
+                    break;
                 case DATA_MOTHER_SMOLDERWEB:
                     return MotherSmolderweb;
+                    break;
                 case DATA_UROK_DOOMHOWL:
                     return UrokDoomhowl;
+                    break;
                 case DATA_QUARTERMASTER_ZIGRIS:
                     return QuartermasterZigris;
+                    break;
                 case DATA_GIZRUL_THE_SLAVENER:
                     return GizrultheSlavener;
+                    break;
                 case DATA_HALYCON:
                     return Halycon;
+                    break;
                 case DATA_OVERLORD_WYRMTHALAK:
                     return OverlordWyrmthalak;
+                    break;
                 case DATA_PYROGAURD_EMBERSEER:
                     return PyroguardEmberseer;
+                    break;
                 case DATA_WARCHIEF_REND_BLACKHAND:
                     return WarchiefRendBlackhand;
+                    break;
                 case DATA_GYTH:
                     return Gyth;
+                    break;
                 case DATA_THE_BEAST:
                     return TheBeast;
+                    break;
                 case DATA_GENERAL_DRAKKISATH:
                     return GeneralDrakkisath;
+                    break;
                 case GO_EMBERSEER_IN:
                     return go_emberseerin;
+                    break;
                 case GO_DOORS:
                     return go_doors;
+                    break;
                 case GO_EMBERSEER_OUT:
                     return go_emberseerout;
-                case GO_ROOM_1_RUNE:
+                    break;
+                case GO_HALL_RUNE_1:
                     return go_roomrunes[0];
-                case GO_ROOM_2_RUNE:
+                    break;
+                case GO_HALL_RUNE_2:
                     return go_roomrunes[1];
-                case GO_ROOM_3_RUNE:
+                    break;
+                case GO_HALL_RUNE_3:
                     return go_roomrunes[2];
-                case GO_ROOM_4_RUNE:
+                    break;
+                case GO_HALL_RUNE_4:
                     return go_roomrunes[3];
-                case GO_ROOM_5_RUNE:
+                    break;
+                case GO_HALL_RUNE_5:
                     return go_roomrunes[4];
-                case GO_ROOM_6_RUNE:
+                    break;
+                case GO_HALL_RUNE_6:
                     return go_roomrunes[5];
-                case GO_ROOM_7_RUNE:
+                    break;
+                case GO_HALL_RUNE_7:
                     return go_roomrunes[6];
+                    break;
+                case GO_EMBERSEER_RUNE_1:
+                    return go_emberseerrunes[0];
+                    break;
+                case GO_EMBERSEER_RUNE_2:
+                    return go_emberseerrunes[1];
+                    break;
+                case GO_EMBERSEER_RUNE_3:
+                    return go_emberseerrunes[2];
+                    break;
+                case GO_EMBERSEER_RUNE_4:
+                    return go_emberseerrunes[3];
+                    break;
+                case GO_EMBERSEER_RUNE_5:
+                    return go_emberseerrunes[4];
+                    break;
+                case GO_EMBERSEER_RUNE_6:
+                    return go_emberseerrunes[5];
+                    break;
+                case GO_EMBERSEER_RUNE_7:
+                    return go_emberseerrunes[6];
+                    break;
+            }
+            return 0;
+        }
+
+        void Update(uint32 diff)
+        {
+            Events.Update(diff);
+
+            while (uint32 eventId = Events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_DARGONSPIRE_ROOM_STORE:
+                        Dragonspireroomstore();
+                        Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3000);
+                        break;
+                    case EVENT_DARGONSPIRE_ROOM_CHECK:
+                        Dragonspireroomcheck();
+                        if ((GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE))
+                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3000);
+                        break;
+                    default:
+                         break;
+                }
+            }
+        }
+
+        void Dragonspireroomstore()
+        {
+            uint8 creaturecount;
+
+            for (uint8 i = 0; i < 7; ++i)
+            {
+                creaturecount = 0;
+
+                if (GameObject* rune = instance->GetGameObject(go_roomrunes[i]))
+                {
+                    for (uint8 ii = 0; ii < 3; ++ii)
+                    {
+                        std::list<Creature*> creatureList;
+                        GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[ii], 15.0f);
+                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                        {
+                            if (Creature* creatureList = *itr)
+                            {
+                                runecreaturelist[i] [creaturecount] = creatureList->GetGUID();
+                                ++creaturecount;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        void Dragonspireroomcheck()
+        {
+            Creature* mob = NULL;
+            GameObject* rune = NULL;
+
+            for (uint8 i = 0; i < 7; ++i)
+            {
+                bool _mobAlive = false;
+                rune = instance->GetGameObject(go_roomrunes[i]);
+                if (rune && rune->GetGoState() == GO_STATE_ACTIVE)
+                {
+                    for (uint8 ii = 0; ii < 5; ++ii)
+                    {
+                        mob = instance->GetCreature(runecreaturelist[i][ii]);
+                        if (mob && mob->IsAlive())
+                            _mobAlive = true;
+                    }
+                }
+
+                if (!_mobAlive && rune->GetGoState() == GO_STATE_ACTIVE)
+                {
+                    HandleGameObject(0, false, rune);
+
+                    switch (rune->GetEntry())
+                    {
+                        case GO_HALL_RUNE_1:
+                            SetBossState(DATA_HALL_RUNE_1, DONE);
+                            break;
+                        case GO_HALL_RUNE_2:
+                            SetBossState(DATA_HALL_RUNE_2, DONE);
+                            break;
+                        case GO_HALL_RUNE_3:
+                            SetBossState(DATA_HALL_RUNE_3, DONE);
+                            break;
+                        case GO_HALL_RUNE_4:
+                            SetBossState(DATA_HALL_RUNE_4, DONE);
+                            break;
+                        case GO_HALL_RUNE_5:
+                            SetBossState(DATA_HALL_RUNE_5, DONE);
+                            break;
+                        case GO_HALL_RUNE_6:
+                            SetBossState(DATA_HALL_RUNE_6, DONE);
+                            break;
+                        case GO_HALL_RUNE_7:
+                            SetBossState(DATA_HALL_RUNE_7, DONE);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
 
-            return 0;
+            if (GetBossState(DATA_HALL_RUNE_1) == DONE && GetBossState(DATA_HALL_RUNE_2) == DONE && GetBossState(DATA_HALL_RUNE_3) == DONE &&
+                GetBossState(DATA_HALL_RUNE_4) == DONE && GetBossState(DATA_HALL_RUNE_5) == DONE && GetBossState(DATA_HALL_RUNE_6) == DONE &&
+                GetBossState(DATA_HALL_RUNE_7) == DONE)
+            {
+                SetBossState(DATA_DRAGONSPIRE_ROOM, DONE);
+                if (GameObject* door1 = instance->GetGameObject(go_emberseerin))
+                    HandleGameObject(0, true, door1);
+                if (GameObject* door2 = instance->GetGameObject(go_doors))
+                    HandleGameObject(0, true, door2);
+            }
         }
 
         std::string GetSaveData()
@@ -308,22 +520,109 @@ public:
 
             if (dataHead1 == 'B' && dataHead2 == 'S')
             {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                for (uint8 i = 0; i < EncounterCount; ++i)
                 {
                     uint32 tmpState;
                     loadStream >> tmpState;
                     if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                         tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
                 }
             }
+            else
+                OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
+
+        protected:
+            EventMap Events;
+            uint32 encounter[EncounterCount];
+            std::string m_strInstData;
+            uint64 HighlordOmokk;
+            uint64 ShadowHunterVoshgajin;
+            uint64 WarMasterVoone;
+            uint64 MotherSmolderweb;
+            uint64 UrokDoomhowl;
+            uint64 QuartermasterZigris;
+            uint64 GizrultheSlavener;
+            uint64 Halycon;
+            uint64 OverlordWyrmthalak;
+            uint64 PyroguardEmberseer;
+            uint64 WarchiefRendBlackhand;
+            uint64 Gyth;
+            uint64 TheBeast;
+            uint64 GeneralDrakkisath;
+            uint64 go_emberseerin;
+            uint64 go_doors;
+            uint64 go_emberseerout;
+            uint64 go_blackrockaltar;
+            uint64 go_roomrunes[7];
+            uint64 go_emberseerrunes[7];
+            uint64 runecreaturelist[7] [5];
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    {
+        return new instance_blackrock_spireMapScript(map);
+    }
+};
+
+/*#####
+# at_dragonspire_hall
+#####*/
+
+class at_dragonspire_hall : public AreaTriggerScript
+{
+public:
+    at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
+
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+    {
+        if (player && player->IsAlive())
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+            {
+                instance->SetData(AREATRIGGER, AREATRIGGER_DRAGONSPIRE_HALL);
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+/*#####
+# at_blackrock_stadium
+#####*/
+
+class at_blackrock_stadium : public AreaTriggerScript
+{
+public:
+    at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
+
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+    {
+        if (player && player->IsAlive())
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+            if (!instance)
+                return false;
+
+            if (Creature* rend = player->FindNearestCreature(NPC_REND_BLACKHAND, 50.0f))
+            {
+                rend->AI()->SetData(AREATRIGGER, AREATRIGGER_BLACKROCK_STADIUM);
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 void AddSC_instance_blackrock_spire()
 {
     new instance_blackrock_spire();
+    new at_dragonspire_hall();
+    new at_blackrock_stadium();
 }
