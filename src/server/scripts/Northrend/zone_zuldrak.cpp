@@ -1263,8 +1263,7 @@ public:
             _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
             player->CLOSE_GOSSIP_MENU();
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
-            me->SetInFront(player);
-            me->SendMovementFlagUpdate();
+            me->SetFacingToObject(player);
         }
 
         private:

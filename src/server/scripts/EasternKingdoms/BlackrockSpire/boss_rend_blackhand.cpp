@@ -256,33 +256,24 @@ public:
                         case EVENT_TURN_TO_REND:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
                             {
-                                victor->SetInFront(me);
-                                victor->SendMovementFlagUpdate();
+                                victor->SetFacingToObject(me);
                                 victor->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
                             }
                             break;
                         case EVENT_TURN_TO_PLAYER:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
                                 if (Unit* player = victor->SelectNearestPlayer(60.0f))
-                                {
-                                    victor->SetInFront(player);
-                                    victor->SendMovementFlagUpdate();
-                                }
+                                    victor->SetFacingToObject(player);
                             break;
                         case EVENT_TURN_TO_FACING_1:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
-                            {
-                                victor->SetOrientation(1.518436f);
-                                victor->SendMovementFlagUpdate();
-                            }
+                                victor->SetFacingTo(1.518436f);
                             break;
                         case EVENT_TURN_TO_FACING_2:
-                            me->SetOrientation(1.658063f);
-                            me->SendMovementFlagUpdate();
+                            me->SetFacingTo(1.658063f);
                             break;
                         case EVENT_TURN_TO_FACING_3:
-                            me->SetOrientation(1.500983f);
-                            me->SendMovementFlagUpdate();
+                            me->SetFacingTo(1.500983f);
                             break;
                         case EVENT_WAVES_EMOTE_1:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
