@@ -85,12 +85,10 @@ public:
                 events.Reset();
                 // Apply auras on spawn and reset
                 // DoCast(me, SPELL_FIRE_SHIELD_TRIGGER); // Need to find this in old DBC if possible
-
-                instance->SetBossState(DATA_PYROGAURD_EMBERSEER, NOT_STARTED);
                 me->RemoveAura(SPELL_EMBERSEER_FULL_STRENGTH);
                 me->RemoveAura(SPELL_EMBERSEER_GROWING);
                 me->RemoveAura(SPELL_EMBERSEER_GROWING_TRIGGER);
-                events.ScheduleEvent(EVENT_RESPAWN, 1000);
+                events.ScheduleEvent(EVENT_RESPAWN, 5000);
                 // Hack for missing trigger spell
                 events.ScheduleEvent(EVENT_FIRE_SHIELD, 3000);
 
@@ -209,52 +207,56 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            if (!UpdateVictim())
             {
-                switch (eventId)
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_RESPAWN:
+                    switch (eventId)
                     {
-                        // Respawn all Blackhand Incarcerators
-                        std::list<Creature*> creatureList;
-                        GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
-                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
-                            if (Creature* creatureList = *itr)
-                            {
-                                if (!creatureList->IsAlive())
-                                {
-                                    creatureList->Respawn();
-                                }
-                                creatureList->AI()->SetData(1, 2);
-                            }
-                        break;
-                    }
-                    case EVENT_PRE_FIGHT_1:
-                    {
-                        // Set data on all Blackhand Incarcerators
-                        std::list<Creature*> creatureList;
-                        GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
-                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                        case EVENT_RESPAWN:
                         {
-                            if (Creature* creatureList = *itr)
-                                creatureList->AI()->SetData(1, 1);
+                            // Respawn all Blackhand Incarcerators
+                            std::list<Creature*> creatureList;
+                            GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
+                            for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                                if (Creature* creatureList = *itr)
+                                {
+                                    if (!creatureList->IsAlive())
+                                    {
+                                        creatureList->Respawn();
+                                    }
+                                    creatureList->AI()->SetData(1, 2);
+                                }
+                            me->AddAura(SPELL_ENCAGED_EMBERSEER, me);
+                            instance->SetBossState(DATA_PYROGAURD_EMBERSEER, NOT_STARTED);
+                            break;
                         }
-                        events.ScheduleEvent(EVENT_PRE_FIGHT_2, 32000);
-                        break;
-                    }
-                    case EVENT_PRE_FIGHT_2:
-                        me->CastSpell(me, SPELL_FREEZE_ANIM);
-                        me->CastSpell(me, SPELL_EMBERSEER_GROWING);
-                        Talk(EMOTE_ONE_STACK);
-                        break;
-                    case EVENT_FIRE_SHIELD:
-                        // #### Spell isn't doing any damage ??? ####
-                        DoCast(me, SPELL_FIRE_SHIELD);
-                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 3000);
-                        break;
-                    case EVENT_PLAYER_CHECK:
+                        case EVENT_PRE_FIGHT_1:
+                        {
+                            // Set data on all Blackhand Incarcerators
+                            std::list<Creature*> creatureList;
+                            GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
+                            for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                            {
+                                if (Creature* creatureList = *itr)
+                                    creatureList->AI()->SetData(1, 1);
+                            }
+                            events.ScheduleEvent(EVENT_PRE_FIGHT_2, 32000);
+                            break;
+                        }
+                        case EVENT_PRE_FIGHT_2:
+                            me->CastSpell(me, SPELL_FREEZE_ANIM);
+                            me->CastSpell(me, SPELL_EMBERSEER_GROWING);
+                            Talk(EMOTE_ONE_STACK);
+                            break;
+                        case EVENT_FIRE_SHIELD:
+                            // #### Spell isn't doing any damage ??? ####
+                            DoCast(me, SPELL_FIRE_SHIELD);
+                            events.ScheduleEvent(EVENT_FIRE_SHIELD, 3000);
+                            break;
+                        case EVENT_PLAYER_CHECK:
                         {
                             // Check to see if all players in instance have aura SPELL_EMBERSEER_START before starting event
                             bool _hasAura = true;
@@ -269,32 +271,40 @@ public:
                                 events.ScheduleEvent(EVENT_PRE_FIGHT_1, 1000);
                                 instance->SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
                             }
-                        break;
+                            break;
                         }
-                    case EVENT_ENTER_COMBAT:
-                        AttackStart(me->SelectNearestPlayer(30.0f));
+                        case EVENT_ENTER_COMBAT:
+                            AttackStart(me->SelectNearestPlayer(30.0f));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return;
+            }
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_FIRE_SHIELD:
+                        DoCast(me, SPELL_FIRE_SHIELD);
+                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 3000);
                         break;
                     case EVENT_FIRENOVA:
-                        if (UpdateVictim())
-                        {
-                            DoCast(me, SPELL_FIRENOVA);
+                        DoCast(me, SPELL_FIRENOVA);
                         events.ScheduleEvent(EVENT_FIRENOVA, 6000);
-                        }
                         break;
                     case EVENT_FLAMEBUFFET:
-                        if (UpdateVictim())
-                        {
-                            DoCast(me, SPELL_FLAMEBUFFET);
+                        DoCast(me, SPELL_FLAMEBUFFET);
                         events.ScheduleEvent(EVENT_FLAMEBUFFET, 14000);
-                        }
                         break;
                     case EVENT_PYROBLAST:
-                        if (UpdateVictim())
-                        {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                DoCast(target, SPELL_PYROBLAST);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, SPELL_PYROBLAST);
                         events.ScheduleEvent(EVENT_PYROBLAST, 15000);
-                        }
                         break;
                     default:
                         break;
@@ -355,7 +365,7 @@ public:
 
             if (data == 1 && value == 2)
             {
-                _events.ScheduleEvent(EVENT_ENCAGED_EMBERSEER, 5000);
+                _events.ScheduleEvent(EVENT_ENCAGED_EMBERSEER, 1000);
             }
         }
 
@@ -364,18 +374,28 @@ public:
             // Used to close doors
             if (Creature* Emberseer = me->FindNearestCreature(NPC_PYROGAURD_EMBERSEER, 30.0f, true))
                 Emberseer->AI()->SetData(1, 2);
-            me->CallForHelp(60.0f);
+
+            // Had to do this because CallForHelp will ignore any npcs without LOS
+            std::list<Creature*> creatureList;
+            GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 60.0f);
+            for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+            {
+                if (Creature* creatureList = *itr)
+                creatureList->SetInCombatWithZone();    // AI()->AttackStart(me->GetVictim());
+            }
+
             _events.ScheduleEvent(EVENT_STRIKE, urand(8000, 16000));
             _events.ScheduleEvent(EVENT_ENCAGE, urand(10000, 20000));
-            me->CallForHelp(60.0f); // double call because not all are aggroing on first call.
         }
 
         void UpdateAI(uint32 diff)
         {
-            _events.Update(diff);
+
 
             if (!UpdateVictim())
             {
+                _events.Update(diff);
+
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -390,6 +410,8 @@ public:
                 }
                 return;
             }
+
+            _events.Update(diff);
 
             while (uint32 eventId = _events.ExecuteEvent())
             {

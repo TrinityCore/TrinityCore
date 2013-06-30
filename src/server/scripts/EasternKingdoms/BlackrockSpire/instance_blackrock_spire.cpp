@@ -437,7 +437,10 @@ public:
             {
                 bool _mobAlive = false;
                 rune = instance->GetGameObject(go_roomrunes[i]);
-                if (rune && rune->GetGoState() == GO_STATE_ACTIVE)
+                if (!rune)
+                    continue;
+
+                if (rune->GetGoState() == GO_STATE_ACTIVE)
                 {
                     for (uint8 ii = 0; ii < 5; ++ii)
                     {
@@ -559,7 +562,7 @@ public:
             uint64 go_blackrockaltar;
             uint64 go_roomrunes[7];
             uint64 go_emberseerrunes[7];
-            uint64 runecreaturelist[7] [5];
+            uint64 runecreaturelist[7][5];
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
