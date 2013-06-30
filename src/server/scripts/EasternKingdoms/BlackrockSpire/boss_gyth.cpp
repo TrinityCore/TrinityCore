@@ -42,7 +42,8 @@ enum Events
     EVENT_FREEZE                    = 2,
     EVENT_FLAME_BREATH              = 3,
     EVENT_KNOCK_AWAY                = 4,
-    EVENT_SUMMONED                  = 5,
+    EVENT_SUMMONED_1                = 5,
+    EVENT_SUMMONED_2                = 6
 };
 
 class boss_gyth : public CreatureScript
@@ -58,7 +59,6 @@ public:
 
         void Reset()
         {
-            _Reset();
             SummonedRend = false;
             if (instance->GetBossState(DATA_GYTH) == IN_PROGRESS)
             {
@@ -79,7 +79,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            _JustDied();
+            instance->SetBossState(DATA_GYTH, DONE);
         }
 
         void SetData(uint32 /*type*/, uint32 data)
@@ -87,7 +87,7 @@ public:
             switch (data)
             {
                 case 1:
-                    events.ScheduleEvent(EVENT_SUMMONED, 1000);
+                    events.ScheduleEvent(EVENT_SUMMONED_1, 1000);
                     break;
                 default:
                     break;
@@ -99,7 +99,7 @@ public:
 
             if (!SummonedRend && HealthBelowPct(5))
             {
-                DoCast(me, SPELL_SUMMON_REND); // Rend will despawn on Gyth death. Core issue with summoned npc's all despawning after summoner dies.
+                DoCast(me, SPELL_SUMMON_REND);
                 me->RemoveAura(SPELL_REND_MOUNTS);
                 SummonedRend = true;
             }
@@ -112,13 +112,18 @@ public:
                 {
                     switch (eventId)
                     {
-                        case EVENT_SUMMONED:
+                        case EVENT_SUMMONED_1:
                             me->AddAura(SPELL_REND_MOUNTS, me);
-                            me->GetMotionMaster()->MovePath(GYTH_PATH_1, false);
-                            if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 25.0f))
+                            if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 40.0f))
                                 portcullis->UseDoorOrButton();
                             if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
-                                victor->GetMotionMaster()->MovePath(NEFARIUS_PATH_2, false);
+                                victor->AI()->SetData(1, 1);
+                            events.ScheduleEvent(EVENT_SUMMONED_2, 2000);
+                            break;
+                        case EVENT_SUMMONED_2:
+                            me->GetMotionMaster()->MovePath(GYTH_PATH_1, false);
+                            break;
+                        default:
                             break;
                     }
                 }
