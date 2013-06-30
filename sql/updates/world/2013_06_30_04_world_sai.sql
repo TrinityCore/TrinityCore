@@ -24,7 +24,7 @@ DELETE FROM `creature_text` WHERE `entry`=35127;
 INSERT INTO `creature_text` VALUES 
 (35127,0,0, "Gladly",12,0,1,0,0,0, '');
 
---SAI
+-- SAI
 UPDATE `creature_template` SET ainame='SmartAI' WHERE `entry`= 35116;
 UPDATE `creature_template` SET ainame='SmartAI' WHERE `entry`= 35127;
 
