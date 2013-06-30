@@ -69,8 +69,7 @@ enum CreaturesIds
     NPC_BLACKHAND_SUMMONER          = 9818,
     NPC_BLACKHAND_VETERAN           = 9819,
     NPC_BLACKHAND_INCARCERATOR      = 10316,
-    NPC_LORD_VICTOR_NEFARIUS        = 10162,
-    NPC_REND_BLACKHAND              = 10429
+    NPC_LORD_VICTOR_NEFARIUS        = 10162
 };
 
 enum AdditionalData
@@ -111,7 +110,9 @@ enum GameObjectsIds
     GO_EMBERSEER_RUNE_6             = 175271,
     GO_EMBERSEER_RUNE_7             = 175272,
     // For Gyth event
-    GO_DR_PORTCULLIS                = 175185
+    GO_DR_PORTCULLIS                = 175185,
+    GO_PORTCULLIS_ACTIVE            = 164726,
+    GO_PORTCULLIS_TOBOSSROOMS       = 175186
 };
 
 #endif

@@ -1,3 +1,26 @@
+UPDATE `creature_template` SET `resistance2`=1000 WHERE `entry` IN (9816);
+UPDATE `creature_template` SET `mechanic_immune_mask`=617299803 WHERE `entry` IN (10339);
+UPDATE `creature_template` SET `spell1`=0, `spell2`=0, `spell3`=0, `spell4`=0 WHERE `entry` IN (9816,10339,10429);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=16337 AND `ConditionValue2`=10429;
+UPDATE `creature_template` SET `unit_flags`=32832 WHERE `entry` IN (10317,10318);
+
+-- Pathing for Warchief Rend Blackhand Entry: 10429
+SET @PATH := 1379680;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,165.4778,-452.2761,121.9753,0,0,1,0,100,0),
+(@PATH,2,165.5801,-457.3273,121.9753,0,0,1,0,100,0),
+(@PATH,3,165.5504,-465.8904,116.8073,0,0,1,0,100,0),
+(@PATH,4,165.3594,-470.635,116.8296,0,0,1,0,100,0),
+(@PATH,5,168.4351,-473.7489,116.8424,0,0,1,0,100,0),
+(@PATH,6,179.0059,-473.894,116.8424,0,52000,1,0,100,0),
+(@PATH,7,216.6058,-430.4544,110.9169,0,0,1,0,100,0),
+(@PATH,8,216.5664,-412.0932,110.9822,0,0,1,0,100,0),
+(@PATH,9,217.1734,-401.2561,111.0617,0,0,1,0,100,0),
+(@PATH,10,216.5286,-397.7477,111.0883,0,0,1,0,100,0),
+(@PATH,11,214.8428,-395.8612,111.1051,0,0,1,0,100,0),
+(@PATH,12,213.5363,-395.6153,111.1093,0,0,1,0,100,0);
+
 -- Text for Lord Victor Nefarius from sniff
 SET @VICTOR := 10162;
 DELETE FROM `creature_text` WHERE `entry` IN (@VICTOR);
