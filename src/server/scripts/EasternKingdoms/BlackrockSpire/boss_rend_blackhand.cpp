@@ -169,10 +169,7 @@ public:
                     if (Creature* victor = me->GetCreature(*me, _victorGUID))
                     {
                         if (Unit* player = victor->SelectNearestPlayer(40.0f))
-                        {
                             victor->SetInFront(player);
-                            victor->SendMovementFlagUpdate();
-                        }
                     }
                 }
 
@@ -208,10 +205,7 @@ public:
                             break;
                         case EVENT_GYTH_4:
                             if (Creature* victor = me->GetCreature(*me, _victorGUID))
-                            {
                                 victor->SetInFront(me);
-                                victor->SendMovementFlagUpdate();
-                            }
                             break;
                         case EVENT_PORTCULLIS:
                             if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 50.0f))
