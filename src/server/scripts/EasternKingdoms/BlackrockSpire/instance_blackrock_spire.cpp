@@ -73,7 +73,7 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_OMOKK:
+                case NPC_HIGHLORD_OMOKK:
                     HighlordOmokk = creature->GetGUID();
                     break;
                 case NPC_SHADOW_HUNTER_VOSHGAJIN:
@@ -241,7 +241,7 @@ public:
 
             switch (type)
             {
-                case DATA_OMOKK:
+                case DATA_HIGHLORD_OMOKK:
                 case DATA_SHADOW_HUNTER_VOSHGAJIN:
                 case DATA_WARMASTER_VOONE:
                 case DATA_MOTHER_SMOLDERWEB:
@@ -299,7 +299,7 @@ public:
         {
             switch (type)
             {
-                case DATA_OMOKK:
+                case DATA_HIGHLORD_OMOKK:
                     return HighlordOmokk;
                     break;
                 case DATA_SHADOW_HUNTER_VOSHGAJIN:
