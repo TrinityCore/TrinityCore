@@ -490,8 +490,10 @@ enum SMART_ACTION
     SMART_ACTION_ADD_GO_FLAG                        = 105,    // Flags
     SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // Flags
     SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker
+    SMART_ACTION_ADD_PASSENGER                      = 108,    // SeatId, target
+    SMART_ACTION_REMOVE_PASSENGER                   = 109,    // SeatId
 
-    SMART_ACTION_END                                = 108
+    SMART_ACTION_END                                = 110
 };
 
 struct SmartAction
@@ -940,6 +942,10 @@ struct SmartAction
             uint32 attackInvoker;
         } creatureGroup;
 
+        struct
+        {
+            uint32 seatId;
+        } vehicle;
         //! Note for any new future actions
         //! All parameters must have type uint32
 

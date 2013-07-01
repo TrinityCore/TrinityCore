@@ -795,7 +795,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_TELEPORT:
-            if (!sMapStore.LookupEntry(e.action.teleport.mapID))
+            if (e.action.teleport.mapID && !sMapStore.LookupEntry(e.action.teleport.mapID))
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Map entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.teleport.mapID);
                 return false;
@@ -837,6 +837,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         }
+        case SMART_ACTION_ADD_PASSENGER:
+        {
+            if (e.GetTargetType() == SMART_TARGET_SELF || e.GetTargetType() == SMART_TARGET_POSITION)
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Creature %d Event %u Action %u uses invalid Target Type %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.GetTargetType());
+                return false;
+            }
+            break;
+        }
+        case SMART_ACTION_REMOVE_PASSENGER:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:

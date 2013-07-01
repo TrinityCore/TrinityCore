@@ -2104,6 +2104,64 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_ADD_PASSENGER:
+        {
+            if (!GetBaseObject())
+                break;
+
+            if (!IsCreature(GetBaseObject()->ToCreature()))
+                break;
+
+            Vehicle* veh = GetBaseObject()->ToCreature()->GetVehicleKit();
+            if (!veh)
+            {
+                TC_LOG_ERROR(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_ADD_PASSENGER: Creature entry %u is not a vehicle, exiting!", me->GetEntry());
+                return;
+            }
+
+            ObjectList* targets = GetTargets(e, unit);
+            if (targets && *targets->begin())
+            {
+                if (!IsUnit(*targets->begin()))
+                    break;
+
+                veh->AddPassenger((*targets->begin())->ToUnit(), e.action.vehicle.seatId);
+
+                delete targets;
+            }
+
+            break;
+        }
+        case SMART_ACTION_REMOVE_PASSENGER:
+        {
+            if (!GetBaseObject())
+                break;
+
+            if (!IsCreature(GetBaseObject()->ToCreature()))
+                break;
+
+            Vehicle* veh = GetBaseObject()->ToCreature()->GetVehicleKit();
+            if (!veh)
+                break;
+			
+            if (e.GetTargetType() == SMART_TARGET_NONE)
+                veh->RemoveAllPassengers();
+            else
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (targets && *targets->begin())
+                {
+                    if (!IsUnit(*targets->begin()))
+                        break;
+
+                    veh->RemovePassenger((*targets->begin())->ToUnit());
+
+                    delete targets;
+                }
+            }
+
+            break;
+        }
         default:
             TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
