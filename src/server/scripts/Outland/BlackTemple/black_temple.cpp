@@ -37,7 +37,7 @@ npc_spirit_of_olum
 
 enum Spells
 {
-    SPELL_TELEPORT              = 39833
+    SPELL_TELEPORT              = 41566
 };
 
 class npc_spirit_of_olum : public CreatureScript
