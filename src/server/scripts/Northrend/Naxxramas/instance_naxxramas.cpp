@@ -125,10 +125,6 @@ class instance_naxxramas : public InstanceMapScript
                 SapphironGUID           = 0;
                 KelthuzadGUID           = 0;
                 KelthuzadTriggerGUID    = 0;
-                AracPortalGUID          = 0;
-                PlagPortalGUID          = 0;
-                MiliPortalGUID          = 0;
-                ConsPortalGUID          = 0;
 
                 playerDied              = 0;
 
@@ -195,42 +191,30 @@ class instance_naxxramas : public InstanceMapScript
 
                 switch (go->GetEntry())
                 {
-                case GO_GOTHIK_GATE:
-                    GothikGateGUID = go->GetGUID();
-                    break;
-                case GO_HORSEMEN_CHEST:
-                case GO_HORSEMEN_CHEST_HERO:
-                    HorsemenChestGUID = go->GetGUID();
-                    break;
-                case GO_KELTHUZAD_PORTAL01:
-                    PortalsGUID[0] = go->GetGUID();
-                    break;
-                case GO_KELTHUZAD_PORTAL02:
-                    PortalsGUID[1] = go->GetGUID();
-                    break;
-                case GO_KELTHUZAD_PORTAL03:
-                    PortalsGUID[2] = go->GetGUID();
-                    break;
-                case GO_KELTHUZAD_PORTAL04:
-                    PortalsGUID[3] = go->GetGUID();
-                    break;
-                case GO_KELTHUZAD_TRIGGER:
-                    KelthuzadTriggerGUID = go->GetGUID();
-                    break;
-                case GO_ARAC_PORTAL:
-                    AracPortalGUID = go->GetGUID();
-                    break;
-                case GO_PLAG_PORTAL:
-                    PlagPortalGUID = go->GetGUID();
-                    break;
-                case GO_MILI_PORTAL:
-                    MiliPortalGUID = go->GetGUID();
-                    break;
-                case GO_CONS_PORTAL:
-                    ConsPortalGUID = go->GetGUID();
-                    break;
-                default:
-                    break;
+                    case GO_GOTHIK_GATE:
+                        GothikGateGUID = go->GetGUID();
+                        break;
+                    case GO_HORSEMEN_CHEST:
+                    case GO_HORSEMEN_CHEST_HERO:
+                        HorsemenChestGUID = go->GetGUID();
+                        break;
+                    case GO_KELTHUZAD_PORTAL01:
+                        PortalsGUID[0] = go->GetGUID();
+                        break;
+                    case GO_KELTHUZAD_PORTAL02:
+                        PortalsGUID[1] = go->GetGUID();
+                        break;
+                    case GO_KELTHUZAD_PORTAL03:
+                        PortalsGUID[2] = go->GetGUID();
+                        break;
+                    case GO_KELTHUZAD_PORTAL04:
+                        PortalsGUID[3] = go->GetGUID();
+                        break;
+                    case GO_KELTHUZAD_TRIGGER:
+                        KelthuzadTriggerGUID = go->GetGUID();
+                        break;
+                    default:
+                        break;
                 }
 
                 AddDoor(go, true);
@@ -524,12 +508,6 @@ class instance_naxxramas : public InstanceMapScript
             uint64 KelthuzadTriggerGUID;
             uint64 PortalsGUID[4];
             uint8 AbominationCount;
-
-            /* Portals */
-            uint64 AracPortalGUID;
-            uint64 PlagPortalGUID;
-            uint64 MiliPortalGUID;
-            uint64 ConsPortalGUID;
 
             /* The Immortal / The Undying */
             uint32 playerDied;
