@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,16 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Black_Temple
-SD%Complete: 95
-SDComment: Spirit of Olum: Player Teleporter to Seer Kanai Teleport after defeating Naj'entus and Supremus. @todo Find proper gossip.
-SDCategory: Black Temple
-EndScriptData */
+/*
+Name:     Black_Temple
+Complete: 100%
+Comment:  Spirit of Olum: Player Teleporter to Seer Kanai Teleport after defeating Naj'entus and Supremus.
+*/
 
-/* ContentData
+/* Content
 npc_spirit_of_olum
-EndContentData */
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -37,36 +35,25 @@ EndContentData */
 # npc_spirit_of_olum
 ####*/
 
-#define SPELL_TELEPORT      41566                           // s41566 - Teleport to Ashtongue NPC's
-#define GOSSIP_OLUM1        "Teleport me to the other Ashtongue Deathsworn"
+enum Spells
+{
+    SPELL_TELEPORT              = 39833
+};
 
 class npc_spirit_of_olum : public CreatureScript
 {
 public:
     npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action)
     {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == 1)
+        {
             player->CLOSE_GOSSIP_MENU();
-
-        player->InterruptNonMeleeSpells(false);
-        player->CastSpell(player, SPELL_TELEPORT, false);
-        return true;
+            player->InterruptNonMeleeSpells(false);
+            player->CastSpell(player, SPELL_TELEPORT, false);
+        }
     }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance && (instance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (instance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
 };
 
 void AddSC_black_temple()
