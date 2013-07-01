@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,43 +18,51 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
-    SPELL_FRENZY                    = 8269,
-    SPELL_KNOCK_AWAY                = 10101
+    SPELL_FATAL_BITE                = 16495,
+    SPELL_INFECTED_BITE             = 16128,
+    SPELL_FRENZY                    = 8269
+};
+
+enum Paths
+{
+    GIZRUL_PATH                     = 402450
 };
 
 enum Events
 {
-    EVENT_FRENZY                    = 1,
-    EVENT_KNOCK_AWAY                = 2
+    EVENT_FATAL_BITE                = 1,
+    EVENT_INFECTED_BITE             = 2,
+    EVENT_FRENZY                    = 3
 };
 
-class boss_highlord_omokk : public CreatureScript
+class boss_gizrul_the_slavener : public CreatureScript
 {
 public:
-    boss_highlord_omokk() : CreatureScript("boss_highlord_omokk") { }
+    boss_gizrul_the_slavener() : CreatureScript("boss_gizrul_the_slavener") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_gizrul_the_slavenerAI : public BossAI
     {
-        return new boss_highlordomokkAI(creature);
-    }
-
-    struct boss_highlordomokkAI : public BossAI
-    {
-        boss_highlordomokkAI(Creature* creature) : BossAI(creature, DATA_HIGHLORD_OMOKK) {}
+       boss_gizrul_the_slavenerAI(Creature* creature) : BossAI(creature, DATA_GIZRUL_THE_SLAVENER) {}
 
         void Reset()
         {
             _Reset();
         }
 
+        void IsSummonedBy(Unit* /*summoner*/)
+        {
+            me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_FRENZY,      20000);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY,  18000);
+            events.ScheduleEvent(EVENT_FATAL_BITE, urand(17000,20000));
+            events.ScheduleEvent(EVENT_INFECTED_BITE, urand(10000,12000));
         }
 
         void JustDied(Unit* /*killer*/)
@@ -77,13 +84,13 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_FRENZY:
-                        DoCastVictim(SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 60000);
+                    case EVENT_FATAL_BITE:
+                        DoCastVictim(SPELL_FATAL_BITE);
+                        events.ScheduleEvent(EVENT_FATAL_BITE, urand(8000,10000));
                         break;
-                    case EVENT_KNOCK_AWAY:
-                        DoCastVictim(SPELL_KNOCK_AWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12000);
+                    case EVENT_INFECTED_BITE:
+                        DoCast(me, SPELL_INFECTED_BITE);
+                        events.ScheduleEvent(EVENT_FATAL_BITE, urand(8000,10000));
                         break;
                     default:
                         break;
@@ -93,9 +100,13 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_gizrul_the_slavenerAI(creature);
+    }
 };
 
-void AddSC_boss_highlordomokk()
+void AddSC_boss_gizrul_the_slavener()
 {
-    new boss_highlord_omokk();
+    new boss_gizrul_the_slavener();
 }
