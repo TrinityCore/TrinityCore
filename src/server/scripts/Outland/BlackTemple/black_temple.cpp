@@ -45,14 +45,24 @@ class npc_spirit_of_olum : public CreatureScript
 public:
     npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }
 
-    void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action)
+    struct npc_spirit_of_olumAI : public ScriptedAI
     {
-        if (action == 1)
+        npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action)
         {
-            player->CLOSE_GOSSIP_MENU();
-            player->InterruptNonMeleeSpells(false);
-            player->CastSpell(player, SPELL_TELEPORT, false);
+            if (action == 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                player->InterruptNonMeleeSpells(false);
+                player->CastSpell(player, SPELL_TELEPORT, false);
+            }
         }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_spirit_of_olumAI (creature);
     }
 };
 
