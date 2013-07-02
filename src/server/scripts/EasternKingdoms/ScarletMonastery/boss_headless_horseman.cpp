@@ -435,6 +435,7 @@ public:
                 headGUID = 0;
             }
 
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             //if (instance)
             //    instance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
         }
