@@ -66,7 +66,7 @@ enum AzureSaboteurSpells
 enum CrystalSpells
 {
     SPELL_ARCANE_LIGHTNING                          = 57930
-    SPELL_ARCANE_SPHERE_PASSIVE			    = 44263
+    SPELL_ARCANE_SPHERE_PASSIVE			            = 44263
 };
 
 enum Events
