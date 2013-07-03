@@ -528,7 +528,7 @@ public:
             }
             if (FlameBuffetTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FLAME_BUFFET, true);
+                DoCastVictim(SPELL_FLAME_BUFFET, true);
                 FlameBuffetTimer = 7000;
             } else FlameBuffetTimer -= diff;
             DoMeleeAttackIfReady();
@@ -630,7 +630,7 @@ public:
                 return;
             if (KnockDownTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_KNOCKDOWN);
+                DoCastVictim(SPELL_KNOCKDOWN);
                 KnockDownTimer = 15000+rand()%10000;
             } else KnockDownTimer -= diff;
             DoMeleeAttackIfReady();
@@ -858,7 +858,7 @@ public:
 
             if (ShadowBoltTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHADOW_BOLT);
+                DoCastVictim(SPELL_SHADOW_BOLT);
                 ShadowBoltTimer = 20000+rand()%10000;
             } else ShadowBoltTimer -= diff;
 
@@ -952,12 +952,12 @@ public:
                 return;
             if (CourseTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_BANSHEE_CURSE);
+                DoCastVictim(SPELL_BANSHEE_CURSE);
                 CourseTimer = 20000+rand()%5000;
             } else CourseTimer -= diff;
             if (WailTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_BANSHEE_WAIL);
+                DoCastVictim(SPELL_BANSHEE_WAIL);
                 WailTimer = 15000+rand()%5000;
             } else WailTimer -= diff;
             if (ShellTimer <= diff)
@@ -1052,7 +1052,7 @@ public:
                 return;
             if (WebTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_WEB);
+                DoCastVictim(SPELL_WEB);
                 WebTimer = 20000+rand()%5000;
             } else WebTimer -= diff;
             DoMeleeAttackIfReady();
@@ -1142,7 +1142,7 @@ public:
                 return;
             if (ManaBurnTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MANA_BURN);
+                DoCastVictim(SPELL_MANA_BURN);
                 ManaBurnTimer = 9000+rand()%5000;
             } else ManaBurnTimer -= diff;
             DoMeleeAttackIfReady();
@@ -1252,7 +1252,7 @@ public:
             {
                 if (!me->IsWithinDist(me->GetVictim(), 25))
                 {
-                    DoCast(me->GetVictim(), SPELL_FROST_BREATH);
+                    DoCastVictim(SPELL_FROST_BREATH);
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
                     FrostBreathTimer = 4000;
@@ -1387,7 +1387,7 @@ public:
             {
                 if (me->IsWithinDist(me->GetVictim(), 20))
                 {
-                    DoCast(me->GetVictim(), SPELL_GARGOYLE_STRIKE);
+                    DoCastVictim(SPELL_GARGOYLE_STRIKE);
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
                     StrikeTimer = 2000+rand()%1000;

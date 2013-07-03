@@ -1076,14 +1076,14 @@ public:
             //GroundRuptureTimer
             if (GroundRuptureTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_GROUND_RUPTURE);
+                DoCastVictim(SPELL_GROUND_RUPTURE);
                 GroundRuptureTimer = 30000;
             } else GroundRuptureTimer -= diff;
 
             //HamstringTimer
             if (HamstringTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HAMSTRING);
+                DoCastVictim(SPELL_HAMSTRING);
                 HamstringTimer = 5000;
             } else HamstringTimer -= diff;
 
@@ -1188,21 +1188,21 @@ public:
             //GroundRuptureTimer
             if (GroundRuptureTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_GROUND_RUPTURE);
+                DoCastVictim(SPELL_GROUND_RUPTURE);
                 GroundRuptureTimer = 30000;
             } else GroundRuptureTimer -= diff;
 
             //ThrashTimer
             if (ThrashTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_THRASH);
+                DoCastVictim(SPELL_THRASH);
                 ThrashTimer = 10000;
             } else ThrashTimer -= diff;
 
             //HamstringTimer
             if (HamstringTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HAMSTRING);
+                DoCastVictim(SPELL_HAMSTRING);
                 HamstringTimer = 10000;
             } else HamstringTimer -= diff;
 

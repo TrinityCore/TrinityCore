@@ -112,7 +112,8 @@ public:
         }
         void Reset()
         {
-            me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_DISABLE_GRAVITY);
+            me->SetSwim(true);
+            me->SetDisableGravity(true);
             SpoutAnimTimer = 1000;
             RotTimer = 0;
             WaterboltTimer = 15000; // give time to get in range when fight starts
@@ -398,7 +399,7 @@ public:
             if (MultiShotTimer <= diff)
             {
                 if (me->GetVictim())
-                    DoCast(me->GetVictim(), SPELL_SPREAD_SHOT, true);
+                    DoCastVictim(SPELL_SPREAD_SHOT, true);
 
                 MultiShotTimer = 10000+rand()%10000;
                 ShootBowTimer += 1500; // add global cooldown

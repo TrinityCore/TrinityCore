@@ -14,6 +14,7 @@ set(Recast_STAT_SRCS
     RecastArea.cpp 
     RecastContour.cpp 
     RecastFilter.cpp 
+    RecastLayers.cpp 
     RecastMesh.cpp 
     RecastMeshDetail.cpp 
     RecastRasterization.cpp 

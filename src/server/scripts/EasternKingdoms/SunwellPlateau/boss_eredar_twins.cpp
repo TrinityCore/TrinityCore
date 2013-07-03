@@ -645,7 +645,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(me->GetVictim(), SPELL_BLAZE);
+                    DoCastVictim(SPELL_BLAZE);
                     BlazeTimer = 3800;
                 }
             } else BlazeTimer -= diff;
@@ -733,7 +733,7 @@ public:
                 {
                     //If we are within range melee the target
                     if (me->IsWithinMeleeRange(me->GetVictim()))
-                        DoCast(me->GetVictim(), SPELL_DARK_STRIKE);
+                        DoCastVictim(SPELL_DARK_STRIKE);
                 }
                 DarkstrikeTimer = 3000;
             } else DarkstrikeTimer -= diff;

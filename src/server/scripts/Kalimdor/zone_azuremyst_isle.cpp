@@ -274,7 +274,7 @@ public:
 
             if (DynamiteTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_DYNAMITE);
+                DoCastVictim(SPELL_DYNAMITE);
                 DynamiteTimer = 8000;
             } else DynamiteTimer -= diff;
 
@@ -634,14 +634,14 @@ public:
 
             if (RendTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_REND);
+                DoCastVictim(SPELL_REND);
                 RendTimer = 30000;
             }
             else RendTimer -= diff;
 
             if (EnragingBiteTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_ENRAGING_BITE);
+                DoCastVictim(SPELL_ENRAGING_BITE);
                 EnragingBiteTimer = 15000;
             }
             else EnragingBiteTimer -= diff;

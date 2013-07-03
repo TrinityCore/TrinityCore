@@ -1212,28 +1212,6 @@ bool SpellInfo::IsSingleTarget() const
     return false;
 }
 
-bool SpellInfo::IsSingleTargetWith(SpellInfo const* spellInfo) const
-{
-    // Same spell?
-    if (IsRankOf(spellInfo))
-        return true;
-
-    SpellSpecificType spec = GetSpellSpecific();
-    // spell with single target specific types
-    switch (spec)
-    {
-        case SPELL_SPECIFIC_JUDGEMENT:
-        case SPELL_SPECIFIC_MAGE_POLYMORPH:
-            if (spellInfo->GetSpellSpecific() == spec)
-                return true;
-            break;
-        default:
-            break;
-    }
-
-    return false;
-}
-
 bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
 {
     SpellSpecificType spellSpec1 = GetSpellSpecific();

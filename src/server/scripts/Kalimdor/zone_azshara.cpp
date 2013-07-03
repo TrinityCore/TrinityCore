@@ -377,7 +377,8 @@ public:
 
                     Talk(MSG_ESCAPE_NOTICE, player->GetGUID());
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
-                    me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
+                    me->SetHover(true);
+                    me->SetSwim(true);
                     me->SetSpeed(MOVE_RUN, 0.85f, true);
                     me->GetMotionMaster()->MovementExpired();
                     me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
@@ -492,7 +493,8 @@ public:
 
         void Reset()
         {
-            me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
+            me->SetHover(true);
+            me->SetSwim(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             WeMustDie = false;
             WeMustDieTimer = 1000;

@@ -27,17 +27,19 @@ enum dtNodeFlags
 	DT_NODE_CLOSED = 0x02,
 };
 
-static const unsigned short DT_NULL_IDX = 0xffff;
+typedef unsigned short dtNodeIndex;
+static const dtNodeIndex DT_NULL_IDX = (dtNodeIndex)~0;
 
 struct dtNode
 {
-	float pos[3];				// Position of the node.
-	float cost;					// Cost from previous node to current node.
-	float total;				// Cost up to the node.
-	unsigned int pidx : 30;		// Index to parent node.
-	unsigned int flags : 2;		// Node flags 0/open/closed.
-	dtPolyRef id;				// Polygon ref the node corresponds to.
+	float pos[3];				///< Position of the node.
+	float cost;					///< Cost from previous node to current node.
+	float total;				///< Cost up to the node.
+	unsigned int pidx : 30;		///< Index to parent node.
+	unsigned int flags : 2;		///< Node flags 0/open/closed.
+	dtPolyRef id;				///< Polygon ref the node corresponds to.
 };
+
 
 class dtNodePool
 {
@@ -70,22 +72,22 @@ public:
 	inline int getMemUsed() const
 	{
 		return sizeof(*this) +
-		sizeof(dtNode)*m_maxNodes +
-		sizeof(unsigned short)*m_maxNodes +
-		sizeof(unsigned short)*m_hashSize;
+			sizeof(dtNode)*m_maxNodes +
+			sizeof(dtNodeIndex)*m_maxNodes +
+			sizeof(dtNodeIndex)*m_hashSize;
 	}
 	
 	inline int getMaxNodes() const { return m_maxNodes; }
 	
 	inline int getHashSize() const { return m_hashSize; }
-	inline unsigned short getFirst(int bucket) const { return m_first[bucket]; }
-	inline unsigned short getNext(int i) const { return m_next[i]; }
+	inline dtNodeIndex getFirst(int bucket) const { return m_first[bucket]; }
+	inline dtNodeIndex getNext(int i) const { return m_next[i]; }
 	
 private:
 	
 	dtNode* m_nodes;
-	unsigned short* m_first;
-	unsigned short* m_next;
+	dtNodeIndex* m_first;
+	dtNodeIndex* m_next;
 	const int m_maxNodes;
 	const int m_hashSize;
 	int m_nodeCount;

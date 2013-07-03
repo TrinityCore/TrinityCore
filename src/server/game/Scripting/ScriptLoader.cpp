@@ -125,19 +125,21 @@ void AddSC_boss_quatermasterzigris();
 void AddSC_boss_pyroguard_emberseer();
 void AddSC_boss_gyth();
 void AddSC_boss_rend_blackhand();
+void AddSC_boss_gizrul_the_slavener();
+void AddSC_boss_urok_doomhowl();
 void AddSC_instance_blackrock_spire();
 void AddSC_boss_razorgore();                 //Blackwing lair
-void AddSC_boss_vael();
+void AddSC_boss_vaelastrasz();
 void AddSC_boss_broodlord();
 void AddSC_boss_firemaw();
 void AddSC_boss_ebonroc();
 void AddSC_boss_flamegor();
 void AddSC_boss_chromaggus();
 void AddSC_boss_nefarian();
-void AddSC_boss_victor_nefarius();
-void AddSC_boss_mr_smite();
+void AddSC_instance_blackwing_lair();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
+void AddSC_boss_mr_smite();
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
@@ -294,11 +296,11 @@ void AddSC_boss_epoch_hunter();
 void AddSC_boss_lieutenant_drake();
 void AddSC_instance_old_hillsbrad();
 void AddSC_old_hillsbrad();
-void AddSC_boss_aeonus();                    //CoT The Dark Portal
+void AddSC_boss_aeonus();                    //CoT The Black Morass
 void AddSC_boss_chrono_lord_deja();
 void AddSC_boss_temporus();
-void AddSC_dark_portal();
-void AddSC_instance_dark_portal();
+void AddSC_the_black_morass();
+void AddSC_instance_the_black_morass();
 void AddSC_boss_epoch();                     //CoT Culling Of Stratholme
 void AddSC_boss_infinite_corruptor();
 void AddSC_boss_salramm();
@@ -769,18 +771,20 @@ void AddEasternKingdomsScripts()
     AddSC_boss_pyroguard_emberseer();
     AddSC_boss_gyth();
     AddSC_boss_rend_blackhand();
+    AddSC_boss_gizrul_the_slavener();
+    AddSC_boss_urok_doomhowl();
     AddSC_instance_blackrock_spire();
     AddSC_boss_razorgore();                 //Blackwing lair
-    AddSC_boss_vael();
+    AddSC_boss_vaelastrasz();
     AddSC_boss_broodlord();
     AddSC_boss_firemaw();
     AddSC_boss_ebonroc();
     AddSC_boss_flamegor();
     AddSC_boss_chromaggus();
     AddSC_boss_nefarian();
-    AddSC_boss_victor_nefarius();
-    AddSC_boss_mr_smite();
+    AddSC_instance_blackwing_lair();
     AddSC_deadmines();                      //Deadmines
+    AddSC_boss_mr_smite();
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
@@ -942,11 +946,11 @@ void AddKalimdorScripts()
     AddSC_boss_lieutenant_drake();
     AddSC_instance_old_hillsbrad();
     AddSC_old_hillsbrad();
-    AddSC_boss_aeonus();                    //CoT The Dark Portal
+    AddSC_boss_aeonus();                    //CoT The Black Morass
     AddSC_boss_chrono_lord_deja();
     AddSC_boss_temporus();
-    AddSC_dark_portal();
-    AddSC_instance_dark_portal();
+    AddSC_the_black_morass();
+    AddSC_instance_the_black_morass();
     AddSC_boss_epoch();                     //CoT Culling Of Stratholme
     AddSC_boss_infinite_corruptor();
     AddSC_boss_salramm();

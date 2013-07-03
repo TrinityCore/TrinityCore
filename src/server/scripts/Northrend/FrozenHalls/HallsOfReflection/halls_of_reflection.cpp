@@ -431,7 +431,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     // Spawn LK in front of door, and make him move to the sword.
                     if (Creature* lichking = me->SummonCreature(NPC_LICH_KING_PART1, LichKingSpawnPos, TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        lichking->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                        lichking->SetWalk(true);
                         lichking->GetMotionMaster()->MovePoint(0, LichKingMoveThronePos);
                         //lichking->SetReactState(REACT_PASSIVE);
                         lichkingGUID = lichking->GetGUID();
@@ -494,7 +494,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     if (Creature* lichking = me->GetCreature(*me, lichkingGUID))
                     {
                         lichking->AI()->Talk(SAY_LK_INTRO_3);
-                        lichking->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                        lichking->SetWalk(true);
                         lichking->GetMotionMaster()->MovePoint(0, LichKingMoveAwayPos);
                     }
                     events.ScheduleEvent(EVENT_INTRO_LK_7, 10000);
@@ -554,7 +554,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     /// @todo Loralen/Koreln shall run also
                     if (Creature* lichking = me->SummonCreature(NPC_LICH_KING_PART1, LichKingSpawnPos, TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        lichking->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                        lichking->SetWalk(true);
                         lichking->GetMotionMaster()->MovePoint(0, LichKingMoveThronePos);
                         lichking->SetReactState(REACT_PASSIVE);
                         lichkingGUID = lichking->GetGUID();
@@ -887,7 +887,7 @@ public:
                     events.ScheduleEvent(EVENT_SHADOW_STEP, 8000);
                     break;
                 case EVENT_DEADLY_POISON:
-                    DoCast(me->GetVictim(), SPELL_DEADLY_POISON);
+                    DoCastVictim(SPELL_DEADLY_POISON);
                     events.ScheduleEvent(EVENT_DEADLY_POISON, 10000);
                     break;
                 case EVENT_ENVENOMED_DAGGER_THROW:
@@ -896,7 +896,7 @@ public:
                     events.ScheduleEvent(EVENT_ENVENOMED_DAGGER_THROW, 10000);
                     break;
                 case EVENT_KIDNEY_SHOT:
-                    DoCast(me->GetVictim(), SPELL_KIDNEY_SHOT);
+                    DoCastVictim(SPELL_KIDNEY_SHOT);
                     events.ScheduleEvent(EVENT_KIDNEY_SHOT, 10000);
                     break;
             }
@@ -942,11 +942,11 @@ public:
             switch (events.ExecuteEvent())
             {
                 case EVENT_SPECTRAL_STRIKE:
-                    DoCast(me->GetVictim(), SPELL_SPECTRAL_STRIKE);
+                    DoCastVictim(SPELL_SPECTRAL_STRIKE);
                     events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000);
                     break;
                 case EVENT_SHIELD_BASH:
-                    DoCast(me->GetVictim(), SPELL_SHIELD_BASH);
+                    DoCastVictim(SPELL_SHIELD_BASH);
                     events.ScheduleEvent(EVENT_SHIELD_BASH, 5000);
                     break;
                 case EVENT_TORTURED_ENRAGE:

@@ -435,6 +435,7 @@ public:
                 headGUID = 0;
             }
 
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             //if (instance)
             //    instance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
         }
@@ -443,7 +444,7 @@ public:
         {
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
+            me->SetDisableGravity(true);
             me->SetSpeed(MOVE_WALK, 5.0f, true);
             wp_reached = false;
             count = 0;
@@ -476,7 +477,7 @@ public:
                         instance->SetData(GAMEOBJECT_PUMPKIN_SHRINE, 0);   //hide gameobject
                     break;
                 case 19:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
+                    me->SetDisableGravity(false);
                     break;
                 case 20:
                 {
@@ -731,7 +732,7 @@ public:
                     DoMeleeAttackIfReady();
                     if (cleave <= diff)
                     {
-                        DoCast(me->GetVictim(), SPELL_CLEAVE);
+                        DoCastVictim(SPELL_CLEAVE);
                         cleave = urand(2000, 6000);       //1 cleave per 2.0f-6.0fsec
                     }
                     else cleave -= diff;

@@ -758,7 +758,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     creature->SetTransport(this);
     creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     creature->m_movementInfo.guid = GetGUID();
-    creature->m_movementInfo.t_pos.Relocate(x, y, z, o);
+    creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
 
     if (anim)
         creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim);
@@ -770,7 +770,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
         o + GetOrientation());
 
     creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
-    creature->SetTransportHomePosition(creature->m_movementInfo.t_pos);
+    creature->SetTransportHomePosition(creature->m_movementInfo.transport.pos);
 
     if (!creature->IsPositionValid())
     {
@@ -810,7 +810,7 @@ Creature* Transport::AddNPCPassengerInInstance(uint32 entry, float x, float y, f
     creature->SetTransport(this);
     creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     creature->m_movementInfo.guid = GetGUID();
-    creature->m_movementInfo.t_pos.Relocate(x, y, z, o);
+    creature->m_movementInfo.pos.Relocate(x, y, z, o);
 
     creature->Relocate(
         GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
@@ -835,10 +835,10 @@ Creature* Transport::AddNPCPassengerInInstance(uint32 entry, float x, float y, f
 }
 void Transport::UpdatePosition(MovementInfo* mi)
 {
-    float transport_o = mi->pos.GetOrientation() - mi->t_pos.GetOrientation();
-    float transport_x = mi->pos.m_positionX - (mi->t_pos.m_positionX * std::cos(transport_o) - mi->t_pos.m_positionY * std::sin(transport_o));
-    float transport_y = mi->pos.m_positionY - (mi->t_pos.m_positionY * std::cos(transport_o) + mi->t_pos.m_positionX * std::sin(transport_o));
-    float transport_z = mi->pos.m_positionZ - mi->t_pos.m_positionZ;
+    float transport_o = mi->pos.GetOrientation() - mi->transport.pos.GetOrientation();
+    float transport_x = mi->pos.m_positionX - (mi->transport.pos.m_positionX * std::cos(transport_o) - mi->transport.pos.m_positionY * std::sin(transport_o));
+    float transport_y = mi->pos.m_positionY - (mi->transport.pos.m_positionY * std::cos(transport_o) + mi->transport.pos.m_positionX * std::sin(transport_o));
+    float transport_z = mi->pos.m_positionZ - mi->transport.pos.m_positionZ;
 
     Relocate(transport_x, transport_y, transport_z, transport_o);
     UpdatePassengerPositions();
@@ -852,7 +852,7 @@ void Transport::UpdatePassengerPositions()
         Creature* npc = *itr;
 
         float x, y, z, o;
-        npc->m_movementInfo.t_pos.GetPosition(x, y, z, o);
+        npc->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
         CalculatePassengerPosition(x, y, z, &o);
         GetMap()->CreatureRelocation(npc, x, y, z, o, false);
         npc->GetTransportHomePosition(x, y, z, o);
@@ -880,10 +880,10 @@ void Transport::UpdatePlayerPositions()
         Player* plr = *itr;
 
         float x, y, z, o;
-        o = GetOrientation() + plr->m_movementInfo.t_pos.m_orientation;
-        x = GetPositionX() + (plr->m_movementInfo.t_pos.m_positionX * cos(GetOrientation()) + plr->m_movementInfo.t_pos.m_positionY * sin(GetOrientation() + M_PI));
-        y = GetPositionY() + (plr->m_movementInfo.t_pos.m_positionY * cos(GetOrientation()) + plr->m_movementInfo.t_pos.m_positionX * sin(GetOrientation()));
-        z = GetPositionZ() + plr->m_movementInfo.t_pos.m_positionZ;
+        o = GetOrientation() + plr->m_movementInfo.pos.m_orientation;
+        x = GetPositionX() + (plr->m_movementInfo.pos.m_positionX * cos(GetOrientation()) + plr->m_movementInfo.pos.m_positionY * sin(GetOrientation() + M_PI));
+        y = GetPositionY() + (plr->m_movementInfo.pos.m_positionY * cos(GetOrientation()) + plr->m_movementInfo.pos.m_positionX * sin(GetOrientation()));
+        z = GetPositionZ() + plr->m_movementInfo.pos.m_positionZ;
         plr->Relocate(x, y, z, o);
         UpdateData transData;
         WorldPacket packet;

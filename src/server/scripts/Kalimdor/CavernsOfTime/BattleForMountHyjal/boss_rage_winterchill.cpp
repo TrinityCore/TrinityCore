@@ -139,13 +139,13 @@ public:
             } else FrostArmorTimer -= diff;
             if (DecayTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_DEATH_AND_DECAY);
+                DoCastVictim(SPELL_DEATH_AND_DECAY);
                 DecayTimer = 60000+rand()%20000;
                 Talk(SAY_DECAY);
             } else DecayTimer -= diff;
             if (NovaTimer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FROST_NOVA);
+                DoCastVictim(SPELL_FROST_NOVA);
                 NovaTimer = 30000+rand()%15000;
                 Talk(SAY_NOVA);
             } else NovaTimer -= diff;

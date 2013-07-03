@@ -1602,6 +1602,37 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
         }
 };
 
+class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan : public SpellScriptLoader
+{
+    public:
+        spell_q12661_q12669_q12676_q12677_q12713_summon_stefan() : SpellScriptLoader("spell_q12661_q12669_q12676_q12677_q12713_summon_stefan") { }
+
+        class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript);
+
+            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
+            {
+                // Adjust effect summon position
+                WorldLocation summonPos = *GetExplTargetDest();
+                Position offset = { 0.0f, 0.0f, 20.0f, 0.0f };
+                summonPos.RelocateOffset(offset);
+                SetExplTargetDest(summonPos);
+                GetHitDest()->RelocateOffset(offset);
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript();
+        }
+};
+
 enum QuenchingMist
 {
     SPELL_FLICKERING_FLAMES = 53504
@@ -1789,6 +1820,7 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_q11008_check_fly_mount();
     new spell_q12372_azure_on_death_force_whisper();
     new spell_q12527_zuldrak_rat();
+    new spell_q12661_q12669_q12676_q12677_q12713_summon_stefan();
     new spell_q12730_quenching_mist();
     new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy();
     new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon();

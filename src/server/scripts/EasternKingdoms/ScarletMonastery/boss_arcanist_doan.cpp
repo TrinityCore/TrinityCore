@@ -112,7 +112,7 @@ public:
             //AoESilence_Timer
             if (AoESilence_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_AOESILENCE);
+                DoCastVictim(SPELL_AOESILENCE);
                 AoESilence_Timer = urand(15000, 20000);
             }
             else AoESilence_Timer -= diff;
@@ -120,7 +120,7 @@ public:
             //ArcaneExplosion_Timer
             if (ArcaneExplosion_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_ARCANEEXPLOSION);
+                DoCastVictim(SPELL_ARCANEEXPLOSION);
                 ArcaneExplosion_Timer = 8000;
             }
             else ArcaneExplosion_Timer -= diff;

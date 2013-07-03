@@ -1078,12 +1078,12 @@ void MovementInfo::OutDebug()
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
         TC_LOG_INFO(LOG_FILTER_GENERAL, "TRANSPORT:");
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "guid: " UI64FMTD, t_guid);
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "position: `%s`", t_pos.ToString().c_str());
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "seat: %i", t_seat);
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "time: %u", t_time);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "guid: " UI64FMTD, transport.guid);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "position: `%s`", transport.pos.ToString().c_str());
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "seat: %i", transport.seat);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "time: %u", transport.time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-            TC_LOG_INFO(LOG_FILTER_GENERAL, "time2: %u", t_time2);
+            TC_LOG_INFO(LOG_FILTER_GENERAL, "time2: %u", transport.time2);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
@@ -1091,7 +1091,7 @@ void MovementInfo::OutDebug()
 
     TC_LOG_INFO(LOG_FILTER_GENERAL, "fallTime: %u", fallTime);
     if (flags & MOVEMENTFLAG_FALLING)
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", jump.zspeed, jump.sinAngle, jump.cosAngle, jump.xyspeed);
 
     if (flags & MOVEMENTFLAG_SPLINE_ELEVATION)
         TC_LOG_INFO(LOG_FILTER_GENERAL, "splineElevation: %f", splineElevation);
@@ -1216,12 +1216,12 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
 
     if (m_transport && obj->GetTransport() &&  obj->GetTransport()->GetGUIDLow() == m_transport->GetGUIDLow())
     {
-        float dtx = m_movementInfo.t_pos.m_positionX - obj->m_movementInfo.t_pos.m_positionX;
-        float dty = m_movementInfo.t_pos.m_positionY - obj->m_movementInfo.t_pos.m_positionY;
+        float dtx = m_movementInfo.transport.pos.m_positionX - obj->m_movementInfo.transport.pos.m_positionX;
+        float dty = m_movementInfo.transport.pos.m_positionY - obj->m_movementInfo.transport.pos.m_positionY;
         float disttsq = dtx * dtx + dty * dty;
         if (is3D)
         {
-            float dtz = m_movementInfo.t_pos.m_positionZ - obj->m_movementInfo.t_pos.m_positionZ;
+            float dtz = m_movementInfo.transport.pos.m_positionZ - obj->m_movementInfo.transport.pos.m_positionZ;
             disttsq += dtz * dtz;
         }
         return disttsq < (maxdist * maxdist);

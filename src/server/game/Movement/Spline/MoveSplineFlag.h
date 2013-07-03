@@ -101,8 +101,8 @@ namespace Movement
 
         void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic)) | Animation | anim; }
         void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation)) | Parabolic; }
-        void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation)) | Falling; }
-        void EnableFlying() { raw() = (raw() & ~Catmullrom) | Flying; }
+        void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Flying | Animation)) | Falling; }
+        void EnableFlying() { raw() = (raw() & ~(Falling | Catmullrom)) | Flying; }
         void EnableCatmullRom() { raw() = (raw() & ~Flying) | Catmullrom; }
         void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point; }
         void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle; }

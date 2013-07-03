@@ -152,7 +152,7 @@ public:
             {
                 if (uiWebTimer <= uiDiff)
                 {
-                    DoCast(me->GetVictim(), SPELL_WEB);
+                    DoCastVictim(SPELL_WEB);
                     uiWebTimer = urand(7000, 16000);
                 } else uiWebTimer -= uiDiff;
             }

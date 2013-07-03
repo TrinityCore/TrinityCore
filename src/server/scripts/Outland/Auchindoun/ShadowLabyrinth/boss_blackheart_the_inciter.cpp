@@ -16,12 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Blackheart_the_Inciter
-SD%Complete: 75
-SDComment: Incite Chaos not functional since core lacks Mind Control support
-SDCategory: Auchindoun, Shadow Labyrinth
-EndScriptData */
+/*
+Name: Boss_Blackheart_the_Inciter
+%Complete: 75
+Comment: Incite Chaos not functional since core lacks Mind Control support
+Category: Auchindoun, Shadow Labyrinth
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -48,38 +48,26 @@ enum BlackheartTheInciter
     SAY2_DEATH              = 9
 };
 
+enum Events
+{
+    EVENT_INCITE_CHAOS_WAIT     = 1,
+    EVENT_INCITE_CHAOS          = 2,
+    EVENT_CHARGE_ATTACK         = 3,
+    EVENT_WAR_STOMP             = 4
+};
+
 class boss_blackheart_the_inciter : public CreatureScript
 {
 public:
     boss_blackheart_the_inciter() : CreatureScript("boss_blackheart_the_inciter") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_blackheart_the_inciterAI : public BossAI
     {
-        return new boss_blackheart_the_inciterAI (creature);
-    }
-
-    struct boss_blackheart_the_inciterAI : public ScriptedAI
-    {
-        boss_blackheart_the_inciterAI(Creature* creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        bool InciteChaos;
-        uint32 InciteChaos_Timer;
-        uint32 InciteChaosWait_Timer;
-        uint32 Charge_Timer;
-        uint32 Knockback_Timer;
+        boss_blackheart_the_inciterAI(Creature* creature) : BossAI(creature, DATA_BLACKHEARTTHEINCITEREVENT) { }
 
         void Reset()
         {
             InciteChaos = false;
-            InciteChaos_Timer = 20000;
-            InciteChaosWait_Timer = 15000;
-            Charge_Timer = 5000;
-            Knockback_Timer = 15000;
 
             if (instance)
                 instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
@@ -100,6 +88,11 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            events.ScheduleEvent(EVENT_INCITE_CHAOS_WAIT, 15000);
+            events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
+            events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5000);
+            events.ScheduleEvent(EVENT_WAR_STOMP, 15000);
+
             Talk(SAY_AGGRO);
 
             if (instance)
@@ -108,55 +101,59 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
-            if (InciteChaos)
-            {
-                if (InciteChaosWait_Timer <= diff)
-                {
-                    InciteChaos = false;
-                    InciteChaosWait_Timer = 15000;
-                } else InciteChaosWait_Timer -= diff;
+            events.Update(diff);
 
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-            }
 
-            if (InciteChaos_Timer <= diff)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoCast(me, SPELL_INCITE_CHAOS);
-
-                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                switch (eventId)
                 {
-                    Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (target && target->GetTypeId() == TYPEID_PLAYER)
-                        me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
+                    case EVENT_INCITE_CHAOS_WAIT:
+                        InciteChaos = false;
+                        events.ScheduleEvent(EVENT_INCITE_CHAOS_WAIT, 15000);
+                        break;
+                    case EVENT_INCITE_CHAOS:
+                    {
+                        DoCast(me, SPELL_INCITE_CHAOS);
+
+                        std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                        for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                        {
+                            Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                            if (target && target->GetTypeId() == TYPEID_PLAYER)
+                                me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
+                        }
+
+                        DoResetThreat();
+                        InciteChaos = true;
+                        events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
+                        break;
+                    }
+                    case EVENT_CHARGE_ATTACK:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_CHARGE);
+                        events.ScheduleEvent(EVENT_CHARGE, urand(15000, 25000));
+                        break;
+                    case EVENT_WAR_STOMP:
+                        DoCast(me, SPELL_WAR_STOMP);
+                        events.ScheduleEvent(EVENT_WAR_STOMP, urand(18000, 24000));
+                        break;
                 }
-
-                DoResetThreat();
-                InciteChaos = true;
-                InciteChaos_Timer = 40000;
-                return;
-            } else InciteChaos_Timer -= diff;
-
-            //Charge_Timer
-            if (Charge_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHARGE);
-                Charge_Timer = urand(15000, 25000);
-            } else Charge_Timer -= diff;
-
-            //Knockback_Timer
-            if (Knockback_Timer <= diff)
-            {
-                DoCast(me, SPELL_WAR_STOMP);
-                Knockback_Timer = urand(18000, 24000);
-            } else Knockback_Timer -= diff;
-
+            }
             DoMeleeAttackIfReady();
+        }
+
+        private:
+            bool InciteChaos;
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_blackheart_the_inciterAI (creature);
         }
     };
 

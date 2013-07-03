@@ -361,7 +361,7 @@ class mob_shadowmoon_channeler : public CreatureScript
 
                 if (ShadowBolt_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SHADOW_BOLT);
+                    DoCastVictim(SPELL_SHADOW_BOLT);
                     ShadowBolt_Timer = 5000+rand()%1000;
                 }
                 else

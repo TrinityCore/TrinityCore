@@ -107,7 +107,7 @@ class boss_void_reaver : public CreatureScript
                 // Pounding
                 if (Pounding_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_POUNDING);
+                    DoCastVictim(SPELL_POUNDING);
                     Talk(SAY_POUNDING);
                     Pounding_Timer = 15000; //cast time(3000) + cooldown time(12000)
                 }
@@ -144,7 +144,7 @@ class boss_void_reaver : public CreatureScript
                 // Single Target knock back, reduces aggro
                 if (KnockAway_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_KNOCK_AWAY);
+                    DoCastVictim(SPELL_KNOCK_AWAY);
                     //Drop 25% aggro
                     if (DoGetThreat(me->GetVictim()))
                         DoModifyThreatPercent(me->GetVictim(), -25);

@@ -129,6 +129,8 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackrockSpire/boss_rend_blackhand.cpp
   EasternKingdoms/BlackrockSpire/boss_highlord_omokk.cpp
   EasternKingdoms/BlackrockSpire/boss_the_beast.cpp
+  EasternKingdoms/BlackrockSpire/boss_gizrul_the_slavener.cpp
+  EasternKingdoms/BlackrockSpire/boss_urok_doomhowl.cpp
   EasternKingdoms/BlackrockSpire/blackrock_spire.h
   EasternKingdoms/BlackrockSpire/instance_blackrock_spire.cpp
   EasternKingdoms/SunwellPlateau/boss_eredar_twins.cpp
@@ -174,7 +176,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackwingLair/boss_vaelastrasz.cpp
   EasternKingdoms/BlackwingLair/boss_nefarian.cpp
   EasternKingdoms/BlackwingLair/boss_flamegor.cpp
-  EasternKingdoms/BlackwingLair/boss_victor_nefarius.cpp
+  EasternKingdoms/BlackwingLair/blackwing_lair.h
   EasternKingdoms/zone_blasted_lands.cpp
   EasternKingdoms/zone_stormwind_city.cpp
   EasternKingdoms/ZulAman/boss_halazzi.cpp

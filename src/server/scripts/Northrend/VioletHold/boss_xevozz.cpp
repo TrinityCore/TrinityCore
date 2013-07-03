@@ -171,7 +171,7 @@ public:
             {
                 if (uiArcaneBuffet_Timer < uiDiff)
                 {
-                    DoCast(me->GetVictim(), SPELL_ARCANE_BUFFET);
+                    DoCastVictim(SPELL_ARCANE_BUFFET);
                     uiArcaneBuffet_Timer = 0;
                 }
                 else uiArcaneBuffet_Timer -= uiDiff;
@@ -214,7 +214,7 @@ public:
         }
         void KilledUnit(Unit* victim)
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             Talk(SAY_SLAY);

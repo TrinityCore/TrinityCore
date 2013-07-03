@@ -672,7 +672,7 @@ class npc_cult_fanatic : public CreatureScript
                     {
                         case EVENT_FANATIC_NECROTIC_STRIKE:
                             DoCastVictim(SPELL_NECROTIC_STRIKE);
-                            Events.ScheduleEvent(SPELL_NECROTIC_STRIKE, urand(11000, 13000));
+                            Events.ScheduleEvent(EVENT_FANATIC_NECROTIC_STRIKE, urand(11000, 13000));
                             break;
                         case EVENT_FANATIC_SHADOW_CLEAVE:
                             DoCastVictim(SPELL_SHADOW_CLEAVE);
