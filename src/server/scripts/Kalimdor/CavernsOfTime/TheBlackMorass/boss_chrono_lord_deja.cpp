@@ -140,12 +140,12 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_chrono_lord_dejaAI (creature);
-        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_chrono_lord_dejaAI (creature);
+    }
 };
 
 void AddSC_boss_chrono_lord_deja()
