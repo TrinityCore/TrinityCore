@@ -23,6 +23,8 @@
 #include "Vehicle.h"
 #include "VehicleDefines.h"
 
+#define DATA_FIREFIGHTER 31803189
+#define DATA_SET_UP_US_THE_BOMB 29893237
 
 
 enum Yells
@@ -59,12 +61,6 @@ enum Yells
     // MK II
     EMOTE_PLASMA_BLAST                          = 0,
     
-};
-
-enum MimironDatas
-{
-    DATA_GET_HARD_MODE,
-    DATA_SET_UP_US_THE_BOMB           = 29893237,
 };
 
 enum Spells
@@ -228,6 +224,11 @@ enum eActions
     DO_DESPAWN_SUMMONS                         = 14,
 };
 
+enum MimironDatas
+{
+    DATA_GET_HARD_MODE,
+};
+ 
 const Position SummonPos[9] =
 {
     {2703.93f, 2569.32f, 364.397f, 0},
@@ -261,6 +262,7 @@ class boss_mimiron : public CreatureScript
                 crawl=1;
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_ROCKET_STRIKE_DMG, true);
                 MimironHardMode = false;
+                firefighter = false;
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_NULL);
                 events.ScheduleEvent(EVENT_CRAWL, 30000, 0, PHASE_NULL);
@@ -291,6 +293,7 @@ class boss_mimiron : public CreatureScript
                 MimironHardMode = false;
                 checkBotAlive = true;
                 Enraged = false;
+                firefighter = false;
                 DespawnCreatures(NPC_MINE, 100);
                 DespawnCreatures(NPC_ROCKET, 100);
                 DespawnCreatures(NPC_JUNK_BOT, 100);
@@ -383,6 +386,8 @@ class boss_mimiron : public CreatureScript
                 {
                     case DATA_GET_HARD_MODE:
                         return MimironHardMode ? 1 : 0;
+                    case DATA_FIREFIGHTER:
+                        return firefighter ? 1 : 0;
                     default:
                         return 0;
                 }
@@ -410,6 +415,7 @@ class boss_mimiron : public CreatureScript
                         break;
                     case DO_ACTIVATE_HARD_MODE:
                         MimironHardMode = true;
+                        firefighter = true;
                         DoZoneInCombat();
                         break;
                 }
@@ -765,6 +771,7 @@ class boss_mimiron : public CreatureScript
             bool checkBotAlive;
             bool Enraged;
             bool MimironHardMode;
+            bool firefighter;
             EventMap events;
         };
 
@@ -1995,12 +2002,10 @@ class spell_rapid_burst : public SpellScriptLoader
                 switch (caster->GetMap()->GetDifficulty())
                 {
                     case RAID_DIFFICULTY_10MAN_NORMAL:
-                        if (Unit* target = GetTarget())
-                            target->CastSpell(target,SPELL_RAPID_BURST_LEFT_10, true, NULL, NULL, caster->GetGUID());
+                        caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_10, SPELL_RAPID_BURST_RIGHT_10), true, NULL, aurEff);
                         break;
                     case RAID_DIFFICULTY_25MAN_NORMAL:
-                        if (Unit* target = GetTarget())
-                            target->CastSpell(target,SPELL_RAPID_BURST_LEFT_25, true, NULL, NULL, caster->GetGUID());
+                        caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_25, SPELL_RAPID_BURST_RIGHT_25), true, NULL, aurEff);
                         break;
                     default:
                         break;
@@ -2056,15 +2061,14 @@ class achievement_mimiron_firefighter : public AchievementCriteriaScript
     public:
         achievement_mimiron_firefighter() : AchievementCriteriaScript("achievement_mimiron_firefighter") { }
 
-        bool OnCheck(Player* player, Unit* /*target*/)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
-            if (!player)
+            if (!target)
                 return false;
 
-            if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* mimiron = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_MIMIRON)))
-                    if (mimiron->AI()->GetData(DATA_GET_HARD_MODE))
-                        return true;
+            if (Creature* mimiron = target->ToCreature())
+                if (mimiron->AI()->GetData(DATA_FIREFIGHTER))
+                    return true;
 
             return false;
         }
