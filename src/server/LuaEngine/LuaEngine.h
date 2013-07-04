@@ -1284,25 +1284,31 @@ struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::event
         _unit(unit), GUID(unit->GetGUID()), Eluna::LuaEventMap::eventData(funcRef, delay, calls)
     {
         LuaEvents[funcRef] = this;
+        EventIDs[unit->GetGUID()].insert(funcRef);
     }
 
     ~LuaEventData()
     {
         luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, funcRef);
         LuaEvents.erase(funcRef);
-        EventIDs.erase(GUID);
+        EventIDs[GUID].erase(funcRef);
     }
 
     static void RemoveAll()
     {
         for (UNORDERED_MAP<uint64, std::set<int> >::const_iterator it = EventIDs.begin(); it != EventIDs.end(); ++it)
         {
-            if(!it->second.empty())
+            if(it->second.empty())
+                continue;
+            for(std::set<int>::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
             {
-                int eventID = *it->second.begin();
-                if(LuaEvents.find(eventID) != LuaEvents.end())
-                    if(LuaEvents[eventID]->_unit)
-                        LuaEvents[eventID]->_unit->m_Events.KillAllEvents(true);
+                if(LuaEvents.find(*itr) == LuaEvents.end())
+                    continue;
+                if(LuaEvents[*itr]->_unit)
+                {
+                    LuaEvents[*itr]->_unit->m_Events.KillAllEvents(true);
+                    break;
+                }
             }
         }
         LuaEvents.clear();
@@ -1312,10 +1318,10 @@ struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::event
     {
         if(!unit)
             return;
+        unit->m_Events.KillAllEvents(true); // should delete the objects
         for (std::set<int>::const_iterator it = EventIDs[unit->GetGUID()].begin(); it != EventIDs[unit->GetGUID()].end(); ++it)
-            LuaEvents.erase(*it);
+            LuaEvents.erase(*it); // deletes pointers
         EventIDs.erase(unit->GetGUID());
-        unit->m_Events.KillAllEvents(true);
     }
     static void Remove(uint64 guid, int eventID)
     {

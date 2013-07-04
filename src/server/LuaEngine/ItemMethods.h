@@ -534,8 +534,8 @@ public:
             return 1;
         }
 
-        EnchantmentSlot slot = EnchantmentSlot(luaL_checkinteger(L, 2));
-        if(slot < 0 || slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 2));
+        if(slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
         {
             luaL_error(L, "Invalid enchantment slot (%d)", slot);
             sEluna->PushBoolean(L, false);
@@ -564,8 +564,8 @@ public:
             return 1;
         }
 
-        EnchantmentSlot slot = EnchantmentSlot(luaL_checkinteger(L, 1));
-        if(slot < 0 || slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 1));
+        if(slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
         {
             luaL_error(L, "Invalid enchantment slot (%d)", slot);
             sEluna->PushBoolean(L, false);
@@ -599,8 +599,12 @@ public:
             return 0;
 
         uint32 enchant_slot = luaL_checkunsigned(L, 1);
-
-        sEluna->PushUnsigned(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
+        
+        EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 2));
+        if(slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+            sEluna->PushUnsigned(L, 0);
+        else
+            sEluna->PushUnsigned(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
         return 1;
     }
 

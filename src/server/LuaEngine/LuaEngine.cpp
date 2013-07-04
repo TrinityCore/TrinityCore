@@ -634,7 +634,7 @@ UNORDERED_MAP<uint64, std::set<int> > Eluna::LuaEventData::EventIDs;
 
 void Eluna::LuaEventMap::ScriptEventsResetAll()
 {
-    // GameObject && Creature events reset
+    // GameObject events reset
     if (!LuaEventMaps.empty())
         for (UNORDERED_MAP<uint64, LuaEventMap*>::const_iterator itr = LuaEventMaps.begin(); itr != LuaEventMaps.end(); ++itr)
             if (itr->second)
