@@ -924,7 +924,7 @@ class spell_biting_cold : public SpellScriptLoader
                 for (TargetList::iterator itr = listOfTargets.begin(); itr != listOfTargets.end(); ++itr)
                 {
                     if (itr->first != target->GetGUID())
-                        return;
+                        continue;
 
                     if (itr->second >= 4)
                     {

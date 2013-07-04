@@ -16,30 +16,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Dark_Portal
-SD%Complete: 50
-SDComment: Quest support: 9836, 10297. Currently in progress.
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: Instance_The_Black_Morass
+%Complete: 50
+Comment: Quest support: 9836, 10297. Currently in progress.
+Category: Caverns of Time, The Black Morass
+*/
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "SpellInfo.h"
+#include "ScriptedCreature.h"
 
-#define MAX_ENCOUNTER              2
+enum Misc
+{
+    SPELL_RIFT_CHANNEL                = 31387,
+    RIFT_BOSS                         = 1
+};
 
-#define C_MEDIVH                15608
-#define C_TIME_RIFT             17838
-
-#define SPELL_RIFT_CHANNEL      31387
-
-#define RIFT_BOSS               1
-
-inline uint32 RandRiftBoss() { return ((rand()%2) ? C_RKEEP : C_RLORD); }
+inline uint32 RandRiftBoss() { return ((rand()%2) ? NPC_RIFT_KEEPER : NPC_RIFT_LORD); }
 
 float PortalLocation[4][4]=
 {
@@ -57,45 +55,46 @@ struct Wave
 
 static Wave RiftWaves[]=
 {
-    {RIFT_BOSS, 0},
-    {C_DEJA, 0},
-    {RIFT_BOSS, 120000},
-    {C_TEMPO, 140000},
-    {RIFT_BOSS, 120000},
-    {C_AEONUS, 0}
+    { RIFT_BOSS,                0 },
+    { NPC_CRONO_LORD_DEJA,      0 },
+    { RIFT_BOSS,           120000 },
+    { NPC_TEMPORUS,        140000 },
+    { RIFT_BOSS,           120000 },
+    { NPC_AEONUS,               0 }
 };
 
-class instance_dark_portal : public InstanceMapScript
+enum EventIds
+{
+    EVENT_NEXT_PORTAL = 1
+};
+
+class instance_the_black_morass : public InstanceMapScript
 {
 public:
-    instance_dark_portal() : InstanceMapScript("instance_dark_portal", 269) { }
+    instance_the_black_morass() : InstanceMapScript("instance_the_black_morass", 269) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_dark_portal_InstanceMapScript(map);
+        return new instance_the_black_morass_InstanceMapScript(map);
     }
 
-    struct instance_dark_portal_InstanceMapScript : public InstanceScript
+    struct instance_the_black_morass_InstanceMapScript : public InstanceScript
     {
-        instance_dark_portal_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-        }
+        instance_the_black_morass_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
+        uint32 m_auiEncounter[EncounterCount];
 
         uint32 mRiftPortalCount;
         uint32 mShieldPercent;
-        uint8 mRiftWaveCount;
-        uint8 mRiftWaveId;
+        uint8  mRiftWaveCount;
+        uint8  mRiftWaveId;
 
-        uint32 NextPortal_Timer;
-
-        uint64 MedivhGUID;
-        uint8 CurrentRiftId;
+        uint64 _medivhGUID;
+        uint8  _currentRiftId;
 
         void Initialize()
         {
-            MedivhGUID          = 0;
+            _medivhGUID         = 0;
             Clear();
         }
 
@@ -108,9 +107,7 @@ public:
             mRiftWaveCount      = 0;
             mRiftWaveId         = 0;
 
-            CurrentRiftId = 0;
-
-            NextPortal_Timer    = 0;
+            _currentRiftId      = 0;
         }
 
         void InitWorldState(bool Enable = true)
@@ -138,8 +135,8 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            if (creature->GetEntry() == C_MEDIVH)
-                MedivhGUID = creature->GetGUID();
+            if (creature->GetEntry() == NPC_MEDIVH)
+                _medivhGUID = creature->GetGUID();
         }
 
         //what other conditions to check?
@@ -181,11 +178,11 @@ public:
 
                     if (!mShieldPercent)
                     {
-                        if (Creature* pMedivh = instance->GetCreature(MedivhGUID))
+                        if (Creature* medivh = instance->GetCreature(_medivhGUID))
                         {
-                            if (pMedivh->IsAlive())
+                            if (medivh->IsAlive())
                             {
-                                pMedivh->DealDamage(pMedivh, pMedivh->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                                medivh->DealDamage(medivh, medivh->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                                 m_auiEncounter[0] = FAIL;
                                 m_auiEncounter[1] = NOT_STARTED;
                             }
@@ -196,16 +193,16 @@ public:
                 {
                     if (data == IN_PROGRESS)
                     {
-                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Starting event.");
+                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Starting event.");
                         InitWorldState();
                         m_auiEncounter[1] = IN_PROGRESS;
-                        NextPortal_Timer = 15000;
+                        Events.ScheduleEvent(EVENT_NEXT_PORTAL, 15000);
                     }
 
                     if (data == DONE)
                     {
                         //this may be completed further out in the post-event
-                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Event completed.");
+                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Event completed.");
                         Map::PlayerList const& players = instance->GetPlayers();
 
                         if (!players.isEmpty())
@@ -231,7 +228,7 @@ public:
                 if (data == SPECIAL)
                 {
                     if (mRiftPortalCount < 7)
-                        NextPortal_Timer = 5000;
+                        Events.ScheduleEvent(EVENT_NEXT_PORTAL, 5000);
                 }
                 else
                     m_auiEncounter[1] = data;
@@ -258,7 +255,7 @@ public:
         uint64 GetData64(uint32 data) const
         {
             if (data == DATA_MEDIVH)
-                return MedivhGUID;
+                return _medivhGUID;
 
             return 0;
         }
@@ -270,7 +267,7 @@ public:
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
 
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Summoning rift boss entry %u.", entry);
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Summoning rift boss entry %u.", entry);
 
             Position pos;
             me->GetRandomNearPosition(pos, 10.0f);
@@ -281,24 +278,24 @@ public:
             if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
                 return summon;
 
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
             return NULL;
         }
 
         void DoSpawnPortal()
         {
-            if (Creature* pMedivh = instance->GetCreature(MedivhGUID))
+            if (Creature* medivh = instance->GetCreature(_medivhGUID))
             {
                 uint8 tmp = urand(0, 2);
 
-                if (tmp >= CurrentRiftId)
+                if (tmp >= _currentRiftId)
                     ++tmp;
 
-                TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).", tmp, CurrentRiftId);
+                TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Creating Time Rift at locationId %i (old locationId was %u).", tmp, _currentRiftId);
 
-                CurrentRiftId = tmp;
+                _currentRiftId = tmp;
 
-                Creature* temp = pMedivh->SummonCreature(C_TIME_RIFT,
+                Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT,
                     PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
                     TEMPSUMMON_CORPSE_DESPAWN, 0);
                 if (temp)
@@ -306,14 +303,14 @@ public:
                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                    if (Creature* pBoss = SummonedPortalBoss(temp))
+                    if (Creature* boss = SummonedPortalBoss(temp))
                     {
-                        if (pBoss->GetEntry() == C_AEONUS)
-                            pBoss->AddThreat(pMedivh, 0.0f);
+                        if (boss->GetEntry() == NPC_AEONUS)
+                            boss->AddThreat(medivh, 0.0f);
                         else
                         {
-                            pBoss->AddThreat(temp, 0.0f);
-                            temp->CastSpell(pBoss, SPELL_RIFT_CHANNEL, false);
+                            boss->AddThreat(temp, 0.0f);
+                            temp->CastSpell(boss, SPELL_RIFT_CHANNEL, false);
                         }
                     }
                 }
@@ -332,24 +329,24 @@ public:
                 return;
             }
 
-            if (NextPortal_Timer)
+            Events.Update(diff);
+
+            if (Events.ExecuteEvent() == EVENT_NEXT_PORTAL)
             {
-                if (NextPortal_Timer <= diff)
-                {
-                    ++mRiftPortalCount;
-
-                    DoUpdateWorldState(WORLD_STATE_BM_RIFT, mRiftPortalCount);
-
-                    DoSpawnPortal();
-                    NextPortal_Timer = RiftWaves[GetRiftWaveId()].NextPortalTime;
-                } else NextPortal_Timer -= diff;
+                ++mRiftPortalCount;
+                DoUpdateWorldState(WORLD_STATE_BM_RIFT, mRiftPortalCount);
+                DoSpawnPortal();
+                Events.ScheduleEvent(EVENT_NEXT_PORTAL, RiftWaves[GetRiftWaveId()].NextPortalTime);
             }
         }
+
+        protected:
+            EventMap Events;
     };
 
 };
 
-void AddSC_instance_dark_portal()
+void AddSC_instance_the_black_morass()
 {
-    new instance_dark_portal();
+    new instance_the_black_morass();
 }

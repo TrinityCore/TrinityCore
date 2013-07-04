@@ -266,7 +266,7 @@ class mob_shade_of_jindo : public CreatureScript
                 //ShadowShock_Timer
                 if (ShadowShock_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SHADOWSHOCK);
+                    DoCastVictim(SPELL_SHADOWSHOCK);
                     ShadowShock_Timer = 2000;
                 } else ShadowShock_Timer -= diff;
 

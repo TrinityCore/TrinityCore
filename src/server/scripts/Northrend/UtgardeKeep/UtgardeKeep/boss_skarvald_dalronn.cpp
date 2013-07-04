@@ -226,7 +226,7 @@ public:
 
             if (StoneStrike_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_STONE_STRIKE);
+                DoCastVictim(SPELL_STONE_STRIKE);
                 StoneStrike_Timer = 5000+rand()%5000;
             } else StoneStrike_Timer -= diff;
 

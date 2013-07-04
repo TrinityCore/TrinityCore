@@ -16,36 +16,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Broodlord_Lashlayer
-SD%Complete: 100
-SDComment:
-SDCategory: Blackwing Lair
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "blackwing_lair.h"
 
 enum Say
 {
     SAY_AGGRO               = 0,
-    SAY_LEASH               = 1,
-};
-
-enum Events
-{
-    EVENT_CLEAVE            = 1,
-    EVENT_MORTAL_STRIKE     = 2,
-    EVENT_BLAST_WAVE        = 3,
-    EVENT_KNOCK_BACK        = 4,
+    SAY_LEASH               = 1
 };
 
 enum Spells
 {
     SPELL_CLEAVE            = 26350,
-    SPELL_BLAST_WAVE        = 23331,
-    SPELL_MORTAL_STRIKE     = 24573,
-    SPELL_KNOCK_BACK        = 25778
+    SPELL_BLASTWAVE         = 23331,
+    SPELL_MORTALSTRIKE      = 24573,
+    SPELL_KNOCKBACK         = 25778
+};
+
+enum Events
+{
+    EVENT_CLEAVE            = 1,
+    EVENT_BLASTWAVE         = 2,
+    EVENT_MORTALSTRIKE      = 3,
+    EVENT_KNOCKBACK         = 4,
+    EVENT_CHECK             = 5
 };
 
 class boss_broodlord : public CreatureScript
@@ -53,28 +48,26 @@ class boss_broodlord : public CreatureScript
 public:
     boss_broodlord() : CreatureScript("boss_broodlord") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_broodlordAI : public BossAI
     {
-        return new boss_broodlordAI (creature);
-    }
-
-    struct boss_broodlordAI : public ScriptedAI
-    {
-        boss_broodlordAI(Creature* creature) : ScriptedAI(creature) {}
-
-        void Reset()
-        {
-            // These timers are probably wrong
-            events.ScheduleEvent(EVENT_CLEAVE, 8000);
-            events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 20000);
-            events.ScheduleEvent(EVENT_KNOCK_BACK, 30000);
-        }
+        boss_broodlordAI(Creature* creature) : BossAI(creature, BOSS_BROODLORD) { }
 
         void EnterCombat(Unit* /*who*/)
         {
+            if (instance->GetBossState(BOSS_VAELASTRAZ) != DONE)
+            {
+                EnterEvadeMode();
+                return;
+            }
+
+            _EnterCombat();
             Talk(SAY_AGGRO);
-            DoZoneInCombat();
+
+            events.ScheduleEvent(EVENT_CLEAVE, 8000);
+            events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
+            events.ScheduleEvent(EVENT_MORTALSTRIKE, 20000);
+            events.ScheduleEvent(EVENT_KNOCKBACK, 30000);
+            events.ScheduleEvent(EVENT_CHECK, 1000);
         }
 
         void UpdateAI(uint32 diff)
@@ -82,11 +75,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (EnterEvadeIfOutOfCombatArea(diff))
-                Talk(SAY_LEASH);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+            events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -94,40 +83,41 @@ public:
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 8000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7000);
                         break;
-                    case EVENT_MORTAL_STRIKE:
-                        DoCastVictim(SPELL_MORTAL_STRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 20000);
+                    case EVENT_BLASTWAVE:
+                        DoCastVictim(SPELL_BLASTWAVE);
+                        events.ScheduleEvent(EVENT_BLASTWAVE, urand(8000, 16000));
                         break;
-                    case EVENT_BLAST_WAVE:
-                        DoCastVictim(SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
+                    case EVENT_MORTALSTRIKE:
+                        DoCastVictim(SPELL_MORTALSTRIKE);
+                        events.ScheduleEvent(EVENT_MORTALSTRIKE, urand(25000, 35000));
                         break;
-                    case EVENT_KNOCK_BACK:
-                        if (Unit* target = me->GetVictim())
+                    case EVENT_KNOCKBACK:
+                        DoCastVictim(SPELL_KNOCKBACK);
+                        if (DoGetThreat(me->GetVictim()))
+                            DoModifyThreatPercent(me->GetVictim(), -50);
+                        events.ScheduleEvent(EVENT_KNOCKBACK, urand(15000, 30000));
+                        break;
+                    case EVENT_CHECK:
+                        if (me->GetDistance(me->GetHomePosition()) > 150.0f)
                         {
-                            DoCast(target, SPELL_BLAST_WAVE);
-                            // Drop 50% of threat
-                            if (DoGetThreat(target))
-                                DoModifyThreatPercent(target, -50);
+                            Talk(SAY_LEASH);
+                            EnterEvadeMode();
                         }
-                        events.ScheduleEvent(EVENT_KNOCK_BACK, 30000);
-                        break;
-                    default:
+                        events.ScheduleEvent(EVENT_CHECK, 1000);
                         break;
                 }
             }
 
-            if (EnterEvadeIfOutOfCombatArea(diff))
-                Talk(SAY_LEASH);
-
             DoMeleeAttackIfReady();
         }
-
-        private:
-            EventMap events; /// @todo: change BWL to instance script and bosses to BossAI
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_broodlordAI (creature);
+    }
 };
 
 void AddSC_boss_broodlord()

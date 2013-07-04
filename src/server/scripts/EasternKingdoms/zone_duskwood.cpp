@@ -122,13 +122,13 @@ public:
                 return;
             if (SoulCorruption_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SOUL_CORRUPTION);
+                DoCastVictim(SPELL_SOUL_CORRUPTION);
                 SoulCorruption_Timer = rand()%4000+15000; //gotta confirm Timers
             } else SoulCorruption_Timer-=diff;
 
             if (CreatureOfNightmare_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_CREATURE_OF_NIGHTMARE);
+                DoCastVictim(SPELL_CREATURE_OF_NIGHTMARE);
                 CreatureOfNightmare_Timer = 45000; //gotta confirm Timers
             } else CreatureOfNightmare_Timer-=diff;
             DoMeleeAttackIfReady();

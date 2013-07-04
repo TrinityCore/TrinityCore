@@ -92,7 +92,7 @@ public:
             //FlameShock_Timer
             if (FlameShock_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FLAMESHOCK);
+                DoCastVictim(SPELL_FLAMESHOCK);
                 FlameShock_Timer = urand(10000, 15000);
             }
             else FlameShock_Timer -= diff;
@@ -100,7 +100,7 @@ public:
             //FlameSpike_Timer
             if (FlameSpike_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FLAMESPIKE);
+                DoCastVictim(SPELL_FLAMESPIKE);
                 FlameSpike_Timer = 30000;
             }
             else FlameSpike_Timer -= diff;
@@ -108,7 +108,7 @@ public:
             //FireNova_Timer
             if (FireNova_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_FIRENOVA);
+                DoCastVictim(SPELL_FIRENOVA);
                 FireNova_Timer = 40000;
             }
             else FireNova_Timer -= diff;
@@ -116,7 +116,7 @@ public:
             //ShadowBolt_Timer
             if (ShadowBolt_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHADOWBOLT);
+                DoCastVictim(SPELL_SHADOWBOLT);
                 ShadowBolt_Timer = 2000;
             }
             else ShadowBolt_Timer -= diff;

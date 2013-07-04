@@ -430,7 +430,7 @@ public:
 
             if (MindFlay_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MINDFLY);
+                DoCastVictim(SPELL_MINDFLY);
                 MindFlay_Timer = 12000;                         // 3 sec channeled
             } else MindFlay_Timer -= diff;
 
@@ -498,13 +498,13 @@ public:
 
             if (JudgementOfCommand_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_JUDGEMENTOFCOMMAND);
+                DoCastVictim(SPELL_JUDGEMENTOFCOMMAND);
                 JudgementOfCommand_Timer = SealOfCommand_Timer + 29000;
             } else JudgementOfCommand_Timer -= diff;
 
             if (HammerOfJustice_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HAMMEROFJUSTICE);
+                DoCastVictim(SPELL_HAMMEROFJUSTICE);
                 HammerOfJustice_Timer = 12000;
             } else HammerOfJustice_Timer -= diff;
         }
@@ -566,7 +566,7 @@ public:
 
             if (HolyFire_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HOLYFIRE);
+                DoCastVictim(SPELL_HOLYFIRE);
                 HolyFire_Timer = 22000;
             } else HolyFire_Timer -= diff;
 
@@ -692,13 +692,13 @@ public:
 
             if (Hamstring_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HAMSTRING);
+                DoCastVictim(SPELL_HAMSTRING);
                 Hamstring_Timer = 12000;
             } else Hamstring_Timer -= diff;
 
             if (MortalStrike_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_MORTALSTRIKE);
+                DoCastVictim(SPELL_MORTALSTRIKE);
                 MortalStrike_Timer = 18000;
             } else MortalStrike_Timer -= diff;
 
@@ -750,19 +750,19 @@ public:
 
             if (Disarm_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_DISARM);
+                DoCastVictim(SPELL_DISARM);
                 Disarm_Timer = 12000;
             } else Disarm_Timer -= diff;
 
             if (HeroicStrike_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_HEROICSTRIKE);
+                DoCastVictim(SPELL_HEROICSTRIKE);
                 HeroicStrike_Timer = 10000;
             } else HeroicStrike_Timer -= diff;
 
             if (ShieldBash_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_SHIELDBASH);
+                DoCastVictim(SPELL_SHIELDBASH);
                 ShieldBash_Timer = 13000;
             } else ShieldBash_Timer -= diff;
 

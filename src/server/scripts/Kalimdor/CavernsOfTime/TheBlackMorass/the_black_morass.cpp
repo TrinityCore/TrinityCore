@@ -16,12 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Dark_Portal
-SD%Complete: 30
-SDComment: Misc NPC's and mobs for instance. Most here far from complete.
-SDCategory: Caverns of Time, The Dark Portal
-EndScriptData */
+/*
+Name: The_Black_Morass
+%Complete: 30
+Comment: Misc NPC's and mobs for instance. Most here far from complete.
+Category: Caverns of Time, The Black Morass
+*/
 
 /* ContentData
 npc_medivh_bm
@@ -32,7 +32,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "dark_portal.h"
+#include "the_black_morass.h"
 #include "Player.h"
 #include "SpellInfo.h"
 
@@ -125,12 +125,12 @@ public:
                     return;
 
                 uint32 entry = who->GetEntry();
-                if (entry == C_ASSAS || entry == C_WHELP || entry == C_CHRON || entry == C_EXECU || entry == C_VANQU)
+                if (entry == NPC_INFINITE_ASSASIN || entry == NPC_INFINITE_WHELP || entry == NPC_INFINITE_CRONOMANCER || entry == NPC_INFINITE_EXECUTIONER || entry == NPC_INFINITE_VANQUISHER)
                 {
                     who->StopMoving();
                     who->CastSpell(me, SPELL_CORRUPT, false);
                 }
-                else if (entry == C_AEONUS)
+                else if (entry == NPC_AEONUS)
                 {
                     who->StopMoving();
                     who->CastSpell(me, SPELL_CORRUPT_AEONUS, false);
@@ -251,9 +251,9 @@ struct Wave
 
 static Wave PortalWaves[]=
 {
-    { {C_ASSAS, C_WHELP, C_CHRON, 0} },
-    { {C_EXECU, C_CHRON, C_WHELP, C_ASSAS} },
-    { {C_EXECU, C_VANQU, C_CHRON, C_ASSAS} }
+    { {NPC_INFINITE_ASSASIN, NPC_INFINITE_WHELP, NPC_INFINITE_CRONOMANCER, 0} },
+    { {NPC_INFINITE_EXECUTIONER, NPC_INFINITE_CRONOMANCER, NPC_INFINITE_WHELP, NPC_INFINITE_ASSASIN} },
+    { {NPC_INFINITE_EXECUTIONER, NPC_INFINITE_VANQUISHER, NPC_INFINITE_CRONOMANCER, NPC_INFINITE_ASSASIN} }
 };
 
 class npc_time_rift : public CreatureScript
@@ -335,7 +335,7 @@ public:
 
             ++mRiftWaveCount;
 
-            if (entry == C_WHELP)
+            if (entry == NPC_INFINITE_WHELP)
             {
                 for (uint8 i = 0; i < 3; ++i)
                     DoSummonAtRift(entry);
@@ -414,7 +414,7 @@ public:
 
 };
 
-void AddSC_dark_portal()
+void AddSC_the_black_morass()
 {
     new npc_medivh_bm();
     new npc_time_rift();

@@ -407,7 +407,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
         if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
         {
-            Position& pos = m_movementInfo.t_pos;
+            Position& pos = m_movementInfo.transport.pos;
             pos.m_positionX = loc.x;
             pos.m_positionY = loc.y;
             pos.m_positionZ = loc.z;
@@ -3263,10 +3263,16 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
     if (aura->IsRemoved())
         return;
 
-    aura->SetIsSingleTarget(caster && aura->GetSpellInfo()->IsSingleTarget());
+    aura->SetIsSingleTarget(caster && (aura->GetSpellInfo()->IsSingleTarget() || aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
     if (aura->IsSingleTarget())
     {
-        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (aura->GetCasterGUID() == GetGUID()));
+        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (aura->GetCasterGUID() == GetGUID()) ||
+                (isBeingLoaded() && aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
+                /* @HACK: Player is not in world during loading auras.
+                 *        Single target auras are not saved or loaded from database
+                 *        but may be created as a result of aura links (player mounts with passengers)
+                 */
+
         // register single target aura
         caster->GetSingleCastAuras().push_back(aura);
         // remove other single target auras
@@ -3274,7 +3280,7 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
         for (Unit::AuraList::iterator itr = scAuras.begin(); itr != scAuras.end();)
         {
             if ((*itr) != aura &&
-                (*itr)->GetSpellInfo()->IsSingleTargetWith(aura->GetSpellInfo()))
+                (*itr)->IsSingleTargetWith(aura))
             {
                 (*itr)->Remove();
                 itr = scAuras.begin();
@@ -16854,7 +16860,7 @@ void Unit::ChangeSeat(int8 seatId, bool next)
 
     SeatMap::const_iterator seat = (seatId < 0 ? m_vehicle->GetNextEmptySeat(GetTransSeat(), next) : m_vehicle->Seats.find(seatId));
     // The second part of the check will only return true if seatId >= 0. @Vehicle::GetNextEmptySeat makes sure of that.
-    if (seat == m_vehicle->Seats.end() || seat->second.Passenger)
+    if (seat == m_vehicle->Seats.end() || !seat->second.IsEmpty())
         return;
 
     AuraEffect* rideVehicleEffect = NULL;
@@ -16990,7 +16996,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << uint8 (GetTransSeat());
 
         if (GetExtraUnitMovementFlags() & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-            *data << uint32(m_movementInfo.t_time2);
+            *data << uint32(m_movementInfo.transport.time2);
     }
 
     // 0x02200000
@@ -17003,10 +17009,10 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     // 0x00001000
     if (GetUnitMovementFlags() & MOVEMENTFLAG_FALLING)
     {
-        *data << (float)m_movementInfo.j_zspeed;
-        *data << (float)m_movementInfo.j_sinAngle;
-        *data << (float)m_movementInfo.j_cosAngle;
-        *data << (float)m_movementInfo.j_xyspeed;
+        *data << (float)m_movementInfo.jump.zspeed;
+        *data << (float)m_movementInfo.jump.sinAngle;
+        *data << (float)m_movementInfo.jump.cosAngle;
+        *data << (float)m_movementInfo.jump.xyspeed;
     }
 
     // 0x04000000
@@ -17017,14 +17023,6 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
 bool Unit::IsFalling() const
 {
     return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
-}
-
-void Unit::SetCanFly(bool apply)
-{
-    if (apply)
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
 }
 
 void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
@@ -17268,7 +17266,7 @@ void Unit::OutDebugInfo() const
     {
         o << "Passenger List: ";
         for (SeatMap::iterator itr = GetVehicleKit()->Seats.begin(); itr != GetVehicleKit()->Seats.end(); ++itr)
-            if (Unit* passenger = ObjectAccessor::GetUnit(*GetVehicleBase(), itr->second.Passenger))
+            if (Unit* passenger = ObjectAccessor::GetUnit(*GetVehicleBase(), itr->second.Passenger.Guid))
                 o << passenger->GetGUID() << ", ";
         TC_LOG_INFO(LOG_FILTER_UNITS, "%s", o.str().c_str());
     }
@@ -17419,14 +17417,86 @@ bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
         return false;
 
     if (disable)
+    {
         AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    }
     else
+    {
         RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        if (!HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+        {
+            m_movementInfo.SetFallTime(0);
+            AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        }
+    }
 
     return true;
 }
 
-bool Unit::SetHover(bool enable)
+bool Unit::SetSwim(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
+        return false;
+
+    if (enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+
+    return true;
+}
+
+bool Unit::SetCanFly(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+        return false;
+
+    if (enable)
+    {
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    }
+    else
+    {
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+        if (!IsLevitating())
+        {
+            m_movementInfo.SetFallTime(0);
+            AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        }
+    }
+
+    return true;
+}
+
+bool Unit::SetWaterWalking(bool enable, bool /*packetOnly = false */)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
+        return false;
+
+    if (enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+
+    return true;
+}
+
+bool Unit::SetFeatherFall(bool enable, bool /*packetOnly = false */)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
+        return false;
+
+    if (enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+
+    return true;
+}
+
+bool Unit::SetHover(bool enable, bool /*packetOnly = false*/)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;
@@ -17450,72 +17520,6 @@ bool Unit::SetHover(bool enable)
     }
 
     return true;
-}
-
-void Unit::SendMovementHover()
-{
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetHover(HasUnitMovementFlag(MOVEMENTFLAG_HOVER));
-
-    WorldPacket data(MSG_MOVE_HOVER, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-}
-
-void Unit::SendMovementWaterWalking()
-{
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
-
-    WorldPacket data(MSG_MOVE_WATER_WALK, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-}
-
-void Unit::SendMovementFeatherFall()
-{
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetFeatherFall(HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW));
-
-    WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-}
-
-void Unit::SendMovementGravityChange()
-{
-    WorldPacket data(MSG_MOVE_GRAVITY_CHNG, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-}
-
-void Unit::SendMovementCanFlyChange()
-{
-    /*!
-        if ( a3->MoveFlags & MOVEMENTFLAG_CAN_FLY )
-        {
-            v4->MoveFlags |= 0x1000000u;
-            result = 1;
-        }
-        else
-        {
-            if ( v4->MoveFlags & MOVEMENTFLAG_FLYING )
-                CMovement::DisableFlying(v4);
-            v4->MoveFlags &= 0xFEFFFFFFu;
-            result = 1;
-        }
-    */
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetCanFly(CanFly());
-
-    WorldPacket data(MSG_MOVE_UPDATE_CAN_FLY, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
 }
 
 void Unit::SetTarget(uint64 guid)

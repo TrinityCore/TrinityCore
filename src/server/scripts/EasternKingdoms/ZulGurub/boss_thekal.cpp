@@ -347,7 +347,7 @@ class mob_zealot_lorkhan : public CreatureScript
                 //Disarm_Timer
                 if (Disarm_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_DISARM);
+                    DoCastVictim(SPELL_DISARM);
                     Disarm_Timer = 15000+rand()%10000;
                 } else Disarm_Timer -= diff;
 
@@ -468,21 +468,21 @@ class mob_zealot_zath : public CreatureScript
                 //SweepingStrikes_Timer
                 if (SweepingStrikes_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SWEEPINGSTRIKES);
+                    DoCastVictim(SPELL_SWEEPINGSTRIKES);
                     SweepingStrikes_Timer = 22000+rand()%4000;
                 } else SweepingStrikes_Timer -= diff;
 
                 //SinisterStrike_Timer
                 if (SinisterStrike_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_SINISTERSTRIKE);
+                    DoCastVictim(SPELL_SINISTERSTRIKE);
                     SinisterStrike_Timer = 8000+rand()%8000;
                 } else SinisterStrike_Timer -= diff;
 
                 //Gouge_Timer
                 if (Gouge_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_GOUGE);
+                    DoCastVictim(SPELL_GOUGE);
 
                     if (DoGetThreat(me->GetVictim()))
                         DoModifyThreatPercent(me->GetVictim(), -100);
@@ -493,14 +493,14 @@ class mob_zealot_zath : public CreatureScript
                 //Kick_Timer
                 if (Kick_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_KICK);
+                    DoCastVictim(SPELL_KICK);
                     Kick_Timer = 15000+rand()%10000;
                 } else Kick_Timer -= diff;
 
                 //Blind_Timer
                 if (Blind_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_BLIND);
+                    DoCastVictim(SPELL_BLIND);
                     Blind_Timer = 10000+rand()%10000;
                 } else Blind_Timer -= diff;
 

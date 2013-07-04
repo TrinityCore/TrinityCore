@@ -256,7 +256,7 @@ class boss_zuljin : public CreatureScript
                             me->AttackerStateUpdate(me->GetVictim());
                             if (me->GetVictim() && health == me->GetVictim()->GetHealth())
                             {
-                                DoCast(me->GetVictim(), SPELL_OVERPOWER, false);
+                                DoCastVictim(SPELL_OVERPOWER, false);
                                 Overpower_Timer = 5000;
                             }
                         } else me->AttackerStateUpdate(me->GetVictim());

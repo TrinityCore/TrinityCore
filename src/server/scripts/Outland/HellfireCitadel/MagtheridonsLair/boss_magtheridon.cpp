@@ -178,7 +178,7 @@ class mob_abyssal : public CreatureScript
 
                 if (FireBlast_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_FIRE_BLAST);
+                    DoCastVictim(SPELL_FIRE_BLAST);
                     FireBlast_Timer = 5000+rand()%10000;
                 }
                 else FireBlast_Timer -= diff;
@@ -368,7 +368,7 @@ class boss_magtheridon : public CreatureScript
 
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(me->GetVictim(), SPELL_CLEAVE);
+                    DoCastVictim(SPELL_CLEAVE);
                     Cleave_Timer = 10000;
                 }
                 else

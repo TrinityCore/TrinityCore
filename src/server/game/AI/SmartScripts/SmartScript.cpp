@@ -475,7 +475,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsUnit(*itr))
                     if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
                         for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
-                            if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
+                            if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger.Guid))
                                 player->AreaExploredOrEventHappens(e.action.quest.quest);
 
                 if (IsPlayer(*itr))
@@ -783,7 +783,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             // Special handling for vehicles
             if (Vehicle* vehicle = unit->GetVehicleKit())
                 for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
-                    if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
+                    if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger.Guid))
                         player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
         }
@@ -915,7 +915,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (IsUnit(*itr))
                         if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
                             for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
-                                if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
+                                if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger.Guid))
                                     player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
 
                     if (!IsPlayer(*itr))

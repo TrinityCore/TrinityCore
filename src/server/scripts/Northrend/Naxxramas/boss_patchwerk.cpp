@@ -140,7 +140,7 @@ public:
                         events.ScheduleEvent(EVENT_SLIME, 2000);
                         break;
                     case EVENT_SLIME:
-                        DoCast(me->GetVictim(), SPELL_SLIME_BOLT, true);
+                        DoCastVictim(SPELL_SLIME_BOLT, true);
                         events.ScheduleEvent(EVENT_SLIME, 2000);
                         break;
                 }
