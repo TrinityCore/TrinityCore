@@ -659,7 +659,7 @@ void Eluna::LuaEventMap::ScriptEventCancel(int funcRef)
     if (ScriptEventsEmpty())
         return;
 
-    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
     {
         if (funcRef == itr->second.funcRef)
         {
