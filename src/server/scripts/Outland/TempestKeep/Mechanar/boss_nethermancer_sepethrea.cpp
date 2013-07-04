@@ -142,14 +142,14 @@ class boss_nethermancer_sepethrea : public CreatureScript
         }
 };
 
-class mob_ragin_flames : public CreatureScript
+class npc_ragin_flames : public CreatureScript
 {
     public:
-        mob_ragin_flames() : CreatureScript("mob_ragin_flames") { }
+        npc_ragin_flames() : CreatureScript("npc_ragin_flames") { }
 
-            struct mob_ragin_flamesAI : public ScriptedAI
+            struct npc_ragin_flamesAI : public ScriptedAI
             {
-                mob_ragin_flamesAI(Creature* creature) : ScriptedAI(creature)
+                npc_ragin_flamesAI(Creature* creature) : ScriptedAI(creature)
                 {
                     instance = creature->GetInstanceScript();
                 }
@@ -223,12 +223,12 @@ class mob_ragin_flames : public CreatureScript
             };
             CreatureAI* GetAI(Creature* creature) const
             {
-                return new mob_ragin_flamesAI(creature);
+                return new npc_ragin_flamesAI(creature);
             }
 };
 
 void AddSC_boss_nethermancer_sepethrea()
 {
     new boss_nethermancer_sepethrea();
-    new mob_ragin_flames();
+    new npc_ragin_flames();
 }

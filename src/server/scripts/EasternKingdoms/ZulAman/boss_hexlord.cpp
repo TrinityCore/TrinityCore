@@ -46,7 +46,7 @@ EndScriptData */
 #define SPELL_DRAIN_POWER       44131
 #define SPELL_SIPHON_SOUL       43501
 
-#define MOB_TEMP_TRIGGER        23920
+#define NPC_TEMP_TRIGGER        23920
 
 //Defines for various powers he uses after using soul drain
 
@@ -402,7 +402,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 if (SiphonSoul_Timer <= diff)
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
-                    Unit* trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
+                    Unit* trigger = DoSpawnCreature(NPC_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
                     if (!target || !trigger)
                     {
                         EnterEvadeMode();

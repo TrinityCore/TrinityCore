@@ -179,19 +179,19 @@ public:
 
 };
 
-class mob_lesser_doomguard : public CreatureScript
+class npc_lesser_doomguard : public CreatureScript
 {
 public:
-    mob_lesser_doomguard() : CreatureScript("mob_lesser_doomguard") { }
+    npc_lesser_doomguard() : CreatureScript("npc_lesser_doomguard") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_lesser_doomguardAI (creature);
+        return new npc_lesser_doomguardAI (creature);
     }
 
-    struct mob_lesser_doomguardAI : public hyjal_trashAI
+    struct npc_lesser_doomguardAI : public hyjal_trashAI
     {
-        mob_lesser_doomguardAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_lesser_doomguardAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             if (instance)
@@ -276,5 +276,5 @@ public:
 void AddSC_boss_azgalor()
 {
     new boss_azgalor();
-    new mob_lesser_doomguard();
+    new npc_lesser_doomguard();
 }

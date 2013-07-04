@@ -32,8 +32,8 @@ enum Spells
 
 enum Adds
 {
-    MOB_CRAZED_MANA_WRAITH                        = 26746,
-    MOB_CHAOTIC_RIFT                              = 26918
+    NPC_CRAZED_MANA_WRAITH                        = 26746,
+    NPC_CHAOTIC_RIFT                              = 26918
 };
 
 enum Yells
@@ -120,7 +120,7 @@ class boss_anomalus : public CreatureScript
 
             void SummonedCreatureDies(Creature* summoned, Unit* /*who*/)
             {
-                if (summoned->GetEntry() == MOB_CHAOTIC_RIFT)
+                if (summoned->GetEntry() == NPC_CHAOTIC_RIFT)
                     chaosTheory = false;
             }
 
@@ -157,7 +157,7 @@ class boss_anomalus : public CreatureScript
                     Phase = 1;
                     Talk(SAY_SHIELD);
                     DoCast(me, SPELL_RIFT_SHIELD);
-                    if (Creature* Rift = me->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                    if (Creature* Rift = me->SummonCreature(NPC_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
                     {
                         //DoCast(Rift, SPELL_CHARGE_RIFT);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -186,14 +186,14 @@ class boss_anomalus : public CreatureScript
         }
 };
 
-class mob_chaotic_rift : public CreatureScript
+class npc_chaotic_rift : public CreatureScript
 {
     public:
-        mob_chaotic_rift() : CreatureScript("mob_chaotic_rift") { }
+        npc_chaotic_rift() : CreatureScript("npc_chaotic_rift") { }
 
-        struct mob_chaotic_riftAI : public ScriptedAI
+        struct npc_chaotic_riftAI : public ScriptedAI
         {
-            mob_chaotic_riftAI(Creature* creature) : ScriptedAI(creature)
+            npc_chaotic_riftAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
                 SetCombatMovement(false);
@@ -234,7 +234,7 @@ class mob_chaotic_rift : public CreatureScript
 
                 if (uiSummonCrazedManaWraithTimer <= diff)
                 {
-                    if (Creature* Wraith = me->SummonCreature(MOB_CRAZED_MANA_WRAITH, me->GetPositionX() + 1, me->GetPositionY() + 1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                    if (Creature* Wraith = me->SummonCreature(NPC_CRAZED_MANA_WRAITH, me->GetPositionX() + 1, me->GetPositionY() + 1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             Wraith->AI()->AttackStart(target);
                     Creature* Anomalus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANOMALUS));
@@ -250,7 +250,7 @@ class mob_chaotic_rift : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_chaotic_riftAI(creature);
+            return new npc_chaotic_riftAI(creature);
         }
 };
 
@@ -277,6 +277,6 @@ class achievement_chaos_theory : public AchievementCriteriaScript
 void AddSC_boss_anomalus()
 {
     new boss_anomalus();
-    new mob_chaotic_rift();
+    new npc_chaotic_rift();
     new achievement_chaos_theory();
 }

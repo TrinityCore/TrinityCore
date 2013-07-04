@@ -225,19 +225,19 @@ public:
     };
 };
 
-class mob_tito : public CreatureScript
+class npc_tito : public CreatureScript
 {
 public:
-    mob_tito() : CreatureScript("mob_tito") { }
+    npc_tito() : CreatureScript("npc_tito") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_titoAI(creature);
+        return new npc_titoAI(creature);
     }
 
-    struct mob_titoAI : public ScriptedAI
+    struct npc_titoAI : public ScriptedAI
     {
-        mob_titoAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_titoAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 DorotheeGUID;
         uint32 YipTimer;
@@ -284,7 +284,7 @@ void boss_dorothee::boss_dorotheeAI::SummonTito()
     if (Creature* pTito = me->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
     {
         Talk(SAY_DOROTHEE_SUMMON);
-        CAST_AI(mob_tito::mob_titoAI, pTito->AI())->DorotheeGUID = me->GetGUID();
+        CAST_AI(npc_tito::npc_titoAI, pTito->AI())->DorotheeGUID = me->GetGUID();
         pTito->AI()->AttackStart(me->GetVictim());
         SummonedTito = true;
         TitoDied = false;
@@ -708,19 +708,19 @@ public:
     };
 };
 
-class mob_cyclone : public CreatureScript
+class npc_cyclone : public CreatureScript
 {
 public:
-    mob_cyclone() : CreatureScript("mob_cyclone") { }
+    npc_cyclone() : CreatureScript("npc_cyclone") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_cycloneAI(creature);
+        return new npc_cycloneAI(creature);
     }
 
-    struct mob_cycloneAI : public ScriptedAI
+    struct npc_cycloneAI : public ScriptedAI
     {
-        mob_cycloneAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_cycloneAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 MoveTimer;
 
@@ -1520,8 +1520,8 @@ void AddSC_bosses_opera()
     new boss_tinhead();
     new boss_roar();
     new boss_crone();
-    new mob_tito();
-    new mob_cyclone();
+    new npc_tito();
+    new npc_cyclone();
     new npc_grandmother();
     new boss_bigbadwolf();
     new boss_julianne();

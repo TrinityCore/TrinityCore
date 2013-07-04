@@ -43,14 +43,14 @@ enum WaterElementalSpells
     SPELL_WATERBOLT                               = 46983
 };
 
-class mob_water_elemental : public CreatureScript
+class npc_water_elemental : public CreatureScript
 {
 public:
-    mob_water_elemental() : CreatureScript("mob_water_elemental") { }
+    npc_water_elemental() : CreatureScript("npc_water_elemental") { }
 
-    struct mob_water_elementalAI : public ScriptedAI
+    struct npc_water_elementalAI : public ScriptedAI
     {
-        mob_water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 waterBoltTimer;
         uint64 balindaGUID;
@@ -88,7 +88,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_water_elementalAI(creature);
+        return new npc_water_elementalAI(creature);
     }
 };
 
@@ -134,7 +134,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            CAST_AI(mob_water_elemental::mob_water_elementalAI, summoned->AI())->balindaGUID = me->GetGUID();
+            CAST_AI(npc_water_elemental::npc_water_elementalAI, summoned->AI())->balindaGUID = me->GetGUID();
             summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
             summoned->setFaction(me->getFaction());
             summons.Summon(summoned);
@@ -205,5 +205,5 @@ public:
 void AddSC_boss_balinda()
 {
     new boss_balinda;
-    new mob_water_elemental;
+    new npc_water_elemental;
 };

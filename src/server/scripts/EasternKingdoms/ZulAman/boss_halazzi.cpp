@@ -348,18 +348,18 @@ class boss_halazzi : public CreatureScript
 };
 
 // Spirits Lynx AI
-class mob_halazzi_lynx : public CreatureScript
+class npc_halazzi_lynx : public CreatureScript
 {
     public:
 
-        mob_halazzi_lynx()
-            : CreatureScript("mob_halazzi_lynx")
+        npc_halazzi_lynx()
+            : CreatureScript("npc_halazzi_lynx")
         {
         }
 
-        struct mob_halazzi_lynxAI : public ScriptedAI
+        struct npc_halazzi_lynxAI : public ScriptedAI
         {
-            mob_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 FrenzyTimer;
             uint32 shredder_timer;
@@ -408,14 +408,14 @@ class mob_halazzi_lynx : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_halazzi_lynxAI(creature);
+            return new npc_halazzi_lynxAI(creature);
         }
 };
 
 void AddSC_boss_halazzi()
 {
     new boss_halazzi();
-    new mob_halazzi_lynx();
+    new npc_halazzi_lynx();
 }
 
 

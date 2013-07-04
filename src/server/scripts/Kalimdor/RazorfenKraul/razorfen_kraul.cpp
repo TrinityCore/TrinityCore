@@ -239,6 +239,7 @@ public:
                 DoFindNewTubber();
         }
 
+
         bool IsMovementActive;
         uint64 TargetTubberGUID;
     };
@@ -255,7 +256,7 @@ class spell_snufflenose_command : public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void HandleAfterCast()
@@ -279,7 +280,7 @@ class spell_snufflenose_command : public SpellScriptLoader
 
 void AddSC_razorfen_kraul()
 {
-    new spell_snufflenose_command();
-    new npc_willix();
     new npc_snufflenose_gopher();
+    new npc_willix();
+    new spell_snufflenose_command();
 }

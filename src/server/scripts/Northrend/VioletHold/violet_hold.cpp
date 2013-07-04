@@ -417,19 +417,19 @@ public:
 
 };
 
-class mob_azure_saboteur : public CreatureScript
+class npc_azure_saboteur : public CreatureScript
 {
 public:
-    mob_azure_saboteur() : CreatureScript("mob_azure_saboteur") { }
+    npc_azure_saboteur() : CreatureScript("npc_azure_saboteur") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_saboteurAI (creature);
+        return new npc_azure_saboteurAI (creature);
     }
 
-    struct mob_azure_saboteurAI : public npc_escortAI
+    struct npc_azure_saboteurAI : public npc_escortAI
     {
-        mob_azure_saboteurAI(Creature* creature):npc_escortAI(creature)
+        npc_azure_saboteurAI(Creature* creature):npc_escortAI(creature)
         {
             instance = creature->GetInstanceScript();
             bHasGotMovingPoints = false;
@@ -802,19 +802,19 @@ struct violet_hold_trashAI : public npc_escortAI
 
 };
 
-class mob_azure_invader : public CreatureScript
+class npc_azure_invader : public CreatureScript
 {
 public:
-    mob_azure_invader() : CreatureScript("mob_azure_invader") { }
+    npc_azure_invader() : CreatureScript("npc_azure_invader") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_invaderAI (creature);
+        return new npc_azure_invaderAI (creature);
     }
 
-    struct mob_azure_invaderAI : public violet_hold_trashAI
+    struct npc_azure_invaderAI : public violet_hold_trashAI
     {
-        mob_azure_invaderAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_invaderAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -880,19 +880,19 @@ public:
 
 };
 
-class mob_azure_binder : public CreatureScript
+class npc_azure_binder : public CreatureScript
 {
 public:
-    mob_azure_binder() : CreatureScript("mob_azure_binder") { }
+    npc_azure_binder() : CreatureScript("npc_azure_binder") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_binderAI (creature);
+        return new npc_azure_binderAI (creature);
     }
 
-    struct mob_azure_binderAI : public violet_hold_trashAI
+    struct npc_azure_binderAI : public violet_hold_trashAI
     {
-        mob_azure_binderAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_binderAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -958,19 +958,19 @@ public:
 
 };
 
-class mob_azure_mage_slayer : public CreatureScript
+class npc_azure_mage_slayer : public CreatureScript
 {
 public:
-    mob_azure_mage_slayer() : CreatureScript("mob_azure_mage_slayer") { }
+    npc_azure_mage_slayer() : CreatureScript("npc_azure_mage_slayer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_mage_slayerAI (creature);
+        return new npc_azure_mage_slayerAI (creature);
     }
 
-    struct mob_azure_mage_slayerAI : public violet_hold_trashAI
+    struct npc_azure_mage_slayerAI : public violet_hold_trashAI
     {
-        mob_azure_mage_slayerAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_mage_slayerAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -1018,19 +1018,19 @@ public:
 
 };
 
-class mob_azure_raider : public CreatureScript
+class npc_azure_raider : public CreatureScript
 {
 public:
-    mob_azure_raider() : CreatureScript("mob_azure_raider") { }
+    npc_azure_raider() : CreatureScript("npc_azure_raider") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_raiderAI (creature);
+        return new npc_azure_raiderAI (creature);
     }
 
-    struct mob_azure_raiderAI : public violet_hold_trashAI
+    struct npc_azure_raiderAI : public violet_hold_trashAI
     {
-        mob_azure_raiderAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_raiderAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -1070,19 +1070,19 @@ public:
 
 };
 
-class mob_azure_stalker : public CreatureScript
+class npc_azure_stalker : public CreatureScript
 {
 public:
-    mob_azure_stalker() : CreatureScript("mob_azure_stalker") { }
+    npc_azure_stalker() : CreatureScript("npc_azure_stalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_stalkerAI (creature);
+        return new npc_azure_stalkerAI (creature);
     }
 
-    struct mob_azure_stalkerAI : public violet_hold_trashAI
+    struct npc_azure_stalkerAI : public violet_hold_trashAI
     {
-        mob_azure_stalkerAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_stalkerAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -1134,14 +1134,14 @@ public:
 
 };
 
-class mob_azure_spellbreaker : public CreatureScript
+class npc_azure_spellbreaker : public CreatureScript
 {
 public:
-    mob_azure_spellbreaker() : CreatureScript("mob_azure_spellbreaker") { }
+    npc_azure_spellbreaker() : CreatureScript("npc_azure_spellbreaker") { }
 
-    struct mob_azure_spellbreakerAI : public violet_hold_trashAI
+    struct npc_azure_spellbreakerAI : public violet_hold_trashAI
     {
-        mob_azure_spellbreakerAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_spellbreakerAI(Creature* creature) : violet_hold_trashAI(creature)
         {
              instance = creature->GetInstanceScript();
         }
@@ -1209,23 +1209,23 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_spellbreakerAI (creature);
+        return new npc_azure_spellbreakerAI (creature);
     }
 };
 
-class mob_azure_captain : public CreatureScript
+class npc_azure_captain : public CreatureScript
 {
 public:
-    mob_azure_captain() : CreatureScript("mob_azure_captain") { }
+    npc_azure_captain() : CreatureScript("npc_azure_captain") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_captainAI (creature);
+        return new npc_azure_captainAI (creature);
     }
 
-    struct  mob_azure_captainAI : public violet_hold_trashAI
+    struct  npc_azure_captainAI : public violet_hold_trashAI
     {
-        mob_azure_captainAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_captainAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -1265,19 +1265,19 @@ public:
 
 };
 
-class mob_azure_sorceror : public CreatureScript
+class npc_azure_sorceror : public CreatureScript
 {
 public:
-    mob_azure_sorceror() : CreatureScript("mob_azure_sorceror") { }
+    npc_azure_sorceror() : CreatureScript("npc_azure_sorceror") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_azure_sorcerorAI (creature);
+        return new npc_azure_sorcerorAI (creature);
     }
 
-    struct  mob_azure_sorcerorAI : public violet_hold_trashAI
+    struct  npc_azure_sorcerorAI : public violet_hold_trashAI
     {
-        mob_azure_sorcerorAI(Creature* creature) : violet_hold_trashAI(creature)
+        npc_azure_sorcerorAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -1326,13 +1326,13 @@ void AddSC_violet_hold()
 {
     new npc_sinclari_vh();
     new npc_teleportation_portal_vh();
-    new mob_azure_invader();
-    new mob_azure_spellbreaker();
-    new mob_azure_binder();
-    new mob_azure_mage_slayer();
-    new mob_azure_captain();
-    new mob_azure_sorceror();
-    new mob_azure_raider();
-    new mob_azure_stalker();
-    new mob_azure_saboteur();
+    new npc_azure_invader();
+    new npc_azure_spellbreaker();
+    new npc_azure_binder();
+    new npc_azure_mage_slayer();
+    new npc_azure_captain();
+    new npc_azure_sorceror();
+    new npc_azure_raider();
+    new npc_azure_stalker();
+    new npc_azure_saboteur();
 }

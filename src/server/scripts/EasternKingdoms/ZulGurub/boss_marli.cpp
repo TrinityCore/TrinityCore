@@ -217,13 +217,13 @@ class boss_marli : public CreatureScript
 };
 
 // Spawn of Marli
-class mob_spawn_of_marli : public CreatureScript
+class npc_spawn_of_marli : public CreatureScript
 {
-    public: mob_spawn_of_marli() : CreatureScript("mob_spawn_of_marli") {}
+    public: npc_spawn_of_marli() : CreatureScript("npc_spawn_of_marli") {}
 
-        struct mob_spawn_of_marliAI : public ScriptedAI
+        struct npc_spawn_of_marliAI : public ScriptedAI
         {
-            mob_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 LevelUp_Timer;
 
@@ -255,12 +255,12 @@ class mob_spawn_of_marli : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_spawn_of_marliAI(creature);
+            return new npc_spawn_of_marliAI(creature);
         }
 };
 
 void AddSC_boss_marli()
 {
     new boss_marli();
-    new mob_spawn_of_marli();
+    new npc_spawn_of_marli();
 }

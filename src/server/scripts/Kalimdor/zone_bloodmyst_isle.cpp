@@ -24,7 +24,7 @@ SDCategory: Bloodmyst Isle
 EndScriptData */
 
 /* ContentData
-mob_webbed_creature
+npc_webbed_creature
 npc_captured_sunhawk_agent
 EndContentData */
 
@@ -34,25 +34,25 @@ EndContentData */
 #include "Player.h"
 
 /*######
-## mob_webbed_creature
+## npc_webbed_creature
 ######*/
 
 //possible creatures to be spawned
 uint32 const possibleSpawns[32] = {17322, 17661, 17496, 17522, 17340, 17352, 17333, 17524, 17654, 17348, 17339, 17345, 17359, 17353, 17336, 17550, 17330, 17701, 17321, 17680, 17325, 17320, 17683, 17342, 17715, 17334, 17341, 17338, 17337, 17346, 17344, 17327};
 
-class mob_webbed_creature : public CreatureScript
+class npc_webbed_creature : public CreatureScript
 {
 public:
-    mob_webbed_creature() : CreatureScript("mob_webbed_creature") { }
+    npc_webbed_creature() : CreatureScript("npc_webbed_creature") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_webbed_creatureAI (creature);
+        return new npc_webbed_creatureAI (creature);
     }
 
-    struct mob_webbed_creatureAI : public ScriptedAI
+    struct npc_webbed_creatureAI : public ScriptedAI
     {
-        mob_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() {}
 
@@ -205,7 +205,7 @@ public:
 
 void AddSC_bloodmyst_isle()
 {
-    new mob_webbed_creature();
+    new npc_webbed_creature();
     new npc_captured_sunhawk_agent();
     new npc_princess_stillpine();
     new go_princess_stillpines_cage();

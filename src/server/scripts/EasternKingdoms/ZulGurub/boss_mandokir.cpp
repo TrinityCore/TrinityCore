@@ -291,13 +291,13 @@ enum OhganSpells
     SPELL_SUNDERARMOR         = 24317
 };
 
-class mob_ohgan : public CreatureScript
+class npc_ohgan : public CreatureScript
 {
-    public: mob_ohgan() : CreatureScript("mob_ohgan") {}
+    public: npc_ohgan() : CreatureScript("npc_ohgan") {}
 
-        struct mob_ohganAI : public ScriptedAI
+        struct npc_ohganAI : public ScriptedAI
         {
-            mob_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+            npc_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
             void Reset()
             {
@@ -333,7 +333,7 @@ class mob_ohgan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetZulGurubAI<mob_ohganAI>(creature);
+            return GetZulGurubAI<npc_ohganAI>(creature);
         }
 };
 
@@ -343,13 +343,13 @@ enum VilebranchSpells
     SPELL_CLEAVE              = 15284
 };
 
-class mob_vilebranch_speaker : public CreatureScript
+class npc_vilebranch_speaker : public CreatureScript
 {
-    public: mob_vilebranch_speaker() : CreatureScript("mob_vilebranch_speaker") {}
+    public: npc_vilebranch_speaker() : CreatureScript("npc_vilebranch_speaker") {}
 
-        struct mob_vilebranch_speakerAI : public ScriptedAI
+        struct npc_vilebranch_speakerAI : public ScriptedAI
         {
-            mob_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+            npc_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
             void Reset()
             {
@@ -393,7 +393,7 @@ class mob_vilebranch_speaker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_vilebranch_speakerAI(creature);
+            return new npc_vilebranch_speakerAI(creature);
         }
 };
 
@@ -429,7 +429,7 @@ class spell_threatening_gaze : public SpellScriptLoader
 void AddSC_boss_mandokir()
 {
     new boss_mandokir();
-    new mob_ohgan();
-    new mob_vilebranch_speaker();
+    new npc_ohgan();
+    new npc_vilebranch_speaker();
     new spell_threatening_gaze();
 }

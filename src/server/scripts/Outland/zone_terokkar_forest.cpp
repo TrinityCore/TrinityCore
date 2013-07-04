@@ -24,10 +24,10 @@ SDCategory: Terokkar Forest
 EndScriptData */
 
 /* ContentData
-mob_unkor_the_ruthless
-mob_infested_root_walker
-mob_rotting_forest_rager
-mob_netherweb_victim
+npc_unkor_the_ruthless
+npc_infested_root_walker
+npc_rotting_forest_rager
+npc_netherweb_victim
 npc_floon
 npc_isla_starmane
 npc_slim
@@ -42,7 +42,7 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
-## mob_unkor_the_ruthless
+## npc_unkor_the_ruthless
 ######*/
 
 enum UnkorTheRuthless
@@ -56,19 +56,19 @@ enum UnkorTheRuthless
     SPELL_PULVERIZE                 = 2676
 };
 
-class mob_unkor_the_ruthless : public CreatureScript
+class npc_unkor_the_ruthless : public CreatureScript
 {
 public:
-    mob_unkor_the_ruthless() : CreatureScript("mob_unkor_the_ruthless") { }
+    npc_unkor_the_ruthless() : CreatureScript("npc_unkor_the_ruthless") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unkor_the_ruthlessAI (creature);
+        return new npc_unkor_the_ruthlessAI (creature);
     }
 
-    struct mob_unkor_the_ruthlessAI : public ScriptedAI
+    struct npc_unkor_the_ruthlessAI : public ScriptedAI
     {
-        mob_unkor_the_ruthlessAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_unkor_the_ruthlessAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool CanDoQuest;
         uint32 UnkorUnfriendly_Timer;
@@ -160,22 +160,22 @@ public:
 };
 
 /*######
-## mob_infested_root_walker
+## npc_infested_root_walker
 ######*/
 
-class mob_infested_root_walker : public CreatureScript
+class npc_infested_root_walker : public CreatureScript
 {
 public:
-    mob_infested_root_walker() : CreatureScript("mob_infested_root_walker") { }
+    npc_infested_root_walker() : CreatureScript("npc_infested_root_walker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_infested_root_walkerAI (creature);
+        return new npc_infested_root_walkerAI (creature);
     }
 
-    struct mob_infested_root_walkerAI : public ScriptedAI
+    struct npc_infested_root_walkerAI : public ScriptedAI
     {
-        mob_infested_root_walkerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_infested_root_walkerAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
@@ -192,7 +192,7 @@ public:
 };
 
 /*######
-## mob_skywing
+## npc_skywing
 ######*/
 class npc_skywing : public CreatureScript
 {
@@ -246,22 +246,22 @@ public:
 };
 
 /*######
-## mob_rotting_forest_rager
+## npc_rotting_forest_rager
 ######*/
 
-class mob_rotting_forest_rager : public CreatureScript
+class npc_rotting_forest_rager : public CreatureScript
 {
 public:
-    mob_rotting_forest_rager() : CreatureScript("mob_rotting_forest_rager") { }
+    npc_rotting_forest_rager() : CreatureScript("npc_rotting_forest_rager") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_rotting_forest_ragerAI (creature);
+        return new npc_rotting_forest_ragerAI (creature);
     }
 
-    struct mob_rotting_forest_ragerAI : public ScriptedAI
+    struct npc_rotting_forest_ragerAI : public ScriptedAI
     {
-        mob_rotting_forest_ragerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_rotting_forest_ragerAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
@@ -278,7 +278,7 @@ public:
 };
 
 /*######
-## mob_netherweb_victim
+## npc_netherweb_victim
 ######*/
 
 #define QUEST_TARGET        22459
@@ -288,19 +288,19 @@ const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
 };
-class mob_netherweb_victim : public CreatureScript
+class npc_netherweb_victim : public CreatureScript
 {
 public:
-    mob_netherweb_victim() : CreatureScript("mob_netherweb_victim") { }
+    npc_netherweb_victim() : CreatureScript("npc_netherweb_victim") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_netherweb_victimAI (creature);
+        return new npc_netherweb_victimAI (creature);
     }
 
-    struct mob_netherweb_victimAI : public ScriptedAI
+    struct npc_netherweb_victimAI : public ScriptedAI
     {
-        mob_netherweb_victimAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_netherweb_victimAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
@@ -696,10 +696,10 @@ public:
 
 void AddSC_terokkar_forest()
 {
-    new mob_unkor_the_ruthless();
-    new mob_infested_root_walker();
-    new mob_rotting_forest_rager();
-    new mob_netherweb_victim();
+    new npc_unkor_the_ruthless();
+    new npc_infested_root_walker();
+    new npc_rotting_forest_rager();
+    new npc_netherweb_victim();
     new npc_floon();
     new npc_isla_starmane();
     new go_skull_pile();

@@ -543,19 +543,19 @@ public:
 
 // Enchanted Elemental
 // If one of them reaches Vashj he will increase her damage done by 5%.
-class mob_enchanted_elemental : public CreatureScript
+class npc_enchanted_elemental : public CreatureScript
 {
 public:
-    mob_enchanted_elemental() : CreatureScript("mob_enchanted_elemental") { }
+    npc_enchanted_elemental() : CreatureScript("npc_enchanted_elemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_enchanted_elementalAI (creature);
+        return new npc_enchanted_elementalAI (creature);
     }
 
-    struct mob_enchanted_elementalAI : public ScriptedAI
+    struct npc_enchanted_elementalAI : public ScriptedAI
     {
-        mob_enchanted_elementalAI(Creature* creature) : ScriptedAI(creature)
+        npc_enchanted_elementalAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -637,19 +637,19 @@ public:
 
 // Tainted Elemental
 // This mob has 7, 900 life, doesn't move, and shoots Poison Bolts at one person anywhere in the area, doing 3, 000 nature damage and placing a posion doing 2, 000 damage every 2 seconds. He will switch targets often, or sometimes just hang on a single player, but there is nothing you can do about it except heal the damage and kill the Tainted Elemental
-class mob_tainted_elemental : public CreatureScript
+class npc_tainted_elemental : public CreatureScript
 {
 public:
-    mob_tainted_elemental() : CreatureScript("mob_tainted_elemental") { }
+    npc_tainted_elemental() : CreatureScript("npc_tainted_elemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_tainted_elementalAI (creature);
+        return new npc_tainted_elementalAI (creature);
     }
 
-    struct mob_tainted_elementalAI : public ScriptedAI
+    struct npc_tainted_elementalAI : public ScriptedAI
     {
-        mob_tainted_elementalAI(Creature* creature) : ScriptedAI(creature)
+        npc_tainted_elementalAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -706,19 +706,19 @@ public:
 
 //Toxic Sporebat
 //Toxic Spores: Used in Phase 3 by the Spore Bats, it creates a contaminated green patch of ground, dealing about 2775-3225 nature damage every second to anyone who stands in it.
-class mob_toxic_sporebat : public CreatureScript
+class npc_toxic_sporebat : public CreatureScript
 {
 public:
-    mob_toxic_sporebat() : CreatureScript("mob_toxic_sporebat") { }
+    npc_toxic_sporebat() : CreatureScript("npc_toxic_sporebat") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_toxic_sporebatAI (creature);
+        return new npc_toxic_sporebatAI (creature);
     }
 
-    struct mob_toxic_sporebatAI : public ScriptedAI
+    struct npc_toxic_sporebatAI : public ScriptedAI
     {
-        mob_toxic_sporebatAI(Creature* creature) : ScriptedAI(creature)
+        npc_toxic_sporebatAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             EnterEvadeMode();
@@ -804,19 +804,19 @@ public:
 
 };
 
-class mob_shield_generator_channel : public CreatureScript
+class npc_shield_generator_channel : public CreatureScript
 {
 public:
-    mob_shield_generator_channel() : CreatureScript("mob_shield_generator_channel") { }
+    npc_shield_generator_channel() : CreatureScript("npc_shield_generator_channel") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shield_generator_channelAI (creature);
+        return new npc_shield_generator_channelAI (creature);
     }
 
-    struct mob_shield_generator_channelAI : public ScriptedAI
+    struct npc_shield_generator_channelAI : public ScriptedAI
     {
-        mob_shield_generator_channelAI(Creature* creature) : ScriptedAI(creature)
+        npc_shield_generator_channelAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -937,9 +937,9 @@ public:
 void AddSC_boss_lady_vashj()
 {
     new boss_lady_vashj();
-    new mob_enchanted_elemental();
-    new mob_tainted_elemental();
-    new mob_toxic_sporebat();
-    new mob_shield_generator_channel();
+    new npc_enchanted_elemental();
+    new npc_tainted_elemental();
+    new npc_toxic_sporebat();
+    new npc_shield_generator_channel();
     new item_tainted_core();
 }

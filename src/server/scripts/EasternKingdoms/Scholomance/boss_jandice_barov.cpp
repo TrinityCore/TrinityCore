@@ -154,19 +154,19 @@ public:
 
 // Illusion of Jandice Barov Script
 
-class mob_illusionofjandicebarov : public CreatureScript
+class npc_illusionofjandicebarov : public CreatureScript
 {
 public:
-    mob_illusionofjandicebarov() : CreatureScript("mob_illusionofjandicebarov") { }
+    npc_illusionofjandicebarov() : CreatureScript("npc_illusionofjandicebarov") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_illusionofjandicebarovAI (creature);
+        return new npc_illusionofjandicebarovAI (creature);
     }
 
-    struct mob_illusionofjandicebarovAI : public ScriptedAI
+    struct npc_illusionofjandicebarovAI : public ScriptedAI
     {
-        mob_illusionofjandicebarovAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_illusionofjandicebarovAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Cleave_Timer;
 
@@ -205,5 +205,5 @@ public:
 void AddSC_boss_jandicebarov()
 {
     new boss_jandice_barov();
-    new mob_illusionofjandicebarov();
+    new npc_illusionofjandicebarov();
 }

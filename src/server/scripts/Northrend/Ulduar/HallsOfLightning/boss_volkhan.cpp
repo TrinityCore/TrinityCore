@@ -356,21 +356,21 @@ public:
 };
 
 /*######
-## mob_molten_golem
+## npc_molten_golem
 ######*/
-class mob_molten_golem : public CreatureScript
+class npc_molten_golem : public CreatureScript
 {
 public:
-    mob_molten_golem() : CreatureScript("mob_molten_golem") { }
+    npc_molten_golem() : CreatureScript("npc_molten_golem") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_molten_golemAI(creature);
+        return new npc_molten_golemAI(creature);
     }
 
-    struct mob_molten_golemAI : public ScriptedAI
+    struct npc_molten_golemAI : public ScriptedAI
     {
-        mob_molten_golemAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_molten_golemAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool m_bIsFrozen;
 
@@ -468,6 +468,6 @@ class achievement_shatter_resistant : public AchievementCriteriaScript
 void AddSC_boss_volkhan()
 {
     new boss_volkhan();
-    new mob_molten_golem();
+    new npc_molten_golem();
     new achievement_shatter_resistant();
 }

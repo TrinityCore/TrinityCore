@@ -218,18 +218,18 @@ class boss_jeklik : public CreatureScript //jeklik
 };
 
 //Flying Bat
-class mob_batrider : public CreatureScript
+class npc_batrider : public CreatureScript
 {
     public:
 
-        mob_batrider()
-            : CreatureScript("mob_batrider")
+        npc_batrider()
+            : CreatureScript("npc_batrider")
         {
         }
 
-        struct mob_batriderAI : public ScriptedAI
+        struct npc_batriderAI : public ScriptedAI
         {
-            mob_batriderAI(Creature* creature) : ScriptedAI(creature)
+            npc_batriderAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -286,13 +286,13 @@ class mob_batrider : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_batriderAI(creature);
+            return new npc_batriderAI(creature);
         }
 };
 
 void AddSC_boss_jeklik()
 {
     new boss_jeklik();
-    new mob_batrider();
+    new npc_batrider();
 }
 

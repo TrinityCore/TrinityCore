@@ -460,17 +460,17 @@ class boss_vazruden_the_herald : public CreatureScript
         }
 };
 
-class mob_hellfire_sentry : public CreatureScript
+class npc_hellfire_sentry : public CreatureScript
 {
     public:
 
-        mob_hellfire_sentry()
-            : CreatureScript("mob_hellfire_sentry")
+        npc_hellfire_sentry()
+            : CreatureScript("npc_hellfire_sentry")
         {
         }
-        struct mob_hellfire_sentryAI : public ScriptedAI
+        struct npc_hellfire_sentryAI : public ScriptedAI
         {
-            mob_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 KidneyShot_Timer;
 
@@ -506,7 +506,7 @@ class mob_hellfire_sentry : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_hellfire_sentryAI(creature);
+            return new npc_hellfire_sentryAI(creature);
         }
 };
 void AddSC_boss_vazruden_the_herald()
@@ -514,6 +514,6 @@ void AddSC_boss_vazruden_the_herald()
     new boss_vazruden_the_herald();
     new boss_vazruden();
     new boss_nazan();
-    new mob_hellfire_sentry();
+    new npc_hellfire_sentry();
 }
 
