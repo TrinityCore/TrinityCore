@@ -421,7 +421,7 @@ enum Geezle
 
     EMOTE_SPARK     = 7,
 
-    MOB_SPARK       = 17243,
+    NPC_SPARK       = 17243,
     GO_NAGA_FLAG    = 181694
 };
 
@@ -461,7 +461,7 @@ public:
         {
             Step = 0;
             EventStarted = true;
-            if (Creature* Spark = me->SummonCreature(MOB_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
             {
                 SparkGUID = Spark->GetGUID();
                 Spark->setActive(true);
@@ -533,7 +533,7 @@ public:
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))
-                    (*itr)->KilledMonsterCredit(MOB_SPARK, 0);
+                    (*itr)->KilledMonsterCredit(NPC_SPARK, 0);
         }
 
         void DespawnNagaFlag(bool despawn)

@@ -24,13 +24,13 @@ uint32 const EncounterCount         = 22;
 
 enum DataTypes
 {
-    DATA_OMOKK                      = 0,
+    DATA_HIGHLORD_OMOKK             = 0,
     DATA_SHADOW_HUNTER_VOSHGAJIN    = 1,
     DATA_WARMASTER_VOONE            = 2,
     DATA_MOTHER_SMOLDERWEB          = 3,
-    DATA_UROK_DOOMHOWL              = 4,  // not scripted
+    DATA_UROK_DOOMHOWL              = 4,
     DATA_QUARTERMASTER_ZIGRIS       = 5,
-    DATA_GIZRUL_THE_SLAVENER        = 6,  // not scripted
+    DATA_GIZRUL_THE_SLAVENER        = 6,
     DATA_HALYCON                    = 7,
     DATA_OVERLORD_WYRMTHALAK        = 8,
     DATA_PYROGAURD_EMBERSEER        = 9,
@@ -51,7 +51,7 @@ enum DataTypes
 
 enum CreaturesIds
 {
-    NPC_OMOKK                       = 9196,
+    NPC_HIGHLORD_OMOKK              = 9196,
     NPC_SHADOW_HUNTER_VOSHGAJIN     = 9236,
     NPC_WARMASTER_VOONE             = 9237,
     NPC_MOTHER_SMOLDERWEB           = 10596,
@@ -69,8 +69,7 @@ enum CreaturesIds
     NPC_BLACKHAND_SUMMONER          = 9818,
     NPC_BLACKHAND_VETERAN           = 9819,
     NPC_BLACKHAND_INCARCERATOR      = 10316,
-    NPC_LORD_VICTOR_NEFARIUS        = 10162,
-    NPC_REND_BLACKHAND              = 10429
+    NPC_LORD_VICTOR_NEFARIUS        = 10162
 };
 
 enum AdditionalData
@@ -111,7 +110,9 @@ enum GameObjectsIds
     GO_EMBERSEER_RUNE_6             = 175271,
     GO_EMBERSEER_RUNE_7             = 175272,
     // For Gyth event
-    GO_DR_PORTCULLIS                = 175185
+    GO_DR_PORTCULLIS                = 175185,
+    GO_PORTCULLIS_ACTIVE            = 164726,
+    GO_PORTCULLIS_TOBOSSROOMS       = 175186
 };
 
 #endif

@@ -458,18 +458,18 @@ class boss_alar : public CreatureScript
         }
 };
 
-class mob_ember_of_alar : public CreatureScript
+class npc_ember_of_alar : public CreatureScript
 {
     public:
 
-        mob_ember_of_alar()
-            : CreatureScript("mob_ember_of_alar")
+        npc_ember_of_alar()
+            : CreatureScript("npc_ember_of_alar")
         {
         }
 
-        struct mob_ember_of_alarAI : public ScriptedAI
+        struct npc_ember_of_alarAI : public ScriptedAI
         {
-            mob_ember_of_alarAI(Creature* creature) : ScriptedAI(creature)
+            npc_ember_of_alarAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 creature->SetDisableGravity(true);
@@ -533,22 +533,22 @@ class mob_ember_of_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_ember_of_alarAI(creature);
+            return new npc_ember_of_alarAI(creature);
         }
 };
 
-class mob_flame_patch_alar : public CreatureScript
+class npc_flame_patch_alar : public CreatureScript
 {
     public:
 
-        mob_flame_patch_alar()
-            : CreatureScript("mob_flame_patch_alar")
+        npc_flame_patch_alar()
+            : CreatureScript("npc_flame_patch_alar")
         {
         }
 
-        struct mob_flame_patch_alarAI : public ScriptedAI
+        struct npc_flame_patch_alarAI : public ScriptedAI
         {
-            mob_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
             void Reset() {}
             void EnterCombat(Unit* /*who*/) {}
             void AttackStart(Unit* /*who*/) {}
@@ -558,14 +558,14 @@ class mob_flame_patch_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_flame_patch_alarAI(creature);
+            return new npc_flame_patch_alarAI(creature);
         }
 };
 
 void AddSC_boss_alar()
 {
     new boss_alar();
-    new mob_ember_of_alar();
-    new mob_flame_patch_alar();
+    new npc_ember_of_alar();
+    new npc_flame_patch_alar();
 }
 

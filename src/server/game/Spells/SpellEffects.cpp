@@ -490,7 +490,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                                 if (needConsume)
                                     for (uint32 i = 0; i < doses; ++i)
-                                        unitTarget->RemoveAuraFromStack(spellId);
+                                        unitTarget->RemoveAuraFromStack(spellId, m_caster->GetGUID());
 
                                 damage *= doses;
                                 damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);

@@ -288,14 +288,14 @@ class boss_gormok : public CreatureScript
         }
 };
 
-class mob_snobold_vassal : public CreatureScript
+class npc_snobold_vassal : public CreatureScript
 {
     public:
-        mob_snobold_vassal() : CreatureScript("mob_snobold_vassal") { }
+        npc_snobold_vassal() : CreatureScript("npc_snobold_vassal") { }
 
-        struct mob_snobold_vassalAI : public ScriptedAI
+        struct npc_snobold_vassalAI : public ScriptedAI
         {
-            mob_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
+            npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = creature->GetInstanceScript();
                 if (_instance)
@@ -457,7 +457,7 @@ class mob_snobold_vassal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_snobold_vassalAI(creature);
+            return new npc_snobold_vassalAI(creature);
         }
 };
 
@@ -786,14 +786,14 @@ class boss_dreadscale : public CreatureScript
         }
 };
 
-class mob_slime_pool : public CreatureScript
+class npc_slime_pool : public CreatureScript
 {
     public:
-        mob_slime_pool() : CreatureScript("mob_slime_pool") { }
+        npc_slime_pool() : CreatureScript("npc_slime_pool") { }
 
-        struct mob_slime_poolAI : public ScriptedAI
+        struct npc_slime_poolAI : public ScriptedAI
         {
-            mob_slime_poolAI(Creature* creature) : ScriptedAI(creature)
+            npc_slime_poolAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = creature->GetInstanceScript();
             }
@@ -823,7 +823,7 @@ class mob_slime_pool : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_slime_poolAI(creature);
+            return new npc_slime_poolAI(creature);
         }
 };
 
@@ -1147,13 +1147,13 @@ class boss_icehowl : public CreatureScript
 void AddSC_boss_northrend_beasts()
 {
     new boss_gormok();
-    new mob_snobold_vassal();
+    new npc_snobold_vassal();
     new npc_firebomb();
     new spell_gormok_fire_bomb();
 
     new boss_acidmaw();
     new boss_dreadscale();
-    new mob_slime_pool();
+    new npc_slime_pool();
 
     new boss_icehowl();
 }

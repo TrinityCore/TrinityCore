@@ -1709,14 +1709,14 @@ public:
 #define SAY_RANDOM_MOJO6b   ", I know of a little swamp not too far from here...."
 #define SAY_RANDOM_MOJO7    "There's just never enough Mojo to go around..."
 
-class mob_mojo : public CreatureScript
+class npc_mojo : public CreatureScript
 {
 public:
-    mob_mojo() : CreatureScript("mob_mojo") { }
+    npc_mojo() : CreatureScript("npc_mojo") { }
 
-    struct mob_mojoAI : public ScriptedAI
+    struct npc_mojoAI : public ScriptedAI
     {
-        mob_mojoAI(Creature* creature) : ScriptedAI(creature) {Reset();}
+        npc_mojoAI(Creature* creature) : ScriptedAI(creature) {Reset();}
         uint32 hearts;
         uint64 victimGUID;
         void Reset()
@@ -1796,7 +1796,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_mojoAI(creature);
+        return new npc_mojoAI(creature);
     }
 };
 
@@ -2967,7 +2967,7 @@ void AddSC_npcs_special()
     new npc_mirror_image();
     new npc_ebon_gargoyle();
     new npc_lightwell();
-    new mob_mojo();
+    new npc_mojo();
     new npc_training_dummy();
     new npc_shadowfiend();
     new npc_wormhole();

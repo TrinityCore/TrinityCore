@@ -184,19 +184,19 @@ public:
 
 };
 
-class mob_sartura_royal_guard : public CreatureScript
+class npc_sartura_royal_guard : public CreatureScript
 {
 public:
-    mob_sartura_royal_guard() : CreatureScript("mob_sartura_royal_guard") { }
+    npc_sartura_royal_guard() : CreatureScript("npc_sartura_royal_guard") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_sartura_royal_guardAI (creature);
+        return new npc_sartura_royal_guardAI (creature);
     }
 
-    struct mob_sartura_royal_guardAI : public ScriptedAI
+    struct npc_sartura_royal_guardAI : public ScriptedAI
     {
-        mob_sartura_royal_guardAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_sartura_royal_guardAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 WhirlWind_Timer;
         uint32 WhirlWindRandom_Timer;
@@ -302,5 +302,5 @@ public:
 void AddSC_boss_sartura()
 {
     new boss_sartura();
-    new mob_sartura_royal_guard();
+    new npc_sartura_royal_guard();
 }

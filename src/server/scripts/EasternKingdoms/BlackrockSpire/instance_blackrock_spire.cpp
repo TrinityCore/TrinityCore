@@ -46,31 +46,34 @@ public:
         instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetBossNumber(EncounterCount);
-            HighlordOmokk           = 0;
-            ShadowHunterVoshgajin   = 0;
-            WarMasterVoone          = 0;
-            MotherSmolderweb        = 0;
-            UrokDoomhowl            = 0;
-            QuartermasterZigris     = 0;
-            GizrultheSlavener       = 0;
-            Halycon                 = 0;
-            OverlordWyrmthalak      = 0;
-            PyroguardEmberseer      = 0;
-            WarchiefRendBlackhand   = 0;
-            Gyth                    = 0;
-            TheBeast                = 0;
-            GeneralDrakkisath       = 0;
-            go_emberseerin          = 0;
-            go_doors                = 0;
-            go_emberseerout         = 0;
-            go_blackrockaltar       = 0;
+            HighlordOmokk             = 0;
+            ShadowHunterVoshgajin     = 0;
+            WarMasterVoone            = 0;
+            MotherSmolderweb          = 0;
+            UrokDoomhowl              = 0;
+            QuartermasterZigris       = 0;
+            GizrultheSlavener         = 0;
+            Halycon                   = 0;
+            OverlordWyrmthalak        = 0;
+            PyroguardEmberseer        = 0;
+            WarchiefRendBlackhand     = 0;
+            Gyth                      = 0;
+            LordVictorNefarius        = 0;
+            TheBeast                  = 0;
+            GeneralDrakkisath         = 0;
+            go_emberseerin            = 0;
+            go_doors                  = 0;
+            go_emberseerout           = 0;
+            go_blackrockaltar         = 0;
+            go_portcullis_active      = 0;
+            go_portcullis_tobossrooms = 0;
         }
 
         void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
             {
-                case NPC_OMOKK:
+                case NPC_HIGHLORD_OMOKK:
                     HighlordOmokk = creature->GetGUID();
                     break;
                 case NPC_SHADOW_HUNTER_VOSHGAJIN:
@@ -91,19 +94,21 @@ public:
                 case NPC_GIZRUL_THE_SLAVENER:
                     GizrultheSlavener = creature->GetGUID();
                     break;
-                case  NPC_HALYCON:
+                case NPC_HALYCON:
                     Halycon = creature->GetGUID();
                     break;
-                case  NPC_OVERLORD_WYRMTHALAK:
+                case NPC_OVERLORD_WYRMTHALAK:
                     OverlordWyrmthalak = creature->GetGUID();
                     break;
-                case  NPC_PYROGAURD_EMBERSEER:
+                case NPC_PYROGAURD_EMBERSEER:
                     PyroguardEmberseer = creature->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         creature->DisappearAndDie();
                     break;
-                case  NPC_WARCHIEF_REND_BLACKHAND:
+                case NPC_WARCHIEF_REND_BLACKHAND:
                     WarchiefRendBlackhand = creature->GetGUID();
+                    if (GetBossState(DATA_GYTH) == DONE)
+                        creature->DisappearAndDie();
                     break;
                 case NPC_GYTH:
                     Gyth = creature->GetGUID();
@@ -114,9 +119,10 @@ public:
                 case NPC_GENERAL_DRAKKISATH:
                     GeneralDrakkisath = creature->GetGUID();
                     break;
-                case NPC_BLACKHAND_DREADWEAVER:
-                case NPC_BLACKHAND_SUMMONER:
-                case NPC_BLACKHAND_VETERAN:
+                case NPC_LORD_VICTOR_NEFARIUS:
+                    LordVictorNefarius = creature->GetGUID();
+                    if (GetBossState(DATA_GYTH) == DONE)
+                        creature->DisappearAndDie();
                     break;
              }
          }
@@ -213,6 +219,18 @@ public:
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(0, false, go);
                     break;
+                case GO_PORTCULLIS_ACTIVE:
+                    go_portcullis_active = go->GetGUID();
+                    if (GetBossState(DATA_GYTH) == DONE)
+                        HandleGameObject(0, true, go);
+                    break;
+                case GO_PORTCULLIS_TOBOSSROOMS:
+                    go_portcullis_tobossrooms = go->GetGUID();
+                    if (GetBossState(DATA_GYTH) == DONE)
+                        HandleGameObject(0, true, go);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -223,7 +241,7 @@ public:
 
             switch (type)
             {
-                case DATA_OMOKK:
+                case DATA_HIGHLORD_OMOKK:
                 case DATA_SHADOW_HUNTER_VOSHGAJIN:
                 case DATA_WARMASTER_VOONE:
                 case DATA_MOTHER_SMOLDERWEB:
@@ -281,7 +299,7 @@ public:
         {
             switch (type)
             {
-                case DATA_OMOKK:
+                case DATA_HIGHLORD_OMOKK:
                     return HighlordOmokk;
                     break;
                 case DATA_SHADOW_HUNTER_VOSHGAJIN:
@@ -374,6 +392,12 @@ public:
                 case GO_EMBERSEER_RUNE_7:
                     return go_emberseerrunes[6];
                     break;
+                case GO_PORTCULLIS_ACTIVE:
+                    return go_portcullis_active;
+                    break;
+                case GO_PORTCULLIS_TOBOSSROOMS:
+                    return go_portcullis_tobossrooms;
+                    break;
             }
             return 0;
         }
@@ -437,7 +461,10 @@ public:
             {
                 bool _mobAlive = false;
                 rune = instance->GetGameObject(go_roomrunes[i]);
-                if (rune && rune->GetGoState() == GO_STATE_ACTIVE)
+                if (!rune)
+                    continue;
+
+                if (rune->GetGoState() == GO_STATE_ACTIVE)
                 {
                     for (uint8 ii = 0; ii < 5; ++ii)
                     {
@@ -551,6 +578,7 @@ public:
             uint64 PyroguardEmberseer;
             uint64 WarchiefRendBlackhand;
             uint64 Gyth;
+            uint64 LordVictorNefarius;
             uint64 TheBeast;
             uint64 GeneralDrakkisath;
             uint64 go_emberseerin;
@@ -559,7 +587,9 @@ public:
             uint64 go_blackrockaltar;
             uint64 go_roomrunes[7];
             uint64 go_emberseerrunes[7];
-            uint64 runecreaturelist[7] [5];
+            uint64 runecreaturelist[7][5];
+            uint64 go_portcullis_active;
+            uint64 go_portcullis_tobossrooms;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
@@ -609,7 +639,7 @@ public:
             if (!instance)
                 return false;
 
-            if (Creature* rend = player->FindNearestCreature(NPC_REND_BLACKHAND, 50.0f))
+            if (Creature* rend = player->FindNearestCreature(NPC_WARCHIEF_REND_BLACKHAND, 50.0f))
             {
                 rend->AI()->SetData(AREATRIGGER, AREATRIGGER_BLACKROCK_STADIUM);
                 return true;

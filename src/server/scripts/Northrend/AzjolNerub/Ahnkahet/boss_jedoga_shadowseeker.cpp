@@ -342,14 +342,14 @@ public:
     }
 };
 
-class mob_jedoga_initiand : public CreatureScript
+class npc_jedoga_initiand : public CreatureScript
 {
 public:
-    mob_jedoga_initiand() : CreatureScript("mob_jedoga_initiand") { }
+    npc_jedoga_initiand() : CreatureScript("npc_jedoga_initiand") { }
 
-    struct mob_jedoga_initiandAI : public ScriptedAI
+    struct npc_jedoga_initiandAI : public ScriptedAI
     {
-        mob_jedoga_initiandAI(Creature* creature) : ScriptedAI(creature)
+        npc_jedoga_initiandAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -505,7 +505,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_jedoga_initiandAI(creature);
+        return new npc_jedoga_initiandAI(creature);
     }
 };
 
@@ -617,7 +617,7 @@ class achievement_volunteer_work : public AchievementCriteriaScript
 void AddSC_boss_jedoga_shadowseeker()
 {
     new boss_jedoga_shadowseeker();
-    new mob_jedoga_initiand();
+    new npc_jedoga_initiand();
     new npc_jedogas_aufseher_trigger();
     new achievement_volunteer_work();
 }

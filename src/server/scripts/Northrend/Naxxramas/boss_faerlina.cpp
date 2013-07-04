@@ -179,14 +179,14 @@ class boss_faerlina : public CreatureScript
         }
 };
 
-class mob_faerlina_add : public CreatureScript
+class npc_faerlina_add : public CreatureScript
 {
     public:
-        mob_faerlina_add() : CreatureScript("mob_faerlina_add") { }
+        npc_faerlina_add() : CreatureScript("npc_faerlina_add") { }
 
-        struct mob_faerlina_addAI : public ScriptedAI
+        struct npc_faerlina_addAI : public ScriptedAI
         {
-            mob_faerlina_addAI(Creature* creature) : ScriptedAI(creature),
+            npc_faerlina_addAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
             }
@@ -212,7 +212,7 @@ class mob_faerlina_add : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_faerlina_addAI(creature);
+            return new npc_faerlina_addAI(creature);
         }
 };
 
@@ -230,6 +230,6 @@ class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
 void AddSC_boss_faerlina()
 {
     new boss_faerlina();
-    new mob_faerlina_add();
+    new npc_faerlina_add();
     new achievement_momma_said_knock_you_out();
 }

@@ -24,8 +24,8 @@ SDCategory: Blade's Edge Mountains
 EndScriptData */
 
 /* ContentData
-mobs_bladespire_ogre
-mobs_nether_drake
+npc_bladespire_ogre
+npc_nether_drake
 npc_daranelle
 npc_overseer_nuaar
 npc_saikkal_the_elder
@@ -51,23 +51,23 @@ bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 #define LEGION_OBELISK_FIVE          185198
 
 /*######
-## mobs_bladespire_ogre
+## npc_bladespire_ogre
 ######*/
 
 /// @todo add support for quest 10512 + Creature abilities
-class mobs_bladespire_ogre : public CreatureScript
+class npc_bladespire_ogre : public CreatureScript
 {
 public:
-    mobs_bladespire_ogre() : CreatureScript("mobs_bladespire_ogre") { }
+    npc_bladespire_ogre() : CreatureScript("npc_bladespire_ogre") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_bladespire_ogreAI (creature);
+        return new npc_bladespire_ogreAI (creature);
     }
 
-    struct mobs_bladespire_ogreAI : public ScriptedAI
+    struct npc_bladespire_ogreAI : public ScriptedAI
     {
-        mobs_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
 
@@ -82,7 +82,7 @@ public:
 };
 
 /*######
-## mobs_nether_drake
+## npc_nether_drake
 ######*/
 
 enum eNetherdrake
@@ -107,19 +107,19 @@ enum eNetherdrake
     SPELL_INTANGIBLE_PRESENCE   = 36513
 };
 
-class mobs_nether_drake : public CreatureScript
+class npc_nether_drake : public CreatureScript
 {
 public:
-    mobs_nether_drake() : CreatureScript("mobs_nether_drake") { }
+    npc_nether_drake() : CreatureScript("npc_nether_drake") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_nether_drakeAI (creature);
+        return new npc_nether_drakeAI (creature);
     }
 
-    struct mobs_nether_drakeAI : public ScriptedAI
+    struct npc_nether_drakeAI : public ScriptedAI
     {
-        mobs_nether_drakeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_nether_drakeAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool IsNihil;
         uint32 NihilSpeech_Timer;
@@ -1142,8 +1142,8 @@ class go_apexis_relic : public GameObjectScript
 
 void AddSC_blades_edge_mountains()
 {
-    new mobs_bladespire_ogre();
-    new mobs_nether_drake();
+    new npc_bladespire_ogre();
+    new npc_nether_drake();
     new npc_daranelle();
     new npc_overseer_nuaar();
     new npc_saikkal_the_elder();

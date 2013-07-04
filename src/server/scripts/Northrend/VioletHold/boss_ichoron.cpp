@@ -331,19 +331,19 @@ public:
 
 };
 
-class mob_ichor_globule : public CreatureScript
+class npc_ichor_globule : public CreatureScript
 {
 public:
-    mob_ichor_globule() : CreatureScript("mob_ichor_globule") { }
+    npc_ichor_globule() : CreatureScript("npc_ichor_globule") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ichor_globuleAI (creature);
+        return new npc_ichor_globuleAI (creature);
     }
 
-    struct mob_ichor_globuleAI : public ScriptedAI
+    struct npc_ichor_globuleAI : public ScriptedAI
     {
-        mob_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
+        npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -418,6 +418,6 @@ class achievement_dehydration : public AchievementCriteriaScript
 void AddSC_boss_ichoron()
 {
     new boss_ichoron();
-    new mob_ichor_globule();
+    new npc_ichor_globule();
     new achievement_dehydration();
 }

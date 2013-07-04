@@ -61,19 +61,19 @@ float treant_pos[6][3] =
 };
 
 /*#####
-# mob_treant (Sapling)
+# npc_treant (Sapling)
 #####*/
-class mob_warp_splinter_treant : public CreatureScript
+class npc_warp_splinter_treant : public CreatureScript
 {
     public:
 
-        mob_warp_splinter_treant()
-            : CreatureScript("mob_warp_splinter_treant")
+        npc_warp_splinter_treant()
+            : CreatureScript("npc_warp_splinter_treant")
         {
         }
-        struct mob_warp_splinter_treantAI  : public ScriptedAI
+        struct npc_warp_splinter_treantAI  : public ScriptedAI
         {
-            mob_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
+            npc_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
             {
                 WarpGuid = 0;
             }
@@ -120,7 +120,7 @@ class mob_warp_splinter_treant : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_warp_splinter_treantAI(creature);
+            return new npc_warp_splinter_treantAI(creature);
         }
 };
 
@@ -185,7 +185,7 @@ class boss_warp_splinter : public CreatureScript
                     float O = - me->GetAngle(X, Y);
 
                     if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
-                        CAST_AI(mob_warp_splinter_treant::mob_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
+                        CAST_AI(npc_warp_splinter_treant::npc_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
                 }
                 Talk(SAY_SUMMON);
             }
@@ -235,6 +235,6 @@ class boss_warp_splinter : public CreatureScript
 void AddSC_boss_warp_splinter()
 {
     new boss_warp_splinter();
-    new mob_warp_splinter_treant();
+    new npc_warp_splinter_treant();
 }
 

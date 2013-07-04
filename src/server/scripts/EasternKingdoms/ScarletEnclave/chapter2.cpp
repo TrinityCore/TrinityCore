@@ -363,19 +363,19 @@ enum ScarletCourierEnum
     NPC_SCARLET_COURIER                = 29076
 };
 
-class mob_scarlet_courier : public CreatureScript
+class npc_scarlet_courier : public CreatureScript
 {
 public:
-    mob_scarlet_courier() : CreatureScript("mob_scarlet_courier") { }
+    npc_scarlet_courier() : CreatureScript("npc_scarlet_courier") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_scarlet_courierAI (creature);
+        return new npc_scarlet_courierAI (creature);
     }
 
-    struct mob_scarlet_courierAI : public ScriptedAI
+    struct npc_scarlet_courierAI : public ScriptedAI
     {
-        mob_scarlet_courierAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_scarlet_courierAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiStage;
         uint32 uiStage_timer;
@@ -455,19 +455,19 @@ enum valroth
     SPELL_SUMMON_VALROTH_REMAINS      = 52929
 };
 
-class mob_high_inquisitor_valroth : public CreatureScript
+class npc_high_inquisitor_valroth : public CreatureScript
 {
 public:
-    mob_high_inquisitor_valroth() : CreatureScript("mob_high_inquisitor_valroth") { }
+    npc_high_inquisitor_valroth() : CreatureScript("npc_high_inquisitor_valroth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_high_inquisitor_valrothAI (creature);
+        return new npc_high_inquisitor_valrothAI (creature);
     }
 
-    struct mob_high_inquisitor_valrothAI : public ScriptedAI
+    struct npc_high_inquisitor_valrothAI : public ScriptedAI
     {
-        mob_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiRenew_timer;
         uint32 uiInquisitor_Penance_timer;
@@ -1013,8 +1013,8 @@ public:
 void AddSC_the_scarlet_enclave_c2()
 {
     new npc_crusade_persuaded();
-    new mob_scarlet_courier();
+    new npc_scarlet_courier();
     new npc_koltira_deathweaver();
-    new mob_high_inquisitor_valroth();
+    new npc_high_inquisitor_valroth();
     new npc_a_special_surprise();
 }

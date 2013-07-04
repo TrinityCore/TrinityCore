@@ -133,14 +133,14 @@ class boss_sulfuron : public CreatureScript
         }
 };
 
-class mob_flamewaker_priest : public CreatureScript
+class npc_flamewaker_priest : public CreatureScript
 {
     public:
-        mob_flamewaker_priest() : CreatureScript("mob_flamewaker_priest") { }
+        npc_flamewaker_priest() : CreatureScript("npc_flamewaker_priest") { }
 
-        struct mob_flamewaker_priestAI : public ScriptedAI
+        struct npc_flamewaker_priestAI : public ScriptedAI
         {
-            mob_flamewaker_priestAI(Creature* creature) : ScriptedAI(creature)
+            npc_flamewaker_priestAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -205,12 +205,12 @@ class mob_flamewaker_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_flamewaker_priestAI(creature);
+            return new npc_flamewaker_priestAI(creature);
         }
 };
 
 void AddSC_boss_sulfuron()
 {
     new boss_sulfuron();
-    new mob_flamewaker_priest();
+    new npc_flamewaker_priest();
 }

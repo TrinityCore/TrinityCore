@@ -280,19 +280,19 @@ public:
 //Water Globule AI
 #define SPELL_GLOBULE_EXPLOSION 37871
 
-class mob_water_globule : public CreatureScript
+class npc_water_globule : public CreatureScript
 {
 public:
-    mob_water_globule() : CreatureScript("mob_water_globule") { }
+    npc_water_globule() : CreatureScript("npc_water_globule") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_water_globuleAI (creature);
+        return new npc_water_globuleAI (creature);
     }
 
-    struct mob_water_globuleAI : public ScriptedAI
+    struct npc_water_globuleAI : public ScriptedAI
     {
-        mob_water_globuleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Check_Timer;
 
@@ -348,5 +348,5 @@ public:
 void AddSC_boss_morogrim_tidewalker()
 {
     new boss_morogrim_tidewalker();
-    new mob_water_globule();
+    new npc_water_globule();
 }

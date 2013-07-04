@@ -122,14 +122,14 @@ class boss_golemagg : public CreatureScript
         }
 };
 
-class mob_core_rager : public CreatureScript
+class npc_core_rager : public CreatureScript
 {
     public:
-        mob_core_rager() : CreatureScript("mob_core_rager") { }
+        npc_core_rager() : CreatureScript("npc_core_rager") { }
 
-        struct mob_core_ragerAI : public ScriptedAI
+        struct npc_core_ragerAI : public ScriptedAI
         {
-            mob_core_ragerAI(Creature* creature) : ScriptedAI(creature)
+            npc_core_ragerAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -179,12 +179,12 @@ class mob_core_rager : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_core_ragerAI(creature);
+            return new npc_core_ragerAI(creature);
         }
 };
 
 void AddSC_boss_golemagg()
 {
     new boss_golemagg();
-    new mob_core_rager();
+    new npc_core_rager();
 }

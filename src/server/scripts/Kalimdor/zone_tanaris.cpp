@@ -38,7 +38,7 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
-## mob_aquementas
+## npc_aquementas
 ######*/
 
 enum Aquementas
@@ -49,19 +49,19 @@ enum Aquementas
     SPELL_FROST_SHOCK   = 15089
 };
 
-class mob_aquementas : public CreatureScript
+class npc_aquementas : public CreatureScript
 {
 public:
-    mob_aquementas() : CreatureScript("mob_aquementas") { }
+    npc_aquementas() : CreatureScript("npc_aquementas") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_aquementasAI (creature);
+        return new npc_aquementasAI (creature);
     }
 
-    struct mob_aquementasAI : public ScriptedAI
+    struct npc_aquementasAI : public ScriptedAI
     {
-        mob_aquementasAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_aquementasAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 SendItemTimer;
         uint32 SwitchFactionTimer;

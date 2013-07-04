@@ -258,19 +258,19 @@ enum GuardSpells
     SPELL_STRIKE                          = 14516
 };
 
-class mob_erekem_guard : public CreatureScript
+class npc_erekem_guard : public CreatureScript
 {
 public:
-    mob_erekem_guard() : CreatureScript("mob_erekem_guard") { }
+    npc_erekem_guard() : CreatureScript("npc_erekem_guard") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_erekem_guardAI (creature);
+        return new npc_erekem_guardAI (creature);
     }
 
-    struct mob_erekem_guardAI : public ScriptedAI
+    struct npc_erekem_guardAI : public ScriptedAI
     {
-        mob_erekem_guardAI(Creature* creature) : ScriptedAI(creature)
+        npc_erekem_guardAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -336,5 +336,5 @@ public:
 void AddSC_boss_erekem()
 {
     new boss_erekem();
-    new mob_erekem_guard();
+    new npc_erekem_guard();
 }

@@ -291,22 +291,22 @@ public:
 };
 
 /*######
-## mob_spark_of_ionar
+## npc_spark_of_ionar
 ######*/
 
-class mob_spark_of_ionar : public CreatureScript
+class npc_spark_of_ionar : public CreatureScript
 {
 public:
-    mob_spark_of_ionar() : CreatureScript("mob_spark_of_ionar") { }
+    npc_spark_of_ionar() : CreatureScript("npc_spark_of_ionar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_spark_of_ionarAI(creature);
+        return new npc_spark_of_ionarAI(creature);
     }
 
-    struct mob_spark_of_ionarAI : public ScriptedAI
+    struct npc_spark_of_ionarAI : public ScriptedAI
     {
-        mob_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
+        npc_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -379,5 +379,5 @@ public:
 void AddSC_boss_ionar()
 {
     new boss_ionar();
-    new mob_spark_of_ionar();
+    new npc_spark_of_ionar();
 }

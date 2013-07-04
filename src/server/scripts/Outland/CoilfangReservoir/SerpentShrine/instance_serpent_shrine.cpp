@@ -31,9 +31,9 @@ EndScriptData */
 
 #define MAX_ENCOUNTER 6
 #define SPELL_SCALDINGWATER 37284
-#define MOB_COILFANG_FRENZY 21508
-#define TRASHMOB_COILFANG_PRIESTESS 21220  //6*2
-#define TRASHMOB_COILFANG_SHATTERER 21301  //6*3
+#define NPC_COILFANG_FRENZY 21508
+#define TRASHNPC_COILFANG_PRIESTESS 21220  //6*2
+#define TRASHNPC_COILFANG_SHATTERER 21301  //6*3
 
 #define MIN_KILLS 30
 
@@ -153,7 +153,7 @@ class instance_serpent_shrine : public InstanceMapScript
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)
                                     {
-                                        if (Creature* frenzy = player->SummonCreature(MOB_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
+                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
                                         {
                                             frenzy->Attack(player, false);
                                             frenzy->SetSwim(true);
