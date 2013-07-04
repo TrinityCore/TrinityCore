@@ -318,6 +318,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"StartTaxi", &LuaUnit::StartTaxi},                                                                     // :StartTaxi(pathId) - player starts the given flight path
     {"GossipSendPOI", &LuaUnit::GossipSendPOI},                                                             // :GossipSendPOI(X, Y, Icon, Flags, Data, Name) - Sends a point of interest to the player
     {"GossipAddQuests", &LuaUnit::GossipAddQuests},                                                         // :GossipAddQuests(unit) - Adds unit's quests to player's gossip menu
+    {"SendQuestTemplate", &LuaUnit::SendQuestTemplate},                                                     // :SendQuestTemplate(questId, activeAccept) -- Sends quest template to player
 
     // Creature methods
     // Getters

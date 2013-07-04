@@ -621,7 +621,7 @@ public:
     {
         int funcRef; uint32 delay; uint32 calls;
         eventData(int _funcRef, uint32 _delay, uint32 _calls) :
-        funcRef(_funcRef), delay(_delay), calls(_calls) {}
+            funcRef(_funcRef), delay(_delay), calls(_calls) {}
     };
 
     typedef std::multimap<uint32, eventData> EventStore; // Not to use multimap? Can same function ref ID be used multiple times?

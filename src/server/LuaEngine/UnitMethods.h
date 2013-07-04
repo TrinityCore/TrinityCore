@@ -488,5 +488,6 @@ namespace LuaUnit
     int GetFriendlyUnitsInRange(lua_State*, Unit*);
     int GetUnfriendlyUnitsInRange(lua_State*, Unit*);
     int SummonGuardian(lua_State*, Unit*);
+    int SendQuestTemplate(lua_State*, Unit*);
 };
 #endif
