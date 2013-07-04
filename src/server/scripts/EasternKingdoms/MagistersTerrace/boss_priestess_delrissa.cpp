@@ -1293,14 +1293,14 @@ public:
 };
 
 /*
-class mob_high_explosive_sheep : public CreatureScript
+class npc_high_explosive_sheep : public CreatureScript
 {
 public:
-    mob_high_explosive_sheep() : CreatureScript("mob_high_explosive_sheep") { }
+    npc_high_explosive_sheep() : CreatureScript("npc_high_explosive_sheep") { }
 
     //CreatureAI* GetAI(Creature* creature) const
     //{
-    //    return new mob_high_explosive_sheepAI (creature);
+    //    return new npc_high_explosive_sheepAI (creature);
     //};
 };
 */
@@ -1316,5 +1316,5 @@ void AddSC_boss_priestess_delrissa()
     new boss_garaxxas();
     new boss_apoko();
     new boss_zelfan();
-    // new mob_high_explosive_sheep();
+    // new npc_high_explosive_sheep();
 }

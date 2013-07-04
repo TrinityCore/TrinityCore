@@ -25,7 +25,7 @@ EndScriptData */
 
 /* ContentData
 boss_hydromancer_thespia
-mob_coilfang_waterelemental
+npc_coilfang_waterelemental
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -147,19 +147,19 @@ public:
 
 };
 
-class mob_coilfang_waterelemental : public CreatureScript
+class npc_coilfang_waterelemental : public CreatureScript
 {
 public:
-    mob_coilfang_waterelemental() : CreatureScript("mob_coilfang_waterelemental") { }
+    npc_coilfang_waterelemental() : CreatureScript("npc_coilfang_waterelemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_coilfang_waterelementalAI (creature);
+        return new npc_coilfang_waterelementalAI (creature);
     }
 
-    struct mob_coilfang_waterelementalAI : public ScriptedAI
+    struct npc_coilfang_waterelementalAI : public ScriptedAI
     {
-        mob_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 WaterBoltVolley_Timer;
 
@@ -190,5 +190,5 @@ public:
 void AddSC_boss_hydromancer_thespia()
 {
     new boss_hydromancer_thespia();
-    new mob_coilfang_waterelemental();
+    new npc_coilfang_waterelemental();
 }

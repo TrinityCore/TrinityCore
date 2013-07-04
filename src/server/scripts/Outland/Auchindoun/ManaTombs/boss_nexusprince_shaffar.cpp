@@ -25,7 +25,7 @@ EndScriptData */
 
 /* ContentData
 boss_nexusprince_shaffar
-mob_ethereal_beacon
+npc_ethereal_beacon
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -219,19 +219,19 @@ enum eEnums
     SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
 };
 
-class mob_ethereal_beacon : public CreatureScript
+class npc_ethereal_beacon : public CreatureScript
 {
 public:
-    mob_ethereal_beacon() : CreatureScript("mob_ethereal_beacon") { }
+    npc_ethereal_beacon() : CreatureScript("npc_ethereal_beacon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ethereal_beaconAI (creature);
+        return new npc_ethereal_beaconAI (creature);
     }
 
-    struct mob_ethereal_beaconAI : public ScriptedAI
+    struct npc_ethereal_beaconAI : public ScriptedAI
     {
-        mob_ethereal_beaconAI(Creature* creature) : ScriptedAI(creature)
+        npc_ethereal_beaconAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -311,19 +311,19 @@ enum eEthereal
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370
 };
 
-class mob_ethereal_apprentice : public CreatureScript
+class npc_ethereal_apprentice : public CreatureScript
 {
 public:
-    mob_ethereal_apprentice() : CreatureScript("mob_ethereal_apprentice") { }
+    npc_ethereal_apprentice() : CreatureScript("npc_ethereal_apprentice") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ethereal_apprenticeAI (creature);
+        return new npc_ethereal_apprenticeAI (creature);
     }
 
-    struct mob_ethereal_apprenticeAI : public ScriptedAI
+    struct npc_ethereal_apprenticeAI : public ScriptedAI
     {
-        mob_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Cast_Timer;
 
@@ -360,6 +360,6 @@ public:
 void AddSC_boss_nexusprince_shaffar()
 {
     new boss_nexusprince_shaffar();
-    new mob_ethereal_beacon();
-    new mob_ethereal_apprentice();
+    new npc_ethereal_beacon();
+    new npc_ethereal_apprentice();
 }

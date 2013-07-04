@@ -35,8 +35,8 @@ enum Spells
 
 enum Creatures
 {
-    MOB_WEB_WRAP                = 16486,
-    MOB_SPIDERLING              = 17055,
+    NPC_WEB_WRAP                = 16486,
+    NPC_SPIDERLING              = 17055,
 };
 
 #define MAX_POS_WRAP            3
@@ -111,7 +111,7 @@ public:
                                 target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
                                 uint8 pos = rand()%MAX_POS_WRAP;
                                 target->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
-                                if (Creature* wrap = DoSummon(MOB_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
+                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
                                     wrap->AI()->SetGUID(target->GetGUID());
                             }
                         }
@@ -137,7 +137,7 @@ public:
                         /// @todo Add missing text
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
-                            DoSummon(MOB_SPIDERLING, me, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                            DoSummon(NPC_SPIDERLING, me, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_SUMMON, 40000);
                         break;
                 }
@@ -149,19 +149,19 @@ public:
 
 };
 
-class mob_webwrap : public CreatureScript
+class npc_webwrap : public CreatureScript
 {
 public:
-    mob_webwrap() : CreatureScript("mob_webwrap") { }
+    npc_webwrap() : CreatureScript("npc_webwrap") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_webwrapAI (creature);
+        return new npc_webwrapAI (creature);
     }
 
-    struct mob_webwrapAI : public NullCreatureAI
+    struct npc_webwrapAI : public NullCreatureAI
     {
-        mob_webwrapAI(Creature* creature) : NullCreatureAI(creature), victimGUID(0) {}
+        npc_webwrapAI(Creature* creature) : NullCreatureAI(creature), victimGUID(0) {}
 
         uint64 victimGUID;
 
@@ -186,5 +186,5 @@ public:
 void AddSC_boss_maexxna()
 {
     new boss_maexxna();
-    new mob_webwrap();
+    new npc_webwrap();
 }

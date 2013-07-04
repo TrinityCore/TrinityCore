@@ -141,19 +141,19 @@ static char const* Text[]=
 
 #define EMOTE_LAUGHS    "Headless Horseman laughs"  // needs assigned to db.
 
-class mob_wisp_invis : public CreatureScript
+class npc_wisp_invis : public CreatureScript
 {
 public:
-    mob_wisp_invis() : CreatureScript("mob_wisp_invis") { }
+    npc_wisp_invis() : CreatureScript("npc_wisp_invis") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_wisp_invisAI (creature);
+        return new npc_wisp_invisAI (creature);
     }
 
-    struct mob_wisp_invisAI : public ScriptedAI
+    struct npc_wisp_invisAI : public ScriptedAI
     {
-        mob_wisp_invisAI(Creature* creature) : ScriptedAI(creature)
+        npc_wisp_invisAI(Creature* creature) : ScriptedAI(creature)
         {
             Creaturetype = delay = spell = spell2 = 0;
         }
@@ -220,19 +220,19 @@ public:
     };
 };
 
-class mob_head : public CreatureScript
+class npc_head : public CreatureScript
 {
 public:
-    mob_head() : CreatureScript("mob_head") { }
+    npc_head() : CreatureScript("npc_head") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_headAI (creature);
+        return new npc_headAI (creature);
     }
 
-    struct mob_headAI : public ScriptedAI
+    struct npc_headAI : public ScriptedAI
     {
-        mob_headAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_headAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 bodyGUID;
 
@@ -468,7 +468,7 @@ public:
                 case 1:
                 {
                     if (Creature* smoke = me->SummonCreature(HELPER, Spawn[1].x, Spawn[1].y, Spawn[1].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
-                        CAST_AI(mob_wisp_invis::mob_wisp_invisAI, smoke->AI())->SetType(3);
+                        CAST_AI(npc_wisp_invis::npc_wisp_invisAI, smoke->AI())->SetType(3);
                     DoCast(me, SPELL_RHYME_BIG);
                     break;
                 }
@@ -520,7 +520,7 @@ public:
                     SaySound(SAY_PLAYER_DEATH);
                 //maybe possible when player dies from conflagration
                 else if (Creature* Head = Unit::GetCreature((*me), headGUID))
-                    CAST_AI(mob_head::mob_headAI, Head->AI())->SaySound(SAY_PLAYER_DEATH);
+                    CAST_AI(npc_head::npc_headAI, Head->AI())->SaySound(SAY_PLAYER_DEATH);
             }
         }
 
@@ -572,7 +572,7 @@ public:
             if (Creature* flame = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 flame->CastSpell(flame, SPELL_BODY_FLAME, false);
             if (Creature* wisp = DoSpawnCreature(WISP_INVIS, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
-                CAST_AI(mob_wisp_invis::mob_wisp_invisAI, wisp->AI())->SetType(4);
+                CAST_AI(npc_wisp_invis::npc_wisp_invisAI, wisp->AI())->SetType(4);
             if (instance)
                 instance->SetData(DATA_HORSEMAN_EVENT, DONE);
 
@@ -693,7 +693,7 @@ public:
                         if (burn <= diff)
                         {
                             if (Creature* flame = me->SummonCreature(HELPER, Spawn[0].x, Spawn[0].y, Spawn[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 17000))
-                                CAST_AI(mob_wisp_invis::mob_wisp_invisAI, flame->AI())->SetType(2);
+                                CAST_AI(npc_wisp_invis::npc_wisp_invisAI, flame->AI())->SetType(2);
                             burned = true;
                         }
                         else burn -= diff;
@@ -752,8 +752,8 @@ public:
                         Creature* Head = Unit::GetCreature((*me), headGUID);
                         if (Head && Head->IsAlive())
                         {
-                            CAST_AI(mob_head::mob_headAI, Head->AI())->Phase = Phase;
-                            CAST_AI(mob_head::mob_headAI, Head->AI())->Disappear();
+                            CAST_AI(npc_head::npc_headAI, Head->AI())->Phase = Phase;
+                            CAST_AI(npc_head::npc_headAI, Head->AI())->Disappear();
                         }
                         return;
                     }
@@ -778,19 +778,19 @@ public:
     };
 };
 
-class mob_pulsing_pumpkin : public CreatureScript
+class npc_pulsing_pumpkin : public CreatureScript
 {
 public:
-    mob_pulsing_pumpkin() : CreatureScript("mob_pulsing_pumpkin") { }
+    npc_pulsing_pumpkin() : CreatureScript("npc_pulsing_pumpkin") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_pulsing_pumpkinAI (creature);
+        return new npc_pulsing_pumpkinAI (creature);
     }
 
-    struct mob_pulsing_pumpkinAI : public ScriptedAI
+    struct npc_pulsing_pumpkinAI : public ScriptedAI
     {
-        mob_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool sprouted;
         uint64 debuffGUID;
@@ -806,7 +806,7 @@ public:
             {
                 debuff->SetDisplayId(me->GetDisplayId());
                 debuff->CastSpell(debuff, SPELL_PUMPKIN_AURA_GREEN, false);
-                CAST_AI(mob_wisp_invis::mob_wisp_invisAI, debuff->AI())->SetType(1);
+                CAST_AI(npc_wisp_invis::npc_wisp_invisAI, debuff->AI())->SetType(1);
                 debuffGUID = debuff->GetGUID();
             }
             sprouted = false;
@@ -899,7 +899,7 @@ public:
     }
 };
 
-void mob_head::mob_headAI::Disappear()
+void npc_head::npc_headAI::Disappear()
 {
     if (withbody)
         return;
@@ -925,8 +925,8 @@ void mob_head::mob_headAI::Disappear()
 void AddSC_boss_headless_horseman()
 {
     new boss_headless_horseman();
-    new mob_head();
-    new mob_pulsing_pumpkin();
-    new mob_wisp_invis();
+    new npc_head();
+    new npc_pulsing_pumpkin();
+    new npc_wisp_invis();
     new go_loosely_turned_soil();
 }

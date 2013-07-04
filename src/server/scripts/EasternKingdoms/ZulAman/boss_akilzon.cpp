@@ -60,7 +60,7 @@ enum Says
 
 enum Misc
 {
-    MOB_SOARING_EAGLE           = 24858,
+    NPC_SOARING_EAGLE           = 24858,
     SE_LOC_X_MAX                = 400,
     SE_LOC_X_MIN                = 335,
     SE_LOC_Y_MAX                = 1435,
@@ -325,7 +325,7 @@ class boss_akilzon : public CreatureScript
                                         if (z > 95)
                                             z = 95.0f - urand(0, 5);
                                     }
-                                    Creature* creature = me->SummonCreature(MOB_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                                     if (creature)
                                     {
                                         creature->AddThreat(me->GetVictim(), 1.0f);
@@ -363,14 +363,14 @@ class boss_akilzon : public CreatureScript
         }
 };
 
-class mob_akilzon_eagle : public CreatureScript
+class npc_akilzon_eagle : public CreatureScript
 {
     public:
-        mob_akilzon_eagle() : CreatureScript("mob_akilzon_eagle") { }
+        npc_akilzon_eagle() : CreatureScript("npc_akilzon_eagle") { }
 
-        struct mob_akilzon_eagleAI : public ScriptedAI
+        struct npc_akilzon_eagleAI : public ScriptedAI
         {
-            mob_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 EagleSwoop_Timer;
             bool arrived;
@@ -440,13 +440,13 @@ class mob_akilzon_eagle : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_akilzon_eagleAI(creature);
+            return new npc_akilzon_eagleAI(creature);
         }
 };
 
 void AddSC_boss_akilzon()
 {
     new boss_akilzon();
-    new mob_akilzon_eagle();
+    new npc_akilzon_eagle();
 }
 

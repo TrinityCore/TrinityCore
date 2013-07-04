@@ -52,7 +52,7 @@ enum Events
 };
 
 //Creatures
-#define MOB_TEMPEST_MINION          33998
+#define NPC_TEMPEST_MINION          33998
 
 #define MAX_TEMPEST_MINIONS         4
 
@@ -83,7 +83,7 @@ class boss_emalon : public CreatureScript
                 _Reset();
 
                 for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
-                    me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
             }
 
             void JustSummoned(Creature* summoned)
@@ -173,14 +173,14 @@ class boss_emalon : public CreatureScript
 /*######
 ##  Tempest Minion
 ######*/
-class mob_tempest_minion : public CreatureScript
+class npc_tempest_minion : public CreatureScript
 {
     public:
-        mob_tempest_minion() : CreatureScript("mob_tempest_minion") { }
+        npc_tempest_minion() : CreatureScript("npc_tempest_minion") { }
 
-        struct mob_tempest_minionAI : public ScriptedAI
+        struct npc_tempest_minionAI : public ScriptedAI
         {
-            mob_tempest_minionAI(Creature* creature) : ScriptedAI(creature)
+            npc_tempest_minionAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -197,7 +197,7 @@ class mob_tempest_minion : public CreatureScript
                 {
                     if (emalon->IsAlive())
                     {
-                        emalon->SummonCreature(MOB_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        emalon->SummonCreature(NPC_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         Talk(EMOTE_MINION_RESPAWN);
                     }
                 }
@@ -266,12 +266,12 @@ class mob_tempest_minion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_tempest_minionAI(creature);
+            return new npc_tempest_minionAI(creature);
         }
 };
 
 void AddSC_boss_emalon()
 {
     new boss_emalon();
-    new mob_tempest_minion();
+    new npc_tempest_minion();
 }

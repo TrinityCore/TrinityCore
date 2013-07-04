@@ -192,14 +192,14 @@ class boss_bronjahm : public CreatureScript
         }
 };
 
-class mob_corrupted_soul_fragment : public CreatureScript
+class npc_corrupted_soul_fragment : public CreatureScript
 {
     public:
-        mob_corrupted_soul_fragment() : CreatureScript("mob_corrupted_soul_fragment") { }
+        npc_corrupted_soul_fragment() : CreatureScript("npc_corrupted_soul_fragment") { }
 
-        struct mob_corrupted_soul_fragmentAI : public ScriptedAI
+        struct npc_corrupted_soul_fragmentAI : public ScriptedAI
         {
-            mob_corrupted_soul_fragmentAI(Creature* creature) : ScriptedAI(creature)
+            npc_corrupted_soul_fragmentAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
             }
@@ -231,7 +231,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_corrupted_soul_fragmentAI(creature);
+            return new npc_corrupted_soul_fragmentAI(creature);
         }
 };
 
@@ -409,7 +409,7 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
-    new mob_corrupted_soul_fragment();
+    new npc_corrupted_soul_fragment();
     new spell_bronjahm_magic_bane();
     new spell_bronjahm_consume_soul();
     new spell_bronjahm_soulstorm_channel();

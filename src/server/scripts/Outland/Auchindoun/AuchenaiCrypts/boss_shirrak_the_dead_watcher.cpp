@@ -157,19 +157,19 @@ public:
 
 };
 
-class mob_focus_fire : public CreatureScript
+class npc_focus_fire : public CreatureScript
 {
 public:
-    mob_focus_fire() : CreatureScript("mob_focus_fire") { }
+    npc_focus_fire() : CreatureScript("npc_focus_fire") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_focus_fireAI (creature);
+        return new npc_focus_fireAI (creature);
     }
 
-    struct mob_focus_fireAI : public ScriptedAI
+    struct npc_focus_fireAI : public ScriptedAI
     {
-        mob_focus_fireAI(Creature* creature) : ScriptedAI(creature)
+        npc_focus_fireAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -211,5 +211,5 @@ public:
 void AddSC_boss_shirrak_the_dead_watcher()
 {
     new boss_shirrak_the_dead_watcher();
-    new mob_focus_fire();
+    new npc_focus_fire();
 }

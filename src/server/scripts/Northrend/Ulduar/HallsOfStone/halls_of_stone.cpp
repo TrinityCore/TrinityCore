@@ -127,19 +127,19 @@ static Position SpawnLocations[]=
     {960.748f, 382.944f, 208.374f, 0.0f},
 };
 
-class mob_tribuna_controller : public CreatureScript
+class npc_tribuna_controller : public CreatureScript
 {
 public:
-    mob_tribuna_controller() : CreatureScript("mob_tribuna_controller") { }
+    npc_tribuna_controller() : CreatureScript("npc_tribuna_controller") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_tribuna_controllerAI(creature);
+        return new npc_tribuna_controllerAI(creature);
     }
 
-    struct mob_tribuna_controllerAI : public ScriptedAI
+    struct npc_tribuna_controllerAI : public ScriptedAI
     {
-        mob_tribuna_controllerAI(Creature* creature) : ScriptedAI(creature)
+        npc_tribuna_controllerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             SetCombatMovement(false);
@@ -352,7 +352,7 @@ public:
                     {
                         if (!creature->IsAlive())
                             creature->Respawn();
-                        CAST_AI(mob_tribuna_controller::mob_tribuna_controllerAI, creature->AI())->UpdateFacesList();
+                        CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, creature->AI())->UpdateFacesList();
                         uiControllerGUID = creature->GetGUID();
                     }
                     break;
@@ -475,7 +475,7 @@ public:
                         if (instance)
                             instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
-                            CAST_AI(mob_tribuna_controller::mob_tribuna_controllerAI, temp->AI())->bKaddrakActivated = true;
+                            CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bKaddrakActivated = true;
                         JumpToNextStep(5000);
                         break;
                     case 9:
@@ -499,7 +499,7 @@ public:
                         if (instance)
                             instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
-                            CAST_AI(mob_tribuna_controller::mob_tribuna_controllerAI, temp->AI())->bMarnakActivated = true;
+                            CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bMarnakActivated = true;
                         JumpToNextStep(10000);
                         break;
                     case 13:
@@ -531,7 +531,7 @@ public:
                         if (instance)
                             instance->HandleGameObject(instance->GetData64(DATA_GO_ABEDNEUM), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
-                            CAST_AI(mob_tribuna_controller::mob_tribuna_controllerAI, temp->AI())->bAbedneumActivated = true;
+                            CAST_AI(npc_tribuna_controller::npc_tribuna_controllerAI, temp->AI())->bAbedneumActivated = true;
                         JumpToNextStep(5000);
                         break;
                     case 19:
@@ -755,6 +755,6 @@ class achievement_brann_spankin_new : public AchievementCriteriaScript
 void AddSC_halls_of_stone()
 {
     new npc_brann_hos();
-    new mob_tribuna_controller();
+    new npc_tribuna_controller();
     new achievement_brann_spankin_new();
 }

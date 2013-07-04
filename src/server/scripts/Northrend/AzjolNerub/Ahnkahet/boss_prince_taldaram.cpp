@@ -334,14 +334,14 @@ public:
     }
 };
 
-class mob_taldaram_flamesphere : public CreatureScript
+class npc_taldaram_flamesphere : public CreatureScript
 {
 public:
-    mob_taldaram_flamesphere() : CreatureScript("mob_taldaram_flamesphere") { }
+    npc_taldaram_flamesphere() : CreatureScript("npc_taldaram_flamesphere") { }
 
-    struct mob_taldaram_flamesphereAI : public ScriptedAI
+    struct npc_taldaram_flamesphereAI : public ScriptedAI
     {
-        mob_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
+        npc_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -381,7 +381,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_taldaram_flamesphereAI(creature);
+        return new npc_taldaram_flamesphereAI(creature);
     }
 };
 
@@ -425,6 +425,6 @@ public:
 void AddSC_boss_taldaram()
 {
     new boss_taldaram();
-    new mob_taldaram_flamesphere();
+    new npc_taldaram_flamesphere();
     new prince_taldaram_sphere();
 }

@@ -129,19 +129,19 @@ public:
     };
 };
 
-class mob_scarlet_trainee : public CreatureScript
+class npc_scarlet_trainee : public CreatureScript
 {
 public:
-    mob_scarlet_trainee() : CreatureScript("mob_scarlet_trainee") { }
+    npc_scarlet_trainee() : CreatureScript("npc_scarlet_trainee") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_scarlet_traineeAI(creature);
+        return new npc_scarlet_traineeAI(creature);
     }
 
-    struct mob_scarlet_traineeAI : public npc_escortAI
+    struct npc_scarlet_traineeAI : public npc_escortAI
     {
-        mob_scarlet_traineeAI(Creature* creature) : npc_escortAI(creature)
+        npc_scarlet_traineeAI(Creature* creature) : npc_escortAI(creature)
         {
             Start_Timer = urand(1000, 6000);
         }
@@ -171,5 +171,5 @@ public:
 void AddSC_boss_herod()
 {
     new boss_herod();
-    new mob_scarlet_trainee();
+    new npc_scarlet_trainee();
 }

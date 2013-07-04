@@ -77,14 +77,14 @@ SpellPair const _auraPairs[MAX_SPELL_PAIRS] =
     { NPC_ICEBLOOD_WARMASTER,       SPELL_ICEBLOOD_WARMASTER }
 };
 
-class mob_av_marshal_or_warmaster : public CreatureScript
+class npc_av_marshal_or_warmaster : public CreatureScript
 {
     public:
-        mob_av_marshal_or_warmaster() : CreatureScript("mob_av_marshal_or_warmaster") { }
+        npc_av_marshal_or_warmaster() : CreatureScript("npc_av_marshal_or_warmaster") { }
 
-        struct mob_av_marshal_or_warmasterAI : public ScriptedAI
+        struct npc_av_marshal_or_warmasterAI : public ScriptedAI
         {
-            mob_av_marshal_or_warmasterAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_av_marshal_or_warmasterAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset()
             {
@@ -172,11 +172,11 @@ class mob_av_marshal_or_warmaster : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_av_marshal_or_warmasterAI(creature);
+            return new npc_av_marshal_or_warmasterAI(creature);
         }
 };
 
 void AddSC_alterac_valley()
 {
-    new mob_av_marshal_or_warmaster();
+    new npc_av_marshal_or_warmaster();
 }

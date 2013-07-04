@@ -115,19 +115,19 @@ static CouncilYells CouncilEnrage[]=
     {1, 0},                                          // Zerevor
 };
 
-class mob_blood_elf_council_voice_trigger : public CreatureScript
+class npc_blood_elf_council_voice_trigger : public CreatureScript
 {
 public:
-    mob_blood_elf_council_voice_trigger() : CreatureScript("mob_blood_elf_council_voice_trigger") { }
+    npc_blood_elf_council_voice_trigger() : CreatureScript("npc_blood_elf_council_voice_trigger") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
-        return new mob_blood_elf_council_voice_triggerAI(c);
+        return new npc_blood_elf_council_voice_triggerAI(c);
     }
 
-    struct mob_blood_elf_council_voice_triggerAI : public ScriptedAI
+    struct npc_blood_elf_council_voice_triggerAI : public ScriptedAI
     {
-        mob_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
+        npc_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
             for (uint8 i = 0; i < 4; ++i)
                 Council[i] = 0;
@@ -210,19 +210,19 @@ public:
 
 };
 
-class mob_illidari_council : public CreatureScript
+class npc_illidari_council : public CreatureScript
 {
 public:
-    mob_illidari_council() : CreatureScript("mob_illidari_council") { }
+    npc_illidari_council() : CreatureScript("npc_illidari_council") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_illidari_councilAI (creature);
+        return new npc_illidari_councilAI (creature);
     }
 
-    struct mob_illidari_councilAI : public ScriptedAI
+    struct npc_illidari_councilAI : public ScriptedAI
     {
-        mob_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
+        npc_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
@@ -295,8 +295,8 @@ public:
                 // Start the event for the Voice Trigger
                 if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                 {
-                    CAST_AI(mob_blood_elf_council_voice_trigger::mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->LoadCouncilGUIDs();
-                    CAST_AI(mob_blood_elf_council_voice_trigger::mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->EventStarted = true;
+                    CAST_AI(npc_blood_elf_council_voice_trigger::npc_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->LoadCouncilGUIDs();
+                    CAST_AI(npc_blood_elf_council_voice_trigger::npc_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->EventStarted = true;
                 }
 
                 for (uint8 i = 0; i < 4; ++i)
@@ -403,7 +403,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         {
             Creature* Controller = (Unit::GetCreature(*me, instance->GetData64(DATA_ILLIDARICOUNCIL)));
             if (Controller)
-                CAST_AI(mob_illidari_council::mob_illidari_councilAI, Controller->AI())->StartEvent(who);
+                CAST_AI(npc_illidari_council::npc_illidari_councilAI, Controller->AI())->StartEvent(who);
         }
         else
         {
@@ -929,8 +929,8 @@ public:
 
 void AddSC_boss_illidari_council()
 {
-    new mob_illidari_council();
-    new mob_blood_elf_council_voice_trigger();
+    new npc_illidari_council();
+    new npc_blood_elf_council_voice_trigger();
     new boss_gathios_the_shatterer();
     new boss_lady_malande();
     new boss_veras_darkshadow();

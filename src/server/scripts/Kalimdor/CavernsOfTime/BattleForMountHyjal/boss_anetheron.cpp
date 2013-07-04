@@ -172,19 +172,19 @@ public:
 
 };
 
-class mob_towering_infernal : public CreatureScript
+class npc_towering_infernal : public CreatureScript
 {
 public:
-    mob_towering_infernal() : CreatureScript("mob_towering_infernal") { }
+    npc_towering_infernal() : CreatureScript("npc_towering_infernal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_towering_infernalAI (creature);
+        return new npc_towering_infernalAI (creature);
     }
 
-    struct mob_towering_infernalAI : public ScriptedAI
+    struct npc_towering_infernalAI : public ScriptedAI
     {
-        mob_towering_infernalAI(Creature* creature) : ScriptedAI(creature)
+        npc_towering_infernalAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             if (instance)
@@ -257,5 +257,5 @@ public:
 void AddSC_boss_anetheron()
 {
     new boss_anetheron();
-    new mob_towering_infernal();
+    new npc_towering_infernal();
 }

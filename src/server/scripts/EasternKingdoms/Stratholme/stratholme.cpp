@@ -25,9 +25,9 @@ EndScriptData */
 
 /* ContentData
 go_gauntlet_gate
-mob_freed_soul
-mob_restless_soul
-mobs_spectral_ghostly_citizen
+npc_freed_soul
+npc_restless_soul
+npc_spectral_ghostly_citizen
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -81,26 +81,26 @@ public:
 };
 
 /*######
-## mob_freed_soul
+## npc_freed_soul
 ######*/
 enum FreedSoul
 {
     SAY_ZAPPED = 0
 };
 
-class mob_freed_soul : public CreatureScript
+class npc_freed_soul : public CreatureScript
 {
 public:
-    mob_freed_soul() : CreatureScript("mob_freed_soul") { }
+    npc_freed_soul() : CreatureScript("npc_freed_soul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_freed_soulAI (creature);
+        return new npc_freed_soulAI (creature);
     }
 
-    struct mob_freed_soulAI : public ScriptedAI
+    struct npc_freed_soulAI : public ScriptedAI
     {
-        mob_freed_soulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_freed_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset()
         {
@@ -113,7 +113,7 @@ public:
 };
 
 /*######
-## mob_restless_soul
+## npc_restless_soul
 ######*/
 
 #define SPELL_EGAN_BLASTER  17368
@@ -122,19 +122,19 @@ public:
 #define ENTRY_RESTLESS      11122
 #define ENTRY_FREED         11136
 
-class mob_restless_soul : public CreatureScript
+class npc_restless_soul : public CreatureScript
 {
 public:
-    mob_restless_soul() : CreatureScript("mob_restless_soul") { }
+    npc_restless_soul() : CreatureScript("npc_restless_soul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_restless_soulAI (creature);
+        return new npc_restless_soulAI (creature);
     }
 
-    struct mob_restless_soulAI : public ScriptedAI
+    struct npc_restless_soulAI : public ScriptedAI
     {
-        mob_restless_soulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_restless_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 Tagger;
         uint32 Die_Timer;
@@ -195,7 +195,7 @@ public:
 };
 
 /*######
-## mobs_spectral_ghostly_citizen
+## npc_spectral_ghostly_citizen
 ######*/
 
 enum eGhostlyCitizenSpells
@@ -204,19 +204,19 @@ enum eGhostlyCitizenSpells
     SPELL_SLAP              = 6754
 };
 
-class mobs_spectral_ghostly_citizen : public CreatureScript
+class npc_spectral_ghostly_citizen : public CreatureScript
 {
 public:
-    mobs_spectral_ghostly_citizen() : CreatureScript("mobs_spectral_ghostly_citizen") { }
+    npc_spectral_ghostly_citizen() : CreatureScript("npc_spectral_ghostly_citizen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_spectral_ghostly_citizenAI (creature);
+        return new npc_spectral_ghostly_citizenAI (creature);
     }
 
-    struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
+    struct npc_spectral_ghostly_citizenAI : public ScriptedAI
     {
-        mobs_spectral_ghostly_citizenAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_spectral_ghostly_citizenAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Die_Timer;
         bool Tagged;
@@ -294,7 +294,7 @@ public:
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
-    new mob_freed_soul();
-    new mob_restless_soul();
-    new mobs_spectral_ghostly_citizen();
+    new npc_freed_soul();
+    new npc_restless_soul();
+    new npc_spectral_ghostly_citizen();
 }

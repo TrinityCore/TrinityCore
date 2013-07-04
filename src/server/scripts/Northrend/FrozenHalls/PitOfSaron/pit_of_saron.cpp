@@ -38,14 +38,14 @@ enum eEvents
     EVENT_TACTICAL_BLINK        = 2,
 };
 
-class mob_ymirjar_flamebearer : public CreatureScript
+class npc_ymirjar_flamebearer : public CreatureScript
 {
     public:
-        mob_ymirjar_flamebearer() : CreatureScript("mob_ymirjar_flamebearer") { }
+        npc_ymirjar_flamebearer() : CreatureScript("npc_ymirjar_flamebearer") { }
 
-        struct mob_ymirjar_flamebearerAI: public ScriptedAI
+        struct npc_ymirjar_flamebearerAI: public ScriptedAI
         {
-            mob_ymirjar_flamebearerAI(Creature* creature) : ScriptedAI(creature)
+            npc_ymirjar_flamebearerAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -99,18 +99,18 @@ class mob_ymirjar_flamebearer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_ymirjar_flamebearerAI(creature);
+            return new npc_ymirjar_flamebearerAI(creature);
         }
 };
 
-class mob_iceborn_protodrake : public CreatureScript
+class npc_iceborn_protodrake : public CreatureScript
 {
     public:
-        mob_iceborn_protodrake() : CreatureScript("mob_iceborn_protodrake") { }
+        npc_iceborn_protodrake() : CreatureScript("npc_iceborn_protodrake") { }
 
-        struct mob_iceborn_protodrakeAI: public ScriptedAI
+        struct npc_iceborn_protodrakeAI: public ScriptedAI
         {
-            mob_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
+            npc_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
             }
@@ -148,18 +148,18 @@ class mob_iceborn_protodrake : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_iceborn_protodrakeAI(creature);
+            return new npc_iceborn_protodrakeAI(creature);
         }
 };
 
-class mob_geist_ambusher : public CreatureScript
+class npc_geist_ambusher : public CreatureScript
 {
     public:
-        mob_geist_ambusher() : CreatureScript("mob_geist_ambusher") { }
+        npc_geist_ambusher() : CreatureScript("npc_geist_ambusher") { }
 
-        struct mob_geist_ambusherAI: public ScriptedAI
+        struct npc_geist_ambusherAI: public ScriptedAI
         {
-            mob_geist_ambusherAI(Creature* creature) : ScriptedAI(creature)
+            npc_geist_ambusherAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -201,18 +201,18 @@ class mob_geist_ambusher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_geist_ambusherAI(creature);
+            return new npc_geist_ambusherAI(creature);
         }
 };
 
-class spell_trash_mob_glacial_strike : public SpellScriptLoader
+class spell_trash_npc_glacial_strike : public SpellScriptLoader
 {
     public:
-        spell_trash_mob_glacial_strike() : SpellScriptLoader("spell_trash_mob_glacial_strike") { }
+        spell_trash_npc_glacial_strike() : SpellScriptLoader("spell_trash_npc_glacial_strike") { }
 
-        class spell_trash_mob_glacial_strike_AuraScript : public AuraScript
+        class spell_trash_npc_glacial_strike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript);
+            PrepareAuraScript(spell_trash_npc_glacial_strike_AuraScript);
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -225,20 +225,20 @@ class spell_trash_mob_glacial_strike : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trash_mob_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trash_npc_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_trash_mob_glacial_strike_AuraScript();
+            return new spell_trash_npc_glacial_strike_AuraScript();
         }
 };
 
 void AddSC_pit_of_saron()
 {
-    new mob_ymirjar_flamebearer();
-    new mob_iceborn_protodrake();
-    new mob_geist_ambusher();
-    new spell_trash_mob_glacial_strike();
+    new npc_ymirjar_flamebearer();
+    new npc_iceborn_protodrake();
+    new npc_geist_ambusher();
+    new spell_trash_npc_glacial_strike();
 }

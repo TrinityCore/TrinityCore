@@ -24,7 +24,7 @@ SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
 /* ContentData
-mob_omrogg_heads
+npc_omrogg_heads
 boss_warbringer_omrogg
 EndContentData */
 
@@ -102,18 +102,18 @@ static Yell KillingDelay[]=
     {11, NPC_LEFT_HEAD},
 };
 
-class mob_omrogg_heads : public CreatureScript
+class npc_omrogg_heads : public CreatureScript
 {
     public:
 
-        mob_omrogg_heads()
-            : CreatureScript("mob_omrogg_heads")
+        npc_omrogg_heads()
+            : CreatureScript("npc_omrogg_heads")
         {
         }
 
-        struct mob_omrogg_headsAI : public ScriptedAI
+        struct npc_omrogg_headsAI : public ScriptedAI
         {
-            mob_omrogg_headsAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_omrogg_headsAI(Creature* creature) : ScriptedAI(creature) {}
 
             bool DeathYell;
             uint32 Death_Timer;
@@ -146,7 +146,7 @@ class mob_omrogg_heads : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_omrogg_headsAI(creature);
+            return new npc_omrogg_headsAI(creature);
         }
 };
 
@@ -306,7 +306,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 pLeftHead->AI()->Talk(YELL_DIE_L);
 
-                CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, pRightHead->ToCreature()->AI())->DoDeathYell();
+                CAST_AI(npc_omrogg_heads::npc_omrogg_headsAI, pRightHead->ToCreature()->AI())->DoDeathYell();
 
                 if (instance)
                     instance->SetData(TYPE_OMROGG, DONE);
@@ -423,6 +423,6 @@ class boss_warbringer_omrogg : public CreatureScript
 void AddSC_boss_warbringer_omrogg()
 {
     new boss_warbringer_omrogg();
-    new mob_omrogg_heads();
+    new npc_omrogg_heads();
 }
 

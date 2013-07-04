@@ -24,7 +24,7 @@ SDCategory: Eastern Plaguelands
 EndScriptData */
 
 /* ContentData
-mobs_ghoul_flayer
+npc_ghoul_flayer
 npc_augustus_the_touched
 npc_darrowshire_spirit
 npc_tirion_fordring
@@ -36,14 +36,14 @@ EndContentData */
 #include "Player.h"
 #include "WorldSession.h"
 
-class mobs_ghoul_flayer : public CreatureScript
+class npc_ghoul_flayer : public CreatureScript
 {
 public:
-    mobs_ghoul_flayer() : CreatureScript("mobs_ghoul_flayer") { }
+    npc_ghoul_flayer() : CreatureScript("npc_ghoul_flayer") { }
 
-    struct mobs_ghoul_flayerAI : public ScriptedAI
+    struct npc_ghoul_flayerAI : public ScriptedAI
     {
-        mobs_ghoul_flayerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_ghoul_flayerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() {}
 
@@ -58,7 +58,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mobs_ghoul_flayerAI (creature);
+        return new npc_ghoul_flayerAI (creature);
     }
 };
 
@@ -185,7 +185,7 @@ public:
 
 void AddSC_eastern_plaguelands()
 {
-    new mobs_ghoul_flayer();
+    new npc_ghoul_flayer();
     new npc_augustus_the_touched();
     new npc_darrowshire_spirit();
     new npc_tirion_fordring();

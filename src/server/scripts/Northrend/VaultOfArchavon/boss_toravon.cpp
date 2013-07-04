@@ -50,7 +50,7 @@ enum Events
 };
 
 // Mob Frozen Orb
-#define MOB_FROZEN_ORB 38456    // 1 in 10 mode and 3 in 25 mode
+#define NPC_FROZEN_ORB 38456    // 1 in 10 mode and 3 in 25 mode
 
 class boss_toravon : public CreatureScript
 {
@@ -119,14 +119,14 @@ class boss_toravon : public CreatureScript
 /*######
 ##  Mob Frost Warder
 ######*/
-class mob_frost_warder : public CreatureScript
+class npc_frost_warder : public CreatureScript
 {
     public:
-        mob_frost_warder() : CreatureScript("mob_frost_warder") { }
+        npc_frost_warder() : CreatureScript("npc_frost_warder") { }
 
-        struct mob_frost_warderAI : public ScriptedAI
+        struct npc_frost_warderAI : public ScriptedAI
         {
-            mob_frost_warderAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -167,21 +167,21 @@ class mob_frost_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_frost_warderAI(creature);
+            return new npc_frost_warderAI(creature);
         }
 };
 
 /*######
 ##  Mob Frozen Orb
 ######*/
-class mob_frozen_orb : public CreatureScript
+class npc_frozen_orb : public CreatureScript
 {
 public:
-    mob_frozen_orb() : CreatureScript("mob_frozen_orb") { }
+    npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
 
-    struct mob_frozen_orbAI : public ScriptedAI
+    struct npc_frozen_orbAI : public ScriptedAI
     {
-        mob_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
+        npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -222,21 +222,21 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frozen_orbAI(creature);
+        return new npc_frozen_orbAI(creature);
     }
 };
 
 /*######
 ##  Mob Frozen Orb Stalker
 ######*/
-class mob_frozen_orb_stalker : public CreatureScript
+class npc_frozen_orb_stalker : public CreatureScript
 {
     public:
-        mob_frozen_orb_stalker() : CreatureScript("mob_frozen_orb_stalker") { }
+        npc_frozen_orb_stalker() : CreatureScript("npc_frozen_orb_stalker") { }
 
-        struct mob_frozen_orb_stalkerAI : public ScriptedAI
+        struct npc_frozen_orb_stalkerAI : public ScriptedAI
         {
-            mob_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
+            npc_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 creature->SetVisible(false);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
@@ -275,14 +275,14 @@ class mob_frozen_orb_stalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_frozen_orb_stalkerAI(creature);
+            return new npc_frozen_orb_stalkerAI(creature);
         }
 };
 
 void AddSC_boss_toravon()
 {
     new boss_toravon();
-    new mob_frost_warder();
-    new mob_frozen_orb();
-    new mob_frozen_orb_stalker();
+    new npc_frost_warder();
+    new npc_frozen_orb();
+    new npc_frozen_orb_stalker();
 }

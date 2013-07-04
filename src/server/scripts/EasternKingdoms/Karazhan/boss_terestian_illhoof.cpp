@@ -59,19 +59,19 @@ enum TerestianIllhoof
 };
 
 
-class mob_kilrek : public CreatureScript
+class npc_kilrek : public CreatureScript
 {
 public:
-    mob_kilrek() : CreatureScript("mob_kilrek") { }
+    npc_kilrek() : CreatureScript("npc_kilrek") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_kilrekAI (creature);
+        return new npc_kilrekAI (creature);
     }
 
-    struct mob_kilrekAI : public ScriptedAI
+    struct npc_kilrekAI : public ScriptedAI
     {
-        mob_kilrekAI(Creature* creature) : ScriptedAI(creature)
+        npc_kilrekAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -130,19 +130,19 @@ public:
     };
 };
 
-class mob_demon_chain : public CreatureScript
+class npc_demon_chain : public CreatureScript
 {
 public:
-    mob_demon_chain() : CreatureScript("mob_demon_chain") { }
+    npc_demon_chain() : CreatureScript("npc_demon_chain") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_demon_chainAI(creature);
+        return new npc_demon_chainAI(creature);
     }
 
-    struct mob_demon_chainAI : public ScriptedAI
+    struct npc_demon_chainAI : public ScriptedAI
     {
-        mob_demon_chainAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_demon_chainAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 SacrificeGUID;
 
@@ -167,19 +167,19 @@ public:
     };
 };
 
-class mob_fiendish_portal : public CreatureScript
+class npc_fiendish_portal : public CreatureScript
 {
 public:
-    mob_fiendish_portal() : CreatureScript("mob_fiendish_portal") { }
+    npc_fiendish_portal() : CreatureScript("npc_fiendish_portal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fiendish_portalAI (creature);
+        return new npc_fiendish_portalAI (creature);
     }
 
-    struct mob_fiendish_portalAI : public PassiveAI
+    struct npc_fiendish_portalAI : public PassiveAI
     {
-        mob_fiendish_portalAI(Creature* creature) : PassiveAI(creature), summons(me){}
+        npc_fiendish_portalAI(Creature* creature) : PassiveAI(creature), summons(me){}
 
         SummonList summons;
 
@@ -203,19 +203,19 @@ public:
 
 #define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
 
-class mob_fiendish_imp : public CreatureScript
+class npc_fiendish_imp : public CreatureScript
 {
 public:
-    mob_fiendish_imp() : CreatureScript("mob_fiendish_imp") { }
+    npc_fiendish_imp() : CreatureScript("npc_fiendish_imp") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fiendish_impAI (creature);
+        return new npc_fiendish_impAI (creature);
     }
 
-    struct mob_fiendish_impAI : public ScriptedAI
+    struct npc_fiendish_impAI : public ScriptedAI
     {
-        mob_fiendish_impAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fiendish_impAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 FireboltTimer;
 
@@ -285,7 +285,7 @@ public:
                 {
                     if (Creature* pPortal = Unit::GetCreature(*me, PortalGUID[i]))
                     {
-                        CAST_AI(mob_fiendish_portal::mob_fiendish_portalAI, pPortal->AI())->DespawnAllImp();
+                        CAST_AI(npc_fiendish_portal::npc_fiendish_portalAI, pPortal->AI())->DespawnAllImp();
                         pPortal->DespawnOrUnsummon();
                     }
 
@@ -377,7 +377,7 @@ public:
 
                     if (Creature* Chains = me->FindNearestCreature(CREATURE_DEMONCHAINS, 5000))
                     {
-                        CAST_AI(mob_demon_chain::mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
+                        CAST_AI(npc_demon_chain::npc_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                         Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
                         Talk(SAY_SACRIFICE);
                         SacrificeTimer = 30000;
@@ -424,8 +424,8 @@ public:
 void AddSC_boss_terestian_illhoof()
 {
     new boss_terestian_illhoof();
-    new mob_fiendish_imp();
-    new mob_fiendish_portal();
-    new mob_kilrek();
-    new mob_demon_chain();
+    new npc_fiendish_imp();
+    new npc_fiendish_portal();
+    new npc_kilrek();
+    new npc_demon_chain();
 }

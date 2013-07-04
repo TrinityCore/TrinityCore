@@ -29,7 +29,7 @@ npc_corastrasza
 npc_jenny
 npc_sinkhole_kill_credit
 npc_khunok_the_behemoth
-mob_nerubar_victim
+npc_nerubar_victim
 npc_keristrasza
 npc_nesingwary_trapper
 npc_lurgglbr
@@ -336,7 +336,7 @@ public:
 };
 
 /*######
-## mob_nerubar_victim
+## npc_nerubar_victim
 ######*/
 
 #define WARSONG_PEON        25270
@@ -346,14 +346,14 @@ const uint32 nerubarVictims[3] =
     45526, 45527, 45514
 };
 
-class mob_nerubar_victim : public CreatureScript
+class npc_nerubar_victim : public CreatureScript
 {
 public:
-    mob_nerubar_victim() : CreatureScript("mob_nerubar_victim") { }
+    npc_nerubar_victim() : CreatureScript("npc_nerubar_victim") { }
 
-    struct mob_nerubar_victimAI : public ScriptedAI
+    struct npc_nerubar_victimAI : public ScriptedAI
     {
-        mob_nerubar_victimAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_nerubar_victimAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -381,7 +381,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_nerubar_victimAI(creature);
+        return new npc_nerubar_victimAI(creature);
     }
 };
 
@@ -2510,7 +2510,7 @@ void AddSC_borean_tundra()
     new npc_keristrasza();
     new npc_corastrasza();
     new npc_iruk();
-    new mob_nerubar_victim();
+    new npc_nerubar_victim();
     new npc_jenny();
     new npc_fezzix_geartwist();
     new npc_nesingwary_trapper();

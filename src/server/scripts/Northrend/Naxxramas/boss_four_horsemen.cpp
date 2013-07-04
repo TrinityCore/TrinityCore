@@ -62,7 +62,7 @@ const Position WaypointPositions[12] =
     {2517.8f, -2896.6f, 241.28f, 2.315f},
 };
 
-const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
+const uint32 NPC_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
 const uint32 SPELL_MARK[]       =   {28832, 28833, 28834, 28835};
 #define SPELL_PRIMARY(i)            RAID_MODE(SPELL_PRIMARY_N[i], SPELL_PRIMARY_H[i])
 const uint32 SPELL_PRIMARY_N[]  =   {28884, 28863, 28882, 28883};
@@ -98,7 +98,7 @@ public:
         {
             id = Horsemen(0);
             for (uint8 i = 0; i < 4; ++i)
-                if (me->GetEntry() == MOB_HORSEMEN[i])
+                if (me->GetEntry() == NPC_HORSEMEN[i])
                     id = Horsemen(i);
             caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
             encounterActionReset = false;

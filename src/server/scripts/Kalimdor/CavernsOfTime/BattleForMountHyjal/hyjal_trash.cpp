@@ -408,14 +408,14 @@ void hyjal_trashAI::JustDied(Unit* /*killer*/)
         me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);//no loot
 }
 
-class mob_giant_infernal : public CreatureScript
+class npc_giant_infernal : public CreatureScript
 {
 public:
-    mob_giant_infernal() : CreatureScript("mob_giant_infernal") { }
+    npc_giant_infernal() : CreatureScript("npc_giant_infernal") { }
 
-    struct mob_giant_infernalAI : public hyjal_trashAI
+    struct npc_giant_infernalAI : public hyjal_trashAI
     {
-        mob_giant_infernalAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_giant_infernalAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             meteor = false;//call once!
@@ -537,23 +537,23 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_giant_infernalAI(creature);
+        return new npc_giant_infernalAI(creature);
     }
 };
 
-class mob_abomination : public CreatureScript
+class npc_abomination : public CreatureScript
 {
 public:
-    mob_abomination() : CreatureScript("mob_abomination") { }
+    npc_abomination() : CreatureScript("npc_abomination") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_abominationAI(creature);
+        return new npc_abominationAI(creature);
     }
 
-    struct mob_abominationAI : public hyjal_trashAI
+    struct npc_abominationAI : public hyjal_trashAI
     {
-        mob_abominationAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_abominationAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -639,19 +639,19 @@ public:
 
 };
 
-class mob_ghoul : public CreatureScript
+class npc_ghoul : public CreatureScript
 {
 public:
-    mob_ghoul() : CreatureScript("mob_ghoul") { }
+    npc_ghoul() : CreatureScript("npc_ghoul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ghoulAI(creature);
+        return new npc_ghoulAI(creature);
     }
 
-    struct mob_ghoulAI : public hyjal_trashAI
+    struct npc_ghoulAI : public hyjal_trashAI
     {
-        mob_ghoulAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_ghoulAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -741,19 +741,19 @@ public:
 
 };
 
-class mob_necromancer : public CreatureScript
+class npc_necromancer : public CreatureScript
 {
 public:
-    mob_necromancer() : CreatureScript("mob_necromancer") { }
+    npc_necromancer() : CreatureScript("npc_necromancer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_necromancerAI(creature);
+        return new npc_necromancerAI(creature);
     }
 
-    struct mob_necromancerAI : public hyjal_trashAI
+    struct npc_necromancerAI : public hyjal_trashAI
     {
-        mob_necromancerAI(Creature* creature) : hyjal_trashAI(creature), summons(me)
+        npc_necromancerAI(Creature* creature) : hyjal_trashAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -868,19 +868,19 @@ public:
 
 };
 
-class mob_banshee : public CreatureScript
+class npc_banshee : public CreatureScript
 {
 public:
-    mob_banshee() : CreatureScript("mob_banshee") { }
+    npc_banshee() : CreatureScript("npc_banshee") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_bansheeAI(creature);
+        return new npc_bansheeAI(creature);
     }
 
-    struct mob_bansheeAI : public hyjal_trashAI
+    struct npc_bansheeAI : public hyjal_trashAI
     {
-        mob_bansheeAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_bansheeAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -971,19 +971,19 @@ public:
 
 };
 
-class mob_crypt_fiend : public CreatureScript
+class npc_crypt_fiend : public CreatureScript
 {
 public:
-    mob_crypt_fiend() : CreatureScript("mob_crypt_fiend") { }
+    npc_crypt_fiend() : CreatureScript("npc_crypt_fiend") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_crypt_fiendAI(creature);
+        return new npc_crypt_fiendAI(creature);
     }
 
-    struct mob_crypt_fiendAI : public hyjal_trashAI
+    struct npc_crypt_fiendAI : public hyjal_trashAI
     {
-        mob_crypt_fiendAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_crypt_fiendAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -1061,19 +1061,19 @@ public:
 
 };
 
-class mob_fel_stalker : public CreatureScript
+class npc_fel_stalker : public CreatureScript
 {
 public:
-    mob_fel_stalker() : CreatureScript("mob_fel_stalker") { }
+    npc_fel_stalker() : CreatureScript("npc_fel_stalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fel_stalkerAI(creature);
+        return new npc_fel_stalkerAI(creature);
     }
 
-    struct mob_fel_stalkerAI : public hyjal_trashAI
+    struct npc_fel_stalkerAI : public hyjal_trashAI
     {
-        mob_fel_stalkerAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_fel_stalkerAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -1151,19 +1151,19 @@ public:
 
 };
 
-class mob_frost_wyrm : public CreatureScript
+class npc_frost_wyrm : public CreatureScript
 {
 public:
-    mob_frost_wyrm() : CreatureScript("mob_frost_wyrm") { }
+    npc_frost_wyrm() : CreatureScript("npc_frost_wyrm") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frost_wyrmAI(creature);
+        return new npc_frost_wyrmAI(creature);
     }
 
-    struct mob_frost_wyrmAI : public hyjal_trashAI
+    struct npc_frost_wyrmAI : public hyjal_trashAI
     {
-        mob_frost_wyrmAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_frost_wyrmAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -1263,19 +1263,19 @@ public:
 
 };
 
-class mob_gargoyle : public CreatureScript
+class npc_gargoyle : public CreatureScript
 {
 public:
-    mob_gargoyle() : CreatureScript("mob_gargoyle") { }
+    npc_gargoyle() : CreatureScript("npc_gargoyle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_gargoyleAI(creature);
+        return new npc_gargoyleAI(creature);
     }
 
-    struct mob_gargoyleAI : public hyjal_trashAI
+    struct npc_gargoyleAI : public hyjal_trashAI
     {
-        mob_gargoyleAI(Creature* creature) : hyjal_trashAI(creature)
+        npc_gargoyleAI(Creature* creature) : hyjal_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
             go = false;
@@ -1467,14 +1467,14 @@ public:
 
 void AddSC_hyjal_trash()
 {
-    new mob_giant_infernal();
-    new mob_abomination();
-    new mob_ghoul();
-    new mob_necromancer();
-    new mob_banshee();
-    new mob_crypt_fiend();
-    new mob_fel_stalker();
-    new mob_frost_wyrm();
-    new mob_gargoyle();
+    new npc_giant_infernal();
+    new npc_abomination();
+    new npc_ghoul();
+    new npc_necromancer();
+    new npc_banshee();
+    new npc_crypt_fiend();
+    new npc_fel_stalker();
+    new npc_frost_wyrm();
+    new npc_gargoyle();
     new alliance_rifleman();
 }
