@@ -123,6 +123,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.82 - 04/06/2013: Anti-rollback loot por Eilo basado en raidinfo de Eilo
 0.83 - 18/06/2013: Funciones base para el sistema anti-caidas debajo del suelo en arenas por Eilo
 0.84 - 20/06/2013: Sistema anti-caida debajo del suelo en RoV por Eilo
+0.85 - 04/07/2013: Implementacion del metodo ApplySpellPenetrationBonus por Retriman
+0.86 - 04/07/2013: Implementacion del metodo GetSpellPenetration por Retriman
+0.87 - 04/07/2013: Resistencias Binarias por Retriman
 
 
 ###############
@@ -225,6 +228,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.149 - 04/07/2013: IoC: Fix level siege engine alliance por Apa
 1.150 - 02/07/2013: IoC: Agregando scripts y asignacion de scriptname a los bosses de la Alianza y la Horda por Jar
 1.151 - 03/07/2013: Varios ajustes en  SpellInfo::CheckTarge y Spell::CheckCast, Ahora los power-ups o auras de ayuda de Warsong Gulch y Arathi Basin, se pueden usar cuando el personaje se encuentra en sigilo o invisible por jar
+1.152 - 04/07/2013: IoC: Fix del movimiento del cannon por Apa
 
 
 ########################
@@ -1110,6 +1114,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.54 - 01/07/2013: Festival del solsticio de verano: Rey del Festival de Fuego por Muzashi
 6.55 - 02/07/2013: Festival del solsticio de verano: Un disfraz inofensivo por Rincewind
 6.56 - 03/07/2013: Festival del solsticio de verano: Honrar y apagar los fuegos por Rincewind
+6.57 - 04/07/2013: Desactivando eventos del sol devastado que no se usan ni sirven desde hace 2 años por Eilo
 
 
 ##########
