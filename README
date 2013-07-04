@@ -207,6 +207,24 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.131 - 04/06/2013: Saves: separando las ejecuciones sobre la base de datos por Eilo
 1.132 - 04/06/2013: InstanceReset: kickeando a los players de un mapa cuando esta a punto de resetear, asegurando la eliminacion de datos y otros por Eilo
 1.133 - 05/06/2013: Anti-Flood: Control de flood solo en canales por Eilo
+1.134 - 30/06/2013: Las spells Place Seaforium Bomb,Place Huge Seaforium Bomb y Place Seaforium Charge, ahora colocara la carga en la posicion correcta, evitando que atraviese las texturas por Jar
+1.135 - 30/06/2013: Algunos ajustes en Creature::canCreatureAttack, añadido check para evitar que los  boss de Isla de la conquista entren en “EvadeMode” de forma prematura, permitiendo una batalla más blizzlike por Jar
+1.136 - 30/06/2013: Algunos ajustes en MotionMaster::MoveKnockbackFrom, solucionado log  cuando speedXY=0, ahora las spells que utilizan este efecto realizaran la animacion de forma correcta. (Necesario  para la spell "CRUSHING LEAP" utilizada por los Boss de Isla de la conquista) por Jar
+1.137 - 30/06/2013: IoC: Fix level High Commander Halford Wyrmbane por Apa 
+1.138 - 30/06/2013: IoC: Fix level Overlord Agmar por Apa
+1.139 - 02/07/2013: IoC: Fix Regenhealth Catapult por Ramas
+1.140 - 03/07/2013: Alterac: Ajustado el tiempo para tomar el snowfall graveyard a 4:05 por Apa
+1.141 - 04/07/2013: IoC: Fix Regenhealth Siege Turret Horde por Ramas
+1.142 - 04/07/2013: IoC: Fix level Catapult por Apa
+1.143 - 04/07/2013: IoC: Fix Regenhealth Siege Turret Alliance por Ramas
+1.144 - 04/07/2013: IoC: Fix level demolisher por Apa
+1.145 - 04/07/2013: IoC: Fix level keep cannon por Apa
+1.146 - 04/07/2013: IoC: Fix level glaive thrower horde por Apa
+1.147 - 04/07/2013: IoC: Fix level glaive thrower alliance por Apa
+1.148 - 04/07/2013: IoC: Fix level siege engine horde por Apa
+1.149 - 04/07/2013: IoC: Fix level siege engine alliance por Apa
+1.150 - 02/07/2013: IoC: Agregando scripts y asignacion de scriptname a los bosses de la Alianza y la Horda por Jar
+1.151 - 03/07/2013: Varios ajustes en  SpellInfo::CheckTarge y Spell::CheckCast, Ahora los power-ups o auras de ayuda de Warsong Gulch y Arathi Basin, se pueden usar cuando el personaje se encuentra en sigilo o invisible por jar
 
 
 ########################
@@ -364,8 +382,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.13 - 11/04/2013: Ulduar: Hodir spameara el rare chest si se cumple el hard mode por Dolanpls
 2.6.14 - 21/04/2013: Ulduar: El combate contra Freya no dejera el aura "Esencia de Hojabrillante" a todos los mobs cercanos por Dolanpls
 2.6.15 - 25/04/2013: Ulduar: El combate contra Freya no dejera el aura "Esencia de Hierrorrama" a todos los mobs cercanos por Dolanpls
-2.6.16 - 13/06/2013: Ulduar: Los npc del camino hasta Thorim ya no seran inmunes al ataque de jugadores por Dolanpls
-2.6.17 - 15/06/2013: Ulduar: Las trampas que hay antes del boss Thorim ya no perseguiran al jugador ni seran seleccionables y atacables por Dolanpls
+2.6.16 - 28/06/2013: Ulduar: Los npc del camino hasta Thorim ya no seran inmunes al ataque de jugadores por Dolanpls 
+2.6.17 - 28/06/2013: Ulduar: Las trampas que hay antes del boss Thorim ya no perseguiran al jugador ni seran seleccionables y atacables por Dolanpls
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -1083,7 +1101,15 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.45 - 07/06/2013: Condiciones para objetivos de spells de Wyrmrest Defender por Rincewind
 6.46 - 14/06/2013: Stratholme: La súplica de un muerto por Muzashi
 6.47 - 17/06/2013: Shadow Labyrinth: El boss Negrozon el incitador no lanzara la spell Incitar Caos al tanque por Dolanpls
-6.48 - 21/06/2013: Festival del Solsticio de verano: Campamentos por Rincewind
+6.48 - 27/06/2013: Festival del solsticio de verano: campamentos por Rincewind
+6.49 - 27/06/2013: Festival del solsticio de verano: Game_event_creature por Rincewind
+6.50 - 27/06/2013: Festival del solsticio de verano: Game_event_gameobject por Rincewind
+6.51 - 01/07/2013: Festival del solsticio de verano: Baile ardiente en el poste caliente por Muzashi
+6.52 - 01/07/2013: Festival del solsticio de verano: Malabarista por Muzashi
+6.53 - 01/07/2013: Dalaran: Arreglo de Aludane Whitecloud y Jean Pierre Poulain para evitar que spamee grifos exageradamente por Eilo
+6.54 - 01/07/2013: Festival del solsticio de verano: Rey del Festival de Fuego por Muzashi
+6.55 - 02/07/2013: Festival del solsticio de verano: Un disfraz inofensivo por Rincewind
+6.56 - 03/07/2013: Festival del solsticio de verano: Honrar y apagar los fuegos por Rincewind
 
 
 ##########
