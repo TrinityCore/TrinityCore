@@ -432,19 +432,19 @@ public:
     };
 };
 
-class mob_felkael_flamestrike : public CreatureScript
+class npc_felkael_flamestrike : public CreatureScript
 {
 public:
-    mob_felkael_flamestrike() : CreatureScript("mob_felkael_flamestrike") { }
+    npc_felkael_flamestrike() : CreatureScript("npc_felkael_flamestrike") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
-        return new mob_felkael_flamestrikeAI(c);
+        return new npc_felkael_flamestrikeAI(c);
     }
 
-    struct mob_felkael_flamestrikeAI : public ScriptedAI
+    struct npc_felkael_flamestrikeAI : public ScriptedAI
     {
-        mob_felkael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
+        npc_felkael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -473,19 +473,19 @@ public:
     };
 };
 
-class mob_felkael_phoenix : public CreatureScript
+class npc_felkael_phoenix : public CreatureScript
 {
 public:
-    mob_felkael_phoenix() : CreatureScript("mob_felkael_phoenix") { }
+    npc_felkael_phoenix() : CreatureScript("npc_felkael_phoenix") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
-        return new mob_felkael_phoenixAI(c);
+        return new npc_felkael_phoenixAI(c);
     }
 
-    struct mob_felkael_phoenixAI : public ScriptedAI
+    struct npc_felkael_phoenixAI : public ScriptedAI
     {
-        mob_felkael_phoenixAI(Creature* creature) : ScriptedAI(creature)
+        npc_felkael_phoenixAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -586,19 +586,19 @@ public:
     };
 };
 
-class mob_felkael_phoenix_egg : public CreatureScript
+class npc_felkael_phoenix_egg : public CreatureScript
 {
 public:
-    mob_felkael_phoenix_egg() : CreatureScript("mob_felkael_phoenix_egg") { }
+    npc_felkael_phoenix_egg() : CreatureScript("npc_felkael_phoenix_egg") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
-        return new mob_felkael_phoenix_eggAI(c);
+        return new npc_felkael_phoenix_eggAI(c);
     }
 
-    struct mob_felkael_phoenix_eggAI : public ScriptedAI
+    struct npc_felkael_phoenix_eggAI : public ScriptedAI
     {
-        mob_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 HatchTimer;
 
@@ -621,19 +621,19 @@ public:
     };
 };
 
-class mob_arcane_sphere : public CreatureScript
+class npc_arcane_sphere : public CreatureScript
 {
 public:
-    mob_arcane_sphere() : CreatureScript("mob_arcane_sphere") { }
+    npc_arcane_sphere() : CreatureScript("npc_arcane_sphere") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
-        return new mob_arcane_sphereAI(c);
+        return new npc_arcane_sphereAI(c);
     }
 
-    struct mob_arcane_sphereAI : public ScriptedAI
+    struct npc_arcane_sphereAI : public ScriptedAI
     {
-        mob_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+        npc_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
 
         uint32 DespawnTimer;
         uint32 ChangeTargetTimer;
@@ -680,8 +680,8 @@ public:
 void AddSC_boss_felblood_kaelthas()
 {
     new boss_felblood_kaelthas();
-    new mob_arcane_sphere();
-    new mob_felkael_phoenix();
-    new mob_felkael_phoenix_egg();
-    new mob_felkael_flamestrike();
+    new npc_arcane_sphere();
+    new npc_felkael_phoenix();
+    new npc_felkael_phoenix_egg();
+    new npc_felkael_flamestrike();
 }

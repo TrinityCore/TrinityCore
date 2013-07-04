@@ -32,9 +32,9 @@ enum Noth
     SPELL_CRIPPLE                   = 29212, // 25-man: 54814
     SPELL_TELEPORT                  = 29216,
 
-    MOB_WARRIOR                     = 16984,
-    MOB_CHAMPION                    = 16983,
-    MOB_GUARDIAN                    = 16981
+    NPC_WARRIOR                     = 16984,
+    NPC_CHAMPION                    = 16983,
+    NPC_GUARDIAN                    = 16981
 };
 
 #define SPELL_BLINK                     RAND(29208, 29209, 29210, 29211)
@@ -162,7 +162,7 @@ public:
                         return;
                     case EVENT_WARRIOR:
                         Talk(SAY_SUMMON);
-                        SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
+                        SummonUndead(NPC_WARRIOR, RAID_MODE(2, 3));
                         events.ScheduleEvent(EVENT_WARRIOR, 30000);
                         return;
                     case EVENT_BLINK:
@@ -185,12 +185,12 @@ public:
                         Talk(SAY_SUMMON);
                         switch (balconyCount)
                         {
-                            case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2, 4)); break;
-                            case 1: SummonUndead(MOB_CHAMPION, RAID_MODE(1, 2));
-                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(1, 2)); break;
-                            case 2: SummonUndead(MOB_GUARDIAN, RAID_MODE(2, 4)); break;
-                            default:SummonUndead(MOB_CHAMPION, RAID_MODE(5, 10));
-                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(5, 10));break;
+                            case 0: SummonUndead(NPC_CHAMPION, RAID_MODE(2, 4)); break;
+                            case 1: SummonUndead(NPC_CHAMPION, RAID_MODE(1, 2));
+                                    SummonUndead(NPC_GUARDIAN, RAID_MODE(1, 2)); break;
+                            case 2: SummonUndead(NPC_GUARDIAN, RAID_MODE(2, 4)); break;
+                            default:SummonUndead(NPC_CHAMPION, RAID_MODE(5, 10));
+                                    SummonUndead(NPC_GUARDIAN, RAID_MODE(5, 10));break;
                         }
                         ++waveCount;
                         events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, urand(30000, 45000));

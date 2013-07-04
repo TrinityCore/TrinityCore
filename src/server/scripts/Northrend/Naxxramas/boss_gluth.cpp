@@ -25,7 +25,7 @@
 #define SPELL_BERSERK           26662
 #define SPELL_INFECTED_WOUND    29306
 
-#define MOB_ZOMBIE  16360
+#define NPC_ZOMBIE  16360
 
 const Position PosSummon[3] =
 {
@@ -66,7 +66,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
+            if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
                 /// @todo use a script text
@@ -88,7 +88,7 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            if (summon->GetEntry() == MOB_ZOMBIE)
+            if (summon->GetEntry() == NPC_ZOMBIE)
                 summon->AI()->AttackStart(me);
             summons.Summon(summon);
         }
@@ -124,13 +124,13 @@ public:
                         break;
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
-                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
+                            DoSummon(NPC_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
                 }
             }
 
-            if (me->GetVictim() && me->GetVictim()->GetEntry() == MOB_ZOMBIE)
+            if (me->GetVictim() && me->GetVictim()->GetEntry() == NPC_ZOMBIE)
             {
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {

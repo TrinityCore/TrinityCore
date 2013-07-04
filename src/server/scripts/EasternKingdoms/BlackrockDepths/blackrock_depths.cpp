@@ -54,7 +54,7 @@ enum eGrimstone
     NPC_THELDREN                                           = 16059,
 
     //4 or 6 in total? 1+2+1 / 2+2+2 / 3+3. Depending on this, code should be changed.
-    MAX_MOB_AMOUNT                                         = 4
+    MAX_NPC_AMOUNT                                         = 4
 };
 
 uint32 RingMob[]=
@@ -152,7 +152,7 @@ public:
             MobCount = 0;
             MobDeath_Timer = 0;
 
-            for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
+            for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
                 RingMobGUID[i] = 0;
 
             RingBossGUID = 0;
@@ -168,7 +168,7 @@ public:
 
             ++MobCount;
 
-            if (MobCount == MAX_MOB_AMOUNT)
+            if (MobCount == MAX_NPC_AMOUNT)
                 MobDeath_Timer = 2500;
         }
 
@@ -246,7 +246,7 @@ public:
                         return;
                     }
 
-                    for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
+                    for (uint8 i = 0; i < MAX_NPC_AMOUNT; ++i)
                     {
                         Creature* mob = Unit::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->IsAlive() && mob->isDead())
@@ -339,7 +339,7 @@ public:
     };
 };
 
-// mob_phalanx
+// npc_phalanx
 enum PhalanxSpells
 {
     SPELL_THUNDERCLAP                   = 8732,
@@ -347,19 +347,19 @@ enum PhalanxSpells
     SPELL_MIGHTYBLOW                    = 14099
 };
 
-class mob_phalanx : public CreatureScript
+class npc_phalanx : public CreatureScript
 {
 public:
-    mob_phalanx() : CreatureScript("mob_phalanx") { }
+    npc_phalanx() : CreatureScript("npc_phalanx") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_phalanxAI (creature);
+        return new npc_phalanxAI (creature);
     }
 
-    struct mob_phalanxAI : public ScriptedAI
+    struct npc_phalanxAI : public ScriptedAI
     {
-        mob_phalanxAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_phalanxAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;
@@ -680,7 +680,7 @@ public:
 #define SAY_WINDSOR_4_3             "Good work! We're almost there, $N. This way."
 #define SAY_WINDSOR_6               "This is it, $N. My stuff should be in that room. Cover me, I'm going in!"
 #define SAY_WINDSOR_9               "Ah, there it is!"
-#define MOB_ENTRY_REGINALD_WINDSOR  9682
+#define NPC_REGINALD_WINDSOR        9682
 
 /*
 Player* playerStart;
@@ -778,7 +778,7 @@ public:
                     me->SetVisible(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SummonCreature(MOB_ENTRY_REGINALD_WINDSOR, 403.61f, -51.71f, -63.92f, 3.600434f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    me->SummonCreature(NPC_REGINALD_WINDSOR, 403.61f, -51.71f, -63.92f, 3.600434f, TEMPSUMMON_DEAD_DESPAWN, 0);
                     instance->SetData(DATA_SUPPLY_ROOM, ENCOUNTER_STATE_ENDED);
                     break;
             }
@@ -859,8 +859,8 @@ public:
 #define SAY_REGINALD_WINDSOR_14_2   "Excellent work, $N. Let's find the exit. I think I know the way. Follow me!"
 #define SAY_REGINALD_WINDSOR_20_1   "We made it!"
 #define SAY_REGINALD_WINDSOR_20_2   "Meet me at Maxwell's encampment. We'll go over the next stages of the plan there and figure out a way to decode my tablets without the decryption ring."
-#define MOB_ENTRY_SHILL_DINGER      9678
-#define MOB_ENTRY_CREST_KILLER      9680
+#define NPC_SHILL_DINGER            9678
+#define NPC_CREST_KILLER            9680
 
 /*
 int wp = 0;
@@ -1328,7 +1328,7 @@ void AddSC_blackrock_depths()
     new go_shadowforge_brazier();
     new at_ring_of_law();
     new npc_grimstone();
-    new mob_phalanx();
+    new npc_phalanx();
     new npc_kharan_mighthammer();
     new npc_lokhtos_darkbargainer();
     new npc_rocknot();

@@ -51,19 +51,19 @@ enum DoomBlossom
     CREATURE_SHADOWY_CONSTRUCT      = 23111
 };
 
-class mob_doom_blossom : public CreatureScript
+class npc_doom_blossom : public CreatureScript
 {
 public:
-    mob_doom_blossom() : CreatureScript("mob_doom_blossom") { }
+    npc_doom_blossom() : CreatureScript("npc_doom_blossom") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_doom_blossomAI(creature);
+        return new npc_doom_blossomAI(creature);
     }
 
-    struct mob_doom_blossomAI : public ScriptedAI
+    struct npc_doom_blossomAI : public ScriptedAI
     {
-        mob_doom_blossomAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_doom_blossomAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -119,19 +119,19 @@ public:
     };
 };
 
-class mob_shadowy_construct : public CreatureScript
+class npc_shadowy_construct : public CreatureScript
 {
 public:
-    mob_shadowy_construct() : CreatureScript("mob_shadowy_construct") { }
+    npc_shadowy_construct() : CreatureScript("npc_shadowy_construct") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shadowy_constructAI(creature);
+        return new npc_shadowy_constructAI(creature);
     }
 
-    struct mob_shadowy_constructAI : public ScriptedAI
+    struct npc_shadowy_constructAI : public ScriptedAI
     {
-        mob_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 GhostGUID;
         uint64 TeronGUID;
@@ -366,7 +366,7 @@ public:
                     {
                         Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
                         SetThreatList(Construct);               // Use same function as Doom Blossom to set Threat List.
-                        CAST_AI(mob_shadowy_construct::mob_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
+                        CAST_AI(npc_shadowy_construct::npc_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         if (!target)                             // someone's trying to solo.
                             target = me->GetVictim();
@@ -444,7 +444,7 @@ public:
                         DoomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoomBlossom->setFaction(me->getFaction());
                         DoomBlossom->AddThreat(target, 1.0f);
-                        CAST_AI(mob_doom_blossom::mob_doom_blossomAI, DoomBlossom->AI())->SetTeronGUID(me->GetGUID());
+                        CAST_AI(npc_doom_blossom::npc_doom_blossomAI, DoomBlossom->AI())->SetTeronGUID(me->GetGUID());
                         target->CombatStart(DoomBlossom);
                         SetThreatList(DoomBlossom);
                         SummonDoomBlossomTimer = 35000;
@@ -512,7 +512,7 @@ public:
 
 void AddSC_boss_teron_gorefiend()
 {
-    new mob_doom_blossom();
-    new mob_shadowy_construct();
+    new npc_doom_blossom();
+    new npc_shadowy_construct();
     new boss_teron_gorefiend();
 }

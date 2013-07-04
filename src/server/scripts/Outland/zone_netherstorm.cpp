@@ -714,7 +714,7 @@ public:
 };
 
 /*######
-## mob_phase_hunter
+## npc_phase_hunter
 ######*/
 
 enum ePhaseHunterData
@@ -734,19 +734,19 @@ enum ePhaseHunterData
     SPELL_DE_MATERIALIZE            = 34814,
 };
 
-class mob_phase_hunter : public CreatureScript
+class npc_phase_hunter : public CreatureScript
 {
 public:
-    mob_phase_hunter() : CreatureScript("mob_phase_hunter") { }
+    npc_phase_hunter() : CreatureScript("npc_phase_hunter") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_phase_hunterAI (creature);
+        return new npc_phase_hunterAI (creature);
     }
 
-    struct mob_phase_hunterAI : public ScriptedAI
+    struct npc_phase_hunterAI : public ScriptedAI
     {
-        mob_phase_hunterAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_phase_hunterAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool Weak;
         bool Materialize;
@@ -1070,7 +1070,7 @@ void AddSC_netherstorm()
     new npc_commander_dawnforge();
     new at_commander_dawnforge();
     new npc_professor_dabiri();
-    new mob_phase_hunter();
+    new npc_phase_hunter();
     new npc_bessy();
     new npc_maxx_a_million_escort();
     new go_captain_tyralius_prison();

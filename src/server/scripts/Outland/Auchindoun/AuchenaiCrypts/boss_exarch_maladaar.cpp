@@ -24,9 +24,9 @@ SDCategory: Auchindoun, Auchenai Crypts
 EndScriptData */
 
 /* ContentData
-mob_stolen_soul
+npc_stolen_soul
 boss_exarch_maladaar
-mob_avatar_of_martyred
+npc_avatar_of_martyred
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -42,19 +42,19 @@ EndContentData */
 #define SPELL_FREEZING_TRAP     37368
 #define SPELL_HAMMER_OF_JUSTICE 37369
 
-class mob_stolen_soul : public CreatureScript
+class npc_stolen_soul : public CreatureScript
 {
 public:
-    mob_stolen_soul() : CreatureScript("mob_stolen_soul") { }
+    npc_stolen_soul() : CreatureScript("npc_stolen_soul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_stolen_soulAI (creature);
+        return new npc_stolen_soulAI (creature);
     }
 
-    struct mob_stolen_soulAI : public ScriptedAI
+    struct npc_stolen_soulAI : public ScriptedAI
     {
-        mob_stolen_soulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_stolen_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 myClass;
         uint32 Class_Timer;
@@ -213,7 +213,7 @@ public:
                 if (Unit* target = Unit::GetUnit(*me, soulholder))
                 {
 
-                CAST_AI(mob_stolen_soul::mob_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
+                CAST_AI(npc_stolen_soul::npc_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
                  summoned->AI()->AttackStart(target);
                 }
             }
@@ -297,19 +297,19 @@ public:
 #define SPELL_AV_MORTAL_STRIKE          16856
 #define SPELL_AV_SUNDER_ARMOR           16145
 
-class mob_avatar_of_martyred : public CreatureScript
+class npc_avatar_of_martyred : public CreatureScript
 {
 public:
-    mob_avatar_of_martyred() : CreatureScript("mob_avatar_of_martyred") { }
+    npc_avatar_of_martyred() : CreatureScript("npc_avatar_of_martyred") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_avatar_of_martyredAI (creature);
+        return new npc_avatar_of_martyredAI (creature);
     }
 
-    struct mob_avatar_of_martyredAI : public ScriptedAI
+    struct npc_avatar_of_martyredAI : public ScriptedAI
     {
-        mob_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Mortal_Strike_timer;
 
@@ -342,6 +342,6 @@ public:
 void AddSC_boss_exarch_maladaar()
 {
     new boss_exarch_maladaar();
-    new mob_avatar_of_martyred();
-    new mob_stolen_soul();
+    new npc_avatar_of_martyred();
+    new npc_stolen_soul();
 }

@@ -196,19 +196,19 @@ public:
     };
 };
 
-class mob_pure_energy : public CreatureScript
+class npc_pure_energy : public CreatureScript
 {
 public:
-    mob_pure_energy() : CreatureScript("mob_pure_energy") { }
+    npc_pure_energy() : CreatureScript("npc_pure_energy") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_pure_energyAI (creature);
+        return new npc_pure_energyAI (creature);
     };
 
-    struct mob_pure_energyAI : public ScriptedAI
+    struct npc_pure_energyAI : public ScriptedAI
     {
-        mob_pure_energyAI(Creature* creature) : ScriptedAI(creature)
+        npc_pure_energyAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         }
@@ -233,5 +233,5 @@ public:
 void AddSC_boss_vexallus()
 {
     new boss_vexallus();
-    new mob_pure_energy();
+    new npc_pure_energy();
 }

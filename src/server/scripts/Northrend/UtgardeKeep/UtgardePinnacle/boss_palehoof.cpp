@@ -55,7 +55,7 @@ enum Yells
 
 enum Creatures
 {
-    MOB_STASIS_CONTROLLER                       = 26688
+    NPC_STASIS_CONTROLLER                       = 26688
 };
 
 struct Locations
@@ -133,19 +133,19 @@ public:
             {
                 instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, NOT_STARTED);
 
-                Creature* temp = Unit::GetCreature((*me), instance->GetData64(DATA_MOB_FRENZIED_WORGEN));
+                Creature* temp = Unit::GetCreature((*me), instance->GetData64(DATA_NPC_FRENZIED_WORGEN));
                 if (temp && !temp->IsAlive())
                     temp->Respawn();
 
-                temp = Unit::GetCreature((*me), instance->GetData64(DATA_MOB_FEROCIOUS_RHINO));
+                temp = Unit::GetCreature((*me), instance->GetData64(DATA_NPC_FEROCIOUS_RHINO));
                 if (temp && !temp->IsAlive())
                     temp->Respawn();
 
-                temp = Unit::GetCreature((*me), instance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR));
+                temp = Unit::GetCreature((*me), instance->GetData64(DATA_NPC_MASSIVE_JORMUNGAR));
                 if (temp && !temp->IsAlive())
                     temp->Respawn();
 
-                temp = Unit::GetCreature((*me), instance->GetData64(DATA_MOB_RAVENOUS_FURBOLG));
+                temp = Unit::GetCreature((*me), instance->GetData64(DATA_NPC_RAVENOUS_FURBOLG));
                 if (temp && !temp->IsAlive())
                     temp->Respawn();
 
@@ -189,7 +189,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_ORB) : 0);
+            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_ORB) : 0);
             if (temp && temp->IsAlive())
                 temp->DisappearAndDie();
 
@@ -220,7 +220,7 @@ public:
           //Talk(SAY_DEATH);
             if (instance)
                 instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, DONE);
-            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_ORB) : 0);
+            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_ORB) : 0);
             if (temp && temp->IsAlive())
                 temp->DisappearAndDie();
         }
@@ -235,7 +235,7 @@ public:
             if (currentPhase == PHASE_NONE)
             {
                 instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
-                me->SummonCreature(MOB_STASIS_CONTROLLER, moveLocs[5].x, moveLocs[5].y, moveLocs[5].z, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(NPC_STASIS_CONTROLLER, moveLocs[5].x, moveLocs[5].y, moveLocs[5].z, 0, TEMPSUMMON_CORPSE_DESPAWN);
             }
             Phase move = PHASE_NONE;
             if (AddCount >= DUNGEON_MODE(2, 4))
@@ -243,7 +243,7 @@ public:
             else
                 move = Sequence[AddCount++];
             //send orb to summon spot
-            Creature* pOrb = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_ORB) : 0);
+            Creature* pOrb = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_ORB) : 0);
             if (pOrb && pOrb->IsAlive())
             {
                 if (currentPhase == PHASE_NONE)
@@ -272,19 +272,19 @@ enum RavenousSpells
     SPELL_TERRIFYING_ROAR                       = 48144
 };
 
-class mob_ravenous_furbolg : public CreatureScript
+class npc_ravenous_furbolg : public CreatureScript
 {
 public:
-    mob_ravenous_furbolg() : CreatureScript("mob_ravenous_furbolg") { }
+    npc_ravenous_furbolg() : CreatureScript("npc_ravenous_furbolg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ravenous_furbolgAI (creature);
+        return new npc_ravenous_furbolgAI (creature);
     }
 
-    struct mob_ravenous_furbolgAI : public ScriptedAI
+    struct npc_ravenous_furbolgAI : public ScriptedAI
     {
-        mob_ravenous_furbolgAI(Creature* creature) : ScriptedAI(creature)
+        npc_ravenous_furbolgAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -385,19 +385,19 @@ enum FrenziedSpells
     SPELL_ENRAGE_2                              = 48142
 };
 
-class mob_frenzied_worgen : public CreatureScript
+class npc_frenzied_worgen : public CreatureScript
 {
 public:
-    mob_frenzied_worgen() : CreatureScript("mob_frenzied_worgen") { }
+    npc_frenzied_worgen() : CreatureScript("npc_frenzied_worgen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frenzied_worgenAI (creature);
+        return new npc_frenzied_worgenAI (creature);
     }
 
-    struct mob_frenzied_worgenAI : public ScriptedAI
+    struct npc_frenzied_worgenAI : public ScriptedAI
     {
-        mob_frenzied_worgenAI(Creature* creature) : ScriptedAI(creature)
+        npc_frenzied_worgenAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -501,19 +501,19 @@ enum FerociousSpells
     SPELL_STOMP                                 = 48131
 };
 
-class mob_ferocious_rhino : public CreatureScript
+class npc_ferocious_rhino : public CreatureScript
 {
 public:
-    mob_ferocious_rhino() : CreatureScript("mob_ferocious_rhino") { }
+    npc_ferocious_rhino() : CreatureScript("npc_ferocious_rhino") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ferocious_rhinoAI (creature);
+        return new npc_ferocious_rhinoAI (creature);
     }
 
-    struct mob_ferocious_rhinoAI : public ScriptedAI
+    struct npc_ferocious_rhinoAI : public ScriptedAI
     {
-        mob_ferocious_rhinoAI(Creature* creature) : ScriptedAI(creature)
+        npc_ferocious_rhinoAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -621,19 +621,19 @@ enum MassiveAdds
   CREATURE_JORMUNGAR_WORM                     = 27228
 };
 
-class mob_massive_jormungar : public CreatureScript
+class npc_massive_jormungar : public CreatureScript
 {
 public:
-    mob_massive_jormungar() : CreatureScript("mob_massive_jormungar") { }
+    npc_massive_jormungar() : CreatureScript("npc_massive_jormungar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_massive_jormungarAI (creature);
+        return new npc_massive_jormungarAI (creature);
     }
 
-    struct mob_massive_jormungarAI : public ScriptedAI
+    struct npc_massive_jormungarAI : public ScriptedAI
     {
-        mob_massive_jormungarAI(Creature* creature) : ScriptedAI(creature)
+        npc_massive_jormungarAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -727,19 +727,19 @@ public:
 
 };
 
-class mob_palehoof_orb : public CreatureScript
+class npc_palehoof_orb : public CreatureScript
 {
 public:
-    mob_palehoof_orb() : CreatureScript("mob_palehoof_orb") { }
+    npc_palehoof_orb() : CreatureScript("npc_palehoof_orb") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_palehoof_orbAI (creature);
+        return new npc_palehoof_orbAI (creature);
     }
 
-    struct mob_palehoof_orbAI : public ScriptedAI
+    struct npc_palehoof_orbAI : public ScriptedAI
     {
-        mob_palehoof_orbAI(Creature* creature) : ScriptedAI(creature)
+        npc_palehoof_orbAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -770,10 +770,10 @@ public:
                    Creature* pNext = NULL;
                    switch (currentPhase)
                    {
-                        case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
-                        case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
-                        case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
-                        case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
+                        case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_FRENZIED_WORGEN) : 0); break;
+                        case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_RAVENOUS_FURBOLG) : 0); break;
+                        case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_MASSIVE_JORMUNGAR) : 0); break;
+                        case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_FEROCIOUS_RHINO) : 0); break;
                         case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
                         default: break;
                    }
@@ -801,10 +801,10 @@ public:
             Creature* pNext = NULL;
             switch (id)
             {
-                case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
-                case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
-                case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
-                case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
+                case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_FRENZIED_WORGEN) : 0); break;
+                case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_RAVENOUS_FURBOLG) : 0); break;
+                case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_MASSIVE_JORMUNGAR) : 0); break;
+                case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_FEROCIOUS_RHINO) : 0); break;
                 case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
                 default: break;
             }
@@ -842,10 +842,10 @@ public:
 void AddSC_boss_palehoof()
 {
     new boss_palehoof();
-    new mob_ravenous_furbolg();
-    new mob_frenzied_worgen();
-    new mob_ferocious_rhino();
-    new mob_massive_jormungar();
-    new mob_palehoof_orb();
+    new npc_ravenous_furbolg();
+    new npc_frenzied_worgen();
+    new npc_ferocious_rhino();
+    new npc_massive_jormungar();
+    new npc_palehoof_orb();
     new go_palehoof_sphere();
 }

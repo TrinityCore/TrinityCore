@@ -27,7 +27,7 @@ enum Spells
     SPELL_CLEAVE                    = 15284,
     SPELL_MORTAL_STRIKE             = 16856,
     SPELL_FRENZY                    = 8269,
-    SPELL_KNOCKDOWN                 = 13360 // On spawn during Gyth fight
+    SPELL_KNOCKDOWN                 = 13360  // On spawn during Gyth fight
 };
 
 enum Says
@@ -37,16 +37,16 @@ enum Says
     SAY_BLACKHAND_2                 = 1,
     EMOTE_BLACKHAND_DISMOUNT        = 2,
     // Victor Nefarius
-    SAY_NEFARIUS_1                  = 0,
-    SAY_NEFARIUS_2                  = 1,
-    SAY_NEFARIUS_3                  = 2,
-    SAY_NEFARIUS_4                  = 3,
-    SAY_NEFARIUS_5                  = 4,
-    SAY_NEFARIUS_6                  = 5,
-    SAY_NEFARIUS_7                  = 6,
-    SAY_NEFARIUS_8                  = 7,
-    SAY_NEFARIUS_9                  = 8,
-    SAY_NEFARIUS_10                 = 9,
+    SAY_NEFARIUS_0                  = 0,
+    SAY_NEFARIUS_1                  = 1,
+    SAY_NEFARIUS_2                  = 2,
+    SAY_NEFARIUS_3                  = 3,
+    SAY_NEFARIUS_4                  = 4,
+    SAY_NEFARIUS_5                  = 5,
+    SAY_NEFARIUS_6                  = 6,
+    SAY_NEFARIUS_7                  = 7,
+    SAY_NEFARIUS_8                  = 8,
+    SAY_NEFARIUS_9                  = 9,
 };
 
 enum Adds
@@ -55,6 +55,16 @@ enum Adds
     NPC_CHROMATIC_DRAGONSPAWN       = 10447,
     NPC_BLACKHAND_DRAGON_HANDLER    = 10742
 };
+
+enum Misc
+{
+    NEFARIUS_PATH_1                 = 1379670,
+    NEFARIUS_PATH_2                 = 1379671,
+    NEFARIUS_PATH_3                 = 1379672,
+    REND_PATH_1                     = 1379680,
+    REND_PATH_2                     = 1379681,
+};
+
 /*
 struct Wave
 {
@@ -106,19 +116,45 @@ static Wave Wave6[]= // 27 sec
     { 10442, 212.2642f, -430.7648f, 110.9807f, 5.934119f  }
 };
 */
+
+Position const GythLoc =      { 211.762f,  -397.5885f, 111.1817f,  4.747295f   };
+Position const Teleport1Loc = { 194.2993f, -474.0814f, 121.4505f, -0.01225555f };
+Position const Teleport2Loc = { 216.485f,  -434.93f,   110.888f,  -0.01225555f };
+
 enum Events
 {
-    EVENT_WHIRLWIND                 = 1,
-    EVENT_CLEAVE                    = 2,
-    EVENT_MORTAL_STRIKE             = 3,
-
-    EVENT_GYTH_1                    = 5,
-    EVENT_GYTH_2                    = 6,
-    EVENT_GYTH_3                    = 7,
-    EVENT_GYTH_4                    = 8,
-    EVENT_GYTH_5                    = 9,
-    EVENT_GYTH_6                   = 10,
-    EVENT_PORTCULLIS               = 11,
+    EVENT_START_1                   = 1,
+    EVENT_START_2                   = 2,
+    EVENT_START_3                   = 3,
+    EVENT_START_4                   = 4,
+    EVENT_TURN_TO_REND              = 5,
+    EVENT_TURN_TO_PLAYER            = 6,
+    EVENT_TURN_TO_FACING_1          = 7,
+    EVENT_TURN_TO_FACING_2          = 8,
+    EVENT_TURN_TO_FACING_3          = 9,
+    EVENT_WAVE_1                    = 10,
+    EVENT_WAVE_2                    = 11,
+    EVENT_WAVE_3                    = 12,
+    EVENT_WAVE_4                    = 13,
+    EVENT_WAVE_5                    = 14,
+    EVENT_WAVE_6                    = 15,
+    EVENT_WAVES_TEXT_1              = 16,
+    EVENT_WAVES_TEXT_2              = 17,
+    EVENT_WAVES_TEXT_3              = 18,
+    EVENT_WAVES_TEXT_4              = 19,
+    EVENT_WAVES_TEXT_5              = 20,
+    EVENT_WAVES_COMPLETE_TEXT_1     = 21,
+    EVENT_WAVES_COMPLETE_TEXT_2     = 22,
+    EVENT_WAVES_COMPLETE_TEXT_3     = 23,
+    EVENT_WAVES_EMOTE_1             = 24,
+    EVENT_WAVES_EMOTE_2             = 25,
+    EVENT_PATH_REND                 = 26,
+    EVENT_PATH_NEFARIUS             = 27,
+    EVENT_TELEPORT_1                = 28,
+    EVENT_TELEPORT_2                = 29,
+    EVENT_WHIRLWIND                 = 30,
+    EVENT_CLEAVE                    = 31,
+    EVENT_MORTAL_STRIKE             = 32,
 };
 
 class boss_rend_blackhand : public CreatureScript
@@ -133,53 +169,66 @@ public:
         void Reset()
         {
             _Reset();
-            _gythEvent = false;
-            _victorGUID = 0;
-            _portcullisGUID = 0;
+            gythEvent = false;
+            victorGUID = 0;
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WHIRLWIND,     13000);
-            events.ScheduleEvent(EVENT_CLEAVE,        15000);
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 17000);
+            events.ScheduleEvent(EVENT_WHIRLWIND,     urand (13000, 15000));
+            events.ScheduleEvent(EVENT_CLEAVE,        urand (15000, 17000));
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand (17000, 19000));
         }
 
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            // Do data set on victor
+            if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
+                victor->AI()->SetData(1, 2);
         }
 
         void SetData(uint32 type, uint32 data)
         {
             if (instance && type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM)
             {
-                if (!_gythEvent)
+                if (!gythEvent)
                 {
-                    _gythEvent = true;
+                    gythEvent = true;
 
                     if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 5.0f, true))
-                        _victorGUID = victor->GetGUID();
+                        victorGUID = victor->GetGUID();
 
                     if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 50.0f))
-                        _portcullisGUID = portcullis->GetGUID();
+                        portcullisGUID = portcullis->GetGUID();
 
-                    if (Creature* victor = me->GetCreature(*me, _victorGUID))
-                    {
-                        if (Unit* player = victor->SelectNearestPlayer(40.0f))
-                            victor->SetInFront(player);
-                    }
+                    events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                    events.ScheduleEvent(EVENT_START_1, 1000);
                 }
+            }
+        }
 
-                events.ScheduleEvent(EVENT_GYTH_1, 1000);
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type == WAYPOINT_MOTION_TYPE)
+            {
+                switch (id)
+                {
+                    case 5:
+                        events.ScheduleEvent(EVENT_TELEPORT_1, 2000);
+                        break;
+                    case 11:
+                        if (Creature* gyth = me->FindNearestCreature(NPC_GYTH, 10.0f, true))
+                            gyth->AI()->SetData(1, 1);
+                        me->DespawnOrUnsummon(1000);
+                        break;
+                }
             }
         }
 
         void UpdateAI(uint32 diff)
         {
-            if (_gythEvent)
+            if (gythEvent)
             {
                 events.Update(diff);
 
@@ -187,28 +236,161 @@ public:
                 {
                     switch (eventId)
                     {
-                        case EVENT_GYTH_1:
-                            if (Creature* victor = me->GetCreature(*me, _victorGUID))
-                                victor->AI()->Talk(SAY_NEFARIUS_1);
-                            events.ScheduleEvent(EVENT_GYTH_2, 4000);
+                        case EVENT_START_1:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_0);
+                            events.ScheduleEvent(EVENT_START_2, 4000);
                             break;
-                        case EVENT_GYTH_2:
-                            if (Creature* victor = me->GetCreature(*me, _victorGUID))
+                        case EVENT_START_2:
+                            events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
                                 victor->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
-                            events.ScheduleEvent(EVENT_GYTH_3, 4000);
+                            events.ScheduleEvent(EVENT_START_3, 4000);
                             break;
-                        case EVENT_GYTH_3:
-                            if (Creature* victor = me->GetCreature(*me, _victorGUID))
-                                victor->AI()->Talk(SAY_NEFARIUS_2);
-                            events.ScheduleEvent(EVENT_PORTCULLIS, 2000);
-                            events.ScheduleEvent(EVENT_GYTH_4, 4000);
+                        case EVENT_START_3:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_1);
+                            events.ScheduleEvent(EVENT_WAVE_1, 2000);
+                            events.ScheduleEvent(EVENT_TURN_TO_REND, 4000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_1, 20000);
                             break;
-                        case EVENT_GYTH_4:
-                            if (Creature* victor = me->GetCreature(*me, _victorGUID))
-                                victor->SetInFront(me);
+                        case EVENT_TURN_TO_REND:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                            {
+                                victor->SetFacingToObject(me);
+                                victor->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                            }
                             break;
-                        case EVENT_PORTCULLIS:
-                            if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 50.0f))
+                        case EVENT_TURN_TO_PLAYER:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                if (Unit* player = victor->SelectNearestPlayer(60.0f))
+                                    victor->SetFacingToObject(player);
+                            break;
+                        case EVENT_TURN_TO_FACING_1:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->SetFacingTo(1.518436f);
+                            break;
+                        case EVENT_TURN_TO_FACING_2:
+                            me->SetFacingTo(1.658063f);
+                            break;
+                        case EVENT_TURN_TO_FACING_3:
+                            me->SetFacingTo(1.500983f);
+                            break;
+                        case EVENT_WAVES_EMOTE_1:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
+                            break;
+                        case EVENT_WAVES_EMOTE_2:
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                            break;
+                        case EVENT_WAVES_TEXT_1:
+                            events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                    victor->AI()->Talk(SAY_NEFARIUS_2);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                            events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
+                            events.ScheduleEvent(EVENT_WAVES_EMOTE_1, 5000);
+                            events.ScheduleEvent(EVENT_WAVE_2, 2000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_2, 20000);
+                            break;
+                        case EVENT_WAVES_TEXT_2:
+                            events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_3);
+                            events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
+                            events.ScheduleEvent(EVENT_WAVE_3, 2000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_3, 20000);
+                            break;
+                        case EVENT_WAVES_TEXT_3:
+                            events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_4);
+                            events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
+                            events.ScheduleEvent(EVENT_WAVE_4, 2000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_4, 20000);
+                            break;
+                        case EVENT_WAVES_TEXT_4:
+                            Talk(SAY_BLACKHAND_1);
+                            events.ScheduleEvent(EVENT_WAVES_EMOTE_2, 4000);
+                            events.ScheduleEvent(EVENT_TURN_TO_FACING_3, 8000);
+                            events.ScheduleEvent(EVENT_WAVE_5, 2000);
+                            events.ScheduleEvent(EVENT_WAVES_TEXT_5, 20000);
+                            break;
+                        case EVENT_WAVES_TEXT_5:
+                            events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_5);
+                            events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
+                            events.ScheduleEvent(EVENT_WAVE_6, 2000);
+                            events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_1, 20000);
+                            break;
+                        case EVENT_WAVES_COMPLETE_TEXT_1:
+                            events.ScheduleEvent(EVENT_TURN_TO_PLAYER, 0);
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_6);
+                            events.ScheduleEvent(EVENT_TURN_TO_FACING_1, 4000);
+                            events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_2, 13000);
+                            break;
+                        case EVENT_WAVES_COMPLETE_TEXT_2:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_7);
+                            Talk(SAY_BLACKHAND_2);
+                            events.ScheduleEvent(EVENT_PATH_REND, 1000);
+                            events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_3, 4000);
+                            break;
+                        case EVENT_WAVES_COMPLETE_TEXT_3:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->AI()->Talk(SAY_NEFARIUS_8);
+                            events.ScheduleEvent(EVENT_PATH_NEFARIUS, 1000);
+                            events.ScheduleEvent(EVENT_PATH_REND, 1000);
+                            break;
+                        case EVENT_PATH_NEFARIUS:
+                            if (Creature* victor = me->GetCreature(*me, victorGUID))
+                                victor->GetMotionMaster()->MovePath(NEFARIUS_PATH_1, true);
+                            break;
+                        case EVENT_PATH_REND:
+                            me->GetMotionMaster()->MovePath(REND_PATH_1, false);
+                            break;
+                        case EVENT_TELEPORT_1:
+                            me->NearTeleportTo(194.2993f, -474.0814f, 121.4505f, -0.01225555f);
+                            events.ScheduleEvent(EVENT_TELEPORT_2, 50000);
+                            break;
+                        case EVENT_TELEPORT_2:
+                            me->NearTeleportTo(216.485f, -434.93f, 110.888f, -0.01225555f);
+                            me->SummonCreature(NPC_GYTH, 211.762f, -397.5885f, 111.1817f, 4.747295f);
+                            break;
+                        case EVENT_WAVE_1:
+                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                                portcullis->UseDoorOrButton();
+                            // move wave
+                            break;
+                        case EVENT_WAVE_2:
+                            // spawn wave
+                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                                portcullis->UseDoorOrButton();
+                            // move wave
+                            break;
+                        case EVENT_WAVE_3:
+                            // spawn wave
+                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                                portcullis->UseDoorOrButton();
+                            // move wave
+                            break;
+                        case EVENT_WAVE_4:
+                            // spawn wave
+                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                                portcullis->UseDoorOrButton();
+                            // move wave
+                            break;
+                        case EVENT_WAVE_5:
+                            // spawn wave
+                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                                portcullis->UseDoorOrButton();
+                            // move wave
+                            break;
+                        case EVENT_WAVE_6:
+                            // spawn wave
+                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
@@ -236,21 +418,21 @@ public:
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 10000);
+                        events.ScheduleEvent(EVENT_CLEAVE, urand(10000, 14000));
                         break;
                     case EVENT_MORTAL_STRIKE:
                         DoCastVictim(SPELL_MORTAL_STRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 16000);
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(14000, 16000));
                         break;
                 }
             }
             DoMeleeAttackIfReady();
         }
-        private:
-            bool   _gythEvent;
-            uint64 _victorGUID;
-            uint64 _portcullisGUID;
 
+        private:
+            bool   gythEvent;
+            uint64 victorGUID;
+            uint64 portcullisGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const

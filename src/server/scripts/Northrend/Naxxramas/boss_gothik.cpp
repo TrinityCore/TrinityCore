@@ -48,13 +48,13 @@ enum Spells
 
 enum Creatures
 {
-    MOB_LIVE_TRAINEE    = 16124,
-    MOB_LIVE_KNIGHT     = 16125,
-    MOB_LIVE_RIDER      = 16126,
-    MOB_DEAD_TRAINEE    = 16127,
-    MOB_DEAD_KNIGHT     = 16148,
-    MOB_DEAD_RIDER      = 16150,
-    MOB_DEAD_HORSE      = 16149
+    NPC_LIVE_TRAINEE    = 16124,
+    NPC_LIVE_KNIGHT     = 16125,
+    NPC_LIVE_RIDER      = 16126,
+    NPC_DEAD_TRAINEE    = 16127,
+    NPC_DEAD_KNIGHT     = 16148,
+    NPC_DEAD_RIDER      = 16150,
+    NPC_DEAD_HORSE      = 16149
 };
 
 struct Waves { uint32 entry, time, mode; };
@@ -63,37 +63,37 @@ struct Waves { uint32 entry, time, mode; };
 // but this is handled in DoGothikSummon function
 const Waves waves[] =
 {
-    {MOB_LIVE_TRAINEE, 20000, 1},
-    {MOB_LIVE_TRAINEE, 20000, 1},
-    {MOB_LIVE_TRAINEE, 10000, 1},
-    {MOB_LIVE_KNIGHT, 10000, 1},
-    {MOB_LIVE_TRAINEE, 15000, 1},
-    {MOB_LIVE_KNIGHT, 5000, 1},
-    {MOB_LIVE_TRAINEE, 20000, 1},
-    {MOB_LIVE_TRAINEE, 0, 1},
-    {MOB_LIVE_KNIGHT, 10000, 1},
-    {MOB_LIVE_TRAINEE, 10000, 2},
-    {MOB_LIVE_RIDER, 10000, 0},
-    {MOB_LIVE_RIDER, 5000, 2},
-    {MOB_LIVE_TRAINEE, 5000, 0},
-    {MOB_LIVE_TRAINEE, 15000, 2},
-    {MOB_LIVE_KNIGHT, 15000, 0},
-    {MOB_LIVE_TRAINEE, 0, 0},
-    {MOB_LIVE_RIDER, 10000, 1},
-    {MOB_LIVE_KNIGHT, 10000, 1},
-    {MOB_LIVE_TRAINEE, 10000, 0},
-    {MOB_LIVE_RIDER, 10000, 2},
-    {MOB_LIVE_TRAINEE, 0, 2},
-    {MOB_LIVE_RIDER, 5000, 1},
-    {MOB_LIVE_TRAINEE, 0, 2},
-    {MOB_LIVE_KNIGHT, 5000, 1},
-    {MOB_LIVE_RIDER, 0, 2},
-    {MOB_LIVE_TRAINEE, 20000, 1},
-    {MOB_LIVE_RIDER, 0, 1},
-    {MOB_LIVE_KNIGHT, 0, 1},
-    {MOB_LIVE_TRAINEE, 25000, 2},
-    {MOB_LIVE_TRAINEE, 15000, 0},
-    {MOB_LIVE_TRAINEE, 25000, 0},
+    {NPC_LIVE_TRAINEE, 20000, 1},
+    {NPC_LIVE_TRAINEE, 20000, 1},
+    {NPC_LIVE_TRAINEE, 10000, 1},
+    {NPC_LIVE_KNIGHT, 10000, 1},
+    {NPC_LIVE_TRAINEE, 15000, 1},
+    {NPC_LIVE_KNIGHT, 5000, 1},
+    {NPC_LIVE_TRAINEE, 20000, 1},
+    {NPC_LIVE_TRAINEE, 0, 1},
+    {NPC_LIVE_KNIGHT, 10000, 1},
+    {NPC_LIVE_TRAINEE, 10000, 2},
+    {NPC_LIVE_RIDER, 10000, 0},
+    {NPC_LIVE_RIDER, 5000, 2},
+    {NPC_LIVE_TRAINEE, 5000, 0},
+    {NPC_LIVE_TRAINEE, 15000, 2},
+    {NPC_LIVE_KNIGHT, 15000, 0},
+    {NPC_LIVE_TRAINEE, 0, 0},
+    {NPC_LIVE_RIDER, 10000, 1},
+    {NPC_LIVE_KNIGHT, 10000, 1},
+    {NPC_LIVE_TRAINEE, 10000, 0},
+    {NPC_LIVE_RIDER, 10000, 2},
+    {NPC_LIVE_TRAINEE, 0, 2},
+    {NPC_LIVE_RIDER, 5000, 1},
+    {NPC_LIVE_TRAINEE, 0, 2},
+    {NPC_LIVE_KNIGHT, 5000, 1},
+    {NPC_LIVE_RIDER, 0, 2},
+    {NPC_LIVE_TRAINEE, 20000, 1},
+    {NPC_LIVE_RIDER, 0, 1},
+    {NPC_LIVE_KNIGHT, 0, 1},
+    {NPC_LIVE_TRAINEE, 25000, 2},
+    {NPC_LIVE_TRAINEE, 15000, 0},
+    {NPC_LIVE_TRAINEE, 25000, 0},
     {0, 0, 1},
 };
 
@@ -258,28 +258,28 @@ class boss_gothik : public CreatureScript
                 {
                     switch (entry)
                     {
-                        case MOB_LIVE_TRAINEE:
+                        case NPC_LIVE_TRAINEE:
                         {
                             if (Creature* liveTrigger = Unit::GetCreature(*me, LiveTriggerGUID[0]))
-                                DoSummon(MOB_LIVE_TRAINEE, liveTrigger, 1);
+                                DoSummon(NPC_LIVE_TRAINEE, liveTrigger, 1);
                             if (Creature* liveTrigger1 = Unit::GetCreature(*me, LiveTriggerGUID[1]))
-                                DoSummon(MOB_LIVE_TRAINEE, liveTrigger1, 1);
+                                DoSummon(NPC_LIVE_TRAINEE, liveTrigger1, 1);
                             if (Creature* liveTrigger2 = Unit::GetCreature(*me, LiveTriggerGUID[2]))
-                                DoSummon(MOB_LIVE_TRAINEE, liveTrigger2, 1);
+                                DoSummon(NPC_LIVE_TRAINEE, liveTrigger2, 1);
                             break;
                         }
-                        case MOB_LIVE_KNIGHT:
+                        case NPC_LIVE_KNIGHT:
                         {
                             if (Creature* liveTrigger3 = Unit::GetCreature(*me, LiveTriggerGUID[3]))
-                                DoSummon(MOB_LIVE_KNIGHT, liveTrigger3, 1);
+                                DoSummon(NPC_LIVE_KNIGHT, liveTrigger3, 1);
                             if (Creature* liveTrigger5 = Unit::GetCreature(*me, LiveTriggerGUID[5]))
-                                DoSummon(MOB_LIVE_KNIGHT, liveTrigger5, 1);
+                                DoSummon(NPC_LIVE_KNIGHT, liveTrigger5, 1);
                             break;
                         }
-                        case MOB_LIVE_RIDER:
+                        case NPC_LIVE_RIDER:
                         {
                             if (Creature* liveTrigger4 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
-                                DoSummon(MOB_LIVE_RIDER, liveTrigger4, 1);
+                                DoSummon(NPC_LIVE_RIDER, liveTrigger4, 1);
                             break;
                         }
                     }
@@ -288,24 +288,24 @@ class boss_gothik : public CreatureScript
                 {
                     switch (entry)
                     {
-                        case MOB_LIVE_TRAINEE:
+                        case NPC_LIVE_TRAINEE:
                         {
                             if (Creature* liveTrigger = Unit::GetCreature(*me, LiveTriggerGUID[4]))
-                                DoSummon(MOB_LIVE_TRAINEE, liveTrigger, 1);
+                                DoSummon(NPC_LIVE_TRAINEE, liveTrigger, 1);
                             if (Creature* liveTrigger2 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
-                                DoSummon(MOB_LIVE_TRAINEE, liveTrigger2, 1);
+                                DoSummon(NPC_LIVE_TRAINEE, liveTrigger2, 1);
                             break;
                         }
-                        case MOB_LIVE_KNIGHT:
+                        case NPC_LIVE_KNIGHT:
                         {
                             if (Creature* liveTrigger5 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
-                                DoSummon(MOB_LIVE_KNIGHT, liveTrigger5, 1);
+                                DoSummon(NPC_LIVE_KNIGHT, liveTrigger5, 1);
                             break;
                         }
-                        case MOB_LIVE_RIDER:
+                        case NPC_LIVE_RIDER:
                         {
                             if (Creature* liveTrigger4 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
-                                DoSummon(MOB_LIVE_RIDER, liveTrigger4, 1);
+                                DoSummon(NPC_LIVE_RIDER, liveTrigger4, 1);
                             break;
                         }
                     }
@@ -381,14 +381,14 @@ class boss_gothik : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_INFORM_DEAD_TRAINEE:
-                        DoSummon(MOB_DEAD_TRAINEE, target, 0);
+                        DoSummon(NPC_DEAD_TRAINEE, target, 0);
                         break;
                     case SPELL_INFORM_DEAD_KNIGHT:
-                        DoSummon(MOB_DEAD_KNIGHT, target, 0);
+                        DoSummon(NPC_DEAD_KNIGHT, target, 0);
                         break;
                     case SPELL_INFORM_DEAD_RIDER:
-                        DoSummon(MOB_DEAD_RIDER, target, 1.0f);
-                        DoSummon(MOB_DEAD_HORSE, target, 1.0f);
+                        DoSummon(NPC_DEAD_RIDER, target, 1.0f);
+                        DoSummon(NPC_DEAD_HORSE, target, 1.0f);
                         break;
                 }
             }
@@ -504,14 +504,14 @@ class boss_gothik : public CreatureScript
         }
 };
 
-class mob_gothik_minion : public CreatureScript
+class npc_gothik_minion : public CreatureScript
 {
     public:
-        mob_gothik_minion() : CreatureScript("mob_gothik_minion") { }
+        npc_gothik_minion() : CreatureScript("npc_gothik_minion") { }
 
-        struct mob_gothik_minionAI : public CombatAI
+        struct npc_gothik_minionAI : public CombatAI
         {
-            mob_gothik_minionAI(Creature* creature) : CombatAI(creature)
+            npc_gothik_minionAI(Creature* creature) : CombatAI(creature)
             {
                 liveSide = IN_LIVE_SIDE(me);
             }
@@ -588,7 +588,7 @@ class mob_gothik_minion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_gothik_minionAI(creature);
+            return new npc_gothik_minionAI(creature);
         }
 };
 
@@ -621,6 +621,6 @@ class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
 void AddSC_boss_gothik()
 {
     new boss_gothik();
-    new mob_gothik_minion();
+    new npc_gothik_minion();
     new spell_gothik_shadow_bolt_volley();
 }

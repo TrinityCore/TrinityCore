@@ -29,13 +29,21 @@ enum Spells
     SPELL_SUMMON_REND               = 16328  // Summons Rend near death
 };
 
+enum Misc
+{
+    NEFARIUS_PATH_2                 = 1379671,
+    NEFARIUS_PATH_3                 = 1379672,
+    GYTH_PATH_1                     = 1379681,
+};
+
 enum Events
 {
     EVENT_CORROSIVE_ACID            = 1,
     EVENT_FREEZE                    = 2,
     EVENT_FLAME_BREATH              = 3,
     EVENT_KNOCK_AWAY                = 4,
-    EVENT_SUMMONED                  = 5,
+    EVENT_SUMMONED_1                = 5,
+    EVENT_SUMMONED_2                = 6
 };
 
 class boss_gyth : public CreatureScript
@@ -51,7 +59,6 @@ public:
 
         void Reset()
         {
-            _Reset();
             SummonedRend = false;
             if (instance->GetBossState(DATA_GYTH) == IN_PROGRESS)
             {
@@ -67,23 +74,28 @@ public:
             events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(8000, 16000));
             events.ScheduleEvent(EVENT_FREEZE, urand(8000, 16000));
             events.ScheduleEvent(EVENT_FLAME_BREATH, urand(8000, 16000));
-            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(12000, 18000));
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(12000, 18000));
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            _JustDied();
+            instance->SetBossState(DATA_GYTH, DONE);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void SetData(uint32 /*type*/, uint32 data)
         {
-            events.ScheduleEvent(EVENT_SUMMONED, 8000);
+            switch (data)
+            {
+                case 1:
+                    events.ScheduleEvent(EVENT_SUMMONED_1, 1000);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void UpdateAI(uint32 diff)
         {
-            if (!UpdateVictim())
-                return;
 
             if (!SummonedRend && HealthBelowPct(5))
             {
@@ -92,16 +104,38 @@ public:
                 SummonedRend = true;
             }
 
+            if (!UpdateVictim())
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUMMONED_1:
+                            me->AddAura(SPELL_REND_MOUNTS, me);
+                            if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 40.0f))
+                                portcullis->UseDoorOrButton();
+                            if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
+                                victor->AI()->SetData(1, 1);
+                            events.ScheduleEvent(EVENT_SUMMONED_2, 2000);
+                            break;
+                        case EVENT_SUMMONED_2:
+                            me->GetMotionMaster()->MovePath(GYTH_PATH_1, false);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return;
+            }
+
             events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                    case EVENT_SUMMONED:
-                        DoCast(me, SPELL_REND_MOUNTS);
-                        // Load Path
-                        break;
                     case EVENT_CORROSIVE_ACID:
                         DoCast(me, SPELL_CORROSIVE_ACID);
                         events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(10000, 16000));

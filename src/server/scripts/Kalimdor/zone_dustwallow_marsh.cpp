@@ -37,7 +37,7 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
-## mobs_risen_husk_spirit
+## npc_risen_husk_spirit
 ######*/
 
 enum HauntingWitchHill
@@ -62,14 +62,14 @@ enum HauntingWitchHill
     EVENT_INTANGIBLE_PRESENCE           = 2,
 };
 
-class mobs_risen_husk_spirit : public CreatureScript
+class npc_risen_husk_spirit : public CreatureScript
 {
     public:
-        mobs_risen_husk_spirit() : CreatureScript("mobs_risen_husk_spirit") { }
+        npc_risen_husk_spirit() : CreatureScript("npc_risen_husk_spirit") { }
 
-        struct mobs_risen_husk_spiritAI : public ScriptedAI
+        struct npc_risen_husk_spiritAI : public ScriptedAI
         {
-            mobs_risen_husk_spiritAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_risen_husk_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset()
             {
@@ -125,7 +125,7 @@ class mobs_risen_husk_spirit : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mobs_risen_husk_spiritAI (creature);
+            return new npc_risen_husk_spiritAI (creature);
         }
 };
 

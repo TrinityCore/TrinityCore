@@ -218,14 +218,14 @@ class boss_jaraxxus : public CreatureScript
         }
 };
 
-class mob_legion_flame : public CreatureScript
+class npc_legion_flame : public CreatureScript
 {
     public:
-        mob_legion_flame() : CreatureScript("mob_legion_flame") { }
+        npc_legion_flame() : CreatureScript("npc_legion_flame") { }
 
-        struct mob_legion_flameAI : public ScriptedAI
+        struct npc_legion_flameAI : public ScriptedAI
         {
-            mob_legion_flameAI(Creature* creature) : ScriptedAI(creature)
+            npc_legion_flameAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
                 _instance = creature->GetInstanceScript();
@@ -250,18 +250,18 @@ class mob_legion_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_legion_flameAI(creature);
+            return new npc_legion_flameAI(creature);
         }
 };
 
-class mob_infernal_volcano : public CreatureScript
+class npc_infernal_volcano : public CreatureScript
 {
     public:
-        mob_infernal_volcano() : CreatureScript("mob_infernal_volcano") { }
+        npc_infernal_volcano() : CreatureScript("npc_infernal_volcano") { }
 
-        struct mob_infernal_volcanoAI : public ScriptedAI
+        struct npc_infernal_volcanoAI : public ScriptedAI
         {
-            mob_infernal_volcanoAI(Creature* creature) : ScriptedAI(creature), _summons(me)
+            npc_infernal_volcanoAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
                 SetCombatMovement(false);
             }
@@ -304,18 +304,18 @@ class mob_infernal_volcano : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_infernal_volcanoAI(creature);
+            return new npc_infernal_volcanoAI(creature);
         }
 };
 
-class mob_fel_infernal : public CreatureScript
+class npc_fel_infernal : public CreatureScript
 {
     public:
-        mob_fel_infernal() : CreatureScript("mob_fel_infernal") { }
+        npc_fel_infernal() : CreatureScript("npc_fel_infernal") { }
 
-        struct mob_fel_infernalAI : public ScriptedAI
+        struct npc_fel_infernalAI : public ScriptedAI
         {
-            mob_fel_infernalAI(Creature* creature) : ScriptedAI(creature)
+            npc_fel_infernalAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = creature->GetInstanceScript();
             }
@@ -355,18 +355,18 @@ class mob_fel_infernal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_fel_infernalAI(creature);
+            return new npc_fel_infernalAI(creature);
         }
 };
 
-class mob_nether_portal : public CreatureScript
+class npc_nether_portal : public CreatureScript
 {
     public:
-        mob_nether_portal() : CreatureScript("mob_nether_portal") { }
+        npc_nether_portal() : CreatureScript("npc_nether_portal") { }
 
-        struct mob_nether_portalAI : public ScriptedAI
+        struct npc_nether_portalAI : public ScriptedAI
         {
-            mob_nether_portalAI(Creature* creature) : ScriptedAI(creature), _summons(me)
+            npc_nether_portalAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
             }
 
@@ -408,18 +408,18 @@ class mob_nether_portal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_nether_portalAI(creature);
+            return new npc_nether_portalAI(creature);
         }
 };
 
-class mob_mistress_of_pain : public CreatureScript
+class npc_mistress_of_pain : public CreatureScript
 {
     public:
-        mob_mistress_of_pain() : CreatureScript("mob_mistress_of_pain") { }
+        npc_mistress_of_pain() : CreatureScript("npc_mistress_of_pain") { }
 
-        struct mob_mistress_of_painAI : public ScriptedAI
+        struct npc_mistress_of_painAI : public ScriptedAI
         {
-            mob_mistress_of_painAI(Creature* creature) : ScriptedAI(creature)
+            npc_mistress_of_painAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = creature->GetInstanceScript();
                 if (_instance)
@@ -488,7 +488,7 @@ class mob_mistress_of_pain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_mistress_of_painAI(creature);
+            return new npc_mistress_of_painAI(creature);
         }
 };
 
@@ -592,11 +592,11 @@ class spell_mistress_kiss_area : public SpellScriptLoader
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
-    new mob_legion_flame();
-    new mob_infernal_volcano();
-    new mob_fel_infernal();
-    new mob_nether_portal();
-    new mob_mistress_of_pain();
+    new npc_legion_flame();
+    new npc_infernal_volcano();
+    new npc_fel_infernal();
+    new npc_nether_portal();
+    new npc_mistress_of_pain();
 
     new spell_mistress_kiss();
     new spell_mistress_kiss_area();

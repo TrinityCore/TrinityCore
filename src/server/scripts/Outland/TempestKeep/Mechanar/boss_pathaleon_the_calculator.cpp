@@ -164,15 +164,15 @@ class boss_pathaleon_the_calculator : public CreatureScript
         }
 };
 
-class mob_nether_wraith : public CreatureScript
+class npc_nether_wraith : public CreatureScript
 {
     public:
 
-        mob_nether_wraith() : CreatureScript("mob_nether_wraith") { }
+        npc_nether_wraith() : CreatureScript("npc_nether_wraith") { }
 
-        struct mob_nether_wraithAI : public ScriptedAI
+        struct npc_nether_wraithAI : public ScriptedAI
         {
-            mob_nether_wraithAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_nether_wraithAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 ArcaneMissiles_Timer;
             uint32 Detonation_Timer;
@@ -232,13 +232,13 @@ class mob_nether_wraith : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_nether_wraithAI (creature);
+            return new npc_nether_wraithAI (creature);
         }
 };
 
 void AddSC_boss_pathaleon_the_calculator()
 {
     new boss_pathaleon_the_calculator();
-    new mob_nether_wraith();
+    new npc_nether_wraith();
 }
 

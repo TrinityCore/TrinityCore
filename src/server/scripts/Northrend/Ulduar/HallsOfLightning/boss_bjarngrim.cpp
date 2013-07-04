@@ -369,22 +369,22 @@ public:
 };
 
 /*######
-## mob_stormforged_lieutenant
+## npc_stormforged_lieutenant
 ######*/
 
-class mob_stormforged_lieutenant : public CreatureScript
+class npc_stormforged_lieutenant : public CreatureScript
 {
 public:
-    mob_stormforged_lieutenant() : CreatureScript("mob_stormforged_lieutenant") { }
+    npc_stormforged_lieutenant() : CreatureScript("npc_stormforged_lieutenant") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_stormforged_lieutenantAI(creature);
+        return new npc_stormforged_lieutenantAI(creature);
     }
 
-    struct mob_stormforged_lieutenantAI : public ScriptedAI
+    struct npc_stormforged_lieutenantAI : public ScriptedAI
     {
-        mob_stormforged_lieutenantAI(Creature* creature) : ScriptedAI(creature)
+        npc_stormforged_lieutenantAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -450,5 +450,5 @@ public:
 void AddSC_boss_bjarngrim()
 {
     new boss_bjarngrim();
-    new mob_stormforged_lieutenant();
+    new npc_stormforged_lieutenant();
 }
