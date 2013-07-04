@@ -841,19 +841,19 @@ public:
     };
 };
 
-class mob_violet_hold_arcane_sphere : public CreatureScript
+class npc_violet_hold_arcane_sphere : public CreatureScript
 {
 public:
-    mob_violet_hold_arcane_sphere() : CreatureScript("mob_violet_hold_arcane_sphere") { }
+    npc_violet_hold_arcane_sphere() : CreatureScript("npc_violet_hold_arcane_sphere") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
-        return new mob_violet_hold_arcane_sphereAI(c);
+        return new npc_violet_hold_arcane_sphereAI(c);
     }
 
-    struct mob_violet_hold_arcane_sphereAI : public ScriptedAI
+    struct npc_violet_hold_arcane_sphereAI : public ScriptedAI
     {
-        mob_violet_hold_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+        npc_violet_hold_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
 
         uint32 DespawnTimer;
 
@@ -892,6 +892,6 @@ public:
 void AddSC_instance_violet_hold()
 {
     new go_activation_crystal();
-    new mob_violet_hold_arcane_sphere();
+    new npc_violet_hold_arcane_sphere();
     new instance_violet_hold();
 }
