@@ -278,19 +278,19 @@ public:
 
 };
 
-class mob_stalagg : public CreatureScript
+class npc_stalagg : public CreatureScript
 {
 public:
-    mob_stalagg() : CreatureScript("mob_stalagg") { }
+    npc_stalagg() : CreatureScript("npc_stalagg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_stalaggAI(creature);
+        return new npc_stalaggAI(creature);
     }
 
-    struct mob_stalaggAI : public ScriptedAI
+    struct npc_stalaggAI : public ScriptedAI
     {
-        mob_stalaggAI(Creature* creature) : ScriptedAI(creature)
+        npc_stalaggAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -372,19 +372,19 @@ public:
 
 };
 
-class mob_feugen : public CreatureScript
+class npc_feugen : public CreatureScript
 {
 public:
-    mob_feugen() : CreatureScript("mob_feugen") { }
+    npc_feugen() : CreatureScript("npc_feugen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_feugenAI(creature);
+        return new npc_feugenAI(creature);
     }
 
-    struct mob_feugenAI : public ScriptedAI
+    struct npc_feugenAI : public ScriptedAI
     {
-        mob_feugenAI(Creature* creature) : ScriptedAI(creature)
+        npc_feugenAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -568,8 +568,8 @@ class achievement_polarity_switch : public AchievementCriteriaScript
 void AddSC_boss_thaddius()
 {
     new boss_thaddius();
-    new mob_stalagg();
-    new mob_feugen();
+    new npc_stalagg();
+    new npc_feugen();
     new spell_thaddius_pos_neg_charge();
     new spell_thaddius_polarity_shift();
     new achievement_polarity_switch();

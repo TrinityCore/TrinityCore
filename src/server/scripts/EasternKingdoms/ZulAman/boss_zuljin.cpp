@@ -559,18 +559,18 @@ class boss_zuljin : public CreatureScript
         }
 };
 
-class mob_zuljin_vortex : public CreatureScript
+class npc_zuljin_vortex : public CreatureScript
 {
     public:
 
-        mob_zuljin_vortex()
-            : CreatureScript("mob_zuljin_vortex")
+        npc_zuljin_vortex()
+            : CreatureScript("npc_zuljin_vortex")
         {
         }
 
-        struct mob_zuljin_vortexAI : public ScriptedAI
+        struct npc_zuljin_vortexAI : public ScriptedAI
         {
-            mob_zuljin_vortexAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_zuljin_vortexAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset() {}
 
@@ -592,13 +592,13 @@ class mob_zuljin_vortex : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_zuljin_vortexAI(creature);
+            return new npc_zuljin_vortexAI(creature);
         }
 };
 
 void AddSC_boss_zuljin()
 {
     new boss_zuljin();
-    new mob_zuljin_vortex();
+    new npc_zuljin_vortex();
 }
 

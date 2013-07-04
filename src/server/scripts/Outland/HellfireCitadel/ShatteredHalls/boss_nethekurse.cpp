@@ -25,8 +25,8 @@ EndScriptData */
 
 /* ContentData
 boss_grand_warlock_nethekurse
-mob_fel_orc_convert
-mob_lesser_shadow_fissure
+npc_fel_orc_convert
+npc_lesser_shadow_fissure
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -285,18 +285,18 @@ class boss_grand_warlock_nethekurse : public CreatureScript
         }
 };
 
-class mob_fel_orc_convert : public CreatureScript
+class npc_fel_orc_convert : public CreatureScript
 {
     public:
 
-        mob_fel_orc_convert()
-            : CreatureScript("mob_fel_orc_convert")
+        npc_fel_orc_convert()
+            : CreatureScript("npc_fel_orc_convert")
         {
         }
 
-        struct mob_fel_orc_convertAI : public ScriptedAI
+        struct npc_fel_orc_convertAI : public ScriptedAI
         {
-            mob_fel_orc_convertAI(Creature* creature) : ScriptedAI(creature)
+            npc_fel_orc_convertAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -363,23 +363,23 @@ class mob_fel_orc_convert : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_fel_orc_convertAI(creature);
+            return new npc_fel_orc_convertAI(creature);
         }
 };
 
 //NOTE: this Creature are also summoned by other spells, for different creatures
-class mob_lesser_shadow_fissure : public CreatureScript
+class npc_lesser_shadow_fissure : public CreatureScript
 {
     public:
 
-        mob_lesser_shadow_fissure()
-            : CreatureScript("mob_lesser_shadow_fissure")
+        npc_lesser_shadow_fissure()
+            : CreatureScript("npc_lesser_shadow_fissure")
         {
         }
 
-        struct mob_lesser_shadow_fissureAI : public ScriptedAI
+        struct npc_lesser_shadow_fissureAI : public ScriptedAI
         {
-            mob_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset() { }
             void MoveInLineOfSight(Unit* /*who*/) {}
@@ -389,14 +389,14 @@ class mob_lesser_shadow_fissure : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_lesser_shadow_fissureAI (creature);
+            return new npc_lesser_shadow_fissureAI (creature);
         }
 };
 
 void AddSC_boss_grand_warlock_nethekurse()
 {
     new boss_grand_warlock_nethekurse();
-    new mob_fel_orc_convert();
-    new mob_lesser_shadow_fissure();
+    new npc_fel_orc_convert();
+    new npc_lesser_shadow_fissure();
 }
 

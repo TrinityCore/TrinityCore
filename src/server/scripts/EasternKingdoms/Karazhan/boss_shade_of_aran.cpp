@@ -508,10 +508,10 @@ public:
     };
 };
 
-class mob_aran_elemental : public CreatureScript
+class npc_aran_elemental : public CreatureScript
 {
 public:
-    mob_aran_elemental() : CreatureScript("mob_aran_elemental") { }
+    npc_aran_elemental() : CreatureScript("npc_aran_elemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -548,5 +548,5 @@ public:
 void AddSC_boss_shade_of_aran()
 {
     new boss_shade_of_aran();
-    new mob_aran_elemental();
+    new npc_aran_elemental();
 }

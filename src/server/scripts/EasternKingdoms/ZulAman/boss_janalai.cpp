@@ -57,10 +57,10 @@ enum eEnums
     SPELL_FIRE_BOMB_DAMAGE      = 42630,
 
 // --Summons
-    MOB_AMANI_HATCHER           = 23818,
-    MOB_HATCHLING               = 23598,   // 42493
-    MOB_EGG                     = 23817,
-    MOB_FIRE_BOMB               = 23920,
+    NPC_AMANI_HATCHER           = 23818,
+    NPC_HATCHLING               = 23598,   // 42493
+    NPC_EGG                     = 23817,
+    NPC_FIRE_BOMB               = 23920,
 
 // -- Hatcher Spells
     SPELL_HATCH_EGG             = 42471,   // 43734
@@ -205,9 +205,9 @@ class boss_janalai : public CreatureScript
                     for (uint8 j = 0; j < WallNum; j++)
                     {
                         if (WallNum == 3)
-                            wall = me->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0], FireWallCoords[i][1]+5*(j-1), FireWallCoords[i][2], FireWallCoords[i][3], TEMPSUMMON_TIMED_DESPAWN, 15000);
+                            wall = me->SummonCreature(NPC_FIRE_BOMB, FireWallCoords[i][0], FireWallCoords[i][1]+5*(j-1), FireWallCoords[i][2], FireWallCoords[i][3], TEMPSUMMON_TIMED_DESPAWN, 15000);
                         else
-                            wall = me->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0]-2+4*j, FireWallCoords[i][1], FireWallCoords[i][2], FireWallCoords[i][3], TEMPSUMMON_TIMED_DESPAWN, 15000);
+                            wall = me->SummonCreature(NPC_FIRE_BOMB, FireWallCoords[i][0]-2+4*j, FireWallCoords[i][1], FireWallCoords[i][2], FireWallCoords[i][3], TEMPSUMMON_TIMED_DESPAWN, 15000);
                         if (wall) wall->CastSpell(wall, SPELL_FIRE_WALL, true);
                     }
                 }
@@ -221,7 +221,7 @@ class boss_janalai : public CreatureScript
                     dx = float(irand(-area_dx/2, area_dx/2));
                     dy = float(irand(-area_dy/2, area_dy/2));
 
-                    Creature* bomb = DoSpawnCreature(MOB_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                    Creature* bomb = DoSpawnCreature(NPC_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
                     if (bomb)
                         FireBombGUIDs[i] = bomb->GetGUID();
                 }
@@ -239,7 +239,7 @@ class boss_janalai : public CreatureScript
                     Cell cell(pair);
                     cell.SetNoCreate();
 
-                    Trinity::AllCreaturesOfEntryInRange check(me, MOB_EGG, 100);
+                    Trinity::AllCreaturesOfEntryInRange check(me, NPC_EGG, 100);
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
 
                     TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
@@ -272,7 +272,7 @@ class boss_janalai : public CreatureScript
                     Cell cell(pair);
                     cell.SetNoCreate();
 
-                    Trinity::AllCreaturesOfEntryInRange check(me, MOB_FIRE_BOMB, 100);
+                    Trinity::AllCreaturesOfEntryInRange check(me, NPC_FIRE_BOMB, 100);
                     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
 
                     TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
@@ -407,8 +407,8 @@ class boss_janalai : public CreatureScript
                         if (HatchAllEggs(0))
                         {
                             Talk(SAY_SUMMON_HATCHER);
-                            me->SummonCreature(MOB_AMANI_HATCHER, hatcherway[0][0][0], hatcherway[0][0][1], hatcherway[0][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                            me->SummonCreature(MOB_AMANI_HATCHER, hatcherway[1][0][0], hatcherway[1][0][1], hatcherway[1][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                            me->SummonCreature(NPC_AMANI_HATCHER, hatcherway[0][0][0], hatcherway[0][0][1], hatcherway[0][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                            me->SummonCreature(NPC_AMANI_HATCHER, hatcherway[1][0][0], hatcherway[1][0][1], hatcherway[1][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             HatcherTimer = 90000;
                         }
                         else
@@ -441,18 +441,18 @@ class boss_janalai : public CreatureScript
         }
 };
 
-class mob_janalai_firebomb : public CreatureScript
+class npc_janalai_firebomb : public CreatureScript
 {
     public:
 
-        mob_janalai_firebomb()
-            : CreatureScript("mob_janalai_firebomb")
+        npc_janalai_firebomb()
+            : CreatureScript("npc_janalai_firebomb")
         {
         }
 
-        struct mob_janalai_firebombAI : public ScriptedAI
+        struct npc_janalai_firebombAI : public ScriptedAI
         {
-            mob_janalai_firebombAI(Creature* creature) : ScriptedAI(creature){}
+            npc_janalai_firebombAI(Creature* creature) : ScriptedAI(creature){}
 
             void Reset() {}
 
@@ -473,22 +473,22 @@ class mob_janalai_firebomb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_janalai_firebombAI(creature);
+            return new npc_janalai_firebombAI(creature);
         }
 };
 
-class mob_janalai_hatcher : public CreatureScript
+class npc_janalai_hatcher : public CreatureScript
 {
     public:
 
-        mob_janalai_hatcher()
-            : CreatureScript("mob_janalai_hatcher")
+        npc_janalai_hatcher()
+            : CreatureScript("npc_janalai_hatcher")
         {
         }
 
-        struct mob_janalai_hatcherAI : public ScriptedAI
+        struct npc_janalai_hatcherAI : public ScriptedAI
         {
-            mob_janalai_hatcherAI(Creature* creature) : ScriptedAI(creature)
+            npc_janalai_hatcherAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -605,22 +605,22 @@ class mob_janalai_hatcher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_janalai_hatcherAI(creature);
+            return new npc_janalai_hatcherAI(creature);
         }
 };
 
-class mob_janalai_hatchling : public CreatureScript
+class npc_janalai_hatchling : public CreatureScript
 {
     public:
 
-        mob_janalai_hatchling()
-            : CreatureScript("mob_janalai_hatchling")
+        npc_janalai_hatchling()
+            : CreatureScript("npc_janalai_hatchling")
         {
         }
 
-        struct mob_janalai_hatchlingAI : public ScriptedAI
+        struct npc_janalai_hatchlingAI : public ScriptedAI
         {
-            mob_janalai_hatchlingAI(Creature* creature) : ScriptedAI(creature)
+            npc_janalai_hatchlingAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -664,23 +664,23 @@ class mob_janalai_hatchling : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_janalai_hatchlingAI(creature);
+            return new npc_janalai_hatchlingAI(creature);
         }
 };
 
-class mob_janalai_egg : public CreatureScript
+class npc_janalai_egg : public CreatureScript
 {
 public:
-    mob_janalai_egg(): CreatureScript("mob_janalai_egg") {}
+    npc_janalai_egg(): CreatureScript("npc_janalai_egg") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_janalai_eggAI(creature);
+        return new npc_janalai_eggAI(creature);
     }
 
-    struct mob_janalai_eggAI : public ScriptedAI
+    struct npc_janalai_eggAI : public ScriptedAI
     {
-        mob_janalai_eggAI(Creature* creature) : ScriptedAI(creature){}
+        npc_janalai_eggAI(Creature* creature) : ScriptedAI(creature){}
 
         void Reset() {}
 
@@ -700,9 +700,9 @@ public:
 void AddSC_boss_janalai()
 {
     new boss_janalai();
-    new mob_janalai_firebomb();
-    new mob_janalai_hatcher();
-    new mob_janalai_hatchling();
-    new mob_janalai_egg();
+    new npc_janalai_firebomb();
+    new npc_janalai_hatcher();
+    new npc_janalai_hatchling();
+    new npc_janalai_egg();
 }
 

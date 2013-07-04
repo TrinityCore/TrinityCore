@@ -112,12 +112,12 @@ public:
                 case BOSS_GORTOK_PALEHOOF:    uiGortokPalehoof = creature->GetGUID();    break;
                 case BOSS_SKADI_RUTHLESS:     uiSkadiTheRuthless = creature->GetGUID();  break;
                 case BOSS_KING_YMIRON:        uiKingYmiron = creature->GetGUID();        break;
-                case MOB_FRENZIED_WORGEN:     uiFrenziedWorgen = creature->GetGUID();    break;
-                case MOB_RAVENOUS_FURBOLG:    uiRavenousFurbolg = creature->GetGUID();   break;
-                case MOB_MASSIVE_JORMUNGAR:   uiMassiveJormungar = creature->GetGUID();  break;
-                case MOB_FEROCIOUS_RHINO:     uiFerociousRhino = creature->GetGUID();    break;
-                case MOB_SVALA:               uiSvala = creature->GetGUID();             break;
-                case MOB_PALEHOOF_ORB:        uiPalehoofOrb = creature->GetGUID();       break;
+                case NPC_FRENZIED_WORGEN:     uiFrenziedWorgen = creature->GetGUID();    break;
+                case NPC_RAVENOUS_FURBOLG:    uiRavenousFurbolg = creature->GetGUID();   break;
+                case NPC_MASSIVE_JORMUNGAR:   uiMassiveJormungar = creature->GetGUID();  break;
+                case NPC_FEROCIOUS_RHINO:     uiFerociousRhino = creature->GetGUID();    break;
+                case NPC_SVALA:               uiSvala = creature->GetGUID();             break;
+                case NPC_PALEHOOF_ORB:        uiPalehoofOrb = creature->GetGUID();       break;
             }
         }
 
@@ -200,11 +200,11 @@ public:
                 case DATA_GORTOK_PALEHOOF:        return uiGortokPalehoof;
                 case DATA_SKADI_THE_RUTHLESS:     return uiSkadiTheRuthless;
                 case DATA_KING_YMIRON:            return uiKingYmiron;
-                case DATA_MOB_FRENZIED_WORGEN:    return uiFrenziedWorgen;
-                case DATA_MOB_RAVENOUS_FURBOLG:   return uiRavenousFurbolg;
-                case DATA_MOB_MASSIVE_JORMUNGAR:  return uiMassiveJormungar;
-                case DATA_MOB_FEROCIOUS_RHINO:    return uiFerociousRhino;
-                case DATA_MOB_ORB:                return uiPalehoofOrb;
+                case DATA_NPC_FRENZIED_WORGEN:    return uiFrenziedWorgen;
+                case DATA_NPC_RAVENOUS_FURBOLG:   return uiRavenousFurbolg;
+                case DATA_NPC_MASSIVE_JORMUNGAR:  return uiMassiveJormungar;
+                case DATA_NPC_FEROCIOUS_RHINO:    return uiFerociousRhino;
+                case DATA_NPC_ORB:                return uiPalehoofOrb;
                 case DATA_SVALA:                  return uiSvala;
                 case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
                 case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;

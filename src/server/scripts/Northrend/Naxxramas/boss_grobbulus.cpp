@@ -41,7 +41,7 @@ enum Events
 
 enum CreatureId
 {
-    MOB_FALLOUT_SLIME           = 16290
+    NPC_FALLOUT_SLIME           = 16290
 };
 
 class boss_grobbulus : public CreatureScript
@@ -74,7 +74,7 @@ public:
         {
             if (spell->Id == uint32(SPELL_SLIME_SPRAY))
             {
-                if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (TempSummon* slime = me->SummonCreature(NPC_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
             }
         }

@@ -43,7 +43,7 @@ enum Spells
 
 enum Creatures
 {
-    MOB_TWISTED_VISAGE                            = 30625
+    NPC_TWISTED_VISAGE                            = 30625
 };
 
 
@@ -127,7 +127,7 @@ public:
                     if (!player || !player->IsAlive())
                         continue;
                     // Summon clone
-                    if (Unit* summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Unit* summon = me->SummonCreature(NPC_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         // clone
                         player->CastSpell(summon, SPELL_CLONE_PLAYER, true);

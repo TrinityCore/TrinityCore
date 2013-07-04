@@ -24,7 +24,7 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 /* ContentData
-mob_crystalcore_devastator
+npc_crystalcore_devastator
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -37,17 +37,17 @@ enum eSpells
     SPELL_KNOCKAWAY        = 22893,
 };
 
-class mob_crystalcore_devastator : public CreatureScript
+class npc_crystalcore_devastator : public CreatureScript
 {
     public:
 
-        mob_crystalcore_devastator()
-            : CreatureScript("mob_crystalcore_devastator")
+        npc_crystalcore_devastator()
+            : CreatureScript("npc_crystalcore_devastator")
         {
         }
-        struct mob_crystalcore_devastatorAI : public ScriptedAI
+        struct npc_crystalcore_devastatorAI : public ScriptedAI
         {
-            mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 Knockaway_Timer;
             uint32 Countercharge_Timer;
@@ -102,11 +102,11 @@ class mob_crystalcore_devastator : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_crystalcore_devastatorAI(creature);
+            return new npc_crystalcore_devastatorAI(creature);
         }
 };
 void AddSC_the_eye()
 {
-    new mob_crystalcore_devastator();
+    new npc_crystalcore_devastator();
 }
 

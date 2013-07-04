@@ -223,19 +223,19 @@ public:
 
 };
 
-class mob_ethereal_sphere : public CreatureScript
+class npc_ethereal_sphere : public CreatureScript
 {
 public:
-    mob_ethereal_sphere() : CreatureScript("mob_ethereal_sphere") { }
+    npc_ethereal_sphere() : CreatureScript("npc_ethereal_sphere") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ethereal_sphereAI (creature);
+        return new npc_ethereal_sphereAI (creature);
     }
 
-    struct mob_ethereal_sphereAI : public ScriptedAI
+    struct npc_ethereal_sphereAI : public ScriptedAI
     {
-        mob_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
+        npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
         {
             instance   = creature->GetInstanceScript();
         }
@@ -303,5 +303,5 @@ public:
 void AddSC_boss_xevozz()
 {
     new boss_xevozz();
-    new mob_ethereal_sphere();
+    new npc_ethereal_sphere();
 }

@@ -183,18 +183,18 @@ class boss_jindo : public CreatureScript
 };
 
 //Healing Ward
-class mob_healing_ward : public CreatureScript
+class npc_healing_ward : public CreatureScript
 {
     public:
 
-        mob_healing_ward()
-            : CreatureScript("mob_healing_ward")
+        npc_healing_ward()
+            : CreatureScript("npc_healing_ward")
         {
         }
 
-        struct mob_healing_wardAI : public ScriptedAI
+        struct npc_healing_wardAI : public ScriptedAI
         {
-            mob_healing_wardAI(Creature* creature) : ScriptedAI(creature)
+            npc_healing_wardAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -232,23 +232,23 @@ class mob_healing_ward : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_healing_wardAI(creature);
+            return new npc_healing_wardAI(creature);
         }
 };
 
 //Shade of Jindo
-class mob_shade_of_jindo : public CreatureScript
+class npc_shade_of_jindo : public CreatureScript
 {
     public:
 
-        mob_shade_of_jindo()
-            : CreatureScript("mob_shade_of_jindo")
+        npc_shade_of_jindo()
+            : CreatureScript("npc_shade_of_jindo")
         {
         }
 
-        struct mob_shade_of_jindoAI : public ScriptedAI
+        struct npc_shade_of_jindoAI : public ScriptedAI
         {
-            mob_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 ShadowShock_Timer;
 
@@ -276,13 +276,13 @@ class mob_shade_of_jindo : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_shade_of_jindoAI(creature);
+            return new npc_shade_of_jindoAI(creature);
         }
 };
 
 void AddSC_boss_jindo()
 {
     new boss_jindo();
-    new mob_healing_ward();
-    new mob_shade_of_jindo();
+    new npc_healing_ward();
+    new npc_shade_of_jindo();
 }

@@ -130,14 +130,14 @@ class boss_archavon : public CreatureScript
 /*######
 ##  Mob Archavon Warder
 ######*/
-class mob_archavon_warder : public CreatureScript
+class npc_archavon_warder : public CreatureScript
 {
     public:
-        mob_archavon_warder() : CreatureScript("mob_archavon_warder") { }
+        npc_archavon_warder() : CreatureScript("npc_archavon_warder") { }
 
-        struct mob_archavon_warderAI : public ScriptedAI //npc 32353
+        struct npc_archavon_warderAI : public ScriptedAI //npc 32353
         {
-            mob_archavon_warderAI(Creature* creature) : ScriptedAI(creature)
+            npc_archavon_warderAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -194,12 +194,12 @@ class mob_archavon_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_archavon_warderAI(creature);
+            return new npc_archavon_warderAI(creature);
         }
 };
 
 void AddSC_boss_archavon()
 {
     new boss_archavon();
-    new mob_archavon_warder();
+    new npc_archavon_warder();
 }

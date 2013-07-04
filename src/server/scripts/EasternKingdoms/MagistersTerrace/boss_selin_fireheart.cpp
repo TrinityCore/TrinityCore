@@ -320,19 +320,19 @@ public:
     };
 };
 
-class mob_fel_crystal : public CreatureScript
+class npc_fel_crystal : public CreatureScript
 {
 public:
-    mob_fel_crystal() : CreatureScript("mob_fel_crystal") { }
+    npc_fel_crystal() : CreatureScript("npc_fel_crystal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_fel_crystalAI (creature);
+        return new npc_fel_crystalAI (creature);
     };
 
-    struct mob_fel_crystalAI : public ScriptedAI
+    struct npc_fel_crystalAI : public ScriptedAI
     {
-        mob_fel_crystalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fel_crystalAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -368,5 +368,5 @@ public:
 void AddSC_boss_selin_fireheart()
 {
     new boss_selin_fireheart();
-    new mob_fel_crystal();
+    new npc_fel_crystal();
 }

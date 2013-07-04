@@ -410,18 +410,18 @@ class boss_high_astromancer_solarian : public CreatureScript
         }
 };
 
-class mob_solarium_priest : public CreatureScript
+class npc_solarium_priest : public CreatureScript
 {
     public:
 
-        mob_solarium_priest()
-            : CreatureScript("mob_solarium_priest")
+        npc_solarium_priest()
+            : CreatureScript("npc_solarium_priest")
         {
         }
 
-        struct mob_solarium_priestAI : public ScriptedAI
+        struct npc_solarium_priestAI : public ScriptedAI
         {
-            mob_solarium_priestAI(Creature* creature) : ScriptedAI(creature)
+            npc_solarium_priestAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -493,7 +493,7 @@ class mob_solarium_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_solarium_priestAI(creature);
+            return new npc_solarium_priestAI(creature);
         }
 };
 
@@ -538,7 +538,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
 void AddSC_boss_high_astromancer_solarian()
 {
     new boss_high_astromancer_solarian();
-    new mob_solarium_priest();
+    new npc_solarium_priest();
     new spell_astromancer_wrath_of_the_astromancer();
 }
 

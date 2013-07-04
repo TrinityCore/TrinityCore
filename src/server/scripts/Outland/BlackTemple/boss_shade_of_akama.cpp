@@ -115,19 +115,19 @@ static Location BrokenWP[]=
 
 const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
-class mob_ashtongue_channeler : public CreatureScript
+class npc_ashtongue_channeler : public CreatureScript
 {
 public:
-    mob_ashtongue_channeler() : CreatureScript("mob_ashtongue_channeler") { }
+    npc_ashtongue_channeler() : CreatureScript("npc_ashtongue_channeler") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ashtongue_channelerAI (creature);
+        return new npc_ashtongue_channelerAI (creature);
     }
 
-    struct mob_ashtongue_channelerAI : public ScriptedAI
+    struct npc_ashtongue_channelerAI : public ScriptedAI
     {
-        mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
+        npc_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
         {
             ShadeGUID = 0;
         }
@@ -144,19 +144,19 @@ public:
 
 };
 
-class mob_ashtongue_sorcerer : public CreatureScript
+class npc_ashtongue_sorcerer : public CreatureScript
 {
 public:
-    mob_ashtongue_sorcerer() : CreatureScript("mob_ashtongue_sorcerer") { }
+    npc_ashtongue_sorcerer() : CreatureScript("npc_ashtongue_sorcerer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ashtongue_sorcererAI (creature);
+        return new npc_ashtongue_sorcererAI (creature);
     }
 
-    struct mob_ashtongue_sorcererAI : public ScriptedAI
+    struct npc_ashtongue_sorcererAI : public ScriptedAI
     {
-        mob_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
+        npc_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
         {
             ShadeGUID = 0;
         }
@@ -366,7 +366,7 @@ public:
                 Creature* Sorcerer = me->SummonCreature(CREATURE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
                 if (Sorcerer)
                 {
-                    CAST_AI(mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = me->GetGUID();
+                    CAST_AI(npc_ashtongue_sorcerer::npc_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = me->GetGUID();
                     Sorcerer->SetWalk(false);
                     Sorcerer->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Sorcerer->SetTarget(me->GetGUID());
@@ -400,7 +400,7 @@ public:
             {
                 for (std::list<Creature*>::const_iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
                 {
-                    CAST_AI(mob_ashtongue_channeler::mob_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
+                    CAST_AI(npc_ashtongue_channeler::npc_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
                     Channelers.push_back((*itr)->GetGUID());
                     TC_LOG_DEBUG(LOG_FILTER_TSCR, "Shade of Akama Grid Search found channeler " UI64FMTD ". Adding to list", (*itr)->GetGUID());
                 }
@@ -533,7 +533,7 @@ public:
 
 };
 
-void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
+void npc_ashtongue_channeler::npc_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->IsAlive())
@@ -541,7 +541,7 @@ void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer
     else TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
 }
 
-void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
+void npc_ashtongue_sorcerer::npc_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->IsAlive())
@@ -899,7 +899,7 @@ public:
 void AddSC_boss_shade_of_akama()
 {
     new boss_shade_of_akama();
-    new mob_ashtongue_channeler();
-    new mob_ashtongue_sorcerer();
+    new npc_ashtongue_channeler();
+    new npc_ashtongue_sorcerer();
     new npc_akama_shade();
 }

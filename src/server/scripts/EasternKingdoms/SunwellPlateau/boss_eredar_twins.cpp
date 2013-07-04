@@ -294,7 +294,7 @@ public:
                 for (uint8 i = 0; i<3; ++i)
                 {
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    temp = DoSpawnCreature(MOB_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
+                    temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
                     if (temp && target)
                     {
                         temp->AddThreat(target, 1000000);//don't change target(healers)
@@ -661,19 +661,19 @@ public:
     };
 };
 
-class mob_shadow_image : public CreatureScript
+class npc_shadow_image : public CreatureScript
 {
 public:
-    mob_shadow_image() : CreatureScript("mob_shadow_image") { }
+    npc_shadow_image() : CreatureScript("npc_shadow_image") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_shadow_imageAI (creature);
+        return new npc_shadow_imageAI (creature);
     };
 
-    struct mob_shadow_imageAI : public ScriptedAI
+    struct npc_shadow_imageAI : public ScriptedAI
     {
-        mob_shadow_imageAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shadow_imageAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;
@@ -745,5 +745,5 @@ void AddSC_boss_eredar_twins()
 {
     new boss_sacrolash();
     new boss_alythess();
-    new mob_shadow_image();
+    new npc_shadow_image();
 }

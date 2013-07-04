@@ -50,7 +50,7 @@ enum eEnums
     SAY_PROGRESS_9      = 9,
 
     QUEST_SUNKEN_TREASURE   = 665,
-    MOB_VENGEFUL_SURGE      = 2776
+    NPC_VENGEFUL_SURGE      = 2776
 };
 
 class npc_professor_phizzlethorpe : public CreatureScript
@@ -84,8 +84,8 @@ class npc_professor_phizzlethorpe : public CreatureScript
                         Talk(EMOTE_PROGRESS_4);
                         break;
                     case 9:
-                        me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         break;
                     case 10:
                         Talk(SAY_PROGRESS_5, player->GetGUID());

@@ -193,14 +193,14 @@ class boss_elder_nadox : public CreatureScript
         }
 };
 
-class mob_ahnkahar_nerubian : public CreatureScript
+class npc_ahnkahar_nerubian : public CreatureScript
 {
     public:
-        mob_ahnkahar_nerubian() : CreatureScript("mob_ahnkahar_nerubian") { }
+        npc_ahnkahar_nerubian() : CreatureScript("npc_ahnkahar_nerubian") { }
 
-        struct mob_ahnkahar_nerubianAI : public ScriptedAI
+        struct npc_ahnkahar_nerubianAI : public ScriptedAI
         {
-            mob_ahnkahar_nerubianAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_ahnkahar_nerubianAI(Creature* creature) : ScriptedAI(creature) { }
 
             EventMap events;
 
@@ -244,19 +244,19 @@ class mob_ahnkahar_nerubian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_ahnkahar_nerubianAI(creature);
+            return new npc_ahnkahar_nerubianAI(creature);
         }
 };
 
 //HACK: No, AI. Replace with proper db content?
-class mob_nadox_eggs : public CreatureScript
+class npc_nadox_eggs : public CreatureScript
 {
 public:
-    mob_nadox_eggs() : CreatureScript("mob_nadox_eggs") { }
+    npc_nadox_eggs() : CreatureScript("npc_nadox_eggs") { }
 
-    struct mob_nadox_eggsAI : public ScriptedAI
+    struct npc_nadox_eggsAI : public ScriptedAI
     {
-        mob_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
+        npc_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             creature->UpdateAllStats();
@@ -271,7 +271,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_nadox_eggsAI(creature);
+        return new npc_nadox_eggsAI(creature);
     }
 };
 
@@ -335,8 +335,8 @@ public:
 void AddSC_boss_elder_nadox()
 {
     new boss_elder_nadox();
-    new mob_ahnkahar_nerubian();
-    new mob_nadox_eggs();
+    new npc_ahnkahar_nerubian();
+    new npc_nadox_eggs();
     new spell_elder_nadox_guardian();
     new achievement_respect_your_elders();
 }

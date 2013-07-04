@@ -374,10 +374,10 @@ static const Animation DemonTransformation[10]=
     {0, SPELL_DEMON_TRANSFORM_3, 0, 0, 0, 8, true}
 };
 
-class mob_flame_of_azzinoth : public CreatureScript
+class npc_flame_of_azzinoth : public CreatureScript
 {
 public:
-    mob_flame_of_azzinoth() : CreatureScript("mob_flame_of_azzinoth") { }
+    npc_flame_of_azzinoth() : CreatureScript("npc_flame_of_azzinoth") { }
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
@@ -751,7 +751,7 @@ public:
                         Flame->setFaction(me->getFaction()); // Just in case the database has it as a different faction
                         Flame->SetMeleeDamageSchool(SPELL_SCHOOL_FIRE);
                         FlameGUID[i] = Flame->GetGUID(); // Record GUID in order to check if they're dead later on to move to the next phase
-                        CAST_AI(mob_flame_of_azzinoth::flame_of_azzinothAI, Flame->AI())->SetGlaiveGUID(GlaiveGUID[i]);
+                        CAST_AI(npc_flame_of_azzinoth::flame_of_azzinothAI, Flame->AI())->SetGlaiveGUID(GlaiveGUID[i]);
                         Glaive->CastSpell(Flame, SPELL_AZZINOTH_CHANNEL, false); // Glaives do some random Beam type channel on it.
                     }
                 }
@@ -1976,10 +1976,10 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     ++TalkCount;
 }
 
-class mob_cage_trap_trigger : public CreatureScript
+class npc_cage_trap_trigger : public CreatureScript
 {
 public:
-    mob_cage_trap_trigger() : CreatureScript("mob_cage_trap_trigger") { }
+    npc_cage_trap_trigger() : CreatureScript("npc_cage_trap_trigger") { }
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
@@ -2067,16 +2067,16 @@ public:
 
         // Grid search for nearest live Creature of entry 23304 within 10 yards
         if (Creature* pTrigger = go->FindNearestCreature(23304, 10.0f))
-            CAST_AI(mob_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
+            CAST_AI(npc_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
         go->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
 };
 
-class mob_shadow_demon : public CreatureScript
+class npc_shadow_demon : public CreatureScript
 {
 public:
-    mob_shadow_demon() : CreatureScript("mob_shadow_demon") { }
+    npc_shadow_demon() : CreatureScript("npc_shadow_demon") { }
 
     struct shadow_demonAI : public ScriptedAI
     {
@@ -2129,10 +2129,10 @@ public:
     }
 };
 
-class mob_blade_of_azzinoth : public CreatureScript
+class npc_blade_of_azzinoth : public CreatureScript
 {
 public:
-    mob_blade_of_azzinoth() : CreatureScript("mob_blade_of_azzinoth") { }
+    npc_blade_of_azzinoth() : CreatureScript("npc_blade_of_azzinoth") { }
 
     struct blade_of_azzinothAI : public NullCreatureAI
     {
@@ -2151,15 +2151,15 @@ public:
     }
 };
 
-class mob_parasitic_shadowfiend : public CreatureScript
+class npc_parasitic_shadowfiend : public CreatureScript
 {
 public:
-    mob_parasitic_shadowfiend() : CreatureScript("mob_parasitic_shadowfiend") { }
+    npc_parasitic_shadowfiend() : CreatureScript("npc_parasitic_shadowfiend") { }
 
     // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap
-    struct mob_parasitic_shadowfiendAI : public ScriptedAI
+    struct npc_parasitic_shadowfiendAI : public ScriptedAI
     {
-        mob_parasitic_shadowfiendAI(Creature* creature) : ScriptedAI(creature)
+        npc_parasitic_shadowfiendAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -2232,7 +2232,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_parasitic_shadowfiendAI (creature);
+        return new npc_parasitic_shadowfiendAI (creature);
     }
 };
 
@@ -2241,10 +2241,10 @@ void AddSC_boss_illidan()
     new boss_illidan_stormrage();
     new npc_akama_illidan();
     new boss_maiev_shadowsong();
-    new mob_flame_of_azzinoth();
-    new mob_blade_of_azzinoth();
+    new npc_flame_of_azzinoth();
+    new npc_blade_of_azzinoth();
     new gameobject_cage_trap();
-    new mob_cage_trap_trigger();
-    new mob_shadow_demon();
-    new mob_parasitic_shadowfiend();
+    new npc_cage_trap_trigger();
+    new npc_shadow_demon();
+    new npc_parasitic_shadowfiend();
 }

@@ -125,14 +125,14 @@ class boss_koralon : public CreatureScript
 /*######
 ##  Mob Flame Warder
 ######*/
-class mob_flame_warder : public CreatureScript
+class npc_flame_warder : public CreatureScript
 {
     public:
-        mob_flame_warder() : CreatureScript("mob_flame_warder") { }
+        npc_flame_warder() : CreatureScript("npc_flame_warder") { }
 
-        struct mob_flame_warderAI : public ScriptedAI
+        struct npc_flame_warderAI : public ScriptedAI
         {
-            mob_flame_warderAI(Creature* creature) : ScriptedAI(creature)
+            npc_flame_warderAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
@@ -186,12 +186,12 @@ class mob_flame_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_flame_warderAI(creature);
+            return new npc_flame_warderAI(creature);
         }
 };
 
 void AddSC_boss_koralon()
 {
     new boss_koralon();
-    new mob_flame_warder();
+    new npc_flame_warder();
 }

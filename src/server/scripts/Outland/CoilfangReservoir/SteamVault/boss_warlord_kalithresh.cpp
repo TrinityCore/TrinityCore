@@ -44,19 +44,19 @@ enum NagaDistiller
     SPELL_WARLORDS_RAGE_PROC    = 36453
 };
 
-class mob_naga_distiller : public CreatureScript
+class npc_naga_distiller : public CreatureScript
 {
 public:
-    mob_naga_distiller() : CreatureScript("mob_naga_distiller") { }
+    npc_naga_distiller() : CreatureScript("npc_naga_distiller") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_naga_distillerAI (creature);
+        return new npc_naga_distillerAI (creature);
     }
 
-    struct mob_naga_distillerAI : public ScriptedAI
+    struct npc_naga_distillerAI : public ScriptedAI
     {
-        mob_naga_distillerAI(Creature* creature) : ScriptedAI(creature)
+        npc_naga_distillerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -178,7 +178,7 @@ public:
                 {
                     Talk(SAY_REGEN);
                     DoCast(me, SPELL_WARLORDS_RAGE);
-                    CAST_AI(mob_naga_distiller::mob_naga_distillerAI, distiller->AI())->StartRageGen(me);
+                    CAST_AI(npc_naga_distiller::npc_naga_distillerAI, distiller->AI())->StartRageGen(me);
                 }
                 Rage_Timer = 3000+rand()%15000;
             } else Rage_Timer -= diff;
@@ -207,6 +207,6 @@ public:
 
 void AddSC_boss_warlord_kalithresh()
 {
-    new mob_naga_distiller();
+    new npc_naga_distiller();
     new boss_warlord_kalithresh();
 }
