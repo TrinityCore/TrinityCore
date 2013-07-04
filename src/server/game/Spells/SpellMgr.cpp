@@ -2821,6 +2821,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73788: // Pain and Suffering
             case 73789: // Pain and Suffering
             case 73790: // Pain and Suffering
+            case 63293: // Mimiron - P3Wx2 Laser Barrage
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
                 break;
             case 24340: // Meteor
@@ -3295,6 +3296,18 @@ void SpellMgr::LoadDbcDataCorrections()
             case 34471: // The Beast Within
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            // NAXXRAMAS SPELLS
+            //
+            case 29125: // Hopeless (Razuvious)
+                spellInfo->MaxAffectedTargets = 4;
+                break;
+            case 28111: // Chain 
+            case 28096:
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_50000_YARDS;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            // ENDOF NAXXRAMAS SPELLS
+            //
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
@@ -3353,6 +3366,23 @@ void SpellMgr::LoadDbcDataCorrections()
             case 62311: // Cosmic Smash (Algalon the Observer)
             case 64596: // Cosmic Smash (Algalon the Observer)
                 spellInfo->rangeIndex = 6;  // 100yd
+                break;
+            case 63387: // Rapid Burst Left 10 man (Mimiron)
+            case 64019: // Rapid Burst Right 10 man (Mimiron)
+            case 64531: // Rapid Burst Left 25 man (Mimiron)
+            case 64532: // Rapid Burst Right 25 man (Mimiron)
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_50000_YARDS;   // 50000yd
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_UNK25;
+                break;
+            case 63382: // Rapid Burst Aura (Mimiron)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 64444: // Mimiron - Magnetic Core
+                spellInfo->rangeIndex = 6; // 100yd
+                break;
+            case 63036: // Mimiron - Rochet Strike
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
                 break;
             case 64014: // Expedition Base Camp Teleport
             case 64024: // Conservatory Teleport

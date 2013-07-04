@@ -29,23 +29,23 @@ enum UlduarBosses
 {
     MAX_ENCOUNTER            = 17,
 
-    BOSS_LEVIATHAN           = 0,
-    BOSS_IGNIS               = 1,
-    BOSS_RAZORSCALE          = 2,
-    BOSS_XT002               = 3,
-    BOSS_ASSEMBLY_OF_IRON    = 4,
-    BOSS_KOLOGARN            = 5,
-    BOSS_AURIAYA             = 6,
-    BOSS_MIMIRON             = 7,
-    BOSS_HODIR               = 8,
-    BOSS_THORIM              = 9,
-    BOSS_FREYA               = 10,
-    BOSS_BRIGHTLEAF          = 11,
-    BOSS_IRONBRANCH          = 12,
-    BOSS_STONEBARK           = 13,
-    BOSS_VEZAX               = 14,
-    BOSS_YOGG_SARON          = 15,
-    BOSS_ALGALON             = 16,
+    DATA_LEVIATHAN           = 0,
+    DATA_IGNIS               = 1,
+    DATA_RAZORSCALE          = 2,
+    DATA_XT002               = 3,
+    DATA_ASSEMBLY_OF_IRON    = 4,
+    DATA_KOLOGARN            = 5,
+    DATA_AURIAYA             = 6,
+    DATA_MIMIRON             = 7,
+    DATA_HODIR               = 8,
+    DATA_THORIM              = 9,
+    DATA_FREYA               = 10,
+    DATA_BRIGHTLEAF          = 11,
+    DATA_IRONBRANCH          = 12,
+    DATA_STONEBARK           = 13,
+    DATA_VEZAX               = 14,
+    DATA_YOGG_SARON          = 15,
+    DATA_ALGALON             = 16,
 };
 
 enum UlduarNPCs
@@ -189,7 +189,12 @@ enum UlduarGameObjects
     GO_HODIR_DOOR                           = 194634,
     GO_HODIR_ICE_DOOR                       = 194441,
     GO_ARCHIVUM_DOOR                        = 194556,
-
+    GO_MIMIRON_TRAIN                        = 194675,
+    GO_MIMIRON_ELEVATOR                     = 194749,
+    GO_MIMIRON_DOOR_1                       = 194776,
+    GO_MIMIRON_DOOR_2                       = 194774,
+    GO_MIMIRON_DOOR_3                       = 194775,
+    GO_BIG_RED_BUTTON                       = 194739,
     // Yogg-Saron
     GO_YOGG_SARON_DOOR                      = 194773,
     GO_BRAIN_ROOM_DOOR_1                    = 194635,
@@ -297,6 +302,14 @@ enum UlduarData
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
+
+    // Mimiron
+    DATA_MIMIRON_ELEVATOR,
+    DATA_LEVIATHAN_MK_II,
+    DATA_AERIAL_UNIT,
+    DATA_CALL_TRAM,
+    DATA_VX_001,
+    DATA_MAGNETIC_CORE,
 };
 
 enum UlduarWorldStates

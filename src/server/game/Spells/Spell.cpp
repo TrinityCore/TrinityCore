@@ -3269,6 +3269,14 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
+    //If we trigger weapon swing or applying crowd control aura execute all delayed attacks on this target immideately
+    //Only when casted on unit, only for current caster and not all attackers
+    if (m_targets.GetUnitTarget())
+        if (m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE) || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
+            if (m_caster->HasDelayedSwing())
+                if (m_caster->GetDelayedDamageInfo().target == m_targets.GetUnitTarget())
+                    m_caster->ExecuteDelayedSwingHit();
+
     PrepareTriggersExecutedOnHit();
 
     CallScriptOnCastHandlers();

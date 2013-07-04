@@ -102,12 +102,21 @@ extern int main(int argc, char **argv)
         printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!\n");
         return 1;
     }
-
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
+    TC_LOG_WARN(LOG_FILTER_AUTHSERVER, "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "%s (authserver)", _FULLVERSION);
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
 
     TC_LOG_WARN(LOG_FILTER_AUTHSERVER, "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "      ______   __     __   _________   ________   ________   ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "     / ____/  / /    / /  / _____  /  / ____  /  / ______/   ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "    / /      / /____/ /  / /    / /  / /   / /  / /_____     ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "   / /      / _____  /  / /____/ /  / /   / /  /_____  /     ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "  / /____  / /    / /  / _____  /  / /___/ /  ______/ /      ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, " /______/ /_/    /_/  /_/    /_/  /_______/  /_______/       ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "                                    C O R E                  ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Based on TrinityCore http://www.TrinityCore.org\n            ");
+
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);

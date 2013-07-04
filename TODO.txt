@@ -1,0 +1,9 @@
+﻿-- ChaosCore Todolist --
+-Remove RBAC
+-port over old Trial of the Champion
+-port over Halls of Reflection
+-port over Ulduar
+-Rewrite Naxxramas
+-Notrhend dungeons db
+-Northrend dungeons script
+-Gunship Battle

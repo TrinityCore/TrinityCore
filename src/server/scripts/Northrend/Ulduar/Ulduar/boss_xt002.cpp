@@ -15,14 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-    @todo
-        Fix void zone damage
-        If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
-        make the life sparks visible...     /? Need test
-        Codestyle
-*/
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -199,7 +191,7 @@ class boss_xt002 : public CreatureScript
 
         struct boss_xt002_AI : public BossAI
         {
-            boss_xt002_AI(Creature* creature) : BossAI(creature, BOSS_XT002)
+            boss_xt002_AI(Creature* creature) : BossAI(creature, DATA_XT002)
             {
             }
 
@@ -463,7 +455,7 @@ class mob_xt002_heart : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                Creature* xt002 = _instance ? me->GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
+                Creature* xt002 = _instance ? me->GetCreature(*me, _instance->GetData64(DATA_XT002)) : NULL;
                 if (!xt002 || !xt002->AI())
                     return;
 
@@ -509,7 +501,7 @@ class mob_scrapbot : public CreatureScript
 
                 _rangeCheckTimer = 500;
 
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -517,7 +509,7 @@ class mob_scrapbot : public CreatureScript
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
@@ -566,7 +558,7 @@ class mob_pummeller : public CreatureScript
                 _trampleTimer = TIMER_TRAMPLE;
                 _uppercutTimer = TIMER_UPPERCUT;
 
-                if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
                 {
                     Position pos;
                     xt002->GetPosition(&pos);
@@ -675,7 +667,7 @@ class mob_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
                 /// @todo proper waypoints?
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -932,7 +924,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(DATA_XT002));
                             }
                         }
                     }

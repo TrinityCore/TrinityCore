@@ -45,7 +45,7 @@ class boss_thorim : public CreatureScript
 
         struct boss_thorimAI : public BossAI
         {
-            boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM)
+            boss_thorimAI(Creature* creature) : BossAI(creature, DATA_THORIM)
             {
             }
 
