@@ -22,6 +22,7 @@
 #include "razorfen_kraul.h"
 #include "Player.h"
 #include "PetAI.h"
+#include "SpellScript.h"
 
 enum Willix
 {
@@ -142,8 +143,8 @@ enum SnufflenoseGopher
 {
     NPC_SNUFFLENOSE_GOPHER       = 4781,
     GO_BLUELEAF_TUBBER           = 20920,
-    ACTION_FIND_NEW_TUBBER       = 0x4B726F66,
-    POINT_TUBBER                 = 0x6E615748
+    ACTION_FIND_NEW_TUBBER       = 0,
+    POINT_TUBBER                 = 0
 };
 
 struct DistanceOrder : public std::binary_function<GameObject, GameObject, bool>
@@ -252,12 +253,16 @@ class spell_snufflenose_command : public SpellScriptLoader
         {
             PrepareSpellScript(spell_snufflenose_commandSpellScript);
 
+            bool Load()
+            {
+                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
             void HandleAfterCast()
             {
-                if (Unit* target = ((Player*)GetCaster())->GetSelectedUnit())
+                if (Unit* target = GetCaster()->ToPlayer()->GetSelectedUnit())
                     if (target->GetEntry() == NPC_SNUFFLENOSE_GOPHER)
-                        if (Creature* ctarget = dynamic_cast<Creature*>(target))
-                            ctarget->AI()->DoAction(ACTION_FIND_NEW_TUBBER);
+                        target->ToCreature()->AI()->DoAction(ACTION_FIND_NEW_TUBBER);
             }
 
             void Register()
