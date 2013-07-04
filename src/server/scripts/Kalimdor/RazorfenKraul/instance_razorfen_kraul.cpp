@@ -74,6 +74,7 @@ public:
             switch (go->GetEntry())
             {
                 case 21099: DoorWardGUID = go->GetGUID(); break;
+                case 20920: go->SetUInt32Value(GAMEOBJECT_FACTION, 0); break; // big fat fugly hack
             }
         }
 
