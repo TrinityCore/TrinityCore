@@ -37,17 +37,25 @@ EndContentData */
 ## npc_daphne_stilwell
 ######*/
 
-enum eEnums
+enum DaphneStilwell
 {
+    // Yells
     SAY_DS_START        = 0,
     SAY_DS_DOWN_1       = 1,
     SAY_DS_DOWN_2       = 2,
     SAY_DS_DOWN_3       = 3,
     SAY_DS_PROLOGUE     = 4,
 
+    // Spells
     SPELL_SHOOT         = 6660,
+
+    // Quests
     QUEST_TOME_VALOR    = 1651,
+
+    // Creatures
     NPC_DEFIAS_RAIDER   = 6180,
+
+    // Equips
     EQUIP_ID_RIFLE      = 2511
 };
 

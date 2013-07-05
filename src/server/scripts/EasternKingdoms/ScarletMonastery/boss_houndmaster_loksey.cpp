@@ -26,9 +26,13 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                       = 0,
+};
+
+enum Spells
+{
     SPELL_SUMMONSCARLETHOUND        = 17164,
     SPELL_BLOODLUST                 = 6742
 };

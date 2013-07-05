@@ -28,14 +28,17 @@ EndScriptData */
 #include "ScriptedEscortAI.h"
 #include "shadow_labyrinth.h"
 
-enum eEnums
+enum Yells
 {
     SAY_INTRO       = 0,
     SAY_AGGRO       = 1,
     SAY_HELP        = 2,
     SAY_SLAY        = 3,
-    SAY_DEATH       = 4,
+    SAY_DEATH       = 4
+};
 
+enum Spells
+{
     SPELL_BANISH            = 30231,
     SPELL_CORROSIVE_ACID    = 33551,
     SPELL_FEAR              = 33547,

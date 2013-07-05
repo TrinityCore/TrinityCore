@@ -43,7 +43,7 @@ EndContentData */
 ## at_coilfang_waterfall
 ######*/
 
-enum eCoilfangGOs
+enum CoilfangGOs
 {
     GO_COILFANG_WATERFALL   = 184212
 };
@@ -71,7 +71,7 @@ class AreaTrigger_at_coilfang_waterfall : public AreaTriggerScript
 ## at_legion_teleporter
 #####*/
 
-enum eLegionTeleporter
+enum LegionTeleporter
 {
     SPELL_TELE_A_TO         = 37387,
     QUEST_GAINING_ACCESS_A  = 10589,
@@ -115,7 +115,7 @@ class AreaTrigger_at_legion_teleporter : public AreaTriggerScript
 ## at_stormwright_shelf
 ######*/
 
-enum eStormwrightShelf
+enum StormwrightShelf
 {
     QUEST_STRENGTH_OF_THE_TEMPEST               = 12741,
 
@@ -144,7 +144,7 @@ class AreaTrigger_at_stormwright_shelf : public AreaTriggerScript
 ## at_scent_larkorwi
 ######*/
 
-enum eScentLarkorwi
+enum ScentLarkorwi
 {
     QUEST_SCENT_OF_LARKORWI                     = 4291,
     NPC_LARKORWI_MATE                           = 9683
@@ -175,7 +175,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
 ## at_last_rites
 #####*/
 
-enum eAtLastRites
+enum AtLastRites
 {
     QUEST_LAST_RITES                          = 12019,
     QUEST_BREAKING_THROUGH                    = 11898,
@@ -226,7 +226,7 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
 ## at_sholazar_waygate
 ######*/
 
-enum eWaygate
+enum Waygate
 {
     SPELL_SHOLAZAR_TO_UNGORO_TELEPORT           = 52056,
     SPELL_UNGORO_TO_SHOLAZAR_TELEPORT           = 52057,

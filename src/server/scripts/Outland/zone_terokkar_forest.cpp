@@ -281,13 +281,17 @@ public:
 ## npc_netherweb_victim
 ######*/
 
-#define QUEST_TARGET        22459
-//#define SPELL_FREE_WEBBED   38950
+enum NetherwebVictim
+{
+    QUEST_TARGET            = 22459
+    //SPELL_FREE_WEBBED       = 38950
+};
 
 const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
 };
+
 class npc_netherweb_victim : public CreatureScript
 {
 public:
@@ -338,7 +342,7 @@ public:
 #define GOSSIP_FLOON1           "You owe Sim'salabim money. Hand them over or die!"
 #define GOSSIP_FLOON2           "Hand over the money or die...again!"
 
-enum eFloon
+enum Floon
 {
     SAY_FLOON_ATTACK        = 0,
 
@@ -441,7 +445,7 @@ public:
 /*######
 ## npc_isla_starmane
 ######*/
-enum eIslaStarmaneData
+enum IslaStarmaneData
 {
     SAY_PROGRESS_1  = 0,
     SAY_PROGRESS_2  = 1,
@@ -596,7 +600,7 @@ public:
 ## npc_slim
 ######*/
 
-enum eSlim
+enum Slim
 {
     FACTION_CONSORTIUM  = 933
 };
@@ -633,7 +637,7 @@ public:
 ####npc_akuno
 #####*/
 
-enum eAkuno
+enum Akuno
 {
     QUEST_ESCAPING_THE_TOMB = 10887,
     NPC_CABAL_SKRIMISHER    = 21661

@@ -77,7 +77,7 @@ struct SpawnAssociation
     SpawnType spawnType;
 };
 
-enum eEnums
+enum AirFoceBots
 {
     SPELL_GUARDS_MARK               = 38067,
     AURA_DURATION_TIME_LEFT         = 5000
@@ -412,9 +412,12 @@ public:
 ## npc_dancing_flames
 ######*/
 
-#define SPELL_BRAZIER       45423
-#define SPELL_SEDUCTION     47057
-#define SPELL_FIERY_AURA    45427
+enum DancingFlames
+{
+    SPELL_BRAZIER           = 45423,
+    SPELL_SEDUCTION         = 47057,
+    SPELL_FIERY_AURA        = 45427
+};
 
 class npc_dancing_flames : public CreatureScript
 {
@@ -1109,7 +1112,10 @@ public:
 ## npc_guardian
 ######*/
 
-#define SPELL_DEATHTOUCH                5
+enum GuardianSpells
+{
+    SPELL_DEATHTOUCH            = 5
+};
 
 class npc_guardian : public CreatureScript
 {
@@ -1327,17 +1333,20 @@ public:
 ## npc_sayge
 ######*/
 
-#define SPELL_DMG       23768                               //dmg
-#define SPELL_RES       23769                               //res
-#define SPELL_ARM       23767                               //arm
-#define SPELL_SPI       23738                               //spi
-#define SPELL_INT       23766                               //int
-#define SPELL_STM       23737                               //stm
-#define SPELL_STR       23735                               //str
-#define SPELL_AGI       23736                               //agi
-#define SPELL_FORTUNE   23765                               //faire fortune
+enum Sayge
+{
+    SPELL_DMG      = 23768, // dmg
+    SPELL_RES      = 23769, // res
+    SPELL_ARM      = 23767, // arm
+    SPELL_SPI      = 23738, // spi
+    SPELL_INT      = 23766, // int
+    SPELL_STM      = 23737, // stm
+    SPELL_STR      = 23735, // str
+    SPELL_AGI      = 23736, // agi
+    SPELL_FORTUNE  = 23765  // faire fortune
+};
 
-#define GOSSIP_HELLO_SAYGE  "Yes"
+#define GOSSIP_HELLO_SAYGE          "Yes"
 #define GOSSIP_SENDACTION_SAYGE1    "Slay the Man"
 #define GOSSIP_SENDACTION_SAYGE2    "Turn him over to liege"
 #define GOSSIP_SENDACTION_SAYGE3    "Confiscate the corn"
@@ -1516,7 +1525,10 @@ public:
     }
 };
 
-#define SPELL_TONK_MINE_DETONATE 25099
+enum TonkMine
+{
+    SPELL_TONK_MINE_DETONATE    = 25099
+};
 
 class npc_tonk_mine : public CreatureScript
 {
@@ -1592,14 +1604,14 @@ public:
 ## npc_snake_trap_serpents
 ####*/
 
-#define SPELL_MIND_NUMBING_POISON    25810   //Viper
-#define SPELL_DEADLY_POISON          34655   //Venomous Snake
-#define SPELL_CRIPPLING_POISON       30981   //Viper
+enum SnakeTrapSerpents
+{
+    SPELL_MIND_NUMBING_POISON       = 25810,   // Viper
+    SPELL_DEADLY_POISON             = 34655,   // Venomous Snake
+    SPELL_CRIPPLING_POISON          = 30981,   // Viper
 
-#define VENOMOUS_SNAKE_TIMER 1500
-#define VIPER_TIMER 3000
-
-#define C_VIPER 19921
+    NPC_VIPER                       = 19921
+};
 
 class npc_snake_trap : public CreatureScript
 {
@@ -1621,7 +1633,7 @@ public:
 
             CreatureTemplate const* Info = me->GetCreatureTemplate();
 
-            IsViper = Info->Entry == C_VIPER ? true : false;
+            IsViper = Info->Entry == NPC_VIPER ? true : false;
 
             me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
             //Add delta to make them not all hit the same time
@@ -1683,13 +1695,13 @@ public:
                         DoCastVictim(spell);
                     }
 
-                    SpellTimer = VIPER_TIMER;
+                    SpellTimer = 3000;
                 }
                 else //Venomous Snake
                 {
                     if (urand(0, 2) == 0) //33% chance to cast
                         DoCastVictim(SPELL_DEADLY_POISON);
-                    SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
+                    SpellTimer = 1500 + (rand() % 5) * 100;
                 }
             }
             else
@@ -1972,7 +1984,7 @@ class npc_lightwell : public CreatureScript
         }
 };
 
-enum eTrainingDummy
+enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
     NPC_TARGET_DUMMY                           = 2673
@@ -2087,9 +2099,13 @@ class npc_shadowfiend : public CreatureScript
 /*######
 # npc_fire_elemental
 ######*/
-#define SPELL_FIRENOVA        12470
-#define SPELL_FIRESHIELD      13376
-#define SPELL_FIREBLAST       57984
+
+enum FireElemental
+{
+    SPELL_FIRENOVA              = 12470,
+    SPELL_FIRESHIELD            = 13376,
+    SPELL_FIREBLAST             = 57984
+};
 
 class npc_fire_elemental : public CreatureScript
 {
@@ -2157,7 +2173,11 @@ public:
 /*######
 # npc_earth_elemental
 ######*/
-#define SPELL_ANGEREDEARTH        36213
+
+enum EarthElemental
+{
+    SPELL_ANGEREDEARTH          = 36213
+};
 
 class npc_earth_elemental : public CreatureScript
 {
@@ -2314,7 +2334,7 @@ class npc_wormhole : public CreatureScript
 ## npc_pet_trainer
 ######*/
 
-enum ePetTrainer
+enum PetTrainer
 {
     TEXT_ISHUNTER               = 5838,
     TEXT_NOTHUNTER              = 5839,
@@ -2378,7 +2398,7 @@ public:
 ## npc_locksmith
 ######*/
 
-enum eLockSmith
+enum LockSmith
 {
     QUEST_HOW_TO_BRAKE_IN_TO_THE_ARCATRAZ = 10704,
     QUEST_DARK_IRON_LEGACY                = 3802,

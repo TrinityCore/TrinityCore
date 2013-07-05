@@ -36,8 +36,9 @@ EndContentData */
 ## npc_professor_phizzlethorpe
 ######*/
 
-enum eEnums
+enum ProfessorPhizzlethorpe
 {
+    // Yells
     SAY_PROGRESS_1      = 0,
     SAY_PROGRESS_2      = 1,
     SAY_PROGRESS_3      = 2,
@@ -49,7 +50,10 @@ enum eEnums
     EMOTE_PROGRESS_8    = 8,
     SAY_PROGRESS_9      = 9,
 
+    // Quests
     QUEST_SUNKEN_TREASURE   = 665,
+
+    // Creatures
     NPC_VENGEFUL_SURGE      = 2776
 };
 

@@ -39,7 +39,6 @@ enum Spells
     SPELL_FROZEN_ORB_SUMMON = 72093,    // summon orb
 };
 
-// Events boss
 enum Events
 {
     EVENT_FREEZING_GROUND   = 1,
@@ -49,8 +48,11 @@ enum Events
     EVENT_FROST_BLAST       = 4,
 };
 
-// Mob Frozen Orb
-#define NPC_FROZEN_ORB 38456    // 1 in 10 mode and 3 in 25 mode
+enum Creatures
+{
+    NPC_FROZEN_ORB          = 38456 // 1 in 10 mode and 3 in 25 mode
+
+};
 
 class boss_toravon : public CreatureScript
 {

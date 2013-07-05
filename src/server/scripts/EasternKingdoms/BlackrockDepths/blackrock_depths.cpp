@@ -48,7 +48,7 @@ public:
 };
 
 // npc_grimstone
-enum eGrimstone
+enum Grimstone
 {
     NPC_GRIMSTONE                                          = 10096,
     NPC_THELDREN                                           = 16059,
@@ -680,7 +680,11 @@ public:
 #define SAY_WINDSOR_4_3             "Good work! We're almost there, $N. This way."
 #define SAY_WINDSOR_6               "This is it, $N. My stuff should be in that room. Cover me, I'm going in!"
 #define SAY_WINDSOR_9               "Ah, there it is!"
-#define NPC_REGINALD_WINDSOR        9682
+
+enum MarshalWindsor
+{
+    NPC_REGINALD_WINDSOR            = 9682
+};
 
 /*
 Player* playerStart;
@@ -859,8 +863,12 @@ public:
 #define SAY_REGINALD_WINDSOR_14_2   "Excellent work, $N. Let's find the exit. I think I know the way. Follow me!"
 #define SAY_REGINALD_WINDSOR_20_1   "We made it!"
 #define SAY_REGINALD_WINDSOR_20_2   "Meet me at Maxwell's encampment. We'll go over the next stages of the plan there and figure out a way to decode my tablets without the decryption ring."
-#define NPC_SHILL_DINGER            9678
-#define NPC_CREST_KILLER            9680
+
+enum MarshalReginaldWindor
+{
+    NPC_SHILL_DINGER                = 9678,
+    NPC_CREST_KILLER                = 9680
+};
 
 /*
 int wp = 0;
@@ -1026,10 +1034,10 @@ public:
             {
                 if (!instance->GetData(DATA_GATE_J) && instance->GetData(DATA_JAZ) == ENCOUNTER_STATE_NOT_STARTED)
                 {
-                    instance->SetData(DATA_CREATURE_JAZ, 1);
+                    instance->SetData(DATA_NPC_JAZ, 1);
                     instance->SetData(DATA_JAZ, ENCOUNTER_STATE_IN_PROGRESS);
                 }
-                if (instance->GetData(DATA_CREATURE_JAZ) && instance->GetData(DATA_CREATURE_OGRABISI) && instance->GetData(DATA_JAZ) == ENCOUNTER_STATE_IN_PROGRESS)
+                if (instance->GetData(DATA_NPC_JAZ) && instance->GetData(DATA_NPC_OGRABISI) && instance->GetData(DATA_JAZ) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
                     SetEscortPaused(false);
                     instance->SetData(DATA_JAZ, ENCOUNTER_STATE_ENDED);
@@ -1039,10 +1047,10 @@ public:
             {
                 if (!instance->GetData(DATA_GATE_S) && instance->GetData(DATA_SHILL) == ENCOUNTER_STATE_NOT_STARTED)
                 {
-                    instance->SetData(DATA_CREATURE_SHILL, 1);
+                    instance->SetData(DATA_NPC_SHILL, 1);
                     instance->SetData(DATA_SHILL, ENCOUNTER_STATE_IN_PROGRESS);
                 }
-                if (instance->GetData(DATA_CREATURE_SHILL) && instance->GetData(DATA_SHILL) == ENCOUNTER_STATE_IN_PROGRESS)
+                if (instance->GetData(DATA_NPC_SHILL) && instance->GetData(DATA_SHILL) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
                     instance->SetData(DATA_SHILL, ENCOUNTER_STATE_ENDED);
                     SetEscortPaused(false);
@@ -1052,11 +1060,11 @@ public:
             {
                 if (!instance->GetData(DATA_GATE_C) && instance->GetData(DATA_CREST) == ENCOUNTER_STATE_NOT_STARTED)
                 {
-                    instance->SetData(DATA_CREATURE_CREST, 1);
+                    instance->SetData(DATA_NPC_CREST, 1);
                     me->Say(SAY_REGINALD_WINDSOR_13_2, LANG_UNIVERSAL, PlayerGUID);
                     instance->SetData(DATA_CREST, ENCOUNTER_STATE_IN_PROGRESS);
                 }
-                if (instance->GetData(DATA_CREATURE_CREST) && instance->GetData(DATA_CREST) == ENCOUNTER_STATE_IN_PROGRESS)
+                if (instance->GetData(DATA_NPC_CREST) && instance->GetData(DATA_CREST) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
                     SetEscortPaused(false);
                     instance->SetData(DATA_CREST, ENCOUNTER_STATE_ENDED);

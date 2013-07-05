@@ -29,7 +29,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER 9
 
-enum eUnits
+enum Units
 {
     CONTAINMENT_CORE_SECURITY_FIELD_ALPHA = 184318, //door opened when Wrath-Scryer Soccothrates dies
     CONTAINMENT_CORE_SECURITY_FIELD_BETA  = 184319, //door opened when Dalliah the Doomsayer dies

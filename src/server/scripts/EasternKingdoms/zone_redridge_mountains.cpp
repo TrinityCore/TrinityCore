@@ -26,7 +26,7 @@ Script Data End */
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 
-enum eCorporalKeeshan
+enum CorporalKeeshan
 {
     QUEST_MISSING_IN_ACTION = 219,
 

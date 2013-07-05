@@ -348,8 +348,11 @@ enum MiscData
     MOVIE_FALL_OF_THE_LICH_KING = 16,
 };
 
-#define DATA_PLAGUE_STACK 70337
-#define DATA_VILE 45814622
+enum Misc
+{
+    DATA_PLAGUE_STACK           = 70337,
+    DATA_VILE                   = 45814622
+};
 
 class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
 {

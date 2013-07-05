@@ -27,9 +27,8 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
 
-enum eEnums
+enum Yells
 {
-    //Yell
     SAY_AGGRO                               = 0,
     SAY_DEFENSIVE_STANCE                    = 1,
     SAY_BATTLE_STANCE                       = 2,
@@ -38,8 +37,11 @@ enum eEnums
     SAY_DEATH                               = 5,
     EMOTE_DEFENSIVE_STANCE                  = 6,
     EMOTE_BATTLE_STANCE                     = 7,
-    EMOTE_BERSEKER_STANCE                   = 8,
+    EMOTE_BERSEKER_STANCE                   = 8
+};
 
+enum Spells
+{
     SPELL_DEFENSIVE_STANCE                  = 53790,
     //SPELL_DEFENSIVE_AURA                    = 41105,
     SPELL_SPELL_REFLECTION                  = 36096,
@@ -62,15 +64,25 @@ enum eEnums
     //SPELL_CHARGE_UP                         = 52098,      // only used when starting walk from one platform to the other
     SPELL_TEMPORARY_ELECTRICAL_CHARGE       = 52092,      // triggered part of above
 
-    NPC_STORMFORGED_LIEUTENANT              = 29240,
     SPELL_ARC_WELD                          = 59085,
     SPELL_RENEW_STEEL_N                     = 52774,
-    SPELL_RENEW_STEEL_H                     = 59160,
+    SPELL_RENEW_STEEL_H                     = 59160
+};
 
+enum Creatures
+{
+    NPC_STORMFORGED_LIEUTENANT              = 29240
+};
+
+enum Equips
+{
     EQUIP_SWORD                             = 37871,
     EQUIP_SHIELD                            = 35642,
-    EQUIP_MACE                              = 43623,
+    EQUIP_MACE                              = 43623
+};
 
+enum Stanges
+{
     STANCE_DEFENSIVE                        = 0,
     STANCE_BERSERKER                        = 1,
     STANCE_BATTLE                           = 2

@@ -28,7 +28,7 @@ EndScriptData */
 #include "the_eye.h"
 #include "SpellInfo.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_FLAME_BUFFET           = 34121, // Flame Buffet - every 1, 5 secs in phase 1 if there is no victim in melee range and after Dive Bomb in phase 2 with same conditions
     SPELL_FLAME_QUILLS           = 34229, // Randomly after changing position in phase after watching tons of movies, set probability 20%

@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_ALLERGIC_REACTION    = 34697,
     SPELL_TELEPORT_SELF        = 34673,
@@ -41,7 +41,7 @@ enum eSpells
     SPELL_SUMMON_LASHER_4      = 34688,
     SPELL_SUMMON_FLAYER_3      = 34690
 };
-enum eOthers
+enum Misc
 {
     EMOTE_SUMMON               = 0,
     MODEL_DEFAULT              = 13109,

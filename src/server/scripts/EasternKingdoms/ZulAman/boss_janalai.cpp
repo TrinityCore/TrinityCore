@@ -29,7 +29,7 @@ EndScriptData */
 #include "GridNotifiers.h"
 #include "CellImpl.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                   = 0,
     SAY_FIRE_BOMBS              = 1,
@@ -39,9 +39,12 @@ enum eEnums
     SAY_SLAY                    = 5,
     SAY_DEATH                   = 6,
     SAY_EVENT_STRANGERS         = 7,
-    SAY_EVENT_FRIENDS           = 8,
+    SAY_EVENT_FRIENDS           = 8
+};
 
-// Jan'alai
+enum Spells
+{
+    // Jan'alai
     SPELL_FLAME_BREATH          = 43140,
     SPELL_FIRE_WALL             = 43113,
     SPELL_ENRAGE                = 44779,
@@ -50,24 +53,26 @@ enum eEnums
     SPELL_HATCH_ALL             = 43144,
     SPELL_BERSERK               = 45078,
 
-// -- Fire Bob Spells
+    // Fire Bob Spells
     SPELL_FIRE_BOMB_CHANNEL     = 42621, // last forever
     SPELL_FIRE_BOMB_THROW       = 42628, // throw visual
     SPELL_FIRE_BOMB_DUMMY       = 42629, // bomb visual
     SPELL_FIRE_BOMB_DAMAGE      = 42630,
 
-// --Summons
-    NPC_AMANI_HATCHER           = 23818,
-    NPC_HATCHLING               = 23598,   // 42493
-    NPC_EGG                     = 23817,
-    NPC_FIRE_BOMB               = 23920,
-
-// -- Hatcher Spells
+    // Hatcher Spells
     SPELL_HATCH_EGG             = 42471,   // 43734
     SPELL_SUMMON_HATCHLING      = 42493,
 
-// -- Hatchling Spells
+    // Hatchling Spells
     SPELL_FLAMEBUFFET           = 43299
+};
+
+enum Creatures
+{
+    NPC_AMANI_HATCHER           = 23818,
+    NPC_HATCHLING               = 23598, // 42493
+    NPC_EGG                     = 23817,
+    NPC_FIRE_BOMB               = 23920
 };
 
 const int area_dx = 44;

@@ -35,7 +35,7 @@ EndContentData */
 /*#######
 # npc_blood_knight_stillblade
 #######*/
-enum eStillbladeData
+enum StillbladeData
 {
     SAY_HEAL                    = 0,
 

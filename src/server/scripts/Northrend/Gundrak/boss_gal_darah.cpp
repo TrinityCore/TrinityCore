@@ -58,7 +58,10 @@ enum CombatPhase
     RHINO
 };
 
-#define DATA_SHARE_THE_LOVE                       1
+enum Misc
+{
+    DATA_SHARE_THE_LOVE                         = 1
+};
 
 class boss_gal_darah : public CreatureScript
 {

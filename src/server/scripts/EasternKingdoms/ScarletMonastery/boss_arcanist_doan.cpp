@@ -26,16 +26,19 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                   = 0,
-    SAY_SPECIALAE               = 1,
+    SAY_SPECIALAE               = 1
+};
 
+enum Spells
+{
     SPELL_POLYMORPH             = 13323,
     SPELL_AOESILENCE            = 8988,
     SPELL_ARCANEEXPLOSION       = 9433,
     SPELL_FIREAOE               = 9435,
-    SPELL_ARCANEBUBBLE          = 9438,
+    SPELL_ARCANEBUBBLE          = 9438
 };
 
 class boss_arcanist_doan : public CreatureScript

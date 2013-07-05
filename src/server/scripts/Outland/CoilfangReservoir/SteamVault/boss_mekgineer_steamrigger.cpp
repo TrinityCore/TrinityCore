@@ -32,18 +32,28 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "steam_vault.h"
 
-enum MekgineerSteamrigger
+enum Yells
 {
     SAY_MECHANICS               = 0,
     SAY_AGGRO                   = 1,
     SAY_SLAY                    = 2,
-    SAY_DEATH                   = 3,
+    SAY_DEATH                   = 3
+};
 
+enum Spells
+{
     SPELL_SUPER_SHRINK_RAY      = 31485,
     SPELL_SAW_BLADE             = 31486,
     SPELL_ELECTRIFIED_NET       = 35107,
 
-    ENTRY_STREAMRIGGER_MECHANIC = 17951
+    SPELL_DISPEL_MAGIC          = 17201,
+    SPELL_REPAIR                = 31532,
+    H_SPELL_REPAIR              = 37936
+};
+
+enum Creatures
+{
+    NPC_STREAMRIGGER_MECHANIC = 17951
 };
 
 class boss_mekgineer_steamrigger : public CreatureScript
@@ -112,14 +122,14 @@ public:
         {
             Talk(SAY_MECHANICS);
 
-            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, -5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
-            DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, -5, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+            DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+            DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+            DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, -5, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
 
             if (rand()%2)
-                DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, 5, -7, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 5, -7, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
             if (rand()%2)
-                DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
+                DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
         }
 
         void UpdateAI(uint32 diff)
@@ -182,10 +192,6 @@ public:
     };
 
 };
-
-#define SPELL_DISPEL_MAGIC          17201
-#define SPELL_REPAIR                31532
-#define H_SPELL_REPAIR              37936
 
 #define MAX_REPAIR_RANGE            (13.0f)                 //we should be at least at this range for repair
 #define MIN_REPAIR_RANGE            (7.0f)                  //we can stop movement at this range to repair but not required

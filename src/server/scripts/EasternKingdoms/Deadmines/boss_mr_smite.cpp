@@ -25,7 +25,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "deadmines.h"
 
-enum eSpels
+enum Spels
 {
     SPELL_TRASH             = 3391,
     SPELL_SMITE_STOMP       = 6432,

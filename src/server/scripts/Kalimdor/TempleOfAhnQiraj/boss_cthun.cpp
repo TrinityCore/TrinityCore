@@ -92,7 +92,7 @@ enum Spells
 
     // ***** Main Phase 2 ******
     //Body spells
-    //#define SPELL_CARAPACE_CTHUN                26156   //Was removed from client dbcs
+    //SPELL_CARAPACE_CTHUN                        = 26156   //Was removed from client dbcs
     SPELL_TRANSFORM                             = 26232,
     SPELL_PURPLE_COLORATION                     = 22581,     //Probably not the right spell but looks similar
 

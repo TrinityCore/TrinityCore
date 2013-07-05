@@ -32,7 +32,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "arcatraz.h"
 
-enum eSays
+enum Says
 {
     SAY_INTRO              = 0,
     SAY_AGGRO              = 1,
@@ -43,16 +43,19 @@ enum eSays
     SAY_DEATH              = 6
 };
 
-enum eSpells
+enum Spells
 {
-    SPELL_FEAR             = 39415,
-    SPELL_MIND_REND        = 36924,
-    H_SPELL_MIND_REND      = 39017,
-    SPELL_DOMINATION       = 37162,
-    H_SPELL_DOMINATION     = 39019,
-    H_SPELL_MANA_BURN      = 39020,
-    SPELL_66_ILLUSION      = 36931,                       //entry 21466
-    SPELL_33_ILLUSION      = 36932,                       //entry 21467
+    SPELL_FEAR              = 39415,
+    SPELL_MIND_REND         = 36924,
+    H_SPELL_MIND_REND       = 39017,
+    SPELL_DOMINATION        = 37162,
+    H_SPELL_DOMINATION      = 39019,
+    H_SPELL_MANA_BURN       = 39020,
+    SPELL_66_ILLUSION       = 36931,                       //entry 21466
+    SPELL_33_ILLUSION       = 36932,                       //entry 21467
+
+    SPELL_MIND_REND_IMAGE   = 36929,
+    H_SPELL_MIND_REND_IMAGE = 39021
 };
 
 class boss_harbinger_skyriss : public CreatureScript
@@ -274,9 +277,6 @@ class boss_harbinger_skyriss : public CreatureScript
             return new boss_harbinger_skyrissAI (creature);
         }
 };
-
-#define SPELL_MIND_REND_IMAGE   36929
-#define H_SPELL_MIND_REND_IMAGE 39021
 
 class boss_harbinger_skyriss_illusion : public CreatureScript
 {

@@ -161,7 +161,7 @@ public:
 
 #define GOSSIP_COOSH            "You owe Sim'salabim money. Hand them over or die!"
 
-enum eCooshhooosh
+enum Cooshhooosh
 {
     SPELL_LIGHTNING_BOLT    = 9532,
     QUEST_CRACK_SKULLS      = 10009,
@@ -323,7 +323,7 @@ public:
 ## npc_kayra_longmane
 ######*/
 
-enum eKayra
+enum Kayra
 {
     SAY_START           = 0,
     SAY_AMBUSH1         = 1,
@@ -404,7 +404,7 @@ public:
 #define GOSSIP_TIMOTHY_DANIELS_ITEM1    "Specialist, eh? Just what kind of specialist are you, anyway?"
 #define GOSSIP_TEXT_BROWSE_POISONS      "Let me browse your reagents and poison supplies."
 
-enum eTimothy
+enum Timothy
 {
     GOSSIP_TEXTID_TIMOTHY_DANIELS1      = 9239
 };

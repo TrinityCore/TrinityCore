@@ -16,10 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_BLACK_TEMPLE_H
-#define DEF_BLACK_TEMPLE_H
+#ifndef BLACK_TEMPLE_H_
+#define BLACK_TEMPLE_H_
 
-enum eTypes
+enum DataTypes
 {
     DATA_AKAMA                      = 1,
     DATA_AKAMA_SHADE                = 2,
@@ -49,5 +49,4 @@ enum eTypes
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 26
 };
 
-#endif
-
+#endif // BLACK_TEMPLE_H_

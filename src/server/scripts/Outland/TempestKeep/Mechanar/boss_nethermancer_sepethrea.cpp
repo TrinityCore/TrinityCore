@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "mechanar.h"
 
-enum eSays
+enum Says
 {
     SAY_AGGRO                      = 0,
     SAY_SUMMON                     = 1,

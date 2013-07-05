@@ -59,7 +59,7 @@ enum Yells
     SAY_SYLVANAS_INTRO_6                        = 5,
 };
 
-enum eSylvanas
+enum Misc
 {
     GOSSIP_SPEECHINTRO                           = 13525,
     ACTION_INTRO,

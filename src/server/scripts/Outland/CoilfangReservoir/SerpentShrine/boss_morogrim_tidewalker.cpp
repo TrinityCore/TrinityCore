@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 
-enum eEnums
+enum Yells
 {
     // Yell
     SAY_AGGRO                       = 0,
@@ -38,8 +38,11 @@ enum eEnums
     // Emotes
     EMOTE_WATERY_GRAVE              = 5,
     EMOTE_EARTHQUAKE                = 6,
-    EMOTE_WATERY_GLOBULES           = 7,
-    // Spells
+    EMOTE_WATERY_GLOBULES           = 7
+};
+
+enum Spells
+{
     SPELL_TIDAL_WAVE                = 37730,
     SPELL_WATERY_GRAVE              = 38049,
     SPELL_EARTHQUAKE                = 37764,
@@ -54,6 +57,13 @@ enum eEnums
     SPELL_SUMMON_WATER_GLOBULE_2    = 37858,
     SPELL_SUMMON_WATER_GLOBULE_3    = 37860,
     SPELL_SUMMON_WATER_GLOBULE_4    = 37861,
+
+    // Water Globule
+    SPELL_GLOBULE_EXPLOSION         = 37871
+};
+
+enum Creatures
+{
     // Creatures
     NPC_WATER_GLOBULE               = 21913,
     NPC_TIDEWALKER_LURKER           = 21920
@@ -276,9 +286,6 @@ public:
     };
 
 };
-
-//Water Globule AI
-#define SPELL_GLOBULE_EXPLOSION 37871
 
 class npc_water_globule : public CreatureScript
 {

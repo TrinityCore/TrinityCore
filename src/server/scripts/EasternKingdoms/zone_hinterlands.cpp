@@ -37,7 +37,7 @@ EndContentData */
 ## npc_00x09hl
 ######*/
 
-enum eOOX
+enum OOX
 {
     SAY_OOX_START           = 0,
     SAY_OOX_AGGRO           = 1,
@@ -151,7 +151,7 @@ public:
 ## npc_rinji
 ######*/
 
-enum eRinji
+enum Rinji
 {
     SAY_RIN_BY_OUTRUNNER    = 0,
 

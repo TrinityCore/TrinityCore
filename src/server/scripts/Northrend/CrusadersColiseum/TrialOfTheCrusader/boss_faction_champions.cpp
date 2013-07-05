@@ -37,7 +37,7 @@ enum AIs
     AI_PET      = 3
 };
 
-enum eSpells
+enum Spells
 {
     // generic
     SPELL_ANTI_AOE                  = 68595,

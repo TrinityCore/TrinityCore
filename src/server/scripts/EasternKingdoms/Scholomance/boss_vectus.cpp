@@ -26,13 +26,17 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eEnums
+enum Emotes
 {
-    EMOTE_FRENZY_KILL            = 0,
+    EMOTE_FRENZY_KILL            = 0
+};
+
+enum Spells
+{
     SPELL_FLAMESTRIKE            = 18399,
     SPELL_BLAST_WAVE             = 16046,
     SPELL_FIRESHIELD             = 19626,
-    SPELL_FRENZY                 = 8269 //28371,
+    SPELL_FRENZY                 = 8269  // 28371
 };
 
 class boss_vectus : public CreatureScript

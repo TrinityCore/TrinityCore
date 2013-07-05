@@ -160,7 +160,7 @@ public:
 ## npc_plaguehound_tracker
 ######*/
 
-enum ePlaguehound
+enum Plaguehound
 {
     QUEST_SNIFF_OUT_ENEMY        = 11253
 };
@@ -212,7 +212,7 @@ public:
 #define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
 #define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
 
-enum eRazael
+enum Razael
 {
     QUEST_REPORTS_FROM_THE_FIELD = 11221,
     NPC_RAZAEL = 23998,
@@ -279,7 +279,7 @@ public:
 ## npc_daegarn
 ######*/
 
-enum eDaegarnn
+enum Daegarnn
 {
     QUEST_DEFEAT_AT_RING            = 11300,
 

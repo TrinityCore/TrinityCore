@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "gundrak.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_DETERMINED_STAB                         = 55104,
     SPELL_GROUND_TREMOR                           = 55142,
@@ -32,7 +32,7 @@ enum eSpells
     SPELL_TRANSFORMATION                          = 55098, //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
-enum eSays
+enum Says
 {
     SAY_AGGRO                                     = 0,
     SAY_SLAY                                      = 1,
@@ -42,7 +42,10 @@ enum eSays
     EMOTE_TRANSFORM                               = 5
 };
 
-#define DATA_LESS_RABI                            1
+enum Misc
+{
+    DATA_LESS_RABI                                = 1
+};
 
 class boss_moorabi : public CreatureScript
 {

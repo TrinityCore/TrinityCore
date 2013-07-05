@@ -25,7 +25,7 @@ enum Spells
     SPELL_WARSTOMP                                         = 24375
 };
 
-enum eEnums
+enum Misc
 {
     DATA_THRONE_DOOR                                       = 24 // not id or guid of doors but number of enum in blackrock_depths.h
 };

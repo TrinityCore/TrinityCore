@@ -22,11 +22,10 @@
 #include "blackrock_depths.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
+#define MAX_ENCOUNTER           6
 
-enum eEnums
+enum Creatures
 {
-    MAX_ENCOUNTER           = 6,
-
     NPC_EMPEROR             = 9019,
     NPC_PHALANX             = 9502,
     NPC_ANGERREL            = 9035,
@@ -37,8 +36,11 @@ enum eEnums
     NPC_GLOOMREL            = 9037,
     NPC_DOOMREL             = 9039,
     NPC_MAGMUS              = 9938,
-    NPC_MOIRA               = 8929,
+    NPC_MOIRA               = 8929
+};
 
+enum GameObjects
+{
     GO_ARENA1               = 161525,
     GO_ARENA2               = 161522,
     GO_ARENA3               = 161524,

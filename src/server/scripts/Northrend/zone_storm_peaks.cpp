@@ -113,8 +113,11 @@ public:
 ## npc_roxi_ramrocket
 ######*/
 
-#define SPELL_MECHANO_HOG           60866
-#define SPELL_MEKGINEERS_CHOPPER    60867
+enum RoxiRamrocket
+{
+    SPELL_MECHANO_HOG               = 60866,
+    SPELL_MEKGINEERS_CHOPPER        = 60867
+};
 
 class npc_roxi_ramrocket : public CreatureScript
 {

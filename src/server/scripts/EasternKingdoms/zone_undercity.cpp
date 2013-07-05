@@ -276,11 +276,14 @@ public:
 ## npc_parqual_fintallas
 ######*/
 
-#define SPELL_MARK_OF_SHAME 6767
+enum ParqualFintallas
+{
+    SPELL_MARK_OF_SHAME         = 6767
+};
 
-#define GOSSIP_HPF1 "Gul'dan"
-#define GOSSIP_HPF2 "Kel'Thuzad"
-#define GOSSIP_HPF3 "Ner'zhul"
+#define GOSSIP_HPF1             "Gul'dan"
+#define GOSSIP_HPF2             "Kel'Thuzad"
+#define GOSSIP_HPF3             "Ner'zhul"
 
 class npc_parqual_fintallas : public CreatureScript
 {

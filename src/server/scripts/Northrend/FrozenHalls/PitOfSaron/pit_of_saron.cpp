@@ -22,7 +22,7 @@
 #include "pit_of_saron.h"
 #include "Vehicle.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_FIREBALL              = 69583, //Ymirjar Flamebearer
     SPELL_HELLFIRE              = 69586,
@@ -31,7 +31,7 @@ enum eSpells
     SPELL_LEAPING_FACE_MAUL     = 69504, // Geist Ambusher
 };
 
-enum eEvents
+enum Events
 {
     // Ymirjar Flamebearer
     EVENT_FIREBALL              = 1,

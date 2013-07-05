@@ -19,25 +19,32 @@
 #include "ScriptedCreature.h"
 #include "vault_of_archavon.h"
 
-enum
+enum Emotes
 {
     EMOTE_BERSERK           = 0,
     EMOTE_LEAP              = 1 // Not in use
 };
 
-//Spells Archavon
-#define SPELL_ROCK_SHARDS        58678
-#define SPELL_CRUSHING_LEAP      RAID_MODE(58960, 60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
-#define SPELL_STOMP              RAID_MODE(58663, 60880)
-#define SPELL_IMPALE             RAID_MODE(58666, 60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
-#define SPELL_BERSERK            47008
-//Spells Archavon Warders
-#define SPELL_ROCK_SHOWER        RAID_MODE(60919, 60923)
-#define SPELL_SHIELD_CRUSH       RAID_MODE(60897, 60899)
-#define SPELL_WHIRL              RAID_MODE(60902, 60916)
+enum Spells
+{
 
-//4 Warders spawned
-#define ARCHAVON_WARDER          32353 //npc 32353
+    // Spells Archavon
+    SPELL_ROCK_SHARDS           = 58678,
+    SPELL_CRUSHING_LEAP         = 58960,
+    SPELL_STOMP                 = 58663,
+    SPELL_IMPALE                = 58666,
+    SPELL_BERSERK               = 47008,
+
+    // Archavon Warders
+    SPELL_ROCK_SHOWER           = 60919,
+    SPELL_SHIELD_CRUSH          = 60897,
+    SPELL_WHIRL                 = 60902
+};
+
+enum Creatures
+{
+    NPC_ARCHAVON_WARDER         = 32353
+};
 
 enum Events
 {

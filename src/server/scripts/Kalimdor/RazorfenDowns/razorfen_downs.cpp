@@ -37,12 +37,16 @@ EndContentData */
 # npc_henry_stern
 ####*/
 
-enum eEnums
+enum Spells
 {
     SPELL_GOLDTHORN_TEA                         = 13028,
     SPELL_TEACHING_GOLDTHORN_TEA                = 13029,
     SPELL_MIGHT_TROLLS_BLOOD_POTION             = 3451,
     SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION   = 13030,
+};
+
+enum Gossips
+{
     GOSSIP_TEXT_TEA_ANSWER                      = 2114,
     GOSSIP_TEXT_POTION_ANSWER                   = 2115,
 };
@@ -111,7 +115,7 @@ public:
 
 };
 
-enum eTombCreature
+enum TombCreature
 {
     SPELL_WEB                   = 745
 };
@@ -148,7 +152,7 @@ public:
                 return;
 
             //from acid
-            if (me->GetEntry() == CREATURE_TOMB_REAVER)
+            if (me->GetEntry() == NPC_TOMB_REAVER)
             {
                 if (uiWebTimer <= uiDiff)
                 {

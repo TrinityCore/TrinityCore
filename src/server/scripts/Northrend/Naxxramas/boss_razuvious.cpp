@@ -39,10 +39,13 @@
 #define SOUND_DEATH     8860
 #define SOUND_AGGROMIX  8847
 
-#define SPELL_UNBALANCING_STRIKE    26613
-#define SPELL_DISRUPTING_SHOUT      RAID_MODE(29107, 55543)
-#define SPELL_JAGGED_KNIFE          55550
-#define SPELL_HOPELESS              29125
+enum Spells
+{
+    SPELL_UNBALANCING_STRIKE   = 26613,
+    SPELL_DISRUPTING_SHOUT     = 29107,
+    SPELL_JAGGED_KNIFE         = 55550,
+    SPELL_HOPELESS             = 29125
+};
 
 enum Events
 {

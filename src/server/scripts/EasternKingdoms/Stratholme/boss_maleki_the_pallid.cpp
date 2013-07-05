@@ -27,10 +27,14 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_FROSTBOLT    17503
-#define SPELL_DRAINLIFE    20743
-#define SPELL_DRAIN_MANA    17243
-#define SPELL_ICETOMB    16869
+enum Spells
+{
+    SPELL_FROSTBOLT     = 17503,
+    SPELL_DRAINLIFE     = 20743,
+    SPELL_DRAIN_MANA    = 17243,
+    SPELL_ICETOMB       = 16869
+
+};
 
 class boss_maleki_the_pallid : public CreatureScript
 {

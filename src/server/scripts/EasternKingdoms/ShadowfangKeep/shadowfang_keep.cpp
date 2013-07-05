@@ -40,7 +40,7 @@ EndContentData */
 ## npc_shadowfang_prisoner
 ######*/
 
-enum eEnums
+enum Yells
 {
     SAY_FREE_AS             = 0,
     SAY_OPEN_DOOR_AS        = 1,
@@ -48,12 +48,19 @@ enum eEnums
     SAY_FREE_AD             = 0,
     SAY_OPEN_DOOR_AD        = 1,
     SAY_POST1_DOOR_AD       = 2,
-    SAY_POST2_DOOR_AD       = 3,
+    SAY_POST2_DOOR_AD       = 3
+};
 
+enum Spells
+{
     SPELL_UNLOCK            = 6421,
-    NPC_ASH                 = 3850,
 
     SPELL_DARK_OFFERING     = 7154
+};
+
+enum Creatures
+{
+    NPC_ASH                 = 3850
 };
 
 #define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."

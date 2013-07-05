@@ -21,8 +21,14 @@
 #include "Player.h"
 #include "TemporarySummon.h"
 
-#define NPC_GAHZRILLA 7273
-#define PATH_ADDS 81553
+enum Misc
+{
+    // Creatures
+    NPC_GAHZRILLA       = 7273,
+
+    // Paths
+    PATH_ADDS           = 81553
+};
 
 int const pyramidSpawnTotal = 54;
 /* list of wave spawns: 0 = wave ID, 1 = creature id, 2 = x, 3 = y

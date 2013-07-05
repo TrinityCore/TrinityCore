@@ -26,11 +26,15 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SPELL_BATTLE_SHOUT                                    31403
-#define SPELL_CHARGE                                          60067
-#define SPELL_FRIGHTENING_SHOUT                               19134
-#define SPELL_WHIRLWIND_1                                     38619
-#define SPELL_WHIRLWIND_2                                     38618
+enum Spells
+{
+    SPELL_BATTLE_SHOUT           = 31403,
+    SPELL_CHARGE                 = 60067,
+    SPELL_FRIGHTENING_SHOUT      = 19134,
+    SPELL_WHIRLWIND_1            = 38619,
+    SPELL_WHIRLWIND_2            = 38618
+
+};
 
 //not used
 //Yell

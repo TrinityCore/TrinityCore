@@ -97,21 +97,26 @@ static Location BrokenWP[]=
 #define AKAMA_Y         400.601013f
 #define AKAMA_Z         112.783997f
 
-// Spells
-#define SPELL_VERTEX_SHADE_BLACK    39833
-#define SPELL_SHADE_SOUL_CHANNEL    40401
-#define SPELL_DESTRUCTIVE_POISON    40874
-#define SPELL_LIGHTNING_BOLT        42024
-#define SPELL_AKAMA_SOUL_CHANNEL    40447
-#define SPELL_AKAMA_SOUL_RETRIEVE   40902
-#define AKAMA_SOUL_EXPEL            40855
-#define SPELL_SHADE_SOUL_CHANNEL_2  40520
 
-// Channeler entry
-#define CREATURE_CHANNELER          23421
-#define CREATURE_SORCERER           23215
-#define CREATURE_DEFENDER           23216
-#define CREATURE_BROKEN             23319
+enum Spells
+{
+    SPELL_VERTEX_SHADE_BLACK    = 39833,
+    SPELL_SHADE_SOUL_CHANNEL    = 40401,
+    SPELL_DESTRUCTIVE_POISON    = 40874,
+    SPELL_LIGHTNING_BOLT        = 42024,
+    SPELL_AKAMA_SOUL_CHANNEL    = 40447,
+    SPELL_AKAMA_SOUL_RETRIEVE   = 40902,
+    SPELL_AKAMA_SOUL_EXPEL      = 40855,
+    SPELL_SHADE_SOUL_CHANNEL_2  = 40520
+};
+
+enum Creatures
+{
+    NPC_CHANNELER               = 23421,
+    NPC_SORCERER                = 23215,
+    NPC_DEFENDER                = 23216,
+    NPC_BROKEN                  = 23319
+};
 
 const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
@@ -286,18 +291,21 @@ public:
 
             reseting = false;
         }
+
         void JustDied(Unit* /*killer*/)
         {
             summons.DespawnAll();
         }
+
         void JustSummoned(Creature* summon)
         {
-            if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
+            if (summon->GetEntry() == NPC_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Summon(summon);
         }
+
         void SummonedCreatureDespawn(Creature* summon)
         {
-            if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
+            if (summon->GetEntry() == NPC_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Despawn(summon);
         }
 
@@ -326,7 +334,9 @@ public:
                             GridSearcherSucceeded = true;
                         }
                     }
-                } else TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
+                }
+                else
+                    TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
             }
         }
 
@@ -363,7 +373,7 @@ public:
             // max of 6 sorcerers can be summoned
             if ((rand()%3 == 0) && (DeathCount > 0) && (SorcererCount < 7))
             {
-                Creature* Sorcerer = me->SummonCreature(CREATURE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
+                Creature* Sorcerer = me->SummonCreature(NPC_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
                 if (Sorcerer)
                 {
                     CAST_AI(npc_ashtongue_sorcerer::npc_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = me->GetGUID();
@@ -394,7 +404,7 @@ public:
         void FindChannelers()
         {
             std::list<Creature*> ChannelerList;
-            me->GetCreatureListWithEntryInGrid(ChannelerList, CREATURE_CHANNELER, 50.0f);
+            me->GetCreatureListWithEntryInGrid(ChannelerList, NPC_CHANNELER, 50.0f);
 
             if (!ChannelerList.empty())
             {
@@ -440,7 +450,7 @@ public:
                 if (DefenderTimer <= diff)
                 {
                     uint32 ran = rand()%2;
-                    Creature* Defender = me->SummonCreature(CREATURE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
+                    Creature* Defender = me->SummonCreature(NPC_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
                     if (Defender)
                     {
                         Defender->SetWalk(false);
@@ -643,12 +653,13 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            if (summon->GetEntry() == CREATURE_BROKEN)
+            if (summon->GetEntry() == NPC_BROKEN)
                 summons.Summon(summon);
         }
+
         void SummonedCreatureDespawn(Creature* summon)
         {
-            if (summon->GetEntry() == CREATURE_BROKEN)
+            if (summon->GetEntry() == NPC_BROKEN)
                 summons.Despawn(summon);
         }
 
@@ -799,7 +810,7 @@ public:
                         float y = BrokenCoords[BrokenSummonIndex].y + (1*5);
                         float z = BrokenCoords[BrokenSummonIndex].z;
                         float o = BrokenCoords[BrokenSummonIndex].o;
-                        Creature* Broken = me->SummonCreature(CREATURE_BROKEN, x, y, z, o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000);
+                        Creature* Broken = me->SummonCreature(NPC_BROKEN, x, y, z, o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000);
                         if (Broken)
                         {
                             float wx = BrokenWP[BrokenSummonIndex].x + (i*5);

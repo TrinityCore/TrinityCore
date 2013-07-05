@@ -49,7 +49,10 @@ enum Events
     EVENT_FRENZY    = 3
 };
 
-#define DATA_FRENZY_DISPELS 1
+enum Misc
+{
+    DATA_FRENZY_DISPELS         = 1
+};
 
 class boss_faerlina : public CreatureScript
 {

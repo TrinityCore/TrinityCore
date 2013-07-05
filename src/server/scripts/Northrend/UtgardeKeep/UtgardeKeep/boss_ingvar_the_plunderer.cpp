@@ -28,7 +28,6 @@ EndScriptData */
 
 enum Yells
 {
-    //Yells Ingvar
     YELL_AGGRO_1                                = 0,
     YELL_KILL_1                                 = 1,
     YELL_DEAD_1                                 = 2,
@@ -43,6 +42,7 @@ enum Creatures
     NPC_INGVAR_HUMAN                            = 23954,
     NPC_ANNHYLDE_THE_CALLER                     = 24068,
     NPC_INGVAR_UNDEAD                           = 23980,
+    NPC_THROW_TARGET                            = 23996,
 };
 
 enum Events
@@ -69,7 +69,7 @@ enum Phases
 
 enum Spells
 {
-    //Ingvar Spells human form
+    // Ingvar Spells human form
     SPELL_CLEAVE                                = 42724,
     SPELL_SMASH                                 = 42669,
     SPELL_STAGGERING_ROAR                       = 42708,
@@ -79,13 +79,18 @@ enum Spells
     SPELL_SUMMON_BANSHEE                        = 42912,
     SPELL_SCOURG_RESURRECTION                   = 42863, // Spawn resurrect effect around Ingvar
 
-    //Ingvar Spells undead form
+    // Ingvar Spells undead form
     SPELL_DARK_SMASH                            = 42723,
     SPELL_DREADFUL_ROAR                         = 42729,
     SPELL_WOE_STRIKE                            = 42730,
 
-    ENTRY_THROW_TARGET                          = 23996,
-    SPELL_SHADOW_AXE_SUMMON                     = 42748
+    SPELL_SHADOW_AXE_SUMMON                     = 42748,
+
+    // Spells for Annhylde
+    SPELL_SCOURG_RESURRECTION_HEAL              = 42704, // Heal Max + DummyAura
+    SPELL_SCOURG_RESURRECTION_BEAM              = 42857, // Channeling Beam of Annhylde
+    SPELL_SCOURG_RESURRECTION_DUMMY             = 42862, // Some Emote Dummy?
+    SPELL_INGVAR_TRANSFORM                      = 42796
 };
 
 class boss_ingvar_the_plunderer : public CreatureScript
@@ -274,17 +279,6 @@ public:
 
 };
 
-enum eSpells
-{
-//we don't have that text in db so comment it until we get this text
-//    YELL_RESSURECT                      = -1574025,
-
-//Spells for Annhylde
-    SPELL_SCOURG_RESURRECTION_HEAL              = 42704, //Heal Max + DummyAura
-    SPELL_SCOURG_RESURRECTION_BEAM              = 42857, //Channeling Beam of Annhylde
-    SPELL_SCOURG_RESURRECTION_DUMMY             = 42862, //Some Emote Dummy?
-    SPELL_INGVAR_TRANSFORM                      = 42796
-};
 
 class npc_annhylde_the_caller : public CreatureScript
 {
@@ -391,7 +385,7 @@ public:
     };
 };
 
-enum eShadowAxe
+enum ShadowAxe
 {
     SPELL_SHADOW_AXE_DAMAGE                     = 42750,
     H_SPELL_SHADOW_AXE_DAMAGE                   = 59719,
@@ -416,7 +410,7 @@ public:
 
         void Reset()
         {
-            if (Creature* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50.0f))
+            if (Creature* target = me->FindNearestCreature(NPC_THROW_TARGET, 50.0f))
             {
                 float x, y, z;
                 target->GetPosition(x, y, z);
@@ -424,9 +418,7 @@ public:
                 target->DisappearAndDie();
             }
             else
-            {
                 me->DisappearAndDie();
-            }
         }
 
         void MovementInform(uint32 type, uint32 id)

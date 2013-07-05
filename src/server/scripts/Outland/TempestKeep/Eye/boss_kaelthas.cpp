@@ -29,9 +29,9 @@ EndScriptData */
 #include "WorldPacket.h"
 #include "Opcodes.h"
 
-enum eEnums
+enum Yells
 {
-    //kael'thas Speech
+    // Kael'thas Speech
     SAY_INTRO                           = 0,
     SAY_INTRO_CAPERNIAN                 = 1,
     SAY_INTRO_TELONICUS                 = 2,
@@ -47,7 +47,7 @@ enum eEnums
     SAY_SUMMON_PHOENIX                  = 12,
     SAY_DEATH                           = 13,
 
-    //Thaladred the Darkener speech
+    // Thaladred the Darkener speech
     SAY_THALADRED_AGGRO                 = 0,
     SAY_THALADRED_DEATH                 = 1,
     EMOTE_THALADRED_GAZE                = 2,
@@ -56,15 +56,18 @@ enum eEnums
     SAY_SANGUINAR_AGGRO                 = 0,
     SAY_SANGUINAR_DEATH                 = 1,
 
-    //Grand Astromancer Capernian speech
+    // Grand Astromancer Capernian speech
     SAY_CAPERNIAN_AGGRO                 = 0,
     SAY_CAPERNIAN_DEATH                 = 1,
 
-    //Master Engineer Telonicus speech
+    // Master Engineer Telonicus speech
     SAY_TELONICUS_AGGRO                 = 0,
-    SAY_TELONICUS_DEATH                 = 1,
+    SAY_TELONICUS_DEATH                 = 1
+};
 
-    //Phase 2 spells
+enum Spells
+{
+    // Phase 2 spells
     SPELL_SUMMON_WEAPONS                = 36976,
     SPELL_SUMMON_WEAPONA                = 36958,
     SPELL_SUMMON_WEAPONB                = 36959,
@@ -75,7 +78,7 @@ enum eEnums
     SPELL_SUMMON_WEAPONG                = 36964,
     SPELL_RES_VISUAL                    = 24171,
 
-    //Phase 4 spells
+    // Phase 4 spells
     SPELL_FIREBALL                      = 22088,           //wrong but works with CastCustomSpell
     SPELL_PYROBLAST                     = 36819,
     SPELL_FLAME_STRIKE                  = 36735,
@@ -86,7 +89,7 @@ enum eEnums
     SPELL_PHOENIX_ANIMATION             = 36723,
     SPELL_MIND_CONTROL                  = 32830,
 
-    //Phase 5 spells
+    // Phase 5 spells
     SPELL_EXPLODE                       = 36092,
     SPELL_FULLPOWER                     = 36187,
     SPELL_KNOCKBACK                     = 11027,
@@ -94,12 +97,12 @@ enum eEnums
     SPELL_GRAVITY_LAPSE_AURA            = 39432,
     SPELL_NETHER_BEAM                   = 35873,
 
-    //Thaladred the Darkener spells
+    // Thaladred the Darkener spells
     SPELL_PSYCHIC_BLOW                  = 10689,
     SPELL_SILENCE                       = 30225,
-    //Lord Sanguinar spells
+    // Lord Sanguinar spells
     SPELL_BELLOWING_ROAR                = 40636,
-    //Grand Astromancer Capernian spells
+    // Grand Astromancer Capernian spells
 
     SPELL_CAPERNIAN_FIREBALL            = 36971,
     SPELL_CONFLAGRATION                 = 37018,
@@ -112,16 +115,24 @@ enum eEnums
     //Phoenix spell
     SPELL_BURN                          = 36720,
     SPELL_EMBER_BLAST                   = 34341,
-    SPELL_REBIRTH                       = 41587,
+    SPELL_REBIRTH                       = 41587
+};
 
-    //Creature IDs
+enum Creatures
+{
     NPC_PHOENIX                         = 21362,
-    NPC_PHOENIX_EGG                     = 21364,
+    NPC_PHOENIX_EGG                     = 21364
+};
 
+enum Models
+{
     //Phoenix egg and phoenix model
     MODEL_ID_PHOENIX                    = 19682,
-    MODEL_ID_PHOENIX_EGG                = 20245,
+    MODEL_ID_PHOENIX_EGG                = 20245
+};
 
+enum Misc
+{
     MAX_ADVISORS                        = 4
 };
 

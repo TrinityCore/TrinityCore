@@ -159,7 +159,7 @@ public:
 ## go_mausoleum_trigger
 ######*/
 
-enum eMausoleum
+enum Mausoleum
 {
     QUEST_ULAG      = 1819,
     NPC_ULAG        = 6390,

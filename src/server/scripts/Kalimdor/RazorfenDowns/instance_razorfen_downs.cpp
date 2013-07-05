@@ -145,15 +145,15 @@ public:
                         switch (uiGongWaves)
                         {
                             case 1:
-                                uiCreature = CREATURE_TOMB_FIEND;
+                                uiCreature = NPC_TOMB_FIEND;
                                 uiSummonTimes = 7;
                                 break;
                             case 10:
-                                uiCreature = CREATURE_TOMB_REAVER;
+                                uiCreature = NPC_TOMB_REAVER;
                                 uiSummonTimes = 3;
                                 break;
                             case 16:
-                                uiCreature = CREATURE_TUTEN_KASH;
+                                uiCreature = NPC_TUTEN_KASH;
                                 break;
                             default:
                                 break;

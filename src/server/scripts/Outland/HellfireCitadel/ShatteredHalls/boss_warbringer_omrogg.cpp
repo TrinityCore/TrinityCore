@@ -32,19 +32,25 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
 
-enum eEnums
+enum Yells
 {
     YELL_DIE_L                  = 0,
     YELL_DIE_R                  = 1,
     EMOTE_ENRAGE                = 2,
+};
 
+enum Spells
+{
     SPELL_BLAST_WAVE            = 30600,
     SPELL_FEAR                  = 30584,
     SPELL_THUNDERCLAP           = 30633,
 
     SPELL_BURNING_MAUL          = 30598,
     H_SPELL_BURNING_MAUL        = 36056,
+};
 
+enum Creatures
+{
     NPC_LEFT_HEAD               = 19523,
     NPC_RIGHT_HEAD              = 19524
 };

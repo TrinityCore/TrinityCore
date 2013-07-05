@@ -199,7 +199,10 @@ enum Actions
     ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293,
 };
 
-#define DATA_MADE_A_MESS 45374613 // 4537, 4613 are achievement IDs
+enum Misc
+{
+    DATA_MADE_A_MESS                    = 45374613 // 4537, 4613 are achievement IDs
+};
 
 enum MovePoints
 {

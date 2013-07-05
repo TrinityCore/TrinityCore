@@ -70,7 +70,7 @@ enum Events
     EVENT_FACE_ANGER            = 7,
 };
 
-enum eEnum
+enum Models
 {
     DISPLAY_ANGER               = 30148,
     DISPLAY_SORROW              = 30149,
@@ -111,7 +111,10 @@ struct outroPosition
 
 Position const CrucibleSummonPos = {5672.294f, 2520.686f, 713.4386f, 0.9599311f};
 
-#define DATA_THREE_FACED        1
+enum Misc
+{
+    DATA_THREE_FACED                = 1
+};
 
 class boss_devourer_of_souls : public CreatureScript
 {
