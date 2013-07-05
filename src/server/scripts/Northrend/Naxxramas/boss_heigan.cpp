@@ -48,8 +48,11 @@ enum Phases
     PHASE_DANCE,
 };
 
-#define ACTION_SAFETY_DANCE_FAIL 1
-#define DATA_SAFETY_DANCE        19962139
+enum Misc
+{
+    ACTION_SAFETY_DANCE_FAIL        = 1,
+    DATA_SAFETY_DANCE               = 19962139
+};
 
 class boss_heigan : public CreatureScript
 {

@@ -59,7 +59,12 @@ enum SjonnirCreatures
     CREATURE_IRON_SLUDGE                                   = 28165
 };
 
-#define DATA_TIME_BEFORE_OOZE                              150000 //2min 30 secs
+enum Misc
+{
+    DATA_TIME_BEFORE_OOZE                                   = 150000, // 2min 30 secs
+    ACTION_OOZE_DEAD                                        = 1,
+    DATA_ABUSE_THE_OOZE                                     = 2
+};
 
 struct Locations
 {
@@ -71,9 +76,6 @@ static Locations PipeLocations[] =
     {1295.44f, 734.07f, 200.3f}, //left
     {1297.7f,  595.6f,  199.9f} //right
 };
-
-#define ACTION_OOZE_DEAD                                   1
-#define DATA_ABUSE_THE_OOZE                                2
 
 static Locations CenterPoint = {1295.21f, 667.157f, 189.691f};
 

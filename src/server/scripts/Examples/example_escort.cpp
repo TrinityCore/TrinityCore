@@ -30,14 +30,8 @@ EndScriptData */
 #include "Player.h"
 #include "CreatureTextMgr.h"
 
-enum eEnums
+enum Yells
 {
-    NPC_FELBOAR                 = 21878,
-
-    SPELL_DEATH_COIL            = 33130,
-    SPELL_ELIXIR_OF_FORTITUDE   = 3593,
-    SPELL_BLUE_FIREWORK         = 11540,
-
     SAY_AGGRO1                  = 0,
     SAY_AGGRO2                  = 1,
     SAY_WP_1                    = 2,
@@ -50,6 +44,18 @@ enum eEnums
     SAY_SPELL                   = 9,
     SAY_RAND_1                  = 10,
     SAY_RAND_2                  = 11
+};
+
+enum Spells
+{
+    SPELL_DEATH_COIL            = 33130,
+    SPELL_ELIXIR_OF_FORTITUDE   = 3593,
+    SPELL_BLUE_FIREWORK         = 11540
+};
+
+enum Creatures
+{
+    NPC_FELBOAR                 = 21878
 };
 
 #define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Run)"

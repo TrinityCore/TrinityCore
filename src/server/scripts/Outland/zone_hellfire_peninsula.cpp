@@ -44,7 +44,7 @@ EndContentData */
 ## npc_aeranas
 ######*/
 
-enum eAeranas
+enum Aeranas
 {
     SAY_SUMMON              = 0,
     SAY_FREE                = 1,
@@ -132,7 +132,7 @@ public:
 ## npc_ancestral_wolf
 ######*/
 
-enum eAncestralWolf
+enum AncestralWolf
 {
     EMOTE_WOLF_LIFT_HEAD            = 0,
     EMOTE_WOLF_HOWL                 = 1,
@@ -208,7 +208,7 @@ public:
 
 #define GOSSIP_NALADU_ITEM1 "Why don't you escape?"
 
-enum eNaladu
+enum Naladu
 {
     GOSSIP_TEXTID_NALADU1   = 9788
 };
@@ -246,7 +246,7 @@ public:
 #define GOSSIP_TRACY_PROUDWELL_ITEM1    "I heard that your dog Fei Fei took Klatu's prayer beads..."
 #define GOSSIP_TRACY_PROUDWELL_ITEM2    "<back>"
 
-enum eTracy
+enum Tracy
 {
     GOSSIP_TEXTID_TRACY_PROUDWELL1       = 10689,
     QUEST_DIGGING_FOR_PRAYER_BEADS       = 10916
@@ -301,7 +301,7 @@ public:
 #define GOSSIP_TROLLBANE_ITEM2      "<more>"
 #define GOSSIP_TROLLBANE_ITEM3      "Tell me of your homeland."
 
-enum eTrollbane
+enum Trollbane
 {
     GOSSIP_TEXTID_TROLLBANE1        = 9932,
     GOSSIP_TEXTID_TROLLBANE2        = 9933,
@@ -349,7 +349,7 @@ public:
 ## npc_wounded_blood_elf
 ######*/
 
-enum eWoundedBloodElf
+enum WoundedBloodElf
 {
     SAY_ELF_START               = 0,
     SAY_ELF_SUMMON1             = 1,
@@ -442,7 +442,7 @@ public:
 ## npc_fel_guard_hound
 ######*/
 
-enum eFelGuard
+enum FelGuard
 {
     SPELL_SUMMON_POO                              = 37688,
 

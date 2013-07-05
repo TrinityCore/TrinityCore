@@ -39,7 +39,7 @@ EndContentData */
 # item_only_for_flight
 #####*/
 
-enum eOnlyForFlight
+enum OnlyForFlight
 {
     SPELL_ARCANE_CHARGES    = 45072
 };
@@ -189,7 +189,7 @@ public:
 # item_pile_fake_furs
 #####*/
 
-enum ePileFakeFur
+enum PileFakeFur
 {
     GO_CARIBOU_TRAP_1                                      = 187982,
     GO_CARIBOU_TRAP_2                                      = 187995,
@@ -256,7 +256,7 @@ public:
 # item_petrov_cluster_bombs
 #####*/
 
-enum ePetrovClusterBombs
+enum PetrovClusterBombs
 {
     SPELL_PETROV_BOMB           = 42406,
     AREA_ID_SHATTERED_STRAITS   = 4064,
@@ -291,7 +291,7 @@ public:
 # item_dehta_trap_smasher
 # For quest 11876, Help Those That Cannot Help Themselves
 ######*/
-enum eHelpThemselves
+enum HelpThemselves
 {
     QUEST_CANNOT_HELP_THEMSELVES                  =  11876,
     NPC_TRAPPED_MAMMOTH_CALF                      =  25850,
@@ -386,7 +386,7 @@ public:
     }
 };
 
-enum eCapturedFrog
+enum CapturedFrog
 {
     QUEST_THE_PERFECT_SPIES      = 25444,
     NPC_VANIRAS_SENTRY_TOTEM     = 40187

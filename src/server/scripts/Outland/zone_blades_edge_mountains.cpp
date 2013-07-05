@@ -85,7 +85,7 @@ public:
 ## npc_nether_drake
 ######*/
 
-enum eNetherdrake
+enum Netherdrake
 {
     //Used by 20021, 21817, 21820, 21821, 21823 but not existing in database
     SAY_NIHIL_1                 = 0,
@@ -265,7 +265,7 @@ public:
 ## npc_daranelle
 ######*/
 
-enum eDaranelle
+enum Daranelle
 {
     SAY_SPELL_INFLUENCE     = 0,
     SPELL_LASHHAN_CHANNEL   = 36904
@@ -431,7 +431,7 @@ public:
 ## npc_bloodmaul_brutebane
 ######*/
 
-enum eBloodmaul
+enum Bloodmaul
 {
     NPC_OGRE_BRUTE                              = 19995,
     NPC_QUEST_CREDIT                            = 21241,

@@ -42,8 +42,11 @@ enum Creatures
     NPC_RAPTOR_2                                  = 26628
 };
 
-#define ACTION_RAPTOR_KILLED                      1
-#define DATA_KING_DRED                            2
+enum Misc
+{
+    ACTION_RAPTOR_KILLED                          = 1,
+    DATA_KING_DRED                                = 2
+};
 
 class boss_dred : public CreatureScript
 {

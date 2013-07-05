@@ -34,8 +34,11 @@ enum TerestianIllhoof
     SAY_DEATH                   = 2,
     SAY_AGGRO                   = 3,
     SAY_SACRIFICE               = 4,
-    SAY_SUMMON                  = 5,
+    SAY_SUMMON                  = 5
+};
 
+enum Spells
+{
     SPELL_SUMMON_DEMONCHAINS    = 30120,               // Summons demonic chains that maintain the ritual of sacrifice.
     SPELL_DEMON_CHAINS          = 30206,                   // Instant - Visual Effect
     SPELL_ENRAGE                = 23537,                   // Increases the caster's attack speed by 50% and the Physical damage it deals by 219 to 281 for 10 min.
@@ -51,11 +54,14 @@ enum TerestianIllhoof
     SPELL_FIREBOLT              = 30050,                   // Blasts a target for 150 Fire damage.
     SPELL_BROKEN_PACT           = 30065,                   // All damage taken increased by 25%.
     SPELL_AMPLIFY_FLAMES        = 30053,                   // Increases the Fire damage taken by an enemy by 500 for 25 sec.
+};
 
-    CREATURE_DEMONCHAINS        = 17248,
-    CREATURE_FIENDISHIMP        = 17267,
-    CREATURE_PORTAL             = 17265,
-    CREATURE_KILREK             = 17229,
+enum Creatures
+{
+    NPC_DEMONCHAINS             = 17248,
+    NPC_FIENDISHIMP             = 17267,
+    NPC_PORTAL                  = 17265,
+    NPC_KILREK                  = 17229
 };
 
 
@@ -201,8 +207,6 @@ public:
     };
 };
 
-#define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
-
 class npc_fiendish_imp : public CreatureScript
 {
 public:
@@ -325,7 +329,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            if (summoned->GetEntry() == CREATURE_PORTAL)
+            if (summoned->GetEntry() == NPC_PORTAL)
             {
                 PortalGUID[PortalsCount] = summoned->GetGUID();
                 ++PortalsCount;
@@ -375,7 +379,7 @@ public:
                     DoCast(target, SPELL_SACRIFICE, true);
                     DoCast(target, SPELL_SUMMON_DEMONCHAINS, true);
 
-                    if (Creature* Chains = me->FindNearestCreature(CREATURE_DEMONCHAINS, 5000))
+                    if (Creature* Chains = me->FindNearestCreature(NPC_DEMONCHAINS, 5000))
                     {
                         CAST_AI(npc_demon_chain::npc_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                         Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);

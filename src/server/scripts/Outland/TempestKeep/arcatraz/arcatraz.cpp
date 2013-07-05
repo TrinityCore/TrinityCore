@@ -37,7 +37,7 @@ EndContentData */
 # npc_millhouse_manastorm
 #####*/
 
-enum eMillhouseSays
+enum MillhouseSays
 {
     SAY_INTRO_1                = 0,
     SAY_INTRO_2                = 1,
@@ -53,7 +53,7 @@ enum eMillhouseSays
     SAY_COMPLETE               = 11,
 };
 
-enum eMillhouseSpells
+enum MillhouseSpells
 {
     SPELL_CONJURE_WATER        = 36879,
     SPELL_ARCANE_INTELLECT     = 36880,
@@ -230,7 +230,7 @@ class npc_millhouse_manastorm : public CreatureScript
 # npc_warden_mellichar
 #####*/
 
-enum eWardenSays
+enum WardenSays
 {
     YELL_INTRO1         = 0,
     YELL_INTRO2         = 1,
@@ -242,7 +242,7 @@ enum eWardenSays
     YELL_WELCOME        = 7,
 };
 
-enum eWardenUnits
+enum WardenUnits
 {
     //phase 2(acid mobs)
     ENTRY_TRICKSTER    = 20905,
@@ -259,7 +259,7 @@ enum eWardenUnits
     ENTRY_SKYRISS      = 20912,
 };
 
-enum eWardenSpells
+enum WardenSpells
 {
     //TARGET_SCRIPT
     SPELL_TARGET_ALPHA  = 36856,

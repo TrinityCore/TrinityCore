@@ -124,7 +124,10 @@ enum Enums
     POINT_ID_LAND                               = 200,
 };
 
-#define DATA_CAN_LOOT   0
+enum Misc
+{
+    DATA_CAN_LOOT           = 0
+};
 
 struct Waypoint
 {

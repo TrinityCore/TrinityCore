@@ -42,16 +42,18 @@ EndScriptData */
 #define YELL_DEATH              "Dis not... da end of me..."
 #define SOUND_YELL_DEATH        12051
 
-#define SPELL_SPIRIT_BOLTS      43383
-#define SPELL_DRAIN_POWER       44131
-#define SPELL_SIPHON_SOUL       43501
 
-#define NPC_TEMP_TRIGGER        23920
-
-//Defines for various powers he uses after using soul drain
+enum Creatures
+{
+    NPC_TEMP_TRIGGER                = 23920
+};
 
 enum Spells
 {
+    SPELL_SPIRIT_BOLTS              = 43383,
+    SPELL_DRAIN_POWER               = 44131,
+    SPELL_SIPHON_SOUL               = 43501,
+
     // Druid
     SPELL_DR_THORNS                 = 43420,
     SPELL_DR_LIFEBLOOM              = 43421,
@@ -100,7 +102,36 @@ enum Spells
     // Warrior
     SPELL_WR_MORTAL_STRIKE          = 43441,
     SPELL_WR_WHIRLWIND              = 43442,
-    SPELL_WR_SPELL_REFLECT          = 43443
+    SPELL_WR_SPELL_REFLECT          = 43443,
+
+    // Thurg
+    SPELL_BLOODLUST                 = 43578,
+    SPELL_CLEAVE                    = 15496,
+
+    // Gazakroth
+    SPELL_FIREBOLT                  = 43584,
+
+    // Alyson Antille
+    SPELL_FLASH_HEAL                = 43575,
+    SPELL_DISPEL_MAGIC              = 43577,
+
+    // Lord Raadan
+    SPELL_FLAME_BREATH              = 43582,
+    SPELL_THUNDERCLAP               = 43583,
+
+    // Darkheart
+    SPELL_PSYCHIC_WAIL              = 43590,
+
+    // Slither
+    SPELL_VENOM_SPIT                = 43579,
+
+    // Fenstalker
+    SPELL_VOLATILE_INFECTION        = 43586,
+
+    // Koragg
+    SPELL_COLD_STARE                = 43593,
+    SPELL_MIGHTY_BLOW               = 43592
+
 };
 
 #define ORIENT                  1.5696f
@@ -483,9 +514,6 @@ class boss_hexlord_malacrass : public CreatureScript
         }
 };
 
-#define SPELL_BLOODLUST       43578
-#define SPELL_CLEAVE          15496
-
 class boss_thurg : public CreatureScript
 {
     public:
@@ -542,9 +570,6 @@ class boss_thurg : public CreatureScript
             return new boss_thurgAI(creature);
         }
 };
-
-#define SPELL_FLASH_HEAL     43575
-#define SPELL_DISPEL_MAGIC   43577
 
 class boss_alyson_antille : public CreatureScript
 {
@@ -643,8 +668,6 @@ class boss_alyson_antille : public CreatureScript
         }
 };
 
-#define SPELL_FIREBOLT        43584
-
 struct boss_gazakrothAI : public boss_hexlord_addAI
 {
     boss_gazakrothAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
@@ -686,9 +709,6 @@ struct boss_gazakrothAI : public boss_hexlord_addAI
         boss_hexlord_addAI::UpdateAI(diff);
     }
 };
-
-#define SPELL_FLAME_BREATH    43582
-#define SPELL_THUNDERCLAP     43583
 
 class boss_lord_raadan : public CreatureScript
 {
@@ -741,8 +761,6 @@ class boss_lord_raadan : public CreatureScript
         }
 };
 
-#define SPELL_PSYCHIC_WAIL   43590
-
 class boss_darkheart : public CreatureScript
 {
     public:
@@ -784,7 +802,6 @@ class boss_darkheart : public CreatureScript
         }
 };
 
-#define SPELL_VENOM_SPIT    43579
 
 class boss_slither : public CreatureScript
 {
@@ -844,8 +861,6 @@ class boss_slither : public CreatureScript
         }
 };
 
-//Fenstalker
-#define SPELL_VOLATILE_INFECTION 43586
 class boss_fenstalker : public CreatureScript
 {
     public:
@@ -888,10 +903,6 @@ class boss_fenstalker : public CreatureScript
             return new boss_fenstalkerAI(creature);
         }
 };
-
-//Koragg
-#define SPELL_COLD_STARE      43593
-#define SPELL_MIGHTY_BLOW     43592
 
 class boss_koragg : public CreatureScript
 {

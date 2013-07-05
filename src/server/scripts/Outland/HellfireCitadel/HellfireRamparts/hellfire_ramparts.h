@@ -21,7 +21,7 @@
 
 #define MAX_ENCOUNTER  2
 
-enum eTypes
+enum DataTypes
 {
     TYPE_VAZRUDEN       = 1,
     TYPE_NAZAN          = 2

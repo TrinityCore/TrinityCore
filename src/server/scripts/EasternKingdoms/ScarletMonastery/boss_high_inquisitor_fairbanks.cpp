@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_CURSEOFBLOOD              = 8282,
     SPELL_DISPELMAGIC               = 15090,

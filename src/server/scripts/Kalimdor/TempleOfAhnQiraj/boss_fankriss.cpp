@@ -32,11 +32,14 @@ EndScriptData */
 #define SOUND_TRESPASS     8591
 #define SOUND_WILL_BE      8592
 
-#define SPELL_MORTAL_WOUND 28467
-#define SPELL_ROOT         28858
+enum Spells
+{
+    SPELL_MORTAL_WOUND      = 28467,
+    SPELL_ROOT              = 28858,
 
-// Enrage for his spawns
-#define SPELL_ENRAGE       28798
+    // Enrage for his spawns
+    SPELL_ENRAGE            = 28798
+};
 
 class boss_fankriss : public CreatureScript
 {

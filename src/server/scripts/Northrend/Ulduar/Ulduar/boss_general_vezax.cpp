@@ -90,8 +90,11 @@ enum VezaxEvents
     EVENT_RANDOM_MOVE                            = 8,
 };
 
-#define DATA_SMELL_SARONITE                      31813188
-#define DATA_SHADOWDODGER                        29962997
+enum Misc
+{
+    DATA_SMELL_SARONITE                          = 31813188,
+    DATA_SHADOWDODGER                            = 29962997
+};
 
 class boss_general_vezax : public CreatureScript
 {

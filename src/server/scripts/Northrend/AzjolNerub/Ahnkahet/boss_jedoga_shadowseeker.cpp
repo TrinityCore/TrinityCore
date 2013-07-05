@@ -57,8 +57,11 @@ const Position JedogaPosition[2] =
     {372.330994f, -705.278015f, -16.179716f, 5.427970f}
 };
 
-#define ACTION_INITIAND_KILLED                    1
-#define DATA_VOLUNTEER_WORK                       2
+enum Misc
+{
+    ACTION_INITIAND_KILLED                      = 1,
+    DATA_VOLUNTEER_WORK                         = 2
+};
 
 class boss_jedoga_shadowseeker : public CreatureScript
 {

@@ -55,7 +55,7 @@ enum Yells
     SAY_PLAYER_KILL                               = 7
 };
 
-enum eCreature
+enum Creatures
 {
     NPC_PHANTASMAL_CLOUDSCRAPER                   = 27645,
     NPC_PHANTASMAL_MAMMOTH                        = 27642,

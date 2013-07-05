@@ -26,11 +26,14 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SPELL_CURSEOFBLOOD          24673
-//#define SPELL_ILLUSION              17773
+enum Spells
+{
+    SPELL_CURSEOFBLOOD          = 24673,
+    //SPELL_ILLUSION              = 17773,
 
-//Spells of Illusion of Jandice Barov
-#define SPELL_CLEAVE                15584
+    // Spells of Illusion of Jandice Barov
+    SPELL_CLEAVE                = 15584
+};
 
 class boss_jandice_barov : public CreatureScript
 {

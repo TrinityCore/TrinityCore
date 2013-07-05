@@ -35,26 +35,23 @@ class instance_archavon : public InstanceMapScript
         {
             instance_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                SetBossNumber(MAX_ENCOUNTER);
-            }
+                SetBossNumber(EncounterCount);
 
-            void Initialize()
-            {
-                EmalonGUID = 0;
-                ToravonGUID = 0;
-                ArchavonDeath = 0;
-                EmalonDeath = 0;
-                KoralonDeath = 0;
+                EmalonGUID      = 0;
+                ToravonGUID     = 0;
+                ArchavonDeath   = 0;
+                EmalonDeath     = 0;
+                KoralonDeath    = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
-                    case CREATURE_EMALON:
+                    case NPC_EMALON:
                         EmalonGUID = creature->GetGUID();
                         break;
-                    case CREATURE_TORAVON:
+                    case NPC_TORAVON:
                         ToravonGUID = creature->GetGUID();
                         break;
                     default:

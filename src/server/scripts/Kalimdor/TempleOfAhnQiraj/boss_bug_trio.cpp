@@ -27,16 +27,19 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 
-#define SPELL_CLEAVE        26350
-#define SPELL_TOXIC_VOLLEY  25812
-#define SPELL_POISON_CLOUD  38718                           //Only Spell with right dmg.
-#define SPELL_ENRAGE        34624                           //Changed cause 25790 is casted on gamers too. Same prob with old explosion of twin emperors.
+enum Spells
+{
+    SPELL_CLEAVE       = 26350,
+    SPELL_TOXIC_VOLLEY = 25812,
+    SPELL_POISON_CLOUD = 38718, //Only Spell with right dmg.
+    SPELL_ENRAGE       = 34624, //Changed cause 25790 is casted on gamers too. Same prob with old explosion of twin emperors.
 
-#define SPELL_CHARGE        26561
-#define SPELL_KNOCKBACK     26027
+    SPELL_CHARGE       = 26561,
+    SPELL_KNOCKBACK    = 26027,
 
-#define SPELL_HEAL      25807
-#define SPELL_FEAR      19408
+    SPELL_HEAL         = 25807,
+    SPELL_FEAR         = 19408
+};
 
 class boss_kri : public CreatureScript
 {

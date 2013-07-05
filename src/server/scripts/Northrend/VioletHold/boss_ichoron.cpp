@@ -66,7 +66,10 @@ static Position SpawnLoc[MAX_SPAWN_LOC]=
     {1935.50f, 796.224f, 52.492f, 4.224f},
 };
 
-#define DATA_DEHYDRATION                        1
+enum Misc
+{
+    DATA_DEHYDRATION                            = 1
+};
 
 class boss_ichoron : public CreatureScript
 {

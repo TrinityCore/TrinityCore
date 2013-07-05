@@ -31,14 +31,17 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum ePrince
+enum Yells
 {
     SAY_INTRO                       = 0,
     SAY_AGGRO                       = 1,
     SAY_SLAY                        = 2,
     SAY_SUMMON                      = 3,
     SAY_DEAD                        = 4,
+};
 
+enum Spells
+{
     SPELL_BLINK                     = 34605,
     SPELL_FROSTBOLT                 = 32364,
     SPELL_FIREBALL                  = 32363,
@@ -47,9 +50,19 @@ enum ePrince
     SPELL_ETHEREAL_BEACON           = 32371,                // Summons NPC_BEACON
     SPELL_ETHEREAL_BEACON_VISUAL    = 32368,
 
-    NPC_BEACON                      = 18431,
-    NPC_SHAFFAR                     = 18344,
+    // Ethereal Beacon
+    SPELL_ARCANE_BOLT               = 15254,
+    SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
+};
 
+enum Creatures
+{
+    NPC_BEACON                      = 18431,
+    NPC_SHAFFAR                     = 18344
+};
+
+enum Misc
+{
     NR_INITIAL_BEACONS              = 3
 };
 
@@ -213,12 +226,6 @@ public:
 
 };
 
-enum eEnums
-{
-    SPELL_ARCANE_BOLT               = 15254,
-    SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
-};
-
 class npc_ethereal_beacon : public CreatureScript
 {
 public:
@@ -305,7 +312,7 @@ public:
 
 };
 
-enum eEthereal
+enum Ethereal
 {
     SPELL_ETHEREAL_APPRENTICE_FIREBOLT          = 32369,
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370

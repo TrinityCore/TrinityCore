@@ -112,7 +112,7 @@ public:
 ## npc_myranda_the_hag
 ######*/
 
-enum eMyranda
+enum Myranda
 {
     QUEST_SUBTERFUGE        = 5862,
     QUEST_IN_DREAMS         = 5944,
@@ -240,7 +240,7 @@ public:
 ##    npcs_andorhal_tower
 ######*/
 
-enum eAndorhalTower
+enum AndorhalTower
 {
     GO_BEACON_TORCH                             = 176093
 };
@@ -278,7 +278,7 @@ public:
 ##  npc_anchorite_truuen
 ######*/
 
-enum eTruuen
+enum Truuen
 {
     NPC_GHOST_UTHER             = 17233,
     NPC_THEL_DANIS              = 1854,

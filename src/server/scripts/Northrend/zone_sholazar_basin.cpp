@@ -45,7 +45,7 @@ EndContentData */
 
 #define GOSSIP_ITEM1 "I am ready to travel to your village now."
 
-enum eRainspeaker
+enum Rainspeaker
 {
     SAY_START_IRO                       = 0,
     SAY_QUEST_ACCEPT_IRO                = 1,
@@ -181,7 +181,7 @@ public:
 #define GOSSIP_VEKJIK_ITEM1 "Shaman Vekjik, I have spoken with the big-tongues and they desire peace. I have brought this offering on their behalf."
 #define GOSSIP_VEKJIK_ITEM2 "No no... I had no intentions of betraying your people. I was only defending myself. it was all a misunderstanding."
 
-enum eVekjik
+enum Vekjik
 {
     GOSSIP_TEXTID_VEKJIK1       = 13137,
     GOSSIP_TEXTID_VEKJIK2       = 13138,
@@ -243,7 +243,7 @@ public:
 #define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King."
 #define GOSSIP_ITEM_AOF3 "I will not fail."
 
-enum eFreya
+enum Freya
 {
     QUEST_FREYA_PACT         = 12621,
 
@@ -339,11 +339,13 @@ public:
 ## npc_engineer_helice
 ######*/
 
-enum eEnums
+enum EngineerHelice
 {
+    // Spells
     SPELL_EXPLODE_CRYSTAL       = 62487,
     SPELL_FLAMES                = 64561,
 
+    // Yells
     SAY_WP_1                    = 0,
     SAY_WP_2                    = 1,
     SAY_WP_3                    = 2,
@@ -352,6 +354,7 @@ enum eEnums
     SAY_WP_6                    = 5,
     SAY_WP_7                    = 6,
 
+    // Quests
     QUEST_DISASTER              = 12688
 };
 
@@ -701,7 +704,7 @@ public:
 #define GOSSIP_OPTION_BANANAS   "Have a spare bunch of bananas?"
 #define GOSSIP_OPTION_PAPAYA    "I could really use a papaya."
 
-enum eAdventurousDwarf
+enum AdventurousDwarf
 {
     QUEST_12634         = 12634,
 

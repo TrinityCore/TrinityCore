@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eSays
+enum Says
 {
     SAY_TAUNT              = 0,
     SAY_HEAL               = 1,
@@ -36,7 +36,7 @@ enum eSays
     SAY_DIE                = 5
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_MORTAL_WOUND     = 30641,
     H_SPELL_MORTAL_WOUND   = 36814,

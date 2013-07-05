@@ -57,7 +57,7 @@ enum Events
     EVENT_KIRTONOS_TRANSFORM          = 14
 };
 
-enum eMisc
+enum Misc
 {
     WEAPON_KIRTONOS_STAFF             = 11365,
     POINT_KIRTONOS_LAND               = 13,

@@ -25,7 +25,7 @@
 #include "trial_of_the_crusader.h"
 #include "Player.h"
 
-enum eYells
+enum Yells
 {
     // Highlord Tirion Fordring - 34996
     SAY_STAGE_0_01            = 0,
@@ -83,7 +83,7 @@ enum eYells
 
 struct _Messages
 {
-    eAnnouncerMessages msgnum;
+    AnnouncerMessages msgnum;
     uint32 id;
     bool state;
     uint32 encounter;

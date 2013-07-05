@@ -29,7 +29,11 @@ EndScriptData */
 enum Spells
 {
     SPELL_FOUL_SPORES           = 31673,
-    SPELL_ACID_GEYSER           = 38739
+    SPELL_ACID_GEYSER           = 38739,
+
+    SPELL_SPORE_CLOUD           = 34168,
+    SPELL_PUTRID_MUSHROOM       = 31690,
+    SPELL_GROW                  = 31698
 };
 
 class boss_hungarfen : public CreatureScript
@@ -99,10 +103,6 @@ public:
     };
 
 };
-
-#define SPELL_SPORE_CLOUD       34168
-#define SPELL_PUTRID_MUSHROOM   31690
-#define SPELL_GROW              31698
 
 class npc_underbog_mushroom : public CreatureScript
 {

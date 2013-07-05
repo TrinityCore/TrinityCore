@@ -40,7 +40,7 @@ enum Creatures
     NPC_TRIGGER                                     = 19656
 };
 
-enum event
+enum Events
 {
     EVENT_SPAWN = 1,
     EVENT_MINI,

@@ -21,7 +21,6 @@
 #include "gundrak.h"
 #include "Player.h"
 
-//Spells
 enum Spells
 {
     SPELL_POISON_NOVA                             = 55081,
@@ -32,7 +31,6 @@ enum Spells
     H_SPELL_VENOM_BOLT                            = 59839
 };
 
-//Yell
 enum Yells
 {
     SAY_AGGRO                                     = 0,
@@ -43,14 +41,12 @@ enum Yells
     EMOTE_NOVA                                    = 5
 };
 
-//Creatures
 enum Creatures
 {
     CREATURE_SNAKE                                = 29680,
     CREATURE_CONSTRICTORS                         = 29713
 };
 
-//Creatures' spells
 enum ConstrictorSpells
 {
     SPELL_GRIP_OF_SLAD_RAN                        = 55093,
@@ -68,7 +64,10 @@ static Position SpawnLoc[]=
   {1716.76f, 635.159f, 129.282f, 0.191986f}
 };
 
-#define DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES 1
+enum Misc
+{
+    DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES       = 1
+};
 
 class boss_slad_ran : public CreatureScript
 {

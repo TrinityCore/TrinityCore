@@ -30,7 +30,7 @@ EndScriptData */
 
 #include "the_eye.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                           = 0,
     SAY_SUMMON1                         = 1,
@@ -38,8 +38,11 @@ enum eEnums
     SAY_KILL                            = 3,
     SAY_DEATH                           = 4,
     SAY_VOIDA                           = 5,
-    SAY_VOIDB                           = 6,
+    SAY_VOIDB                           = 6
+};
 
+enum Spells
+{
     SPELL_ARCANE_MISSILES               = 33031,
     SPELL_WRATH_OF_THE_ASTROMANCER      = 42783,
     SPELL_WRATH_OF_THE_ASTROMANCER_DOT  = 42784,
@@ -48,18 +51,28 @@ enum eEnums
     SPELL_VOID_BOLT                     = 39329,
 
     SPELL_SPOTLIGHT                     = 25824,
-    NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT  = 18928,
-
-    NPC_SOLARIUM_AGENT                  = 18925,
-    NPC_SOLARIUM_PRIEST                 = 18806,
-
-    MODEL_HUMAN                         = 18239,
-    MODEL_VOIDWALKER                    = 18988,
 
     SPELL_SOLARIUM_GREAT_HEAL           = 33387,
     SPELL_SOLARIUM_HOLY_SMITE           = 25054,
-    SPELL_SOLARIUM_ARCANE_TORRENT       = 33390,
+    SPELL_SOLARIUM_ARCANE_TORRENT       = 33390
+};
 
+enum Creatures
+{
+    NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT  = 18928,
+
+    NPC_SOLARIUM_AGENT                  = 18925,
+    NPC_SOLARIUM_PRIEST                 = 18806
+};
+
+enum Models
+{
+    MODEL_HUMAN                         = 18239,
+    MODEL_VOIDWALKER                    = 18988
+};
+
+enum Misc
+{
     WV_ARMOR                            = 31000
 };
 

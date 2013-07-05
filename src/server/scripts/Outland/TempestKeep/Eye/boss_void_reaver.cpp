@@ -27,13 +27,16 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                   = 0,
     SAY_SLAY                    = 1,
     SAY_DEATH                   = 2,
-    SAY_POUNDING                = 3,
+    SAY_POUNDING                = 3
+};
 
+enum Spells
+{
     SPELL_POUNDING              = 34162,
     SPELL_ARCANE_ORB            = 34172,
     SPELL_KNOCK_AWAY            = 25778,

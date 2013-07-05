@@ -31,9 +31,9 @@ enum Spells
     H_SPELL_ZURAMAT_ADD_2                       = 59747
 };
 
-enum ZuramatCreatures
+enum Creatures
 {
-    CREATURE_VOID_SENTRY                        = 29364
+    NPC_VOID_SENTRY                        = 29364
 };
 
 enum Yells
@@ -46,7 +46,10 @@ enum Yells
     SAY_WHISPER                                 = 5
 };
 
-#define DATA_VOID_DANCE                         2153
+enum Misc
+{
+    DATA_VOID_DANCE                             = 2153
+};
 
 class boss_zuramat : public CreatureScript
 {
@@ -152,7 +155,7 @@ public:
 
         void SummonedCreatureDies(Creature* summoned, Unit* /*who*/)
         {
-            if (summoned->GetEntry() == CREATURE_VOID_SENTRY)
+            if (summoned->GetEntry() == NPC_VOID_SENTRY)
                 voidDance = false;
         }
 

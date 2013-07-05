@@ -142,7 +142,11 @@ enum HodirActions
 #define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint8>(3182, 3184)
 #define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
-#define DATA_GETTING_COLD_IN_HERE                29672968 // 2967, 2968 are achievement IDs
+
+enum Misc
+{
+    DATA_GETTING_COLD_IN_HERE                    = 29672968 // 2967, 2968 are achievement IDs
+};
 
 Position const SummonPositions[8] =
 {

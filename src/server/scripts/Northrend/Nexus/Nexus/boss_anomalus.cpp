@@ -61,7 +61,10 @@ Position const RiftLocation[6] =
     { 651.72f, -297.44f, -9.37f, 0.0f }
 };
 
-#define DATA_CHAOS_THEORY                         1
+enum Misc
+{
+    DATA_CHAOS_THEORY                           = 1
+};
 
 class boss_anomalus : public CreatureScript
 {

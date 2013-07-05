@@ -29,30 +29,36 @@ EndScriptData */
 #include "Spell.h"
 #include "Player.h"
 
-#define SPELL_SPOUT         37433
-#define SPELL_SPOUT_ANIM    42835
-#define SPELL_SPOUT_BREATH  37431
-#define SPELL_KNOCKBACK     19813
-#define SPELL_GEYSER        37478
-#define SPELL_WHIRL         37660
-#define SPELL_WATERBOLT     37138
-#define SPELL_SUBMERGE      37550
-#define SPELL_EMERGE        20568
+enum Spells
+{
+    SPELL_SPOUT             = 37433,
+    SPELL_SPOUT_ANIM        = 42835,
+    SPELL_SPOUT_BREATH      = 37431,
+    SPELL_KNOCKBACK         = 19813,
+    SPELL_GEYSER            = 37478,
+    SPELL_WHIRL             = 37660,
+    SPELL_WATERBOLT         = 37138,
+    SPELL_SUBMERGE          = 37550,
+    SPELL_EMERGE            = 20568,
+
+
+    // Ambusher spells
+    SPELL_SPREAD_SHOT       = 37790,
+    SPELL_SHOOT             = 37770,
+    // Guardian spells
+    SPELL_ARCINGSMASH       = 38761, // Wrong SpellId. Can't find the right one.
+    SPELL_HAMSTRING         = 26211
+};
+
+enum Creatures
+{
+    NPC_COILFANG_GUARDIAN   = 21873,
+    NPC_COILFANG_AMBUSHER   = 21865
+};
 
 #define EMOTE_SPOUT "The Lurker Below takes a deep breath."
 
 #define SPOUT_DIST  100
-
-#define NPC_COILFANG_GUARDIAN 21873
-#define NPC_COILFANG_AMBUSHER 21865
-
-//Ambusher spells
-#define SPELL_SPREAD_SHOT   37790
-#define SPELL_SHOOT         37770
-
-//Guardian spells
-#define SPELL_ARCINGSMASH   38761 // Wrong SpellId. Can't find the right one.
-#define SPELL_HAMSTRING     26211
 
 float AddPos[9][3] =
 {

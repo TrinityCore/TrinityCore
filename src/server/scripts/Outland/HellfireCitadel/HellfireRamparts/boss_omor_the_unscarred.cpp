@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "Player.h"
 
-enum eSays
+enum Says
 {
     SAY_AGGRO                    = 0,
     SAY_SUMMON                   = 1,
@@ -37,7 +37,7 @@ enum eSays
     SAY_WIPE                     = 5
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_ORBITAL_STRIKE         = 30637,
     SPELL_SHADOW_WHIP            = 30638,

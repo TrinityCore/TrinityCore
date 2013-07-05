@@ -31,7 +31,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_COUNTERCHARGE    = 35035,
     SPELL_KNOCKAWAY        = 22893,

@@ -767,7 +767,7 @@ public:
 # engineering trinkets
 ###*/
 
-enum eEngineeringTrinkets
+enum EngineeringTrinkets
 {
     NPC_ZAP                     = 14742,
     NPC_JHORDY                  = 14743,

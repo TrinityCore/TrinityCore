@@ -37,11 +37,19 @@ EndContentData */
 ## npc_kalecgos
 ######*/
 
-enum eEnums
+enum Spells
 {
     SPELL_TRANSFORM_TO_KAEL     = 44670,
-    SPELL_ORB_KILL_CREDIT       = 46307,
-    NPC_KAEL                    = 24848,                    //human form entry
+    SPELL_ORB_KILL_CREDIT       = 46307
+};
+
+enum Creatures
+{
+    NPC_KAEL                    = 24848 //human form entry
+};
+
+enum Misc
+{
     POINT_ID_LAND               = 1
 };
 

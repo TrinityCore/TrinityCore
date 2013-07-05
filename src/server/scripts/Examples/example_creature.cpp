@@ -72,7 +72,7 @@ enum Spells
     SPELL_BERSERK                               = 32965,
 };
 
-enum eEnums
+enum Factions
 {
     // any other constants
     FACTION_WORGEN                              = 24

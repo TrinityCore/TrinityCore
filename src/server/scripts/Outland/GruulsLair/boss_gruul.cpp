@@ -28,7 +28,7 @@ EndScriptData */
 #include "SpellScript.h"
 #include "gruuls_lair.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                   = 0,
     SAY_SLAM                    = 1,
@@ -36,8 +36,11 @@ enum eEnums
     SAY_SLAY                    = 3,
     SAY_DEATH                   = 4,
 
-    EMOTE_GROW                  = 5,
+    EMOTE_GROW                  = 5
+};
 
+enum Spells
+{
     SPELL_GROWTH                = 36300,
     SPELL_CAVE_IN               = 36240,
     SPELL_GROUND_SLAM           = 33525,                    //AoE Ground Slam applying Ground Slam to everyone with a script effect (most likely the knock back, we can code it to a set knockback)

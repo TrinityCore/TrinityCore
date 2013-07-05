@@ -137,8 +137,12 @@ enum Events
 
 #define GROUND_Z                                 391.517f
 #define GOSSIP_ITEM_1                            "Activate Harpoons!"
-#define DATA_QUICK_SHAVE                         29192921 // 2919, 2921 are achievement IDs
-#define DATA_IRON_DWARF_MEDIUM_RARE              29232924
+
+enum Misc
+{
+    DATA_QUICK_SHAVE                             = 29192921, // 2919, 2921 are achievement IDs
+    DATA_IRON_DWARF_MEDIUM_RARE                  = 29232924
+};
 
 const Position PosEngRepair[4] =
 {

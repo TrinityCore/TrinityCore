@@ -27,10 +27,13 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "blood_furnace.h"
 
-enum eEnums
+enum Yells
 {
-    SAY_AGGRO               = 0,
+    SAY_AGGRO               = 0
+};
 
+enum Spells
+{
     SPELL_SLIME_SPRAY       = 30913,
     SPELL_POISON_CLOUD      = 30916,
     SPELL_POISON_BOLT       = 30917,

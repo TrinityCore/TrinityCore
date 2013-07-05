@@ -19,10 +19,12 @@
 #ifndef DEF_SHATTERED_H
 #define DEF_SHATTERED_H
 
-#define TYPE_NETHEKURSE         1
-#define DATA_NETHEKURSE         2
-#define DATA_NETHEKURSE_DOOR    3
+enum DataTypes
+{
+    TYPE_NETHEKURSE         = 1,
+    DATA_NETHEKURSE         = 2,
+    DATA_NETHEKURSE_DOOR    = 3,
 
-#define TYPE_OMROGG             4
+    TYPE_OMROGG             = 4
+};
 #endif
-

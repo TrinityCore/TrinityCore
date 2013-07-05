@@ -43,13 +43,13 @@ enum DarkweaverSyth
     SPELL_SUMMON_SYTH_FIRE      = 33537,                   // Spawns 19203
     SPELL_SUMMON_SYTH_ARCANE    = 33538,                   // Spawns 19205
     SPELL_SUMMON_SYTH_FROST     = 33539,                   // Spawns 19204
-    SPELL_SUMMON_SYTH_SHADOW    = 33540                    // Spawns 19206
-};
+    SPELL_SUMMON_SYTH_SHADOW    = 33540,                   // Spawns 19206
 
-#define SPELL_FLAME_BUFFET          DUNGEON_MODE(33526, 38141)
-#define SPELL_ARCANE_BUFFET         DUNGEON_MODE(33527, 38138)
-#define SPELL_FROST_BUFFET          DUNGEON_MODE(33528, 38142)
-#define SPELL_SHADOW_BUFFET         DUNGEON_MODE(33529, 38143)
+    SPELL_FLAME_BUFFET          = 33526,
+    SPELL_ARCANE_BUFFET         = 33527,
+    SPELL_FROST_BUFFET          = 33528,
+    SPELL_SHADOW_BUFFET         = 33529
+};
 
 class boss_darkweaver_syth : public CreatureScript
 {

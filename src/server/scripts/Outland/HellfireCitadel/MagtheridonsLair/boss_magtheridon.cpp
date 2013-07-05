@@ -29,7 +29,7 @@ EndScriptData */
 #include "Player.h"
 #include "SpellInfo.h"
 
-enum eSays
+enum Yells
 {
     SAY_TAUNT                  = 0,
     SAY_FREED                  = 1,
@@ -40,14 +40,14 @@ enum eSays
     SAY_DEATH                  = 6
 };
 
-enum eEmotes
+enum Emotes
 {
     EMOTE_BERSERK              = 7,
     EMOTE_BLASTNOVA            = 8,
     EMOTE_BEGIN                = 9
 };
 
-enum eCreatures
+enum Creatures
 {
     NPC_MAGTHERIDON    = 17257,
     NPC_ROOM           = 17516,
@@ -55,7 +55,7 @@ enum eCreatures
     NPC_ABYSSAL        = 17454,
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_BLASTNOVA            = 30616,
     SPELL_CLEAVE               = 30619,

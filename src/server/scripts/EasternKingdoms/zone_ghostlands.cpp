@@ -109,8 +109,9 @@ public:
 ## npc_ranger_lilatha
 ######*/
 
-enum eEnums
+enum RangerLilatha
 {
+    // Yells
     SAY_START                           = 0,
     SAY_PROGRESS1                       = 1,
     SAY_PROGRESS2                       = 2,
@@ -119,9 +120,16 @@ enum eEnums
     SAY_END2                            = 5,
     SAY_CAPTAIN_ANSWER                  = 0,
 
+    // Quests
     QUEST_ESCAPE_FROM_THE_CATACOMBS     = 9212,
+
+    // Gameobjects
     GO_CAGE                             = 181152,
+
+    // Creature
     NPC_CAPTAIN_HELIOS                  = 16220,
+
+    // Factions
     FACTION_SMOON_E                     = 1603
 };
 

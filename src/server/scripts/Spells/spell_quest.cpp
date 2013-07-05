@@ -1117,7 +1117,11 @@ class spell_q9452_cast_net: public SpellScriptLoader
 
 #define SAY_1 "Sons of Hodir! I humbly present to you..."
 #define SAY_2 "The Helm of Hodir!"
-#define NPC_KILLCREDIT 30210 // Hodir's Helm KC Bunny
+
+enum HodirsHelm
+{
+    NPC_KILLCREDIT  = 30210 // Hodir's Helm KC Bunny
+};
 
 class spell_q12987_read_pronouncement : public SpellScriptLoader
 {
