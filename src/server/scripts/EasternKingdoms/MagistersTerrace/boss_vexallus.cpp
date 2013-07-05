@@ -27,35 +27,44 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "magisters_terrace.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                       = 0,
     SAY_ENERGY                      = 1,
     SAY_OVERLOAD                    = 2,
     SAY_KILL                        = 3,
-    EMOTE_DISCHARGE_ENERGY          = 4,
+    EMOTE_DISCHARGE_ENERGY          = 4
 
     //is this text for real?
     //#define SAY_DEATH             "What...happen...ed."
+};
 
-    //Pure energy spell info
+enum Spells
+{
+    // Pure energy spell info
     SPELL_ENERGY_BOLT               = 46156,
     SPELL_ENERGY_FEEDBACK           = 44335,
 
-    //Vexallus spell info
+    // Vexallus spell info
     SPELL_CHAIN_LIGHTNING           = 44318,
-    SPELL_H_CHAIN_LIGHTNING         = 46380,                //heroic spell
+    SPELL_H_CHAIN_LIGHTNING         = 46380, // heroic spell
     SPELL_OVERLOAD                  = 44353,
     SPELL_ARCANE_SHOCK              = 44319,
-    SPELL_H_ARCANE_SHOCK            = 46381,                //heroic spell
+    SPELL_H_ARCANE_SHOCK            = 46381, // heroic spell
 
-    SPELL_SUMMON_PURE_ENERGY        = 44322,                //mod scale -10
-    H_SPELL_SUMMON_PURE_ENERGY1     = 46154,                //mod scale -5
-    H_SPELL_SUMMON_PURE_ENERGY2     = 46159,                //mod scale -5
+    SPELL_SUMMON_PURE_ENERGY        = 44322, // mod scale -10
+    H_SPELL_SUMMON_PURE_ENERGY1     = 46154, // mod scale -5
+    H_SPELL_SUMMON_PURE_ENERGY2     = 46159  // mod scale -5
 
-    //Creatures
+};
+
+enum Creatures
+{
     NPC_PURE_ENERGY                 = 24745,
+};
 
+enum Misc
+{
     INTERVAL_MODIFIER               = 15,
     INTERVAL_SWITCH                 = 6
 };

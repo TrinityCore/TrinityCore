@@ -30,12 +30,21 @@ EndScriptData */
 #include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER 6
-#define SPELL_SCALDINGWATER 37284
-#define NPC_COILFANG_FRENZY 21508
-#define TRASHNPC_COILFANG_PRIESTESS 21220  //6*2
-#define TRASHNPC_COILFANG_SHATTERER 21301  //6*3
 
-#define MIN_KILLS 30
+enum Misc
+{
+    // Spells
+    SPELL_SCALDINGWATER             = 37284,
+
+    // Creatures
+    NPC_COILFANG_FRENZY             = 21508,
+    NPC_COILFANG_PRIESTESS          = 21220,
+    NPC_COILFANG_SHATTERER          = 21301,
+
+    // Misc
+    MIN_KILLS                       = 30
+};
+
 
 //NOTE: there are 6 platforms
 //there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!

@@ -27,10 +27,13 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_BANSHEEWAIL   16565
-#define SPELL_BANSHEECURSE    16867
-#define SPELL_SILENCE    18327
-//#define SPELL_POSSESS   17244
+enum Spells
+{
+    SPELL_BANSHEEWAIL       = 16565,
+    SPELL_BANSHEECURSE      = 16867,
+    SPELL_SILENCE           = 18327
+    //SPELL_POSSESS           = 17244
+};
 
 class boss_baroness_anastari : public CreatureScript
 {

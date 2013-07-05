@@ -73,19 +73,18 @@ enum Yells
 
 enum Creatures
 {
-    CREATURE_ARTHAS                               = 29280, // Image of Arthas
-    CREATURE_SVALA_SORROWGRAVE                    = 26668, // Svala after transformation
-    CREATURE_SVALA                                = 29281, // Svala before transformation
-    CREATURE_RITUAL_CHANNELER                     = 27281,
-    CREATURE_SPECTATOR                            = 26667,
-    CREATURE_RITUAL_TARGET                        = 27327,
-    CREATURE_FLAME_BRAZIER                        = 27273,
-    CREATURE_SCOURGE_HULK                         = 26555
+    NPC_ARTHAS                                      = 29280, // Image of Arthas
+    NPC_SVALA_SORROWGRAVE                           = 26668, // Svala after transformation
+    NPC_RITUAL_CHANNELER                            = 27281,
+    NPC_SPECTATOR                                   = 26667,
+    NPC_RITUAL_TARGET                               = 27327,
+    NPC_FLAME_BRAZIER                               = 27273,
+    NPC_SCOURGE_HULK                                = 26555
 };
 
-enum Objects
+enum GameObjects
 {
-    OBJECT_UTGARDE_MIRROR                         = 191745
+    GO_UTGARDE_MIRROR                             = 191745
 };
 
 enum SvalaPhase
@@ -97,7 +96,10 @@ enum SvalaPhase
     SVALADEAD
 };
 
-#define DATA_INCREDIBLE_HULK 2043
+enum Misc
+{
+    DATA_INCREDIBLE_HULK        = 2043
+};
 
 static const float spectatorWP[2][3] =
 {
@@ -185,7 +187,7 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            if (summon->GetEntry() == CREATURE_RITUAL_CHANNELER)
+            if (summon->GetEntry() == NPC_RITUAL_CHANNELER)
                 summon->CastSpell(summon, SPELL_SUMMONED_VIS, true);
 
             summons.Summon(summon);
@@ -206,10 +208,10 @@ public:
                 Phase = INTRO;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                if (GameObject* mirror = GetClosestGameObjectWithEntry(me, OBJECT_UTGARDE_MIRROR, 100.0f))
+                if (GameObject* mirror = GetClosestGameObjectWithEntry(me, GO_UTGARDE_MIRROR, 100.0f))
                     mirror->SetGoState(GO_STATE_READY);
 
-                if (Creature* arthas = me->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
                 {
                     arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     arthasGUID = arthas->GetGUID();
@@ -284,7 +286,7 @@ public:
                             if (instance)
                             {
                                 std::list<Creature*> lspectatorList;
-                                GetCreatureListWithEntryInGrid(lspectatorList, me, CREATURE_SPECTATOR, 100.0f);
+                                GetCreatureListWithEntryInGrid(lspectatorList, me, NPC_SPECTATOR, 100.0f);
                                 for (std::list<Creature*>::iterator itr = lspectatorList.begin(); itr != lspectatorList.end(); ++itr)
                                 {
                                     if ((*itr)->IsAlive())
@@ -307,7 +309,7 @@ public:
                             me->CastSpell(me, SPELL_SVALA_TRANSFORMING2, false);
                             arthas->InterruptNonMeleeSpells(true);
                             me->RemoveAllAuras();
-                            me->UpdateEntry(CREATURE_SVALA_SORROWGRAVE);
+                            me->UpdateEntry(NPC_SVALA_SORROWGRAVE);
                             me->SetFacingToObject(arthas);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             ++introPhase;
@@ -342,7 +344,7 @@ public:
                             introTimer = 3000;
                             break;
                         case 9:
-                            if (GameObject* mirror = GetClosestGameObjectWithEntry(me, OBJECT_UTGARDE_MIRROR, 100.0f))
+                            if (GameObject* mirror = GetClosestGameObjectWithEntry(me, GO_UTGARDE_MIRROR, 100.0f))
                                 mirror->SetGoState(GO_STATE_ACTIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             arthas->DespawnOrUnsummon();
@@ -596,7 +598,7 @@ class npc_scourge_hulk : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32 &damage)
             {
-                if (damage >= me->GetHealth() && attacker->GetEntry() == CREATURE_SVALA_SORROWGRAVE)
+                if (damage >= me->GetHealth() && attacker->GetEntry() == NPC_SVALA_SORROWGRAVE)
                     killedByRitualStrike = true;
             }
 

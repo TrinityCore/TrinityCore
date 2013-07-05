@@ -33,7 +33,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "blood_furnace.h"
 
-enum eKelidan
+enum Kelidan
 {
     SAY_WAKE                    = 0,
     SAY_ADD_AGGRO               = 1,
@@ -283,7 +283,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 ## npc_shadowmoon_channeler
 ######*/
 
-enum eShadowmoon
+enum Shadowmoon
 {
     SPELL_SHADOW_BOLT       = 12739,
     H_SPELL_SHADOW_BOLT     = 15472,

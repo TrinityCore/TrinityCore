@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_FIREBALL                = 34653,
     SPELL_FIREBALL_H              = 36920,
@@ -42,7 +42,7 @@ enum eSpells
     SPELL_FIRE_NOVA_VISUAL        = 19823
 };
 
-enum eUnits
+enum Units
 {
     ENTRY_HELLFIRE_SENTRY             = 17517,
     ENTRY_VAZRUDEN_HERALD             = 17307,

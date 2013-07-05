@@ -25,6 +25,7 @@ enum Data
     DATA_SKADI_THE_RUTHLESS_EVENT,
     DATA_KING_YMIRON_EVENT
 };
+
 enum Data64
 {
     DATA_SVALA,
@@ -42,7 +43,7 @@ enum Data64
     DATA_SACRIFICED_PLAYER
 };
 
-enum eCreatures
+enum CreatureID
 {
     BOSS_SVALA_SORROWGRAVE   = 26668,
     BOSS_GORTOK_PALEHOOF     = 26687,

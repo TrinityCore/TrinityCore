@@ -396,7 +396,10 @@ public:
 ## go_sacred_fire_of_life
 ######*/
 
-#define NPC_ARIKARA  10882
+enum SacredFireOfLife
+{
+    NPC_ARIKARA     = 10882
+};
 
 class go_sacred_fire_of_life : public GameObjectScript
 {
@@ -773,7 +776,11 @@ public:
 ## go_blood_filled_orb
 ######*/
 
-#define NPC_ZELEMAR  17830
+enum BloodFilledOrb
+{
+    NPC_ZELEMAR     = 17830
+
+};
 
 class go_blood_filled_orb : public GameObjectScript
 {

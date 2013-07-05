@@ -27,20 +27,51 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "karazhan.h"
 
-enum Moroes
+enum Yells
 {
     SAY_AGGRO           = 0,
     SAY_SPECIAL         = 1,
     SAY_KILL            = 2,
-    SAY_DEATH           = 3,
-
-    SPELL_VANISH        = 29448,
-    SPELL_GARROTE       = 37066,
-    SPELL_BLIND         = 34694,
-    SPELL_GOUGE         = 29425,
-    SPELL_FRENZY        = 37023,
+    SAY_DEATH           = 3
 };
 
+enum Spells
+{
+    SPELL_VANISH                = 29448,
+    SPELL_GARROTE               = 37066,
+    SPELL_BLIND                 = 34694,
+    SPELL_GOUGE                 = 29425,
+    SPELL_FRENZY                = 37023,
+
+    // Adds
+    SPELL_MANABURN              = 29405,
+    SPELL_MINDFLY               = 29570,
+    SPELL_SWPAIN                = 34441,
+    SPELL_SHADOWFORM            = 29406,
+
+    SPELL_HAMMEROFJUSTICE       = 13005,
+    SPELL_JUDGEMENTOFCOMMAND    = 29386,
+    SPELL_SEALOFCOMMAND         = 29385,
+
+    SPELL_DISPELMAGIC           = 15090,
+    SPELL_GREATERHEAL           = 29564,
+    SPELL_HOLYFIRE              = 29563,
+    SPELL_PWSHIELD              = 29408,
+
+    SPELL_CLEANSE               = 29380,
+    SPELL_GREATERBLESSOFMIGHT   = 29381,
+    SPELL_HOLYLIGHT             = 29562,
+    SPELL_DIVINESHIELD          = 41367,
+
+    SPELL_HAMSTRING             = 9080,
+    SPELL_MORTALSTRIKE          = 29572,
+    SPELL_WHIRLWIND             = 29573,
+
+    SPELL_DISARM                = 8379,
+    SPELL_HEROICSTRIKE          = 29567,
+    SPELL_SHIELDBASH            = 11972,
+    SPELL_SHIELDWALL            = 29390
+};
 
 #define POS_Z               81.73f
 
@@ -362,34 +393,6 @@ struct boss_moroes_guestAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-
-#define SPELL_MANABURN       29405
-#define SPELL_MINDFLY        29570
-#define SPELL_SWPAIN         34441
-#define SPELL_SHADOWFORM     29406
-
-#define SPELL_HAMMEROFJUSTICE       13005
-#define SPELL_JUDGEMENTOFCOMMAND    29386
-#define SPELL_SEALOFCOMMAND         29385
-
-#define SPELL_DISPELMAGIC           15090                   //Self or other guest+Moroes
-#define SPELL_GREATERHEAL           29564                   //Self or other guest+Moroes
-#define SPELL_HOLYFIRE              29563
-#define SPELL_PWSHIELD              29408
-
-#define SPELL_CLEANSE               29380                   //Self or other guest+Moroes
-#define SPELL_GREATERBLESSOFMIGHT   29381                   //Self or other guest+Moroes
-#define SPELL_HOLYLIGHT             29562                   //Self or other guest+Moroes
-#define SPELL_DIVINESHIELD          41367
-
-#define SPELL_HAMSTRING         9080
-#define SPELL_MORTALSTRIKE      29572
-#define SPELL_WHIRLWIND         29573
-
-#define SPELL_DISARM            8379
-#define SPELL_HEROICSTRIKE      29567
-#define SPELL_SHIELDBASH        11972
-#define SPELL_SHIELDWALL        29390
 
 class boss_baroness_dorothea_millstipe : public CreatureScript
 {

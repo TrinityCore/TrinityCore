@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
 
-enum eSays
+enum Says
 {
     SAY_AGGRO                  = 0,
     SAY_KILL                   = 1,
@@ -37,7 +37,7 @@ enum eSays
     SAY_OOC_RANDOM             = 5
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_TRANQUILITY          = 34550,
     SPELL_TREE_FORM            = 34551,
@@ -48,7 +48,10 @@ enum eSpells
     SPELL_PLANT_RED            = 34763
 };
 
-#define ENTRY_FRAYER                19953
+enum Creatures
+{
+    NPC_FRAYER                 = 19953
+};
 
 class boss_high_botanist_freywinn : public CreatureScript
 {
@@ -89,7 +92,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                if (summoned->GetEntry() == ENTRY_FRAYER)
+                if (summoned->GetEntry() == NPC_FRAYER)
                     Adds_List.push_back(summoned->GetGUID());
             }
 

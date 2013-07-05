@@ -130,7 +130,7 @@ public:
 ## npc_hira_snowdawn
 ######*/
 
-enum eHiraSnowdawn
+enum HiraSnowdawn
 {
     SPELL_COLD_WEATHER_FLYING                   = 54197
 };

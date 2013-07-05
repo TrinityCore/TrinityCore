@@ -123,7 +123,7 @@ enum Spells
     SPELL_CRYSTALL_ACTIVATION         = 57804
 };
 
-enum eSinclari
+enum Sinclari
 {
     SAY_SINCLARI_1                    = 0
 };

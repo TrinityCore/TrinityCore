@@ -28,10 +28,8 @@ EndScriptData */
 #include "SpellScript.h"
 #include "halls_of_lightning.h"
 
-enum eEnums
+enum Yells
 {
-    ACHIEV_TIMELY_DEATH_START_EVENT               = 20384,
-
     SAY_INTRO_1                                   = 0,
     SAY_INTRO_2                                   = 1,
     SAY_AGGRO                                     = 2,
@@ -41,8 +39,11 @@ enum eEnums
     SAY_50HEALTH                                  = 6,
     SAY_25HEALTH                                  = 7,
     SAY_DEATH                                     = 8,
-    EMOTE_NOVA                                    = 9,
+    EMOTE_NOVA                                    = 9
+};
 
+enum Spells
+{
     SPELL_ARC_LIGHTNING                           = 52921,
     SPELL_LIGHTNING_NOVA_N                        = 52960,
     SPELL_LIGHTNING_NOVA_H                        = 59835,
@@ -50,6 +51,11 @@ enum eEnums
     SPELL_PULSING_SHOCKWAVE_N                     = 52961,
     SPELL_PULSING_SHOCKWAVE_H                     = 59836,
     SPELL_PULSING_SHOCKWAVE_AURA                  = 59414
+};
+
+enum Misc
+{
+    ACHIEV_TIMELY_DEATH_START_EVENT               = 20384
 };
 
 /*######

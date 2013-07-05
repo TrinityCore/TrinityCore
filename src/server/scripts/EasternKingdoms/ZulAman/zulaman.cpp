@@ -39,9 +39,16 @@ EndContentData */
 ## npc_forest_frog
 ######*/
 
-#define SPELL_REMOVE_AMANI_CURSE    43732
-#define SPELL_PUSH_MOJO             43923
-#define ENTRY_FOREST_FROG           24396
+enum ForestFrog
+{
+    // Spells
+    SPELL_REMOVE_AMANI_CURSE   = 43732,
+    SPELL_PUSH_MOJO            = 43923,
+
+    // Creatures
+    NPC_FOREST_FROG             = 24396
+
+};
 
 class npc_forest_frog : public CreatureScript
 {
@@ -98,7 +105,7 @@ class npc_forest_frog : public CreatureScript
 
             void SpellHit(Unit* caster, const SpellInfo* spell)
             {
-                if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == ENTRY_FOREST_FROG)
+                if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
                 {
                     //increase or decrease chance of mojo?
                     if (rand()%99 == 50) DoCast(caster, SPELL_PUSH_MOJO, true);

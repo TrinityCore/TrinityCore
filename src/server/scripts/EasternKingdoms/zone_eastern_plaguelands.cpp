@@ -96,7 +96,10 @@ public:
 ## npc_darrowshire_spirit
 ######*/
 
-#define SPELL_SPIRIT_SPAWNIN    17321
+enum DarrowshireSpirit
+{
+    SPELL_SPIRIT_SPAWNIN    = 17321
+};
 
 class npc_darrowshire_spirit : public CreatureScript
 {

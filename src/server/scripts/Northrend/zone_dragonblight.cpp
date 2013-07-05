@@ -37,10 +37,13 @@ EndContentData */
 #include "CombatAI.h"
 #include "Player.h"
 
-enum eEnums
+enum AlexstraszaWrGate
 {
+    // Quest
     QUEST_RETURN_TO_AG_A    = 12499,
     QUEST_RETURN_TO_AG_H    = 12500,
+
+    // Movie
     MOVIE_ID_GATES          = 14
 };
 

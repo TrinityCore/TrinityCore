@@ -46,7 +46,7 @@ EndContentData */
 
 #define GOSSIP_RALIQ            "You owe Sim'salabim money. Hand them over or die!"
 
-enum eRaliq
+enum Raliq
 {
     SPELL_UPPERCUT          = 10966,
     QUEST_CRACK_SKULLS      = 10009,
@@ -120,11 +120,19 @@ public:
 # npc_salsalabim
 ######*/
 
-#define FACTION_HOSTILE_SA              90
-#define FACTION_FRIENDLY_SA             35
-#define QUEST_10004                     10004
+enum Salsalabim
+{
+    // Factions
+    FACTION_HOSTILE_SA             = 90,
+    FACTION_FRIENDLY_SA            = 35,
 
-#define SPELL_MAGNETIC_PULL             31705
+    // Quests
+    QUEST_10004                    = 10004,
+
+    // Spells
+    SPELL_MAGNETIC_PULL            = 31705
+
+};
 
 class npc_salsalabim : public CreatureScript
 {

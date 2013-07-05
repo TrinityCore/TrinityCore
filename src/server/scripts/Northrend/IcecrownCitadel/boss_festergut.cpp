@@ -71,7 +71,10 @@ enum Events
     EVENT_MORTAL_WOUND  = 7,
 };
 
-#define DATA_INOCULATED_STACK 69291
+enum Misc
+{
+    DATA_INOCULATED_STACK       = 69291
+};
 
 class boss_festergut : public CreatureScript
 {

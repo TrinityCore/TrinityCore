@@ -30,7 +30,7 @@ EndScriptData */
 #include "trial_of_the_champion.h"
 #include "Player.h"
 
-enum eSpells
+enum Spells
 {
     //Vehicle
     SPELL_CHARGE                    = 63010,
@@ -75,7 +75,7 @@ enum eSpells
     SPELL_POISON_BOTTLE             = 67701
 };
 
-enum eSeat
+enum Seats
 {
     SEAT_ID_0                       = 0
 };

@@ -30,20 +30,20 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eSays
+enum Says
 {
     SAY_AGGRO                      = 0,
     SAY_SLAY                       = 1,
     SAY_DEATH                      = 2
 };
 
-enum eSpells
+enum Spells
 {
      SPELL_BLADE_DANCE              = 30739,
      H_SPELL_CHARGE                 = 25821,
 };
 
-enum eCreatures
+enum Creatures
 {
     NPC_SHATTERED_ASSASSIN         = 17695,
     NPC_HEARTHEN_GUARD             = 17621,

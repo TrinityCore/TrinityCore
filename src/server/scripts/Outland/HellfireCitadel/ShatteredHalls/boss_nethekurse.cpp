@@ -33,7 +33,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
 
-enum eSays
+enum Says
 {
     SAY_INTRO          = 0,
     SAY_PEON_ATTACKED  = 1,
@@ -44,7 +44,7 @@ enum eSays
     SAY_DIE            = 6
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_DEATH_COIL           = 30500,
     SPELL_DARK_SPIN            = 30502, // core bug spell attack caster :D

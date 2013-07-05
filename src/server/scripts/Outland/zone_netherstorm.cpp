@@ -43,7 +43,7 @@ EndContentData */
 ######*/
 
 //used by 20209, 20417, 20418, 20440, signed for 20209
-enum eManaforgeConsoleData
+enum ManaforgeConsoleData
 {
     EMOTE_START                 = 0,
     EMOTE_60                    = 1,
@@ -360,7 +360,7 @@ public:
 ######*/
 
 // The Speech of Dawnforge, Ardonis & Pathaleon
-enum eCommanderDawnforgeData
+enum CommanderDawnforgeData
 {
     SAY_COMMANDER_DAWNFORGE_1       = 0,
     SAY_COMMANDER_DAWNFORGE_2       = 1,
@@ -666,7 +666,7 @@ public:
 /*######
 ## npc_professor_dabiri
 ######*/
-enum eProfessorDabiriData
+enum ProfessorDabiriData
 {
     SPELL_PHASE_DISTRUPTOR  = 35780,
 
@@ -717,7 +717,7 @@ public:
 ## npc_phase_hunter
 ######*/
 
-enum ePhaseHunterData
+enum PhaseHunterData
 {
     QUEST_RECHARGING_THE_BATTERIES  = 10190,
 
@@ -850,7 +850,7 @@ public:
 /*######
 ## npc_bessy
 ######*/
-enum eBessyData
+enum BessyData
 {
     Q_ALMABTRIEB    = 10337,
     N_THADELL       = 20464,

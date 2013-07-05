@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eEnums
+enum Spells
 {
     //Dathrohan spells
     SPELL_CRUSADERSHAMMER           = 17286,                //AOE stun
@@ -41,8 +41,11 @@ enum eEnums
     SPELL_MINDBLAST                 = 17287,
     SPELL_PSYCHICSCREAM             = 13704,
     SPELL_SLEEP                     = 12098,
-    SPELL_MINDCONTROL               = 15690,
+    SPELL_MINDCONTROL               = 15690
+};
 
+enum Creatures
+{
     NPC_DATHROHAN                   = 10812,
     NPC_BALNAZZAR                   = 10813,
     NPC_ZOMBIE                      = 10698                 //probably incorrect

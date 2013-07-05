@@ -49,19 +49,34 @@ static Speech PlayerDeath[]=
     {9},
 };
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO               = 0,
     SAY_DEATH               = 10,
+};
 
-    SPELL_DISPEL_MAGIC      = 27609,
-    SPELL_FLASH_HEAL        = 17843,
-    SPELL_SW_PAIN_NORMAL    = 14032,
-    SPELL_SW_PAIN_HEROIC    = 15654,
-    SPELL_SHIELD            = 44291,
-    SPELL_RENEW_NORMAL      = 44174,
-    SPELL_RENEW_HEROIC      = 46192,
+enum Spells
+{
+    SPELL_DISPEL_MAGIC          = 27609,
+    SPELL_FLASH_HEAL            = 17843,
+    SPELL_SW_PAIN_NORMAL        = 14032,
+    SPELL_SW_PAIN_HEROIC        = 15654,
+    SPELL_SHIELD                = 44291,
+    SPELL_RENEW_NORMAL          = 44174,
+    SPELL_RENEW_HEROIC          = 46192,
 
+    // Apoko
+    SPELL_WINDFURY_TOTEM        = 27621,
+    SPELL_WAR_STOMP             = 46026,
+    SPELL_PURGE                 = 27626,
+    SPELL_LESSER_HEALING_WAVE   = 44256,
+    SPELL_FROST_SHOCK           = 21401,
+    SPELL_FIRE_NOVA_TOTEM       = 44257,
+    SPELL_EARTHBIND_TOTEM       = 15786
+};
+
+enum Misc
+{
     MAX_ACTIVE_LACKEY       = 4
 };
 
@@ -333,7 +348,7 @@ public:
     };
 };
 
-enum eHealingPotion
+enum HealingPotion
 {
     SPELL_HEALING_POTION    = 15503
 };
@@ -472,7 +487,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
     }
 };
 
-enum eRogueSpells
+enum RogueSpells
 {
     SPELL_KIDNEY_SHOT       = 27615,
     SPELL_GOUGE             = 12540,
@@ -575,7 +590,7 @@ public:
     };
 };
 
-enum eWarlockSpells
+enum WarlockSpells
 {
     SPELL_IMMOLATE              = 44267,
     SPELL_SHADOW_BOLT           = 12471,
@@ -671,7 +686,7 @@ public:
     };
 };
 
-enum eKickDown
+enum KickDown
 {
     SPELL_KNOCKDOWN     = 11428,
     SPELL_SNAP_KICK     = 46182
@@ -727,7 +742,7 @@ public:
     };
 };
 
-enum eMageSpells
+enum MageSpells
 {
     SPELL_POLYMORPH         = 13323,
     SPELL_ICE_BLOCK         = 27619,
@@ -857,7 +872,7 @@ public:
     };
 };
 
-enum eWarriorSpells
+enum WarriorSpells
 {
     SPELL_INTERCEPT_STUN        = 27577,
     SPELL_DISARM                = 27581,
@@ -976,7 +991,7 @@ public:
     };
 };
 
-enum eHunterSpells
+enum HunterSpells
 {
     SPELL_AIMED_SHOT            = 44271,
     SPELL_SHOOT                 = 15620,
@@ -1099,17 +1114,6 @@ public:
     };
 };
 
-enum Spells
-{
-    SPELL_WINDFURY_TOTEM        = 27621,
-    SPELL_WAR_STOMP             = 46026,
-    SPELL_PURGE                 = 27626,
-    SPELL_LESSER_HEALING_WAVE   = 44256,
-    SPELL_FROST_SHOCK           = 21401,
-    SPELL_FIRE_NOVA_TOTEM       = 44257,
-    SPELL_EARTHBIND_TOTEM       = 15786
-};
-
 class boss_apoko : public CreatureScript
 {
 public:
@@ -1198,7 +1202,7 @@ public:
     };
 };
 
-enum eEngineerSpells
+enum EngineerSpells
 {
     SPELL_GOBLIN_DRAGON_GUN     = 44272,
     SPELL_ROCKET_LAUNCH         = 44137,

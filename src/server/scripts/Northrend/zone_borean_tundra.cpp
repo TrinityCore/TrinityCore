@@ -49,7 +49,7 @@ EndContentData */
 ## npc_sinkhole_kill_credit
 ######*/
 
-enum eSinkhole
+enum Sinkhole
 {
     SPELL_SET_CART                = 46797,
     SPELL_EXPLODE_CART            = 46799,
@@ -207,7 +207,7 @@ public:
 ## npc_keristrasza
 ######*/
 
-enum eKeristrasza
+enum Keristrasza
 {
     SPELL_TELEPORT_TO_SARAGOSA = 46772
 };
@@ -251,7 +251,7 @@ public:
 
 #define GOSSIP_ITEM_C_1 "I... I think so..."
 
-enum eCorastrasza
+enum Corastrasza
 {
     SPELL_SUMMON_WYRMREST_SKYTALON               = 61240,
     SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC        = 61244,
@@ -299,7 +299,7 @@ public:
 
 #define GOSSIP_ITEM_I  "<Search corpse for Issliruk's Totem.>"
 
-enum eIruk
+enum Iruk
 {
     QUEST_SPIRITS_WATCH_OVER_US             = 11961,
     SPELL_CREATURE_TOTEM_OF_ISSLIRUK        = 46816,
@@ -389,7 +389,7 @@ public:
 ## npc_jenny
 ######*/
 
-enum eJenny
+enum Jenny
 {
     QUEST_LOADER_UP             = 11881,
 
@@ -501,7 +501,7 @@ public:
 ## npc_nesingwary_trapper
 ######*/
 
-enum eNesingwaryTrapper
+enum NesingwaryTrapper
 {
     GO_HIGH_QUALITY_FUR = 187983,
 
@@ -645,7 +645,7 @@ public:
 ## npc_lurgglbr
 ######*/
 
-enum eLurgglbr
+enum Lurgglbr
 {
     QUEST_ESCAPE_WINTERFIN_CAVERNS      = 11570,
 
@@ -792,7 +792,7 @@ public:
 ## npc_nexus_drake_hatchling
 ######*/
 
-enum eNexusDrakeHatchling
+enum NexusDrakeHatchling
 {
     SPELL_DRAKE_HARPOON             = 46607,
     SPELL_RED_DRAGONBLOOD           = 46620,
@@ -904,7 +904,7 @@ public:
 ## npc_thassarian
 ######*/
 
-enum eThassarian
+enum Thassarian
 {
     QUEST_LAST_RITES        = 12019,
 
@@ -1317,7 +1317,7 @@ public:
 ## npc_counselor_talbot
 ######*/
 
-enum eCounselorTalbot
+enum CounselorTalbot
 {
     SPELL_DEFLECTION    = 51009,
     SPELL_SOUL_BLAST    = 50992,
@@ -1564,7 +1564,7 @@ public:
 ## npc_beryl_sorcerer
 ######*/
 
-enum eBerylSorcerer
+enum BerylSorcerer
 {
     NPC_CAPTURED_BERLY_SORCERER         = 25474,
     NPC_LIBRARIAN_DONATHAN              = 25262,
@@ -1643,7 +1643,7 @@ public:
 /*######
 ## npc_imprisoned_beryl_sorcerer
 ######*/
-enum eImprisionedBerylSorcerer
+enum ImprisionedBerylSorcerer
 {
     SPELL_NEURAL_NEEDLE             = 45634,
 
@@ -1927,7 +1927,7 @@ public:
 ## Help Those That Cannot Help Themselves, Quest 11876
 ######*/
 
-enum eHelpThemselves
+enum HelpThemselves
 {
     QUEST_CANNOT_HELP_THEMSELVES                  =  11876,
     GO_MAMMOTH_TRAP_1                             = 188022,
@@ -2044,7 +2044,7 @@ public:
 ## Quest 11653: Hah... You're Not So Big Now!
 ######*/
 
-enum eNotSoBig
+enum NotSoBig
 {
     QUEST_YOU_RE_NOT_SO_BIG_NOW                   = 11653,
     SPELL_AURA_NOTSOBIG_1                         = 45672,
@@ -2089,8 +2089,15 @@ public:
 ## Quest 11608: Bury Those Cockroaches!
 ######*/
 
-#define QUEST_BURY_THOSE_COCKROACHES            11608
-#define SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION  45502
+enum BuryThoseCockroaches
+{
+    // Quest
+    QUEST_BURY_THOSE_COCKROACHES            = 11608,
+
+    // Spells
+    SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION  = 45502
+
+};
 
 class npc_seaforium_depth_charge : public CreatureScript
 {
@@ -2141,7 +2148,7 @@ public:
 ## Help Those That Cannot Help Themselves, Quest 11876
 ######*/
 
-enum eValiancekeepcannons
+enum Valiancekeepcannons
 {
     GO_VALIANCE_KEEP_CANNON_1                     = 187560,
     GO_VALIANCE_KEEP_CANNON_2                     = 188692
@@ -2297,7 +2304,7 @@ public:
 ## npc_hidden_cultist
 ######*/
 
-enum eHiddenCultist
+enum HiddenCultist
 {
     SPELL_SHROUD_OF_THE_DEATH_CULTIST           = 46077, //not working
     SPELL_RIGHTEOUS_VISION                      = 46078, //player aura

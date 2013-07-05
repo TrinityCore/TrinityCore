@@ -27,13 +27,19 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_DRAININGBLOW    16793
-#define SPELL_CROWDPUMMEL    10887
-#define SPELL_MIGHTYBLOW    14099
-#define SPELL_FURIOUS_ANGER     16791
+enum Spells
+{
+    SPELL_DRAININGBLOW      = 16793,
+    SPELL_CROWDPUMMEL       = 10887,
+    SPELL_MIGHTYBLOW        = 14099,
+    SPELL_FURIOUS_ANGER     = 16791
+};
 
-#define MODEL_NORMAL            10433
-#define MODEL_HUMAN             3637
+enum Models
+{
+    MODEL_NORMAL            = 10433,
+    MODEL_HUMAN             = 3637
+};
 
 class boss_magistrate_barthilas : public CreatureScript
 {

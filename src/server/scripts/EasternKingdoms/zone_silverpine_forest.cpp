@@ -37,7 +37,7 @@ EndContentData */
 ## npc_deathstalker_erland
 ######*/
 
-enum eErland
+enum Erland
 {
     SAY_QUESTACCEPT     = 0,
     SAY_START           = 1,

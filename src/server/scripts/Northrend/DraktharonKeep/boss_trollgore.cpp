@@ -31,7 +31,7 @@ enum Spells
     SPELL_CORPSE_EXPLODE                          = 49555,
     SPELL_CONSUME                                 = 49380,
     SPELL_CONSUME_AURA                            = 49381,
-    //Heroic spells
+    // Heroic spells
     H_SPELL_CORPSE_EXPLODE                        = 59807,
     H_SPELL_CONSUME                               = 59803,
     H_SPELL_CONSUME_AURA                          = 59805,
@@ -52,7 +52,10 @@ enum Creatures
     NPC_DRAKKARI_INVADER_2                        = 27709
 };
 
-#define DATA_CONSUMPTION_JUNCTION                 1
+enum Misc
+{
+    DATA_CONSUMPTION_JUNCTION                     = 1
+};
 
 Position AddSpawnPoint = { -260.493011f, -622.968018f, 26.605301f, 3.036870f };
 

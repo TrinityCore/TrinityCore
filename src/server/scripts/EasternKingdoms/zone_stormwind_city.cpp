@@ -80,7 +80,7 @@ public:
 ## npc_bartleby
 ######*/
 
-enum eBartleby
+enum Bartleby
 {
     FACTION_ENEMY       = 168,
     QUEST_BEAT          = 1640
@@ -204,7 +204,7 @@ public:
 ## npc_lord_gregor_lescovar
 ######*/
 
-enum eLordGregorLescovar
+enum LordGregorLescovar
 {
     SAY_GUARD_2    = 0,
     SAY_LESCOVAR_2 = 0,
@@ -462,7 +462,7 @@ public:
 ## npc_tyrion_spybot
 ######*/
 
-enum eTyrionSpybot
+enum TyrionSpybot
 {
     SAY_QUEST_ACCEPT_ATTACK  = 0,
     SAY_SPYBOT_1             = 1,
@@ -610,7 +610,7 @@ public:
 ## npc_tyrion
 ######*/
 
-enum eTyrion
+enum Tyrion
 {
     NPC_TYRION_SPYBOT = 8856
 };

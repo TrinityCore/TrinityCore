@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
 
-enum eSays
+enum Says
 {
     SAY_AGGRO          = 0,
     SAY_SLAY           = 1,
@@ -35,7 +35,7 @@ enum eSays
     SAY_DEATH          = 3
 };
 
-enum eSpells
+enum Spells
 {
     WAR_STOMP          = 34716,
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
@@ -44,7 +44,7 @@ enum eSpells
     SPELL_HEAL_FATHER  = 6262
 };
 
-enum eOthers
+enum Misc
 {
     CREATURE_TREANT    = 19949,
     TREANT_SPAWN_DIST  = 50 //50 yards from Warp Splinter's spawn point

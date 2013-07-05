@@ -50,8 +50,11 @@ enum Yells
     SAY_SPLIT                                     = 4
 };
 
-#define ACTION_MAGUS_DEAD                         1
-#define DATA_SPLIT_PERSONALITY                    2
+enum Misc
+{
+    ACTION_MAGUS_DEAD                             = 1,
+    DATA_SPLIT_PERSONALITY                        = 2
+};
 
 const Position  CenterOfRoom = {504.80f, 89.07f, -16.12f, 6.27f};
 

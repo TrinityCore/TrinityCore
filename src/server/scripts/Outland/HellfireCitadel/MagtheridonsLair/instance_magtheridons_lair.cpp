@@ -28,7 +28,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_SOUL_TRANSFER        = 30531, // core bug, does not support target 7
     SPELL_BLAZE_TARGET         = 30541, // core bug, does not support target 7

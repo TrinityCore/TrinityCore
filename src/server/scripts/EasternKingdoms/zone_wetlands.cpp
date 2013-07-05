@@ -37,7 +37,7 @@ EndContentData */
 ## npc_tapoke_slim_jahn
 ######*/
 
-enum eTapokeSlim
+enum TapokeSlim
 {
     QUEST_MISSING_DIPLO_PT11    = 1249,
     FACTION_ENEMY               = 168,

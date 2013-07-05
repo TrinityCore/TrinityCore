@@ -31,21 +31,30 @@ EndScriptData */
 
 #define MAX_ENCOUNTER              4
 
-enum eEnums
+enum Yells
 {
     SAY_BOSS_DIE_AD         = 4,
     SAY_BOSS_DIE_AS         = 3,
-    SAY_ARCHMAGE            = 0,
+    SAY_ARCHMAGE            = 0
+};
 
+enum Creatures
+{
     NPC_ASH                 = 3850,
     NPC_ADA                 = 3849,
     NPC_ARCHMAGE_ARUGAL     = 4275,
-    NPC_ARUGAL_VOIDWALKER   = 4627,
+    NPC_ARUGAL_VOIDWALKER   = 4627
+};
 
-    GO_COURTYARD_DOOR       = 18895,                        //door to open when talking to NPC's
-    GO_SORCERER_DOOR        = 18972,                        //door to open when Fenrus the Devourer
-    GO_ARUGAL_DOOR          = 18971,                        //door to open when Wolf Master Nandos
+enum GameObjects
+{
+    GO_COURTYARD_DOOR       = 18895, //door to open when talking to NPC's
+    GO_SORCERER_DOOR        = 18972, //door to open when Fenrus the Devourer
+    GO_ARUGAL_DOOR          = 18971  //door to open when Wolf Master Nandos
+};
 
+enum Spells
+{
     SPELL_ASHCROMBE_TELEPORT    = 15742
 };
 

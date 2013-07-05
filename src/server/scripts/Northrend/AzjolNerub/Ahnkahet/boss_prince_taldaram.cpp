@@ -21,7 +21,7 @@
 
 enum Spells
 {
-    SPELL_BLOODTHIRST                             = 55968, //Trigger Spell + add aura
+    SPELL_BLOODTHIRST                             = 55968, // Trigger Spell + add aura
     SPELL_CONJURE_FLAME_SPHERE                    = 55931,
     SPELL_FLAME_SPHERE_SUMMON_1                   = 55895, // 1x 30106
     H_SPELL_FLAME_SPHERE_SUMMON_1                 = 59511, // 1x 31686
@@ -40,14 +40,16 @@ enum Spells
     H_CREATURE_FLAME_SPHERE_2                     = 31687,
     SPELL_HOVER_FALL                              = 60425
 };
+
 enum Misc
 {
     DATA_EMBRACE_DMG                              = 20000,
     H_DATA_EMBRACE_DMG                            = 40000,
-    DATA_SPHERE_DISTANCE                          =    15
+    DATA_SPHERE_DISTANCE                          = 15
 };
-#define DATA_SPHERE_ANGLE_OFFSET            0.7f
-#define DATA_GROUND_POSITION_Z             11.30809f
+
+#define DATA_SPHERE_ANGLE_OFFSET                    0.7f
+#define DATA_GROUND_POSITION_Z                      11.30809f
 
 enum Yells
 {

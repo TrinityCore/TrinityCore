@@ -91,8 +91,12 @@ enum AuriayaActions
 };
 
 #define SENTRY_NUMBER                            RAID_MODE<uint8>(2, 4)
-#define DATA_NINE_LIVES                          30763077
-#define DATA_CRAZY_CAT_LADY                      30063007
+
+enum Mis
+{
+    DATA_NINE_LIVES                             = 30763077,
+    DATA_CRAZY_CAT_LADY                         = 30063007
+};
 
 class boss_auriaya : public CreatureScript
 {

@@ -38,7 +38,7 @@ EndContentData */
 ## npc_jadespine_basilisk
 ######*/
 
-enum eSpells
+enum Spells
 {
     SPELL_CRYSTALLINE_SLUMBER   = 3636,
 };

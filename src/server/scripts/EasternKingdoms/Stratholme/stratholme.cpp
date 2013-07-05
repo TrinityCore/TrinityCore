@@ -116,11 +116,19 @@ public:
 ## npc_restless_soul
 ######*/
 
-#define SPELL_EGAN_BLASTER  17368
-#define SPELL_SOUL_FREED    17370
-#define QUEST_RESTLESS_SOUL 5282
-#define ENTRY_RESTLESS      11122
-#define ENTRY_FREED         11136
+enum RestlessSoul
+{
+    // Spells
+    SPELL_EGAN_BLASTER      = 17368,
+    SPELL_SOUL_FREED        = 17370,
+
+    // Quest
+    QUEST_RESTLESS_SOUL     = 5282,
+
+    // Creatures
+    NPC_RESTLESS            = 11122,
+    NPC_FREED               = 11136
+};
 
 class npc_restless_soul : public CreatureScript
 {
@@ -170,7 +178,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (Tagged)
-                me->SummonCreature(ENTRY_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
+                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
         }
 
         void UpdateAI(uint32 diff)
@@ -182,7 +190,7 @@ public:
                     if (Unit* temp = Unit::GetUnit(*me, Tagger))
                     {
                         if (Player* player = temp->ToPlayer())
-                            player->KilledMonsterCredit(ENTRY_RESTLESS, me->GetGUID());
+                            player->KilledMonsterCredit(NPC_RESTLESS, me->GetGUID());
                         me->Kill(me);
                     }
                 }
@@ -198,7 +206,7 @@ public:
 ## npc_spectral_ghostly_citizen
 ######*/
 
-enum eGhostlyCitizenSpells
+enum GhostlyCitizenSpells
 {
     SPELL_HAUNTING_PHANTOM  = 16336,
     SPELL_SLAP              = 6754
@@ -243,7 +251,7 @@ public:
                 {
                      //100%, 50%, 33%, 25% chance to spawn
                      if (urand(1, i) == 1)
-                         DoSummon(ENTRY_RESTLESS, me, 20.0f, 600000);
+                         DoSummon(NPC_RESTLESS, me, 20.0f, 600000);
                 }
             }
         }

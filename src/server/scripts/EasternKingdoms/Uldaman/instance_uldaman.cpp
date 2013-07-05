@@ -27,7 +27,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "uldaman.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_ARCHAEDAS_AWAKEN      = 10347,
     SPELL_AWAKEN_VAULT_WALKER   = 10258,

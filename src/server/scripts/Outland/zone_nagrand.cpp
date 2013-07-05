@@ -147,7 +147,7 @@ public:
 ## npc_maghar_captive
 #####*/
 
-enum eMagharCaptive
+enum MagharCaptive
 {
     SAY_MAG_START               = 0,
     SAY_MAG_NO_ESCAPE           = 0,

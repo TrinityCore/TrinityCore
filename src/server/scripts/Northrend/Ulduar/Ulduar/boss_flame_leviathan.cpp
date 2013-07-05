@@ -141,10 +141,14 @@ enum Vehicles
     VEHICLE_DEMOLISHER    = 33109,
 };
 
-#define DATA_SHUTOUT      29112912 // 2911, 2912 are achievement IDs
-#define DATA_ORBIT_ACHIEVEMENTS    1
-#define VEHICLE_SPAWNS             5
-#define FREYA_SPAWNS               4
+enum Misc
+{
+    DATA_SHUTOUT               = 29112912, // 2911, 2912 are achievement IDs
+    DATA_ORBIT_ACHIEVEMENTS    = 1,
+    VEHICLE_SPAWNS             = 5,
+    FREYA_SPAWNS               = 4
+
+};
 
 enum Yells
 {
