@@ -1,5 +1,5 @@
 UPDATE 'gameobject_template'
-SET 'flags'=6553632,'ScriptName'='go_activation_crystal'
+SET 'flags'=32,'ScriptName'='go_activation_crystal'
 WHERE 'entry'=193611;
 
 UPDATE 'creature_template'
