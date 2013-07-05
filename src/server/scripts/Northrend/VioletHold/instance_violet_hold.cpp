@@ -407,10 +407,10 @@ public:
                             pMainDoor->SetGoState(GO_STATE_READY);
                         uiWaveCount = 1;
                         bActive = true;
-                        for (int i=0;i<4;++i)
+                        for (int i = 0; i < 4; ++i)
                         {
-                            if (GameObject* pCrystal = instance->GetGameObject(uiMainDoor))
-                                pCrystal->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                            if (GameObject* pCrystal = instance->GetGameObject(uiActivationCrystal[i]))
+                                pCrystal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
                         uiRemoveNpc = 0; // might not have been reset after a wipe on a boss.
                     }
