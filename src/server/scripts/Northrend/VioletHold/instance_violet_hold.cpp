@@ -84,7 +84,7 @@ const Position PortalLocation[] =
     {1908.31f, 809.657f, 38.7037f, 3.08701f}      // WP 6
 };
 
-const Position ArcaneSphere = {1887.060059f, 806.151001f, 61.321602f, 0.0f};
+const Position ArcaneSphere    = {1887.060059f, 806.151001f, 61.321602f, 0.0f};
 const Position BossStartMove1  = {1894.684448f, 739.390503f, 47.668003f, 0.0f};
 const Position BossStartMove2  = {1875.173950f, 860.832703f, 43.333565f, 0.0f};
 const Position BossStartMove21 = {1858.854614f, 855.071411f, 43.333565f, 0.0f};
@@ -146,7 +146,7 @@ public:
         uint64 uiTeleportationPortal;
         uint64 uiSaboteurPortal;
 
-        uint64 uiActivationCrystal[3];
+        uint64 uiActivationCrystal[4];
 
         uint32 uiActivationTimer;
         uint32 uiCyanigosaEventTimer;
@@ -273,10 +273,6 @@ public:
                 case CREATURE_SINCLARI:
                     uiSinclari = creature->GetGUID();
                     break;
-                case 24708:
-                    /*creature->DeleteFromDB();
-                    creature->AddObjectToRemoveList();*/
-                    break;
             }
 
             if (creature->GetGUID() == uiFirstBoss || creature->GetGUID() == uiSecondBoss)
@@ -318,7 +314,7 @@ public:
                     uiMainDoor = go->GetGUID();
                     break;
                 case GO_ACTIVATION_CRYSTAL:
-                    if (uiCountActivationCrystals < 3)
+                    if (uiCountActivationCrystals < 4)
                         uiActivationCrystal[uiCountActivationCrystals++] = go->GetGUID();
                     break;
             }
@@ -346,7 +342,7 @@ public:
                     {
                         SaveToDB();
                         uiMainEventPhase = DONE;
-                        if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
+                        if (GameObject* pMainDoor = instance->GetGameObject(uiActivationCrystal[i]))
                             pMainDoor->SetGoState(GO_STATE_ACTIVE);
                     }
                     break;
@@ -411,6 +407,11 @@ public:
                             pMainDoor->SetGoState(GO_STATE_READY);
                         uiWaveCount = 1;
                         bActive = true;
+                        for (int i=0;i<4;++i)
+                        {
+                            if (GameObject* pCrystal = instance->GetGameObject(uiMainDoor))
+                                pCrystal->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                        }
                         uiRemoveNpc = 0; // might not have been reset after a wipe on a boss.
                     }
                     break;
@@ -822,7 +823,7 @@ public:
             {
                 Creature* creature = instance->GetCreature(*itr);
                 if (creature && creature->IsAlive())
-                    trigger->Kill(creature);
+                    trigger->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
         }
 
@@ -833,8 +834,6 @@ public:
                 case EVENT_ACTIVATE_CRYSTAL:
                     bCrystalActivated = true; // Activation by player's will throw event signal
                     ActivateCrystal();
-                    break;
-                default :
                     break;
             }
         }
@@ -882,7 +881,7 @@ class go_activation_crystal : public GameObjectScript
 public:
     go_activation_crystal() : GameObjectScript("go_activation_crystal") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         go->EventInform(EVENT_ACTIVATE_CRYSTAL);
         return false;
