@@ -19,16 +19,13 @@
 /* ScriptData
 SDName: Eversong_Woods
 SD%Complete: 100
-SDComment: Quest support: 8483, 8488, 8490, 9686
+SDComment: Quest support: 8488, 8490
 SDCategory: Eversong Woods
 EndScriptData */
 
 /* ContentData
-npc_prospector_anvilward
 npc_apprentice_mirveda
 npc_infused_crystal
-npc_kelerun_bloodmourn
-go_harbinger_second_trial
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -37,230 +34,15 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 
-/*######
-## Quest 9686 Second Trial
-######*/
-
-enum SeconTrial
+enum UnexpectedResults
 {
-    QUEST_SECOND_TRIAL                = 9686,
-    OFFSET_NEXT_ATTACK                = 750,
+    // Quest
+    QUEST_UNEXPECTED_RESULT         = 8488,
+
+    // Creatures
+    NPC_GHARZUL                     = 15958,
+    NPC_ANGERSHADE                  = 15656
 };
-
-enum eSpells
-{
-    SPELL_FLASH_OF_LIGHT              = 19939,
-    SPELL_SEAL_OF_JUSTICE             = 20164,
-    SPELL_JUDGEMENT_OF_LIGHT          = 20271,
-    SPELL_SEAL_OF_COMMAND             = 20375,
-};
-
-enum eNpc
-{
-    MASTER_KELERUN_BLOODMOURN         = 17807,
-    CHAMPION_BLOODWRATH               = 17809,
-    CHAMPION_LIGHTREND                = 17810,
-    CHAMPION_SWIFTBLADE               = 17811,
-    CHAMPION_SUNSTRIKER               = 17812,
-};
-
-enum eFaction
-{
-    FACTION_HOSTILE                   = 45,
-    FACTION_FRIENDLY                  = 7,
-};
-
-enum eSays
-{
-    TEXT_SECOND_TRIAL_1               = 0,
-    TEXT_SECOND_TRIAL_2               = 1,
-    TEXT_SECOND_TRIAL_3               = 2,
-    TEXT_SECOND_TRIAL_4               = 3,
-};
-
-struct Locations
-{
-    float x, y, z, o;
-};
-
-static Locations SpawnPosition[]=
-{
-    {5.3f, -11.8f, 0.361f, 4.2f},
-    {11.2f, -29.17f, 0.361f, 2.7f},
-    {-5.7f, -34.85f, 0.361f, 1.09f},
-    {-11.9f, -18, 0.361f, 5.87f}
-};
-
-static uint32 PaladinEntry[] = {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPION_SWIFTBLADE, CHAMPION_SUNSTRIKER};
-
-/*######
-## npc_second_trial_paladin
-######*/
-
-class npc_second_trial_paladin : public CreatureScript
-{
-public:
-    npc_second_trial_paladin() : CreatureScript("npc_second_trial_paladin") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_secondTrialAI (creature);
-    }
-
-    struct npc_secondTrialAI : public ScriptedAI
-    {
-        npc_secondTrialAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 timer;
-        uint8  questPhase;
-        uint64 summonerGuid;
-
-        bool spellFlashLight;
-        bool spellJustice;
-        bool spellJudLight;
-        bool spellCommand;
-
-        uint32 timerFlashLight;
-        uint32 timerJustice;
-        uint32 timerJudLight;
-        uint32 timerCommand;
-
-        void Reset()
-        {
-          timer = 2000;
-          questPhase = 0;
-          summonerGuid = 0;
-
-          me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
-          me->setFaction(FACTION_FRIENDLY);
-
-          spellFlashLight = false;
-          spellJustice    = false;
-          spellJudLight   = false;
-          spellCommand    = false;
-
-          switch (me->GetEntry())
-          {
-              case CHAMPION_BLOODWRATH:
-                  spellFlashLight = true;
-                  timerFlashLight = 3225;
-              break;
-              case CHAMPION_LIGHTREND:
-                  spellJustice    = true;
-                  timerJustice    = 500;
-              break;
-              case CHAMPION_SWIFTBLADE:
-                  spellJudLight   = false;  // Misses Script Effect // http://www.wowhead.com/?spell=20271
-                  timerJudLight   = 500;
-              break;
-              case CHAMPION_SUNSTRIKER:
-                  spellFlashLight = true;
-                  spellJudLight   = false;  // Misses Script Effect // http://www.wowhead.com/?spell=20271
-                  spellCommand    = false;  // Misses Dummy // http://www.wowhead.com/?spell=20375
-                  timerFlashLight = 3225;
-                  timerJudLight   = 500;
-                  timerCommand    = 1500;
-              break;
-          }
-        }
-
-        void EnterCombat(Unit* /*who*/) {}
-
-        void UpdateAI(uint32 diff)
-        {
-            if (questPhase == 1)
-            {
-                if (timer <= diff)
-                {
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
-                    me->setFaction(FACTION_HOSTILE);
-                    questPhase = 0;
-
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    {
-                        me->AddThreat(target, 5000000.0f);
-                        AttackStart(target);
-                    }
-                }
-                else
-                    timer -= diff;
-            }
-
-            if (!UpdateVictim())
-              return;
-
-            // healer
-            if (spellFlashLight && HealthBelowPct(70))
-            {
-                if (timerFlashLight <= diff)
-                {
-                    DoCast(me, SPELL_FLASH_OF_LIGHT);
-                    timerFlashLight = 3225 +  rand()%3225;
-                }
-                else
-                    timerFlashLight -= diff;
-            }
-
-            if (spellJustice)
-            {
-                if (timerJustice <= diff)
-                {
-                    DoCast(me, SPELL_SEAL_OF_JUSTICE);
-                    timerJustice = urand(10000, 20000);
-                }
-                else
-                    timerJustice -= diff;
-            }
-
-            if (spellJudLight)
-            {
-                if (timerJudLight <= diff)
-                {
-                    DoCast(me, SPELL_JUDGEMENT_OF_LIGHT);
-                    timerJudLight = urand(10000, 20000);
-                }
-                else
-                    timerJudLight -= diff;
-            }
-
-            if (spellCommand)
-            {
-                  if (timerCommand <= diff)
-                  {
-                      DoCast(me, SPELL_SEAL_OF_COMMAND);
-                      timerCommand = urand(20000, 40000);
-                  }
-                  else
-                      timerCommand -= diff;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        void Activate(uint64 summonerguid)
-        {
-            questPhase = 1;
-            summonerGuid = summonerguid;
-        }
-
-        void KilledUnit(Unit* unit)
-        {
-            if (Player* player = unit->ToPlayer())
-                if (player->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
-                    player->FailQuest(QUEST_SECOND_TRIAL);
-        }
-
-        void JustDied(Unit* killer);
-    };
-};
-
-/*######
-## npc_apprentice_mirveda
-######*/
-
-#define QUEST_UNEXPECTED_RESULT 8488
-#define NPC_GHARZUL     15958
-#define NPC_ANGERSHADE  15656
 
 class npc_apprentice_mirveda : public CreatureScript
 {
@@ -343,9 +125,14 @@ public:
 
 enum InfusedCrystal
 {
-    NPC_ENRAGED_WRAITH          = 17086,
-    EMOTE                       = 0,
-    QUEST_POWERING_OUR_DEFENSES = 8490
+    // Quest
+    QUEST_POWERING_OUR_DEFENSES     = 8490,
+
+    // Says
+    EMOTE                           = 0,
+
+    // Creatures
+    NPC_ENRAGED_WRAITH              = 17086
 };
 
 struct Location
