@@ -59,7 +59,7 @@ class instance_the_botanica : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const
+            uint64 GetData64(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -152,7 +152,7 @@ class instance_the_botanica : public InstanceMapScript
             uint64 WarpSplinterGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_the_botanica_InstanceMapScript(map);
         }

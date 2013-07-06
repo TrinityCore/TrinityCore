@@ -110,7 +110,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
 public:
     npc_verdisa_beglaristrasz_eternos() : CreatureScript("npc_verdisa_beglaristrasz_eternos") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (creature->GetEntry())
@@ -216,7 +216,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -237,7 +237,7 @@ public:
     {
         npc_verdisa_beglaristrasz_eternosAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) OVERRIDE
         {
             if (id)
                 return;
@@ -251,7 +251,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_verdisa_beglaristrasz_eternosAI(creature);
     }
@@ -266,7 +266,7 @@ public:
     {
         npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) OVERRIDE
         {
             if (summoner->GetEntry() == NPC_VAROS)
             {
@@ -281,7 +281,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_image_belgaristraszAI(creature);
     }
@@ -314,7 +314,7 @@ public:
             bool HealthWarningOff;
             bool DisableTakeOff;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             summonerGUID = 0;
             WelcomeTimer = 4500;
@@ -330,7 +330,7 @@ public:
             DisableTakeOff = false;
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) OVERRIDE
         {
             if (instance->GetBossState(DATA_EREGOS_EVENT) == IN_PROGRESS)
                 if (Creature* eregos = me->FindNearestCreature(NPC_EREGOS, 450.0f, true))
@@ -351,7 +351,7 @@ public:
             me->GetMotionMaster()->MovePoint(0, pos);
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type == POINT_MOTION_TYPE && id == 0)
             {
@@ -359,7 +359,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!(instance->GetBossState(DATA_VAROS_EVENT) == DONE))
             {
@@ -451,7 +451,7 @@ public:
         };
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ruby_emerald_amber_drakeAI(creature);
     }
@@ -476,13 +476,13 @@ public:
                 caster->CastSpell(target, SPELL_SHOCK_CHARGE, false);
         }
 
-        void Register()
+        void Register() OVERRIDE
         {
             AfterEffectApply += AuraEffectApplyFn(spell_gen_stop_time_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const OVERRIDE
     {
         return new spell_gen_stop_time_AuraScript();
     }
@@ -514,14 +514,14 @@ public:
             const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
         }
 
-        void Register()
+        void Register() OVERRIDE
         {
             OnEffectHit += SpellEffectFn(spell_call_ruby_emerald_amber_drake_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
             OnEffectLaunch += SpellEffectFn(spell_call_ruby_emerald_amber_drake_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const OVERRIDE
     {
         return new spell_call_ruby_emerald_amber_drake_SpellScript();
     }

@@ -44,7 +44,7 @@ class npc_lazy_peon : public CreatureScript
 public:
     npc_lazy_peon() : CreatureScript("npc_lazy_peon") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_lazy_peonAI(creature);
     }
@@ -58,20 +58,20 @@ public:
         uint32 RebuffTimer;
         bool work;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             PlayerGUID = 0;
             RebuffTimer = 0;
             work = false;
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) OVERRIDE
         {
             if (id == 1)
                 work = true;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
             if (spell->Id != SPELL_AWAKEN_PEON)
                 return;
@@ -87,7 +87,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 Diff)
+        void UpdateAI(uint32 Diff) OVERRIDE
         {
             if (work == true)
                 me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
@@ -186,7 +186,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
                events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 2000);
            }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 events.Update(diff);
 
@@ -221,7 +221,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_tiger_matriarch_creditAI(creature);
         }
@@ -239,14 +239,14 @@ class npc_tiger_matriarch : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*target*/)
+            void EnterCombat(Unit* /*target*/) OVERRIDE
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_POUNCE, 100);
                 _events.ScheduleEvent(EVENT_NOSUMMON, 50000);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) OVERRIDE
             {
                 if (summoner->GetTypeId() != TYPEID_PLAYER || !summoner->GetVehicle())
                     return;
@@ -259,7 +259,7 @@ class npc_tiger_matriarch : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) OVERRIDE
             {
                 if (victim->GetTypeId() != TYPEID_UNIT || !victim->IsSummon())
                     return;
@@ -274,7 +274,7 @@ class npc_tiger_matriarch : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage) OVERRIDE
             {
                 if (!attacker->IsSummon())
                     return;
@@ -298,7 +298,7 @@ class npc_tiger_matriarch : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -338,7 +338,7 @@ class npc_tiger_matriarch : public CreatureScript
             uint64 _tigerGuid;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_tiger_matriarchAI(creature);
         }
@@ -362,7 +362,7 @@ class npc_troll_volunteer : public CreatureScript
             {
             }
 
-            void InitializeAI()
+            void InitializeAI() OVERRIDE
             {
                 if (me->isDead() || !me->GetOwner())
                     return;
@@ -389,7 +389,7 @@ class npc_troll_volunteer : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(player, 5.0f, float(rand_norm() + 1.0f) * M_PI / 3.0f * 4.0f);
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _complete = false;
                 me->AddAura(SPELL_VOLUNTEER_AURA, me);
@@ -405,7 +405,7 @@ class npc_troll_volunteer : public CreatureScript
                 return _mountModel;
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -413,7 +413,7 @@ class npc_troll_volunteer : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
             {
                 if (spell->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_URUZIN && !_complete)
                 {
@@ -432,7 +432,7 @@ class npc_troll_volunteer : public CreatureScript
             bool _complete;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_troll_volunteerAI(creature);
         }
@@ -448,7 +448,7 @@ class spell_mount_check : public SpellScriptLoader
         class spell_mount_check_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_mount_check_AuraScript)
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MOUNTING_CHECK))
                     return false;
@@ -475,13 +475,13 @@ class spell_mount_check : public SpellScriptLoader
                 target->SetSpeed(MOVE_WALK, owner->GetSpeedRate(MOVE_WALK));
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mount_check_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mount_check_AuraScript();
         }
@@ -495,7 +495,7 @@ class spell_voljin_war_drums : public SpellScriptLoader
         class spell_voljin_war_drums_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_voljin_war_drums_SpellScript)
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MOTIVATE_1))
                     return false;
@@ -519,13 +519,13 @@ class spell_voljin_war_drums : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_voljin_war_drums_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_voljin_war_drums_SpellScript();
         }
@@ -552,7 +552,7 @@ class spell_voodoo : public SpellScriptLoader
         {
             PrepareSpellScript(spell_voodoo_SpellScript)
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BREW) || !sSpellMgr->GetSpellInfo(SPELL_GHOSTLY) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HEX1) || !sSpellMgr->GetSpellInfo(SPELL_HEX2) ||
@@ -569,13 +569,13 @@ class spell_voodoo : public SpellScriptLoader
                     GetCaster()->CastSpell(target, spellid, false);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_voodoo_SpellScript();
         }

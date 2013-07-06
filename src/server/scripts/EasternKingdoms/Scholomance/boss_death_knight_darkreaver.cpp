@@ -31,7 +31,7 @@ class boss_death_knight_darkreaver : public CreatureScript
 public:
     boss_death_knight_darkreaver() : CreatureScript("boss_death_knight_darkreaver") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_death_knight_darkreaverAI (creature);
     }
@@ -40,17 +40,17 @@ public:
     {
         boss_death_knight_darkreaverAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() OVERRIDE
         {
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             if (me->GetHealth() <= damage)
                 DoCast(me, 23261, true);   //Summon Darkreaver's Fallen Charger
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
     };

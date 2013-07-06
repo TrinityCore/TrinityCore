@@ -42,7 +42,7 @@ class boss_kruul : public CreatureScript
 public:
     boss_kruul() : CreatureScript("boss_kruul") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_kruulAI (creature);
     }
@@ -59,7 +59,7 @@ public:
         uint32 Rage_Timer;
         uint32 Hound_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ShadowVolley_Timer = 10000;
             Cleave_Timer = 14000;
@@ -70,11 +70,11 @@ public:
             Hound_Timer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             // When a player, pet or totem gets killed, Lord Kazzak casts this spell to instantly regenerate 70, 000 health.
             DoCast(me, SPELL_CAPTURESOUL);
@@ -86,7 +86,7 @@ public:
                 Hound->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

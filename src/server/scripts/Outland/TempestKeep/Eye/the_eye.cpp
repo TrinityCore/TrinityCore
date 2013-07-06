@@ -52,17 +52,17 @@ class npc_crystalcore_devastator : public CreatureScript
             uint32 Knockaway_Timer;
             uint32 Countercharge_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Countercharge_Timer = 9000;
                 Knockaway_Timer = 25000;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -100,7 +100,7 @@ class npc_crystalcore_devastator : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_crystalcore_devastatorAI(creature);
         }

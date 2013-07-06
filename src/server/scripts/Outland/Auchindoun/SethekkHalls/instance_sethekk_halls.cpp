@@ -42,7 +42,7 @@ class instance_sethekk_halls : public InstanceMapScript
 public:
     instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_sethekk_halls_InstanceMapScript(map);
     }
@@ -77,7 +77,7 @@ public:
                 m_uiIkissDoorGUID = go->GetGUID();
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             switch (type)
             {
