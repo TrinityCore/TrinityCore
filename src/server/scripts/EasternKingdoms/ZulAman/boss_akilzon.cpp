@@ -91,7 +91,7 @@ class boss_akilzon : public CreatureScript
                 memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
 
@@ -105,7 +105,7 @@ class boss_akilzon : public CreatureScript
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 20000)); // 10 to 20 seconds (bosskillers)
                 events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));      // 20 to 30 seconds(bosskillers)
@@ -120,13 +120,13 @@ class boss_akilzon : public CreatureScript
                     instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_KILL);
             }
@@ -214,7 +214,7 @@ class boss_akilzon : public CreatureScript
                 events.ScheduleEvent(EVENT_STORM_SEQUENCE, 1000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -357,7 +357,7 @@ class boss_akilzon : public CreatureScript
                 bool   isRaining;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_akilzonAI(creature);
         }
@@ -376,7 +376,7 @@ class npc_akilzon_eagle : public CreatureScript
             bool arrived;
             uint64 TargetGUID;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 EagleSwoop_Timer = urand(5000, 10000);
                 arrived = true;
@@ -384,14 +384,15 @@ class npc_akilzon_eagle : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoZoneInCombat();
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-            void MovementInform(uint32, uint32)
+
+            void MovementInform(uint32, uint32) OVERRIDE
             {
                 arrived = true;
                 if (TargetGUID)
@@ -404,7 +405,7 @@ class npc_akilzon_eagle : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (EagleSwoop_Timer <= diff)
                     EagleSwoop_Timer = 0;
@@ -438,7 +439,7 @@ class npc_akilzon_eagle : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_akilzon_eagleAI(creature);
         }

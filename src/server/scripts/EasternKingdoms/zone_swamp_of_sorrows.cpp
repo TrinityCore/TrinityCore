@@ -45,7 +45,7 @@ public:
 
     npc_galen_goodward() : CreatureScript("npc_galen_goodward") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
         {
@@ -56,7 +56,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_galen_goodwardAI(creature);
     }
@@ -72,18 +72,18 @@ public:
         uint64 m_uiGalensCageGUID;
         uint32 m_uiPeriodicSay;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             m_uiPeriodicSay = 6000;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 Talk(SAY_ATTACKED, who->GetGUID());
         }
 
-        void WaypointStart(uint32 uiPointId)
+        void WaypointStart(uint32 uiPointId) OVERRIDE
         {
             switch (uiPointId)
             {
@@ -107,7 +107,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             switch (waypointId)
             {
@@ -128,7 +128,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             npc_escortAI::UpdateAI(uiDiff);
 

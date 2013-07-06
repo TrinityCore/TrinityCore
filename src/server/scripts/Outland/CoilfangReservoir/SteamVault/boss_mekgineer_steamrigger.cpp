@@ -61,7 +61,7 @@ class boss_mekgineer_steamrigger : public CreatureScript
 public:
     boss_mekgineer_steamrigger() : CreatureScript("boss_mekgineer_steamrigger") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_mekgineer_steamriggerAI (creature);
     }
@@ -82,7 +82,7 @@ public:
         bool Summon50;
         bool Summon25;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Shrink_Timer = 20000;
             Saw_Blade_Timer = 15000;
@@ -96,7 +96,7 @@ public:
                 instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -104,12 +104,12 @@ public:
                 instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -132,7 +132,7 @@ public:
                 DoSpawnCreature(NPC_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -201,7 +201,7 @@ class npc_steamrigger_mechanic : public CreatureScript
 public:
     npc_steamrigger_mechanic() : CreatureScript("npc_steamrigger_mechanic") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_steamrigger_mechanicAI (creature);
     }
@@ -217,19 +217,20 @@ public:
 
         uint32 Repair_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Repair_Timer = 2000;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/)
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE
+
         {
             //react only if attacked
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Repair_Timer <= diff)
             {

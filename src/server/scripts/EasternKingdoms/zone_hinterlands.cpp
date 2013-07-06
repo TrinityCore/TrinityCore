@@ -59,7 +59,7 @@ class npc_00x09hl : public CreatureScript
 public:
     npc_00x09hl() : CreatureScript("npc_00x09hl") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
         {
@@ -78,7 +78,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_00x09hlAI(creature);
     }
@@ -87,9 +87,9 @@ public:
     {
         npc_00x09hlAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() { }
+        void Reset() OVERRIDE {}
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             switch (waypointId)
             {
@@ -107,7 +107,7 @@ public:
             }
         }
 
-        void WaypointStart(uint32 uiPointId)
+        void WaypointStart(uint32 uiPointId) OVERRIDE
         {
             switch (uiPointId)
             {
@@ -132,7 +132,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (who->GetEntry() == NPC_MARAUDING_OWL || who->GetEntry() == NPC_VILE_AMBUSHER)
                 return;
@@ -140,7 +140,7 @@ public:
             Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
@@ -189,7 +189,7 @@ class npc_rinji : public CreatureScript
 public:
     npc_rinji() : CreatureScript("npc_rinji") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_RINJI_TRAPPED)
         {
@@ -202,7 +202,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_rinjiAI(creature);
     }
@@ -220,13 +220,13 @@ public:
         uint32 m_uiPostEventTimer;
         int m_iSpawnId;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             m_uiPostEventCount = 0;
             m_uiPostEventTimer = 3000;
         }
 
-        void JustRespawned()
+        void JustRespawned() OVERRIDE
         {
             m_bIsByOutrunner = false;
             m_iSpawnId = 0;
@@ -234,7 +234,7 @@ public:
             npc_escortAI::JustRespawned();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -270,13 +270,13 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->SetWalk(false);
             summoned->GetMotionMaster()->MovePoint(0, m_afAmbushMoveTo[m_iSpawnId].m_fX, m_afAmbushMoveTo[m_iSpawnId].m_fY, m_afAmbushMoveTo[m_iSpawnId].m_fZ);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -302,7 +302,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(const uint32 uiDiff)
+        void UpdateEscortAI(const uint32 uiDiff) OVERRIDE
         {
             //Check if we have a current target
             if (!UpdateVictim())

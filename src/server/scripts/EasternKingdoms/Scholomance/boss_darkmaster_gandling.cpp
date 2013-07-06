@@ -56,21 +56,21 @@ class boss_darkmaster_gandling : public CreatureScript
         {
             boss_darkmaster_gandlingAI(Creature* creature) : BossAI(creature, DATA_DARKMASTERGANDLING) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
@@ -82,13 +82,13 @@ class boss_darkmaster_gandling : public CreatureScript
                     gate->SetGoState(GO_STATE_READY);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
             {
                 Talk(YELL_SUMMONED);
                 me->GetMotionMaster()->MoveRandom(5);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -126,7 +126,7 @@ class boss_darkmaster_gandling : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_darkmaster_gandlingAI (creature);
         }
@@ -211,13 +211,13 @@ class spell_shadow_portal : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_shadow_portal_SpellScript();
         }
@@ -341,13 +341,13 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_shadow_portal_rooms_SpellScript();
         }

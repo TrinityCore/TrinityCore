@@ -71,7 +71,7 @@ class boss_bronjahm : public CreatureScript
                 DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
             }
 
-            void InitializeAI()
+            void InitializeAI() OVERRIDE
             {
                 if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(FoSScriptName))
                     me->IsAIEnabled = false;
@@ -79,7 +79,7 @@ class boss_bronjahm : public CreatureScript
                     Reset();
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 events.Reset();
                 events.SetPhase(PHASE_1);
@@ -90,12 +90,12 @@ class boss_bronjahm : public CreatureScript
                 instance->SetBossState(DATA_BRONJAHM, NOT_STARTED);
             }
 
-           void JustReachedHome()
+           void JustReachedHome() OVERRIDE
            {
                DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
            }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
                 me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
@@ -103,20 +103,20 @@ class boss_bronjahm : public CreatureScript
                 instance->SetBossState(DATA_BRONJAHM, IN_PROGRESS);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
 
                 instance->SetBossState(DATA_BRONJAHM, DONE);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* who) OVERRIDE
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
             {
                 if (events.IsInPhase(PHASE_1) && !HealthAbovePct(30))
                 {
@@ -127,7 +127,7 @@ class boss_bronjahm : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 summons.Summon(summon);
                 summon->SetReactState(REACT_PASSIVE);
@@ -136,7 +136,7 @@ class boss_bronjahm : public CreatureScript
                 summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -186,7 +186,7 @@ class boss_bronjahm : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_bronjahmAI(creature);
         }
@@ -204,7 +204,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
             {
                 if (type != CHASE_MOTION_TYPE)
                     return;
@@ -229,7 +229,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_corrupted_soul_fragmentAI(creature);
         }
@@ -257,13 +257,13 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
                 SetHitDamage(newDamage);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnHit += SpellHitFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_bronjahm_magic_bane_SpellScript();
         }
@@ -284,13 +284,13 @@ class spell_bronjahm_consume_soul : public SpellScriptLoader
                 GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_bronjahm_consume_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_bronjahm_consume_soul_SpellScript();
         }
@@ -312,13 +312,13 @@ class spell_bronjahm_soulstorm_channel : public SpellScriptLoader
                     GetTarget()->CastSpell(GetTarget(), i, true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_bronjahm_soulstorm_channel_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_bronjahm_soulstorm_channel_AuraScript();
         }
@@ -343,13 +343,13 @@ class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
                     GetTarget()->CastSpell(GetTarget(), i, true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_bronjahm_soulstorm_visual_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_bronjahm_soulstorm_visual_AuraScript();
         }
@@ -391,7 +391,7 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
                 targets = sharedTargets;
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsInitial, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
@@ -400,7 +400,7 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
             std::list<WorldObject*> sharedTargets;
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_bronjahm_soulstorm_targeting_SpellScript();
         }

@@ -84,16 +84,16 @@ public:
         uint32 move;
         bool sacrificed;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             VorpilGUID = 0;
             move = 0;
             sacrificed = false;
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/)OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!VorpilGUID)
             {
@@ -133,13 +133,12 @@ public:
                 move = 1000;
             } else move -= diff;
         }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_voidtravelerAI (creature);
-        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_voidtravelerAI(creature);
+    }
 };
 
 class boss_grandmaster_vorpil : public CreatureScript
@@ -154,7 +153,7 @@ public:
             Intro = false;
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             HelpYell = false;
             sumportals = false;
@@ -209,18 +208,18 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned && summoned->GetEntry() == NPC_VOID_TRAVELER)
                 CAST_AI(npc_voidtraveler::npc_voidtravelerAI, summoned->AI())->VorpilGUID = me->GetGUID();
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
             destroyPortals();
@@ -229,7 +228,7 @@ public:
                 instance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(7000, 14000));
             if (IsHeroic())
@@ -245,7 +244,8 @@ public:
             _EnterCombat();
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -256,7 +256,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -312,12 +312,13 @@ public:
             bool sumportals;
             uint64 PortalsGuid[5];
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_grandmaster_vorpilAI (creature);
-        }
+
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new boss_grandmaster_vorpilAI(creature);
+    }
 };
 
 void AddSC_boss_grandmaster_vorpil()

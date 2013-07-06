@@ -70,7 +70,7 @@ class npc_kilrek : public CreatureScript
 public:
     npc_kilrek() : CreatureScript("npc_kilrek") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_kilrekAI (creature);
     }
@@ -88,13 +88,13 @@ public:
 
         uint32 AmplifyTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TerestianGUID = 0;
             AmplifyTimer = 2000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (!instance)
             {
@@ -103,7 +103,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -117,7 +117,7 @@ public:
             } else ERROR_INST_DATA(me);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -141,7 +141,7 @@ class npc_demon_chain : public CreatureScript
 public:
     npc_demon_chain() : CreatureScript("npc_demon_chain") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_demon_chainAI(creature);
     }
@@ -152,16 +152,17 @@ public:
 
         uint64 SacrificeGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             SacrificeGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void JustDied(Unit* /*killer*/)
+
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (SacrificeGUID)
             {
@@ -178,7 +179,7 @@ class npc_fiendish_portal : public CreatureScript
 public:
     npc_fiendish_portal() : CreatureScript("npc_fiendish_portal") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_fiendish_portalAI (creature);
     }
@@ -189,12 +190,12 @@ public:
 
         SummonList summons;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DespawnAllImp();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             summons.Summon(summon);
             DoZoneInCombat(summon);
@@ -212,7 +213,7 @@ class npc_fiendish_imp : public CreatureScript
 public:
     npc_fiendish_imp() : CreatureScript("npc_fiendish_imp") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_fiendish_impAI (creature);
     }
@@ -223,16 +224,16 @@ public:
 
         uint32 FireboltTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             FireboltTimer = 2000;
 
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -254,7 +255,7 @@ class boss_terestian_illhoof : public CreatureScript
 public:
     boss_terestian_illhoof() : CreatureScript("boss_terestian_illhoof") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_terestianAI (creature);
     }
@@ -281,7 +282,7 @@ public:
         bool SummonedPortals;
         bool Berserk;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             for (uint8 i = 0; i < 2; ++i)
             {
@@ -322,12 +323,12 @@ public:
             else DoCast(me, SPELL_SUMMON_IMP, true);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == NPC_PORTAL)
             {
@@ -342,12 +343,12 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             for (uint8 i = 0; i < 2; ++i)
             {
@@ -366,7 +367,7 @@ public:
                 instance->SetData(TYPE_TERESTIAN, DONE);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

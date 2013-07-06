@@ -61,7 +61,7 @@ class boss_koralon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoCast(me, SPELL_BURNING_FURY);
 
@@ -73,7 +73,7 @@ class boss_koralon : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -116,7 +116,7 @@ class boss_koralon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_koralonAI(creature);
         }
@@ -136,12 +136,12 @@ class npc_flame_warder : public CreatureScript
             {
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoZoneInCombat();
 
@@ -149,7 +149,7 @@ class npc_flame_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 10000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -184,7 +184,7 @@ class npc_flame_warder : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_flame_warderAI(creature);
         }

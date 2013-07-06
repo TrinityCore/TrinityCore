@@ -109,7 +109,7 @@ class boss_halazzi : public CreatureScript
 
             uint64 LynxGUID;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
@@ -125,7 +125,7 @@ class boss_halazzi : public CreatureScript
                 EnterPhase(PHASE_LYNX);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
@@ -136,26 +136,26 @@ class boss_halazzi : public CreatureScript
                 EnterPhase(PHASE_LYNX);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 summon->AI()->AttackStart(me->GetVictim());
                 if (summon->GetEntry() == NPC_SPIRIT_LYNX)
                     LynxGUID = summon->GetGUID();
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+            void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
             {
                 if (damage >= me->GetHealth() && Phase != PHASE_ENRAGE)
                     damage = 0;
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell)
+            void SpellHit(Unit*, const SpellInfo* spell) OVERRIDE
             {
                 if (spell->Id == SPELL_TRANSFORM_SPLIT2)
                     EnterPhase(PHASE_HUMAN);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (Phase != PHASE_MERGE) ScriptedAI::AttackStart(who);
             }
@@ -213,7 +213,7 @@ class boss_halazzi : public CreatureScript
                 Phase = NextPhase;
             }
 
-             void UpdateAI(uint32 diff)
+             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -315,7 +315,7 @@ class boss_halazzi : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 switch (urand(0, 1))
                 {
@@ -331,7 +331,7 @@ class boss_halazzi : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_HALAZZIEVENT, DONE);
@@ -341,7 +341,7 @@ class boss_halazzi : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_halazziAI(creature);
         }
@@ -364,27 +364,27 @@ class npc_halazzi_lynx : public CreatureScript
             uint32 FrenzyTimer;
             uint32 shredder_timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
                 shredder_timer = 4000;
             }
 
-            void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+            void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
             {
                 if (damage >= me->GetHealth())
                     damage = 0;
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     ScriptedAI::AttackStart(who);
             }
 
-            void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {/*DoZoneInCombat();*/ }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -406,7 +406,7 @@ class npc_halazzi_lynx : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_halazzi_lynxAI(creature);
         }

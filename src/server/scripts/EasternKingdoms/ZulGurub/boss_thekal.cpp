@@ -87,20 +87,20 @@ class boss_thekal : public CreatureScript
             bool Enraged;
             bool WasDead;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 Enraged = false;
                 WasDead = false;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_MORTALCLEAVE, 4000, 0, PHASE_ONE);     // Phase 1
@@ -110,13 +110,13 @@ class boss_thekal : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void JustReachedHome()
+            void JustReachedHome() OVERRIDE
             {
                 if (instance)
                     instance->SetBossState(DATA_THEKAL, NOT_STARTED);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -249,7 +249,7 @@ class boss_thekal : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_thekalAI(creature);
         }
@@ -277,7 +277,7 @@ class npc_zealot_lorkhan : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Shield_Timer = 1000;
                 BloodLust_Timer = 16000;
@@ -294,11 +294,11 @@ class npc_zealot_lorkhan : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -404,7 +404,7 @@ class npc_zealot_lorkhan : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_zealot_lorkhanAI(creature);
         }
@@ -438,7 +438,7 @@ class npc_zealot_zath : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 SweepingStrikes_Timer = 13000;
                 SinisterStrike_Timer = 8000;
@@ -456,11 +456,11 @@ class npc_zealot_zath : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -557,7 +557,7 @@ class npc_zealot_zath : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_zealot_zathAI(creature);
         }

@@ -123,7 +123,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const
+            uint64 GetData64(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -133,7 +133,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
@@ -211,7 +211,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 if (type == DATA_MAGTHERIDON_EVENT)
                     return m_auiEncounter[0];
@@ -254,7 +254,7 @@ class instance_magtheridons_lair : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_magtheridons_lair_InstanceMapScript(map);
         }

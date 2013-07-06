@@ -68,7 +68,7 @@ class boss_void_reaver : public CreatureScript
 
             bool Enraged;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Pounding_Timer = 15000;
                 ArcaneOrb_Timer = 3000;
@@ -81,12 +81,12 @@ class boss_void_reaver : public CreatureScript
                     instance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
                 DoZoneInCombat();
@@ -95,7 +95,7 @@ class boss_void_reaver : public CreatureScript
                     instance->SetData(DATA_VOIDREAVEREVENT, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
 
@@ -103,7 +103,7 @@ class boss_void_reaver : public CreatureScript
                     instance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -170,7 +170,7 @@ class boss_void_reaver : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_void_reaverAI(creature);
         }

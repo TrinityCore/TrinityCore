@@ -59,7 +59,7 @@ class instance_archavon : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier) const
+            uint64 GetData64(uint32 identifier) const OVERRIDE
             {
                 switch (identifier)
                 {
@@ -133,7 +133,7 @@ class instance_archavon : public InstanceMapScript
             time_t KoralonDeath;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_archavon_InstanceMapScript(map);
         }

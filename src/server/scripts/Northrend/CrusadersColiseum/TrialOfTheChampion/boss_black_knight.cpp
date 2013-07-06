@@ -108,7 +108,7 @@ public:
         uint32 uiDeathBiteTimer;
         uint32 uiMarkedDeathTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
@@ -147,13 +147,13 @@ public:
             SummonList.clear();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             SummonList.push_back(summon->GetGUID());
             summon->AI()->AttackStart(me->GetVictim());
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -268,7 +268,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) OVERRIDE
         {
             if (uiDamage > me->GetHealth() && uiPhase <= PHASE_SKELETON)
             {
@@ -289,7 +289,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             DoCast(me, SPELL_KILL_CREDIT);
 
@@ -298,7 +298,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_black_knightAI (creature);
     }
@@ -315,12 +315,12 @@ public:
 
         uint32 uiAttackTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiAttackTimer = 3500;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -339,7 +339,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_risen_ghoulAI(creature);
     }
@@ -357,12 +357,12 @@ public:
             Start(false, true, 0, NULL);
         }
 
-        void WaypointReached(uint32 /*waypointId*/)
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE
         {
 
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -372,7 +372,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_black_knight_skeletal_gryphonAI(creature);
     }

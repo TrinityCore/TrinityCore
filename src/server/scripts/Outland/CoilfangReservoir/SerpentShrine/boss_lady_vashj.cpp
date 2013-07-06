@@ -138,7 +138,7 @@ class boss_lady_vashj : public CreatureScript
 public:
     boss_lady_vashj() : CreatureScript("boss_lady_vashj") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_lady_vashjAI (creature);
     }
@@ -177,7 +177,7 @@ public:
         bool CanAttack;
         bool JustCreated;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             AggroTimer = 19000;
             ShockBlastTimer = 1+rand()%60000;
@@ -223,12 +223,12 @@ public:
             if (TaintedElementalTimer > 50000)
                 TaintedElementalTimer = 50000;
         }
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -246,7 +246,7 @@ public:
                 instance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (instance)
             {
@@ -263,7 +263,8 @@ public:
                 AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!Intro)
             {
@@ -310,7 +311,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!CanAttack && Intro)
             {
@@ -548,7 +549,7 @@ class npc_enchanted_elemental : public CreatureScript
 public:
     npc_enchanted_elemental() : CreatureScript("npc_enchanted_elemental") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_enchanted_elementalAI (creature);
     }
@@ -567,7 +568,7 @@ public:
 
         uint64 VashjGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetSpeed(MOVE_WALK, 0.6f); // walk
             me->SetSpeed(MOVE_RUN, 0.6f); // run
@@ -595,11 +596,12 @@ public:
                 VashjGUID = instance->GetData64(DATA_LADYVASHJ);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!instance)
                 return;
@@ -642,7 +644,7 @@ class npc_tainted_elemental : public CreatureScript
 public:
     npc_tainted_elemental() : CreatureScript("npc_tainted_elemental") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_tainted_elementalAI (creature);
     }
@@ -659,25 +661,25 @@ public:
         uint32 PoisonBoltTimer;
         uint32 DespawnTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             PoisonBoltTimer = 5000+rand()%5000;
             DespawnTimer = 30000;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 if (Creature* vashj = Unit::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
                     CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             me->AddThreat(who, 0.1f);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             // PoisonBoltTimer
             if (PoisonBoltTimer <= diff)
@@ -711,7 +713,7 @@ class npc_toxic_sporebat : public CreatureScript
 public:
     npc_toxic_sporebat() : CreatureScript("npc_toxic_sporebat") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_toxic_sporebatAI (creature);
     }
@@ -731,7 +733,7 @@ public:
         uint32 BoltTimer;
         uint32 CheckTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetDisableGravity(true);
             me->setFaction(14);
@@ -741,11 +743,12 @@ public:
             CheckTimer = 1000;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/)
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE
+
         {
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -754,7 +757,7 @@ public:
                 MovementTimer = 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             // Random movement
             if (MovementTimer <= diff)
@@ -809,7 +812,7 @@ class npc_shield_generator_channel : public CreatureScript
 public:
     npc_shield_generator_channel() : CreatureScript("npc_shield_generator_channel") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_shield_generator_channelAI (creature);
     }
@@ -825,7 +828,7 @@ public:
         uint32 CheckTimer;
         bool Casted;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CheckTimer = 0;
             Casted = false;
@@ -834,9 +837,10 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!instance)
                 return;
@@ -866,7 +870,7 @@ class item_tainted_core : public ItemScript
 public:
     item_tainted_core() : ItemScript("item_tainted_core") { }
 
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets)
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) OVERRIDE
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance)

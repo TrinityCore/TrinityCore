@@ -327,7 +327,7 @@ class instance_uldaman : public InstanceMapScript
                     ironayaSealDoorTimer -= diff;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
@@ -393,7 +393,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data)
+            void SetData64(uint32 type, uint64 data) OVERRIDE
             {
                 // Archaedas
                 if (type == 0)
@@ -469,7 +469,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier) const
+            uint64 GetData64(uint32 identifier) const OVERRIDE
             {
                 switch (identifier)
                 {
@@ -507,7 +507,7 @@ class instance_uldaman : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_uldaman_InstanceMapScript(map);
         }

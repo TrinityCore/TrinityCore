@@ -71,7 +71,7 @@ class boss_buru : public CreatureScript
             {
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() OVERRIDE
             {
                 BossAI::EnterEvadeMode();
 
@@ -82,7 +82,7 @@ class boss_buru : public CreatureScript
                 Eggs.clear();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) OVERRIDE
             {
                 _EnterCombat();
                 Talk(EMOTE_TARGET, who->GetGUID());
@@ -95,14 +95,14 @@ class boss_buru : public CreatureScript
                 _phase = PHASE_EGG;
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) OVERRIDE
             {
                 if (action == ACTION_EXPLODE)
                     if (_phase == PHASE_EGG)
                         me->DealDamage(me, 45000);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) OVERRIDE
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     ChaseNewVictim();
@@ -133,7 +133,7 @@ class boss_buru : public CreatureScript
                 events.ScheduleEvent(EVENT_RESPAWN_EGG, 100000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -186,7 +186,7 @@ class boss_buru : public CreatureScript
             std::list<uint64> Eggs;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_buruAI(creature);
         }
@@ -205,14 +205,14 @@ class npc_buru_egg : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* attacker) OVERRIDE
             {
                 if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
                     if (!buru->IsInCombat())
                         buru->AI()->AttackStart(attacker);
             }
 
-            void JustSummoned(Creature* who)
+            void JustSummoned(Creature* who) OVERRIDE
             {
                 if (who->GetEntry() == NPC_HATCHLING)
                     if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
@@ -220,7 +220,7 @@ class npc_buru_egg : public CreatureScript
                             who->AI()->AttackStart(target);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 DoCastAOE(SPELL_EXPLODE, true);
                 DoCastAOE(SPELL_EXPLODE_2, true); // Unknown purpose
@@ -234,7 +234,7 @@ class npc_buru_egg : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_buru_eggAI(creature);
         }
@@ -261,14 +261,14 @@ class spell_egg_explosion : public SpellScriptLoader
                     GetCaster()->DealDamage(target, -16 * GetCaster()->GetDistance(target) + 500);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 AfterCast += SpellCastFn(spell_egg_explosion_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_egg_explosion_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_egg_explosion_SpellScript();
         }

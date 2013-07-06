@@ -88,7 +88,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
             uint32 target_num;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 removeAdds();
 
@@ -106,12 +106,12 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 resetcheck_timer = 5000;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 switch (summoned->GetEntry())
                 {
@@ -127,7 +127,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) OVERRIDE
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
@@ -135,13 +135,13 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
                 removeAdds();
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
             {
                 if (InBlade)
                 {
@@ -194,7 +194,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 me->SummonCreature(NPC_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]-8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -314,7 +314,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_warchief_kargath_bladefistAI(creature);
         }

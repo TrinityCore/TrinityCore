@@ -88,7 +88,7 @@ class boss_palehoof : public CreatureScript
 public:
     boss_palehoof() : CreatureScript("boss_palehoof") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_palehoofAI (creature);
     }
@@ -110,7 +110,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             /// There is a good reason to store them like this, we are going to shuffle the order.
             for (uint32 i = PHASE_FRENZIED_WORGEN; i < PHASE_GORTOK_PALEHOOF; ++i)
@@ -158,12 +158,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -180,7 +180,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (currentPhase != PHASE_GORTOK_PALEHOOF)
                 return;
@@ -215,7 +215,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
           //Talk(SAY_DEATH);
             if (instance)
@@ -225,7 +225,7 @@ public:
                 temp->DisappearAndDie();
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
@@ -253,7 +253,7 @@ public:
             currentPhase = move;
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -277,7 +277,7 @@ class npc_ravenous_furbolg : public CreatureScript
 public:
     npc_ravenous_furbolg() : CreatureScript("npc_ravenous_furbolg") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ravenous_furbolgAI (creature);
     }
@@ -295,7 +295,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiChainLightingTimer = 5000;
             uiCrazedTimer = 10000;
@@ -312,7 +312,7 @@ public:
                 }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -339,7 +339,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -356,7 +356,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -366,7 +366,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -390,7 +390,7 @@ class npc_frenzied_worgen : public CreatureScript
 public:
     npc_frenzied_worgen() : CreatureScript("npc_frenzied_worgen") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_frenzied_worgenAI (creature);
     }
@@ -408,7 +408,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiMortalWoundTimer = 5000;
             uiEnrage1Timer = 15000;
@@ -425,7 +425,7 @@ public:
                 }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -452,7 +452,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -471,7 +471,7 @@ public:
                 instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -481,7 +481,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -506,7 +506,7 @@ class npc_ferocious_rhino : public CreatureScript
 public:
     npc_ferocious_rhino() : CreatureScript("npc_ferocious_rhino") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ferocious_rhinoAI (creature);
     }
@@ -524,7 +524,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiStompTimer = 10000;
             uiGoreTimer = 15000;
@@ -541,7 +541,7 @@ public:
                 }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -569,7 +569,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -586,7 +586,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -596,7 +596,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -626,7 +626,7 @@ class npc_massive_jormungar : public CreatureScript
 public:
     npc_massive_jormungar() : CreatureScript("npc_massive_jormungar") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_massive_jormungarAI (creature);
     }
@@ -644,7 +644,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiAcidSpitTimer = 3000;
             uiAcidSplatterTimer = 12000;
@@ -661,7 +661,7 @@ public:
                 }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -690,7 +690,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -707,7 +707,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -717,7 +717,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -732,7 +732,7 @@ class npc_palehoof_orb : public CreatureScript
 public:
     npc_palehoof_orb() : CreatureScript("npc_palehoof_orb") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_palehoof_orbAI (creature);
     }
@@ -748,7 +748,7 @@ public:
         uint32 SummonTimer;
         Phase currentPhase;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             currentPhase = PHASE_NONE;
             SummonTimer = 5000;
@@ -758,7 +758,7 @@ public:
             me->SetSpeed(MOVE_FLIGHT, 0.5f);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (currentPhase == PHASE_NONE)
                 return;
@@ -792,7 +792,7 @@ public:
             } else SummonTimer -= diff;
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -822,7 +822,7 @@ class go_palehoof_sphere : public GameObjectScript
 public:
     go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
     {
         InstanceScript* instance = go->GetInstanceScript();
 
