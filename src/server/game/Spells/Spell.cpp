@@ -34,6 +34,7 @@
 #include "Totem.h"
 #include "Spell.h"
 #include "DynamicObject.h"
+#include "Guild.h"
 #include "Group.h"
 #include "UpdateData.h"
 #include "MapManager.h"
