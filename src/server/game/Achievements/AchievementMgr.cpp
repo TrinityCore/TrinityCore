@@ -2547,10 +2547,10 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-            // miscValue1 = itemId - miscValue2 = count of item loot
-            // miscValue3 = loot_type (note: 0 = LOOT_CORPSE and then it ignored)
+             //_miscValue1 = itemId - miscValue2 = count of item loot
+             //_miscValue3 = loot_type (note: 0 = LOOT_CORPSE and then it ignored)
             if (!miscValue1 || !miscValue2 || !miscValue3 || miscValue3 != achievementCriteria->loot_type.lootType)
-                return false;
+               return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
             if (miscValue1 && achievementCriteria->own_item.itemID != miscValue1)
