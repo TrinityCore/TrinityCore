@@ -368,7 +368,7 @@ class OutdoorPvP_hellfire_peninsula : public OutdoorPvPScript
         {
         }
 
-        OutdoorPvP* GetOutdoorPvP() const
+        OutdoorPvP* GetOutdoorPvP() const OVERRIDE
         {
             return new OutdoorPvPHP();
         }

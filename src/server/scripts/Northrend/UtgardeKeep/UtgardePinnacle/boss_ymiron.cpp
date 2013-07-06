@@ -103,7 +103,7 @@ class boss_ymiron : public CreatureScript
 public:
     boss_ymiron() : CreatureScript("boss_ymiron") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_ymironAI(creature);
     }
@@ -157,7 +157,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             m_bIsPause = false;
             m_bIsActiveWithBJORN = false;
@@ -188,7 +188,7 @@ public:
                 instance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -196,13 +196,13 @@ public:
                 instance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
         }
 
-        void SpellHitTarget(Unit* who, SpellInfo const* spell)
+        void SpellHitTarget(Unit* who, SpellInfo const* spell) OVERRIDE
         {
             if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == 59302)
                 kingsBane = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             if (type == DATA_KINGS_BANE)
                 return kingsBane ? 1 : 0;
@@ -210,7 +210,7 @@ public:
             return 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (m_bIsWalking)
             {
@@ -368,7 +368,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -379,7 +379,7 @@ public:
                 instance->SetData(DATA_KING_YMIRON_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
@@ -403,7 +403,7 @@ class achievement_kings_bane : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

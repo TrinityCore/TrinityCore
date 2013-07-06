@@ -168,7 +168,7 @@ public:
     {
         boss_victor_nefariusAI(Creature* creature) : BossAI(creature, BOSS_NEFARIAN) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (me->GetMapId() == 469)
             {
@@ -185,7 +185,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             Reset();
         }
@@ -207,7 +207,7 @@ public:
             events.ScheduleEvent(EVENT_SPAWN_ADD, 10000);
         }
 
-        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) OVERRIDE
         {
             if (summon->GetEntry() != NPC_NEFARIAN)
             {
@@ -218,9 +218,9 @@ public:
             }
         }
 
-        void JustSummoned(Creature* /*summon*/) {}
+        void JustSummoned(Creature* /*summon*/) OVERRIDE {}
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             if (instance && type == 1 && data == 1)
             {
@@ -234,7 +234,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
             {
@@ -361,7 +361,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action)
+        void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
         {
             if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
             {
@@ -375,7 +375,7 @@ public:
             uint32 SpawnedAdds;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_victor_nefariusAI (creature);
     }
@@ -390,19 +390,19 @@ public:
     {
         boss_nefarianAI(Creature* creature) : BossAI(creature, BOSS_NEFARIAN) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Phase3 = false;
             canDespawn = false;
             DespawnTimer = 30000;
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             canDespawn = true;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_SHADOWFLAME, 12000);
             events.ScheduleEvent(EVENT_FEAR, urand(25000, 35000));
@@ -413,13 +413,13 @@ public:
             Talk(SAY_RANDOM);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*Killer*/) OVERRIDE
         {
             _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (rand()%5)
                 return;
@@ -427,7 +427,7 @@ public:
             Talk(SAY_SLAY, victim->GetGUID());
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -440,7 +440,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (canDespawn && DespawnTimer <= diff)
             {
@@ -571,7 +571,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_nefarianAI (creature);
     }

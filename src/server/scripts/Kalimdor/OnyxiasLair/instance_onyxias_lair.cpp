@@ -36,7 +36,7 @@ class instance_onyxias_lair : public InstanceMapScript
 public:
     instance_onyxias_lair() : InstanceMapScript("instance_onyxias_lair", 249) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_onyxias_lair_InstanceMapScript(map);
     }
@@ -145,7 +145,7 @@ public:
             FloorEruptionGUID[1].erase(floorEruptedGUID);
         }
 
-        void SetData(uint32 Type, uint32 Data)
+        void SetData(uint32 Type, uint32 Data) OVERRIDE
         {
             switch (Type)
             {
@@ -178,7 +178,7 @@ public:
                 SaveToDB();
         }
 
-        void SetData64(uint32 Type, uint64 Data)
+        void SetData64(uint32 Type, uint64 Data) OVERRIDE
         {
             switch (Type)
             {
@@ -190,7 +190,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 Type) const
+        uint32 GetData(uint32 Type) const OVERRIDE
         {
             switch (Type)
             {
@@ -201,7 +201,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 Data) const
+        uint64 GetData64(uint32 Data) const OVERRIDE
         {
             switch (Data)
             {

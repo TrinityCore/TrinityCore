@@ -68,9 +68,9 @@ class npc_forest_frog : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset() {}
+            void Reset() OVERRIDE {}
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
             void DoSpawnRandom()
             {
@@ -103,7 +103,7 @@ class npc_forest_frog : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell)
+            void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
             {
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
                 {
@@ -114,7 +114,7 @@ class npc_forest_frog : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_forest_frogAI(creature);
         }
@@ -144,37 +144,37 @@ class npc_zulaman_hostage : public CreatureScript
             bool IsLoot;
             uint64 PlayerGUID;
 
-            void Reset() {}
+            void Reset() OVERRIDE {}
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 if (player)
                     player->SendLoot(me->GetGUID(), LOOT_CORPSE);
             }
 
-            void UpdateAI(uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/) OVERRIDE
             {
                 if (IsLoot)
                     DoCast(me, 7, false);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_zulaman_hostageAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             player->PlayerTalkClass->ClearMenus();
 
@@ -290,16 +290,16 @@ class npc_harrison_jones : public CreatureScript
             uint32 _gongTimer;
             uint64 uiTargetGUID;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _gongEvent = 0;
                 _gongTimer = 0;
                 uiTargetGUID = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action)
+            void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
             {
                if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
                {
@@ -312,7 +312,7 @@ class npc_harrison_jones : public CreatureScript
                }
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell)
+            void SpellHit(Unit*, const SpellInfo* spell) OVERRIDE
             {
                 if (spell->Id == SPELL_COSMETIC_SPEAR_THROW)
                 {
@@ -327,7 +327,7 @@ class npc_harrison_jones : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (_gongEvent)
                 {
@@ -456,7 +456,7 @@ class npc_harrison_jones : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_harrison_jonesAI(creature);
         }
@@ -477,13 +477,13 @@ class spell_banging_the_gong : public SpellScriptLoader
                 GetHitGObj()->SendCustomAnim(0);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_banging_the_gong_SpellScript::Activate, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_banging_the_gong_SpellScript();
         }

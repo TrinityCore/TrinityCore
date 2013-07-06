@@ -43,7 +43,7 @@ class boss_mr_smite : public CreatureScript
 public:
     boss_mr_smite() : CreatureScript("boss_mr_smite") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_mr_smiteAI (creature);
     }
@@ -66,7 +66,7 @@ public:
         uint32 uiPhase;
         uint32 uiTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiTrashTimer = urand(5000, 9000);
             uiSlamTimer = 9000;
@@ -80,7 +80,7 @@ public:
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
            Talk(SAY_AGGRO);
         }
@@ -94,7 +94,7 @@ public:
                 return true;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -166,7 +166,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 uiType, uint32 /*uiId*/) OVERRIDE
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;

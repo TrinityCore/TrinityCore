@@ -73,7 +73,7 @@ class boss_volkhan : public CreatureScript
 public:
     boss_volkhan() : CreatureScript("boss_volkhan") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_volkhanAI(creature);
     }
@@ -102,7 +102,7 @@ public:
 
         uint32 m_uiHealthAmountModifier;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             m_bIsStriking = false;
             m_bHasTemper = false;
@@ -124,7 +124,7 @@ public:
                 instance->SetData(TYPE_VOLKHAN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -132,7 +132,7 @@ public:
                 instance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (me->Attack(who, true))
             {
@@ -145,7 +145,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
             DespawnGolem();
@@ -154,7 +154,7 @@ public:
                 instance->SetData(TYPE_VOLKHAN, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
@@ -195,7 +195,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == NPC_MOLTEN_GOLEM)
             {
@@ -209,7 +209,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             if (m_uiSummonPhase == 2)
             {
@@ -218,7 +218,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 data) const
+        uint32 GetData(uint32 data) const OVERRIDE
         {
             if (data == DATA_SHATTER_RESISTANT)
                 return GolemsShattered;
@@ -226,7 +226,7 @@ public:
             return 0;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -307,7 +307,7 @@ public:
 
                 case 2:
                     // 2 - Check if reached Anvil
-                    // This is handled in: void JustReachedHome()
+                    // This is handled in: void JustReachedHome() OVERRIDE
                     break;
 
                 case 3:
@@ -363,7 +363,7 @@ class npc_molten_golem : public CreatureScript
 public:
     npc_molten_golem() : CreatureScript("npc_molten_golem") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_molten_golemAI(creature);
     }
@@ -378,7 +378,7 @@ public:
         uint32 m_uiDeathDelay_Timer;
         uint32 m_uiImmolation_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             m_bIsFrozen = false;
 
@@ -387,7 +387,7 @@ public:
             m_uiImmolation_Timer = 5000;
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (me->Attack(who, true))
             {
@@ -400,7 +400,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) OVERRIDE
         {
             if (uiDamage > me->GetHealth())
             {
@@ -419,7 +419,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
+        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) OVERRIDE
         {
             // This is the dummy effect of the spells
             if (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H)
@@ -427,7 +427,7 @@ public:
                     me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             // Return since we have no target or if we are frozen
             if (!UpdateVictim() || m_bIsFrozen)
@@ -459,7 +459,7 @@ class achievement_shatter_resistant : public AchievementCriteriaScript
     public:
         achievement_shatter_resistant() : AchievementCriteriaScript("achievement_shatter_resistant") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
         {
             return target && target->GetAI()->GetData(DATA_SHATTER_RESISTANT) < 5;
         }

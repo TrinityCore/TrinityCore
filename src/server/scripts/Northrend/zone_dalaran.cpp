@@ -64,13 +64,14 @@ public:
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void Reset(){}
+        void Reset()OVERRIDE {}
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/)OVERRIDE {}
 
-        void AttackStart(Unit* /*who*/){}
+        void AttackStart(Unit* /*who*/)OVERRIDE {}
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!who || !who->IsInWorld() || who->GetZoneId() != 4395)
                 return;
@@ -117,10 +118,10 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 /*diff*/){}
+        void UpdateAI(uint32 /*diff*/)OVERRIDE {}
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_mageguard_dalaranAI(creature);
     }
@@ -142,7 +143,7 @@ class npc_hira_snowdawn : public CreatureScript
 public:
     npc_hira_snowdawn() : CreatureScript("npc_hira_snowdawn") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (!creature->IsVendor() || !creature->IsTrainer())
             return false;
@@ -157,7 +158,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_TRAIN)

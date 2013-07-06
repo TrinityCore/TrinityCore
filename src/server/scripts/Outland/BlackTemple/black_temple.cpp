@@ -49,7 +49,7 @@ public:
     {
         npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action)
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             if (action == 1)
             {
@@ -60,7 +60,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_spirit_of_olumAI (creature);
     }

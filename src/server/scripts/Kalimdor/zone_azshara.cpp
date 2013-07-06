@@ -46,7 +46,7 @@ class npc_spitelashes : public CreatureScript
 public:
     npc_spitelashes() : CreatureScript("npc_spitelashes") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_spitelashesAI (creature);
     }
@@ -58,15 +58,15 @@ public:
         uint32 morphtimer;
         bool spellhit;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             morphtimer = 0;
             spellhit = false;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void SpellHit(Unit* unit, const SpellInfo* spell)
+        void SpellHit(Unit* unit, const SpellInfo* spell) OVERRIDE
         {
             if (spellhit)
                 return;
@@ -89,7 +89,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
             if (spellhit && morphtimer >= 5000)
@@ -134,7 +134,7 @@ class npc_loramus_thalipedes : public CreatureScript
 public:
     npc_loramus_thalipedes() : CreatureScript("npc_loramus_thalipedes") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -172,7 +172,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -281,7 +281,7 @@ class npc_rizzle_sprysprocket : public CreatureScript
 public:
     npc_rizzle_sprysprocket() : CreatureScript("npc_rizzle_sprysprocket") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1 && player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
@@ -294,7 +294,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
             return true;
@@ -303,7 +303,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_rizzle_sprysprocketAI (creature);
     }
@@ -326,7 +326,7 @@ public:
         bool ContinueWP;
         bool Reached;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             SpellEscapeTimer = 1300;
             TeleportTimer = 3500;
@@ -343,7 +343,7 @@ public:
             Reached = false;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (MustDie)
             {
@@ -436,7 +436,7 @@ public:
             sWorld->SendServerMessage(SERVER_MSG_STRING, text, player);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who || PlayerGUID)
                 return;
@@ -452,9 +452,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -479,7 +479,7 @@ class npc_depth_charge : public CreatureScript
 public:
     npc_depth_charge() : CreatureScript("npc_depth_charge") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_depth_chargeAI (creature);
     }
@@ -491,7 +491,7 @@ public:
         bool WeMustDie;
         uint32 WeMustDieTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetHover(true);
             me->SetSwim(true);
@@ -500,7 +500,7 @@ public:
             WeMustDieTimer = 1000;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (WeMustDie)
             {
@@ -512,7 +512,8 @@ public:
             return;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!who)
                 return;
@@ -525,9 +526,9 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
     };
 };
 

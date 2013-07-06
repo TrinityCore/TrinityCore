@@ -85,7 +85,7 @@ class boss_skarvald_the_constructor : public CreatureScript
 public:
     boss_skarvald_the_constructor() : CreatureScript("boss_skarvald_the_constructor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_skarvald_the_constructorAI (creature);
     }
@@ -107,7 +107,7 @@ public:
         bool Dalronn_isDead;
         bool Enraged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Charge_Timer = 5000;
             StoneStrike_Timer = 10000;
@@ -126,7 +126,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -140,7 +140,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
         {
             if (!Enraged && !ghost && me->HealthBelowPctDamaged(15, damage))
             {
@@ -149,7 +149,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -179,7 +179,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (!ghost)
             {
@@ -187,7 +187,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (ghost)
             {
@@ -249,7 +249,7 @@ class boss_dalronn_the_controller : public CreatureScript
 public:
     boss_dalronn_the_controller() : CreatureScript("boss_dalronn_the_controller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_dalronn_the_controllerAI (creature);
     }
@@ -273,7 +273,7 @@ public:
         uint32 AggroYell_Timer;
         bool Skarvald_isDead;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ShadowBolt_Timer = 1000;
             Debilitate_Timer = 5000;
@@ -293,7 +293,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -308,7 +308,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -339,7 +339,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (!ghost)
             {
@@ -347,7 +347,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (ghost)
             {

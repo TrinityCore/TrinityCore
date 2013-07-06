@@ -56,7 +56,7 @@ class npc_doom_blossom : public CreatureScript
 public:
     npc_doom_blossom() : CreatureScript("npc_doom_blossom") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_doom_blossomAI(creature);
     }
@@ -69,16 +69,17 @@ public:
         uint32 ShadowBoltTimer;
         uint64 TeronGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CheckTeronTimer = 5000;
             ShadowBoltTimer = 12000;
             TeronGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+
 
         void Despawn()
         {
@@ -86,7 +87,7 @@ public:
             me->RemoveCorpse();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (CheckTeronTimer <= diff)
             {
@@ -124,7 +125,7 @@ class npc_shadowy_construct : public CreatureScript
 public:
     npc_shadowy_construct() : CreatureScript("npc_shadowy_construct") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_shadowy_constructAI(creature);
     }
@@ -139,7 +140,7 @@ public:
         uint32 CheckPlayerTimer;
         uint32 CheckTeronTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             GhostGUID = 0;
             TeronGUID = 0;
@@ -148,9 +149,10 @@ public:
             CheckTeronTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!who || (!who->IsAlive()) || (who->GetGUID() == GhostGUID))
                 return;
@@ -159,7 +161,7 @@ public:
         }
 
     /* Comment it out for now. NOTE TO FUTURE DEV: UNCOMMENT THIS OUT ONLY AFTER MIND CONTROL IS IMPLEMENTED
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
             if (done_by->GetGUID() != GhostGUID)
             damage = 0;                                         // Only the ghost can deal damage.
@@ -188,7 +190,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (CheckPlayerTimer <= diff)
             {
@@ -213,7 +215,7 @@ class boss_teron_gorefiend : public CreatureScript
 public:
     boss_teron_gorefiend() : CreatureScript("boss_teron_gorefiend") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_teron_gorefiendAI (creature);
     }
@@ -242,7 +244,7 @@ public:
         bool Intro;
         bool Done;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_TERONGOREFIENDEVENT, NOT_STARTED);
@@ -264,9 +266,10 @@ public:
             Done = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!Intro && who->GetTypeId() == TYPEID_PLAYER && me->CanCreatureAttack(who))
             {
@@ -287,12 +290,12 @@ public:
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
@@ -378,7 +381,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Intro && !Done)
             {

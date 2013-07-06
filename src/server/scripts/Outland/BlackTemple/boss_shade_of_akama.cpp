@@ -125,7 +125,7 @@ class npc_ashtongue_channeler : public CreatureScript
 public:
     npc_ashtongue_channeler() : CreatureScript("npc_ashtongue_channeler") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ashtongue_channelerAI (creature);
     }
@@ -139,12 +139,13 @@ public:
 
         uint64 ShadeGUID;
 
-        void Reset() {}
-        void JustDied(Unit* /*killer*/);
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(uint32 /*diff*/) {}
+        void Reset() OVERRIDE {}
+        void JustDied(Unit* /*killer*/) OVERRIDE;
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+
+        void UpdateAI(uint32 /*diff*/) OVERRIDE {}
     };
 
 };
@@ -154,7 +155,7 @@ class npc_ashtongue_sorcerer : public CreatureScript
 public:
     npc_ashtongue_sorcerer() : CreatureScript("npc_ashtongue_sorcerer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ashtongue_sorcererAI (creature);
     }
@@ -170,17 +171,18 @@ public:
         uint32 CheckTimer;
         bool StartBanishing;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             StartBanishing = false;
             CheckTimer = 5000;
         }
 
-        void JustDied(Unit* /*killer*/);
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(uint32 diff)
+        void JustDied(Unit* /*killer*/) OVERRIDE;
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (StartBanishing)
                 return;
@@ -212,7 +214,7 @@ class boss_shade_of_akama : public CreatureScript
 public:
     boss_shade_of_akama() : CreatureScript("boss_shade_of_akama") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_shade_of_akamaAI (creature);
     }
@@ -249,7 +251,7 @@ public:
         bool HasKilledAkamaAndReseting;
         SummonList summons;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             reseting = true;
             HasKilledAkamaAndReseting = false;
@@ -292,24 +294,25 @@ public:
             reseting = false;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             if (summon->GetEntry() == NPC_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             if (summon->GetEntry() == NPC_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Despawn(summon);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/)
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE
+
         {
             if (!GridSearcherSucceeded)
             {
@@ -340,7 +343,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who || IsBanished)
                 return;
@@ -433,7 +436,7 @@ public:
 
         void SetAkamaGUID(uint64 guid) { AkamaGUID = guid; }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!me->IsInCombat())
                 return;
@@ -564,7 +567,7 @@ class npc_akama_shade : public CreatureScript
 public:
     npc_akama_shade() : CreatureScript("npc_akama_shade") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
@@ -576,7 +579,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (player->IsAlive())
         {
@@ -587,7 +590,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_akamaAI (creature);
     }
@@ -637,7 +640,7 @@ public:
         bool HasYelledOnce;
         SummonList summons;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DestructivePoisonTimer = 15000;
             LightningBoltTimer = 10000;
@@ -651,19 +654,19 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             if (summon->GetEntry() == NPC_BROKEN)
                 summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             if (summon->GetEntry() == NPC_BROKEN)
                 summons.Despawn(summon);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
         void BeginEvent(Player* player)
         {
@@ -693,7 +696,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -716,7 +719,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
             EventBegun = false;
@@ -736,7 +739,7 @@ public:
             summons.DespawnAll();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!EventBegun)
                 return;

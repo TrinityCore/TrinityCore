@@ -110,7 +110,7 @@ class boss_high_king_maulgar : public CreatureScript
 public:
     boss_high_king_maulgar() : CreatureScript("boss_high_king_maulgar") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_high_king_maulgarAI (creature);
     }
@@ -136,7 +136,7 @@ public:
 
         uint64 Council[4];
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ArcingSmash_Timer = 10000;
             MightyBlow_Timer = 40000;
@@ -167,12 +167,12 @@ public:
                 instance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -185,7 +185,7 @@ public:
                 Talk(SAY_OGRE_DEATH);
            }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             StartEvent(who);
         }
@@ -217,7 +217,7 @@ public:
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
@@ -309,7 +309,7 @@ class boss_olm_the_summoner : public CreatureScript
 public:
     boss_olm_the_summoner() : CreatureScript("boss_olm_the_summoner") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_olm_the_summonerAI (creature);
     }
@@ -327,7 +327,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DarkDecay_Timer = 10000;
             Summon_Timer = 15000;
@@ -338,7 +338,7 @@ public:
                 instance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -353,7 +353,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (instance)
             {
@@ -362,7 +362,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -377,7 +377,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
@@ -437,7 +437,7 @@ class boss_kiggler_the_crazed : public CreatureScript
 public:
     boss_kiggler_the_crazed() : CreatureScript("boss_kiggler_the_crazed") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_kiggler_the_crazedAI (creature);
     }
@@ -456,7 +456,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             GreaterPolymorph_Timer = 5000;
             LightningBolt_Timer = 10000;
@@ -468,7 +468,7 @@ public:
                 instance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (instance)
             {
@@ -477,7 +477,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -492,7 +492,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
@@ -558,7 +558,7 @@ class boss_blindeye_the_seer : public CreatureScript
 public:
     boss_blindeye_the_seer() : CreatureScript("boss_blindeye_the_seer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_blindeye_the_seerAI (creature);
     }
@@ -576,7 +576,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             GreaterPowerWordShield_Timer = 5000;
             Heal_Timer = urand(25000, 40000);
@@ -587,7 +587,7 @@ public:
                 instance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (instance)
             {
@@ -596,7 +596,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -611,7 +611,7 @@ public:
             }
         }
 
-         void UpdateAI(uint32 diff)
+         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
@@ -668,7 +668,7 @@ class boss_krosh_firehand : public CreatureScript
 public:
     boss_krosh_firehand() : CreatureScript("boss_krosh_firehand") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_krosh_firehandAI (creature);
     }
@@ -686,7 +686,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             GreaterFireball_Timer = 1000;
             SpellShield_Timer = 5000;
@@ -697,7 +697,7 @@ public:
                 instance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (instance)
             {
@@ -706,7 +706,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -721,7 +721,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Only if not incombat check if the event is started
             if (!me->IsInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))

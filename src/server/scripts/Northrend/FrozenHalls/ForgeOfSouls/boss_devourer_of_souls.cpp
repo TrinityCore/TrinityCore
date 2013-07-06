@@ -127,7 +127,7 @@ class boss_devourer_of_souls : public CreatureScript
             {
             }
 
-            void InitializeAI()
+            void InitializeAI() OVERRIDE
             {
                 if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(FoSScriptName))
                     me->IsAIEnabled = false;
@@ -135,7 +135,7 @@ class boss_devourer_of_souls : public CreatureScript
                     Reset();
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetDisplayId(DISPLAY_ANGER);
@@ -150,7 +150,7 @@ class boss_devourer_of_souls : public CreatureScript
                 instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_FACE_AGGRO);
 
@@ -165,7 +165,7 @@ class boss_devourer_of_souls : public CreatureScript
                 instance->SetData(DATA_DEVOURER_EVENT, IN_PROGRESS);
             }
 
-            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
+            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) OVERRIDE
             {
                 if (mirroredSoulTarget && me->HasAura(SPELL_MIRRORED_SOUL))
                 {
@@ -182,7 +182,7 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) OVERRIDE
             {
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -207,7 +207,7 @@ class boss_devourer_of_souls : public CreatureScript
                     Talk(textId);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 summons.DespawnAll();
 
@@ -236,13 +236,13 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell)
+            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) OVERRIDE
             {
                 if (spell->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 if (type == DATA_THREE_FACED)
                     return threeFaced;
@@ -250,7 +250,7 @@ class boss_devourer_of_souls : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 // Return since we have no target
                 if (!UpdateVictim())
@@ -362,7 +362,7 @@ class boss_devourer_of_souls : public CreatureScript
             uint64 mirroredSoulTarget;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_devourer_of_soulsAI(creature);
         }
@@ -375,7 +375,7 @@ class achievement_three_faced : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

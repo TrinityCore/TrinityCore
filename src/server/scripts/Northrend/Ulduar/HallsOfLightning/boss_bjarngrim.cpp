@@ -97,7 +97,7 @@ class boss_bjarngrim : public CreatureScript
 public:
     boss_bjarngrim() : CreatureScript("boss_bjarngrim") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_bjarngrimAI(creature);
     }
@@ -137,7 +137,7 @@ public:
 
         uint64 m_auiStormforgedLieutenantGUID[2];
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (canBuff)
                 if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
@@ -184,7 +184,7 @@ public:
                 instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
         }
 
-        void EnterEvadeMode()
+        void EnterEvadeMode() OVERRIDE
         {
             if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
                 canBuff = true;
@@ -194,7 +194,7 @@ public:
             ScriptedAI::EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -205,12 +205,12 @@ public:
                 instance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -235,7 +235,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -389,7 +389,7 @@ class npc_stormforged_lieutenant : public CreatureScript
 public:
     npc_stormforged_lieutenant() : CreatureScript("npc_stormforged_lieutenant") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_stormforged_lieutenantAI(creature);
     }
@@ -406,13 +406,13 @@ public:
         uint32 m_uiArcWeld_Timer;
         uint32 m_uiRenewSteel_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             m_uiArcWeld_Timer = urand(20000, 21000);
             m_uiRenewSteel_Timer = urand(10000, 11000);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (instance)
             {
@@ -424,7 +424,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

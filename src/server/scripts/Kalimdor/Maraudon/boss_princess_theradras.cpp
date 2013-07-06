@@ -40,7 +40,7 @@ class boss_princess_theradras : public CreatureScript
 public:
     boss_princess_theradras() : CreatureScript("boss_princess_theradras") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_ptheradrasAI (creature);
     }
@@ -54,7 +54,7 @@ public:
         uint32 ThrashTimer;
         uint32 RepulsiveGazeTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DustfieldTimer = 8000;
             BoulderTimer = 2000;
@@ -62,14 +62,14 @@ public:
             RepulsiveGazeTimer = 23000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             me->SummonCreature(12238, 28.067f, 61.875f, -123.405f, 4.67f, TEMPSUMMON_TIMED_DESPAWN, 600000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
