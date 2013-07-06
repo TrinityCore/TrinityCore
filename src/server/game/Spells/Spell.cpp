@@ -5155,6 +5155,15 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
+            case SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB:
+            {
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+                if (Guild* guild = m_caster->ToPlayer()->GetGuild())
+                    if (guild->GetLeaderGUID() != m_caster->ToPlayer()->GetGUID())
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                break;
+            }
             case SPELL_EFFECT_LEARN_PET_SPELL:
             {
                 // check target only for unit target case
