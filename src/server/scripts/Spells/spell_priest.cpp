@@ -29,8 +29,13 @@
 
 enum PriestSpells
 {
+    SPELL_PRIEST_ABSOLUTION                         = 33167,
+    SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY              = 97690,
+    SPELL_PRIEST_DISPEL_MAGIC_HOSTILE               = 97691,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_DIVINE_TOUCH                       = 63544,
+    SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC              = 55677,
+    SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL         = 56131,
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GLYPH_OF_SHADOW                    = 107906,
@@ -57,6 +62,65 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_DIVINE_TOUCH_TALENT              = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+};
+
+// 527 - Dispel magic
+class spell_pri_dispel_magic : public SpellScriptLoader
+{
+public:
+    spell_pri_dispel_magic() : SpellScriptLoader("spell_pri_dispel_magic") { }
+
+    class spell_pri_dispel_magic_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_dispel_magic_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ABSOLUTION))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckCast()
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetExplTargetUnit();
+
+            if (!target || (!caster->HasAura(SPELL_PRIEST_ABSOLUTION) && caster != target && target->IsFriendlyTo(caster)))
+                return SPELL_FAILED_BAD_TARGETS;
+            return SPELL_CAST_OK;
+        }
+
+        void AfterEffectHit(SpellEffIndex /*effIndex*/)
+        {
+            if (GetHitUnit()->IsFriendlyTo(GetCaster()))
+            {
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY, true);
+                if (GetCaster()->HasAura(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC))
+                {
+                    int32 healAmount = CalculatePct(GetHitUnit()->GetMaxHealth(), sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL)->Effects[EFFECT_0].CalcValue());
+                    GetCaster()->CastCustomSpell(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL, SPELLVALUE_BASE_POINT0, healAmount, GetHitUnit());
+                }
+            }
+            else
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_DISPEL_MAGIC_HOSTILE, true);
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_pri_dispel_magic_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_pri_dispel_magic_SpellScript::AfterEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_dispel_magic_SpellScript();
+    }
 };
 
 // -47509 - Divine Aegis
@@ -803,6 +867,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_dispel_magic();
     new spell_pri_divine_aegis();
     new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_guardian_spirit();
