@@ -2471,6 +2471,7 @@ class Player : public Unit, public GridObject<Player>
         void SendRespondInspectAchievements(Player* player) const;
         uint32 GetAchievementPoints() const;
         bool HasAchieved(uint32 achievementId) const;
+        bool IsCompletedCriteria(uint32 achievementId,uint32 criteriaId);
         void ResetAchievements();
         void CheckAllAchievementCriteria();
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);

@@ -1535,7 +1535,14 @@ void Player::Update(uint32 p_time)
 {
     if (!IsInWorld())
         return;
-
+	  if (AuraEffect* aur = this->GetAuraEffect(SPELL_AURA_DUMMY,SPELLFAMILY_GENERIC,580,2))
+	    {	
+			  if((this->GetZoneId()==1519) && (!this->IsCompletedCriteria(5275,150)))
+	         {
+			       AchievementCriteriaEntry const* entry = sAchievementMgr->GetAchievementCriteria(5275);
+			       m_achievementMgr->SetCriteriaProgress(entry,1,this,PROGRESS_SET);
+	         }
+	    }
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
@@ -25375,6 +25382,14 @@ bool Player::HasAchieved(uint32 achievementId) const
 {
     return m_achievementMgr->HasAchieved(achievementId);
 }
+
+bool Player::IsCompletedCriteria(uint32 criteriaId,uint32 achievementId)
+{
+	AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementId);
+	AchievementCriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(criteriaId);
+	return m_achievementMgr->IsCompletedCriteria(criteria,achievement);
+}
+
 
 void Player::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost/* = 0*/)
 {
