@@ -1,5 +1,5 @@
 -- Fix some runtime errors
-UPDATE `creature` SET `MovementType`=0 WHERE `guid`=142347,142368,142371,142376,142378,142379;
+UPDATE `creature` SET `MovementType`=0 WHERE `guid` IN (142347,142368,142371,142376,142378,142379);
 UPDATE `creature` SET `modelid`=0 WHERE `id` = 30169;
 -- Add missing doors on old Hyjal
 DELETE FROM `gameobject` WHERE `guid` IN (4658,4695);
