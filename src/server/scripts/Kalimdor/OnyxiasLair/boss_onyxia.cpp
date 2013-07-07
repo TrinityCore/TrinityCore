@@ -266,10 +266,11 @@ public:
                         break;
                     case 9:
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
+						me->SetHover(false);  // stop show Onyxia flying on player's screen
                         BellowingRoarTimer = 1000;
                         break;
                     case 10:
-                        me->SetCanFly(true);
+                        me->SetHover(true);  // the only way to make Onyxia "flying" on the screen
                         me->GetMotionMaster()->MovePoint(11, Phase2Location.GetPositionX(), Phase2Location.GetPositionY(), Phase2Location.GetPositionZ()+25);
                         me->SetSpeed(MOVE_FLIGHT, 1.0f);
                         Talk(SAY_PHASE_2_TRANS);
@@ -283,9 +284,7 @@ public:
                             me->GetMotionMaster()->MovePoint(PointData->LocId, PointData->fX, PointData->fY, PointData->fZ);
                         me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveIdle();
-
                         break;
-
                     default:
                         IsMoving = false;
                         break;
@@ -445,7 +444,7 @@ public:
 
                 if (MovementTimer <= Diff)
                 {
-                    if (!IsMoving)
+                    if (!IsMoving && !(me->HasUnitState(UNIT_STATE_CASTING)))  // move only if Onyxia isn't moving AND if she's not casting
                     {
                         SetNextRandomPoint();
                         PointData = GetMoveData();
