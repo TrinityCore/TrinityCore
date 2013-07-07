@@ -342,7 +342,7 @@ public:
                     {
                         SaveToDB();
                         uiMainEventPhase = DONE;
-                        if (GameObject* pMainDoor = instance->GetGameObject(uiActivationCrystal[i]))
+                        if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
                             pMainDoor->SetGoState(GO_STATE_ACTIVE);
                     }
                     break;
@@ -721,6 +721,12 @@ public:
                 SetData(DATA_WAVE_COUNT, 0);
                 uiMainEventPhase = NOT_STARTED;
 
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (GameObject* pCrystal = instance->GetGameObject(uiActivationCrystal[i]))
+                        pCrystal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
+
                 if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                 {
                     pSinclari->SetVisible(true);
@@ -823,7 +829,7 @@ public:
             {
                 Creature* creature = instance->GetCreature(*itr);
                 if (creature && creature->IsAlive())
-                    trigger->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    trigger->Kill(creature);
             }
         }
 
