@@ -127,6 +127,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.85 - 04/07/2013: Implementacion del metodo ApplySpellPenetrationBonus por Retriman
 0.86 - 04/07/2013: Implementacion del metodo GetSpellPenetration por Retriman
 0.87 - 04/07/2013: Resistencias Binarias por Retriman
+0.88 - 05/07/2013: Mejoramos el llamado de deflect y resist parcial, añadimos una formula mas blizlike acorde a comentarios de oficiales respecto al calculo de esto, se realiza una limpieza y optimizacion por Retriman
+0.90 - 07/07/2013: Duel Reset: Fix problema CD con spell Elemental Mastery (chamy) por Gildor
+0.91 - 07/07/2013: GCD(Delay Magico): Se implementa de una manera mas macro este sistema usando las auras llamas del core por ende enredamos a la mayor parte de spells con el delay como debe ser excluyendo algunas spells que tengan que tner un delay mas bajo.
 
 
 ###############
@@ -230,6 +233,12 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.150 - 02/07/2013: IoC: Agregando scripts y asignacion de scriptname a los bosses de la Alianza y la Horda por Jar
 1.151 - 03/07/2013: Varios ajustes en  SpellInfo::CheckTarge y Spell::CheckCast, Ahora los power-ups o auras de ayuda de Warsong Gulch y Arathi Basin, se pueden usar cuando el personaje se encuentra en sigilo o invisible por jar
 1.152 - 04/07/2013: IoC: Fix del movimiento del cannon por Apa
+1.153 - 07/07/2013: MotionMaster:MoveKnockbackFrom, Ahora Las creaturas jamas podran entrar a las texturas por Retriman
+1.154 - 07/07/2013: Update al Sistema de visibilidad ahora sera mas blizlike (necesario para fix de Fade Out) por Retriman
+1.155 - 07/07/2013: Implementamos Sistema de Fade Out (atributo custom) para spells de invisibilidad mas blizlike a la vida pvp por Retriman
+1.156 - 06/07/2013: SotA: Fix regenhealth del demolisher por Apa
+1.157 - 05/07/2013: Wintergrasp: Fix Regenhealth de Tower Cannon por komix
+1.158 - 05/07/2013: Wintergrasp: Fix del movimiento de Tower Cannon por komix
 
 
 ########################
@@ -427,6 +436,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.10.4 - 23/05/2012: Ahn'Kahet: Taldaram movimiento de las esferas por Luriel
 - AzjolNerub -
 2.11.1 - 02/05/2012: AzjolNerub: AnubArak corregido exploit de la zona de combate por Eilo
+2.11.2 - 06/07/2013: AzjolNerub: Cambio de la faccion de Hadronox para evitar que combata con los mobs que le rodean y se cuele en las texturas por Dolanpls
 - CullingOfStratholme -
 2.12.1 - 17/12/2011: CullingOfStratholme: Arthas no desaparece a distancia por Eilo
 2.12.4 - 19/07/2012: CullingOfStratholme: Infinite Corruptor added and improved script/achievements por Eilo
@@ -514,7 +524,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.42 - 23/05/2012: Shaman: Línea de Visión de los totems por Dany
 3.43 - 03/06/2012: Pets: Allowing revive pets on BG por Frozensoul
 3.44 - 31/05/2012: Warrior: Heroic Strike should deal bonus dmg to dazed targets por tibbi
-3.46 - 28/05/2012: Spell delays por Dany
 3.47 - 09/06/2012: Mixology (53042) por mweinelt
 3.48 - 09/06/2012: DK: Dancing Rune Weapon (49028) should also copy disease application and damage copy although copied damage account target armor, so make it less than 50% of owner por oMadMano
 3.51 - 13/06/2012: DK: Raise ally (61999) por FrozenSoul
@@ -527,7 +536,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.60 - 13/07/2012: Hunter: Tame Beast (1515) should have some basic checks, due to some db errors por avalonfr
 3.61 - 13/07/2012: Warrior: Deep wounds (12867) prevented from exceeding more than 20k damage, temp fix for really high damage when server has high diff
 3.69 - 16/07/2012: Paladin: Blessing of Sanctuary (20911) and Blessing of Kings (20217) shouldn't stack
-3.70 - 21/08/2012: Warlock: Spell Lock (19647) should also prevent any spell from the school of magic that was being casted when the spell is used from being casted for 6 sec por A-Metaphysical-Drama
 3.71 - 18/07/2012: Shaman: Grounding totem (8177) should also absorb polymorph effect por Vincent-Michael
 3.75 - 22/07/2012: Druid: fix King of the Jungle (48495) was broken by a kandera's commit por Hispano
 3.76 - 29/09/2012: Mago: Hack fix for arcane blast damage buff applied before spell that triggered it deals damage por Xanvial
@@ -551,8 +559,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.96 - 08/11/2012: DK: Wandering Plague no incrementará su daño por las auras del player por tobmaps
 3.97 - 09/11/2012: Shaman: Fix talent Storm, Earth and Fire (Earthbind Totem root effect) ya no tendrá Diminishing Returns consigo mismo por Vincent-Michael
 3.98 - 11/11/2012: Temp Fix Renewed hope stack with vigilance, ya no eliminará vigilancia al obtener esperanza renovada por rdoo
-3.99 - 12/11/2012: Rogue: Fix del stealth en combo vanish+ccDelayed por Eilo
-3.101 - 12/11/2012: Mago: Añadido delay a traslación por Gildor
 3.102 - 15/11/2012: Mago: Fix temporal para que invisibilidad no genere agro a los NPCs de alrededor por Gildor
 3.103 - 17/11/2012: Rogue: Fix temporal para que Sigilo no elimine Danza de las Sombras por Gildor (con ayuda de muza :) )
 3.104 - 19/11/2012: Chaman: Fix spell power coeficient del escudo de tierra por Gildor
@@ -560,7 +566,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.107 - 22/11/2012: Druida: Fix spell Omen of Clarity, ahora solo se accionará la spell al causar daño o sanación por Gildor
 3.108 - 22/11/2012: Rogue: Fix spell Honor Among Thieves, ahora no pondrá en combate y dará los puntos de combo correctamente por Tobmaps y editado por Gildor
 3.110 - 24/11/2012: Mago: Fix spell Invocar elemental de agua, ahora se podrá invocar correctamente al usar Cold Snap por Axium
-3.111 - 27/11/2012: Hunter: Fix spell Flare, ahora su efecto actuará antes de tocar el suelo por Gildor
 3.112 - 28/11/2012: Rogue: Fix spell Slice and Dice, ahora no pondrá en combate por Gildor
 3.113 - 30/11/2012: Chaman: Fix spell Stormstrike, ahora no se reemplazará si hay mas de uno por Gildor
 3.114 - 30/11/2012: DK: Fix Death runes, ahora se reemplazarán correctamente por Gildor
@@ -590,11 +595,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.140 - 31/01/2013: DK: Fix spell Death Grip, ahora funcionará si el objetivo (o DK si le reflejan) está fuera de LOS en el momento de atraerlo por Gildor
 3.141 - 02/02/2013: Hunter: Fix spell Animal Handler, ahora aumentará el AP de la Pet por tibbi
 3.142 - 08/02/2013: DK: Fix spell Bloodworms, ahora invocará de 2 a 4 gusanos por Gildor
-3.143 - 08/02/2013: Warrior: Añadido delay a Charge and Intercept por Gildor
 3.144 - 13/02/2013: DK: Fix spell Anti-magic Shell, ahora no será inmune a cargar e interceptar del Guerrero, Druida y Hunter (Pet) por Gildor
 3.145 - 18/02/2013: Undead: Fix Cannibalize in battleground por Dany
 3.146 - 19/02/2013: DK: Fix spell Explode (ghoul), ahora casteará la spell aunque tenga GCD el ghoul por Gildor
-3.147 - 19/02/2013: Warlock: Fix spell Death Coil, ahora no eliminará stealth en CCDelayed por Gildor
 3.148 - 22/02/2013: Priest: Fix spell Spirit of Redemption, ahora será completamente inmune cuando se tenga el aura por boomy
 3.150 - 06/03/2013: Night Elf: Fix spell Shadowmeld, ahora no saldrá de combate al estar en un encuentro con un boss, saldrá de forma instantánea en 1vs1 o contra un NPC y saldrá pasados 6 segundos si algún compañero cercano esta en combate contra otro jugador por devilcoredev y modificado por Gildor
 3.151 - 09/03/2013: Warrior: Fix spell Bladestorm, ahora se cortará al desarmar al guerrero por Gildor
@@ -1113,9 +1116,10 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.52 - 01/07/2013: Festival del solsticio de verano: Malabarista por Muzashi
 6.53 - 01/07/2013: Dalaran: Arreglo de Aludane Whitecloud y Jean Pierre Poulain para evitar que spamee grifos exageradamente por Eilo
 6.54 - 01/07/2013: Festival del solsticio de verano: Rey del Festival de Fuego por Muzashi
-6.55 - 02/07/2013: Festival del solsticio de verano: Un disfraz inofensivo por Rincewind
+6.55 - 07/07/2013: Festival del solsticio de verano: Hiela al Señor de la Escarcha por Rincewind, Muzashi, KarlosHyD, Trista y Mweinelt
 6.56 - 03/07/2013: Festival del solsticio de verano: Honrar y apagar los fuegos por Rincewind
 6.57 - 04/07/2013: Desactivando eventos del sol devastado que no se usan ni sirven desde hace 2 años por Eilo
+6.58 - 07/07/2013: Las misiones de eventos del mundo ya no apareceran dos veces en los questgivers por Rincewind y Muzashi
 
 
 ##########
