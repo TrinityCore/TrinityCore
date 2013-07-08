@@ -65,7 +65,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_scarlet_commander_mograineAI (creature);
+        return new boss_scarlet_commander_mograineAI(creature);
     }
 
     struct boss_scarlet_commander_mograineAI : public ScriptedAI
@@ -231,7 +231,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_high_inquisitor_whitemaneAI (creature);
+        return new boss_high_inquisitor_whitemaneAI(creature);
     }
 
     struct boss_high_inquisitor_whitemaneAI : public ScriptedAI

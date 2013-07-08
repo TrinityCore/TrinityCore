@@ -218,7 +218,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_illidari_councilAI (creature);
+        return new npc_illidari_councilAI(creature);
     }
 
     struct npc_illidari_councilAI : public ScriptedAI
@@ -477,7 +477,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_gathios_the_shattererAI (creature);
+        return new boss_gathios_the_shattererAI(creature);
     }
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
@@ -609,7 +609,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_high_nethermancer_zerevorAI (creature);
+        return new boss_high_nethermancer_zerevorAI(creature);
     }
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
@@ -713,7 +713,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_malandeAI (creature);
+        return new boss_lady_malandeAI(creature);
     }
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
@@ -791,7 +791,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_veras_darkshadowAI (creature);
+        return new boss_veras_darkshadowAI(creature);
     }
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI

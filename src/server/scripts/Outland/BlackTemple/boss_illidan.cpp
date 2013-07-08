@@ -466,7 +466,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new flame_of_azzinothAI (creature);
+        return new flame_of_azzinothAI(creature);
     }
 };
 
@@ -1129,7 +1129,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_illidan_stormrageAI (creature);
+        return new boss_illidan_stormrageAI(creature);
     }
 };
 
@@ -1350,7 +1350,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_maievAI (creature);
+        return new boss_maievAI(creature);
     }
 };
 
@@ -2055,7 +2055,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new cage_trap_triggerAI (creature);
+        return new cage_trap_triggerAI(creature);
     }
 };
 
@@ -2129,7 +2129,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new shadow_demonAI (creature);
+        return new shadow_demonAI(creature);
     }
 };
 
@@ -2151,7 +2151,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new blade_of_azzinothAI (creature);
+        return new blade_of_azzinothAI(creature);
     }
 };
 
@@ -2236,7 +2236,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_parasitic_shadowfiendAI (creature);
+        return new npc_parasitic_shadowfiendAI(creature);
     }
 };
 

@@ -58,7 +58,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_darkweaver_sythAI (creature);
+        return new boss_darkweaver_sythAI(creature);
     }
 
     struct boss_darkweaver_sythAI : public ScriptedAI
@@ -247,7 +247,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_fireAI (creature);
+        return new npc_syth_fireAI(creature);
     }
 };
 
@@ -258,7 +258,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_arcaneAI (creature);
+        return new npc_syth_arcaneAI(creature);
     }
 
     struct npc_syth_arcaneAI : public ScriptedAI
@@ -312,7 +312,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_frostAI (creature);
+        return new npc_syth_frostAI(creature);
     }
 
     struct npc_syth_frostAI : public ScriptedAI
@@ -367,7 +367,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_shadowAI (creature);
+        return new npc_syth_shadowAI(creature);
     }
 
     struct npc_syth_shadowAI : public ScriptedAI

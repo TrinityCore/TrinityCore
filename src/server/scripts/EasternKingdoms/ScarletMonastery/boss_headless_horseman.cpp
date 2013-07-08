@@ -148,7 +148,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_wisp_invisAI (creature);
+        return new npc_wisp_invisAI(creature);
     }
 
     struct npc_wisp_invisAI : public ScriptedAI
@@ -228,7 +228,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_headAI (creature);
+        return new npc_headAI(creature);
     }
 
     struct npc_headAI : public ScriptedAI
@@ -377,7 +377,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_headless_horsemanAI (creature);
+        return new boss_headless_horsemanAI(creature);
     }
 
     struct boss_headless_horsemanAI : public ScriptedAI
@@ -787,7 +787,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_pulsing_pumpkinAI (creature);
+        return new npc_pulsing_pumpkinAI(creature);
     }
 
     struct npc_pulsing_pumpkinAI : public ScriptedAI

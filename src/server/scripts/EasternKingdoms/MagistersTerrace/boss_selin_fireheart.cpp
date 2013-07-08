@@ -66,7 +66,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_selin_fireheartAI (creature);
+        return new boss_selin_fireheartAI(creature);
     };
 
     struct boss_selin_fireheartAI : public ScriptedAI
@@ -327,7 +327,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_fel_crystalAI (creature);
+        return new npc_fel_crystalAI(creature);
     };
 
     struct npc_fel_crystalAI : public ScriptedAI

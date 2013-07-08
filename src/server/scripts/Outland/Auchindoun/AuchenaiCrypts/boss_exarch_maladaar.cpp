@@ -56,7 +56,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_stolen_soulAI (creature);
+        return new npc_stolen_soulAI(creature);
     }
 
     struct npc_stolen_soulAI : public ScriptedAI
@@ -158,7 +158,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_exarch_maladaarAI (creature);
+        return new boss_exarch_maladaarAI(creature);
     }
 
     struct boss_exarch_maladaarAI : public ScriptedAI
@@ -309,7 +309,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_avatar_of_martyredAI (creature);
+        return new npc_avatar_of_martyredAI(creature);
     }
 
     struct npc_avatar_of_martyredAI : public ScriptedAI

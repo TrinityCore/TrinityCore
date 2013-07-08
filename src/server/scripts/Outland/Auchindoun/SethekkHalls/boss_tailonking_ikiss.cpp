@@ -55,7 +55,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_talon_king_ikissAI (creature);
+        return new boss_talon_king_ikissAI(creature);
     }
 
     struct boss_talon_king_ikissAI : public ScriptedAI

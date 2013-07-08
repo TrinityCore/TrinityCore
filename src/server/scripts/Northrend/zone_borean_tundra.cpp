@@ -456,7 +456,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_jennyAI (creature);
+        return new npc_jennyAI(creature);
     }
 };
 
@@ -1356,7 +1356,7 @@ public:
             bCheck              = false;
             shadowBoltTimer   = urand(5000, 12000);
             deflectionTimer   = urand(20000, 25000);
-            soulBlastTimer    = urand (12000, 18000);
+            soulBlastTimer    = urand(12000, 18000);
         }
         void MovementInform(uint32 uiType, uint32 /*uiId*/) OVERRIDE
         {
@@ -1399,7 +1399,7 @@ public:
                 if (soulBlastTimer <= uiDiff)
                 {
                     DoCastVictim(SPELL_SOUL_BLAST);
-                    soulBlastTimer  = urand (12000, 18000);
+                    soulBlastTimer  = urand(12000, 18000);
                 } else soulBlastTimer -= uiDiff;
             }
 

@@ -401,11 +401,14 @@ public:
                     switch (eventId)
                     {
                         case EVENT_ENCAGED_EMBERSEER:
-                            if(me->GetPositionX() == me->GetHomePosition().GetPositionX())
-                                if(!me->HasAura(SPELL_ENCAGE_EMBERSEER))
+                        {
+                            if (me->GetPositionX() == me->GetHomePosition().GetPositionX())
+                                if (!me->HasAura(SPELL_ENCAGE_EMBERSEER))
                                     if (Creature* Emberseer = me->FindNearestCreature(NPC_PYROGAURD_EMBERSEER, 30.0f, true))
                                         DoCast(Emberseer, SPELL_ENCAGE_EMBERSEER);
                             break;
+
+                        }
                     }
                 }
                 return;
@@ -429,6 +432,7 @@ public:
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
 

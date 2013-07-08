@@ -323,7 +323,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_creditmarker_visit_with_ancestorsAI (creature);
+        return new npc_creditmarker_visit_with_ancestorsAI(creature);
     }
 
     struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI

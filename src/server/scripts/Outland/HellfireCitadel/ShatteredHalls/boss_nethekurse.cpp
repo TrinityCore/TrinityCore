@@ -392,7 +392,7 @@ class npc_lesser_shadow_fissure : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_lesser_shadow_fissureAI (creature);
+            return new npc_lesser_shadow_fissureAI(creature);
         }
 };
 

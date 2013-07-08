@@ -76,7 +76,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_vexallusAI (creature);
+        return new boss_vexallusAI(creature);
     };
 
     struct boss_vexallusAI : public BossAI
@@ -212,7 +212,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_pure_energyAI (creature);
+        return new npc_pure_energyAI(creature);
     };
 
     struct npc_pure_energyAI : public ScriptedAI

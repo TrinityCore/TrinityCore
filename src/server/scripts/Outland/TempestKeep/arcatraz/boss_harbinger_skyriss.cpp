@@ -275,7 +275,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_harbinger_skyrissAI (creature);
+            return new boss_harbinger_skyrissAI(creature);
         }
 };
 

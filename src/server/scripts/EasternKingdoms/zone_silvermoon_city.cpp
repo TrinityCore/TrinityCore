@@ -51,7 +51,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_blood_knight_stillbladeAI (creature);
+        return new npc_blood_knight_stillbladeAI(creature);
     }
 
     struct npc_blood_knight_stillbladeAI : public ScriptedAI

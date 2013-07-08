@@ -176,9 +176,9 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WHIRLWIND,     urand (13000, 15000));
-            events.ScheduleEvent(EVENT_CLEAVE,        urand (15000, 17000));
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand (17000, 19000));
+            events.ScheduleEvent(EVENT_WHIRLWIND,     urand(13000, 15000));
+            events.ScheduleEvent(EVENT_CLEAVE,        urand(15000, 17000));
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE

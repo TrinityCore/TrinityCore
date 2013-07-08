@@ -153,7 +153,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new eye_of_cthunAI (creature);
+        return new eye_of_cthunAI(creature);
     }
 
     struct eye_of_cthunAI : public ScriptedAI
@@ -459,7 +459,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new cthunAI (creature);
+        return new cthunAI(creature);
     }
 
     struct cthunAI : public ScriptedAI
@@ -915,7 +915,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new eye_tentacleAI (creature);
+        return new eye_tentacleAI(creature);
     }
 
     struct eye_tentacleAI : public ScriptedAI
@@ -990,7 +990,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new claw_tentacleAI (creature);
+        return new claw_tentacleAI(creature);
     }
 
     struct claw_tentacleAI : public ScriptedAI
@@ -1100,7 +1100,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new giant_claw_tentacleAI (creature);
+        return new giant_claw_tentacleAI(creature);
     }
 
     struct giant_claw_tentacleAI : public ScriptedAI
@@ -1219,7 +1219,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new giant_eye_tentacleAI (creature);
+        return new giant_eye_tentacleAI(creature);
     }
 
     struct giant_eye_tentacleAI : public ScriptedAI
@@ -1283,7 +1283,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new flesh_tentacleAI (creature);
+        return new flesh_tentacleAI(creature);
     }
 
     struct flesh_tentacleAI : public ScriptedAI

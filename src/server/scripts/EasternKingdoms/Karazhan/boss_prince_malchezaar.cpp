@@ -104,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new netherspite_infernalAI (creature);
+        return new netherspite_infernalAI(creature);
     }
 
     struct netherspite_infernalAI : public ScriptedAI
@@ -179,7 +179,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_malchezaarAI (creature);
+        return new boss_malchezaarAI(creature);
     }
 
     struct boss_malchezaarAI : public ScriptedAI

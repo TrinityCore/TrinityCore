@@ -94,7 +94,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_firemawAI (creature);
+        return new boss_firemawAI(creature);
     }
 };
 

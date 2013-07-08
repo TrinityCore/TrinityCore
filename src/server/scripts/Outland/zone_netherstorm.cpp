@@ -76,7 +76,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_manaforge_control_consoleAI (creature);
+        return new npc_manaforge_control_consoleAI(creature);
     }
 
     struct npc_manaforge_control_consoleAI : public ScriptedAI
@@ -741,7 +741,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_phase_hunterAI (creature);
+        return new npc_phase_hunterAI(creature);
     }
 
     struct npc_phase_hunterAI : public ScriptedAI

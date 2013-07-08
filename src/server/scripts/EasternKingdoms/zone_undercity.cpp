@@ -94,7 +94,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_lady_sylvanas_windrunnerAI (creature);
+        return new npc_lady_sylvanas_windrunnerAI(creature);
     }
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
@@ -226,7 +226,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_highborne_lamenterAI (creature);
+        return new npc_highborne_lamenterAI(creature);
     }
 
     struct npc_highborne_lamenterAI : public ScriptedAI

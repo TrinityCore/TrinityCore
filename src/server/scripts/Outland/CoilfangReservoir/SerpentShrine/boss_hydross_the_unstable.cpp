@@ -86,7 +86,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_hydross_the_unstableAI (creature);
+        return new boss_hydross_the_unstableAI(creature);
     }
 
     struct boss_hydross_the_unstableAI : public ScriptedAI

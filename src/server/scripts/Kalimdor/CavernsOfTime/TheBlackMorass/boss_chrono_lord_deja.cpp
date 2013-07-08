@@ -145,7 +145,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_chrono_lord_dejaAI (creature);
+        return new boss_chrono_lord_dejaAI(creature);
     }
 };
 

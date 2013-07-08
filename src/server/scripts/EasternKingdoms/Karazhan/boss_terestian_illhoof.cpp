@@ -72,7 +72,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_kilrekAI (creature);
+        return new npc_kilrekAI(creature);
     }
 
     struct npc_kilrekAI : public ScriptedAI
@@ -181,7 +181,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_fiendish_portalAI (creature);
+        return new npc_fiendish_portalAI(creature);
     }
 
     struct npc_fiendish_portalAI : public PassiveAI
@@ -215,7 +215,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_fiendish_impAI (creature);
+        return new npc_fiendish_impAI(creature);
     }
 
     struct npc_fiendish_impAI : public ScriptedAI
@@ -257,7 +257,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_terestianAI (creature);
+        return new boss_terestianAI(creature);
     }
 
     struct boss_terestianAI : public ScriptedAI

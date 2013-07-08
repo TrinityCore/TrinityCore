@@ -160,7 +160,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_pathaleon_the_calculatorAI (creature);
+            return new boss_pathaleon_the_calculatorAI(creature);
         }
 };
 
@@ -232,7 +232,7 @@ class npc_nether_wraith : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_nether_wraithAI (creature);
+            return new npc_nether_wraithAI(creature);
         }
 };
 

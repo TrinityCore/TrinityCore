@@ -140,12 +140,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_vashjAI (creature);
+        return new boss_lady_vashjAI(creature);
     }
 
     struct boss_lady_vashjAI : public ScriptedAI
     {
-        boss_lady_vashjAI (Creature* creature) : ScriptedAI(creature)
+        boss_lady_vashjAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             Intro = false;
@@ -551,7 +551,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_enchanted_elementalAI (creature);
+        return new npc_enchanted_elementalAI(creature);
     }
 
     struct npc_enchanted_elementalAI : public ScriptedAI
@@ -646,7 +646,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_tainted_elementalAI (creature);
+        return new npc_tainted_elementalAI(creature);
     }
 
     struct npc_tainted_elementalAI : public ScriptedAI
@@ -715,7 +715,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_toxic_sporebatAI (creature);
+        return new npc_toxic_sporebatAI(creature);
     }
 
     struct npc_toxic_sporebatAI : public ScriptedAI
@@ -814,7 +814,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shield_generator_channelAI (creature);
+        return new npc_shield_generator_channelAI(creature);
     }
 
     struct npc_shield_generator_channelAI : public ScriptedAI

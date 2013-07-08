@@ -100,7 +100,7 @@ class boss_the_ravenian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_theravenianAI (creature);
+            return new boss_theravenianAI(creature);
         }
 };
 

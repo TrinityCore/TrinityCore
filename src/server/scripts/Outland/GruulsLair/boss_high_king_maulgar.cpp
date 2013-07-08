@@ -112,7 +112,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_high_king_maulgarAI (creature);
+        return new boss_high_king_maulgarAI(creature);
     }
 
     struct boss_high_king_maulgarAI : public ScriptedAI
@@ -311,7 +311,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_olm_the_summonerAI (creature);
+        return new boss_olm_the_summonerAI(creature);
     }
 
     struct boss_olm_the_summonerAI : public ScriptedAI
@@ -439,7 +439,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kiggler_the_crazedAI (creature);
+        return new boss_kiggler_the_crazedAI(creature);
     }
 
     struct boss_kiggler_the_crazedAI : public ScriptedAI
@@ -560,7 +560,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_blindeye_the_seerAI (creature);
+        return new boss_blindeye_the_seerAI(creature);
     }
 
     struct boss_blindeye_the_seerAI : public ScriptedAI
@@ -670,7 +670,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_krosh_firehandAI (creature);
+        return new boss_krosh_firehandAI(creature);
     }
 
     struct boss_krosh_firehandAI : public ScriptedAI

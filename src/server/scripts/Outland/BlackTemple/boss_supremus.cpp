@@ -65,7 +65,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new molten_flameAI (creature);
+        return new molten_flameAI(creature);
     }
 
     struct molten_flameAI : public NullCreatureAI
@@ -90,7 +90,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_supremusAI (creature);
+        return new boss_supremusAI(creature);
     }
 
     struct boss_supremusAI : public ScriptedAI
@@ -269,7 +269,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_volcanoAI (creature);
+        return new npc_volcanoAI(creature);
     }
 
     struct npc_volcanoAI : public ScriptedAI

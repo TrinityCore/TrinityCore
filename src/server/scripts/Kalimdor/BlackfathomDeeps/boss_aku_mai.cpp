@@ -92,7 +92,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_aku_maiAI (creature);
+        return new boss_aku_maiAI(creature);
     }
 };
 
