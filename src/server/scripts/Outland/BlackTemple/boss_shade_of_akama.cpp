@@ -416,7 +416,6 @@ public:
         npc_akamaAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-
         }
 
         void Reset()
@@ -752,6 +751,7 @@ public:
         npc_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+
             if (instance)
             {
                 akamaGUID = instance->GetData64(DATA_AKAMA_SHADE);
@@ -761,14 +761,19 @@ public:
 
         void Reset()
         {
-            if(!startedBanishing)
+            if (!startedBanishing)
+            {
                 if (Creature* Shade = (Unit::GetCreature((*me), shadeGUID)))
+                {
                     if (Shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         me->GetMotionMaster()->MovePoint(0, Shade->GetPositionX(), Shade->GetPositionY(), Shade->GetPositionZ(), false);
                     else
+                    {
                         if (Unit* target = me->GetCreature(*me, akamaGUID))
                             AttackStart(target);
-
+                    }
+                }
+            }
             startedBanishing = false;
             switchToCombat = false;
         }
