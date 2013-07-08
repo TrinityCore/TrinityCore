@@ -820,6 +820,8 @@ void Map::MoveAllCreaturesInMoveList()
         {
             // update pos
             c->Relocate(c->_newPosition);
+            if (c->IsVehicle())
+                c->GetVehicleKit()->RelocatePassengers();
             //CreatureRelocationNotify(c, new_cell, new_cell.cellCoord());
             c->UpdateObjectVisibility(false);
         }

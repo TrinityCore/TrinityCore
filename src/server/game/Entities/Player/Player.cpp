@@ -16173,7 +16173,7 @@ void Player::KilledMonster(CreatureTemplate const* cInfo, uint64 guid)
             KilledMonsterCredit(cInfo->KillCredit[i], 0);
 }
 
-void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
+void Player::KilledMonsterCredit(uint32 entry, uint64 guid /*= 0*/)
 {
     uint16 addkillcount = 1;
     uint32 real_entry = entry;
