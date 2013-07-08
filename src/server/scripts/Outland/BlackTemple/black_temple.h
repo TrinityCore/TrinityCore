@@ -19,6 +19,8 @@
 #ifndef BLACK_TEMPLE_H_
 #define BLACK_TEMPLE_H_
 
+uint32 const EncounterCount         = 9;
+
 enum DataTypes
 {
     DATA_AKAMA                      = 1,
@@ -49,4 +51,4 @@ enum DataTypes
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 26
 };
 
-#endif // BLACK_TEMPLE_H_
+#endif
