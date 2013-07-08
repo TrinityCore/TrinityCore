@@ -128,7 +128,7 @@ class npc_risen_husk_spirit : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_risen_husk_spiritAI (creature);
+            return new npc_risen_husk_spiritAI(creature);
         }
 };
 

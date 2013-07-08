@@ -63,7 +63,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_draenei_survivorAI (creature);
+        return new npc_draenei_survivorAI(creature);
     }
 
     struct npc_draenei_survivorAI : public ScriptedAI
@@ -218,7 +218,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_engineer_spark_overgrindAI (creature);
+        return new npc_engineer_spark_overgrindAI(creature);
     }
 
     struct npc_engineer_spark_overgrindAI : public ScriptedAI
@@ -296,7 +296,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_injured_draeneiAI (creature);
+        return new npc_injured_draeneiAI(creature);
     }
 
     struct npc_injured_draeneiAI : public ScriptedAI

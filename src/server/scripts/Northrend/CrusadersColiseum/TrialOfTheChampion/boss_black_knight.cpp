@@ -129,8 +129,8 @@ public:
             uiDeathArmyCheckTimer = 7000;
             uiResurrectTimer = 4000;
             uiGhoulExplodeTimer = 8000;
-            uiDeathBiteTimer = urand (2000, 4000);
-            uiMarkedDeathTimer = urand (5000, 7000);
+            uiDeathBiteTimer = urand(2000, 4000);
+            uiMarkedDeathTimer = urand(5000, 7000);
         }
 
         void RemoveSummons()
@@ -249,7 +249,7 @@ public:
                     if (uiDeathBiteTimer <= uiDiff)
                     {
                         DoCastAOE(SPELL_DEATH_BITE);
-                        uiDeathBiteTimer = urand (2000, 4000);
+                        uiDeathBiteTimer = urand(2000, 4000);
                     } else uiDeathBiteTimer -= uiDiff;
                     if (uiMarkedDeathTimer <= uiDiff)
                     {
@@ -258,7 +258,7 @@ public:
                             if (target && target->IsAlive())
                                 DoCast(target, SPELL_MARKED_DEATH);
                         }
-                        uiMarkedDeathTimer = urand (5000, 7000);
+                        uiMarkedDeathTimer = urand(5000, 7000);
                     } else uiMarkedDeathTimer -= uiDiff;
                     break;
                 }
@@ -300,7 +300,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_black_knightAI (creature);
+        return new boss_black_knightAI(creature);
     }
 };
 

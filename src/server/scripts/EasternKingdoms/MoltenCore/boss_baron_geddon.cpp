@@ -115,7 +115,7 @@ class boss_baron_geddon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_baron_geddonAI (creature);
+            return new boss_baron_geddonAI(creature);
         }
 };
 

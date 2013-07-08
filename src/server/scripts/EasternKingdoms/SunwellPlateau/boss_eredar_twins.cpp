@@ -86,7 +86,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_sacrolashAI (creature);
+        return new boss_sacrolashAI(creature);
     };
 
     struct boss_sacrolashAI : public ScriptedAI
@@ -342,7 +342,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_alythessAI (creature);
+        return new boss_alythessAI(creature);
     };
 
     struct boss_alythessAI : public ScriptedAI
@@ -669,7 +669,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shadow_imageAI (creature);
+        return new npc_shadow_imageAI(creature);
     };
 
     struct npc_shadow_imageAI : public ScriptedAI

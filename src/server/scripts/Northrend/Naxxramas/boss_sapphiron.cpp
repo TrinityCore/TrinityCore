@@ -403,7 +403,7 @@ class boss_sapphiron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_sapphironAI (creature);
+            return new boss_sapphironAI(creature);
         }
 };
 

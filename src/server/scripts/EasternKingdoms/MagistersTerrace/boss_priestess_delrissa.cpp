@@ -1304,7 +1304,7 @@ public:
 
     //CreatureAI* GetAI(Creature* creature) const OVERRIDE
     //{
-    //    return new npc_high_explosive_sheepAI (creature);
+    //    return new npc_high_explosive_sheepAI(creature);
     //};
 };
 */

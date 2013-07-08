@@ -171,7 +171,7 @@ class boss_doomlord_kazzak : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_doomlordkazzakAI (creature);
+            return new boss_doomlordkazzakAI(creature);
         }
 };
 

@@ -117,7 +117,7 @@ class boss_gatewatcher_gyrokill : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_gatewatcher_gyrokillAI (creature);
+            return new boss_gatewatcher_gyrokillAI(creature);
         }
 };
 

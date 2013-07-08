@@ -209,7 +209,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_cooshcooshAI (creature);
+        return new npc_cooshcooshAI(creature);
     }
 
     bool OnGossipHello(Player* player, Creature* creature) OVERRIDE

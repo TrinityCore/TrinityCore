@@ -55,7 +55,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_shirrak_the_dead_watcherAI (creature);
+        return new boss_shirrak_the_dead_watcherAI(creature);
     }
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
@@ -167,7 +167,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_focus_fireAI (creature);
+        return new npc_focus_fireAI(creature);
     }
 
     struct npc_focus_fireAI : public ScriptedAI

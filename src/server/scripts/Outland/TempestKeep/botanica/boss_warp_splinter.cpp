@@ -73,7 +73,7 @@ class npc_warp_splinter_treant : public CreatureScript
         }
         struct npc_warp_splinter_treantAI  : public ScriptedAI
         {
-            npc_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
+            npc_warp_splinter_treantAI(Creature* creature) : ScriptedAI(creature)
             {
                 WarpGuid = 0;
             }

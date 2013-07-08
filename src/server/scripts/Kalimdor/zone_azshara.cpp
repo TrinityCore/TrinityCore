@@ -48,7 +48,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_spitelashesAI (creature);
+        return new npc_spitelashesAI(creature);
     }
 
     struct npc_spitelashesAI : public ScriptedAI
@@ -305,7 +305,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_rizzle_sprysprocketAI (creature);
+        return new npc_rizzle_sprysprocketAI(creature);
     }
 
     struct npc_rizzle_sprysprocketAI : public ScriptedAI
@@ -481,7 +481,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_depth_chargeAI (creature);
+        return new npc_depth_chargeAI(creature);
     }
 
     struct npc_depth_chargeAI : public ScriptedAI

@@ -353,8 +353,8 @@ class npc_vilebranch_speaker : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                demoralizing_Shout_Timer = urand (2000, 4000);
-                cleave_Timer = urand (5000, 8000);
+                demoralizing_Shout_Timer = urand(2000, 4000);
+                cleave_Timer = urand(5000, 8000);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE {}

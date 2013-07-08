@@ -66,7 +66,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new aqsentinelAI (creature);
+        return new aqsentinelAI(creature);
     }
 
     struct aqsentinelAI : public ScriptedAI

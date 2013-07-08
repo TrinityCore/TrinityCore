@@ -41,7 +41,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_valkyr_battle_maidenAI (creature);
+        return new npc_valkyr_battle_maidenAI(creature);
     }
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI

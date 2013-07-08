@@ -70,7 +70,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_medivh_bmAI (creature);
+        return new npc_medivh_bmAI(creature);
     }
 
     struct npc_medivh_bmAI : public ScriptedAI
@@ -264,7 +264,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_time_riftAI (creature);
+        return new npc_time_riftAI(creature);
     }
 
     struct npc_time_riftAI : public ScriptedAI
