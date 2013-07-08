@@ -555,14 +555,14 @@ public:
 // Ashtongue Channeler
 // ########################################################
 
-class mob_ashtongue_channeler : public CreatureScript
+class npc_ashtongue_channeler : public CreatureScript
 {
 public:
-    mob_ashtongue_channeler() : CreatureScript("mob_ashtongue_channeler") { }
+    npc_ashtongue_channeler() : CreatureScript("npc_ashtongue_channeler") { }
 
-    struct mob_ashtongue_channelerAI : public ScriptedAI
+    struct npc_ashtongue_channelerAI : public ScriptedAI
     {
-        mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
+        npc_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -625,7 +625,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ashtongue_channelerAI(creature);
+        return new npc_ashtongue_channelerAI(creature);
     }
 };
 
@@ -1033,7 +1033,7 @@ void AddSC_boss_shade_of_akama()
 {
     new boss_shade_of_akama();
     new npc_akama_shade();
-    new mob_ashtongue_channeler();
+    new npc_ashtongue_channeler();
     new npc_creature_generator_akama();
     new npc_ashtongue_sorcerer();
     new npc_ashtongue_defender();
