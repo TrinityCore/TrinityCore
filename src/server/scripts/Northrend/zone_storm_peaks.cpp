@@ -361,7 +361,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_icefangAI (creature);
+        return new npc_icefangAI(creature);
     }
 };
 
@@ -409,7 +409,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_hyldsmeet_protodrakeAI (creature);
+            return new npc_hyldsmeet_protodrakeAI(creature);
         }
 };
 

@@ -121,7 +121,7 @@ class boss_rajaxx : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_rajaxxAI (creature);
+            return new boss_rajaxxAI(creature);
         }
 };
 

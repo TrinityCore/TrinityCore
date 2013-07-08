@@ -236,7 +236,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kalecgos_kjAI (creature);
+        return new boss_kalecgos_kjAI(creature);
     }
 
     struct boss_kalecgos_kjAI : public ScriptedAI
@@ -389,7 +389,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_kiljaeden_controllerAI (creature);
+        return new npc_kiljaeden_controllerAI(creature);
     }
 
     struct npc_kiljaeden_controllerAI : public ScriptedAI
@@ -491,7 +491,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kiljaedenAI (creature);
+        return new boss_kiljaedenAI(creature);
     }
 
     struct boss_kiljaedenAI : public ScriptedAI
@@ -901,7 +901,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_hand_of_the_deceiverAI (creature);
+        return new npc_hand_of_the_deceiverAI(creature);
     }
 
     struct npc_hand_of_the_deceiverAI : public ScriptedAI
@@ -1001,7 +1001,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_felfire_portalAI (creature);
+        return new npc_felfire_portalAI(creature);
     }
 
     struct npc_felfire_portalAI : public ScriptedAI
@@ -1048,7 +1048,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_volatile_felfire_fiendAI (creature);
+        return new npc_volatile_felfire_fiendAI(creature);
     }
 
     struct npc_volatile_felfire_fiendAI : public ScriptedAI
@@ -1105,7 +1105,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_armageddonAI (creature);
+        return new npc_armageddonAI(creature);
     }
 
     struct npc_armageddonAI : public ScriptedAI
@@ -1162,7 +1162,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shield_orbAI (creature);
+        return new npc_shield_orbAI(creature);
     }
 
     struct npc_shield_orbAI : public ScriptedAI
@@ -1249,7 +1249,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_sinster_reflectionAI (creature);
+        return new npc_sinster_reflectionAI(creature);
     }
 
     struct npc_sinster_reflectionAI : public ScriptedAI

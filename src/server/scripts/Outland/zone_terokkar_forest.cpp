@@ -63,7 +63,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_unkor_the_ruthlessAI (creature);
+        return new npc_unkor_the_ruthlessAI(creature);
     }
 
     struct npc_unkor_the_ruthlessAI : public ScriptedAI
@@ -170,7 +170,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_infested_root_walkerAI (creature);
+        return new npc_infested_root_walkerAI(creature);
     }
 
     struct npc_infested_root_walkerAI : public ScriptedAI
@@ -257,7 +257,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_rotting_forest_ragerAI (creature);
+        return new npc_rotting_forest_ragerAI(creature);
     }
 
     struct npc_rotting_forest_ragerAI : public ScriptedAI
@@ -300,7 +300,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_netherweb_victimAI (creature);
+        return new npc_netherweb_victimAI(creature);
     }
 
     struct npc_netherweb_victimAI : public ScriptedAI
@@ -390,7 +390,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_floonAI (creature);
+        return new npc_floonAI(creature);
     }
 
     struct npc_floonAI : public ScriptedAI

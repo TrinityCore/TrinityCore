@@ -423,7 +423,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_warbringer_omroggAI (creature);
+            return new boss_warbringer_omroggAI(creature);
         }
 };
 void AddSC_boss_warbringer_omrogg()

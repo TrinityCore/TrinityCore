@@ -137,7 +137,7 @@ class boss_instructor_malicia : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_instructormaliciaAI (creature);
+            return new boss_instructormaliciaAI(creature);
         }
 
 };

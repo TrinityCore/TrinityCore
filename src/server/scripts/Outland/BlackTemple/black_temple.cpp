@@ -62,7 +62,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_spirit_of_olumAI (creature);
+        return new npc_spirit_of_olumAI(creature);
     }
 };
 

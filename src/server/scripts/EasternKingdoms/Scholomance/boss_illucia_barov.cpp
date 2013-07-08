@@ -100,7 +100,7 @@ class boss_illucia_barov : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_illuciabarovAI (creature);
+            return new boss_illuciabarovAI(creature);
         }
 };
 

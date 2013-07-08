@@ -100,7 +100,7 @@ class boss_lorekeeper_polkelt : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_lorekeeperpolkeltAI (creature);
+            return new boss_lorekeeperpolkeltAI(creature);
         }
 };
 

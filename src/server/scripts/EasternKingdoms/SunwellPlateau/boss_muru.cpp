@@ -111,7 +111,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_entropiusAI (creature);
+        return new boss_entropiusAI(creature);
     }
 
     struct boss_entropiusAI : public ScriptedAI
@@ -210,7 +210,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_muruAI (creature);
+        return new boss_muruAI(creature);
     }
 
     struct boss_muruAI : public ScriptedAI
@@ -375,7 +375,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_muru_portalAI (creature);
+        return new npc_muru_portalAI(creature);
     }
 
     struct npc_muru_portalAI : public ScriptedAI
@@ -459,7 +459,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_dark_fiendAI (creature);
+        return new npc_dark_fiendAI(creature);
     }
 
     struct npc_dark_fiendAI : public ScriptedAI
@@ -520,7 +520,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_void_sentinelAI (creature);
+        return new npc_void_sentinelAI(creature);
     }
 
     struct npc_void_sentinelAI : public ScriptedAI
@@ -575,7 +575,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_blackholeAI (creature);
+        return new npc_blackholeAI(creature);
     }
 
     struct npc_blackholeAI : public ScriptedAI

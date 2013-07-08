@@ -290,7 +290,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_clintar_spiritAI (creature);
+        return new npc_clintar_spiritAI(creature);
     }
 
     struct npc_clintar_spiritAI : public npc_escortAI

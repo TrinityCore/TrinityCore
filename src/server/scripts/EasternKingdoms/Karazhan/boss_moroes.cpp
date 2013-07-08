@@ -100,7 +100,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_moroesAI (creature);
+        return new boss_moroesAI(creature);
     }
 
     struct boss_moroesAI : public ScriptedAI
@@ -401,7 +401,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baroness_dorothea_millstipeAI (creature);
+        return new boss_baroness_dorothea_millstipeAI(creature);
     }
 
     struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
@@ -464,7 +464,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baron_rafe_dreugerAI (creature);
+        return new boss_baron_rafe_dreugerAI(creature);
     }
 
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
@@ -521,7 +521,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_catriona_von_indiAI (creature);
+        return new boss_lady_catriona_von_indiAI(creature);
     }
 
     struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
@@ -591,7 +591,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_keira_berrybuckAI (creature);
+        return new boss_lady_keira_berrybuckAI(creature);
     }
 
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
@@ -665,7 +665,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_robin_darisAI (creature);
+        return new boss_lord_robin_darisAI(creature);
     }
 
     struct boss_lord_robin_darisAI : public boss_moroes_guestAI
@@ -721,7 +721,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_crispin_ferenceAI (creature);
+        return new boss_lord_crispin_ferenceAI(creature);
     }
 
     struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI

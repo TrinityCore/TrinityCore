@@ -65,7 +65,7 @@ enum Spells
     SPELL_WINDFURY                   = 38229,
     // Ashtongue Rogue
     SPELL_DEBILITATING_POISON        = 41978,
-    SPELL_EVISCERATE                 = 41177,
+    SPELL_EVISCERATE                 = 41177
 };
 
 enum Creatures
@@ -127,7 +127,7 @@ enum Events
     EVENT_WINDFURY                   = 20,
     // Ashtongue Rogue
     EVENT_DEBILITATING_POISON        = 21,
-    EVENT_EVISCERATE                 = 22,
+    EVENT_EVISCERATE                 = 22
 };
 
 struct Location
@@ -135,9 +135,9 @@ struct Location
     float x, y, z;
 };
 
-static Location ShadeWP= { 512.4877f, 400.7993f, 112.7837f };
+static Location ShadeWP = { 512.4877f, 400.7993f, 112.7837f };
 
-static Location AkamaWP[]=
+static Location AkamaWP[] =
 {
     { 517.4877f, 400.7993f, 112.7837f },
     { 468.4435f, 401.1062f, 118.5379f }
@@ -160,7 +160,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (!HasKilledAkamaAndReseting)
             {
@@ -185,15 +185,15 @@ public:
             HasKilledAkamaAndReseting = false;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             {
@@ -205,7 +205,7 @@ public:
                 ScriptedAI::AttackStart(who);
         }
 
-        void SetData(uint32 data, uint32 value)
+        void SetData(uint32 data, uint32 value) OVERRIDE
         {
             if (data == SETDATA_DATA && value == SETDATA_CHANNELER_DIED)
                 me->RemoveAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2);
@@ -213,7 +213,7 @@ public:
             UpdateSpeed();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
         {
             if (spell->Id == SPELL_AKAMA_SOUL_CHANNEL)
             {
@@ -243,7 +243,7 @@ public:
                 me->AddUnitState(UNIT_STATE_ROOT);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (HasKilledAkamaAndReseting)
                 return;
@@ -396,9 +396,9 @@ public:
             bool HasKilledAkamaAndReseting;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_shade_of_akamaAI (creature);
+        return new boss_shade_of_akamaAI(creature);
     }
 };
 
@@ -418,7 +418,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->setFaction(FACTION_FRIENDLY);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -429,7 +429,7 @@ public:
             ShadeHasDied  = false;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (Creature* Shade = Unit::GetCreature((*me), ShadeGUID))
                 if (Shade->IsAlive())
@@ -438,7 +438,7 @@ public:
             me->GetMotionMaster()->MoveIdle();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
         {
             if (!StartCombat)
             {
@@ -454,13 +454,13 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 2000);
             events.ScheduleEvent(EVENT_DESTRUCTIVE_POISON, 5000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (StartChannel)
             {
@@ -521,10 +521,11 @@ public:
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action)
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             if (action == 0)
             {
@@ -545,9 +546,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_akamaAI (creature);
+        return new npc_akamaAI(creature);
     }
 };
 
@@ -567,7 +568,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
@@ -577,16 +578,16 @@ public:
             events.ScheduleEvent(EVENT_GET_SHADE_GUID, 1000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (Creature* Shade = (Unit::GetCreature((*me), ShadeGUID)))
                 Shade->AI()->SetData(SETDATA_DATA, SETDATA_CHANNELER_DIED);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             events.Update(diff);
 
@@ -623,7 +624,7 @@ public:
             uint64 ShadeGUID;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ashtongue_channelerAI(creature);
     }
@@ -645,7 +646,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Summons.DespawnAll();
 
@@ -656,12 +657,12 @@ public:
                 leftSide   = true;
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             Summons.Summon(summon);
         }
 
-        void SetData(uint32 data, uint32 value)
+        void SetData(uint32 data, uint32 value) OVERRIDE
         {
             if (data == SETDATA_DATA)
             {
@@ -694,7 +695,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (doSpawning)
             {
@@ -731,7 +732,7 @@ public:
             bool doSpawning;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_creature_generator_akamaAI(creature);
     }
@@ -759,7 +760,7 @@ public:
             }
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (!startedBanishing)
             {
@@ -778,29 +779,29 @@ public:
             switchToCombat = false;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (Creature* Shade = (Unit::GetCreature((*me), shadeGUID)))
                 Shade->AI()->SetData(SETDATA_DATA, SETDATA_CHANNELER_DIED);
             me->DespawnOrUnsummon(5000);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
         {
             if (Creature* summoner = (Unit::GetCreature((*me), summonerGuid)))
                 CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!switchToCombat)
                 return;
             ScriptedAI::AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             events.Update(diff);
 
@@ -859,9 +860,9 @@ public:
             bool switchToCombat;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ashtongue_sorcererAI (creature);
+        return new npc_ashtongue_sorcererAI(creature);
     }
 };
 
@@ -883,32 +884,32 @@ public:
                 akamaGUID = instance->GetData64(DATA_AKAMA_SHADE);
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (Unit* target = me->GetCreature(*me, akamaGUID))
                 AttackStart(target);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             me->DespawnOrUnsummon(5000);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
         {
             if (Creature* summoner = (Unit::GetCreature((*me), summonerGuid)))
                 CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_HEROIC_STRIKE, 5000);
-            events.ScheduleEvent(EVENT_SHIELD_BASH, urand (10000, 16000));
-            events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, urand (10000, 16000));
-            events.ScheduleEvent(EVENT_WINDFURY, urand (8000, 12000));
+            events.ScheduleEvent(EVENT_SHIELD_BASH, urand(10000, 16000));
+            events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, urand(10000, 16000));
+            events.ScheduleEvent(EVENT_WINDFURY, urand(8000, 12000));
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             events.Update(diff);
 
@@ -918,7 +919,7 @@ public:
                 {
                     case EVENT_DEBILITATING_STRIKE:
                         DoCastVictim(SPELL_DEBILITATING_STRIKE);
-                        events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, urand (8000, 16000));
+                        events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, urand(8000, 16000));
                         break;
                     case EVENT_HEROIC_STRIKE:
                         DoCast(me, SPELL_HEROIC_STRIKE);
@@ -926,11 +927,11 @@ public:
                         break;
                     case EVENT_SHIELD_BASH:
                         DoCastVictim(SPELL_SHIELD_BASH);
-                        events.ScheduleEvent(EVENT_SHIELD_BASH, urand (8000, 16000));
+                        events.ScheduleEvent(EVENT_SHIELD_BASH, urand(8000, 16000));
                         break;
                     case EVENT_WINDFURY:
                         DoCastVictim(SPELL_WINDFURY);
-                        events.ScheduleEvent(EVENT_WINDFURY, urand (6000 , 8000));
+                        events.ScheduleEvent(EVENT_WINDFURY, urand(6000 , 8000));
                         break;
                     default:
                         break;
@@ -946,9 +947,9 @@ public:
             uint64 summonerGuid;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ashtongue_defenderAI (creature);
+        return new npc_ashtongue_defenderAI(creature);
     }
 };
 
@@ -970,30 +971,30 @@ public:
                 akamaGUID = instance->GetData64(DATA_AKAMA_SHADE);
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (Unit* target = me->GetCreature(*me, akamaGUID))
                 AttackStart(target);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             me->DespawnOrUnsummon(5000);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
         {
             if (Creature* summoner = (Unit::GetCreature((*me), summonerGuid)))
                 CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            events.ScheduleEvent(EVENT_DEBILITATING_POISON, urand (500, 2000));
-            events.ScheduleEvent(SPELL_EVISCERATE, urand (2000, 5000));
+            events.ScheduleEvent(EVENT_DEBILITATING_POISON, urand(500, 2000));
+            events.ScheduleEvent(SPELL_EVISCERATE, urand(2000, 5000));
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             events.Update(diff);
 
@@ -1003,7 +1004,7 @@ public:
                 {
                     case EVENT_DEBILITATING_POISON:
                         DoCastVictim(SPELL_DEBILITATING_POISON);
-                        events.ScheduleEvent(EVENT_DEBILITATING_POISON, urand (14000, 18000));
+                        events.ScheduleEvent(EVENT_DEBILITATING_POISON, urand(14000, 18000));
                         break;
                     case EVENT_EVISCERATE:
                         DoCastVictim(SPELL_EVISCERATE);
@@ -1023,9 +1024,9 @@ public:
             uint64 summonerGuid;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ashtongue_rogueAI (creature);
+        return new npc_ashtongue_rogueAI(creature);
     }
 };
 

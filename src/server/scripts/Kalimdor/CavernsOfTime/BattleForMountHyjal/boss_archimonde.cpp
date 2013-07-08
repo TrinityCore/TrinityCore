@@ -239,7 +239,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_archimondeAI (creature);
+        return new boss_archimondeAI(creature);
     }
 
     struct boss_archimondeAI : public hyjal_trashAI

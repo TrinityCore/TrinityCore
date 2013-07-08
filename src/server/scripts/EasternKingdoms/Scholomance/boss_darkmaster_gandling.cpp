@@ -128,7 +128,7 @@ class boss_darkmaster_gandling : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_darkmaster_gandlingAI (creature);
+            return new boss_darkmaster_gandlingAI(creature);
         }
 };
 

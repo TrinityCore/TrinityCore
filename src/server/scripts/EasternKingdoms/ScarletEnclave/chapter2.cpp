@@ -46,7 +46,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_crusade_persuadedAI (creature);
+        return new npc_crusade_persuadedAI(creature);
     }
 
     struct npc_crusade_persuadedAI : public ScriptedAI
@@ -370,7 +370,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_scarlet_courierAI (creature);
+        return new npc_scarlet_courierAI(creature);
     }
 
     struct npc_scarlet_courierAI : public ScriptedAI
@@ -462,7 +462,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_high_inquisitor_valrothAI (creature);
+        return new npc_high_inquisitor_valrothAI(creature);
     }
 
     struct npc_high_inquisitor_valrothAI : public ScriptedAI
