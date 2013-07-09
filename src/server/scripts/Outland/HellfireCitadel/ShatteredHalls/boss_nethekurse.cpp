@@ -115,7 +115,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
             void SetData(uint32 data, uint32 value)
             {
-                if (!data == SETDATA_DATA)
+                if (data != SETDATA_DATA)
                     return;
 
                 switch (value)
