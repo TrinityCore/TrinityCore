@@ -94,6 +94,7 @@ class instance_shattered_halls : public InstanceMapScript
                     case DATA_OMROGG:
                         break;
                 }
+                return true;
             }
 
             uint64 GetData64(uint32 data) const OVERRIDE
@@ -158,7 +159,6 @@ class instance_shattered_halls : public InstanceMapScript
 
             protected:
                 uint32 encounter[EncounterCount];
-                std::string m_strInstData;
                 uint64 nethekurseGUID;
                 uint64 nethekurseDoor1GUID;
                 uint64 nethekurseDoor2GUID;
