@@ -408,30 +408,23 @@ class npc_omrogg_heads : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            void Reset() OVERRIDE
-            {
-                DeathYell = false;
-            }
+            void Reset() OVERRIDE { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void SetData(uint32 data, uint32 value)
             {
                 if (data == SETDATA_DATA && value == SETDATA_YELL)
                 {
                     events.ScheduleEvent(EVENT_DEATH_YELL, 4000);
-                    DeathYell = true;
                 }
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (!DeathYell)
-                    return;
-
                 events.Update(diff);
 
-                if (uint32 EVENT_DEATH_YELL = events.ExecuteEvent())
+                if (events.ExecuteEvent() == EVENT_DEATH_YELL)
                 {
                     Talk(YELL_DIE_R);
                     me->setDeathState(JUST_DIED);
@@ -441,7 +434,6 @@ class npc_omrogg_heads : public CreatureScript
             private:
                 InstanceScript* instance;
                 EventMap events;
-                bool DeathYell;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

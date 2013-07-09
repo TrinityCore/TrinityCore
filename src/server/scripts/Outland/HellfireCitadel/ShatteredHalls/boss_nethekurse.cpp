@@ -353,7 +353,7 @@ class npc_fel_orc_convert : public CreatureScript
 
                 events.Update(diff);
 
-                if (uint32 EVENT_HEMORRHAGE = events.ExecuteEvent())
+                if (events.ExecuteEvent() == EVENT_HEMORRHAGE)
                 {
                     DoCastVictim(SPELL_HEMORRHAGE);
                     events.ScheduleEvent(EVENT_HEMORRHAGE, 15000);
