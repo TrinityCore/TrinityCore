@@ -61,6 +61,12 @@ enum SetData
     SETDATA_YELL                = 1
 };
 
+enum Events
+{
+    // Omrogg Heads
+    EVENT_DEATH_YELL            = 1
+};
+
 struct Yell
 {
     int32 id;
@@ -397,11 +403,13 @@ class npc_omrogg_heads : public CreatureScript
 
         struct npc_omrogg_headsAI : public ScriptedAI
         {
-            npc_omrogg_headsAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_omrogg_headsAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
 
             void Reset() OVERRIDE
             {
-                Death_Timer = 4000;
                 DeathYell = false;
             }
 
@@ -410,7 +418,10 @@ class npc_omrogg_heads : public CreatureScript
             void SetData(uint32 data, uint32 value)
             {
                 if (data == SETDATA_DATA && value == SETDATA_YELL)
+                {
+                    events.ScheduleEvent(EVENT_DEATH_YELL, 4000);
                     DeathYell = true;
+                }
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -418,16 +429,18 @@ class npc_omrogg_heads : public CreatureScript
                 if (!DeathYell)
                     return;
 
-                if (Death_Timer <= diff)
+                events.Update(diff);
+
+                if (uint32 EVENT_DEATH_YELL = events.ExecuteEvent())
                 {
                     Talk(YELL_DIE_R);
-                    Death_Timer = false;
                     me->setDeathState(JUST_DIED);
-                } else Death_Timer -= diff;
+                }
             }
 
             private:
-                uint32 Death_Timer;
+                InstanceScript* instance;
+                EventMap events;
                 bool DeathYell;
         };
 
