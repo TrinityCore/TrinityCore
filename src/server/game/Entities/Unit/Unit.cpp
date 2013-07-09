@@ -14393,9 +14393,6 @@ void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
 {
     if (!packetOnly)
     {
-        if (apply == HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
-            return;
-
         if (apply)
         {
             // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
@@ -15841,12 +15838,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     if (player)
         player->SetFallInformation(0, GetPositionZ());
-    else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
-    {
-        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-        data.append(GetPackGUID());
-        SendMessageToSet(&data, false);
-    }
 
     float height = pos.GetPositionZ();
 
