@@ -115,6 +115,8 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                events.Update(diff);
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
