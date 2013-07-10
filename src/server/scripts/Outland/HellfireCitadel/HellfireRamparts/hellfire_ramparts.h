@@ -23,10 +23,10 @@ uint32 const EncounterCount       = 4;
 
 enum DataTypes
 {
-    DATA_WATCHKEEPER_GARGOLMAR    = 1,
-    DATA_OMOR_THE_UNSCARRED       = 2,
-    DATA_VAZRUDEN                 = 3,
-    DATA_NAZAN                    = 4
+    DATA_WATCHKEEPER_GARGOLMAR    = 0,
+    DATA_OMOR_THE_UNSCARRED       = 1,
+    DATA_VAZRUDEN                 = 2,
+    DATA_NAZAN                    = 3
 };
 
 enum CreatureIds
