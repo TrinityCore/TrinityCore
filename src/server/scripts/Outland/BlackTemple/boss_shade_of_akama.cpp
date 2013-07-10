@@ -787,8 +787,10 @@ public:
                     }
                 }
             }
+
+            summonerGuid     = 0;
             startedBanishing = false;
-            switchToCombat = false;
+            switchToCombat   = false;
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
@@ -898,6 +900,8 @@ public:
 
         void Reset() OVERRIDE
         {
+            summonerGuid     = 0;
+
             if (Unit* target = me->GetCreature(*me, akamaGUID))
                 AttackStart(target);
         }
@@ -988,6 +992,8 @@ public:
 
         void Reset() OVERRIDE
         {
+            summonerGuid     = 0;
+
             if (Unit* target = me->GetCreature(*me, akamaGUID))
                 AttackStart(target);
         }
@@ -1068,6 +1074,8 @@ public:
 
         void Reset() OVERRIDE
         {
+            summonerGuid     = 0;
+
             if (Unit* target = me->GetCreature(*me, akamaGUID))
                 AttackStart(target);
         }
@@ -1150,6 +1158,7 @@ public:
         {
             spiritMend = false;
             chainHeal  = false;
+            summonerGuid = 0;
 
             if (Unit* target = me->GetCreature(*me, akamaGUID))
                 AttackStart(target);
