@@ -39,8 +39,7 @@ class instance_ramparts : public InstanceMapScript
             void Initialize()
             {
                 SetBossNumber(EncounterCount);
-                chestNormalGUID = 0;
-                chestHeroicGUID = 0;
+                felIronChestGUID = 0;
             }
 
             void OnGameObjectCreate(GameObject* go)
@@ -48,10 +47,8 @@ class instance_ramparts : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_FEL_IRON_CHEST_NORMAL:
-                        chestNormalGUID = go->GetGUID();
-                        break;
                     case GO_FEL_IRON_CHECT_HEROIC:
-                        chestHeroicGUID = go->GetGUID();
+                        felIronChestGUID = go->GetGUID();
                         break;
                 }
             }
@@ -67,7 +64,7 @@ class instance_ramparts : public InstanceMapScript
                     case DATA_NAZAN:
                         if (GetBossState(DATA_VAZRUDEN) == DONE && GetBossState(DATA_NAZAN) == DONE && !spawned)
                         {
-                            DoRespawnGameObject(instance->IsHeroic() ? chestHeroicGUID : chestNormalGUID, HOUR*IN_MILLISECONDS);
+                            DoRespawnGameObject(felIronChestGUID, HOUR*IN_MILLISECONDS);
                             spawned = true;
                         }
                         break;
@@ -119,8 +116,7 @@ class instance_ramparts : public InstanceMapScript
             }
 
             protected:
-                uint64 chestNormalGUID;
-                uint64 chestHeroicGUID;
+                uint64 felIronChestGUID;
                 bool spawned;
         };
 
