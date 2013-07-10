@@ -158,7 +158,6 @@ class instance_shattered_halls : public InstanceMapScript
             }
 
             protected:
-                uint32 encounter[EncounterCount];
                 uint64 nethekurseGUID;
                 uint64 nethekurseDoor1GUID;
                 uint64 nethekurseDoor2GUID;
