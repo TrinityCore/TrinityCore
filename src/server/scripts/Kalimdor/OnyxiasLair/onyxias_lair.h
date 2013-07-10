@@ -18,28 +18,24 @@
 #ifndef DEF_ONYXIAS_LAIR_H
 #define DEF_ONYXIAS_LAIR_H
 
+uint32 const EncounterCount     = 1;
+
+enum DataTypes
+{
+    DATA_ONYXIA                 = 0,
+};
+
+enum Data32
+{
+    DATA_ONYXIA_PHASE           = 0,
+    DATA_SHE_DEEP_BREATH_MORE   = 1,
+    DATA_MANY_WHELPS_COUNT      = 2
+};
+
 enum Data64
 {
-    DATA_ONYXIA_GUID,
-    DATA_FLOOR_ERUPTION_GUID
-};
-
-enum InstanceData
-{
-    DATA_ONYXIA,
-    MAX_ENCOUNTER,
-
-    DATA_ONYXIA_PHASE,
-    DATA_SHE_DEEP_BREATH_MORE,
-    DATA_MANY_WHELPS_COUNT
-};
-
-enum Creatures
-{
-    NPC_WHELP                   = 11262,
-    NPC_LAIRGUARD               = 36561,
-
-    NPC_ONYXIA                  = 10184
+    DATA_ONYXIA_GUID            = 0,
+    DATA_FLOOR_ERUPTION_GUID    = 1
 };
 
 enum OnyxiaPhases
@@ -49,7 +45,14 @@ enum OnyxiaPhases
     PHASE_END                   = 3
 };
 
-enum GameObjects
+enum CreatureIds
+{
+    NPC_WHELP                   = 11262,
+    NPC_LAIRGUARD               = 36561,
+    NPC_ONYXIA                  = 10184
+};
+
+enum GameObjectIds
 {
     GO_WHELP_SPAWNER            = 176510,
     GO_WHELP_EGG                = 176511
