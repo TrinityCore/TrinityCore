@@ -30,65 +30,98 @@ EndScriptData */
 class instance_ramparts : public InstanceMapScript
 {
     public:
-        instance_ramparts()
-            : InstanceMapScript("instance_ramparts", 543)
-        {
-        }
+        instance_ramparts() : InstanceMapScript("instance_ramparts", 543) { }
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
             instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-            uint64 m_uiChestNGUID;
-            uint64 m_uiChestHGUID;
-            bool spawned;
-
             void Initialize()
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                m_uiChestNGUID = 0;
-                m_uiChestHGUID = 0;
+                SetBossNumber(EncounterCount);
+                chestNormalGUID = 0;
+                chestHeroicGUID = 0;
             }
 
             void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
                 {
-                    case 185168:
-                        m_uiChestNGUID = go->GetGUID();
+                    case GO_FEL_IRON_CHEST_NORMAL:
+                        chestNormalGUID = go->GetGUID();
                         break;
-                    case 185169:
-                        m_uiChestHGUID = go->GetGUID();
+                    case GO_FEL_IRON_CHECT_HEROIC:
+                        chestHeroicGUID = go->GetGUID();
                         break;
                 }
             }
 
-            void SetData(uint32 uiType, uint32 uiData)
+            bool SetBossState(uint32 type, EncounterState state)
             {
-                TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
 
-                switch (uiType)
+                switch (type)
                 {
-                    case TYPE_VAZRUDEN:
-                        if (uiData == DONE && m_auiEncounter[1] == DONE && !spawned)
+                    case DATA_VAZRUDEN:
+                    case DATA_NAZAN:
+                        if (GetBossState(DATA_VAZRUDEN) == DONE && GetBossState(DATA_NAZAN) == DONE && !spawned)
                         {
-                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
+                            DoRespawnGameObject(instance->IsHeroic() ? chestHeroicGUID : chestNormalGUID, HOUR*IN_MILLISECONDS);
                             spawned = true;
                         }
-                        m_auiEncounter[0] = uiData;
-                        break;
-                    case TYPE_NAZAN:
-                        if (uiData == DONE && m_auiEncounter[0] == DONE && !spawned)
-                        {
-                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
-                            spawned = true;
-                        }
-                        m_auiEncounter[1] = uiData;
                         break;
                 }
+                return true;
             }
+
+            std::string GetSaveData()
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "H R " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(const char* strIn)
+            {
+                if (!strIn)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(strIn);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(strIn);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'H' && dataHead2 == 'R')
+                {
+                    for (uint8 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                            SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+            protected:
+                uint64 chestNormalGUID;
+                uint64 chestHeroicGUID;
+                bool spawned;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

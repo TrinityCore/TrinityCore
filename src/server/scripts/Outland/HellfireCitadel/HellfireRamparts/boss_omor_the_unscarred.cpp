@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Player.h"
+#include "hellfire_ramparts.h"
 
 enum Says
 {
@@ -53,27 +54,14 @@ class boss_omor_the_unscarred : public CreatureScript
 {
     public:
 
-        boss_omor_the_unscarred()
-            : CreatureScript("boss_omor_the_unscarred")
-        {
-        }
+        boss_omor_the_unscarred() : CreatureScript("boss_omor_the_unscarred") { }
 
-        struct boss_omor_the_unscarredAI : public ScriptedAI
+        struct boss_omor_the_unscarredAI : public BossAI
         {
-            boss_omor_the_unscarredAI(Creature* creature) : ScriptedAI(creature)
+            boss_omor_the_unscarredAI(Creature* creature) : BossAI(creature, DATA_OMOR_THE_UNSCARRED)
             {
                 SetCombatMovement(false);
             }
-
-            uint32 OrbitalStrike_Timer;
-            uint32 ShadowWhip_Timer;
-            uint32 Aura_Timer;
-            uint32 DemonicShield_Timer;
-            uint32 Shadowbolt_Timer;
-            uint32 Summon_Timer;
-            uint32 SummonedCount;
-            uint64 PlayerGUID;
-            bool CanPullBack;
 
             void Reset() OVERRIDE
             {
@@ -88,10 +76,13 @@ class boss_omor_the_unscarred : public CreatureScript
                 SummonedCount = 0;
                 PlayerGUID = 0;
                 CanPullBack = false;
+
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
@@ -116,6 +107,7 @@ class boss_omor_the_unscarred : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
+                _JustDied();
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -217,6 +209,17 @@ class boss_omor_the_unscarred : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                uint32 OrbitalStrike_Timer;
+                uint32 ShadowWhip_Timer;
+                uint32 Aura_Timer;
+                uint32 DemonicShield_Timer;
+                uint32 Shadowbolt_Timer;
+                uint32 Summon_Timer;
+                uint32 SummonedCount;
+                uint64 PlayerGUID;
+                bool CanPullBack;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

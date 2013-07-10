@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "hellfire_ramparts.h"
 
 enum Says
 {
@@ -47,24 +48,11 @@ enum Spells
 class boss_watchkeeper_gargolmar : public CreatureScript
 {
     public:
+        boss_watchkeeper_gargolmar() : CreatureScript("boss_watchkeeper_gargolmar") { }
 
-        boss_watchkeeper_gargolmar()
-            : CreatureScript("boss_watchkeeper_gargolmar")
+        struct boss_watchkeeper_gargolmarAI : public BossAI
         {
-        }
-
-        struct boss_watchkeeper_gargolmarAI : public ScriptedAI
-        {
-            boss_watchkeeper_gargolmarAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            uint32 Surge_Timer;
-            uint32 MortalWound_Timer;
-            uint32 Retaliation_Timer;
-
-            bool HasTaunted;
-            bool YelledForHeal;
+            boss_watchkeeper_gargolmarAI(Creature* creature) : BossAI(creature, DATA_WATCHKEEPER_GARGOLMAR) { }
 
             void Reset() OVERRIDE
             {
@@ -74,11 +62,14 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
                 HasTaunted = false;
                 YelledForHeal = false;
+
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
+                _EnterCombat();
             }
 
             void MoveInLineOfSight(Unit* who) OVERRIDE
@@ -111,6 +102,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
+                _JustDied();
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -160,6 +152,14 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                uint32 Surge_Timer;
+                uint32 MortalWound_Timer;
+                uint32 Retaliation_Timer;
+
+                bool HasTaunted;
+                bool YelledForHeal;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
