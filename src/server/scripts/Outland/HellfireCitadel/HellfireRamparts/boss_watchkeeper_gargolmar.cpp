@@ -45,6 +45,13 @@ enum Spells
     SPELL_RETALIATION      = 22857
 };
 
+enum Events
+{
+    EVENT_MORTAL_WOUND     = 1,
+    EVENT_SURGE            = 2,
+    EVENT_RETALIATION      = 3
+};
+
 class boss_watchkeeper_gargolmar : public CreatureScript
 {
     public:
@@ -56,19 +63,17 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                Surge_Timer = 5000;
-                MortalWound_Timer = 4000;
-                Retaliation_Timer = 0;
-
-                HasTaunted = false;
-                YelledForHeal = false;
-
+                hasTaunted    = false;
+                yelledForHeal = false;
+                retaliation   = false;
                 _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
+                events.ScheduleEvent(EVENT_SURGE, 4000);
                 _EnterCombat();
             }
 
@@ -86,10 +91,10 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                         //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                         AttackStart(who);
                     }
-                    else if (!HasTaunted && me->IsWithinDistInMap(who, 60.0f))
+                    else if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f))
                     {
                         Talk(SAY_TAUNT);
-                        HasTaunted = true;
+                        hasTaunted = true;
                     }
                 }
             }
@@ -110,43 +115,44 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (MortalWound_Timer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCastVictim(SPELL_MORTAL_WOUND);
-                    MortalWound_Timer = 5000+rand()%8000;
-                }
-                else
-                    MortalWound_Timer -= diff;
-
-                if (Surge_Timer <= diff)
-                {
-                    Talk(SAY_SURGE);
-
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_SURGE);
-
-                    Surge_Timer = 5000+rand()%8000;
-                }
-                else
-                    Surge_Timer -= diff;
-
-                if (HealthBelowPct(20))
-                {
-                    if (Retaliation_Timer <= diff)
+                    switch (eventId)
                     {
-                        DoCast(me, SPELL_RETALIATION);
-                        Retaliation_Timer = 30000;
+                        case EVENT_MORTAL_WOUND:
+                            DoCastVictim(SPELL_MORTAL_WOUND);
+                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand (5000, 13000));
+                            break;
+                        case EVENT_SURGE:
+                            Talk(SAY_SURGE);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_SURGE);
+                            events.ScheduleEvent(EVENT_SURGE, urand (5000, 13000));
+                            break;
+                        case EVENT_RETALIATION:
+                            DoCast(me, SPELL_RETALIATION);
+                            events.ScheduleEvent(EVENT_RETALIATION, 30000);
+                            break;
+                        default:
+                            break;
                     }
-                    else
-                        Retaliation_Timer -= diff;
                 }
 
-                if (!YelledForHeal)
+                if (!retaliation)
+                {
+                    if (HealthBelowPct(20))
+                    {
+                        events.ScheduleEvent(EVENT_RETALIATION, 1000);
+                        retaliation = true;
+                    }
+                }
+
+                if (!yelledForHeal)
                 {
                     if (HealthBelowPct(40))
                     {
                         Talk(SAY_HEAL);
-                        YelledForHeal = true;
+                        yelledForHeal = true;
                     }
                 }
 
@@ -154,12 +160,9 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             }
 
             private:
-                uint32 Surge_Timer;
-                uint32 MortalWound_Timer;
-                uint32 Retaliation_Timer;
-
-                bool HasTaunted;
-                bool YelledForHeal;
+                bool hasTaunted;
+                bool yelledForHeal;
+                bool retaliation;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
