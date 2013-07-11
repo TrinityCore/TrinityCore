@@ -378,7 +378,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS, 100);   // guess size
     data << uint64(npcGUID);
-    data << uint64(0);                                      // wotlk, something todo with quest sharing?
+    data << uint64(_session->GetPlayer()->GetDivider());
     data << uint32(quest->GetQuestId());
     data << questTitle;
     data << questDetails;
