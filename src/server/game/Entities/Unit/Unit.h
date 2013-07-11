@@ -1305,13 +1305,13 @@ class Unit : public WorldObject
         bool Attack(Unit* victim, bool meleeAttack);
         void CastStop(uint32 except_spellid = 0);
         bool AttackStop();
-        void RemoveAllAttackers();
+        void RemoveAllAttackers(bool stopAttacks = false);
         AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;
         Unit* GetVictim() const { return m_attacking; }
 
-        void CombatStop(bool includingCast = false);
-        void CombatStopWithPets(bool includingCast = false);
+        void CombatStop(bool includingCast = false, bool includingAttacks = false);
+        void CombatStopWithPets(bool includingCast = false, bool includingAttacks = false);
         void StopAttackFaction(uint32 faction_id);
         Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
@@ -2137,6 +2137,10 @@ class Unit : public WorldObject
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
+        bool HasDelayedSwing() const;
+        void SuspendDelayedSwing();
+        void ExecuteDelayedSwingHit();
+
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2238,6 +2242,7 @@ class Unit : public WorldObject
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         uint32 m_lastManaUse;                               // msecs
+        uint32 _swingDelayTimer;
         TimeTrackerSmall m_movesplineTimer;
 
         Diminishing m_Diminishing;
@@ -2250,6 +2255,9 @@ class Unit : public WorldObject
 
         RedirectThreatInfo _redirectThreadInfo;
 
+        CalcDamageInfo _damageInfo;
+
+        bool _swingLanded;
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
 

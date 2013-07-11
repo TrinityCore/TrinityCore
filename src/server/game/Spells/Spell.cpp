@@ -3269,6 +3269,10 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
+    // if we are applying crowd control aura execute caster's delayed attack immediately to prevent instant CC break
+    if (m_caster->HasDelayedSwing() && m_targets.GetUnitTarget() && (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
+        m_caster->ExecuteDelayedSwingHit();
+
     PrepareTriggersExecutedOnHit();
 
     CallScriptOnCastHandlers();

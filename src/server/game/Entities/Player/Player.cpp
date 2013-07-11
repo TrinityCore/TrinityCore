@@ -2232,7 +2232,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             SetSelection(0);
 
-            CombatStop();
+            CombatStop(false, true);
 
             ResetContestedPvP();
 
@@ -20997,7 +20997,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // Prepare to flight start now
 
     // stop combat at start taxi flight if any
-    CombatStop();
+    CombatStop(false, true);
 
     StopCastingCharm();
     StopCastingBindSight();
