@@ -1026,6 +1026,7 @@ public:
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
+	new spell_pal_guardian_ancient_kings();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_divine_sacrifice();
