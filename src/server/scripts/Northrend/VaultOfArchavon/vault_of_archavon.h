@@ -18,23 +18,23 @@
 #ifndef DEF_ARCHAVON_H
 #define DEF_ARCHAVON_H
 
-enum Creatures
-{
-    CREATURE_ARCHAVON                           = 31125,
-    CREATURE_EMALON                             = 33993,
-    CREATURE_KORALON                            = 35013,
-    CREATURE_TORAVON                            = 38433,
-};
+uint32 const EncounterCount = 4;
 
 enum Data
 {
-    DATA_ARCHAVON   = 0,
-    DATA_EMALON     = 1,
-    DATA_KORALON    = 2,
-    DATA_TORAVON    = 3,
+    DATA_ARCHAVON       = 0,
+    DATA_EMALON         = 1,
+    DATA_KORALON        = 2,
+    DATA_TORAVON        = 3,
 };
 
-#define MAX_ENCOUNTER 4
+enum CreatureIds
+{
+    NPC_ARCHAVON        = 31125,
+    NPC_EMALON          = 33993,
+    NPC_KORALON         = 35013,
+    NPC_TORAVON         = 38433
+};
 
 enum AchievementCriteriaIds
 {

@@ -27,19 +27,23 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_FROSTBOLT    17503
-#define SPELL_DRAINLIFE    20743
-#define SPELL_DRAIN_MANA    17243
-#define SPELL_ICETOMB    16869
+enum Spells
+{
+    SPELL_FROSTBOLT     = 17503,
+    SPELL_DRAINLIFE     = 20743,
+    SPELL_DRAIN_MANA    = 17243,
+    SPELL_ICETOMB       = 16869
+
+};
 
 class boss_maleki_the_pallid : public CreatureScript
 {
 public:
     boss_maleki_the_pallid() : CreatureScript("boss_maleki_the_pallid") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_maleki_the_pallidAI (creature);
+        return new boss_maleki_the_pallidAI(creature);
     }
 
     struct boss_maleki_the_pallidAI : public ScriptedAI
@@ -55,24 +59,24 @@ public:
         uint32 IceTomb_Timer;
         uint32 DrainLife_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Frostbolt_Timer = 1000;
             IceTomb_Timer = 16000;
             DrainLife_Timer = 31000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(TYPE_PALLID, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

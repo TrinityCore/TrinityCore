@@ -76,19 +76,19 @@ enum Summons
 
 Position const NordrassilLoc = {5503.713f, -3523.436f, 1608.781f, 0.0f};
 
-class mob_ancient_wisp : public CreatureScript
+class npc_ancient_wisp : public CreatureScript
 {
 public:
-    mob_ancient_wisp() : CreatureScript("mob_ancient_wisp") { }
+    npc_ancient_wisp() : CreatureScript("npc_ancient_wisp") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_ancient_wispAI(creature);
+        return new npc_ancient_wispAI(creature);
     }
 
-    struct mob_ancient_wispAI : public ScriptedAI
+    struct npc_ancient_wispAI : public ScriptedAI
     {
-        mob_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
+        npc_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             ArchimondeGUID = 0;
@@ -98,7 +98,7 @@ public:
         uint64 ArchimondeGUID;
         uint32 CheckTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CheckTimer = 1000;
 
@@ -108,14 +108,14 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             damage = 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (CheckTimer <= diff)
             {
@@ -134,26 +134,27 @@ public:
 
 /* This script is merely a placeholder for the Doomfire that triggers Doomfire spell. It will
    MoveChase the Doomfire Spirit always, until despawn (AttackStart is called upon it's spawn) */
-class mob_doomfire : public CreatureScript
+class npc_doomfire : public CreatureScript
 {
 public:
-    mob_doomfire() : CreatureScript("mob_doomfire") { }
+    npc_doomfire() : CreatureScript("npc_doomfire") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_doomfireAI(creature);
+        return new npc_doomfireAI(creature);
     }
 
-    struct mob_doomfireAI : public ScriptedAI
+    struct npc_doomfireAI : public ScriptedAI
     {
-        mob_doomfireAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_doomfireAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset() { }
+        void Reset() OVERRIDE {}
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             damage = 0;
         }
@@ -162,30 +163,31 @@ public:
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
    travels in random directions if target cannot be found. */
-class mob_doomfire_targetting : public CreatureScript
+class npc_doomfire_targetting : public CreatureScript
 {
 public:
-    mob_doomfire_targetting() : CreatureScript("mob_doomfire_targetting") { }
+    npc_doomfire_targetting() : CreatureScript("npc_doomfire_targetting") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_doomfire_targettingAI(creature);
+        return new npc_doomfire_targettingAI(creature);
     }
 
-    struct mob_doomfire_targettingAI : public ScriptedAI
+    struct npc_doomfire_targettingAI : public ScriptedAI
     {
-        mob_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 TargetGUID;
         uint32 ChangeTargetTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TargetGUID = 0;
             ChangeTargetTimer = 5000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             //will update once TargetGUID is 0. In case noone actually moves(not likely) and this is 0
             //when UpdateAI needs it, it will be forced to select randomPoint
@@ -193,14 +195,14 @@ public:
                 TargetGUID = who->GetGUID();
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             damage = 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (ChangeTargetTimer <= diff)
             {
@@ -235,9 +237,9 @@ class boss_archimonde : public CreatureScript
 public:
     boss_archimonde() : CreatureScript("boss_archimonde") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_archimondeAI (creature);
+        return new boss_archimondeAI(creature);
     }
 
     struct boss_archimondeAI : public hyjal_trashAI
@@ -271,7 +273,7 @@ public:
         bool HasProtected;
         bool IsChanneling;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
@@ -300,7 +302,7 @@ public:
             IsChanneling = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
             Talk(SAY_AGGRO);
@@ -310,7 +312,7 @@ public:
                 instance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             Talk(SAY_SLAY);
 
@@ -343,7 +345,7 @@ public:
             ++SoulChargeCount;
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             hyjal_trashAI::JustDied(killer);
             Talk(SAY_DEATH);
@@ -388,7 +390,7 @@ public:
             return false;
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == CREATURE_ANCIENT_WISP)
                 summoned->AI()->AttackStart(me);
@@ -465,7 +467,7 @@ public:
                 SoulChargeTimer = urand(2000, 30000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!me->IsInCombat())
             {
@@ -636,14 +638,14 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        void WaypointReached(uint32 /*waypointId*/) { }
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE {}
     };
 };
 
 void AddSC_boss_archimonde()
 {
     new boss_archimonde();
-    new mob_doomfire();
-    new mob_doomfire_targetting();
-    new mob_ancient_wisp();
+    new npc_doomfire();
+    new npc_doomfire_targetting();
+    new npc_ancient_wisp();
 }

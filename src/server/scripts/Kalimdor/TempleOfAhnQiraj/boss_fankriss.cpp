@@ -32,20 +32,23 @@ EndScriptData */
 #define SOUND_TRESPASS     8591
 #define SOUND_WILL_BE      8592
 
-#define SPELL_MORTAL_WOUND 28467
-#define SPELL_ROOT         28858
+enum Spells
+{
+    SPELL_MORTAL_WOUND      = 28467,
+    SPELL_ROOT              = 28858,
 
-// Enrage for his spawns
-#define SPELL_ENRAGE       28798
+    // Enrage for his spawns
+    SPELL_ENRAGE            = 28798
+};
 
 class boss_fankriss : public CreatureScript
 {
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fankrissAI (creature);
+        return new boss_fankrissAI(creature);
     }
 
     struct boss_fankrissAI : public ScriptedAI
@@ -62,7 +65,7 @@ public:
         Creature* Hatchling;
         Creature* Spawn;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             MortalWound_Timer = urand(10000, 15000);
             SpawnHatchlings_Timer = urand(6000, 12000);
@@ -93,11 +96,11 @@ public:
                 Spawn->AI()->AttackStart(victim);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

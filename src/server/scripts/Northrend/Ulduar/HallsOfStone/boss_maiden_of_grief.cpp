@@ -56,9 +56,9 @@ class boss_maiden_of_grief : public CreatureScript
 public:
     boss_maiden_of_grief() : CreatureScript("boss_maiden_of_grief") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_maiden_of_griefAI (creature);
+        return new boss_maiden_of_griefAI(creature);
     }
 
     struct boss_maiden_of_griefAI : public ScriptedAI
@@ -75,7 +75,7 @@ public:
         uint32 ShockOfSorrowTimer;
         uint32 PillarOfWoeTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             PartingSorrowTimer = urand(25000, 30000);
             StormOfGriefTimer = 10000;
@@ -89,7 +89,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -107,7 +107,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -153,7 +153,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -161,7 +161,7 @@ public:
                 instance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;

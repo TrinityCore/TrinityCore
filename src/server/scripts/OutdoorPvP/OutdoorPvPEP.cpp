@@ -773,7 +773,7 @@ class OutdoorPvP_eastern_plaguelands : public OutdoorPvPScript
         {
         }
 
-        OutdoorPvP* GetOutdoorPvP() const
+        OutdoorPvP* GetOutdoorPvP() const OVERRIDE
         {
             return new OutdoorPvPEP();
         }

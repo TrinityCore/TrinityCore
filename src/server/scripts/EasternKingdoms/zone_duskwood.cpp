@@ -44,7 +44,7 @@ class at_twilight_grove : public AreaTriggerScript
 public:
     at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
     {
         if (player->HasQuestForItem(21149))
         {
@@ -68,18 +68,21 @@ public:
 # boss_twilight_corrupter
 ######*/
 
-#define SPELL_SOUL_CORRUPTION 25805
-#define SPELL_CREATURE_OF_NIGHTMARE 25806
-#define SPELL_LEVEL_UP 24312
+enum TwilightCorrupter
+{
+    SPELL_SOUL_CORRUPTION           = 25805,
+    SPELL_CREATURE_OF_NIGHTMARE     = 25806,
+    SPELL_LEVEL_UP                  = 24312
+};
 
 class boss_twilight_corrupter : public CreatureScript
 {
 public:
     boss_twilight_corrupter() : CreatureScript("boss_twilight_corrupter") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_twilight_corrupterAI (creature);
+        return new boss_twilight_corrupterAI(creature);
     }
 
     struct boss_twilight_corrupterAI : public ScriptedAI
@@ -90,18 +93,18 @@ public:
         uint32 CreatureOfNightmare_Timer;
         uint8 KillCount;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             SoulCorruption_Timer = 15000;
             CreatureOfNightmare_Timer = 30000;
             KillCount = 0;
         }
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(YELL_TWILIGHTCORRUPTOR_AGGRO);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
@@ -116,7 +119,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

@@ -28,7 +28,6 @@ EndScriptData */
 
 enum Yells
 {
-    //Yells Ingvar
     YELL_AGGRO_1                                = 0,
     YELL_KILL_1                                 = 1,
     YELL_DEAD_1                                 = 2,
@@ -40,9 +39,10 @@ enum Yells
 
 enum Creatures
 {
-    MOB_INGVAR_HUMAN                            = 23954,
-    MOB_ANNHYLDE_THE_CALLER                     = 24068,
-    MOB_INGVAR_UNDEAD                           = 23980,
+    NPC_INGVAR_HUMAN                            = 23954,
+    NPC_ANNHYLDE_THE_CALLER                     = 24068,
+    NPC_INGVAR_UNDEAD                           = 23980,
+    NPC_THROW_TARGET                            = 23996,
 };
 
 enum Events
@@ -69,7 +69,7 @@ enum Phases
 
 enum Spells
 {
-    //Ingvar Spells human form
+    // Ingvar Spells human form
     SPELL_CLEAVE                                = 42724,
     SPELL_SMASH                                 = 42669,
     SPELL_STAGGERING_ROAR                       = 42708,
@@ -79,13 +79,18 @@ enum Spells
     SPELL_SUMMON_BANSHEE                        = 42912,
     SPELL_SCOURG_RESURRECTION                   = 42863, // Spawn resurrect effect around Ingvar
 
-    //Ingvar Spells undead form
+    // Ingvar Spells undead form
     SPELL_DARK_SMASH                            = 42723,
     SPELL_DREADFUL_ROAR                         = 42729,
     SPELL_WOE_STRIKE                            = 42730,
 
-    ENTRY_THROW_TARGET                          = 23996,
-    SPELL_SHADOW_AXE_SUMMON                     = 42748
+    SPELL_SHADOW_AXE_SUMMON                     = 42748,
+
+    // Spells for Annhylde
+    SPELL_SCOURG_RESURRECTION_HEAL              = 42704, // Heal Max + DummyAura
+    SPELL_SCOURG_RESURRECTION_BEAM              = 42857, // Channeling Beam of Annhylde
+    SPELL_SCOURG_RESURRECTION_DUMMY             = 42862, // Some Emote Dummy?
+    SPELL_INGVAR_TRANSFORM                      = 42796
 };
 
 class boss_ingvar_the_plunderer : public CreatureScript
@@ -93,7 +98,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
 public:
     boss_ingvar_the_plunderer() : CreatureScript("boss_ingvar_the_plunderer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_ingvar_the_plundererAI(creature);
     }
@@ -110,10 +115,10 @@ public:
 
         bool bIsUndead;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (bIsUndead)
-                me->UpdateEntry(MOB_INGVAR_HUMAN);
+                me->UpdateEntry(NPC_INGVAR_HUMAN);
 
             bIsUndead = false;
 
@@ -132,7 +137,7 @@ public:
                 instance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             if (damage >= me->GetHealth() && !bIsUndead)
             {
@@ -160,13 +165,13 @@ public:
         void StartZombiePhase()
         {
             bIsUndead = true;
-            me->UpdateEntry(MOB_INGVAR_UNDEAD);
+            me->UpdateEntry(NPC_INGVAR_UNDEAD);
             events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 2 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
             Talk(YELL_AGGRO_2);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (!bIsUndead)
                 Talk(YELL_AGGRO_1);
@@ -177,14 +182,14 @@ public:
             me->SetInCombatWithZone();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(YELL_DEAD_2);
 
             if (instance)
             {
-                // Ingvar has MOB_INGVAR_UNDEAD id in this moment, so we have to update encounter state for his original id
-                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, MOB_INGVAR_HUMAN, me);
+                // Ingvar has NPC_INGVAR_UNDEAD id in this moment, so we have to update encounter state for his original id
+                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_INGVAR_HUMAN, me);
                 instance->SetData(DATA_INGVAR_EVENT, DONE);
             }
         }
@@ -198,12 +203,12 @@ public:
             events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(bIsUndead ? YELL_KILL_1 : YELL_KILL_2);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
                 return;
@@ -274,31 +279,20 @@ public:
 
 };
 
-enum eSpells
-{
-//we don't have that text in db so comment it until we get this text
-//    YELL_RESSURECT                      = -1574025,
 
-//Spells for Annhylde
-    SPELL_SCOURG_RESURRECTION_HEAL              = 42704, //Heal Max + DummyAura
-    SPELL_SCOURG_RESURRECTION_BEAM              = 42857, //Channeling Beam of Annhylde
-    SPELL_SCOURG_RESURRECTION_DUMMY             = 42862, //Some Emote Dummy?
-    SPELL_INGVAR_TRANSFORM                      = 42796
-};
-
-class mob_annhylde_the_caller : public CreatureScript
+class npc_annhylde_the_caller : public CreatureScript
 {
 public:
-    mob_annhylde_the_caller() : CreatureScript("mob_annhylde_the_caller") { }
+    npc_annhylde_the_caller() : CreatureScript("npc_annhylde_the_caller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_annhylde_the_callerAI (creature);
+        return new npc_annhylde_the_callerAI(creature);
     }
 
-    struct mob_annhylde_the_callerAI : public ScriptedAI
+    struct npc_annhylde_the_callerAI : public ScriptedAI
     {
-        mob_annhylde_the_callerAI(Creature* creature) : ScriptedAI(creature)
+        npc_annhylde_the_callerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
@@ -308,7 +302,7 @@ public:
         uint32 uiResurectTimer;
         uint32 uiResurectPhase;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             me->SetHover(true);
@@ -325,7 +319,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -350,10 +344,11 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit* /*who*/) {}
-        void UpdateAI(uint32 diff)
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (uiResurectTimer)
             {
@@ -391,32 +386,32 @@ public:
     };
 };
 
-enum eShadowAxe
+enum ShadowAxe
 {
     SPELL_SHADOW_AXE_DAMAGE                     = 42750,
     H_SPELL_SHADOW_AXE_DAMAGE                   = 59719,
     POINT_TARGET                                = 28
 };
 
-class mob_ingvar_throw_dummy : public CreatureScript
+class npc_ingvar_throw_dummy : public CreatureScript
 {
 public:
-    mob_ingvar_throw_dummy() : CreatureScript("mob_ingvar_throw_dummy") { }
+    npc_ingvar_throw_dummy() : CreatureScript("npc_ingvar_throw_dummy") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_ingvar_throw_dummyAI (creature);
+        return new npc_ingvar_throw_dummyAI(creature);
     }
 
-    struct mob_ingvar_throw_dummyAI : public ScriptedAI
+    struct npc_ingvar_throw_dummyAI : public ScriptedAI
     {
-        mob_ingvar_throw_dummyAI(Creature* creature) : ScriptedAI(creature)
+        npc_ingvar_throw_dummyAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
-            if (Creature* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50.0f))
+            if (Creature* target = me->FindNearestCreature(NPC_THROW_TARGET, 50.0f))
             {
                 float x, y, z;
                 target->GetPosition(x, y, z);
@@ -424,12 +419,10 @@ public:
                 target->DisappearAndDie();
             }
             else
-            {
                 me->DisappearAndDie();
-            }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type == EFFECT_MOTION_TYPE && id == POINT_TARGET)
             {
@@ -449,6 +442,6 @@ public:
 void AddSC_boss_ingvar_the_plunderer()
 {
     new boss_ingvar_the_plunderer();
-    new mob_annhylde_the_caller();
-    new mob_ingvar_throw_dummy();
+    new npc_annhylde_the_caller();
+    new npc_ingvar_throw_dummy();
 }

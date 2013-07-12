@@ -65,7 +65,7 @@ public:
     {
         boss_blackheart_the_inciterAI(Creature* creature) : BossAI(creature, DATA_BLACKHEARTTHEINCITEREVENT) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             InciteChaos = false;
 
@@ -73,12 +73,12 @@ public:
                 instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -86,7 +86,7 @@ public:
                 instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_INCITE_CHAOS_WAIT, 15000);
             events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
@@ -99,7 +99,7 @@ public:
                 instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -150,13 +150,12 @@ public:
 
         private:
             bool InciteChaos;
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_blackheart_the_inciterAI (creature);
-        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new boss_blackheart_the_inciterAI(creature);
+    }
 };
 
 void AddSC_boss_blackheart_the_inciter()

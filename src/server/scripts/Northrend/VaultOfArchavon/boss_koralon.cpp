@@ -61,7 +61,7 @@ class boss_koralon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoCast(me, SPELL_BURNING_FURY);
 
@@ -73,7 +73,7 @@ class boss_koralon : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -116,7 +116,7 @@ class boss_koralon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_koralonAI(creature);
         }
@@ -125,23 +125,23 @@ class boss_koralon : public CreatureScript
 /*######
 ##  Mob Flame Warder
 ######*/
-class mob_flame_warder : public CreatureScript
+class npc_flame_warder : public CreatureScript
 {
     public:
-        mob_flame_warder() : CreatureScript("mob_flame_warder") { }
+        npc_flame_warder() : CreatureScript("npc_flame_warder") { }
 
-        struct mob_flame_warderAI : public ScriptedAI
+        struct npc_flame_warderAI : public ScriptedAI
         {
-            mob_flame_warderAI(Creature* creature) : ScriptedAI(creature)
+            npc_flame_warderAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoZoneInCombat();
 
@@ -149,7 +149,7 @@ class mob_flame_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 10000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -184,14 +184,14 @@ class mob_flame_warder : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_flame_warderAI(creature);
+            return new npc_flame_warderAI(creature);
         }
 };
 
 void AddSC_boss_koralon()
 {
     new boss_koralon();
-    new mob_flame_warder();
+    new npc_flame_warder();
 }

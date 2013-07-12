@@ -55,7 +55,7 @@ class boss_herod : public CreatureScript
 public:
     boss_herod() : CreatureScript("boss_herod") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_herodAI(creature);
     }
@@ -69,31 +69,31 @@ public:
         uint32 Cleave_Timer;
         uint32 Whirlwind_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Enrage = false;
             Cleave_Timer = 12000;
             Whirlwind_Timer = 60000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
             DoCast(me, SPELL_RUSHINGCHARGE);
         }
 
-         void KilledUnit(Unit* /*victim*/)
+         void KilledUnit(Unit* /*victim*/) OVERRIDE
          {
              Talk(SAY_KILL);
          }
 
-         void JustDied(Unit* /*killer*/)
+         void JustDied(Unit* /*killer*/) OVERRIDE
          {
              for (uint8 i = 0; i < 20; ++i)
                  me->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18f, -431.58f, 17.09f, 6.22f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
          }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -129,30 +129,30 @@ public:
     };
 };
 
-class mob_scarlet_trainee : public CreatureScript
+class npc_scarlet_trainee : public CreatureScript
 {
 public:
-    mob_scarlet_trainee() : CreatureScript("mob_scarlet_trainee") { }
+    npc_scarlet_trainee() : CreatureScript("npc_scarlet_trainee") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_scarlet_traineeAI(creature);
+        return new npc_scarlet_traineeAI(creature);
     }
 
-    struct mob_scarlet_traineeAI : public npc_escortAI
+    struct npc_scarlet_traineeAI : public npc_escortAI
     {
-        mob_scarlet_traineeAI(Creature* creature) : npc_escortAI(creature)
+        npc_scarlet_traineeAI(Creature* creature) : npc_escortAI(creature)
         {
             Start_Timer = urand(1000, 6000);
         }
 
         uint32 Start_Timer;
 
-        void Reset() {}
-        void WaypointReached(uint32 /*waypointId*/) {}
-        void EnterCombat(Unit* /*who*/) {}
+        void Reset() OVERRIDE {}
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Start_Timer)
             {
@@ -171,5 +171,5 @@ public:
 void AddSC_boss_herod()
 {
     new boss_herod();
-    new mob_scarlet_trainee();
+    new npc_scarlet_trainee();
 }
