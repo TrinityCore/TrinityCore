@@ -2924,6 +2924,20 @@ int LuaUnit::SpawnCreature(lua_State* L, Unit* unit)
     return 1;
 }
 
+int LuaUnit::DealDamage(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    Unit* target = sEluna->CHECK_UNIT(L, 1);
+    uint32 amount = luaL_checkunsigned(L, 2);
+
+    if (!target)
+        unit->DealDamage(unit, amount);
+    else
+        unit->DealDamage(target, amount);
+    return 0;
+}
+
 int LuaUnit::Despawn(lua_State* L, Unit* unit)
 {
     TO_CREATURE();

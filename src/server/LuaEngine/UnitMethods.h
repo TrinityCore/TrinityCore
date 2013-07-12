@@ -4,6 +4,7 @@
 namespace LuaUnit
 {
     int Attack(lua_State*, Unit*);
+    int DealDamage(lua_State*, Unit*);
     int SetFlag(lua_State*, Unit*);
     int RemoveFlag(lua_State*, Unit*);
     int HasFlag(lua_State*, Unit*);

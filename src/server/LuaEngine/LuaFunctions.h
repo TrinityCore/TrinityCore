@@ -393,6 +393,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"Respawn", &LuaUnit::Respawn},                                                                         // :Respawn([force]) - Respawns the creature
     {"SelectVictim", &LuaUnit::SelectVictim},                                                               // :SelectVictim() - Returns a victim or nil
     {"AddLootMode", &LuaUnit::AddLootMode},                                                                 // :AddLootMode(lootMode)
+    {"DealDamage", &LuaUnit::DealDamage},                                                                   // :DealDamage(target, amount) - Deals damage to target (if target) : if no target, unit will damage self
 
     // Unit Methods
     // Getters
