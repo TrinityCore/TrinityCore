@@ -2000,7 +2000,7 @@ uint64 ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
     return guid;
 }
 
-bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string &name) const
+bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string& name) const
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
