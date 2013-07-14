@@ -2542,7 +2542,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.Name1                     = fields[4].GetString();
             itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
             itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
-            itemTemplate.Flags                     = uint32(fields[7].GetInt64());
+            itemTemplate.Flags                     = uint32(fields[7].GetUInt32());
             itemTemplate.Flags2                    = fields[8].GetUInt32();
             itemTemplate.Unk430_1                  = fields[9].GetFloat();
             itemTemplate.Unk430_2                  = fields[10].GetFloat();
