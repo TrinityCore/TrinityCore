@@ -50,7 +50,7 @@ class boss_overlord_wyrmthalak : public CreatureScript
 public:
     boss_overlord_wyrmthalak() : CreatureScript("boss_overlord_wyrmthalak") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_overlordwyrmthalakAI(creature);
     }
@@ -61,13 +61,13 @@ public:
 
         bool Summoned;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _Reset();
             Summoned = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_BLAST_WAVE, 20 * IN_MILLISECONDS);
@@ -76,12 +76,12 @@ public:
             events.ScheduleEvent(EVENT_KNOCK_AWAY, 12 * IN_MILLISECONDS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

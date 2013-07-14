@@ -63,9 +63,9 @@ class boss_maexxna : public CreatureScript
 public:
     boss_maexxna() : CreatureScript("boss_maexxna") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_maexxnaAI (creature);
+        return new boss_maexxnaAI(creature);
     }
 
     struct boss_maexxnaAI : public BossAI
@@ -74,7 +74,7 @@ public:
 
         bool enraged;
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
             enraged = false;
@@ -85,7 +85,7 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, 30000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -154,9 +154,9 @@ class npc_webwrap : public CreatureScript
 public:
     npc_webwrap() : CreatureScript("npc_webwrap") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_webwrapAI (creature);
+        return new npc_webwrapAI(creature);
     }
 
     struct npc_webwrapAI : public NullCreatureAI
@@ -165,7 +165,7 @@ public:
 
         uint64 victimGUID;
 
-        void SetGUID(uint64 guid, int32 /*param*/)
+        void SetGUID(uint64 guid, int32 /*param*/) OVERRIDE
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)
@@ -173,7 +173,7 @@ public:
                     victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (me->m_spells[0] && victimGUID)
                 if (Unit* victim = Unit::GetUnit(*me, victimGUID))

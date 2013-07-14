@@ -54,14 +54,14 @@ class boss_thorngrin_the_tender : public CreatureScript
         {
             boss_thorngrin_the_tenderAI(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER) { }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 _phase1 = true;
                 _phase2 = true;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -70,18 +70,18 @@ class boss_thorngrin_the_tender : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 12000);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage) OVERRIDE
             {
                 if (me->HealthBelowPctDamaged(50, damage) && _phase1)
                 {
@@ -95,7 +95,7 @@ class boss_thorngrin_the_tender : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -140,7 +140,7 @@ class boss_thorngrin_the_tender : public CreatureScript
             bool _phase2;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_thorngrin_the_tenderAI(creature);
         }

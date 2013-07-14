@@ -215,7 +215,7 @@ public:
             return true;
         }
 
-        uint64 GetData64(uint32 id) const
+        uint64 GetData64(uint32 id) const OVERRIDE
         {
             switch (id)
             {
@@ -233,7 +233,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             if (type == DATA_EGG_EVENT)
             {
@@ -343,7 +343,7 @@ public:
         uint64 NefarianGUID;
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_blackwing_lair_InstanceMapScript(map);
     }

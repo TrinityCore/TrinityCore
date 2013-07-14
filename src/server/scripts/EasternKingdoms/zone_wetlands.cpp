@@ -37,7 +37,7 @@ EndContentData */
 ## npc_tapoke_slim_jahn
 ######*/
 
-enum eTapokeSlim
+enum TapokeSlim
 {
     QUEST_MISSING_DIPLO_PT11    = 1249,
     FACTION_ENEMY               = 168,
@@ -52,7 +52,7 @@ class npc_tapoke_slim_jahn : public CreatureScript
 public:
     npc_tapoke_slim_jahn() : CreatureScript("npc_tapoke_slim_jahn") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_tapoke_slim_jahnAI(creature);
     }
@@ -63,13 +63,13 @@ public:
 
         bool IsFriendSummoned;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
                 IsFriendSummoned = false;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             switch (waypointId)
             {
@@ -82,7 +82,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING) && !IsFriendSummoned && GetPlayerForEscort())
             {
@@ -93,13 +93,13 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (Player* player = GetPlayerForEscort())
                 summoned->AI()->AttackStart(player);
         }
 
-        void AttackedBy(Unit* pAttacker)
+        void AttackedBy(Unit* pAttacker) OVERRIDE
         {
             if (me->GetVictim())
                 return;
@@ -110,7 +110,7 @@ public:
             AttackStart(pAttacker);
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) OVERRIDE
         {
             if (HealthBelowPct(20))
             {
@@ -141,7 +141,7 @@ class npc_mikhail : public CreatureScript
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
         {

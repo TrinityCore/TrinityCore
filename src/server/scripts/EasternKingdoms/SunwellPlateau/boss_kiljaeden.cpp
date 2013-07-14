@@ -234,9 +234,9 @@ class boss_kalecgos_kj : public CreatureScript
 public:
     boss_kalecgos_kj() : CreatureScript("boss_kalecgos_kj") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kalecgos_kjAI (creature);
+        return new boss_kalecgos_kjAI(creature);
     }
 
     struct boss_kalecgos_kjAI : public ScriptedAI
@@ -250,7 +250,7 @@ public:
         uint8 OrbsEmpowered;
         uint8 EmpowerCount;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             OrbsEmpowered = 0;
             EmpowerCount = 0;
@@ -335,7 +335,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
         }
 
@@ -363,7 +363,7 @@ class go_orb_of_the_blue_flight : public GameObjectScript
 public:
     go_orb_of_the_blue_flight() : GameObjectScript("go_orb_of_the_blue_flight") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         if (go->GetUInt32Value(GAMEOBJECT_FACTION) == 35)
         {
@@ -387,9 +387,9 @@ class npc_kiljaeden_controller : public CreatureScript
 public:
     npc_kiljaeden_controller() : CreatureScript("npc_kiljaeden_controller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_kiljaeden_controllerAI (creature);
+        return new npc_kiljaeden_controllerAI(creature);
     }
 
     struct npc_kiljaeden_controllerAI : public ScriptedAI
@@ -411,7 +411,7 @@ public:
         uint32 phase;
         uint8 deceiverDeathCount;
 
-        void InitializeAI()
+        void InitializeAI() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -420,7 +420,7 @@ public:
             ScriptedAI::InitializeAI();
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             phase = PHASE_DECEIVERS;
 
@@ -434,7 +434,7 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             switch (summoned->GetEntry())
             {
@@ -454,7 +454,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (uiRandomSayTimer < diff)
             {
@@ -489,9 +489,9 @@ class boss_kiljaeden : public CreatureScript
 public:
     boss_kiljaeden() : CreatureScript("boss_kiljaeden") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kiljaedenAI (creature);
+        return new boss_kiljaedenAI(creature);
     }
 
     struct boss_kiljaedenAI : public ScriptedAI
@@ -522,12 +522,12 @@ public:
         bool OrbActivated;
         bool SpeechBegins;
 
-        void InitializeAI()
+        void InitializeAI() OVERRIDE
         {
             // Scripted_NoMovementAI::InitializeAI();
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TimerIsDeactivated[TIMER_SPEECH] = false;
             Timer[TIMER_SPEECH]           = 0;
@@ -588,7 +588,7 @@ public:
                 TimerIsDeactivated[TIMER_SUMMON_SHILEDORB] = true;
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == CREATURE_ARMAGEDDON_TARGET)
             {
@@ -603,7 +603,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_KJ_DEATH);
             summons.DespawnAll();
@@ -612,12 +612,12 @@ public:
                 instance->SetData(DATA_KILJAEDEN_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_KJ_SLAY);
         }
 
-        void EnterEvadeMode()
+        void EnterEvadeMode() OVERRIDE
         {
             ScriptedAI::EnterEvadeMode();
 
@@ -631,7 +631,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             DoZoneInCombat();
         }
@@ -666,7 +666,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim() || Phase < PHASE_NORMAL)
                 return;
@@ -899,9 +899,9 @@ class npc_hand_of_the_deceiver : public CreatureScript
 public:
     npc_hand_of_the_deceiver() : CreatureScript("npc_hand_of_the_deceiver") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_hand_of_the_deceiverAI (creature);
+        return new npc_hand_of_the_deceiverAI(creature);
     }
 
     struct npc_hand_of_the_deceiverAI : public ScriptedAI
@@ -916,7 +916,7 @@ public:
         uint32 ShadowBoltVolleyTimer;
         uint32 FelfirePortalTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             /// @todo Timers!
             ShadowBoltVolleyTimer = urand(8000, 14000); // So they don't all cast it in the same moment.
@@ -925,13 +925,13 @@ public:
                 instance->SetData(DATA_KILJAEDEN_EVENT, NOT_STARTED);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->setFaction(me->getFaction());
             summoned->SetLevel(me->getLevel());
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (instance)
             {
@@ -942,7 +942,7 @@ public:
             me->InterruptNonMeleeSpells(true);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (!instance)
                 return;
@@ -951,7 +951,7 @@ public:
                 ++(CAST_AI(npc_kiljaeden_controller::npc_kiljaeden_controllerAI, pControl->AI())->deceiverDeathCount);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!me->IsInCombat())
                 DoCast(me, SPELL_SHADOW_CHANNELING);
@@ -999,9 +999,9 @@ class npc_felfire_portal : public CreatureScript
 public:
     npc_felfire_portal() : CreatureScript("npc_felfire_portal") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_felfire_portalAI (creature);
+        return new npc_felfire_portalAI(creature);
     }
 
     struct npc_felfire_portalAI : public ScriptedAI
@@ -1013,19 +1013,19 @@ public:
 
         uint32 uiSpawnFiendTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiSpawnFiendTimer = 5000;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->setFaction(me->getFaction());
             summoned->SetLevel(me->getLevel());
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -1046,9 +1046,9 @@ class npc_volatile_felfire_fiend : public CreatureScript
 public:
     npc_volatile_felfire_fiend() : CreatureScript("npc_volatile_felfire_fiend") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_volatile_felfire_fiendAI (creature);
+        return new npc_volatile_felfire_fiendAI(creature);
     }
 
     struct npc_volatile_felfire_fiendAI : public ScriptedAI
@@ -1059,19 +1059,19 @@ public:
 
         bool bLockedTarget;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiExplodeTimer = 2000;
             bLockedTarget = false;
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             if (damage > me->GetHealth())
                 DoCast(me, SPELL_FELFIRE_FISSION, true);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -1103,9 +1103,9 @@ class npc_armageddon : public CreatureScript
 public:
     npc_armageddon() : CreatureScript("npc_armageddon") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_armageddonAI (creature);
+        return new npc_armageddonAI(creature);
     }
 
     struct npc_armageddonAI : public ScriptedAI
@@ -1118,13 +1118,13 @@ public:
         uint8 spell;
         uint32 uiTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             spell = 0;
             uiTimer = 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (uiTimer <= diff)
             {
@@ -1160,9 +1160,9 @@ class npc_shield_orb : public CreatureScript
 public:
     npc_shield_orb() : CreatureScript("npc_shield_orb") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shield_orbAI (creature);
+        return new npc_shield_orbAI(creature);
     }
 
     struct npc_shield_orbAI : public ScriptedAI
@@ -1180,7 +1180,7 @@ public:
         uint32 uiCheckTimer;
         float x, y, r, c, mx, my;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetDisableGravity(true);
             bPointReached = true;
@@ -1193,7 +1193,7 @@ public:
             bClockwise = urand(0, 1);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (bPointReached)
             {
@@ -1231,7 +1231,7 @@ public:
             } else uiTimer -= diff;
         }
 
-        void MovementInform(uint32 type, uint32 /*id*/)
+        void MovementInform(uint32 type, uint32 /*id*/) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -1247,9 +1247,9 @@ class npc_sinster_reflection : public CreatureScript
 public:
     npc_sinster_reflection() : CreatureScript("npc_sinster_reflection") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_sinster_reflectionAI (creature);
+        return new npc_sinster_reflectionAI(creature);
     }
 
     struct npc_sinster_reflectionAI : public ScriptedAI
@@ -1259,7 +1259,7 @@ public:
         uint8 victimClass;
         uint32 uiTimer[3];
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiTimer[0] = 0;
             uiTimer[1] = 0;
@@ -1267,7 +1267,7 @@ public:
             victimClass = 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

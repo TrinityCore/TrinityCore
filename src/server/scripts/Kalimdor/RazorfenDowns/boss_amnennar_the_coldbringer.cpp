@@ -45,9 +45,9 @@ class boss_amnennar_the_coldbringer : public CreatureScript
 public:
     boss_amnennar_the_coldbringer() : CreatureScript("boss_amnennar_the_coldbringer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_amnennar_the_coldbringerAI (creature);
+        return new boss_amnennar_the_coldbringerAI(creature);
     }
 
     struct boss_amnennar_the_coldbringerAI : public ScriptedAI
@@ -61,7 +61,7 @@ public:
         bool Spectrals30;
         bool Hp;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             AmnenarsWrath_Timer = 8000;
             FrostBolt_Timer = 1000;
@@ -71,17 +71,17 @@ public:
             Hp = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_KILL);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

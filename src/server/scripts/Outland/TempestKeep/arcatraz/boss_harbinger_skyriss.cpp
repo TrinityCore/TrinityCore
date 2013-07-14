@@ -32,7 +32,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "arcatraz.h"
 
-enum eSays
+enum Says
 {
     SAY_INTRO              = 0,
     SAY_AGGRO              = 1,
@@ -43,16 +43,19 @@ enum eSays
     SAY_DEATH              = 6
 };
 
-enum eSpells
+enum Spells
 {
-    SPELL_FEAR             = 39415,
-    SPELL_MIND_REND        = 36924,
-    H_SPELL_MIND_REND      = 39017,
-    SPELL_DOMINATION       = 37162,
-    H_SPELL_DOMINATION     = 39019,
-    H_SPELL_MANA_BURN      = 39020,
-    SPELL_66_ILLUSION      = 36931,                       //entry 21466
-    SPELL_33_ILLUSION      = 36932,                       //entry 21467
+    SPELL_FEAR              = 39415,
+    SPELL_MIND_REND         = 36924,
+    H_SPELL_MIND_REND       = 39017,
+    SPELL_DOMINATION        = 37162,
+    H_SPELL_DOMINATION      = 39019,
+    H_SPELL_MANA_BURN       = 39020,
+    SPELL_66_ILLUSION       = 36931,                       //entry 21466
+    SPELL_33_ILLUSION       = 36932,                       //entry 21467
+
+    SPELL_MIND_REND_IMAGE   = 36929,
+    H_SPELL_MIND_REND_IMAGE = 39021
 };
 
 class boss_harbinger_skyriss : public CreatureScript
@@ -84,7 +87,7 @@ class boss_harbinger_skyriss : public CreatureScript
             uint32 Domination_Timer;
             uint32 ManaBurn_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 if (!Intro)
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -100,7 +103,8 @@ class boss_harbinger_skyriss : public CreatureScript
                 ManaBurn_Timer = 25000;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!Intro)
                     return;
@@ -108,16 +112,16 @@ class boss_harbinger_skyriss : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
                 if (instance)
                     instance->SetData(TYPE_HARBINGERSKYRISS, DONE);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 if (!summon)
                     return;
@@ -130,7 +134,7 @@ class boss_harbinger_skyriss : public CreatureScript
                         summon->AI()->AttackStart(target);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) OVERRIDE
             {
                 //won't yell killing pet/other unit
                 if (victim->GetEntry() == 21436)
@@ -152,7 +156,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     DoCast(me, SPELL_33_ILLUSION);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!Intro)
                 {
@@ -269,14 +273,11 @@ class boss_harbinger_skyriss : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_harbinger_skyrissAI (creature);
+            return new boss_harbinger_skyrissAI(creature);
         }
 };
-
-#define SPELL_MIND_REND_IMAGE   36929
-#define H_SPELL_MIND_REND_IMAGE 39021
 
 class boss_harbinger_skyriss_illusion : public CreatureScript
 {
@@ -290,12 +291,12 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
         {
             boss_harbinger_skyriss_illusionAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset() { }
+            void Reset() OVERRIDE {}
 
-            void EnterCombat(Unit* /*who*/) { }
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_harbinger_skyriss_illusionAI(creature);
         }

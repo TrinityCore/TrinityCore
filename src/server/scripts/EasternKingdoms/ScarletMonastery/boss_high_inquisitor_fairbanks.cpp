@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_CURSEOFBLOOD              = 8282,
     SPELL_DISPELMAGIC               = 15090,
@@ -41,9 +41,9 @@ class boss_high_inquisitor_fairbanks : public CreatureScript
 public:
     boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_high_inquisitor_fairbanksAI (creature);
+        return new boss_high_inquisitor_fairbanksAI(creature);
     }
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
@@ -58,7 +58,7 @@ public:
         uint32 Dispel_Timer;
         bool PowerWordShield;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CurseOfBlood_Timer = 10000;
             DispelMagic_Timer = 30000;
@@ -71,13 +71,13 @@ public:
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 7);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

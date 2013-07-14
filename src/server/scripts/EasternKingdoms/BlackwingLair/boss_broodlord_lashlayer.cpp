@@ -52,7 +52,7 @@ public:
     {
         boss_broodlordAI(Creature* creature) : BossAI(creature, BOSS_BROODLORD) { }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance->GetBossState(BOSS_VAELASTRAZ) != DONE)
             {
@@ -70,7 +70,7 @@ public:
             events.ScheduleEvent(EVENT_CHECK, 1000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -114,9 +114,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_broodlordAI (creature);
+        return new boss_broodlordAI(creature);
     }
 };
 

@@ -30,12 +30,21 @@ EndScriptData */
 #include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER 6
-#define SPELL_SCALDINGWATER 37284
-#define NPC_COILFANG_FRENZY 21508
-#define TRASHNPC_COILFANG_PRIESTESS 21220  //6*2
-#define TRASHNPC_COILFANG_SHATTERER 21301  //6*3
 
-#define MIN_KILLS 30
+enum Misc
+{
+    // Spells
+    SPELL_SCALDINGWATER             = 37284,
+
+    // Creatures
+    NPC_COILFANG_FRENZY             = 21508,
+    NPC_COILFANG_PRIESTESS          = 21220,
+    NPC_COILFANG_SHATTERER          = 21301,
+
+    // Misc
+    MIN_KILLS                       = 30
+};
+
 
 //NOTE: there are 6 platforms
 //there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!
@@ -55,7 +64,7 @@ class go_bridge_console : public GameObjectScript
     public:
         go_bridge_console() : GameObjectScript("go_bridge_console") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {
             InstanceScript* instance = go->GetInstanceScript();
 
@@ -237,7 +246,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data)
+            void SetData64(uint32 type, uint64 data) OVERRIDE
             {
                 if (type == DATA_KARATHRESSEVENT_STARTER)
                     KarathressEvent_Starter = data;
@@ -245,7 +254,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     LeotherasEventStarter = data;
             }
 
-            uint64 GetData64(uint32 identifier) const
+            uint64 GetData64(uint32 identifier) const OVERRIDE
             {
                 switch (identifier)
                 {
@@ -273,7 +282,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
@@ -343,7 +352,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -438,7 +447,7 @@ class instance_serpent_shrine : public InstanceMapScript
             bool DoSpawnFrenzy;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_serpentshrine_cavern_InstanceMapScript(map);
         }

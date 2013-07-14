@@ -26,7 +26,7 @@ class instance_eye_of_eternity : public InstanceMapScript
 public:
     instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_eye_of_eternity_InstanceMapScript(map);
     }
@@ -239,7 +239,7 @@ public:
             }
         }
 
-        void SetData(uint32 data, uint32 /*value*/)
+        void SetData(uint32 data, uint32 /*value*/) OVERRIDE
         {
             switch (data)
             {
@@ -255,7 +255,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data) const
+        uint64 GetData64(uint32 data) const OVERRIDE
         {
             switch (data)
             {

@@ -74,9 +74,9 @@ class npc_inner_demon : public CreatureScript
 public:
     npc_inner_demon() : CreatureScript("npc_inner_demon") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_inner_demonAI (creature);
+        return new npc_inner_demonAI(creature);
     }
 
     struct npc_inner_demonAI : public ScriptedAI
@@ -91,33 +91,33 @@ public:
         uint32 Link_Timer;
         uint64 victimGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ShadowBolt_Timer = 10000;
             Link_Timer = 1000;
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        void SetGUID(uint64 guid, int32 id/* = 0 */) OVERRIDE
         {
             if (id == INNER_DEMON_VICTIM)
                 victimGUID = guid;
         }
 
-        uint64 GetGUID(int32 id/* = 0 */) const
+        uint64 GetGUID(int32 id/* = 0 */) const OVERRIDE
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;
             return 0;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Unit* unit = Unit::GetUnit(*me, victimGUID);
             if (unit && unit->HasAura(SPELL_INSIDIOUS_WHISPER))
                 unit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
             if (done_by->GetGUID() != victimGUID && done_by->GetGUID() != me->GetGUID())
             {
@@ -126,13 +126,13 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (!victimGUID)
                 return;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -179,9 +179,9 @@ class boss_leotheras_the_blind : public CreatureScript
 public:
     boss_leotheras_the_blind() : CreatureScript("boss_leotheras_the_blind") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_leotheras_the_blindAI (creature);
+        return new boss_leotheras_the_blindAI(creature);
     }
 
     struct boss_leotheras_the_blindAI : public ScriptedAI
@@ -218,7 +218,7 @@ public:
         uint64 Demon;
         uint64 SpellBinderGUID[3];
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CheckChannelers();
             BanishTimer = 1000;
@@ -264,7 +264,8 @@ public:
                     SpellBinderGUID[i] = binder->GetGUID();
             }
         }
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (me->HasAura(AURA_BANISH))
                 return;
@@ -383,7 +384,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -391,7 +392,7 @@ public:
             Talk(DemonForm ? SAY_DEMON_SLAY : SAY_NIGHTELF_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -405,7 +406,7 @@ public:
                 instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (me->HasAura(AURA_BANISH))
             return;
@@ -413,7 +414,7 @@ public:
             me->LoadEquipment();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (me->HasAura(AURA_BANISH) || !UpdateVictim())
@@ -601,9 +602,9 @@ class boss_leotheras_the_blind_demonform : public CreatureScript
 public:
     boss_leotheras_the_blind_demonform() : CreatureScript("boss_leotheras_the_blind_demonform") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_leotheras_the_blind_demonformAI (creature);
+        return new boss_leotheras_the_blind_demonformAI(creature);
     }
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
@@ -613,7 +614,7 @@ public:
         uint32 ChaosBlast_Timer;
         bool DealDamage;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ChaosBlast_Timer = 1000;
             DealDamage = true;
@@ -624,7 +625,7 @@ public:
             Talk(SAY_FREE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -632,18 +633,18 @@ public:
             Talk(SAY_DEMON_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             //invisibility (blizzlike, at the end of the fight he doesn't die, he disappears)
             DoCast(me, 8149, true);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             StartEvent();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -674,9 +675,9 @@ class npc_greyheart_spellbinder : public CreatureScript
 public:
     npc_greyheart_spellbinder() : CreatureScript("npc_greyheart_spellbinder") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_greyheart_spellbinderAI (creature);
+        return new npc_greyheart_spellbinderAI(creature);
     }
 
     struct npc_greyheart_spellbinderAI : public ScriptedAI
@@ -697,7 +698,7 @@ public:
 
         bool AddedBanish;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Mindblast_Timer  = urand(3000, 8000);
             Earthshock_Timer = urand(5000, 10000);
@@ -711,14 +712,14 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             me->InterruptNonMeleeSpells(false);
             if (instance)
                 instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
-        void JustRespawned()
+        void JustRespawned() OVERRIDE
         {
             AddedBanish = false;
             Reset();
@@ -737,7 +738,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (instance)
             {
@@ -800,7 +801,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) {}
+        void JustDied(Unit* /*killer*/) OVERRIDE {}
     };
 };
 

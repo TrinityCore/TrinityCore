@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
 
-enum eSays
+enum Says
 {
     SAY_AGGRO          = 0,
     SAY_SLAY           = 1,
@@ -35,7 +35,7 @@ enum eSays
     SAY_DEATH          = 3
 };
 
-enum eSpells
+enum Spells
 {
     WAR_STOMP          = 34716,
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
@@ -44,7 +44,7 @@ enum eSpells
     SPELL_HEAL_FATHER  = 6262
 };
 
-enum eOthers
+enum Misc
 {
     CREATURE_TREANT    = 19949,
     TREANT_SPAWN_DIST  = 50 //50 yards from Warp Splinter's spawn point
@@ -73,7 +73,7 @@ class npc_warp_splinter_treant : public CreatureScript
         }
         struct npc_warp_splinter_treantAI  : public ScriptedAI
         {
-            npc_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
+            npc_warp_splinter_treantAI(Creature* creature) : ScriptedAI(creature)
             {
                 WarpGuid = 0;
             }
@@ -81,16 +81,17 @@ class npc_warp_splinter_treant : public CreatureScript
             uint64 WarpGuid;
             uint32 check_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 check_Timer = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void MoveInLineOfSight(Unit* /*who*/) {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-            void UpdateAI(uint32 diff)
+
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                 {
@@ -118,7 +119,7 @@ class npc_warp_splinter_treant : public CreatureScript
                     DoMeleeAttackIfReady();
             }
         };
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_warp_splinter_treantAI(creature);
         }
@@ -150,7 +151,7 @@ class boss_warp_splinter : public CreatureScript
             float Treant_Spawn_Pos_X;
             float Treant_Spawn_Pos_Y;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 War_Stomp_Timer = urand(25000, 40000);
                 Summon_Treants_Timer = 45000;
@@ -159,17 +160,17 @@ class boss_warp_splinter : public CreatureScript
                 me->SetSpeed(MOVE_RUN, 0.7f, true);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
             }
@@ -190,7 +191,7 @@ class boss_warp_splinter : public CreatureScript
                 Talk(SAY_SUMMON);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -226,7 +227,7 @@ class boss_warp_splinter : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_warp_splinterAI(creature);
         }

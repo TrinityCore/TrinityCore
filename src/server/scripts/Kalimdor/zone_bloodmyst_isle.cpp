@@ -45,20 +45,20 @@ class npc_webbed_creature : public CreatureScript
 public:
     npc_webbed_creature() : CreatureScript("npc_webbed_creature") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_webbed_creatureAI (creature);
+        return new npc_webbed_creatureAI(creature);
     }
 
     struct npc_webbed_creatureAI : public ScriptedAI
     {
         npc_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset() {}
+        void Reset() OVERRIDE {}
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             uint32 spawnCreatureID = 0;
 
@@ -100,7 +100,7 @@ class npc_captured_sunhawk_agent : public CreatureScript
 public:
     npc_captured_sunhawk_agent() : CreatureScript("npc_captured_sunhawk_agent") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -133,7 +133,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (player->HasAura(31609) && player->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
         {
@@ -166,7 +166,7 @@ class go_princess_stillpines_cage : public GameObjectScript
 public:
     go_princess_stillpines_cage() : GameObjectScript("go_princess_stillpines_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         go->SetGoState(GO_STATE_READY);
         if (Creature* stillpine = go->FindNearestCreature(NPC_PRINCESS_STILLPINE, 25, true))
@@ -187,7 +187,7 @@ public:
     {
         npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type == POINT_MOTION_TYPE && id == 1)
             {
@@ -197,7 +197,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_princess_stillpineAI(creature);
     }

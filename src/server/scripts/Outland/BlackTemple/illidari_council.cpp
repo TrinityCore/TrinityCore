@@ -120,7 +120,7 @@ class npc_blood_elf_council_voice_trigger : public CreatureScript
 public:
     npc_blood_elf_council_voice_trigger() : CreatureScript("npc_blood_elf_council_voice_trigger") { }
 
-    CreatureAI* GetAI(Creature* c) const
+    CreatureAI* GetAI(Creature* c) const OVERRIDE
     {
         return new npc_blood_elf_council_voice_triggerAI(c);
     }
@@ -142,7 +142,7 @@ public:
 
         bool EventStarted;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             EnrageTimer = 900000;                               // 15 minutes
             AggroYellTimer = 500;
@@ -164,12 +164,13 @@ public:
             } else TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!EventStarted)
                 return;
@@ -215,9 +216,9 @@ class npc_illidari_council : public CreatureScript
 public:
     npc_illidari_council() : CreatureScript("npc_illidari_council") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_illidari_councilAI (creature);
+        return new npc_illidari_councilAI(creature);
     }
 
     struct npc_illidari_councilAI : public ScriptedAI
@@ -240,7 +241,7 @@ public:
 
         bool EventBegun;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CheckTimer    = 2000;
             EndEventTimer = 0;
@@ -276,9 +277,10 @@ public:
             me->SetDisplayId(11686);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+
 
         void StartEvent(Unit* target)
         {
@@ -315,7 +317,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!EventBegun)
                 return;
@@ -397,7 +399,7 @@ struct boss_illidari_councilAI : public ScriptedAI
 
     bool LoadedGUIDs;
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* who) OVERRIDE
     {
         if (instance)
         {
@@ -420,7 +422,7 @@ struct boss_illidari_councilAI : public ScriptedAI
             LoadGUIDs();
     }
 
-    void EnterEvadeMode()
+    void EnterEvadeMode() OVERRIDE
     {
         for (uint8 i = 0; i < 4; ++i)
         {
@@ -434,7 +436,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         ScriptedAI::EnterEvadeMode();
     }
 
-    void DamageTaken(Unit* done_by, uint32 &damage)
+    void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
     {
         if (done_by == me)
             return;
@@ -473,9 +475,9 @@ class boss_gathios_the_shatterer : public CreatureScript
 public:
     boss_gathios_the_shatterer() : CreatureScript("boss_gathios_the_shatterer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_gathios_the_shattererAI (creature);
+        return new boss_gathios_the_shattererAI(creature);
     }
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
@@ -488,7 +490,7 @@ public:
         uint32 AuraTimer;
         uint32 BlessingTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ConsecrationTimer = 40000;
             HammerOfJusticeTimer = 10000;
@@ -497,12 +499,12 @@ public:
             BlessingTimer = 60000;
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_GATH_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_GATH_DEATH);
         }
@@ -536,7 +538,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -605,9 +607,9 @@ class boss_high_nethermancer_zerevor : public CreatureScript
 public:
     boss_high_nethermancer_zerevor() : CreatureScript("boss_high_nethermancer_zerevor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_high_nethermancer_zerevorAI (creature);
+        return new boss_high_nethermancer_zerevorAI(creature);
     }
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
@@ -621,7 +623,7 @@ public:
         uint32 Cooldown;
         uint32 ArcaneExplosionTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             BlizzardTimer = urand(30, 91) * 1000;
             FlamestrikeTimer = urand(30, 91) * 1000;
@@ -631,17 +633,17 @@ public:
             Cooldown = 0;
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_ZERE_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_ZERE_DEATH);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -709,9 +711,9 @@ class boss_lady_malande : public CreatureScript
 public:
     boss_lady_malande() : CreatureScript("boss_lady_malande") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_malandeAI (creature);
+        return new boss_lady_malandeAI(creature);
     }
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
@@ -723,7 +725,7 @@ public:
         uint32 DivineWrathTimer;
         uint32 ReflectiveShieldTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             EmpoweredSmiteTimer = 38000;
             CircleOfHealingTimer = 20000;
@@ -731,17 +733,17 @@ public:
             ReflectiveShieldTimer = 0;
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_MALA_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_MALA_DEATH);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -787,9 +789,9 @@ class boss_veras_darkshadow : public CreatureScript
 public:
     boss_veras_darkshadow() : CreatureScript("boss_veras_darkshadow") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_veras_darkshadowAI (creature);
+        return new boss_veras_darkshadowAI(creature);
     }
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
@@ -804,7 +806,7 @@ public:
 
         bool HasVanished;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             EnvenomTargetGUID = 0;
 
@@ -817,17 +819,17 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_VERA_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_VERA_DEATH);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -901,7 +903,7 @@ public:
     {
         PrepareAuraScript(spell_boss_lady_malande_shield_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
         {
             return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T);
         }
@@ -915,13 +917,13 @@ public:
             target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_T, &bp, NULL, NULL, true, NULL, aurEff);
         }
 
-        void Register()
+        void Register() OVERRIDE
         {
              AfterEffectAbsorb += AuraEffectAbsorbFn(spell_boss_lady_malande_shield_AuraScript::Trigger, EFFECT_0);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const OVERRIDE
     {
         return new spell_boss_lady_malande_shield_AuraScript();
     }

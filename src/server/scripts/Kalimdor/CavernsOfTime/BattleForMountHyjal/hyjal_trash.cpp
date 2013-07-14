@@ -436,16 +436,16 @@ public:
         uint32 FlameBuffetTimer;
         bool imol;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             spawnTimer = 2000;
             FlameBuffetTimer= 2000;
             imol = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 0 && instance && !IsOverrun)
             {
@@ -458,7 +458,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Delay <= diff)
             {
@@ -535,7 +535,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_giant_infernalAI(creature);
     }
@@ -546,7 +546,7 @@ class npc_abomination : public CreatureScript
 public:
     npc_abomination() : CreatureScript("npc_abomination") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_abominationAI(creature);
     }
@@ -562,12 +562,12 @@ public:
 
         bool go;
         uint32 KnockDownTimer;
-        void Reset()
+        void Reset() OVERRIDE
         {
             KnockDownTimer = 10000;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance && !IsOverrun)
             {
@@ -594,9 +594,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -644,7 +644,7 @@ class npc_ghoul : public CreatureScript
 public:
     npc_ghoul() : CreatureScript("npc_ghoul") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ghoulAI(creature);
     }
@@ -662,14 +662,14 @@ public:
         uint32 FrenzyTimer;
         uint32 MoveTimer;
         bool RandomMove;
-        void Reset()
+        void Reset() OVERRIDE
         {
             FrenzyTimer = 5000+rand()%5000;
             MoveTimer = 2000;
             RandomMove = false;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance && !IsOverrun)
             {
@@ -697,9 +697,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -746,7 +746,7 @@ class npc_necromancer : public CreatureScript
 public:
     npc_necromancer() : CreatureScript("npc_necromancer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_necromancerAI(creature);
     }
@@ -764,13 +764,13 @@ public:
         bool go;
         uint32 ShadowBoltTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ShadowBoltTimer = 1000+rand()%5000;
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true);
             if (target)
@@ -778,12 +778,12 @@ public:
             summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             summons.Despawn(summon);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance && !IsOverrun)
             {
@@ -802,7 +802,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             switch (urand(0, 2))
             {
@@ -820,9 +820,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
 
@@ -873,7 +873,7 @@ class npc_banshee : public CreatureScript
 public:
     npc_banshee() : CreatureScript("npc_banshee") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_bansheeAI(creature);
     }
@@ -892,14 +892,14 @@ public:
         uint32 WailTimer;
         uint32 ShellTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CourseTimer = 20000+rand()%5000;
             WailTimer = 15000+rand()%5000;
             ShellTimer = 50000+rand()%10000;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance && !IsOverrun)
             {
@@ -918,9 +918,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -976,7 +976,7 @@ class npc_crypt_fiend : public CreatureScript
 public:
     npc_crypt_fiend() : CreatureScript("npc_crypt_fiend") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_crypt_fiendAI(creature);
     }
@@ -993,12 +993,12 @@ public:
         bool go;
         uint32 WebTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             WebTimer = 20000+rand()%5000;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance && !IsOverrun)
             {
@@ -1017,9 +1017,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1066,7 +1066,7 @@ class npc_fel_stalker : public CreatureScript
 public:
     npc_fel_stalker() : CreatureScript("npc_fel_stalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_fel_stalkerAI(creature);
     }
@@ -1083,12 +1083,12 @@ public:
         bool go;
         uint32 ManaBurnTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ManaBurnTimer = 9000+rand()%5000;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance && !IsOverrun)
             {
@@ -1107,9 +1107,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1156,7 +1156,7 @@ class npc_frost_wyrm : public CreatureScript
 public:
     npc_frost_wyrm() : CreatureScript("npc_frost_wyrm") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_frost_wyrmAI(creature);
     }
@@ -1174,14 +1174,14 @@ public:
         uint32 FrostBreathTimer;
         uint32 MoveTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             FrostBreathTimer = 5000;
             MoveTimer = 0;
             me->SetDisableGravity(true);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 2 && instance && !IsOverrun)
             {
@@ -1194,7 +1194,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_TRASH, 0);//signal trash is dead
@@ -1206,9 +1206,9 @@ public:
             me->SetPosition(x, y, z, 0);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1268,7 +1268,7 @@ class npc_gargoyle : public CreatureScript
 public:
     npc_gargoyle() : CreatureScript("npc_gargoyle") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_gargoyleAI(creature);
     }
@@ -1289,7 +1289,7 @@ public:
         float Zpos;
         bool forcemove;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             forcemove = true;
             Zpos = 10.0f;
@@ -1298,7 +1298,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 2 && instance && !IsOverrun)
             {
@@ -1311,7 +1311,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             float x, y, z;
             me->GetPosition(x, y, z);
@@ -1321,7 +1321,7 @@ public:
             hyjal_trashAI::JustDied(killer);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             hyjal_trashAI::UpdateAI(diff);
             if (IsEvent || IsOverrun)
@@ -1403,7 +1403,7 @@ class alliance_rifleman : public CreatureScript
 public:
     alliance_rifleman() : CreatureScript("alliance_rifleman") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new alliance_riflemanAI(creature);
     }
@@ -1417,16 +1417,17 @@ public:
 
         uint32 ExplodeTimer;
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ExplodeTimer = 5000+rand()%5000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!who || me->GetVictim())
                 return;
@@ -1439,11 +1440,11 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Check if we have a target
             if (!UpdateVictim())

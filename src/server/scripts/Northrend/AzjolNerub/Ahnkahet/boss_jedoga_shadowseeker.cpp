@@ -57,8 +57,11 @@ const Position JedogaPosition[2] =
     {372.330994f, -705.278015f, -16.179716f, 5.427970f}
 };
 
-#define ACTION_INITIAND_KILLED                    1
-#define DATA_VOLUNTEER_WORK                       2
+enum Misc
+{
+    ACTION_INITIAND_KILLED                      = 1,
+    DATA_VOLUNTEER_WORK                         = 2
+};
 
 class boss_jedoga_shadowseeker : public CreatureScript
 {
@@ -89,7 +92,7 @@ public:
         bool volunteerWork;
         bool bFirstTime;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiOpFerTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
 
@@ -117,7 +120,7 @@ public:
             bFirstTime = false;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (!instance || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                 return;
@@ -127,7 +130,7 @@ public:
             instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                 return;
@@ -135,7 +138,7 @@ public:
             ScriptedAI::AttackStart(who);
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* Victim) OVERRIDE
         {
             if (!Victim || Victim->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -143,20 +146,20 @@ public:
             Talk(TEXT_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(TEXT_DEATH);
             if (instance)
                 instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, DONE);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) OVERRIDE
         {
             if (action == ACTION_INITIAND_KILLED)
                 volunteerWork = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             if (type == DATA_VOLUNTEER_WORK)
                 return volunteerWork ? 1 : 0;
@@ -164,7 +167,8 @@ public:
             return 0;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!instance || !who || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                 return;
@@ -280,7 +284,7 @@ public:
             bCanDown = true;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!instance)
                 return;
@@ -336,7 +340,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_jedoga_shadowseekerAI(creature);
     }
@@ -360,7 +364,7 @@ public:
 
         bool bWalking;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (!instance)
                 return;
@@ -384,7 +388,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (!killer || !instance)
                 return;
@@ -408,13 +412,13 @@ public:
                 instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if ((instance && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who)
                 return;
         }
 
-        void AttackStart(Unit* victim)
+        void AttackStart(Unit* victim) OVERRIDE
         {
             if ((instance && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !victim)
                 return;
@@ -422,7 +426,8 @@ public:
             ScriptedAI::AttackStart(victim);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if ((instance && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who)
                 return;
@@ -430,7 +435,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 uiType, uint32 uiPointId) OVERRIDE
         {
             if (uiType != POINT_MOTION_TYPE || !instance)
                 return;
@@ -451,7 +456,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (instance && bCheckTimer <= diff)
             {
@@ -503,7 +508,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_jedoga_initiandAI(creature);
     }
@@ -543,12 +548,13 @@ public:
         bool bCasted;
         bool bCasted2;
 
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*victim*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void Reset() OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*victim*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 /*diff*/)
+
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             if (!instance)
                 return;
@@ -588,7 +594,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_jedogas_aufseher_triggerAI(creature);
     }
@@ -601,7 +607,7 @@ class achievement_volunteer_work : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

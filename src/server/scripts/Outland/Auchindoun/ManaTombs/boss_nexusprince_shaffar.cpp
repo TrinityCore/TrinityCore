@@ -31,14 +31,17 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum ePrince
+enum Yells
 {
     SAY_INTRO                       = 0,
     SAY_AGGRO                       = 1,
     SAY_SLAY                        = 2,
     SAY_SUMMON                      = 3,
     SAY_DEAD                        = 4,
+};
 
+enum Spells
+{
     SPELL_BLINK                     = 34605,
     SPELL_FROSTBOLT                 = 32364,
     SPELL_FIREBALL                  = 32363,
@@ -47,9 +50,19 @@ enum ePrince
     SPELL_ETHEREAL_BEACON           = 32371,                // Summons NPC_BEACON
     SPELL_ETHEREAL_BEACON_VISUAL    = 32368,
 
-    NPC_BEACON                      = 18431,
-    NPC_SHAFFAR                     = 18344,
+    // Ethereal Beacon
+    SPELL_ARCANE_BOLT               = 15254,
+    SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
+};
 
+enum Creatures
+{
+    NPC_BEACON                      = 18431,
+    NPC_SHAFFAR                     = 18344
+};
+
+enum Misc
+{
     NR_INITIAL_BEACONS              = 3
 };
 
@@ -58,9 +71,9 @@ class boss_nexusprince_shaffar : public CreatureScript
 public:
     boss_nexusprince_shaffar() : CreatureScript("boss_nexusprince_shaffar") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_nexusprince_shaffarAI (creature);
+        return new boss_nexusprince_shaffarAI(creature);
     }
 
     struct boss_nexusprince_shaffarAI : public ScriptedAI
@@ -78,7 +91,7 @@ public:
         bool HasTaunted;
         bool CanBlink;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Blink_Timer = 1500;
             Beacon_Timer = 10000;
@@ -97,13 +110,14 @@ public:
             me->SummonCreature(NPC_BEACON, posX + dist, posY, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200000);
         }
 
-        void EnterEvadeMode()
+        void EnterEvadeMode() OVERRIDE
         {
             summons.DespawnAll();
             ScriptedAI::EnterEvadeMode();
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!HasTaunted && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
             {
@@ -112,7 +126,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -120,7 +134,7 @@ public:
             summons.DoZoneInCombat();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == NPC_BEACON)
             {
@@ -133,23 +147,23 @@ public:
             summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             summons.Despawn(summon);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEAD);
             summons.DespawnAll();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -213,20 +227,14 @@ public:
 
 };
 
-enum eEnums
-{
-    SPELL_ARCANE_BOLT               = 15254,
-    SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
-};
-
 class npc_ethereal_beacon : public CreatureScript
 {
 public:
     npc_ethereal_beacon() : CreatureScript("npc_ethereal_beacon") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ethereal_beaconAI (creature);
+        return new npc_ethereal_beaconAI(creature);
     }
 
     struct npc_ethereal_beaconAI : public ScriptedAI
@@ -244,14 +252,14 @@ public:
             me->Kill(me);
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Apprentice_Timer = DUNGEON_MODE(20000, 10000);
             ArcaneBolt_Timer = 1000;
             Check_Timer = 1000;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             // Send Shaffar to fight
             Creature* Shaffar = me->FindNearestCreature(NPC_SHAFFAR, 100);
@@ -264,12 +272,12 @@ public:
                 Shaffar->AI()->AttackStart(who);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->AI()->AttackStart(me->GetVictim());
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -305,7 +313,7 @@ public:
 
 };
 
-enum eEthereal
+enum Ethereal
 {
     SPELL_ETHEREAL_APPRENTICE_FIREBOLT          = 32369,
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370
@@ -316,9 +324,9 @@ class npc_ethereal_apprentice : public CreatureScript
 public:
     npc_ethereal_apprentice() : CreatureScript("npc_ethereal_apprentice") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ethereal_apprenticeAI (creature);
+        return new npc_ethereal_apprenticeAI(creature);
     }
 
     struct npc_ethereal_apprenticeAI : public ScriptedAI
@@ -329,13 +337,13 @@ public:
 
         bool isFireboltTurn;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Cast_Timer = 3000;
             isFireboltTurn = true;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

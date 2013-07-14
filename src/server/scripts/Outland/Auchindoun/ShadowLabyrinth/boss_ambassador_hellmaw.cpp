@@ -28,14 +28,17 @@ EndScriptData */
 #include "ScriptedEscortAI.h"
 #include "shadow_labyrinth.h"
 
-enum eEnums
+enum Yells
 {
     SAY_INTRO       = 0,
     SAY_AGGRO       = 1,
     SAY_HELP        = 2,
     SAY_SLAY        = 3,
-    SAY_DEATH       = 4,
+    SAY_DEATH       = 4
+};
 
+enum Spells
+{
     SPELL_BANISH            = 30231,
     SPELL_CORROSIVE_ACID    = 33551,
     SPELL_FEAR              = 33547,
@@ -47,7 +50,7 @@ class boss_ambassador_hellmaw : public CreatureScript
 public:
     boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_ambassador_hellmawAI(creature);
     }
@@ -69,7 +72,7 @@ public:
         bool IsBanished;
         bool Enraged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             EventCheck_Timer = 5000;
             CorrosiveAcid_Timer = urand(5000, 10000);
@@ -86,13 +89,14 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             if (instance)
                 instance->SetData(TYPE_HELLMAW, FAIL);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (me->HasAura(SPELL_BANISH))
                 return;
@@ -100,7 +104,7 @@ public:
             npc_escortAI::MoveInLineOfSight(who);
         }
 
-        void WaypointReached(uint32 /*waypointId*/)
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE
         {
         }
 
@@ -124,17 +128,17 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -142,7 +146,7 @@ public:
                 instance->SetData(TYPE_HELLMAW, DONE);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!Intro && !HasEscortState(STATE_ESCORT_ESCORTING))
             {

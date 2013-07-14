@@ -36,6 +36,28 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 
+enum Spells
+{
+    // Barnes
+    SPELL_SPOTLIGHT             = 25824,
+    SPELL_TUXEDO                = 32616,
+
+    // Berthold
+    SPELL_TELEPORT              = 39567,
+
+    // Image of Medivh
+    SPELL_FIRE_BALL             = 30967,
+    SPELL_UBER_FIREBALL         = 30971,
+    SPELL_CONFLAGRATION_BLAST   = 30977,
+    SPELL_MANA_SHIELD           = 31635
+};
+
+enum Creatures
+{
+    NPC_ARCANAGOS               = 17652,
+    NPC_SPOTLIGHT               = 19525
+};
+
 /*######
 # npc_barnesAI
 ######*/
@@ -96,11 +118,6 @@ float Spawns[6][2]=
     {17534, -10900},                                        // Julianne
 };
 
-#define CREATURE_SPOTLIGHT  19525
-
-#define SPELL_SPOTLIGHT     25824
-#define SPELL_TUXEDO        32616
-
 #define SPAWN_Z             90.5f
 #define SPAWN_Y             -1758
 #define SPAWN_O             4.738f
@@ -131,7 +148,7 @@ public:
         bool PerformanceReady;
         bool RaidWiped;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             m_uiSpotlightGUID = 0;
 
@@ -159,9 +176,9 @@ public:
             Start(false, false);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (!instance)
                 return;
@@ -176,13 +193,13 @@ public:
                     TalkCount = 0;
                     SetEscortPaused(true);
 
-                    if (Creature* pSpotlight = me->SummonCreature(CREATURE_SPOTLIGHT,
+                    if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT,
                         me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
                         TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
                     {
-                        pSpotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        pSpotlight->CastSpell(pSpotlight, SPELL_SPOTLIGHT, false);
-                        m_uiSpotlightGUID = pSpotlight->GetGUID();
+                        spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
+                        m_uiSpotlightGUID = spotlight->GetGUID();
                     }
                     break;
                 case 8:
@@ -266,7 +283,7 @@ public:
             RaidWiped = false;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -326,7 +343,7 @@ public:
         }
     };
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI());
@@ -361,7 +378,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
@@ -393,7 +410,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_barnesAI(creature);
     }
@@ -403,11 +420,6 @@ public:
 # npc_berthold
 ####*/
 
-enum eBerthold
-{
-    SPELL_TELEPORT           = 39567
-};
-
 #define GOSSIP_ITEM_TELEPORT    "Teleport me to the Guardian's Library"
 
 class npc_berthold : public CreatureScript
@@ -415,7 +427,7 @@ class npc_berthold : public CreatureScript
 public:
     npc_berthold() : CreatureScript("npc_berthold") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -425,7 +437,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
@@ -453,11 +465,6 @@ public:
 #define SAY_DIALOG_ARCANAGOS_8      "What have you done, wizard? This cannot be! I'm burning from... within!"
 #define SAY_DIALOG_MEDIVH_9         "He should not have angered me. I must go... recover my strength now..."
 
-#define NPC_ARCANAGOS               17652
-#define SPELL_FIRE_BALL             30967
-#define SPELL_UBER_FIREBALL         30971
-#define SPELL_CONFLAGRATION_BLAST   30977
-#define SPELL_MANA_SHIELD           31635
 
 static float MedivPos[4] = {-11161.49f, -1902.24f, 91.48f, 1.94f};
 static float ArcanagosPos[4] = {-11169.75f, -1881.48f, 95.39f, 4.83f};
@@ -467,7 +474,7 @@ class npc_image_of_medivh : public CreatureScript
 public:
     npc_image_of_medivh() : CreatureScript("npc_image_of_medivh") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_image_of_medivhAI(creature);
     }
@@ -490,7 +497,7 @@ public:
 
         bool EventStarted;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ArcanagosGUID = 0;
 
@@ -505,9 +512,9 @@ public:
                 me->RemoveCorpse();
             }
         }
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -613,7 +620,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (YellTimer <= diff)
             {

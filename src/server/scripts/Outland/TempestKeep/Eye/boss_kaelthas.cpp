@@ -29,9 +29,9 @@ EndScriptData */
 #include "WorldPacket.h"
 #include "Opcodes.h"
 
-enum eEnums
+enum Yells
 {
-    //kael'thas Speech
+    // Kael'thas Speech
     SAY_INTRO                           = 0,
     SAY_INTRO_CAPERNIAN                 = 1,
     SAY_INTRO_TELONICUS                 = 2,
@@ -47,7 +47,7 @@ enum eEnums
     SAY_SUMMON_PHOENIX                  = 12,
     SAY_DEATH                           = 13,
 
-    //Thaladred the Darkener speech
+    // Thaladred the Darkener speech
     SAY_THALADRED_AGGRO                 = 0,
     SAY_THALADRED_DEATH                 = 1,
     EMOTE_THALADRED_GAZE                = 2,
@@ -56,15 +56,18 @@ enum eEnums
     SAY_SANGUINAR_AGGRO                 = 0,
     SAY_SANGUINAR_DEATH                 = 1,
 
-    //Grand Astromancer Capernian speech
+    // Grand Astromancer Capernian speech
     SAY_CAPERNIAN_AGGRO                 = 0,
     SAY_CAPERNIAN_DEATH                 = 1,
 
-    //Master Engineer Telonicus speech
+    // Master Engineer Telonicus speech
     SAY_TELONICUS_AGGRO                 = 0,
-    SAY_TELONICUS_DEATH                 = 1,
+    SAY_TELONICUS_DEATH                 = 1
+};
 
-    //Phase 2 spells
+enum Spells
+{
+    // Phase 2 spells
     SPELL_SUMMON_WEAPONS                = 36976,
     SPELL_SUMMON_WEAPONA                = 36958,
     SPELL_SUMMON_WEAPONB                = 36959,
@@ -75,7 +78,7 @@ enum eEnums
     SPELL_SUMMON_WEAPONG                = 36964,
     SPELL_RES_VISUAL                    = 24171,
 
-    //Phase 4 spells
+    // Phase 4 spells
     SPELL_FIREBALL                      = 22088,           //wrong but works with CastCustomSpell
     SPELL_PYROBLAST                     = 36819,
     SPELL_FLAME_STRIKE                  = 36735,
@@ -86,7 +89,7 @@ enum eEnums
     SPELL_PHOENIX_ANIMATION             = 36723,
     SPELL_MIND_CONTROL                  = 32830,
 
-    //Phase 5 spells
+    // Phase 5 spells
     SPELL_EXPLODE                       = 36092,
     SPELL_FULLPOWER                     = 36187,
     SPELL_KNOCKBACK                     = 11027,
@@ -94,12 +97,12 @@ enum eEnums
     SPELL_GRAVITY_LAPSE_AURA            = 39432,
     SPELL_NETHER_BEAM                   = 35873,
 
-    //Thaladred the Darkener spells
+    // Thaladred the Darkener spells
     SPELL_PSYCHIC_BLOW                  = 10689,
     SPELL_SILENCE                       = 30225,
-    //Lord Sanguinar spells
+    // Lord Sanguinar spells
     SPELL_BELLOWING_ROAR                = 40636,
-    //Grand Astromancer Capernian spells
+    // Grand Astromancer Capernian spells
 
     SPELL_CAPERNIAN_FIREBALL            = 36971,
     SPELL_CONFLAGRATION                 = 37018,
@@ -112,16 +115,24 @@ enum eEnums
     //Phoenix spell
     SPELL_BURN                          = 36720,
     SPELL_EMBER_BLAST                   = 34341,
-    SPELL_REBIRTH                       = 41587,
+    SPELL_REBIRTH                       = 41587
+};
 
-    //Creature IDs
+enum Creatures
+{
     NPC_PHOENIX                         = 21362,
-    NPC_PHOENIX_EGG                     = 21364,
+    NPC_PHOENIX_EGG                     = 21364
+};
 
+enum Models
+{
     //Phoenix egg and phoenix model
     MODEL_ID_PHOENIX                    = 19682,
-    MODEL_ID_PHOENIX_EGG                = 20245,
+    MODEL_ID_PHOENIX_EGG                = 20245
+};
 
+enum Misc
+{
     MAX_ADVISORS                        = 4
 };
 
@@ -154,7 +165,7 @@ struct advisorbase_ai : public ScriptedAI
     uint32 DelayRes_Timer;
     uint64 DelayRes_Target;
 
-    void Reset()
+    void Reset() OVERRIDE
     {
         if (m_bDoubled_Health)
         {
@@ -176,7 +187,8 @@ struct advisorbase_ai : public ScriptedAI
                 Kaelthas->AI()->EnterEvadeMode();
     }
 
-    void MoveInLineOfSight(Unit* who)
+    void MoveInLineOfSight(Unit* who) OVERRIDE
+
     {
         if (!who || FakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -184,7 +196,7 @@ struct advisorbase_ai : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit* who) OVERRIDE
     {
         if (!who || FakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -205,7 +217,7 @@ struct advisorbase_ai : public ScriptedAI
         DelayRes_Timer = 2000;
     }
 
-    void DamageTaken(Unit* killer, uint32 &damage)
+    void DamageTaken(Unit* killer, uint32 &damage) OVERRIDE
     {
         if (damage < me->GetHealth())
             return;
@@ -241,7 +253,7 @@ struct advisorbase_ai : public ScriptedAI
         }
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) OVERRIDE
     {
         if (DelayRes_Timer)
         {
@@ -306,7 +318,7 @@ class boss_kaelthas : public CreatureScript
 
             uint64 m_auiAdvisorGuid[MAX_ADVISORS];
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Fireball_Timer = 5000+rand()%10000;
                 ArcaneDisruption_Timer = 45000;
@@ -391,7 +403,8 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->CanCreatureAttack(who))
                 {
@@ -418,18 +431,18 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (instance && !instance->GetData(DATA_KAELTHASEVENT) && !Phase)
                     StartEvent();
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_SLAY);
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 // if not phoenix, then it's one of the 7 weapons
                 if (summoned->GetEntry() != NPC_PHOENIX)
@@ -441,12 +454,12 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDespawn(Creature* summon)
+            void SummonedCreatureDespawn(Creature* summon) OVERRIDE
             {
                 summons.Despawn(summon);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -465,7 +478,7 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 //Phase 1
                 switch (Phase)
@@ -996,7 +1009,7 @@ class boss_kaelthas : public CreatureScript
                 }
             }
         };
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_kaelthasAI(creature);
         }
@@ -1019,7 +1032,7 @@ class boss_thaladred_the_darkener : public CreatureScript
             uint32 Silence_Timer;
             uint32 PsychicBlow_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Gaze_Timer = 100;
                 Silence_Timer = 20000;
@@ -1028,7 +1041,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) OVERRIDE
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1040,13 +1053,13 @@ class boss_thaladred_the_darkener : public CreatureScript
                 me->AddThreat(who, 5000000.0f);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance && instance->GetData(DATA_KAELTHASEVENT) == 3)
                     Talk(SAY_THALADRED_DEATH);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 advisorbase_ai::UpdateAI(diff);
 
@@ -1094,7 +1107,7 @@ class boss_thaladred_the_darkener : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_thaladred_the_darkenerAI(creature);
         }
@@ -1115,13 +1128,13 @@ class boss_lord_sanguinar : public CreatureScript
 
             uint32 Fear_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Fear_Timer = 20000;
                 advisorbase_ai::Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) OVERRIDE
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1132,13 +1145,13 @@ class boss_lord_sanguinar : public CreatureScript
                 Talk(SAY_SANGUINAR_AGGRO);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance && instance->GetData(DATA_KAELTHASEVENT) == 3)
                     Talk(SAY_SANGUINAR_DEATH);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 advisorbase_ai::UpdateAI(diff);
 
@@ -1162,7 +1175,7 @@ class boss_lord_sanguinar : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_lord_sanguinarAI(creature);
         }
@@ -1186,7 +1199,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
             uint32 Yell_Timer;
             bool Yell;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Fireball_Timer = 2000;
                 Conflagration_Timer = 20000;
@@ -1197,13 +1210,13 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance && instance->GetData(DATA_KAELTHASEVENT) == 3)
                     Talk(SAY_CAPERNIAN_DEATH);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (!who || FakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1218,7 +1231,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) OVERRIDE
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1227,7 +1240,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     return;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 advisorbase_ai::UpdateAI(diff);
 
@@ -1306,7 +1319,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_grand_astromancer_capernianAI(creature);
         }
@@ -1328,7 +1341,7 @@ class boss_master_engineer_telonicus : public CreatureScript
             uint32 Bomb_Timer;
             uint32 RemoteToy_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Bomb_Timer = 10000;
                 RemoteToy_Timer = 5000;
@@ -1336,13 +1349,13 @@ class boss_master_engineer_telonicus : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance && instance->GetData(DATA_KAELTHASEVENT) == 3)
                     Talk(SAY_TELONICUS_DEATH);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) OVERRIDE
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1353,7 +1366,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                 Talk(SAY_TELONICUS_AGGRO);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 advisorbase_ai::UpdateAI(diff);
 
@@ -1389,7 +1402,7 @@ class boss_master_engineer_telonicus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_master_engineer_telonicusAI(creature);
         }
@@ -1415,7 +1428,7 @@ class npc_kael_flamestrike : public CreatureScript
             bool Casting;
             bool KillSelf;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Timer = 5000;
                 Casting = false;
@@ -1425,11 +1438,12 @@ class npc_kael_flamestrike : public CreatureScript
                 me->setFaction(14);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-            void EnterCombat(Unit* /*who*/) {}
 
-            void UpdateAI(uint32 diff)
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!Casting)
                 {
@@ -1456,7 +1470,7 @@ class npc_kael_flamestrike : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_kael_flamestrikeAI(creature);
         }
@@ -1477,20 +1491,20 @@ class npc_phoenix_tk : public CreatureScript
 
             uint32 Cycle_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Cycle_Timer = 2000;
                 DoCast(me, SPELL_BURN, true);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 //is this spell in use anylonger?
                 //DoCast(me, SPELL_EMBER_BLAST, true);
                 me->SummonCreature(NPC_PHOENIX_EGG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 16000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -1510,7 +1524,7 @@ class npc_phoenix_tk : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_phoenix_tkAI(creature);
         }
@@ -1531,15 +1545,16 @@ class npc_phoenix_egg_tk : public CreatureScript
 
             uint32 Rebirth_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Rebirth_Timer = 15000;
             }
 
             //ignore any
-            void MoveInLineOfSight(Unit* /*who*/) {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-            void AttackStart(Unit* who)
+
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (me->Attack(who, false))
                 {
@@ -1550,13 +1565,13 @@ class npc_phoenix_egg_tk : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 summoned->AddThreat(me->GetVictim(), 0.0f);
                 summoned->CastSpell(summoned, SPELL_REBIRTH, false);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!Rebirth_Timer)
                     return;
@@ -1571,7 +1586,7 @@ class npc_phoenix_egg_tk : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_phoenix_egg_tkAI(creature);
         }

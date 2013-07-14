@@ -43,22 +43,22 @@ enum DarkweaverSyth
     SPELL_SUMMON_SYTH_FIRE      = 33537,                   // Spawns 19203
     SPELL_SUMMON_SYTH_ARCANE    = 33538,                   // Spawns 19205
     SPELL_SUMMON_SYTH_FROST     = 33539,                   // Spawns 19204
-    SPELL_SUMMON_SYTH_SHADOW    = 33540                    // Spawns 19206
-};
+    SPELL_SUMMON_SYTH_SHADOW    = 33540,                   // Spawns 19206
 
-#define SPELL_FLAME_BUFFET          DUNGEON_MODE(33526, 38141)
-#define SPELL_ARCANE_BUFFET         DUNGEON_MODE(33527, 38138)
-#define SPELL_FROST_BUFFET          DUNGEON_MODE(33528, 38142)
-#define SPELL_SHADOW_BUFFET         DUNGEON_MODE(33529, 38143)
+    SPELL_FLAME_BUFFET          = 33526,
+    SPELL_ARCANE_BUFFET         = 33527,
+    SPELL_FROST_BUFFET          = 33528,
+    SPELL_SHADOW_BUFFET         = 33529
+};
 
 class boss_darkweaver_syth : public CreatureScript
 {
 public:
     boss_darkweaver_syth() : CreatureScript("boss_darkweaver_syth") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_darkweaver_sythAI (creature);
+        return new boss_darkweaver_sythAI(creature);
     }
 
     struct boss_darkweaver_sythAI : public ScriptedAI
@@ -77,7 +77,7 @@ public:
         bool summon50;
         bool summon10;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             flameshock_timer = 2000;
             arcaneshock_timer = 4000;
@@ -90,17 +90,17 @@ public:
             summon10 = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (rand()%2)
                 return;
@@ -108,7 +108,7 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->AI()->AttackStart(target);
@@ -127,7 +127,7 @@ public:
             DoCast(me, SPELL_SUMMON_SYTH_SHADOW, true);   //right
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -211,16 +211,16 @@ public:
         uint32 flameshock_timer;
         uint32 flamebuffet_timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             flameshock_timer = 2500;
             flamebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -245,9 +245,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_fireAI (creature);
+        return new npc_syth_fireAI(creature);
     }
 };
 
@@ -256,9 +256,9 @@ class npc_syth_arcane : public CreatureScript
 public:
     npc_syth_arcane() : CreatureScript("npc_syth_arcane") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_arcaneAI (creature);
+        return new npc_syth_arcaneAI(creature);
     }
 
     struct npc_syth_arcaneAI : public ScriptedAI
@@ -270,16 +270,16 @@ public:
         uint32 arcaneshock_timer;
         uint32 arcanebuffet_timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
             arcaneshock_timer = 2500;
             arcanebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -310,9 +310,9 @@ class npc_syth_frost : public CreatureScript
 public:
     npc_syth_frost() : CreatureScript("npc_syth_frost") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_frostAI (creature);
+        return new npc_syth_frostAI(creature);
     }
 
     struct npc_syth_frostAI : public ScriptedAI
@@ -324,16 +324,16 @@ public:
         uint32 frostshock_timer;
         uint32 frostbuffet_timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
             frostshock_timer = 2500;
             frostbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -365,9 +365,9 @@ class npc_syth_shadow : public CreatureScript
 public:
     npc_syth_shadow() : CreatureScript("npc_syth_shadow") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_syth_shadowAI (creature);
+        return new npc_syth_shadowAI(creature);
     }
 
     struct npc_syth_shadowAI : public ScriptedAI
@@ -379,16 +379,16 @@ public:
         uint32 shadowshock_timer;
         uint32 shadowbuffet_timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
             shadowshock_timer = 2500;
             shadowbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
