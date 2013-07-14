@@ -37,17 +37,25 @@ EndContentData */
 ## npc_daphne_stilwell
 ######*/
 
-enum eEnums
+enum DaphneStilwell
 {
+    // Yells
     SAY_DS_START        = 0,
     SAY_DS_DOWN_1       = 1,
     SAY_DS_DOWN_2       = 2,
     SAY_DS_DOWN_3       = 3,
     SAY_DS_PROLOGUE     = 4,
 
+    // Spells
     SPELL_SHOOT         = 6660,
+
+    // Quests
     QUEST_TOME_VALOR    = 1651,
+
+    // Creatures
     NPC_DEFIAS_RAIDER   = 6180,
+
+    // Equips
     EQUIP_ID_RIFLE      = 2511
 };
 
@@ -56,7 +64,7 @@ class npc_daphne_stilwell : public CreatureScript
 public:
     npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_TOME_VALOR)
         {
@@ -69,7 +77,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_daphne_stilwellAI(creature);
     }
@@ -81,7 +89,7 @@ public:
         uint32 uiWPHolder;
         uint32 uiShootTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -104,7 +112,7 @@ public:
             uiShootTimer = 0;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -156,7 +164,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -171,7 +179,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->AI()->AttackStart(me);
         }
@@ -213,7 +221,7 @@ class npc_defias_traitor : public CreatureScript
 public:
     npc_defias_traitor() : CreatureScript("npc_defias_traitor") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
         {
@@ -226,7 +234,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_defias_traitorAI(creature);
     }
@@ -235,7 +243,7 @@ public:
     {
         npc_defias_traitorAI(Creature* creature) : npc_escortAI(creature) { Reset(); }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -256,12 +264,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             Talk(SAY_AGGRO, who->GetGUID());
         }
 
-        void Reset() {}
+        void Reset() OVERRIDE {}
     };
 };
 

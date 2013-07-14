@@ -45,9 +45,9 @@ class boss_anetheron : public CreatureScript
 public:
     boss_anetheron() : CreatureScript("boss_anetheron") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_anetheronAI (creature);
+        return new boss_anetheronAI(creature);
     }
 
     struct boss_anetheronAI : public hyjal_trashAI
@@ -64,7 +64,7 @@ public:
         uint32 InfernoTimer;
         bool go;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             damageTaken = 0;
             SwarmTimer = 45000;
@@ -76,19 +76,19 @@ public:
                 instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance)
             {
@@ -98,7 +98,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
@@ -106,7 +106,7 @@ public:
             Talk(SAY_ONDEATH);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (IsEvent)
             {
@@ -177,9 +177,9 @@ class npc_towering_infernal : public CreatureScript
 public:
     npc_towering_infernal() : CreatureScript("npc_towering_infernal") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_towering_infernalAI (creature);
+        return new npc_towering_infernalAI(creature);
     }
 
     struct npc_towering_infernalAI : public ScriptedAI
@@ -196,32 +196,33 @@ public:
         uint64 AnetheronGUID;
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DoCast(me, SPELL_INFERNO_EFFECT);
             ImmolationTimer = 5000;
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (me->IsWithinDist(who, 50) && !me->IsInCombat() && me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (CheckTimer <= diff)
             {

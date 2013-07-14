@@ -72,7 +72,7 @@ public:
 
         float fMaxDistance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
@@ -91,7 +91,7 @@ public:
         }
 
         //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* Victim) OVERRIDE
         {
             // not sure if this aura check is correct, I think it is though
             if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->IsAlive())
@@ -100,13 +100,13 @@ public:
             me->ModifyHealth(int32(me->CountPctFromMaxHealth(10)));
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_HADRONOX_EVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
@@ -134,7 +134,7 @@ public:
                 EnterEvadeMode();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -190,7 +190,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_hadronoxAI(creature);
     }

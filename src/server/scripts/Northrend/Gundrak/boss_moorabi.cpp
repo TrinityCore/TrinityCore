@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "gundrak.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_DETERMINED_STAB                         = 55104,
     SPELL_GROUND_TREMOR                           = 55142,
@@ -32,7 +32,7 @@ enum eSpells
     SPELL_TRANSFORMATION                          = 55098, //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
-enum eSays
+enum Says
 {
     SAY_AGGRO                                     = 0,
     SAY_SLAY                                      = 1,
@@ -42,14 +42,17 @@ enum eSays
     EMOTE_TRANSFORM                               = 5
 };
 
-#define DATA_LESS_RABI                            1
+enum Misc
+{
+    DATA_LESS_RABI                                = 1
+};
 
 class boss_moorabi : public CreatureScript
 {
 public:
     boss_moorabi() : CreatureScript("boss_moorabi") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_moorabiAI(creature);
     }
@@ -70,7 +73,7 @@ public:
         uint32 uiDeterminedStabTimer;
         uint32 uiTransformationTImer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiGroundTremorTimer = 18*IN_MILLISECONDS;
             uiNumblingShoutTimer =  10*IN_MILLISECONDS;
@@ -82,7 +85,7 @@ public:
                 instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
             DoCast(me, SPELL_MOJO_FRENZY, true);
@@ -91,7 +94,7 @@ public:
                 instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             //Return since we have no target
              if (!UpdateVictim())
@@ -142,7 +145,7 @@ public:
             DoMeleeAttackIfReady();
          }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             if (type == DATA_LESS_RABI)
                 return bPhase ? 0 : 1;
@@ -150,7 +153,7 @@ public:
             return 0;
         }
 
-         void JustDied(Unit* /*killer*/)
+         void JustDied(Unit* /*killer*/) OVERRIDE
          {
             Talk(SAY_DEATH);
 
@@ -158,7 +161,7 @@ public:
                 instance->SetData(DATA_MOORABI_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -176,7 +179,7 @@ class achievement_less_rabi : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

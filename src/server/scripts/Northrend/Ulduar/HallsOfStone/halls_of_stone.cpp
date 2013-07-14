@@ -85,41 +85,46 @@ enum Texts
     TEXT_ID_PROGRESS                    = 13101
 };
 
-enum BrannCreatures
+enum Creatures
 {
-    CREATURE_TRIBUNAL_OF_THE_AGES       = 28234,
-    CREATURE_BRANN_BRONZEBEARD          = 28070,
-    CREATURE_DARK_MATTER_TARGET         = 28237,
-    CREATURE_SEARING_GAZE_TARGET        = 28265,
-    CREATURE_DARK_RUNE_PROTECTOR        = 27983,
-    CREATURE_DARK_RUNE_STORMCALLER      = 27984,
-    CREATURE_IRON_GOLEM_CUSTODIAN       = 27985,
+    NPC_TRIBUNAL_OF_THE_AGES       = 28234,
+    NPC_BRANN_BRONZEBEARD          = 28070,
+    NPC_DARK_MATTER_TARGET         = 28237,
+    NPC_SEARING_GAZE_TARGET        = 28265,
+    NPC_DARK_RUNE_PROTECTOR        = 27983,
+    NPC_DARK_RUNE_STORMCALLER      = 27984,
+    NPC_IRON_GOLEM_CUSTODIAN       = 27985,
 };
 
 enum Spells
 {
     SPELL_STEALTH                       = 58506,
-    //Kadrak
+
+    // Kadrak
     SPELL_GLARE_OF_THE_TRIBUNAL         = 50988,
     H_SPELL_GLARE_OF_THE_TRIBUNAL       = 59868,
-    //Marnak
+
+    // Marnak
     SPELL_DARK_MATTER                   = 51012,
     H_SPELL_DARK_MATTER                 = 59868,
-    //Abedneum
+
+    // Abedneum
     SPELL_SEARING_GAZE                  = 51136,
     H_SPELL_SEARING_GAZE                = 59867,
 
     SPELL_REWARD_ACHIEVEMENT            = 59046,
 };
 
-enum Quests
+enum Misc
 {
-    QUEST_HALLS_OF_STONE                = 13207
+    QUEST_HALLS_OF_STONE                = 13207,
+
+    DATA_BRANN_SPARKLIN_NEWS            = 1
+
 };
 
 #define GOSSIP_ITEM_START               "Brann, it would be our honor!"
 #define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!"
-#define DATA_BRANN_SPARKLIN_NEWS        1
 
 static Position SpawnLocations[]=
 {
@@ -132,7 +137,7 @@ class npc_tribuna_controller : public CreatureScript
 public:
     npc_tribuna_controller() : CreatureScript("npc_tribuna_controller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_tribuna_controllerAI(creature);
     }
@@ -157,7 +162,7 @@ public:
 
         std::list<uint64> KaddrakGUIDList;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiKaddrakEncounterTimer = 1500;
             uiMarnakEncounterTimer = 10000;
@@ -204,7 +209,7 @@ public:
             }*/
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (bKaddrakActivated)
             {
@@ -229,7 +234,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        if (Creature* summon = me->SummonCreature(CREATURE_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
+                        if (Creature* summon = me->SummonCreature(NPC_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                         {
                             summon->SetDisplayId(11686);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -245,7 +250,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        if (Creature* summon = me->SummonCreature(CREATURE_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
+                        if (Creature* summon = me->SummonCreature(NPC_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                         {
                             summon->SetDisplayId(11686);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -265,7 +270,7 @@ class npc_brann_hos : public CreatureScript
 public:
     npc_brann_hos() : CreatureScript("npc_brann_hos") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1 || action == GOSSIP_ACTION_INFO_DEF+2)
@@ -277,7 +282,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -288,7 +293,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_brann_hosAI(creature);
     }
@@ -312,7 +317,7 @@ public:
         bool bIsLowHP;
         bool brannSparklinNews;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -343,12 +348,12 @@ public:
             lDwarfGUIDList.clear();
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             switch (waypointId)
             {
                 case 7:
-                    if (Creature* creature = GetClosestCreatureWithEntry(me, CREATURE_TRIBUNAL_OF_THE_AGES, 100.0f))
+                    if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_TRIBUNAL_OF_THE_AGES, 100.0f))
                     {
                         if (!creature->IsAlive())
                             creature->Respawn();
@@ -383,21 +388,21 @@ public:
                {
                    uint32 uiSpawnNumber = DUNGEON_MODE(2, 3);
                    for (uint8 i = 0; i < uiSpawnNumber; ++i)
-                       me->SummonCreature(CREATURE_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
-                   me->SummonCreature(CREATURE_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                       me->SummonCreature(NPC_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                   me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                    break;
                }
                case 2:
                    for (uint8 i = 0; i < 2; ++i)
-                       me->SummonCreature(CREATURE_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                       me->SummonCreature(NPC_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                    break;
                case 3:
-                   me->SummonCreature(CREATURE_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                   me->SummonCreature(NPC_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                    break;
            }
          }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             lDwarfGUIDList.push_back(summoned->GetGUID());
             summoned->AddThreat(me, 0.0f);
@@ -418,13 +423,13 @@ public:
             Start();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/)
+        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/) OVERRIDE
         {
             if (brannSparklinNews)
                 brannSparklinNews = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             if (type == DATA_BRANN_SPARKLIN_NEWS)
                 return brannSparklinNews ? 1 : 0;
@@ -432,7 +437,7 @@ public:
             return 0;
         }
 
-        void UpdateEscortAI(const uint32 uiDiff)
+        void UpdateEscortAI(const uint32 uiDiff) OVERRIDE
         {
             if (uiPhaseTimer <= uiDiff)
             {
@@ -739,7 +744,7 @@ class achievement_brann_spankin_new : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

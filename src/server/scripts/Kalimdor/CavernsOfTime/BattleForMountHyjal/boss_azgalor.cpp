@@ -46,9 +46,9 @@ class boss_azgalor : public CreatureScript
 public:
     boss_azgalor() : CreatureScript("boss_azgalor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_azgalorAI (creature);
+        return new boss_azgalorAI(creature);
     }
 
     struct boss_azgalorAI : public hyjal_trashAI
@@ -68,7 +68,7 @@ public:
 
         bool go;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             damageTaken = 0;
             RainTimer = 20000;
@@ -82,19 +82,19 @@ public:
                 instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance)
             {
@@ -104,7 +104,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
@@ -112,7 +112,7 @@ public:
             Talk(SAY_ONDEATH);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (IsEvent)
             {
@@ -184,9 +184,9 @@ class npc_lesser_doomguard : public CreatureScript
 public:
     npc_lesser_doomguard() : CreatureScript("npc_lesser_doomguard") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_lesser_doomguardAI (creature);
+        return new npc_lesser_doomguardAI(creature);
     }
 
     struct npc_lesser_doomguardAI : public hyjal_trashAI
@@ -204,7 +204,7 @@ public:
         uint64 AzgalorGUID;
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CrippleTimer = 50000;
             WarstompTimer = 10000;
@@ -212,29 +212,30 @@ public:
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
         }
 
-        void WaypointReached(uint32 /*waypointId*/)
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE
         {
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (me->IsWithinDist(who, 50) && !me->IsInCombat() && me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (CheckTimer <= diff)
             {

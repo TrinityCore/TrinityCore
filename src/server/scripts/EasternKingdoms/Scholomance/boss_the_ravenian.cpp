@@ -50,7 +50,7 @@ class boss_the_ravenian : public CreatureScript
         {
             boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THERAVENIAN) {}
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_TRAMPLE, 24000);
@@ -59,7 +59,7 @@ class boss_the_ravenian : public CreatureScript
                 events.ScheduleEvent(EVENT_KNOCKAWAY, 32000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -98,9 +98,9 @@ class boss_the_ravenian : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_theravenianAI (creature);
+            return new boss_theravenianAI(creature);
         }
 };
 

@@ -29,30 +29,36 @@ EndScriptData */
 #include "Spell.h"
 #include "Player.h"
 
-#define SPELL_SPOUT         37433
-#define SPELL_SPOUT_ANIM    42835
-#define SPELL_SPOUT_BREATH  37431
-#define SPELL_KNOCKBACK     19813
-#define SPELL_GEYSER        37478
-#define SPELL_WHIRL         37660
-#define SPELL_WATERBOLT     37138
-#define SPELL_SUBMERGE      37550
-#define SPELL_EMERGE        20568
+enum Spells
+{
+    SPELL_SPOUT             = 37433,
+    SPELL_SPOUT_ANIM        = 42835,
+    SPELL_SPOUT_BREATH      = 37431,
+    SPELL_KNOCKBACK         = 19813,
+    SPELL_GEYSER            = 37478,
+    SPELL_WHIRL             = 37660,
+    SPELL_WATERBOLT         = 37138,
+    SPELL_SUBMERGE          = 37550,
+    SPELL_EMERGE            = 20568,
+
+
+    // Ambusher spells
+    SPELL_SPREAD_SHOT       = 37790,
+    SPELL_SHOOT             = 37770,
+    // Guardian spells
+    SPELL_ARCINGSMASH       = 38761, // Wrong SpellId. Can't find the right one.
+    SPELL_HAMSTRING         = 26211
+};
+
+enum Creatures
+{
+    NPC_COILFANG_GUARDIAN   = 21873,
+    NPC_COILFANG_AMBUSHER   = 21865
+};
 
 #define EMOTE_SPOUT "The Lurker Below takes a deep breath."
 
 #define SPOUT_DIST  100
-
-#define NPC_COILFANG_GUARDIAN 21873
-#define NPC_COILFANG_AMBUSHER 21865
-
-//Ambusher spells
-#define SPELL_SPREAD_SHOT   37790
-#define SPELL_SHOOT         37770
-
-//Guardian spells
-#define SPELL_ARCINGSMASH   38761 // Wrong SpellId. Can't find the right one.
-#define SPELL_HAMSTRING     26211
 
 float AddPos[9][3] =
 {
@@ -73,9 +79,9 @@ class boss_the_lurker_below : public CreatureScript
 public:
     boss_the_lurker_below() : CreatureScript("boss_the_lurker_below") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_the_lurker_belowAI (creature);
+        return new boss_the_lurker_belowAI(creature);
     }
 
     struct boss_the_lurker_belowAI : public ScriptedAI
@@ -110,7 +116,7 @@ public:
                 return false;
             return true;
         }
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetSwim(true);
             me->SetDisableGravity(true);
@@ -143,7 +149,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -154,13 +160,14 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!CanStartEvent) // boss is invisible, don't attack
                 return;
@@ -172,13 +179,13 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 /*id*/)
+        void MovementInform(uint32 type, uint32 /*id*/) OVERRIDE
         {
             if (type == ROTATE_MOTION_TYPE)
                 me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!CanStartEvent) // boss is invisible, don't attack
             {
@@ -364,9 +371,9 @@ class npc_coilfang_ambusher : public CreatureScript
 public:
     npc_coilfang_ambusher() : CreatureScript("npc_coilfang_ambusher") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_coilfang_ambusherAI (creature);
+        return new npc_coilfang_ambusherAI(creature);
     }
 
     struct npc_coilfang_ambusherAI : public ScriptedAI
@@ -379,13 +386,14 @@ public:
         uint32 MultiShotTimer;
         uint32 ShootBowTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             MultiShotTimer = 10000;
             ShootBowTimer = 4000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!who || me->GetVictim())
                 return;
@@ -394,7 +402,7 @@ public:
                 AttackStart(who);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (MultiShotTimer <= diff)
             {
@@ -423,7 +431,7 @@ class go_strange_pool : public GameObjectScript
     public:
         go_strange_pool() : GameObjectScript("go_strange_pool") {}
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
         {
             // 25%
             if (InstanceScript* instanceScript = go->GetInstanceScript())

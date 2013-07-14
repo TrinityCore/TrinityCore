@@ -160,7 +160,8 @@ class npc_winterfin_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -258,7 +259,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -358,7 +360,8 @@ class npc_the_biggest_tree : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -444,7 +447,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -532,7 +536,8 @@ class npc_elder_kekek : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -620,7 +625,8 @@ class npc_the_etymidian : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -732,7 +738,8 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -926,7 +933,8 @@ class npc_cw_area_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (who && me->GetDistance2d(who) < 20.0f)
                     if (Player* player = who->ToPlayer())
@@ -1022,7 +1030,8 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())

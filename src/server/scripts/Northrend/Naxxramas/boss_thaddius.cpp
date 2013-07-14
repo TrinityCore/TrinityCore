@@ -108,9 +108,9 @@ class boss_thaddius : public CreatureScript
 public:
     boss_thaddius() : CreatureScript("boss_thaddius") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_thaddiusAI (creature);
+        return new boss_thaddiusAI(creature);
     }
 
     struct boss_thaddiusAI : public BossAI
@@ -147,19 +147,19 @@ public:
         bool polaritySwitch;
         uint32 uiAddsTimer;
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (!(rand()%5))
                 Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) OVERRIDE
         {
             switch (action)
             {
@@ -190,7 +190,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
@@ -199,18 +199,18 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 360000);
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/) OVERRIDE
         {
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void SetData(uint32 id, uint32 data)
+        void SetData(uint32 id, uint32 data) OVERRIDE
         {
             if (id == DATA_POLARITY_SWITCH)
                 polaritySwitch = data ? true : false;
         }
 
-        uint32 GetData(uint32 id) const
+        uint32 GetData(uint32 id) const OVERRIDE
         {
             if (id != DATA_POLARITY_SWITCH)
                 return 0;
@@ -218,7 +218,7 @@ public:
             return uint32(polaritySwitch);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (checkFeugenAlive && checkStalaggAlive)
                 uiAddsTimer = 0;
@@ -283,7 +283,7 @@ class npc_stalagg : public CreatureScript
 public:
     npc_stalagg() : CreatureScript("npc_stalagg") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_stalaggAI(creature);
     }
@@ -300,7 +300,7 @@ public:
         uint32 powerSurgeTimer;
         uint32 magneticPullTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (instance)
                 if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
@@ -310,19 +310,19 @@ public:
             magneticPullTimer = 20000;
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (!(rand()%5))
                 Talk(SAY_STAL_SLAY);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_STAL_AGGRO);
             DoCast(SPELL_STALAGG_TESLA);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_STAL_DEATH);
             if (instance)
@@ -331,7 +331,7 @@ public:
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -377,7 +377,7 @@ class npc_feugen : public CreatureScript
 public:
     npc_feugen() : CreatureScript("npc_feugen") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_feugenAI(creature);
     }
@@ -393,7 +393,7 @@ public:
 
         uint32 staticFieldTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (instance)
                 if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
@@ -402,19 +402,19 @@ public:
             staticFieldTimer = 5000;
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (!(rand()%5))
                 Talk(SAY_FEUG_SLAY);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_FEUG_AGGRO);
             DoCast(SPELL_FEUGEN_TESLA);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_FEUG_DEATH);
             if (instance)
@@ -423,7 +423,7 @@ public:
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -449,7 +449,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
         {
             PrepareSpellScript(spell_thaddius_pos_neg_charge_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE))
                     return false;
@@ -462,7 +462,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
                 return true;
             }
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -506,14 +506,14 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_thaddius_pos_neg_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thaddius_pos_neg_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_thaddius_pos_neg_charge_SpellScript();
         }
@@ -528,7 +528,7 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
         {
             PrepareSpellScript(spell_thaddius_polarity_shift_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_POLARITY) || !sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_POLARITY))
                     return false;
@@ -542,13 +542,13 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
                     target->CastSpell(target, roll_chance_i(50) ? SPELL_POSITIVE_POLARITY : SPELL_NEGATIVE_POLARITY, true, NULL, NULL, caster->GetGUID());
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_thaddius_polarity_shift_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_thaddius_polarity_shift_SpellScript();
         }
@@ -559,7 +559,7 @@ class achievement_polarity_switch : public AchievementCriteriaScript
     public:
         achievement_polarity_switch() : AchievementCriteriaScript("achievement_polarity_switch") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
         {
             return target && target->GetAI()->GetData(DATA_POLARITY_SWITCH);
         }

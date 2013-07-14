@@ -26,36 +26,43 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "utgarde_keep.h"
 
-enum eEnums
+enum Yells
 {
-    //signed for 24200, but used by 24200, 27390
+    // signed for 24200, but used by 24200, 27390
     YELL_SKARVALD_AGGRO                         = 0,
     YELL_SKARVALD_DAL_DIED                      = 1,
     YELL_SKARVALD_SKA_DIEDFIRST                 = 2,
     YELL_SKARVALD_KILL                          = 3,
     YELL_SKARVALD_DAL_DIEDFIRST                 = 4,
 
-    //signed for 24201, but used by 24201, 27389
+    // signed for 24201, but used by 24201, 27389
     YELL_DALRONN_AGGRO                          = 0,
     YELL_DALRONN_SKA_DIED                       = 1,
     YELL_DALRONN_DAL_DIEDFIRST                  = 2,
     YELL_DALRONN_KILL                           = 3,
-    YELL_DALRONN_SKA_DIEDFIRST                  = 4,
+    YELL_DALRONN_SKA_DIEDFIRST                  = 4
+};
 
-//Spells of Skarvald and his Ghost
-    NPC_SKARVALD_THE_CONSTRUCTOR                = 24200,
+enum Spells
+{
+    // Spells of Skarvald and his Ghost
     SPELL_CHARGE                                = 43651,
     SPELL_STONE_STRIKE                          = 48583,
     SPELL_SUMMON_SKARVALD_GHOST                 = 48613,
     SPELL_ENRAGE                                = 48193,
-    NPC_SKARVALD_GHOST                          = 27390,
-//Spells of Dalronn and his Ghost
-    NPC_DALRONN_THE_CONTROLLER                  = 24201,
+    // Spells of Dalronn and his Ghost
     SPELL_SHADOW_BOLT                           = 43649,
     H_SPELL_SHADOW_BOLT                         = 59575,
     H_SPELL_SUMMON_SKELETONS                    = 52611,
     SPELL_DEBILITATE                            = 43650,
     SPELL_SUMMON_DALRONN_GHOST                  = 48612,
+};
+
+enum Creatures
+{
+    NPC_SKARVALD_THE_CONSTRUCTOR                = 24200,
+    NPC_SKARVALD_GHOST                          = 27390,
+    NPC_DALRONN_THE_CONTROLLER                  = 24201,
     NPC_DALRONN_GHOST                           = 27389
 };
 
@@ -78,9 +85,9 @@ class boss_skarvald_the_constructor : public CreatureScript
 public:
     boss_skarvald_the_constructor() : CreatureScript("boss_skarvald_the_constructor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_skarvald_the_constructorAI (creature);
+        return new boss_skarvald_the_constructorAI(creature);
     }
 
     struct boss_skarvald_the_constructorAI : public ScriptedAI
@@ -100,7 +107,7 @@ public:
         bool Dalronn_isDead;
         bool Enraged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Charge_Timer = 5000;
             StoneStrike_Timer = 10000;
@@ -119,7 +126,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -133,7 +140,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
         {
             if (!Enraged && !ghost && me->HealthBelowPctDamaged(15, damage))
             {
@@ -142,7 +149,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -172,7 +179,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (!ghost)
             {
@@ -180,7 +187,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (ghost)
             {
@@ -242,9 +249,9 @@ class boss_dalronn_the_controller : public CreatureScript
 public:
     boss_dalronn_the_controller() : CreatureScript("boss_dalronn_the_controller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_dalronn_the_controllerAI (creature);
+        return new boss_dalronn_the_controllerAI(creature);
     }
 
     struct boss_dalronn_the_controllerAI : public ScriptedAI
@@ -266,7 +273,7 @@ public:
         uint32 AggroYell_Timer;
         bool Skarvald_isDead;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ShadowBolt_Timer = 1000;
             Debilitate_Timer = 5000;
@@ -286,7 +293,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -301,7 +308,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (!ghost && instance)
             {
@@ -332,7 +339,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (!ghost)
             {
@@ -340,7 +347,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (ghost)
             {

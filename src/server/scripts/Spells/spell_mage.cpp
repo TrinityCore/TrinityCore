@@ -87,7 +87,7 @@ enum MageIcons
 class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
 {
     public:
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED))
                 return false;
@@ -118,7 +118,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_blast_wave_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FLAMESTRIKE))
                     return false;
@@ -146,7 +146,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
                         }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_blast_wave_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                 AfterCast += SpellCastFn(spell_mage_blast_wave_SpellScript::HandleImprovedFlamestrike);
@@ -156,7 +156,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
             uint32 _targetCount;
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_mage_blast_wave_SpellScript();
         }
@@ -172,7 +172,7 @@ class spell_mage_burnout : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_burnout_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_BURNOUT))
                     return false;
@@ -194,14 +194,14 @@ class spell_mage_burnout : public SpellScriptLoader
                 GetTarget()->CastCustomSpell(SPELL_MAGE_BURNOUT, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_burnout_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_mage_burnout_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mage_burnout_AuraScript();
         }
@@ -261,7 +261,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_cold_snap_SpellScript);
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -286,13 +286,13 @@ class spell_mage_cold_snap : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHit += SpellEffectFn(spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_mage_cold_snap_SpellScript();
         }
@@ -415,7 +415,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_fire_frost_ward_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_TRIGGERED))
                     return false;
@@ -457,7 +457,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_fire_frost_ward_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_fire_frost_ward_AuraScript::Absorb, EFFECT_0);
@@ -465,7 +465,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mage_fire_frost_ward_AuraScript();
         }
@@ -481,14 +481,14 @@ class spell_mage_focus_magic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_focus_magic_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FOCUS_MAGIC_PROC))
                     return false;
                 return true;
             }
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 _procTarget = NULL;
                 return true;
@@ -506,7 +506,7 @@ class spell_mage_focus_magic : public SpellScriptLoader
                 GetTarget()->CastSpell(_procTarget, SPELL_MAGE_FOCUS_MAGIC_PROC, true, NULL, aurEff);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_focus_magic_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_mage_focus_magic_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
@@ -516,7 +516,7 @@ class spell_mage_focus_magic : public SpellScriptLoader
             Unit* _procTarget;
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mage_focus_magic_AuraScript();
         }
@@ -585,7 +585,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
                     caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, NULL, aurEff);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
@@ -625,7 +625,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
            }
        };
 
-       AuraScript* GetAuraScript() const
+       AuraScript* GetAuraScript() const OVERRIDE
        {
            return new spell_mage_ice_barrier_AuraScript();
        }
@@ -641,7 +641,7 @@ class spell_mage_ignite : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_ignite_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE))
                     return false;
@@ -665,14 +665,14 @@ class spell_mage_ignite : public SpellScriptLoader
                 GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_ignite_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_mage_ignite_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mage_ignite_AuraScript();
         }
@@ -689,7 +689,7 @@ class spell_mage_mage_ward : public SpellScriptLoader
        {
            PrepareAuraScript(spell_mage_mage_ward_AuraScript);
 
-           void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+           void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount) OVERRIDE
            {
                if (AuraEffect* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
                {
@@ -698,13 +698,13 @@ class spell_mage_mage_ward : public SpellScriptLoader
                }
            }
 
-           void Register()
+            void Register() OVERRIDE
            {
                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_mage_ward_AuraScript::HandleAbsorb, EFFECT_0);
            }
        };
 
-       AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
        {
            return new spell_mage_mage_ward_AuraScript();
        }
@@ -730,20 +730,20 @@ class spell_mage_mana_shield : public SpellScriptLoader
                }
            }
 
-           void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+           void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) OVERRIDE
            {
                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                    GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_R1, true);
            }
 
-           void Register()
+           void Register() OVERRIDE
            {
                 AfterEffectManaShield += AuraEffectManaShieldFn(spell_mage_mana_shield_AuraScript::HandleAbsorb, EFFECT_0);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_mage_mana_shield_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MANA_SHIELD, AURA_EFFECT_HANDLE_REAL);
            }
        };
 
-       AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
        {
            return new spell_mage_mana_shield_AuraScript();
        }
@@ -759,7 +759,7 @@ class spell_mage_master_of_elements : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_master_of_elements_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE))
                     return false;
@@ -782,14 +782,14 @@ class spell_mage_master_of_elements : public SpellScriptLoader
                     GetTarget()->CastCustomSpell(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_master_of_elements_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_mage_master_of_elements_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mage_master_of_elements_AuraScript();
         }
@@ -858,7 +858,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 
             static const uint32 PolymorhForms[6];
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 // check if spell ids exist in dbc
                 for (uint32 i = 0; i < 6; i++)
@@ -874,14 +874,14 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
                         target->CastSpell(target, PolymorhForms[urand(0, 5)], true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 // add dummy effect spell handler to Polymorph visual
                 OnEffectHitTarget += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_mage_polymorph_cast_visual_SpellScript();
         }
@@ -1093,7 +1093,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT))
                     return false;
@@ -1118,14 +1118,14 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 // add dummy effect spell handler to Summon Water Elemental
                 OnEffectHit += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_mage_summon_water_elemental_SpellScript();
         }

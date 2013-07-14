@@ -26,8 +26,9 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Player.h"
+#include "hellfire_ramparts.h"
 
-enum eSays
+enum Says
 {
     SAY_AGGRO                    = 0,
     SAY_SUMMON                   = 1,
@@ -37,7 +38,7 @@ enum eSays
     SAY_WIPE                     = 5
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_ORBITAL_STRIKE         = 30637,
     SPELL_SHADOW_WHIP            = 30638,
@@ -53,29 +54,16 @@ class boss_omor_the_unscarred : public CreatureScript
 {
     public:
 
-        boss_omor_the_unscarred()
-            : CreatureScript("boss_omor_the_unscarred")
-        {
-        }
+        boss_omor_the_unscarred() : CreatureScript("boss_omor_the_unscarred") { }
 
-        struct boss_omor_the_unscarredAI : public ScriptedAI
+        struct boss_omor_the_unscarredAI : public BossAI
         {
-            boss_omor_the_unscarredAI(Creature* creature) : ScriptedAI(creature)
+            boss_omor_the_unscarredAI(Creature* creature) : BossAI(creature, DATA_OMOR_THE_UNSCARRED)
             {
                 SetCombatMovement(false);
             }
 
-            uint32 OrbitalStrike_Timer;
-            uint32 ShadowWhip_Timer;
-            uint32 Aura_Timer;
-            uint32 DemonicShield_Timer;
-            uint32 Shadowbolt_Timer;
-            uint32 Summon_Timer;
-            uint32 SummonedCount;
-            uint64 PlayerGUID;
-            bool CanPullBack;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Talk(SAY_WIPE);
 
@@ -88,14 +76,17 @@ class boss_omor_the_unscarred : public CreatureScript
                 SummonedCount = 0;
                 PlayerGUID = 0;
                 CanPullBack = false;
+
+                _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 if (rand()%2)
                     return;
@@ -103,7 +94,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 Talk(SAY_KILL_1);
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 Talk(SAY_SUMMON);
 
@@ -113,12 +104,13 @@ class boss_omor_the_unscarred : public CreatureScript
                 ++SummonedCount;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
+                _JustDied();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -217,9 +209,20 @@ class boss_omor_the_unscarred : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                uint32 OrbitalStrike_Timer;
+                uint32 ShadowWhip_Timer;
+                uint32 Aura_Timer;
+                uint32 DemonicShield_Timer;
+                uint32 Shadowbolt_Timer;
+                uint32 Summon_Timer;
+                uint32 SummonedCount;
+                uint64 PlayerGUID;
+                bool CanPullBack;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_omor_the_unscarredAI(creature);
         }

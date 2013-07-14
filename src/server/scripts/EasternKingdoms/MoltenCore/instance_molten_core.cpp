@@ -106,7 +106,7 @@ class instance_molten_core : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 if (type == DATA_RAGNAROS_ADDS)
                 {
@@ -117,7 +117,7 @@ class instance_molten_core : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -128,7 +128,7 @@ class instance_molten_core : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type) const
+            uint64 GetData64(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -252,7 +252,7 @@ class instance_molten_core : public InstanceMapScript
             bool _summonedExecutus;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_molten_core_InstanceMapScript(map);
         }

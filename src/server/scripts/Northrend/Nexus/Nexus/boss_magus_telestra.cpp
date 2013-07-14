@@ -50,8 +50,11 @@ enum Yells
     SAY_SPLIT                                     = 4
 };
 
-#define ACTION_MAGUS_DEAD                         1
-#define DATA_SPLIT_PERSONALITY                    2
+enum Misc
+{
+    ACTION_MAGUS_DEAD                             = 1,
+    DATA_SPLIT_PERSONALITY                        = 2
+};
 
 const Position  CenterOfRoom = {504.80f, 89.07f, -16.12f, 6.27f};
 
@@ -60,9 +63,9 @@ class boss_magus_telestra : public CreatureScript
 public:
     boss_magus_telestra() : CreatureScript("boss_magus_telestra") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_magus_telestraAI (creature);
+        return new boss_magus_telestraAI(creature);
     }
 
     struct boss_magus_telestraAI : public ScriptedAI
@@ -93,7 +96,7 @@ public:
         uint8 splitPersonality;
         time_t time[3];
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Phase = 0;
             //These times are probably wrong
@@ -119,7 +122,7 @@ public:
                 instance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -127,7 +130,7 @@ public:
                 instance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -135,12 +138,12 @@ public:
                 instance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_KILL);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) OVERRIDE
         {
             if (action == ACTION_MAGUS_DEAD)
             {
@@ -154,7 +157,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             if (type == DATA_SPLIT_PERSONALITY)
                 return splitPersonality;
@@ -191,7 +194,7 @@ public:
             return 0;
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             if (summon->IsAlive())
                 return;
@@ -213,7 +216,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -344,7 +347,7 @@ class achievement_split_personality : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

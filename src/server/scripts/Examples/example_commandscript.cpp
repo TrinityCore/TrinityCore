@@ -43,7 +43,7 @@ class example_commandscript : public CommandScript
             return true;
         }
 
-        ChatCommand* GetCommands() const
+        ChatCommand* GetCommands() const OVERRIDE
         {
             static ChatCommand HelloWorldCommandTable[] =
             {

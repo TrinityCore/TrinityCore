@@ -46,7 +46,7 @@ class go_gauntlet_gate : public GameObjectScript
 public:
     go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         InstanceScript* instance = go->GetInstanceScript();
 
@@ -93,21 +93,21 @@ class npc_freed_soul : public CreatureScript
 public:
     npc_freed_soul() : CreatureScript("npc_freed_soul") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_freed_soulAI (creature);
+        return new npc_freed_soulAI(creature);
     }
 
     struct npc_freed_soulAI : public ScriptedAI
     {
         npc_freed_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Talk(SAY_ZAPPED);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
     };
 
 };
@@ -116,20 +116,28 @@ public:
 ## npc_restless_soul
 ######*/
 
-#define SPELL_EGAN_BLASTER  17368
-#define SPELL_SOUL_FREED    17370
-#define QUEST_RESTLESS_SOUL 5282
-#define ENTRY_RESTLESS      11122
-#define ENTRY_FREED         11136
+enum RestlessSoul
+{
+    // Spells
+    SPELL_EGAN_BLASTER      = 17368,
+    SPELL_SOUL_FREED        = 17370,
+
+    // Quest
+    QUEST_RESTLESS_SOUL     = 5282,
+
+    // Creatures
+    NPC_RESTLESS            = 11122,
+    NPC_FREED               = 11136
+};
 
 class npc_restless_soul : public CreatureScript
 {
 public:
     npc_restless_soul() : CreatureScript("npc_restless_soul") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_restless_soulAI (creature);
+        return new npc_restless_soulAI(creature);
     }
 
     struct npc_restless_soulAI : public ScriptedAI
@@ -140,16 +148,16 @@ public:
         uint32 Die_Timer;
         bool Tagged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Tagger = 0;
             Die_Timer = 5000;
             Tagged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
             if (Tagged || spell->Id != SPELL_EGAN_BLASTER)
                 return;
@@ -162,18 +170,18 @@ public:
             Tagger = caster->GetGUID();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->CastSpell(summoned, SPELL_SOUL_FREED, false);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (Tagged)
-                me->SummonCreature(ENTRY_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
+                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Tagged)
             {
@@ -182,7 +190,7 @@ public:
                     if (Unit* temp = Unit::GetUnit(*me, Tagger))
                     {
                         if (Player* player = temp->ToPlayer())
-                            player->KilledMonsterCredit(ENTRY_RESTLESS, me->GetGUID());
+                            player->KilledMonsterCredit(NPC_RESTLESS, me->GetGUID());
                         me->Kill(me);
                     }
                 }
@@ -198,7 +206,7 @@ public:
 ## npc_spectral_ghostly_citizen
 ######*/
 
-enum eGhostlyCitizenSpells
+enum GhostlyCitizenSpells
 {
     SPELL_HAUNTING_PHANTOM  = 16336,
     SPELL_SLAP              = 6754
@@ -209,9 +217,9 @@ class npc_spectral_ghostly_citizen : public CreatureScript
 public:
     npc_spectral_ghostly_citizen() : CreatureScript("npc_spectral_ghostly_citizen") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_spectral_ghostly_citizenAI (creature);
+        return new npc_spectral_ghostly_citizenAI(creature);
     }
 
     struct npc_spectral_ghostly_citizenAI : public ScriptedAI
@@ -221,21 +229,21 @@ public:
         uint32 Die_Timer;
         bool Tagged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Die_Timer = 5000;
             Tagged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
         {
             if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
                 Tagged = true;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (Tagged)
             {
@@ -243,12 +251,12 @@ public:
                 {
                      //100%, 50%, 33%, 25% chance to spawn
                      if (urand(1, i) == 1)
-                         DoSummon(ENTRY_RESTLESS, me, 20.0f, 600000);
+                         DoSummon(NPC_RESTLESS, me, 20.0f, 600000);
                 }
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Tagged)
             {
@@ -263,7 +271,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void ReceiveEmote(Player* player, uint32 emote)
+        void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
         {
             switch (emote)
             {

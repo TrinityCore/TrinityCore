@@ -2150,7 +2150,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         ExitVehicle();
 
     // reset movement flags at teleport, because player will continue move with these flags after teleport
-    SetUnitMovementFlags(0);
+    SetUnitMovementFlags(GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
     m_movementInfo.ResetJump();
     m_movementInfo.bits.hasPitch = false;
     m_movementInfo.bits.hasSplineElevation = false;
@@ -16771,11 +16771,11 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
     }
 }
 
-void Player::SendPushToPartyResponse(Player* player, uint32 msg)
+void Player::SendPushToPartyResponse(Player* player, uint8 msg)
 {
     if (player)
     {
-        WorldPacket data(MSG_QUEST_PUSH_RESULT, (8+1));
+        WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 1);
         data << uint64(player->GetGUID());
         data << uint8(msg);                                 // valid values: 0-8
         GetSession()->SendPacket(&data);
@@ -19023,7 +19023,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
 
 bool Player::CheckInstanceLoginValid()
 {
-    if (!GetMap())
+    if (!FindMap())
         return false;
 
     if (!GetMap()->IsDungeon() || IsGameMaster())

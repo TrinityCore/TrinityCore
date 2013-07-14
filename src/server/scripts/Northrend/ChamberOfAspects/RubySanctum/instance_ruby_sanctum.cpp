@@ -181,7 +181,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const
+            uint64 GetData64(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -278,7 +278,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 if (type != DATA_BALTHARUS_SHARED_HEALTH)
                     return;
@@ -286,7 +286,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 BaltharusSharedHealth = data;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 if (type != DATA_BALTHARUS_SHARED_HEALTH)
                     return 0;
@@ -365,7 +365,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint32 BaltharusSharedHealth;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_ruby_sanctum_InstanceMapScript(map);
         }

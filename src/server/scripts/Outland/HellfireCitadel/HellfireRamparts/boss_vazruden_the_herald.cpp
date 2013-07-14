@@ -26,8 +26,21 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "hellfire_ramparts.h"
 
-enum eSpells
+enum Says
+{
+    SAY_INTRO                     = 0,
+
+    SAY_WIPE                      = 0,
+    SAY_AGGRO                     = 1,
+    SAY_KILL                      = 2,
+    SAY_DIE                       = 3,
+
+    EMOTE                         = 0
+};
+
+enum Spells
 {
     SPELL_FIREBALL                = 34653,
     SPELL_FIREBALL_H              = 36920,
@@ -42,74 +55,45 @@ enum eSpells
     SPELL_FIRE_NOVA_VISUAL        = 19823
 };
 
-enum eUnits
-{
-    ENTRY_HELLFIRE_SENTRY             = 17517,
-    ENTRY_VAZRUDEN_HERALD             = 17307,
-    ENTRY_VAZRUDEN                    = 17537,
-    ENTRY_NAZAN                       = 17536,
-    ENTRY_LIQUID_FIRE                 = 22515,
-    ENTRY_REINFORCED_FEL_IRON_CHEST   = 185168,
-    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169
-};
+const float VazrudenMiddle[3] = { -1406.5f, 1746.5f, 81.2f };
 
-enum Says
-{
-    SAY_INTRO                     = 0,
-
-    SAY_WIPE                      = 0,
-    SAY_AGGRO                     = 1,
-    SAY_KILL                      = 2,
-    SAY_DIE                       = 3,
-
-    EMOTE                         = 0
-};
-
-const float VazrudenMiddle[3] = {-1406.5f, 1746.5f, 81.2f};
 const float VazrudenRing[2][3] =
 {
-    {-1430, 1705, 112},
-    {-1377, 1760, 112}
+    { -1430.0f, 1705.0f, 112.0f },
+    { -1377.0f, 1760.0f, 112.0f }
 };
 
 class boss_nazan : public CreatureScript
 {
     public:
+        boss_nazan() : CreatureScript("boss_nazan") { }
 
-        boss_nazan()
-            : CreatureScript("boss_nazan")
+        struct boss_nazanAI : public BossAI
         {
-        }
-
-        struct boss_nazanAI : public ScriptedAI
-        {
-            boss_nazanAI(Creature* creature) : ScriptedAI(creature)
+            boss_nazanAI(Creature* creature) : BossAI(creature, DATA_NAZAN)
             {
                 VazrudenGUID = 0;
                 flight = true;
             }
 
-            uint32 Fireball_Timer;
-            uint32 ConeOfFire_Timer;
-            uint32 BellowingRoar_Timer;
-            uint32 Fly_Timer;
-            uint32 Turn_Timer;
-            bool flight;
-            uint64 VazrudenGUID;
-            SpellInfo* liquid_fire;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Fireball_Timer = 4000;
                 Fly_Timer = 45000;
                 Turn_Timer = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void JustSummoned(Creature* summoned)
+            void IsSummonedBy(Unit* summoner) OVERRIDE
             {
-                if (summoned && summoned->GetEntry() == ENTRY_LIQUID_FIRE)
+                if (summoner->GetEntry() == NPC_VAZRUDEN_HERALD)
+                    VazrudenGUID = summoner->GetGUID();
+            }
+
+            void JustSummoned(Creature* summoned) OVERRIDE
+            {
+                if (summoned && summoned->GetEntry() == NPC_LIQUID_FIRE)
                 {
                     summoned->SetLevel(me->getLevel());
                     summoned->setFaction(me->getFaction());
@@ -118,13 +102,13 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* entry)
+            void SpellHitTarget(Unit* target, const SpellInfo* entry) OVERRIDE
             {
                 if (target && entry->Id == uint32(SPELL_FIREBALL))
-                    me->SummonCreature(ENTRY_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
+                    me->SummonCreature(NPC_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -193,9 +177,19 @@ class boss_nazan : public CreatureScript
                     DoMeleeAttackIfReady();
                 }
             }
+
+            private:
+                uint32 Fireball_Timer;
+                uint32 ConeOfFire_Timer;
+                uint32 BellowingRoar_Timer;
+                uint32 Fly_Timer;
+                uint32 Turn_Timer;
+                bool flight;
+                uint64 VazrudenGUID;
+                SpellInfo* liquid_fire;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_nazanAI(creature);
         }
@@ -204,46 +198,40 @@ class boss_nazan : public CreatureScript
 class boss_vazruden : public CreatureScript
 {
     public:
+        boss_vazruden() : CreatureScript("boss_vazruden") { }
 
-        boss_vazruden()
-            : CreatureScript("boss_vazruden")
+        struct boss_vazrudenAI : public BossAI
         {
-        }
-        struct boss_vazrudenAI : public ScriptedAI
-        {
-            boss_vazrudenAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            boss_vazrudenAI(Creature* creature) : BossAI(creature, DATA_VAZRUDEN) { }
 
-            uint32 Revenge_Timer;
-            bool WipeSaid;
-            uint32 UnsummonCheck;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Revenge_Timer = 4000;
                 UnsummonCheck = 2000;
                 WipeSaid = false;
+                _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
+                _EnterCombat();
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who && who->GetEntry() != ENTRY_VAZRUDEN)
+                if (who && who->GetEntry() != NPC_VAZRUDEN)
                     Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) OVERRIDE
             {
                 if (killer && killer != me)
                     Talk(SAY_DIE);
+                _JustDied();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                 {
@@ -272,8 +260,14 @@ class boss_vazruden : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                uint32 Revenge_Timer;
+                bool WipeSaid;
+                uint32 UnsummonCheck;
         };
-        CreatureAI* GetAI(Creature* creature) const
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_vazrudenAI(creature);
         }
@@ -282,11 +276,7 @@ class boss_vazruden : public CreatureScript
 class boss_vazruden_the_herald : public CreatureScript
 {
     public:
-
-        boss_vazruden_the_herald()
-            : CreatureScript("boss_vazruden_the_herald")
-        {
-        }
+        boss_vazruden_the_herald() : CreatureScript("boss_vazruden_the_herald") { }
 
         struct boss_vazruden_the_heraldAI : public ScriptedAI
         {
@@ -299,16 +289,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 VazrudenGUID = 0;
             }
 
-            uint32 phase;
-            uint32 waypoint;
-            uint32 check;
-            bool sentryDown;
-            uint64 NazanGUID;
-            uint64 VazrudenGUID;
-            bool summoned;
-            bool lootSpawned;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
                 phase = 0;
                 waypoint = 0;
@@ -322,7 +303,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 {
                     Creature* Nazan = Unit::GetCreature(*me, NazanGUID);
                     if (!Nazan)
-                        Nazan = me->FindNearestCreature(ENTRY_NAZAN, 5000);
+                        Nazan = me->FindNearestCreature(NPC_NAZAN, 5000);
                     if (Nazan)
                     {
                         Nazan->DisappearAndDie();
@@ -331,7 +312,7 @@ class boss_vazruden_the_herald : public CreatureScript
 
                     Creature* Vazruden = Unit::GetCreature(*me, VazrudenGUID);
                     if (!Vazruden)
-                        Vazruden = me->FindNearestCreature(ENTRY_VAZRUDEN, 5000);
+                        Vazruden = me->FindNearestCreature(NPC_VAZRUDEN, 5000);
                     if (Vazruden)
                     {
                         Vazruden->DisappearAndDie();
@@ -347,9 +328,9 @@ class boss_vazruden_the_herald : public CreatureScript
             {
                 if (!summoned)
                 {
-                    if (Creature* Vazruden = me->SummonCreature(ENTRY_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
+                    if (Creature* Vazruden = me->SummonCreature(NPC_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                         VazrudenGUID = Vazruden->GetGUID();
-                    if (Creature* Nazan = me->SummonCreature(ENTRY_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
+                    if (Creature* Nazan = me->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
                         NazanGUID = Nazan->GetGUID();
                     summoned = true;
                     me->SetVisible(false);
@@ -357,7 +338,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (phase == 0)
                 {
@@ -367,14 +348,13 @@ class boss_vazruden_the_herald : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 if (!summoned)
                     return;
                 Unit* victim = me->GetVictim();
-                if (summoned->GetEntry() == ENTRY_NAZAN)
+                if (summoned->GetEntry() == NPC_NAZAN)
                 {
-                    CAST_AI(boss_nazan::boss_nazanAI, summoned->AI())->VazrudenGUID = VazrudenGUID;
                     summoned->SetDisableGravity(true);
                     summoned->SetSpeed(MOVE_FLIGHT, 2.5f);
                     if (victim)
@@ -396,7 +376,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     sentryDown = true;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 switch (phase)
                 {
@@ -440,7 +420,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         }
                         else if (!lootSpawned)
                         {
-                            me->SummonGameObject(DUNGEON_MODE(ENTRY_REINFORCED_FEL_IRON_CHEST, ENTRY_REINFORCED_FEL_IRON_CHEST_H), VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, 0, 0, 0, 0, 0);
+                            me->SummonGameObject(DUNGEON_MODE(GO_FEL_IRON_CHEST_NORMAL, GO_FEL_IRON_CHECT_HEROIC), VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, 0, 0, 0, 0, 0);
                             me->SetLootRecipient(NULL); // don't think this is necessary..
                             //me->Kill(me);
                             lootSpawned = true;
@@ -452,9 +432,19 @@ class boss_vazruden_the_herald : public CreatureScript
                     break;
                 }
             }
+
+            private:
+                uint32 phase;
+                uint32 waypoint;
+                uint32 check;
+                bool sentryDown;
+                uint64 NazanGUID;
+                uint64 VazrudenGUID;
+                bool summoned;
+                bool lootSpawned;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_vazruden_the_heraldAI(creature);
         }
@@ -463,31 +453,26 @@ class boss_vazruden_the_herald : public CreatureScript
 class npc_hellfire_sentry : public CreatureScript
 {
     public:
+        npc_hellfire_sentry() : CreatureScript("npc_hellfire_sentry") { }
 
-        npc_hellfire_sentry()
-            : CreatureScript("npc_hellfire_sentry")
-        {
-        }
         struct npc_hellfire_sentryAI : public ScriptedAI
         {
             npc_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) {}
 
-            uint32 KidneyShot_Timer;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
                 KidneyShot_Timer = urand(3000, 7000);
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) OVERRIDE
             {
-                if (Creature* herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD, 150))
+                if (Creature* herald = me->FindNearestCreature(NPC_VAZRUDEN_HERALD, 150))
                     CAST_AI(boss_vazruden_the_herald::boss_vazruden_the_heraldAI, herald->AI())->SentryDownBy(killer);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -503,8 +488,12 @@ class npc_hellfire_sentry : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                uint32 KidneyShot_Timer;
         };
-        CreatureAI* GetAI(Creature* creature) const
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_hellfire_sentryAI(creature);
         }

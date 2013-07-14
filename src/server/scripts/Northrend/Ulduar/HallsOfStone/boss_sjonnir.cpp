@@ -59,7 +59,12 @@ enum SjonnirCreatures
     CREATURE_IRON_SLUDGE                                   = 28165
 };
 
-#define DATA_TIME_BEFORE_OOZE                              150000 //2min 30 secs
+enum Misc
+{
+    DATA_TIME_BEFORE_OOZE                                   = 150000, // 2min 30 secs
+    ACTION_OOZE_DEAD                                        = 1,
+    DATA_ABUSE_THE_OOZE                                     = 2
+};
 
 struct Locations
 {
@@ -72,9 +77,6 @@ static Locations PipeLocations[] =
     {1297.7f,  595.6f,  199.9f} //right
 };
 
-#define ACTION_OOZE_DEAD                                   1
-#define DATA_ABUSE_THE_OOZE                                2
-
 static Locations CenterPoint = {1295.21f, 667.157f, 189.691f};
 
 class boss_sjonnir : public CreatureScript
@@ -82,9 +84,9 @@ class boss_sjonnir : public CreatureScript
 public:
     boss_sjonnir() : CreatureScript("boss_sjonnir") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_sjonnirAI (creature);
+        return new boss_sjonnirAI(creature);
     }
 
     struct boss_sjonnirAI : public ScriptedAI
@@ -109,7 +111,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             bIsFrenzy = false;
 
@@ -128,7 +130,7 @@ public:
                 instance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -147,7 +149,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -205,7 +207,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             summon->GetMotionMaster()->MovePoint(0, CenterPoint.x, CenterPoint.y, CenterPoint.z);
             /*if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -213,7 +215,7 @@ public:
             lSummons.Summon(summon);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
             lSummons.DespawnAll();
@@ -222,7 +224,7 @@ public:
                 instance->SetData(DATA_SJONNIR_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -230,13 +232,13 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) OVERRIDE
         {
             if (action == ACTION_OOZE_DEAD)
                 ++abuseTheOoze;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             if (type == DATA_ABUSE_THE_OOZE)
                 return abuseTheOoze;
@@ -252,7 +254,7 @@ class npc_malformed_ooze : public CreatureScript
 public:
     npc_malformed_ooze() : CreatureScript("npc_malformed_ooze") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_malformed_oozeAI(creature);
     }
@@ -263,12 +265,12 @@ public:
 
         uint32 uiMergeTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiMergeTimer = 10000;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (uiMergeTimer <= diff)
             {
@@ -295,7 +297,7 @@ class npc_iron_sludge : public CreatureScript
 public:
     npc_iron_sludge() : CreatureScript("npc_iron_sludge") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_iron_sludgeAI(creature);
     }
@@ -309,7 +311,7 @@ public:
 
         InstanceScript* instance;
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 if (Creature* Sjonnir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SJONNIR)))
@@ -326,7 +328,7 @@ class achievement_abuse_the_ooze : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

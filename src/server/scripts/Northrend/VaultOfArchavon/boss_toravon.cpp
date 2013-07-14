@@ -39,7 +39,6 @@ enum Spells
     SPELL_FROZEN_ORB_SUMMON = 72093,    // summon orb
 };
 
-// Events boss
 enum Events
 {
     EVENT_FREEZING_GROUND   = 1,
@@ -49,8 +48,11 @@ enum Events
     EVENT_FROST_BLAST       = 4,
 };
 
-// Mob Frozen Orb
-#define NPC_FROZEN_ORB 38456    // 1 in 10 mode and 3 in 25 mode
+enum Creatures
+{
+    NPC_FROZEN_ORB          = 38456 // 1 in 10 mode and 3 in 25 mode
+
+};
 
 class boss_toravon : public CreatureScript
 {
@@ -63,7 +65,7 @@ class boss_toravon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoCast(me, SPELL_FROZEN_MALLET);
 
@@ -74,7 +76,7 @@ class boss_toravon : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -110,7 +112,7 @@ class boss_toravon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_toravonAI(creature);
         }
@@ -128,12 +130,12 @@ class npc_frost_warder : public CreatureScript
         {
             npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoZoneInCombat();
 
@@ -142,7 +144,7 @@ class npc_frost_warder : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -165,7 +167,7 @@ class npc_frost_warder : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_frost_warderAI(creature);
         }
@@ -185,18 +187,18 @@ public:
         {
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             done = false;
             killTimer = 60000; // if after this time there is no victim -> destroy!
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             DoZoneInCombat();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!done)
             {
@@ -220,7 +222,7 @@ public:
         bool done;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_frozen_orbAI(creature);
     }
@@ -248,7 +250,7 @@ class npc_frozen_orb_stalker : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/) OVERRIDE
             {
                 if (spawned)
                     return;
@@ -273,7 +275,7 @@ class npc_frozen_orb_stalker : public CreatureScript
             bool spawned;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_frozen_orb_stalkerAI(creature);
         }

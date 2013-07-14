@@ -34,7 +34,7 @@ class arena_commandscript : public CommandScript
 public:
     arena_commandscript() : CommandScript("arena_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand arenaCommandTable[] =
         {
@@ -228,9 +228,9 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid))
             return false;
 
-        ArenaTeam* Arena = sArenaTeamMgr->GetArenaTeamById(teamId);
+        ArenaTeam* arena = sArenaTeamMgr->GetArenaTeamById(teamId);
 
-        if (!Arena)
+        if (!arena)
         {
             handler->PSendSysMessage(LANG_ARENA_ERROR_NOT_FOUND, teamId);
             handler->SetSentErrorMessage(true);
@@ -244,36 +244,38 @@ public:
             return false;
         }
 
-        if (Arena->IsFighting())
+        if (arena->IsFighting())
         {
             handler->SendSysMessage(LANG_ARENA_ERROR_COMBAT);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!Arena->IsMember(targetGuid))
+        if (!arena->IsMember(targetGuid))
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_NOT_MEMBER, nameStr, Arena->GetName().c_str());
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NOT_MEMBER, nameStr, arena->GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (Arena->GetCaptain() == targetGuid)
+        if (arena->GetCaptain() == targetGuid)
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_CAPTAIN, nameStr, Arena->GetName().c_str());
+            handler->PSendSysMessage(LANG_ARENA_ERROR_CAPTAIN, nameStr, arena->GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        Player* oldCaptain = sObjectMgr->GetPlayerByLowGUID(Arena->GetCaptain());
-        Arena->SetCaptain(targetGuid);
-        handler->PSendSysMessage(LANG_ARENA_CAPTAIN, Arena->GetName().c_str(), Arena->GetId(), oldCaptain->GetName().c_str(), target->GetName().c_str());
+        std::string oldCaptainName;
+        sObjectMgr->GetPlayerNameByGUID(arena->GetCaptain(), oldCaptainName);
+        arena->SetCaptain(targetGuid);
+
+        handler->PSendSysMessage(LANG_ARENA_CAPTAIN, arena->GetName().c_str(), arena->GetId(), oldCaptainName.c_str(), target->GetName().c_str());
         if (handler->GetSession())
             TC_LOG_DEBUG(LOG_FILTER_ARENAS, "GameMaster: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team \"%s\"[Id: %u]",
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(), target->GetName().c_str(), target->GetGUIDLow(), Arena->GetName().c_str(), Arena->GetId());
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(), target->GetName().c_str(), target->GetGUIDLow(), arena->GetName().c_str(), arena->GetId());
         else
             TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Console: promoted player: %s [GUID: %u] to leader of arena team \"%s\"[Id: %u]",
-                target->GetName().c_str(), target->GetGUIDLow(), Arena->GetName().c_str(), Arena->GetId());
+                target->GetName().c_str(), target->GetGUIDLow(), arena->GetName().c_str(), arena->GetId());
         return true;
     }
 

@@ -30,7 +30,7 @@ EndScriptData */
 
 #include "the_eye.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                           = 0,
     SAY_SUMMON1                         = 1,
@@ -38,8 +38,11 @@ enum eEnums
     SAY_KILL                            = 3,
     SAY_DEATH                           = 4,
     SAY_VOIDA                           = 5,
-    SAY_VOIDB                           = 6,
+    SAY_VOIDB                           = 6
+};
 
+enum Spells
+{
     SPELL_ARCANE_MISSILES               = 33031,
     SPELL_WRATH_OF_THE_ASTROMANCER      = 42783,
     SPELL_WRATH_OF_THE_ASTROMANCER_DOT  = 42784,
@@ -48,18 +51,28 @@ enum eEnums
     SPELL_VOID_BOLT                     = 39329,
 
     SPELL_SPOTLIGHT                     = 25824,
-    NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT  = 18928,
-
-    NPC_SOLARIUM_AGENT                  = 18925,
-    NPC_SOLARIUM_PRIEST                 = 18806,
-
-    MODEL_HUMAN                         = 18239,
-    MODEL_VOIDWALKER                    = 18988,
 
     SPELL_SOLARIUM_GREAT_HEAL           = 33387,
     SPELL_SOLARIUM_HOLY_SMITE           = 25054,
-    SPELL_SOLARIUM_ARCANE_TORRENT       = 33390,
+    SPELL_SOLARIUM_ARCANE_TORRENT       = 33390
+};
 
+enum Creatures
+{
+    NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT  = 18928,
+
+    NPC_SOLARIUM_AGENT                  = 18925,
+    NPC_SOLARIUM_PRIEST                 = 18806
+};
+
+enum Models
+{
+    MODEL_HUMAN                         = 18239,
+    MODEL_VOIDWALKER                    = 18988
+};
+
+enum Misc
+{
     WV_ARMOR                            = 31000
 };
 
@@ -117,7 +130,7 @@ class boss_high_astromancer_solarian : public CreatureScript
             bool AppearDelay;
             bool BlindingLight;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 ArcaneMissiles_Timer = 2000;
                 m_uiWrathOfTheAstromancer_Timer = 15000;
@@ -145,12 +158,12 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Summons.DespawnAll();
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
@@ -159,7 +172,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
@@ -195,7 +208,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 return (z*sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -404,9 +417,9 @@ class boss_high_astromancer_solarian : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_high_astromancer_solarianAI (creature);
+            return new boss_high_astromancer_solarianAI(creature);
         }
 };
 
@@ -432,18 +445,18 @@ class npc_solarium_priest : public CreatureScript
             uint32 holysmiteTimer;
             uint32 aoesilenceTimer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 healTimer = 9000;
                 holysmiteTimer = 1;
                 aoesilenceTimer = 15000;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -491,7 +504,7 @@ class npc_solarium_priest : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_solarium_priestAI(creature);
         }
@@ -506,7 +519,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer_AuraScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellEntry*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WRATH_OF_THE_ASTROMANCER_DOT))
                     return false;
@@ -523,13 +536,13 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
                 target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), false);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_astromancer_wrath_of_the_astromancer_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_astromancer_wrath_of_the_astromancer_AuraScript();
         }

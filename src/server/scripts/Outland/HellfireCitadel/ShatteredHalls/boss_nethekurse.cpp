@@ -33,7 +33,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
 
-enum eSays
+enum Says
 {
     SAY_INTRO          = 0,
     SAY_PEON_ATTACKED  = 1,
@@ -44,9 +44,9 @@ enum eSays
     SAY_DIE            = 6
 };
 
-enum eSpells
+enum Spells
 {
-    SPELL_DEATH_COIL           = 30500,
+    SPELL_DEATH_COIL           = 30500, // 30741 heroic
     SPELL_DARK_SPIN            = 30502, // core bug spell attack caster :D
     SPELL_SHADOW_FISSURE       = 30496, // Summon the ShadowFissure NPC
     SPELL_SHADOW_CLEAVE        = 30495,
@@ -54,42 +54,38 @@ enum eSpells
     SPELL_HEMORRHAGE           = 30478,
     SPELL_CONSUMPTION          = 30497,
     SPELL_TEMPORARY_VISUAL     = 39312, // this is wrong, a temporary solution. spell consumption already has the purple visual, but doesn't display as it should
+
+    SPELL_SHADOW_SEAR          = 30735 // cast on entry 17083 which then makes sound 1343
+    // 30948 cast on self by 17687
 };
+
+enum SetData
+{
+    SETDATA_DATA               = 1,
+    SETDATA_PEON_AGGRO         = 1,
+    SETDATA_PEON_DEATH         = 2
+};
+
+enum Events
+{
+    // Fel Orc Convert
+    EVENT_HEMORRHAGE           = 1
+};
+
+// ########################################################
+// Grand Warlock Nethekurse
+// ########################################################
 
 class boss_grand_warlock_nethekurse : public CreatureScript
 {
     public:
+        boss_grand_warlock_nethekurse() : CreatureScript("boss_grand_warlock_nethekurse") { }
 
-        boss_grand_warlock_nethekurse()
-            : CreatureScript("boss_grand_warlock_nethekurse")
+        struct boss_grand_warlock_nethekurseAI : public BossAI
         {
-        }
+            boss_grand_warlock_nethekurseAI(Creature* creature) : BossAI(creature, DATA_NETHEKURSE) { }
 
-        struct boss_grand_warlock_nethekurseAI : public ScriptedAI
-        {
-            boss_grand_warlock_nethekurseAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
-
-            bool IntroOnce;
-            bool IsIntroEvent;
-            bool IsMainEvent;
-            bool SpinOnce;
-            //bool HasTaunted;
-            bool Phase;
-
-            uint32 PeonEngagedCount;
-            uint32 PeonKilledCount;
-
-            uint32 IntroEvent_Timer;
-            uint32 DeathCoil_Timer;
-            uint32 ShadowFissure_Timer;
-            uint32 Cleave_Timer;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
@@ -103,34 +99,50 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 PeonEngagedCount = 0;
                 PeonKilledCount = 0;
 
-                IntroEvent_Timer = 90000;                           //how long before getting bored and kills his minions?
+                IntroEvent_Timer = 90000;    // how long before getting bored and kills his minions?
                 DeathCoil_Timer = 20000;
                 ShadowFissure_Timer = 8000;
                 Cleave_Timer = 5000;
             }
 
-            void DoYellForPeonAggro()
+            void JustDied(Unit* /*killer*/)
             {
-                if (PeonEngagedCount >= 4)
-                    return;
+                Talk(SAY_DIE);
 
-                Talk(SAY_PEON_ATTACKED);
-                ++PeonEngagedCount;
+                if (instance)
+                    instance->SetBossState(DATA_NETHEKURSE, DONE);
             }
 
-            void DoYellForPeonDeath()
+            void SetData(uint32 data, uint32 value)
             {
-                if (PeonKilledCount >= 4)
+                if (data != SETDATA_DATA)
                     return;
 
-                Talk(SAY_PEON_DIES);
-                ++PeonKilledCount;
-
-                if (PeonKilledCount == 4)
+                switch (value)
                 {
-                    IsIntroEvent = false;
-                    IsMainEvent = true;
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    case SETDATA_PEON_AGGRO:
+                        if (PeonEngagedCount >= 4)
+                            return;
+
+                        Talk(SAY_PEON_ATTACKED);
+                        ++PeonEngagedCount;
+                        break;
+                    case SETDATA_PEON_DEATH:
+                        if (PeonKilledCount >= 4)
+                            return;
+
+                        Talk(SAY_PEON_DIES);
+                        ++PeonKilledCount;
+
+                        if (PeonKilledCount == 4)
+                        {
+                            IsIntroEvent = false;
+                            IsMainEvent = true;
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -146,7 +158,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (IsIntroEvent || !IsMainEvent)
                     return;
@@ -160,9 +172,10 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
-                if (!IntroOnce && me->IsWithinDistInMap(who, 50.0f))
+                if (!IntroOnce && me->IsWithinDistInMap(who, 30.0f))
                     {
                     if (who->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -172,7 +185,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                         IsIntroEvent = true;
 
                         if (instance)
-                            instance->SetData(TYPE_NETHEKURSE, IN_PROGRESS);
+                            instance->SetBossState(DATA_NETHEKURSE, IN_PROGRESS);
                     }
 
                     if (IsIntroEvent || !IsMainEvent)
@@ -181,12 +194,12 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 summoned->setFaction(16);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -197,30 +210,19 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, 0, 0, me->GetGUID());
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/)
-            {
-                Talk(SAY_DIE);
-
-                if (!instance)
-                    return;
-
-                instance->SetData(TYPE_NETHEKURSE, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_NETHEKURSE_DOOR), true);
-            }
-
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (IsIntroEvent)
                 {
                     if (!instance)
                         return;
 
-                    if (instance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS)
+                    if (instance->GetBossState(DATA_NETHEKURSE) == IN_PROGRESS)
                     {
                         if (IntroEvent_Timer <= diff)
                             DoTauntPeons();
@@ -277,22 +279,36 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     DoMeleeAttackIfReady();
                 }
             }
+
+            private:
+                uint32 PeonEngagedCount;
+                uint32 PeonKilledCount;
+                uint32 IntroEvent_Timer;
+                uint32 DeathCoil_Timer;
+                uint32 ShadowFissure_Timer;
+                uint32 Cleave_Timer;
+                bool IntroOnce;
+                bool IsIntroEvent;
+                bool IsMainEvent;
+                bool SpinOnce;
+                //bool HasTaunted;
+                bool Phase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_grand_warlock_nethekurseAI(creature);
         }
 };
 
+// ########################################################
+// Fel Orc Convert
+// ########################################################
+
 class npc_fel_orc_convert : public CreatureScript
 {
     public:
-
-        npc_fel_orc_convert()
-            : CreatureScript("npc_fel_orc_convert")
-        {
-        }
+        npc_fel_orc_convert() : CreatureScript("npc_fel_orc_convert") { }
 
         struct npc_fel_orc_convertAI : public ScriptedAI
         {
@@ -301,95 +317,84 @@ class npc_fel_orc_convert : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-            uint32 Hemorrhage_Timer;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
                 me->SetNoCallAssistance(true);              //we don't want any assistance (WE R HEROZ!)
-                Hemorrhage_Timer = 3000;
             }
 
-            void MoveInLineOfSight(Unit* /*who*/)
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
+
+                if (instance)
+                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                        if (Kurse && me->IsWithinDist(Kurse, 45.0f))
+                            Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_AGGRO);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance)
                 {
-                    if (instance->GetData64(DATA_NETHEKURSE))
-                    {
-                        Creature* pKurse = Unit::GetCreature(*me, instance->GetData64(DATA_NETHEKURSE));
-                        if (pKurse && me->IsWithinDist(pKurse, 45.0f))
-                        {
-                            CAST_AI(boss_grand_warlock_nethekurse::boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonAggro();
-
-                            if (instance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS)
-                                return;
-                            else
-                                instance->SetData(TYPE_NETHEKURSE, IN_PROGRESS);
-                        }
-                    }
-                }
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                {
-                    if (instance->GetData(TYPE_NETHEKURSE) != IN_PROGRESS)
+                    if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
                         return;
-                    if (instance->GetData64(DATA_NETHEKURSE))
-                        if (Creature* pKurse = Unit::GetCreature(*me, instance->GetData64(DATA_NETHEKURSE)))
-                            CAST_AI(boss_grand_warlock_nethekurse::boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonDeath();
+                    if (instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE))
+                        if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                            Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
 
-                if (Hemorrhage_Timer <= diff)
+                events.Update(diff);
+
+                if (events.ExecuteEvent() == EVENT_HEMORRHAGE)
                 {
                     DoCastVictim(SPELL_HEMORRHAGE);
-                    Hemorrhage_Timer = 15000;
-                } else Hemorrhage_Timer -= diff;
+                    events.ScheduleEvent(EVENT_HEMORRHAGE, 15000);
+                }
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                InstanceScript* instance;
+                EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_fel_orc_convertAI(creature);
         }
 };
 
-//NOTE: this Creature are also summoned by other spells, for different creatures
+// ########################################################
+// Lesser Shadow Fissure
+// ########################################################
+
 class npc_lesser_shadow_fissure : public CreatureScript
 {
     public:
-
-        npc_lesser_shadow_fissure()
-            : CreatureScript("npc_lesser_shadow_fissure")
-        {
-        }
+        npc_lesser_shadow_fissure() : CreatureScript("npc_lesser_shadow_fissure") { }
 
         struct npc_lesser_shadow_fissureAI : public ScriptedAI
         {
             npc_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void Reset() { }
-            void MoveInLineOfSight(Unit* /*who*/) {}
-            void AttackStart(Unit* /*who*/) {}
-            void EnterCombat(Unit* /*who*/) {}
+            void Reset() OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void AttackStart(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_lesser_shadow_fissureAI (creature);
+            return new npc_lesser_shadow_fissureAI(creature);
         }
 };
 
