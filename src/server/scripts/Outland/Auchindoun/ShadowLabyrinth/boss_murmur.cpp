@@ -64,7 +64,7 @@ public:
             SetCombatMovement(false);
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             events.ScheduleEvent(EVENT_SONIC_BOOM, 30000);
             events.ScheduleEvent(EVENT_MURMURS_TOUCH, urand(8000, 20000));
@@ -100,16 +100,16 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
         // Sonic Boom instant damage (needs core fix instead of this)
-        void SpellHitTarget(Unit* target, const SpellInfo* spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
             if (target && target->IsAlive() && spell && spell->Id == uint32(SPELL_SONIC_BOOM_EFFECT))
                 me->DealDamage(target, (target->GetHealth()*90)/100, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NATURE, spell);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target or casting
             if (!UpdateVictim() || me->IsNonMeleeSpellCasted(false))
@@ -188,12 +188,12 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_murmurAI (creature);
-        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new boss_murmurAI(creature);
+    }
 };
 
 void AddSC_boss_murmur()

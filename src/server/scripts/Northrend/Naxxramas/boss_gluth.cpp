@@ -19,15 +19,21 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SPELL_MORTAL_WOUND      25646
-#define SPELL_ENRAGE            RAID_MODE(28371, 54427)
-#define SPELL_DECIMATE          RAID_MODE(28374, 54426)
-#define SPELL_BERSERK           26662
-#define SPELL_INFECTED_WOUND    29306
+enum Spells
+{
+    SPELL_MORTAL_WOUND      = 25646,
+    SPELL_ENRAGE            = 28371,
+    SPELL_DECIMATE          = 28374,
+    SPELL_BERSERK           = 26662,
+    SPELL_INFECTED_WOUND    = 29306
+};
 
-#define MOB_ZOMBIE  16360
+enum Creatures
+{
+    NPC_ZOMBIE              = 16360
+};
 
-const Position PosSummon[3] =
+Position const PosSummon[3] =
 {
     {3267.9f, -3172.1f, 297.42f, 0.94f},
     {3253.2f, -3132.3f, 297.42f, 0},
@@ -36,8 +42,7 @@ const Position PosSummon[3] =
 
 enum Events
 {
-    EVENT_NONE,
-    EVENT_WOUND,
+    EVENT_WOUND     = 1,
     EVENT_ENRAGE,
     EVENT_DECIMATE,
     EVENT_BERSERK,
@@ -51,9 +56,9 @@ class boss_gluth : public CreatureScript
 public:
     boss_gluth() : CreatureScript("boss_gluth") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_gluthAI (creature);
+        return new boss_gluthAI(creature);
     }
 
     struct boss_gluthAI : public BossAI
@@ -64,9 +69,10 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
-            if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
+            if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
                 /// @todo use a script text
@@ -76,7 +82,7 @@ public:
                 BossAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_WOUND, 10000);
@@ -86,14 +92,14 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, 15000);
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
-            if (summon->GetEntry() == MOB_ZOMBIE)
+            if (summon->GetEntry() == NPC_ZOMBIE)
                 summon->AI()->AttackStart(me);
             summons.Summon(summon);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictimWithGaze() || !CheckInRoom())
                 return;
@@ -124,13 +130,13 @@ public:
                         break;
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
-                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
+                            DoSummon(NPC_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
                 }
             }
 
-            if (me->GetVictim() && me->GetVictim()->GetEntry() == MOB_ZOMBIE)
+            if (me->GetVictim() && me->GetVictim()->GetEntry() == NPC_ZOMBIE)
             {
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {

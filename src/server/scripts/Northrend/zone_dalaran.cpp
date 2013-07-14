@@ -64,13 +64,14 @@ public:
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void Reset(){}
+        void Reset()OVERRIDE {}
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/)OVERRIDE {}
 
-        void AttackStart(Unit* /*who*/){}
+        void AttackStart(Unit* /*who*/)OVERRIDE {}
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!who || !who->IsInWorld() || who->GetZoneId() != 4395)
                 return;
@@ -117,10 +118,10 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 /*diff*/){}
+        void UpdateAI(uint32 /*diff*/)OVERRIDE {}
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_mageguard_dalaranAI(creature);
     }

@@ -28,7 +28,7 @@ EndScriptData */
 #include "the_eye.h"
 #include "SpellInfo.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_FLAME_BUFFET           = 34121, // Flame Buffet - every 1, 5 secs in phase 1 if there is no victim in melee range and after Dive Bomb in phase 2 with same conditions
     SPELL_FLAME_QUILLS           = 34229, // Randomly after changing position in phase after watching tons of movies, set probability 20%
@@ -110,7 +110,7 @@ class boss_alar : public CreatureScript
 
             int8 cur_wp;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_ALAREVENT, NOT_STARTED);
@@ -137,7 +137,7 @@ class boss_alar : public CreatureScript
                 me->setActive(false);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_ALAREVENT, IN_PROGRESS);
@@ -147,22 +147,23 @@ class boss_alar : public CreatureScript
                 me->setActive(true);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_ALAREVENT, DONE);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 if (summon->GetEntry() == CREATURE_EMBER_OF_ALAR)
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         summon->AI()->AttackStart(target);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-            void AttackStart(Unit* who)
+
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (Phase1)
                     AttackStartNoMove(who);
@@ -170,7 +171,7 @@ class boss_alar : public CreatureScript
                     ScriptedAI::AttackStart(who);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage) OVERRIDE
             {
                 if (damage >= me->GetHealth() && Phase1)
                 {
@@ -192,7 +193,7 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell)
+            void SpellHit(Unit*, const SpellInfo* spell) OVERRIDE
             {
                 if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
                 {
@@ -202,7 +203,7 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 /*id*/)
+            void MovementInform(uint32 type, uint32 /*id*/) OVERRIDE
             {
                 if (type == POINT_MOTION_TYPE)
                 {
@@ -212,7 +213,7 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!me->IsInCombat()) // sometimes IsInCombat but !incombat, faction bug?
                     return;
@@ -452,24 +453,24 @@ class boss_alar : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_alarAI(creature);
         }
 };
 
-class mob_ember_of_alar : public CreatureScript
+class npc_ember_of_alar : public CreatureScript
 {
     public:
 
-        mob_ember_of_alar()
-            : CreatureScript("mob_ember_of_alar")
+        npc_ember_of_alar()
+            : CreatureScript("npc_ember_of_alar")
         {
         }
 
-        struct mob_ember_of_alarAI : public ScriptedAI
+        struct npc_ember_of_alarAI : public ScriptedAI
         {
-            mob_ember_of_alarAI(Creature* creature) : ScriptedAI(creature)
+            npc_ember_of_alarAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
                 creature->SetDisableGravity(true);
@@ -479,20 +480,20 @@ class mob_ember_of_alar : public CreatureScript
             InstanceScript* instance;
             bool toDie;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 toDie = false;
             }
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoZoneInCombat();
             }
-            void EnterEvadeMode()
+            void EnterEvadeMode() OVERRIDE
             {
                 me->setDeathState(JUST_DIED);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage)
+            void DamageTaken(Unit* killer, uint32 &damage) OVERRIDE
             {
                 if (damage >= me->GetHealth() && killer != me && !toDie)
                 {
@@ -515,7 +516,7 @@ class mob_ember_of_alar : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -531,41 +532,42 @@ class mob_ember_of_alar : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_ember_of_alarAI(creature);
+            return new npc_ember_of_alarAI(creature);
         }
 };
 
-class mob_flame_patch_alar : public CreatureScript
+class npc_flame_patch_alar : public CreatureScript
 {
     public:
 
-        mob_flame_patch_alar()
-            : CreatureScript("mob_flame_patch_alar")
+        npc_flame_patch_alar()
+            : CreatureScript("npc_flame_patch_alar")
         {
         }
 
-        struct mob_flame_patch_alarAI : public ScriptedAI
+        struct npc_flame_patch_alarAI : public ScriptedAI
         {
-            mob_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
-            void Reset() {}
-            void EnterCombat(Unit* /*who*/) {}
-            void AttackStart(Unit* /*who*/) {}
-            void MoveInLineOfSight(Unit* /*who*/) {}
-            void UpdateAI(uint32 /*diff*/) {}
+            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
+            void Reset() OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void AttackStart(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+
+            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_flame_patch_alarAI(creature);
+            return new npc_flame_patch_alarAI(creature);
         }
 };
 
 void AddSC_boss_alar()
 {
     new boss_alar();
-    new mob_ember_of_alar();
-    new mob_flame_patch_alar();
+    new npc_ember_of_alar();
+    new npc_flame_patch_alar();
 }
 

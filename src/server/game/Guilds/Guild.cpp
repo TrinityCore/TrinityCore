@@ -1721,14 +1721,15 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     // This is just a speedup check, GetGuildBankTabPrice will return 0.
     if (tabId < GUILD_BANK_MAX_TABS - 2) // 7th tab is actually the 6th
     {
-         uint32 tabCost = _GetGuildBankTabPrice(tabId) * GOLD;
-         if (!tabCost)
-             return; 
-         if (!player->HasEnoughMoney(uint64(tabCost)))                   // Should not happen, this is checked by client
-             return; 
+        uint32 tabCost = _GetGuildBankTabPrice(tabId) * GOLD;
+        if (!tabCost)
+            return;
 
-         player->ModifyMoney(-int64(tabCost));
-     }
+        if (!player->HasEnoughMoney(uint64(tabCost)))                   // Should not happen, this is checked by client
+            return;
+
+        player->ModifyMoney(-int64(tabCost));
+    }
 
     _CreateNewBankTab();
     _BroadcastEvent(GE_BANK_TAB_PURCHASED, 0);

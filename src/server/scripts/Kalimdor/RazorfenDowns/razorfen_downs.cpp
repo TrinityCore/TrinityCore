@@ -37,12 +37,16 @@ EndContentData */
 # npc_henry_stern
 ####*/
 
-enum eEnums
+enum Spells
 {
     SPELL_GOLDTHORN_TEA                         = 13028,
     SPELL_TEACHING_GOLDTHORN_TEA                = 13029,
     SPELL_MIGHT_TROLLS_BLOOD_POTION             = 3451,
     SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION   = 13030,
+};
+
+enum Gossips
+{
     GOSSIP_TEXT_TEA_ANSWER                      = 2114,
     GOSSIP_TEXT_POTION_ANSWER                   = 2115,
 };
@@ -55,7 +59,7 @@ class npc_henry_stern : public CreatureScript
 public:
     npc_henry_stern() : CreatureScript("npc_henry_stern") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -73,7 +77,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (player->GetBaseSkillValue(SKILL_COOKING) >= 175 && !player->HasSpell(SPELL_GOLDTHORN_TEA))
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -95,7 +99,7 @@ class go_gong : public GameObjectScript
 public:
     go_gong() : GameObjectScript("go_gong") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
     {
         //basic support, not blizzlike data is missing...
         InstanceScript* instance = go->GetInstanceScript();
@@ -111,7 +115,7 @@ public:
 
 };
 
-enum eTombCreature
+enum TombCreature
 {
     SPELL_WEB                   = 745
 };
@@ -121,9 +125,9 @@ class npc_tomb_creature : public CreatureScript
 public:
     npc_tomb_creature() : CreatureScript("npc_tomb_creature") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_tomb_creatureAI (creature);
+        return new npc_tomb_creatureAI(creature);
     }
 
     struct npc_tomb_creatureAI : public ScriptedAI
@@ -137,18 +141,18 @@ public:
 
         uint32 uiWebTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiWebTimer = urand(5000, 8000);
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
 
             //from acid
-            if (me->GetEntry() == CREATURE_TOMB_REAVER)
+            if (me->GetEntry() == NPC_TOMB_REAVER)
             {
                 if (uiWebTimer <= uiDiff)
                 {
@@ -160,7 +164,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_GONG_WAVES, instance->GetData(DATA_GONG_WAVES)+1);

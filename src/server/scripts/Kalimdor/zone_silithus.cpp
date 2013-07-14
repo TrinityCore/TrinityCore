@@ -52,7 +52,7 @@ class npc_highlord_demitrian : public CreatureScript
 public:
     npc_highlord_demitrian() : CreatureScript("npc_highlord_demitrian") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -93,7 +93,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -139,7 +139,7 @@ class npcs_rutgar_and_frankal : public CreatureScript
 public:
     npcs_rutgar_and_frankal() : CreatureScript("npcs_rutgar_and_frankal") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -203,7 +203,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -287,7 +287,7 @@ enum EternalBoard
 
 /* ContentData
 A Pawn on the Eternal Board - creatures, gameobjects and defines
-mob_qiraj_war_spawn : Adds that are summoned in the Qiraj gates battle.
+npc_qiraj_war_spawn : Adds that are summoned in the Qiraj gates battle.
 npc_anachronos_the_ancient : Creature that controls the event.
 npc_anachronos_quest_trigger: controls the spawning of the BG War mobs.
 go_crystalline_tear : GameObject that begins the event and hands out quest
@@ -489,7 +489,7 @@ class npc_anachronos_the_ancient : public CreatureScript
 public:
     npc_anachronos_the_ancient() : CreatureScript("npc_anachronos_the_ancient") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_anachronos_the_ancientAI(creature);
     }
@@ -509,7 +509,7 @@ public:
         uint64 PlayerGUID;
         bool eventEnd;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             AnimationTimer = 1500;
             AnimationCount = 0;
@@ -791,7 +791,7 @@ public:
             }
             ++AnimationCount;
         }
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (AnimationTimer)
             {
@@ -809,22 +809,22 @@ public:
 };
 
 /*######
-# mob_qiraj_war_spawn
+# npc_qiraj_war_spawn
 ######*/
 
-class mob_qiraj_war_spawn : public CreatureScript
+class npc_qiraj_war_spawn : public CreatureScript
 {
 public:
-    mob_qiraj_war_spawn() : CreatureScript("mob_qiraj_war_spawn") { }
+    npc_qiraj_war_spawn() : CreatureScript("npc_qiraj_war_spawn") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_qiraj_war_spawnAI(creature);
+        return new npc_qiraj_war_spawnAI(creature);
     }
 
-    struct mob_qiraj_war_spawnAI : public ScriptedAI
+    struct npc_qiraj_war_spawnAI : public ScriptedAI
     {
-        mob_qiraj_war_spawnAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_qiraj_war_spawnAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 MobGUID;
         uint64 PlayerGUID;
@@ -832,7 +832,7 @@ public:
         bool Timers;
         bool hasTarget;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             MobGUID = 0;
             PlayerGUID = 0;
@@ -840,10 +840,10 @@ public:
             hasTarget = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void JustDied(Unit* /*slayer*/);
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void JustDied(Unit* /*slayer*/) OVERRIDE;
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!Timers)
             {
@@ -930,7 +930,7 @@ class npc_anachronos_quest_trigger : public CreatureScript
 public:
     npc_anachronos_quest_trigger() : CreatureScript("npc_anachronos_quest_trigger") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_anachronos_quest_triggerAI(creature);
     }
@@ -951,7 +951,7 @@ public:
         bool Announced;
         bool Failed;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             PlayerGUID = 0;
 
@@ -987,7 +987,7 @@ public:
 
                     if (WaveCount < 5) //1-4 Wave
                     {
-                        if (mob_qiraj_war_spawn::mob_qiraj_war_spawnAI* spawnAI = CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, spawn->AI()))
+                        if (npc_qiraj_war_spawn::npc_qiraj_war_spawnAI* spawnAI = CAST_AI(npc_qiraj_war_spawn::npc_qiraj_war_spawnAI, spawn->AI()))
                         {
                             spawnAI->MobGUID = me->GetGUID();
                             spawnAI->PlayerGUID = PlayerGUID;
@@ -1045,7 +1045,7 @@ public:
                 Announced = false;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!PlayerGUID || !EventStarted)
                 return;
@@ -1070,7 +1070,7 @@ public:
 
 };
 
-void mob_qiraj_war_spawn::mob_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
+void npc_qiraj_war_spawn::npc_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
 {
     me->RemoveCorpse();
 
@@ -1092,7 +1092,7 @@ class go_crystalline_tear : public GameObjectScript
 public:
     go_crystalline_tear() : GameObjectScript("go_crystalline_tear") { }
 
-    bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest)
+    bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
@@ -1363,7 +1363,7 @@ class go_wind_stone : public GameObjectScript
         }
 
     public:
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
         {
             uint8 rank = GetPlayerRank(player);
 
@@ -1441,7 +1441,7 @@ class go_wind_stone : public GameObjectScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             player->PlayerTalkClass->ClearMenus();
             player->PlayerTalkClass->SendCloseGossip();

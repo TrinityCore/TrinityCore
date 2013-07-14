@@ -34,14 +34,28 @@ enum Events
     EVENT_VEILOFSHADOW         = 6,
     EVENT_CLEAVE               = 7,
     EVENT_TAILLASH             = 8,
-    EVENT_CLASSCALL            = 9
+    EVENT_CLASSCALL            = 9,
+    // UBRS
+    EVENT_CHAOS_1              = 10,
+    EVENT_CHAOS_2              = 11,
+    EVENT_PATH_2               = 12,
+    EVENT_PATH_3               = 13,
+    EVENT_SUCCESS_1            = 14,
+    EVENT_SUCCESS_2            = 15,
+    EVENT_SUCCESS_3            = 16,
 };
 
 enum Says
 {
-    SAY_GAMESBEGIN_1           = 11,
-    SAY_GAMESBEGIN_2           = 12,
- // SAY_VAEL_INTRO             = 13, Not used - when he corrupts Vaelastrasz
+    // Nefarius
+    // UBRS
+    SAY_CHAOS_SPELL            = 9,
+    SAY_SUCCESS                = 10,
+    SAY_FAILURE                = 11,
+    // BWL
+    SAY_GAMESBEGIN_1           = 12,
+    SAY_GAMESBEGIN_2           = 13,
+ // SAY_VAEL_INTRO             = 14, Not used - when he corrupts Vaelastrasz
 
     // Nefarian
     SAY_RANDOM                 = 0,
@@ -67,6 +81,18 @@ enum Gossip
    GOSSIP_OPTION_ID            = 0
 };
 
+enum Paths
+{
+    NEFARIUS_PATH_2            = 1379671,
+    NEFARIUS_PATH_3            = 1379672
+};
+
+enum GameObjects
+{
+    GO_PORTCULLIS_ACTIVE       = 164726,
+    GO_PORTCULLIS_TOBOSSROOMS  = 175186
+};
+
 enum Creatures
 {
     NPC_BRONZE_DRAKANOID       = 14263,
@@ -75,7 +101,9 @@ enum Creatures
     NPC_GREEN_DRAKANOID        = 14262,
     NPC_BLACK_DRAKANOID        = 14265,
     NPC_CHROMATIC_DRAKANOID    = 14302,
-    NPC_BONE_CONSTRUCT         = 14605
+    NPC_BONE_CONSTRUCT         = 14605,
+    // UBRS
+    NPC_GYTH                   = 10339
 };
 
 enum Spells
@@ -140,7 +168,7 @@ public:
     {
         boss_victor_nefariusAI(Creature* creature) : BossAI(creature, BOSS_NEFARIAN) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (me->GetMapId() == 469)
             {
@@ -157,7 +185,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             Reset();
         }
@@ -179,7 +207,7 @@ public:
             events.ScheduleEvent(EVENT_SPAWN_ADD, 10000);
         }
 
-        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) OVERRIDE
         {
             if (summon->GetEntry() != NPC_NEFARIAN)
             {
@@ -190,10 +218,74 @@ public:
             }
         }
 
-        void JustSummoned(Creature* /*summon*/) {}
+        void JustSummoned(Creature* /*summon*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
+            if (instance && type == 1 && data == 1)
+            {
+                me->StopMoving();
+                events.ScheduleEvent(EVENT_PATH_2, 9000);
+            }
+
+            if (instance && type == 1 && data == 2)
+            {
+                events.ScheduleEvent(EVENT_SUCCESS_1, 5000);
+            }
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (!UpdateVictim())
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_PATH_2:
+                            me->GetMotionMaster()->MovePath(NEFARIUS_PATH_2, false);
+                            events.ScheduleEvent(EVENT_CHAOS_1, 7000);
+                            break;
+                        case EVENT_CHAOS_1:
+                            if (Creature* gyth = me->FindNearestCreature(NPC_GYTH, 75.0f, true))
+                            {
+                                me->SetFacingToObject(gyth);
+                                Talk(SAY_CHAOS_SPELL);
+                            }
+                            events.ScheduleEvent(EVENT_CHAOS_2, 2000);
+                            break;
+                        case EVENT_CHAOS_2:
+                            DoCast(SPELL_CHROMATIC_CHAOS);
+                            me->SetFacingTo(1.570796f);
+                            break;
+                        case EVENT_SUCCESS_1:
+                            if (Unit* player = me->SelectNearestPlayer(60.0f))
+                            {
+                                me->SetFacingToObject(player);
+                                Talk(SAY_SUCCESS);
+                                if (GameObject* portcullis1 = me->FindNearestGameObject(GO_PORTCULLIS_ACTIVE, 65.0f))
+                                    portcullis1->SetGoState(GO_STATE_ACTIVE);
+                                if (GameObject* portcullis2 = me->FindNearestGameObject(GO_PORTCULLIS_TOBOSSROOMS, 80.0f))
+                                    portcullis2->SetGoState(GO_STATE_ACTIVE);
+                            }
+                            events.ScheduleEvent(EVENT_SUCCESS_2, 4000);
+                            break;
+                        case EVENT_SUCCESS_2:
+                            DoCast(me, SPELL_VAELASTRASZZ_SPAWN);
+                            me->DespawnOrUnsummon(1000);
+                            break;
+                        case EVENT_PATH_3:
+                            me->GetMotionMaster()->MovePath(NEFARIUS_PATH_3, false);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return;
+            }
+
             // Only do this if we haven't spawned nefarian yet
             if (UpdateVictim() && SpawnedAdds <= 42)
             {
@@ -268,7 +360,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action)
+        void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
         {
             if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
             {
@@ -282,9 +374,9 @@ public:
             uint32 SpawnedAdds;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_victor_nefariusAI (creature);
+        return new boss_victor_nefariusAI(creature);
     }
 };
 
@@ -297,19 +389,19 @@ public:
     {
         boss_nefarianAI(Creature* creature) : BossAI(creature, BOSS_NEFARIAN) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Phase3 = false;
             canDespawn = false;
             DespawnTimer = 30000;
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             canDespawn = true;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_SHADOWFLAME, 12000);
             events.ScheduleEvent(EVENT_FEAR, urand(25000, 35000));
@@ -320,13 +412,13 @@ public:
             Talk(SAY_RANDOM);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*Killer*/) OVERRIDE
         {
             _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             if (rand()%5)
                 return;
@@ -334,7 +426,7 @@ public:
             Talk(SAY_SLAY, victim->GetGUID());
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -347,7 +439,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (canDespawn && DespawnTimer <= diff)
             {
@@ -478,9 +570,9 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_nefarianAI (creature);
+        return new boss_nefarianAI(creature);
     }
 };
 

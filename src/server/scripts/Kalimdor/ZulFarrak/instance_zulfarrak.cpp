@@ -21,8 +21,14 @@
 #include "Player.h"
 #include "TemporarySummon.h"
 
-#define NPC_GAHZRILLA 7273
-#define PATH_ADDS 81553
+enum Misc
+{
+    // Creatures
+    NPC_GAHZRILLA       = 7273,
+
+    // Paths
+    PATH_ADDS           = 81553
+};
 
 int const pyramidSpawnTotal = 54;
 /* list of wave spawns: 0 = wave ID, 1 = creature id, 2 = x, 3 = y
@@ -95,7 +101,7 @@ class instance_zulfarrak : public InstanceMapScript
 public:
     instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_zulfarrak_InstanceMapScript(map);
     }
@@ -181,7 +187,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -191,7 +197,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const
+        uint64 GetData64(uint32 data) const OVERRIDE
         {
             switch (data)
             {
@@ -213,7 +219,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             switch (type)
             {

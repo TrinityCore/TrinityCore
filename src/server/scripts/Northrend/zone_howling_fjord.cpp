@@ -51,7 +51,7 @@ class npc_apothecary_hanes : public CreatureScript
 public:
     npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
         {
@@ -74,19 +74,19 @@ public:
         npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){}
         uint32 PotTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             SetDespawnAtFar(false);
             PotTimer = 10000; //10 sec cooldown on potion
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_TRAIL_OF_FIRE);
         }
 
-        void UpdateEscortAI(const uint32 diff)
+        void UpdateEscortAI(const uint32 diff) OVERRIDE
         {
             if (HealthBelowPct(75))
             {
@@ -100,7 +100,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -150,7 +150,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_Apothecary_HanesAI(creature);
     }
@@ -160,7 +160,7 @@ public:
 ## npc_plaguehound_tracker
 ######*/
 
-enum ePlaguehound
+enum Plaguehound
 {
     QUEST_SNIFF_OUT_ENEMY        = 11253
 };
@@ -174,7 +174,7 @@ public:
     {
         npc_plaguehound_trackerAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uint64 summonerGUID = 0;
 
@@ -190,7 +190,7 @@ public:
             Start(false, false, summonerGUID);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId != 26)
                 return;
@@ -199,7 +199,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_plaguehound_trackerAI(creature);
     }
@@ -212,7 +212,7 @@ public:
 #define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
 #define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
 
-enum eRazael
+enum Razael
 {
     QUEST_REPORTS_FROM_THE_FIELD = 11221,
     NPC_RAZAEL = 23998,
@@ -228,7 +228,7 @@ class npc_razael_and_lyana : public CreatureScript
 public:
     npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -257,7 +257,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -279,7 +279,7 @@ public:
 ## npc_daegarn
 ######*/
 
-enum eDaegarnn
+enum Daegarnn
 {
     QUEST_DEFEAT_AT_RING            = 11300,
 
@@ -301,7 +301,7 @@ class npc_daegarn : public CreatureScript
 public:
     npc_daegarn() : CreatureScript("npc_daegarn") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
         {
@@ -320,7 +320,7 @@ public:
         bool bEventInProgress;
         uint64 uiPlayerGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             bEventInProgress = false;
             uiPlayerGUID = 0;
@@ -336,7 +336,7 @@ public:
             SummonGladiator(NPC_FIRJUS);
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
@@ -357,7 +357,7 @@ public:
             me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/)
+        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) OVERRIDE
         {
             uint32 uiEntry = 0;
 
@@ -374,7 +374,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_daegarnAI(creature);
     }

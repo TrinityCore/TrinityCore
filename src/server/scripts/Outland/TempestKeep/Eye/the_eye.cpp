@@ -24,45 +24,45 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 /* ContentData
-mob_crystalcore_devastator
+npc_crystalcore_devastator
 EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_COUNTERCHARGE    = 35035,
     SPELL_KNOCKAWAY        = 22893,
 };
 
-class mob_crystalcore_devastator : public CreatureScript
+class npc_crystalcore_devastator : public CreatureScript
 {
     public:
 
-        mob_crystalcore_devastator()
-            : CreatureScript("mob_crystalcore_devastator")
+        npc_crystalcore_devastator()
+            : CreatureScript("npc_crystalcore_devastator")
         {
         }
-        struct mob_crystalcore_devastatorAI : public ScriptedAI
+        struct npc_crystalcore_devastatorAI : public ScriptedAI
         {
-            mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 Knockaway_Timer;
             uint32 Countercharge_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Countercharge_Timer = 9000;
                 Knockaway_Timer = 25000;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -100,13 +100,13 @@ class mob_crystalcore_devastator : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_crystalcore_devastatorAI(creature);
+            return new npc_crystalcore_devastatorAI(creature);
         }
 };
 void AddSC_the_eye()
 {
-    new mob_crystalcore_devastator();
+    new npc_crystalcore_devastator();
 }
 

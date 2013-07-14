@@ -22,24 +22,14 @@
 
 enum Spells
 {
-    SPELL_WARSTOMP                  = 24375,
-    SPELL_CLEAVE                    = 15579,
-    SPELL_STRIKE                    = 18368,
-    SPELL_REND                      = 18106,
-    SPELL_SUNDERARMOR               = 24317,
-    SPELL_KNOCKAWAY                 = 20686,
-    SPELL_SLOW                      = 22356,
+    SPELL_FRENZY                    = 8269,
+    SPELL_KNOCK_AWAY                = 10101
 };
 
 enum Events
 {
-    EVENT_WARSTOMP                  = 1,
-    EVENT_CLEAVE                    = 2,
-    EVENT_STRIKE                    = 3,
-    EVENT_REND                      = 4,
-    EVENT_SUNDER_ARMOR              = 5,
-    EVENT_KNOCK_AWAY                = 6,
-    EVENT_SLOW                      = 7,
+    EVENT_FRENZY                    = 1,
+    EVENT_KNOCK_AWAY                = 2
 };
 
 class boss_highlord_omokk : public CreatureScript
@@ -47,38 +37,33 @@ class boss_highlord_omokk : public CreatureScript
 public:
     boss_highlord_omokk() : CreatureScript("boss_highlord_omokk") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_highlordomokkAI(creature);
     }
 
     struct boss_highlordomokkAI : public BossAI
     {
-        boss_highlordomokkAI(Creature* creature) : BossAI(creature, DATA_OMOKK) {}
+        boss_highlordomokkAI(Creature* creature) : BossAI(creature, DATA_HIGHLORD_OMOKK) {}
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WARSTOMP, 15 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE,    6 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_STRIKE,   10 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_REND,     14 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SUNDER_ARMOR, 2 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY,  18 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SLOW, 24 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_FRENZY,      20000);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY,  18000);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -92,33 +77,15 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_WARSTOMP:
-                        DoCastVictim(SPELL_WARSTOMP);
-                        events.ScheduleEvent(EVENT_WARSTOMP, 14 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_CLEAVE:
-                        DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 8 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_STRIKE:
-                        DoCastVictim(SPELL_STRIKE);
-                        events.ScheduleEvent(EVENT_STRIKE, 10 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_REND:
-                        DoCastVictim(SPELL_REND);
-                        events.ScheduleEvent(EVENT_REND, 18 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_SUNDER_ARMOR:
-                        DoCastVictim(SPELL_SUNDERARMOR);
-                        events.ScheduleEvent(EVENT_SUNDER_ARMOR, 25 * IN_MILLISECONDS);
+                    case EVENT_FRENZY:
+                        DoCastVictim(SPELL_FRENZY);
+                        events.ScheduleEvent(EVENT_FRENZY, 60000);
                         break;
                     case EVENT_KNOCK_AWAY:
-                        DoCastVictim(SPELL_KNOCKAWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12 * IN_MILLISECONDS);
+                        DoCastVictim(SPELL_KNOCK_AWAY);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12000);
                         break;
-                    case EVENT_SLOW:
-                        DoCastVictim(SPELL_SLOW);
-                        events.ScheduleEvent(EVENT_SLOW, 18 * IN_MILLISECONDS);
+                    default:
                         break;
                 }
             }

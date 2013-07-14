@@ -25,7 +25,7 @@ enum Spells
     SPELL_WARSTOMP                                         = 24375
 };
 
-enum eEnums
+enum Misc
 {
     DATA_THRONE_DOOR                                       = 24 // not id or guid of doors but number of enum in blackrock_depths.h
 };
@@ -35,9 +35,9 @@ class boss_magmus : public CreatureScript
 public:
     boss_magmus() : CreatureScript("boss_magmus") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_magmusAI (creature);
+        return new boss_magmusAI(creature);
     }
 
     struct boss_magmusAI : public ScriptedAI
@@ -47,15 +47,15 @@ public:
         uint32 FieryBurst_Timer;
         uint32 WarStomp_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             FieryBurst_Timer = 5000;
             WarStomp_Timer =0;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -81,7 +81,7 @@ public:
             DoMeleeAttackIfReady();
         }
         // When he die open door to last chamber
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (InstanceScript* instance = killer->GetInstanceScript())
                 instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);

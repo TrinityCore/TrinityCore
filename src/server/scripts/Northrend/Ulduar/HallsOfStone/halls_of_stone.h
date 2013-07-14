@@ -24,6 +24,7 @@ enum Data
     DATA_SJONNIR_EVENT,
     DATA_BRANN_EVENT
 };
+
 enum Data64
 {
     DATA_KRYSTALLUS,
@@ -40,7 +41,8 @@ enum Data64
     DATA_SJONNIR_DOOR,
     DATA_MAIDEN_DOOR
 };
-enum Creatures
+
+enum CreaturesIds
 {
     CREATURE_MAIDEN                                        = 27975,
     CREATURE_KRYSTALLUS                                    = 27977,
@@ -50,7 +52,8 @@ enum Creatures
     CREATURE_ABEDNEUM                                      = 30899,
     CREATURE_BRANN                                         = 28070
 };
-enum GameObjects
+
+enum GameObjectIds
 {
     GO_ABEDNEUM                                            = 191669,
     GO_MARNAK                                              = 192170,
@@ -62,4 +65,5 @@ enum GameObjects
     GO_TRIBUNAL_CHEST                                      = 190586,
     GO_TRIBUNAL_CHEST_HERO                                 = 193996
 };
+
 #endif
