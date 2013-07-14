@@ -716,7 +716,19 @@ class ObjectMgr
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
         uint64 GetPlayerGUIDByName(std::string const& name) const;
-        bool GetPlayerNameByGUID(uint64 guid, std::string &name) const;
+
+        /**
+        * Retrieves the player name by guid.
+        *
+        * If the player is online, the name is retrieved immediately otherwise
+        * a database query is done.
+        *
+        * @param guid player full guid
+        * @param name returned name
+        *
+        * @return true if player was found, false otherwise
+        */
+        bool GetPlayerNameByGUID(uint64 guid, std::string& name) const;
         uint32 GetPlayerTeamByGUID(uint64 guid) const;
         uint32 GetPlayerAccountIdByGUID(uint64 guid) const;
         uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
