@@ -354,9 +354,7 @@ public:
         void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type == POINT_MOTION_TYPE && id == 0)
-            {
                 me->SetDisableGravity(false); // Needed this for proper animation after spawn, the summon in air fall to ground bug leave no other option for now, if this isn't used the drake will only walk on move.
-            }
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -388,9 +386,7 @@ public:
                     }
                     else WelcomeSequelTimer -= diff;
                 }
-            }
-            if (me->HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
-            {
+
                 if (instance->GetBossState(DATA_UROM_EVENT) == DONE)
                 {
                     if (!(SpecialOff))
@@ -403,9 +399,7 @@ public:
                         else SpecialTimer -= diff;
                     }
                 }
-            }
-            if (me->HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
-            {
+
                 if (!(HealthWarningOff))
                 {
                     if (me->GetHealthPct() <= 40.0f)
@@ -414,9 +408,7 @@ public:
                         HealthWarningOff = true;
                     }
                 }
-            }
-            if (me->HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
-            {
+
                 if (HealthWarningOff)
                 {
                     if (WarningTimer <= diff)
@@ -427,6 +419,7 @@ public:
                     else WarningTimer -= diff;
                 }
             }
+
             if (!(me->HasAuraType(SPELL_AURA_CONTROL_VEHICLE)))
             {
                 if (!(DisableTakeOff))
