@@ -72,7 +72,7 @@ enum Spells
     // Ashtongue Spiritbinder
     SPELL_SPIRIT_MEND                = 42025,
     SPELL_CHAIN_HEAL                 = 42027,
-    SPELL_SPIRIT_HEAL                = 42317
+    SPELL_SPIRITBINDER_SPIRIT_HEAL   = 42317
 };
 
 enum Creatures
@@ -1189,7 +1189,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SPIRIT_HEAL:
-                        DoCast(me, SPELL_SPIRIT_HEAL);
+                        DoCast(me, SPELL_SPIRITBINDER_SPIRIT_HEAL);
                         events.ScheduleEvent(EVENT_SPIRIT_HEAL, urand (13000, 16000));
                         break;
                     default:
