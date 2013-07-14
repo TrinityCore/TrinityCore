@@ -174,7 +174,7 @@ class boss_akilzon : public CreatureScript
                     {
                         if (Unit* target = (*i))
                         {
-                            if (!Cloud->IsWithinDist(target, 6, false))
+                            if (Cloud && !Cloud->IsWithinDist(target, 6, false))
                                 Cloud->CastCustomSpell(target, SPELL_ZAP, &bp0, NULL, NULL, true, 0, 0, me->GetGUID());
                         }
                     }

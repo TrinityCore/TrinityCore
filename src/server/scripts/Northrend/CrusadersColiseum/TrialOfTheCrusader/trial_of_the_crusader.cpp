@@ -318,7 +318,7 @@ class boss_lich_king_toc : public CreatureScript
                             _instance->SetData(TYPE_EVENT, 5080);
                             break;
                         case 5080:
-                            if (GameObject* go = _instance->instance->GetGameObject(_instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                            if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                             {
                                 go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
                                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
@@ -328,15 +328,13 @@ class boss_lich_king_toc : public CreatureScript
                             me->CastSpell(me, SPELL_CORPSE_TELEPORT, false);
                             me->CastSpell(me, SPELL_DESTROY_FLOOR_KNOCKUP, false);
 
-                            if (_instance)
-                            {
-                                _instance->SetBossState(BOSS_LICH_KING, DONE);
-                                Creature* temp = Unit::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK));
-                                if (!temp || !temp->IsAlive())
-                                    temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                            _instance->SetBossState(BOSS_LICH_KING, DONE);
+                            Creature* temp = Unit::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK));
+                            if (!temp || !temp->IsAlive())
+                                temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
-                                _instance->SetData(TYPE_EVENT, 0);
-                            }
+                            _instance->SetData(TYPE_EVENT, 0);
+
                             me->DespawnOrUnsummon();
                             _updateTimer = 20*IN_MILLISECONDS;
                             break;
