@@ -718,6 +718,7 @@ class spell_pri_renew : public SpellScriptLoader
                 return true;
             }
 
+            bool Load() OVERRIDE
             {
                 return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
