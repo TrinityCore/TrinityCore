@@ -75,11 +75,8 @@ enum WaitEventType
 class boss_alar : public CreatureScript
 {
     public:
+        boss_alar() : CreatureScript("boss_alar") { }
 
-        boss_alar()
-            : CreatureScript("boss_alar")
-        {
-        }
         struct boss_alarAI : public ScriptedAI
         {
             boss_alarAI(Creature* creature) : ScriptedAI(creature)
@@ -161,7 +158,6 @@ class boss_alar : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
-
 
             void AttackStart(Unit* who) OVERRIDE
             {
@@ -462,11 +458,7 @@ class boss_alar : public CreatureScript
 class npc_ember_of_alar : public CreatureScript
 {
     public:
-
-        npc_ember_of_alar()
-            : CreatureScript("npc_ember_of_alar")
-        {
-        }
+        npc_ember_of_alar() : CreatureScript("npc_ember_of_alar") { }
 
         struct npc_ember_of_alarAI : public ScriptedAI
         {
@@ -484,10 +476,12 @@ class npc_ember_of_alar : public CreatureScript
             {
                 toDie = false;
             }
+
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoZoneInCombat();
             }
+
             void EnterEvadeMode() OVERRIDE
             {
                 me->setDeathState(JUST_DIED);
@@ -541,11 +535,7 @@ class npc_ember_of_alar : public CreatureScript
 class npc_flame_patch_alar : public CreatureScript
 {
     public:
-
-        npc_flame_patch_alar()
-            : CreatureScript("npc_flame_patch_alar")
-        {
-        }
+        npc_flame_patch_alar() : CreatureScript("npc_flame_patch_alar") { }
 
         struct npc_flame_patch_alarAI : public ScriptedAI
         {
@@ -570,4 +560,3 @@ void AddSC_boss_alar()
     new npc_ember_of_alar();
     new npc_flame_patch_alar();
 }
-

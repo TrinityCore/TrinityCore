@@ -318,6 +318,7 @@ class boss_lich_king_toc : public CreatureScript
                             _instance->SetData(TYPE_EVENT, 5080);
                             break;
                         case 5080:
+                        {
                             if (GameObject* go = GameObject::GetGameObject(*me, _instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                             {
                                 go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
@@ -338,6 +339,7 @@ class boss_lich_king_toc : public CreatureScript
                             me->DespawnOrUnsummon();
                             _updateTimer = 20*IN_MILLISECONDS;
                             break;
+                        }
                         default:
                             break;
                     }
