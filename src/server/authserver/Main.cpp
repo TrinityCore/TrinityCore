@@ -96,7 +96,7 @@ extern int main(int argc, char **argv)
         ++c;
     }
 
-    if (!ConfigMgr::Load(cfg_file))
+    if (!sConfigMgr->LoadInitial(cfg_file))
     {
         printf("Invalid or missing configuration file : %s\n", cfg_file);
         printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!\n");
@@ -118,7 +118,7 @@ extern int main(int argc, char **argv)
     TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "Max allowed open files is %d", ACE::max_handles());
 
     // authserver PID file creation
-    std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
+    std::string pidfile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
         uint32 pid = CreatePIDFile(pidfile);
@@ -135,7 +135,7 @@ extern int main(int argc, char **argv)
         return 1;
 
     // Get the list of realms for the server
-    sRealmList->Initialize(ConfigMgr::GetIntDefault("RealmsStateUpdateDelay", 20));
+    sRealmList->Initialize(sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
     if (sRealmList->size() == 0)
     {
         TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "No valid realms specified.");
@@ -145,14 +145,14 @@ extern int main(int argc, char **argv)
     // Launch the listening network socket
     RealmAcceptor acceptor;
 
-    int32 rmport = ConfigMgr::GetIntDefault("RealmServerPort", 3724);
+    int32 rmport = sConfigMgr->GetIntDefault("RealmServerPort", 3724);
     if (rmport < 0 || rmport > 0xFFFF)
     {
         TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Specified port out of allowed range (1-65535)");
         return 1;
     }
 
-    std::string bind_ip = ConfigMgr::GetStringDefault("BindIP", "0.0.0.0");
+    std::string bind_ip = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     ACE_INET_Addr bind_addr(uint16(rmport), bind_ip.c_str());
 
@@ -175,7 +175,7 @@ extern int main(int argc, char **argv)
     {
         HANDLE hProcess = GetCurrentProcess();
 
-        uint32 Aff = ConfigMgr::GetIntDefault("UseProcessors", 0);
+        uint32 Aff = sConfigMgr->GetIntDefault("UseProcessors", 0);
         if (Aff > 0)
         {
             ULONG_PTR appAff;
@@ -195,7 +195,7 @@ extern int main(int argc, char **argv)
 
         }
 
-        bool Prio = ConfigMgr::GetBoolDefault("ProcessPriority", false);
+        bool Prio = sConfigMgr->GetBoolDefault("ProcessPriority", false);
 
         if (Prio)
         {
@@ -209,7 +209,7 @@ extern int main(int argc, char **argv)
 #endif
 
     // maximum counter for next ping
-    uint32 numLoops = (ConfigMgr::GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
+    uint32 numLoops = (sConfigMgr->GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;
 
     // Wait for termination signal
@@ -241,21 +241,21 @@ bool StartDB()
 {
     MySQL::Library_Init();
 
-    std::string dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
+    std::string dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
         TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Database not specified");
         return false;
     }
 
-    int32 worker_threads = ConfigMgr::GetIntDefault("LoginDatabase.WorkerThreads", 1);
+    int32 worker_threads = sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1);
     if (worker_threads < 1 || worker_threads > 32)
     {
         TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
         worker_threads = 1;
     }
 
-    int32 synch_threads = ConfigMgr::GetIntDefault("LoginDatabase.SynchThreads", 1);
+    int32 synch_threads = sConfigMgr->GetIntDefault("LoginDatabase.SynchThreads", 1);
     if (synch_threads < 1 || synch_threads > 32)
     {
         TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");

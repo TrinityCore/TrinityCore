@@ -281,7 +281,7 @@ public:
                 if (name.empty())
                     continue;
 
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
+                char const* activeStr = target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
                 ? handler->GetTrinityString(LANG_ACTIVE)
                 : "";
 

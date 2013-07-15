@@ -556,8 +556,8 @@ public:
             if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
                 ++SpectralPlayers;
         }
-        uint8 MaxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
-        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MaxSpectralPlayers && SpectralPlayers >= MaxSpectralPlayers))
+
+        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
             player->GetSession()->SendNotification(GO_FAILED);
         else
             player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);

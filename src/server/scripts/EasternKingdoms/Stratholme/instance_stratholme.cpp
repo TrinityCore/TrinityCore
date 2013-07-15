@@ -246,23 +246,29 @@ class instance_stratholme : public InstanceMapScript
                     case TYPE_BARONESS:
                         EncounterState[1] = data;
                         if (data == IN_PROGRESS)
+                        {
                             HandleGameObject(ziggurat1GUID, true);
-                        if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
+                            //change to DONE when crystals implemented
                             StartSlaugtherSquare();
+                        }
                         break;
                     case TYPE_NERUB:
                         EncounterState[2] = data;
                         if (data == IN_PROGRESS)
+                        {
                             HandleGameObject(ziggurat2GUID, true);
-                        if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
+                            //change to DONE when crystals implemented
                             StartSlaugtherSquare();
+                        }
                         break;
                     case TYPE_PALLID:
                         EncounterState[3] = data;
                         if (data == IN_PROGRESS)
+                        {
                             HandleGameObject(ziggurat3GUID, true);
-                        if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
+                            //change to DONE when crystals implemented
                             StartSlaugtherSquare();
+                        }
                         break;
                     case TYPE_RAMSTEIN:
                         if (data == IN_PROGRESS)
