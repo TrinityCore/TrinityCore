@@ -278,7 +278,7 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_leap_of_faith_effect_trigger_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_EFFECT))
                     return false;
@@ -296,13 +296,13 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
                 GetHitUnit()->CastSpell(targets, sSpellMgr->GetSpellInfo(GetEffectValue()), NULL);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pri_leap_of_faith_effect_trigger_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_pri_leap_of_faith_effect_trigger_SpellScript();
         }
@@ -668,7 +668,7 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_reflective_shield_trigger_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
                     return false;
@@ -689,13 +689,13 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
                     }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                  AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_reflective_shield_trigger_AuraScript::Trigger, EFFECT_0);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pri_reflective_shield_trigger_AuraScript();
         }
@@ -793,7 +793,7 @@ class spell_pri_shadowform : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_shadowform_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH) ||
                     !sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH))
@@ -811,14 +811,14 @@ class spell_pri_shadowform : public SpellScriptLoader
                 GetTarget()->RemoveAurasDueToSpell(GetTarget()->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOW) ? SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH : SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_pri_shadowform_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pri_shadowform_AuraScript();
         }

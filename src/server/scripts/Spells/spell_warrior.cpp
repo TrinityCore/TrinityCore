@@ -265,7 +265,7 @@ class spell_warr_execute : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_execute_SpellScript);
 
-            void HandleEffect(SpellEffIndex /*effIndex*/) OVERRIDE
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 if (GetHitUnit())
@@ -446,14 +446,14 @@ class spell_warr_rallying_cry : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_rallying_cry_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_RALLYING_CRY))
                     return false;
                 return true;
             }
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 return GetCaster()->GetTypeId() ==  TYPEID_PLAYER;
             }
@@ -465,13 +465,13 @@ class spell_warr_rallying_cry : public SpellScriptLoader
                 GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_RALLYING_CRY, &basePoints0, NULL, NULL, true);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warr_rallying_cry_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_warr_rallying_cry_SpellScript();
         }

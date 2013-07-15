@@ -77,7 +77,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_00x09hlAI(creature);
     }
@@ -139,7 +139,7 @@ public:
             Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
