@@ -201,32 +201,6 @@ class npc_morridune : public CreatureScript
 public:
     npc_morridune() : CreatureScript("npc_morridune") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->TeleportTo(1, 9952.239f, 2284.277f, 1341.394f, 1.595f);
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MORRIDUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_morriduneAI(creature);
-    }
-
     struct npc_morriduneAI : public npc_escortAI
     {
         npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
@@ -248,7 +222,17 @@ public:
                     break;
             }
         }
+
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
+        {
+            player->TeleportTo(1, 9952.239f, 2284.277f, 1341.394f, 1.595f);
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_morriduneAI(creature);
+    }
 };
 
 void AddSC_blackfathom_deeps()
