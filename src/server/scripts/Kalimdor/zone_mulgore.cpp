@@ -139,10 +139,10 @@ public:
 
         void MovementInform(uint32 type, uint32 pointId) OVERRIDE
         {
-            if (Type != POINT_MOTION_TYPE || !EventActive)
+            if (type != POINT_MOTION_TYPE || !EventActive)
                 return;
 
-            if (PointId == POINT_ID)
+            if (pointId == POINT_ID)
                 IsMovingToLunch = false;
         }
 
