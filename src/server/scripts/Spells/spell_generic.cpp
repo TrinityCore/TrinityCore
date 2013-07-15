@@ -3191,13 +3191,13 @@ class spell_gen_increase_stats_buff : public SpellScriptLoader
                     GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true); // single-target buff
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_gen_increase_stats_buff_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_gen_increase_stats_buff_SpellScript();
         }
@@ -3295,7 +3295,7 @@ class spell_gen_running_wild : public SpellScriptLoader
                     target->CastSpell(target, mountCapability->SpeedModSpell, TRIGGERED_FULL_MASK);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectApply += AuraEffectApplyFn(spell_gen_running_wild_AuraScript::HandleMount, EFFECT_1, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
             }
@@ -3305,14 +3305,14 @@ class spell_gen_running_wild : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_running_wild_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ALTERED_FORM))
                     return false;
                 return true;
             }
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 // Definitely not a good thing, but currently the only way to do something at cast start
                 // Should be replaced as soon as possible with a new hook: BeforeCastStart
@@ -3330,7 +3330,7 @@ class spell_gen_running_wild : public SpellScriptLoader
             return new spell_gen_running_wild_AuraScript();
         }
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_gen_running_wild_SpellScript();
         }
@@ -3373,14 +3373,14 @@ class spell_gen_two_forms : public SpellScriptLoader
                     target->CastCustomSpell(SPELL_ALTERED_FORM, SPELLVALUE_BASE_POINT0, 1, target, TRIGGERED_FULL_MASK);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnCheckCast += SpellCheckCastFn(spell_gen_two_forms_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_gen_two_forms_SpellScript::HandleTransform, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_gen_two_forms_SpellScript();
         }
@@ -3400,13 +3400,13 @@ class spell_gen_darkflight : public SpellScriptLoader
                 GetCaster()->CastSpell(GetCaster(), SPELL_ALTERED_FORM, TRIGGERED_FULL_MASK);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 AfterCast += SpellCastFn(spell_gen_darkflight_SpellScript::TriggerTransform);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_gen_darkflight_SpellScript();
         }

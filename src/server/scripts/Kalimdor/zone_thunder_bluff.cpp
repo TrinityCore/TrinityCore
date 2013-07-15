@@ -48,7 +48,7 @@ class npc_cairne_bloodhoof : public CreatureScript
 public:
     npc_cairne_bloodhoof() : CreatureScript("npc_cairne_bloodhoof") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_cairne_bloodhoofAI (creature);
     }
@@ -63,7 +63,7 @@ public:
         uint32 ThunderclapTimer;
         uint32 UppercutTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             BerserkerChargeTimer = 30000;
             CleaveTimer = 5000;
@@ -72,9 +72,9 @@ public:
             UppercutTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

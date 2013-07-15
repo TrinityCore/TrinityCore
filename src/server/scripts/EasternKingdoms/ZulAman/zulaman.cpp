@@ -92,12 +92,12 @@ class npc_voljin_zulaman : public CreatureScript
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _gongCount = 0;
             }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action)
+            void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
             {
                 if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
                     return;
@@ -114,7 +114,7 @@ class npc_voljin_zulaman : public CreatureScript
                 }
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) OVERRIDE
             {
                 if (action == ACTION_START_ZULAMAN)
                 {
@@ -123,7 +123,7 @@ class npc_voljin_zulaman : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 _events.Update(diff);
 
@@ -184,7 +184,7 @@ class npc_voljin_zulaman : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 movementType, uint32 pointId)
+            void MovementInform(uint32 movementType, uint32 pointId) OVERRIDE
             {
                 if (movementType != POINT_MOTION_TYPE)
                     return;
@@ -212,7 +212,7 @@ class npc_voljin_zulaman : public CreatureScript
             uint8 _gongCount;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return GetZulAmanAI<npc_voljin_zulamanAI>(creature);
         }
@@ -234,13 +234,13 @@ class spell_banging_the_gong : public SpellScriptLoader
                 GetHitGObj()->SendCustomAnim(0);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_banging_the_gong_SpellScript::Activate, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_banging_the_gong_SpellScript();
         }

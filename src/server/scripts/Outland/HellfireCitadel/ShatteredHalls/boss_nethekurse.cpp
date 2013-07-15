@@ -105,7 +105,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 Cleave_Timer = 5000;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
 

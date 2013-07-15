@@ -134,7 +134,7 @@ class spell_warl_conflagrate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_conflagrate_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMMOLATE))
                     return false;
@@ -147,13 +147,13 @@ class spell_warl_conflagrate : public SpellScriptLoader
                     SetHitDamage(CalculatePct(aurEff->GetAmount(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warl_conflagrate_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_warl_conflagrate_SpellScript();
         }
@@ -389,7 +389,7 @@ class spell_warl_demon_soul : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demon_soul_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_IMP))
                     return false;
@@ -434,13 +434,13 @@ class spell_warl_demon_soul : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warl_demon_soul_SpellScript::OnHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_warl_demon_soul_SpellScript;
         }
@@ -565,13 +565,13 @@ class spell_warl_fel_flame : public SpellScriptLoader
                 aura->SetDuration(std::min(newDuration, aura->GetMaxDuration()));
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warl_fel_flame_SpellScript::OnHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_warl_fel_flame_SpellScript;
         }
