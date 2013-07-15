@@ -129,7 +129,7 @@ extern int main(int argc, char **argv)
         ++c;
     }
 
-    if (!ConfigMgr::Load(cfg_file))
+    if (!sConfigMgr->LoadInitial(cfg_file))
     {
         printf("Invalid or missing configuration file : %s\n", cfg_file);
         printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!\n");
