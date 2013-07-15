@@ -31,8 +31,6 @@ enum Spells
     SPELL_TELEPORT_DARNASSUS                                = 9268
 };
 
-#define GOSSIP_ITEM_MORRIDUNE "Please port me to Darnassus"
-
 const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
 
 class go_blackfathom_altar : public GameObjectScript
@@ -225,7 +223,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
         {
-            player->TeleportTo(1, 9952.239f, 2284.277f, 1341.394f, 1.595f);
+            DoCast(player, SPELL_TELEPORT_DARNASSUS);
         }
     };
 
