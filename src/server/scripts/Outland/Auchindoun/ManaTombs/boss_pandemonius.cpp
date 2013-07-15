@@ -39,7 +39,6 @@ enum Pandemonius
     H_SPELL_DARK_SHELL              = 38759
 };
 
-
 class boss_pandemonius : public CreatureScript
 {
 public:

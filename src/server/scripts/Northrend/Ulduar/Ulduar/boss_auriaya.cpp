@@ -535,7 +535,6 @@ class spell_auriaya_sentinel_blast : public SpellScriptLoader
         }
 };
 
-
 class achievement_nine_lives : public AchievementCriteriaScript
 {
     public:
