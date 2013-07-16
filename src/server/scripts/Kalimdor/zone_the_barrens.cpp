@@ -171,42 +171,6 @@ public:
 };
 
 /*######
-## npc_sputtervalve
-######*/
-
-#define GOSSIP_SPUTTERVALVE "Can you tell me about this shard?"
-
-class npc_sputtervalve : public CreatureScript
-{
-public:
-    npc_sputtervalve() : CreatureScript("npc_sputtervalve") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->SEND_GOSSIP_MENU(2013, creature->GetGUID());
-            player->AreaExploredOrEventHappens(6981);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-};
-
-/*######
 ## npc_taskmaster_fizzule
 ######*/
 
