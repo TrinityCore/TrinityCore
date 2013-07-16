@@ -1,14 +1,17 @@
 -- TEXT INSERTS
 DELETE FROM `creature_text` WHERE `entry`=31306, `groupid`=1, `id`=0;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES 
-(31306, 1, 0, 'Knights of the Ebon Blade, prepare for battle!', 12, 0, 100, 1, 0, 0, '');
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(31306, 1, 0, "Knights of the Ebon Blade, prepare for battle!", 12, 0, 100, 1, 0, 0, '');
+
 DELETE FROM `creature_text` WHERE `entry`=31301, 31428;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (31301, 1, 1, 'You dare to think you have thwarted my will? That you have broken my plans?', 12, 0, 100, 0, 0, 0, 'LK SAY 1');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (31301, 2, 1, 'You have accomplished nothing!', 12, 0, 100, 0, 0, 0, 'LK SAY 2');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (31301, 3, 1, 'Your feeble resistance has only hastened your doom.', 12, 0, 100, 0, 0, 0, 'LK SAY 3 ');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (31301, 4, 1, 'So spout your platitudes and flail until you are spent. In the end, you will be mine, and Morbidus will be the harbinger of your death!', 12, 0, 100, 0, 0, 0, 'LK SAY 4');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (31301, 5, 1, 'Morbidus, show them what happens to those who defy the will of their king!', 12, 0, 100, 0, 0, 0, 'LK SAY 5');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (31428, 1, 0, 'You will pay for what you\'ve done! For the Argent Crusade!', 12, 0, 100, 0, 0, 0, 'OLAKIN SAY 1');
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(31301, 1, 1, "You dare to think you have thwarted my will? That you have broken my plans?", 12, 0, 100, 0, 0, 0, "LK SAY 1"),
+(31301, 2, 1, "You have accomplished nothing!", 12, 0, 100, 0, 0, 0, "LK SAY 2"),
+(31301, 3, 1, "Your feeble resistance has only hastened your doom.", 12, 0, 100, 0, 0, 0, "LK SAY 3"),
+(31301, 4, 1, "So spout your platitudes and flail until you are spent. In the end, you will be mine, and Morbidus will be the harbinger of your death!", 12, 0, 100, 0, 0, 0, "LK SAY 4"),
+(31301, 5, 1, "Morbidus, show them what happens to those who defy the will of their king!", 12, 0, 100, 0, 0, 0, "LK SAY 5"),
+(31428, 1, 0, "You will pay for what you've done! For the Argent Crusade!", 12, 0, 100, 0, 0, 0, "OLAKIN SAY 1");
+
 
 -- ScriptName Updates
 UPDATE creature_template SET `ScriptName`='npc_margrave_dhakar' WHERE entry=31306;
