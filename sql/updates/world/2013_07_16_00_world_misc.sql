@@ -9,8 +9,8 @@ INSERT INTO `game_graveyard_zone` (`id`, `ghost_zone`, `faction`) VALUES
 
 DELETE FROM `gameobject` WHERE `guid` IN (5216, 5222);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(5216, 202277, 533, 15, 1, 3495.97, -5357.84, 144.9645, 0.5410506, 0, 0, 0, 1, 7200, 255, 1), -- Orb of Naxxramas
-(5222, 202278, 533, 15, 1, 2997.675, -3437.799, 304.1996, 1.151916, 0, 0, 0, 1, 7200, 255, 1); -- Orb of Naxxramas
+(5216, 202277, 533, 3, 1, 3495.97, -5357.84, 144.9645, 0.5410506, 0, 0, 0, 1, 7200, 255, 1), -- Orb of Naxxramas
+(5222, 202278, 533, 3, 1, 2997.675, -3437.799, 304.1996, 1.151916, 0, 0, 0, 1, 7200, 255, 1); -- Orb of Naxxramas
 
 -- Teleportation positions for Orbs from sniff - TODO: add db coords for spell 72613
 DELETE FROM `spell_target_position` WHERE `id` IN (28444, 72617);
