@@ -30,3 +30,4 @@ UPDATE `creature_model_info` SET `bounding_radius`=0.3825,`combat_reach`=1.875,`
 DELETE FROM `creature_template_addon` WHERE `entry`=31306;
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (31306,0,0,1,0, NULL); -- Margrave Dhakar
+UPDATE `creature_template` SET `gossip_menu_id`=10060 WHERE `entry`=31306; -- Margrave Dhakar
