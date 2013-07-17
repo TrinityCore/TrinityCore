@@ -5594,33 +5594,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
-                // Glyph of Shadowflame
-                case 63310:
-                {
-                    triggered_spell_id = 63311;
-                    break;
-                }
-                // Nightfall
-                case 18094:
-                case 18095:
-                // Glyph of corruption
-                case 56218:
-                {
-                    target = this;
-                    triggered_spell_id = 17941;
-                    break;
-                }
-                // Soul Leech
-                case 30293:
-                case 30295:
-                {
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                    target = this;
-                    triggered_spell_id = 30294;
-                    // Replenishment
-                    CastSpell(this, 57669, true, castItem, triggeredByAura);
-                    break;
-                }
                 // Shadowflame (Voidheart Raiment set bonus)
                 case 37377:
                 {
@@ -5644,16 +5617,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     triggered_spell_id = 37378;
                     break;
-                }
-                // Glyph of Succubus
-                case 56250:
-                {
-                    if (!target)
-                        return false;
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                    return true;
                 }
             }
             break;
