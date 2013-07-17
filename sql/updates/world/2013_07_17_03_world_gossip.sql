@@ -26,7 +26,7 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES (1970,2643);
 UPDATE `creature_template` SET `gossip_menu_id`=2063 WHERE `entry`=9598;
 -- Gossip Menu
 DELETE FROM `gossip_menu` WHERE `entry` IN (2063);
-INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES (2063,2726), 2063,2809);
+INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES (2063,2726), (2063,2809);
 
 -- Add SAI for Un'Goro Crystal Pylon Quests 4285, 4287, 4288
 UPDATE `gameobject_template` SET `AIName`= 'SmartGameObjectAI',`ScriptName`= '' WHERE `entry` IN (164955,164957,164956);
