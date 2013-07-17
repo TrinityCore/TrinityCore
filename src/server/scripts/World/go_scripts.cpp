@@ -18,9 +18,6 @@
 
 /* ContentData
 go_cat_figurine (the "trap" version of GO, two different exist)
-go_northern_crystal_pylon
-go_eastern_crystal_pylon
-go_western_crystal_pylon
 go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
@@ -76,69 +73,6 @@ public:
     {
         player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
         return false;
-    }
-};
-
-/*######
-## go_crystal_pylons (3x)
-######*/
-class go_northern_crystal_pylon : public GameObjectScript
-{
-public:
-    go_northern_crystal_pylon() : GameObjectScript("go_northern_crystal_pylon") { }
-
-    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
-    {
-        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
-        {
-            player->PrepareQuestMenu(go->GetGUID());
-            player->SendPreparedQuest(go->GetGUID());
-        }
-
-        if (player->GetQuestStatus(4285) == QUEST_STATUS_INCOMPLETE)
-            player->AreaExploredOrEventHappens(4285);
-
-        return true;
-    }
-};
-
-class go_eastern_crystal_pylon : public GameObjectScript
-{
-public:
-    go_eastern_crystal_pylon() : GameObjectScript("go_eastern_crystal_pylon") { }
-
-    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
-    {
-        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
-        {
-            player->PrepareQuestMenu(go->GetGUID());
-            player->SendPreparedQuest(go->GetGUID());
-        }
-
-        if (player->GetQuestStatus(4287) == QUEST_STATUS_INCOMPLETE)
-            player->AreaExploredOrEventHappens(4287);
-
-        return true;
-    }
-};
-
-class go_western_crystal_pylon : public GameObjectScript
-{
-public:
-    go_western_crystal_pylon() : GameObjectScript("go_western_crystal_pylon") { }
-
-    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
-    {
-        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
-        {
-            player->PrepareQuestMenu(go->GetGUID());
-            player->SendPreparedQuest(go->GetGUID());
-        }
-
-        if (player->GetQuestStatus(4288) == QUEST_STATUS_INCOMPLETE)
-            player->AreaExploredOrEventHappens(4288);
-
-        return true;
     }
 };
 
@@ -1376,9 +1310,6 @@ public:
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
-    new go_northern_crystal_pylon;
-    new go_eastern_crystal_pylon;
-    new go_western_crystal_pylon;
     new go_barov_journal;
     new go_field_repair_bot_74A;
     new go_gilded_brazier;
