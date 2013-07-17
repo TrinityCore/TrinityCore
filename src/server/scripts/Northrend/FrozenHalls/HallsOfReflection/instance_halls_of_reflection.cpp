@@ -24,7 +24,10 @@
 
 Position const JainaSpawnPos                = {5236.659f, 1929.894f, 707.7781f, 0.8726646f}; // Jaina Spawn Position
 Position const SylvanasSpawnPos             = {5236.667f, 1929.906f, 707.7781f, 0.8377581f}; // Sylvanas Spawn Position
-Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 3.944444f}; // Frostsworn General
+Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 3.944444f};  // Frostsworn General
+Position const JainaSpawnPos2               = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Jaina Spawn Position 2
+Position const SylvanasSpawnPos2            = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Sylvanas Spawn Position 2
+
 
 Position const SpawnPos[] =
 {
@@ -87,8 +90,10 @@ public:
             _arthasDoorGUID = 0;
             _teamInInstance = 0;
             _waveCount = 0;
+            _mobsaticewall = 0;
             _introEvent = NOT_STARTED;
             _frostwornGeneral = NOT_STARTED;
+            _escapeevent = NOT_STARTED;
         }
 
         void OnPlayerEnter(Player* player)
@@ -121,6 +126,10 @@ public:
                     if (GetBossState(DATA_MARWYN_EVENT) == DONE)
                         if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
                             general->SetPhaseMask(1, true);
+                    break;
+                case NPC_JAINA_PART2:
+                case NPC_SYLVANAS_PART2:
+                    _jainaOrSylvanasPart2GUID = creature->GetGUID();
                     break;
             }
         }
@@ -173,6 +182,10 @@ public:
                         HandleGameObject(0, true, go);
                     else
                         HandleGameObject(0, false, go);
+                    break;    
+                case GO_CAVE:
+                    _caveGUID = go->GetGUID();
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     break;
             }
         }
@@ -202,6 +215,7 @@ public:
                     {
                         HandleGameObject(_entranceDoorGUID, true);
                         HandleGameObject(_frostwornDoorGUID, true);
+                        DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                         if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
                             general->SetPhaseMask(1, true);
                     }
@@ -240,10 +254,48 @@ public:
                     if (data == DONE)
                     {
                         HandleGameObject(_arthasDoorGUID, true);
-                        // spawn Jaina part 2
-                        // spawn LK part 2
+                        if (_teamInInstance == ALLIANCE){
+                            instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
+                        }
+                        else{
+                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
+                        }                                 
                     }
                     _frostwornGeneral = data;
+                    
+                    break;                
+                case DATA_ESCAPE_EVENT:
+                    if (data == IN_PROGRESS){
+                        if (!_escapeevent){
+                            if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
+                                if (jaina_or_sylvanas->AI())
+                                    jaina_or_sylvanas->AI()->DoAction(ACTION_START_ESCAPING);
+                        }
+                    } else if (data == NOT_STARTED){
+                        if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
+                            jaina_or_sylvanas->DespawnOrUnsummon(1);
+                        if (_teamInInstance == ALLIANCE){
+                            instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
+                        }
+                        else{
+                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
+                        }              
+                        SetData(DATA_ESCAPE_EVENT,IN_PROGRESS);
+
+                    }
+                     _escapeevent = data;
+                    break;
+                case DATA_SUMMONS:
+                    if (data == 0){
+                        _mobsaticewall--;
+                        if (_mobsaticewall == 0){
+                            if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
+                                if (jaina_or_sylvanas->AI())
+                                    jaina_or_sylvanas->AI()->DoAction(ACTION_WALL_BROKEN);
+                        }
+                    } else if (data == 1){
+                        _mobsaticewall++;
+                    }
                     break;
             }
 
@@ -280,7 +332,7 @@ public:
                     if (deadNpcs == waveGuidList[waveId].size() - 1)
                     {
                         ++_waveCount;
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                        events.ScheduleEvent(EVENT_NEXT_WAVE, 3000);
                     }
                     break;
                 }
@@ -348,7 +400,7 @@ public:
                             }
                         }
                     }
-                    events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                    events.ScheduleEvent(EVENT_NEXT_WAVE, 5000);
                     break;
                 case EVENT_ADD_WAVE:
                     DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
@@ -364,7 +416,7 @@ public:
                             {
                                 temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, true);
                                 temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
-                                temp->AI()->DoZoneInCombat();
+                                temp->AI()->DoZoneInCombat(temp,100.00f);
                             }
                         }
                     }
@@ -380,7 +432,7 @@ public:
                         else if (_waveCount != 10)
                         {
                             ++_waveCount;
-                            events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                            events.ScheduleEvent(EVENT_NEXT_WAVE, 5000);
                         }
                     }
                     break;
@@ -395,16 +447,14 @@ public:
                         falric->SetVisible(false);
                     if (Creature* marwyn = instance->GetCreature(_marwynGUID))
                         marwyn->SetVisible(false);
-
                     //despawn wave npcs
                     for (uint8 i = 0; i < 8; ++i)
                     {
                         for (std::set<uint64>::const_iterator itr = waveGuidList[i].begin(); itr != waveGuidList[i].end(); ++itr)
                             if (Creature* creature = instance->GetCreature(*itr))
                                 creature->DespawnOrUnsummon(1);
-
                         waveGuidList[i].clear();
-                    }
+                    }                   
                     break;
             }
         }
@@ -421,6 +471,10 @@ public:
                     return _introEvent;
                 case DATA_FROSWORN_EVENT:
                     return _frostwornGeneral;
+                case DATA_ESCAPE_EVENT:
+                    return _escapeevent;
+                case DATA_SUMMONS:
+                    return _mobsaticewall;
                 default:
                     break;
             }
@@ -442,6 +496,10 @@ public:
                     return _frostwornDoorGUID;
                 case DATA_FROSTMOURNE:
                     return _frostmourneGUID;
+                case DATA_ESCAPE_LIDER:
+                    return _jainaOrSylvanasPart2GUID;    
+                case DATA_CAVE_IN:
+                    return _caveGUID;     
                 default:
                     break;
             }
@@ -454,7 +512,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "H R " << GetBossSaveData() << _introEvent << ' ' << _frostwornGeneral;
+            saveStream << "H R " << GetBossSaveData() << _introEvent << ' ' << _frostwornGeneral << _escapeevent;
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
@@ -499,6 +557,12 @@ public:
                     SetData(DATA_FROSWORN_EVENT, DONE);
                 else
                     SetData(DATA_FROSWORN_EVENT, NOT_STARTED);
+
+                loadStream >> temp;
+                if (temp == DONE)
+                    SetData(DATA_ESCAPE_EVENT, DONE);
+                else
+                    SetData(DATA_ESCAPE_EVENT, NOT_STARTED);
             }
             else
                 OUT_LOAD_INST_DATA_FAIL;
@@ -510,6 +574,8 @@ public:
         uint64 _falricGUID;
         uint64 _marwynGUID;
         uint64 _jainaOrSylvanasPart1GUID;
+        uint64 _jainaOrSylvanasPart2GUID;
+        uint64 _lichkingPart1GUID;
         uint64 _frostwornGeneralGUID;
 
         uint64 _frostmourneGUID;
@@ -517,11 +583,14 @@ public:
         uint64 _frostwornDoorGUID;
         uint64 _arthasDoorGUID;
         uint64 _escapeDoorGUID;
+        uint64 _caveGUID;
 
         uint32 _teamInInstance;
         uint32 _waveCount;
         uint32 _introEvent;
         uint32 _frostwornGeneral;
+        uint32 _escapeevent;
+        uint32 _mobsaticewall;
 
         EventMap events;
 
