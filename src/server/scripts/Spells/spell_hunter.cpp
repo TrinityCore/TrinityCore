@@ -35,11 +35,10 @@ enum HunterSpells
     SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,
     SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE       = 34075,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
-    SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
-    SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
-    SPELL_HUNTER_CHIMERA_SHOT_SCORPID               = 53359,
+	SPELL_HUNTER_CHIMERA_SHOT_HEALING				= 53353,
     SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER       = 56851,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
+    SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
@@ -52,6 +51,23 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
+	SPELL_HUNTER_IMPROVED_STEADY_SHOT               = 53220,
+	SPELL_HUNTER_STEADY_SHOT                        = 56641,
+	SPELL_HUNTER_FOCUS_FIRE						    = 82692,
+	SPELL_HUNTER_VISUAL_FOCUS_FIRE					= 88843,
+    SPELL_HUNTER_PET_SPELL_FRENZY					= 19615,
+	SPELL_HUNTER_PET_SPELL_FOCUS_FIRE_REGEN			= 83468,
+	SPELL_HUNTER_PET_AURA_FRENZY_TRIGGER			= 20784,
+	SPELL_HUNTER_INSTANT_SERPENT_STING				= 83077,
+	SPELL_HUNTER_IMPROVED_SERPENT_STING_R1			= 19464,
+	SPELL_HUNTER_IMPROVED_SERPENT_STING_R2			= 82834,
+
+    
+};
+
+enum HunterSpellIcons
+{
+	HUNTER_ICON_ID_IMPROVED_SERPENT_STING			= 536,
 };
 
 // 13161 - Aspect of the Beast
@@ -159,73 +175,21 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_SERPENT) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_VIPER) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_SCORPID))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_HEALING))
                     return false;
                 return true;
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    uint32 spellId = 0;
-                    int32 basePoint = 0;
-                    Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator i = Auras.begin(); i != Auras.end(); ++i)
-                    {
-                        Aura* aura = i->second->GetBase();
-                        if (aura->GetCasterGUID() != caster->GetGUID())
-                            continue;
+				Unit* target = GetHitUnit();
+				if (!target)
+                 return;
+				//Refreshing Serpent Sting Aura if present
+				if (Aura* serpentSting = target->GetAura(1978, GetCaster()->GetGUID()))
+                serpentSting->RefreshDuration();
 
-                        // Search only Serpent Sting, Viper Sting, Scorpid Sting auras
-                        flag96 familyFlag = aura->GetSpellInfo()->SpellFamilyFlags;
-                        if (!(familyFlag[1] & 0x00000080 || familyFlag[0] & 0x0000C000))
-                            continue;
-                        if (AuraEffect const* aurEff = aura->GetEffect(0))
-                        {
-                            // Serpent Sting - Instantly deals 40% of the damage done by your Serpent Sting.
-                            if (familyFlag[0] & 0x4000)
-                            {
-                                int32 TickCount = aurEff->GetTotalTicks();
-                                spellId = SPELL_HUNTER_CHIMERA_SHOT_SERPENT;
-                                basePoint = caster->SpellDamageBonusDone(unitTarget, aura->GetSpellInfo(), aurEff->GetAmount(), DOT, aura->GetStackAmount());
-                                ApplyPct(basePoint, TickCount * 40);
-                                basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
-                            }
-                            // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
-                            else if (familyFlag[1] & 0x00000080)
-                            {
-                                int32 TickCount = aura->GetEffect(0)->GetTotalTicks();
-                                spellId = SPELL_HUNTER_CHIMERA_SHOT_VIPER;
-
-                                // Amount of one aura tick
-                                basePoint = int32(CalculatePct(unitTarget->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
-                                int32 casterBasePoint = aurEff->GetAmount() * unitTarget->GetMaxPower(POWER_MANA) / 50; /// @todo WTF? caster uses unitTarget?
-                                if (basePoint > casterBasePoint)
-                                    basePoint = casterBasePoint;
-                                ApplyPct(basePoint, TickCount * 60);
-                            }
-                            // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
-                            else if (familyFlag[0] & 0x00008000)
-                                spellId = SPELL_HUNTER_CHIMERA_SHOT_SCORPID;
-                            // ?? nothing say in spell desc (possibly need addition check)
-                            //if (familyFlag & 0x0000010000000000LL || // dot
-                            //    familyFlag & 0x0000100000000000LL)   // stun
-                            //{
-                            //    spellId = 53366; // 53366 Chimera Shot - Wyvern
-                            //}
-
-                            // Refresh aura duration
-                            aura->RefreshDuration();
-                        }
-                        break;
-                    }
-                    if (spellId)
-                        caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
-                    if (spellId == SPELL_HUNTER_CHIMERA_SHOT_SCORPID && caster->ToPlayer()) // Scorpid Sting - Add 1 minute cooldown
-                        caster->ToPlayer()->AddSpellCooldown(spellId, 0, uint32(time(NULL) + 60));
-                }
+				GetCaster()->CastSpell(GetCaster(),SPELL_HUNTER_CHIMERA_SHOT_HEALING,true);    
             }
 
             void Register() OVERRIDE
@@ -803,6 +767,53 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
         }
 };
 
+class spell_hun_improved_steady_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_improved_steady_shot() : SpellScriptLoader("spell_hun_improved_steady_shot") { }
+
+        class spell_hun_improved_steady_shot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_improved_steady_shot_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_STEADY_SHOT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 basepoint = aurEff->GetAmount();
+
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_HUNTER_STEADY_SHOT)
+                {
+                    aurEff->GetBase()->SetCharges(aurEff->GetBase()->GetCharges() + 1);
+
+                    if (aurEff->GetBase()->GetCharges() == 2)
+                    {
+                        GetTarget()->CastCustomSpell(GetTarget(), SPELL_HUNTER_IMPROVED_STEADY_SHOT, &basepoint, NULL, NULL, true, NULL, aurEff);
+                        aurEff->GetBase()->SetCharges(0);
+                    }
+                }
+                else
+                    aurEff->GetBase()->SetCharges(0);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_improved_steady_shot_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_hun_improved_steady_shot_AuraScript();
+        }
+};
+
 // 34497 - Thrill of the Hunt
 class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
 {
@@ -841,6 +852,271 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
         }
 };
 
+// -56333 - T.N.T.
+class spell_hun_tnt : public SpellScriptLoader
+{
+    public:
+        spell_hun_tnt() : SpellScriptLoader("spell_hun_tnt") { }
+
+        class spell_hun_tnt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_tnt_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_LOCK_AND_LOAD))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_LOCK_AND_LOAD, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_tnt_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_tnt_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_hun_tnt_AuraScript();
+        }
+};
+
+// 82692 Focus Fire
+class spell_hun_focus_fire : public SpellScriptLoader
+{
+public:
+    spell_hun_focus_fire() : SpellScriptLoader("spell_hun_focus_fire") { }
+
+    // SpellScript
+    class spell_hun_focus_fire_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_focus_fire_SpellScript)
+
+        bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_FOCUS_FIRE))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckFrenzyStack()
+        {
+            Unit * pet = GetCaster()->GetGuardianPet();
+            if (!pet)
+                return SPELL_FAILED_NO_PET;
+
+            if (pet->HasAura(SPELL_HUNTER_PET_SPELL_FRENZY))
+                return SPELL_CAST_OK;
+            else
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+        }
+
+        void RemoveFrenzyStacks()
+        {
+            if (Unit* pet = GetCaster()->GetGuardianPet())
+                pet->RemoveAura(SPELL_HUNTER_PET_SPELL_FRENZY);
+        }
+        
+        void Register() OVERRIDE
+        {
+            OnCheckCast += SpellCheckCastFn(spell_hun_focus_fire_SpellScript::CheckFrenzyStack);
+            AfterHit += SpellHitFn(spell_hun_focus_fire_SpellScript::RemoveFrenzyStacks);
+        }
+    };
+
+    SpellScript* GetSpellScript() const OVERRIDE
+    {
+        return new spell_hun_focus_fire_SpellScript();
+    }
+
+    // AuraScript
+    class spell_hun_focus_fire_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_focus_fire_AuraScript);
+
+        uint32 GetFrenzyStackCount()
+        {
+            if (Unit* pet = GetUnitOwner()->GetGuardianPet())
+            {
+                if (pet->HasAura(SPELL_HUNTER_PET_SPELL_FRENZY))
+                    return pet->GetAuraCount(SPELL_HUNTER_PET_SPELL_FRENZY);
+                else
+                    return 0;
+            }
+            return 0;
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            if (Unit* caster = GetUnitOwner())
+                amount = GetSpellInfo()->Effects[0].BasePoints * GetFrenzyStackCount();
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+			PreventDefaultAction();
+            if (Unit* caster = GetUnitOwner())
+            {
+                if (Unit* pet = caster->GetGuardianPet())
+                {
+                    int32 basepoint0 = GetAura()->GetEffect(1)->GetAmount() * GetFrenzyStackCount();
+                    caster->CastCustomSpell(pet, SPELL_HUNTER_PET_SPELL_FOCUS_FIRE_REGEN, &basepoint0, NULL, NULL, true);
+                }
+            }
+        }
+
+        void Register() OVERRIDE
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_focus_fire_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RANGED_HASTE);
+            OnEffectApply += AuraEffectApplyFn(spell_hun_focus_fire_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new spell_hun_focus_fire_AuraScript();
+    }
+};
+
+// 19615 Frenzy Effect
+class spell_hun_frenzy_effect : public SpellScriptLoader
+{
+public:
+    spell_hun_frenzy_effect() : SpellScriptLoader("spell_hun_frenzy_effect") { }
+
+    class spell_hun_frenzy_effect_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_frenzy_effect_AuraScript)
+
+		bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_SPELL_FRENZY))
+                return false;
+            return true;
+        }
+
+        int32 GetHasteValue()
+        {
+            if (Unit* pet = GetUnitOwner())
+            {
+                if (pet->HasAura(SPELL_HUNTER_PET_AURA_FRENZY_TRIGGER))
+                {
+                    if (Aura* frenzyAura = pet->GetAura(SPELL_HUNTER_PET_AURA_FRENZY_TRIGGER))
+                        return frenzyAura->GetEffect(0)->GetAmount();
+                }
+                else
+                    return 0;
+            }
+            return 0;
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            if (Unit* pet = GetUnitOwner())
+            {
+                Unit* petOwner = pet->GetOwner();
+
+
+                if (!petOwner)
+                    return;
+				
+                amount = GetHasteValue();
+            }
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+			PreventDefaultAction();
+            // Apply UI Visual when at 5 stack
+            if (Unit* petOwner = GetUnitOwner()->GetOwner())
+            {
+                if (GetStackAmount() >= GetSpellInfo()->StackAmount)
+                    petOwner->AddAura(SPELL_HUNTER_VISUAL_FOCUS_FIRE, petOwner);
+            }
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+			PreventDefaultAction();
+            if (Unit* pet = GetUnitOwner())
+            {
+                if (Unit * petOwner = pet->GetOwner())
+                    petOwner->RemoveAura(SPELL_HUNTER_VISUAL_FOCUS_FIRE);
+            }
+        }                
+
+        void Register() OVERRIDE
+        {
+             AfterEffectApply += AuraEffectApplyFn(spell_hun_frenzy_effect_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+             AfterEffectRemove += AuraEffectApplyFn(spell_hun_frenzy_effect_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL);
+             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_frenzy_effect_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new spell_hun_frenzy_effect_AuraScript();
+    }      
+};
+
+// 1978 - Serpent Sting
+class spell_hun_improved_serpent_sting : public SpellScriptLoader
+{
+    public:
+        spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
+
+        class spell_hun_improved_serpent_sting_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
+
+			bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_SERPENT_STING_R1)||!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_SERPENT_STING_R2))
+                    return false;
+                return true;
+            }                
+
+			void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+	        {
+            Unit* caster = GetCaster();
+            
+            if (!caster)
+                return;
+            
+				if (Unit* target = GetTarget())
+                {
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, HUNTER_ICON_ID_IMPROVED_SERPENT_STING, EFFECT_0))
+                    {
+                    int32 basepoints0 = aurEff->GetAmount() * GetAura()->GetEffect(EFFECT_0)->GetTotalTicks() * caster->SpellDamageBonusDone(target, GetSpellInfo(), GetAura()->GetEffect(0)->GetAmount(), DOT) / 100;
+                    caster->CastCustomSpell(target, SPELL_HUNTER_INSTANT_SERPENT_STING, &basepoints0, NULL, NULL, true, NULL, GetAura()->GetEffect(0));
+                    }
+			    }
+			}
+
+            void Register() OVERRIDE
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_improved_serpent_sting_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+		AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_hun_improved_serpent_sting_AuraScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -860,4 +1136,9 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
+	new spell_hun_focus_fire();
+    new spell_hun_frenzy_effect();
+    new spell_hun_tnt();
+	new spell_hun_improved_steady_shot();
+	new spell_hun_improved_serpent_sting();
 }
