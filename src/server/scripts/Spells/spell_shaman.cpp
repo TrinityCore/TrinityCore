@@ -48,6 +48,9 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 65264,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
+    SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
+    SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
+    SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
     SPELL_SHAMAN_SATED                          = 57724,
@@ -622,6 +625,114 @@ class spell_sha_heroism : public SpellScriptLoader
         }
 };
 
+// 23551 - Lightning Shield
+class spell_sha_item_lightning_shield : public SpellScriptLoader
+{
+    public:
+        spell_sha_item_lightning_shield() : SpellScriptLoader("spell_sha_item_lightning_shield") { }
+
+        class spell_sha_item_lightning_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_item_lightning_shield_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_item_lightning_shield_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_sha_item_lightning_shield_AuraScript();
+        }
+};
+
+// 23552 - Lightning Shield
+class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
+{
+    public:
+        spell_sha_item_lightning_shield_trigger() : SpellScriptLoader("spell_sha_item_lightning_shield_trigger") { }
+
+        class spell_sha_item_lightning_shield_trigger_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_item_lightning_shield_trigger_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_MANA_SURGE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 basePoints0 = int32(CalculatePct(eventInfo.GetDamageInfo()->GetSpellInfo()->ManaCost, 35));
+
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_ITEM_MANA_SURGE, &basePoints0, NULL, NULL, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_item_lightning_shield_trigger_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_sha_item_lightning_shield_trigger_AuraScript();
+        }
+};
+
+
+// 23572 - Mana Surge
+class spell_sha_item_mana_surge : public SpellScriptLoader
+{
+    public:
+        spell_sha_item_mana_surge() : SpellScriptLoader("spell_sha_item_mana_surge") { }
+
+        class spell_sha_item_mana_surge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_item_mana_surge_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_item_mana_surge_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_sha_item_mana_surge_AuraScript();
+        }
+};
+
 // 60103 - Lava Lash
 /// Updated 4.3.4
 class spell_sha_lava_lash : public SpellScriptLoader
@@ -981,6 +1092,9 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_focused_insight();
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();
+    new spell_sha_item_lightning_shield();
+    new spell_sha_item_lightning_shield_trigger();
+    new spell_sha_item_mana_surge();
     new spell_sha_lava_lash();
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
