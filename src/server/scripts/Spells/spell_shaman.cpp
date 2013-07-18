@@ -677,12 +677,10 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
                 return true;
             }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                int32 basePoints0 = int32(CalculatePct(eventInfo.GetDamageInfo()->GetSpellInfo()->ManaCost, 35));
-
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_ITEM_MANA_SURGE, &basePoints0, NULL, NULL, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
@@ -696,7 +694,6 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
             return new spell_sha_item_lightning_shield_trigger_AuraScript();
         }
 };
-
 
 // 23572 - Mana Surge
 class spell_sha_item_mana_surge : public SpellScriptLoader
@@ -718,7 +715,10 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, true, NULL, aurEff);
+                int32 mana = eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), SpellSchoolMask(eventInfo.GetDamageInfo()->GetSchoolMask()));
+                int32 basePoints0 = int32(CalculatePct(mana, 35));
+
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_ITEM_MANA_SURGE, &basePoints0, NULL, NULL, true);
             }
 
             void Register() OVERRIDE
