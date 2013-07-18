@@ -5398,35 +5398,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_MAGE:
         {
-            // Magic Absorption
-            if (dummySpell->SpellIconID == 459)             // only this spell has SpellIconID == 459 and dummy aura
-            {
-                if (getPowerType() != POWER_MANA)
-                    return false;
-
-                // mana reward
-                basepoints0 = CalculatePct(GetMaxPower(POWER_MANA), triggerAmount);
-                target = this;
-                triggered_spell_id = 29442;
-                break;
-            }
-            // Arcane Potency
-            if (dummySpell->SpellIconID == 2120)
-            {
-                if (!procSpell)
-                    return false;
-
-                target = this;
-                switch (dummySpell->Id)
-                {
-                    case 31571: triggered_spell_id = 57529; break;
-                    case 31572: triggered_spell_id = 57531; break;
-                    default:
-                        TC_LOG_ERROR(LOG_FILTER_UNITS, "Unit::HandleDummyAuraProc: non handled spell id: %u", dummySpell->Id);
-                        return false;
-                }
-                break;
-            }
             // Hot Streak & Improved Hot Streak
             if (dummySpell->SpellIconID == 2999)
             {
@@ -5921,17 +5892,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
             switch (dummySpell->SpellIconID)
             {
-                case 2909: // Cut to the Chase
-                {
-                    // "refresh your Slice and Dice duration to its 5 combo point maximum"
-                    // lookup Slice and Dice
-                    if (Aura* aur = GetAura(5171))
-                    {
-                        aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
-                        return true;
-                    }
-                    return false;
-                }
                 case 2963: // Deadly Brew
                 {
                     triggered_spell_id = 3409;

@@ -33,6 +33,7 @@ enum RogueSpells
     SPELL_ROGUE_GLYPH_OF_PREPARATION             = 56819,
     SPELL_ROGUE_PREY_ON_THE_WEAK                 = 58670,
     SPELL_ROGUE_SHIV_TRIGGERED                   = 5940,
+    SPELL_ROGUE_SILCE_AND_DICE                   = 5171,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST    = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC         = 59628,
 };
@@ -157,6 +158,35 @@ class spell_rog_cheat_death : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_rog_cheat_death_AuraScript();
+        }
+};
+
+// -51664 - Cut to the Chase
+class spell_rog_cut_to_the_chase : public SpellScriptLoader
+{
+    public:
+        spell_rog_cut_to_the_chase () : SpellScriptLoader("spell_rog_cut_to_the_chase") { }
+
+        class spell_rog_cut_to_the_chase_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_cut_to_the_chase_AuraScript);
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                if (Aura* aur = GetTarget()->GetAura(SPELL_ROGUE_SILCE_AND_DICE))
+                    aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_cut_to_the_chase_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_rog_cut_to_the_chase_AuraScript();
         }
 };
 
@@ -650,6 +680,7 @@ void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
+    new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
     new spell_rog_nerves_of_steel();
     new spell_rog_preparation();
