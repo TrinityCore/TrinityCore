@@ -22,4 +22,4 @@ update `creature_template` set `ScriptName` = 'npc_raging_gnoul' where `entry` =
 update `creature_template` set `ScriptName` = 'npc_risen_witch_doctor' where `entry` = 36941;
 
 -- Abnon scriptai
-update `creature_template` set `ScriptName` = 'npc_abon' where `entry` = 37069;
+update `creature_template` set `ScriptName` = 'npc_lumbering_abomination' where `entry` = 37069;
