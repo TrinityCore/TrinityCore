@@ -457,7 +457,7 @@ public:
                             if (Creature* creature = instance->GetCreature(*itr))
                                 creature->DespawnOrUnsummon(1);
                         waveGuidList[i].clear();
-                    }                   
+                    }
                     break;
             }
         }
