@@ -16,17 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Icecrown
-SD%Complete: 100
-SDComment: Quest support: 12807
-SDCategory: Icecrown
-EndScriptData */
-
-/* ContentData
-npc_arete
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -966,42 +955,41 @@ class npc_frostbrood_skytalon : public CreatureScript
         }
 };
 
-/*
-Quest: The Flesh Giant Champion
-*/
+/*######
+## The Flesh Giant Champion - Id: 13235
+######*/
 enum FleshGiant
 {
-	QUEST_FLESH_GIANT_CHAMPION = 13235,
-	NPC_MORBIDUS = 30698,
-	NPC_LICH_KING = 31301,
+    QUEST_FLESH_GIANT_CHAMPION = 13235,
 
-	// Factions
-	FACTION_HOSTILE = 14,
-	FACTION_BASIC = 2102,
-	// Events
-	EVENT_INTRO = 1,
-	EVENT_LK_SAY_1 = 2,
-	EVENT_LK_SAY_2 = 3,
-	EVENT_LK_SAY_3 = 4,
-	EVENT_LK_SAY_4 = 5,
-	EVENT_LK_SAY_5 = 6,
+    NPC_MORBIDUS = 30698,
+    NPC_LICH_KING = 31301,
+    NPC_OLAKIN = 31428,
+    NPC_DHAKAR = 31306,
 
-	EVENT_OUTRO = 7,
-	EVENT_START = 8,
+    FACTION_HOSTILE = 14,
+    FACTION_BASIC = 2102,
 
-	SPELL_SIMPLE_TELEPORT = 64195, // Visual stuff
+    EVENT_INTRO = 1,
+    EVENT_LK_SAY_1 = 2,
+    EVENT_LK_SAY_2 = 3,
+    EVENT_LK_SAY_3 = 4,
+    EVENT_LK_SAY_4 = 5,
+    EVENT_LK_SAY_5 = 6,
+    EVENT_OUTRO = 7,
+    EVENT_START = 8,
 
-	// Dhakar
-	SAY_START = 1,
-	// Lich King
-	SAY_THING_1 = 1,
-	SAY_THING_2 = 2,
-	SAY_THING_3 = 3,
-	SAY_THING_4 = 4,
-	SAY_THING_5 = 5,
-	// Olakin
-	SAY_PAY = 1
+    SPELL_SIMPLE_TELEPORT = 64195,
+
+    SAY_DHAKAR_START = 0,
+    SAY_LK_1 = 0,
+    SAY_LK_2 = 1,
+    SAY_LK_3 = 2,
+    SAY_LK_4 = 3,
+    SAY_LK_5 = 4,
+    SAY_OLAKIN_PAY = 0
 };
+
 class npc_margrave_dhakar : public CreatureScript
 {
     public:
@@ -1009,133 +997,120 @@ class npc_margrave_dhakar : public CreatureScript
 
         struct npc_margrave_dhakarAI : public ScriptedAI
         {
-            npc_margrave_dhakarAI(Creature* creature) : ScriptedAI(creature) , summons(me)
-			{
-				Reset();
-			}
-			
-			uint64 LKGuid;
-			SummonList summons;
-			void Reset()
-			{
-				me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-				me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-				events.Reset();
-				summons.DespawnAll();
-			}
-			void sGossipSelect(Player* player, uint32 sender, uint32 action)
-			{
-				if (player->GetQuestStatus(QUEST_FLESH_GIANT_CHAMPION) == QUEST_STATUS_INCOMPLETE && !player->isInCombat())
-				{
-					if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
-					{
-						events.ScheduleEvent(EVENT_INTRO, 1000);
-						me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-					}
-				}
-			}
-			void UpdateAI(uint32 diff)
-			{
-				events.Update(diff);
+            npc_margrave_dhakarAI(Creature* creature) : ScriptedAI(creature) , _summons(me), _lichKing(NULL) { }
 
-                while (uint32 eventId = events.ExecuteEvent())
+            void Reset() OVERRIDE
+            {
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+
+                _events.Reset();
+                _summons.DespawnAll();
+            }
+
+            void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
+            {
+                if (player->GetQuestStatus(QUEST_FLESH_GIANT_CHAMPION) == QUEST_STATUS_INCOMPLETE && !player->IsInCombat())
+                {
+                    if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
+                    {
+                        _events.ScheduleEvent(EVENT_INTRO, 1000);
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
-					case EVENT_INTRO:
-						Talk(SAY_START);
-						me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
-						if (Creature *morbidus = me->FindNearestCreature(NPC_MORBIDUS, 50.0f, true))
-						{
-							Creature *LK = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX()+10, morbidus->GetPositionY(), morbidus->GetPositionZ());
-							LKGuid = LK->GetGUID();
-							LK->SetFacingTo(morbidus->GetOrientation());
-							LK->CastSpell(LK, SPELL_SIMPLE_TELEPORT, true);
-						}
-						events.ScheduleEvent(EVENT_LK_SAY_1, 5000);
-						events.CancelEvent(EVENT_INTRO);
-						break;
-					case EVENT_LK_SAY_1:
-						if (Creature *LK = Unit::GetCreature(*me, LKGuid))
-						{
-							LK->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_POINT);
-							LK->AI()->Talk(SAY_THING_1);
-						}
-						events.ScheduleEvent(EVENT_LK_SAY_2, 5000);
-						events.CancelEvent(EVENT_LK_SAY_1);
-						break;
-					case EVENT_LK_SAY_2:
-						if (Creature *LK = Unit::GetCreature(*me, LKGuid))
-						{
-							LK->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SHOUT);
-							LK->AI()->Talk(SAY_THING_2);
-						}
-						events.ScheduleEvent(EVENT_LK_SAY_3, 5000);
-						events.CancelEvent(EVENT_LK_SAY_2);
-						break;
+                        case EVENT_INTRO:
+                        {
+                            Talk(SAY_DHAKAR_START);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
 
-						case EVENT_LK_SAY_3:
-						if (Creature *LK = Unit::GetCreature(*me, LKGuid))
-						{
-							LK->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_POINT);
-							LK->AI()->Talk(SAY_THING_3);
-						}
-						events.ScheduleEvent(EVENT_LK_SAY_4, 5000);
-						events.CancelEvent(EVENT_LK_SAY_3);
-						break;
+                            if (Creature* morbidus = me->FindNearestCreature(NPC_MORBIDUS, 50.0f, true))
+                            {
+                                _lichKing = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX()+10, morbidus->GetPositionY(), morbidus->GetPositionZ());
+                                _lichKing->SetFacingTo(morbidus->GetOrientation());
+                                _lichKing->CastSpell(_lichKing, SPELL_SIMPLE_TELEPORT, true);
+                            }
 
-						case EVENT_LK_SAY_4:
-						if (Creature *LK = Unit::GetCreature(*me, LKGuid))
-						{
-							LK->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SHOUT);
-							LK->AI()->Talk(SAY_THING_4);
-						}
-						events.ScheduleEvent(EVENT_OUTRO, 12000);
-						events.CancelEvent(EVENT_LK_SAY_4);
-						break;
+                            _events.ScheduleEvent(EVENT_LK_SAY_1, 5000);
+                            break;
+                        }
+                        case EVENT_LK_SAY_1:
+                        {
+                            _lichKing->AI()->Talk(SAY_LK_1);
+                            _events.ScheduleEvent(EVENT_LK_SAY_2, 5000);
+                            break;
+                        }
+                        case EVENT_LK_SAY_2:
+                        {
+                            _lichKing->AI()->Talk(SAY_LK_2);
+                            _events.ScheduleEvent(EVENT_LK_SAY_3, 5000);
+                            break;
+                        }
+                        case EVENT_LK_SAY_3:
+                        {
+                            _lichKing->AI()->Talk(SAY_LK_3);
+                            _events.ScheduleEvent(EVENT_LK_SAY_4, 5000);
+                            break;
+                        }
+                        case EVENT_LK_SAY_4:
+                        {
+                            _lichKing->AI()->Talk(SAY_LK_4);
+                            _events.ScheduleEvent(EVENT_OUTRO, 12000);
+                            break;
+                        }
+                        case EVENT_LK_SAY_5:
+                        {
+                            _lichKing->AI()->Talk(SAY_LK_5);
+                            _events.ScheduleEvent(EVENT_OUTRO, 8000);
+                            break;
+                        }
+                        case EVENT_OUTRO:
+                        {
+                            if (Creature* olakin = me->FindNearestCreature(NPC_OLAKIN, 50.0f, true))
+                                olakin->AI()->Talk(SAY_OLAKIN_PAY);
 
-						case EVENT_LK_SAY_5:
-						if (Creature *LK = Unit::GetCreature(*me, LKGuid))
-						{
-							LK->AI()->Talk(SAY_THING_5);
-							LK->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_POINT);
-						}
-						events.ScheduleEvent(EVENT_OUTRO, 8000);
-						events.CancelEvent(EVENT_LK_SAY_5);
-						break;
-						case EVENT_OUTRO:
-						if (Creature *olakin = me->FindNearestCreature(31428, 50.0f, true))
-						{
-							olakin->AI()->Talk(SAY_PAY);
-						}
-						if (Creature *LK = Unit::GetCreature(*me, LKGuid))
-							LK->DespawnOrUnsummon(0);
-						events.ScheduleEvent(EVENT_START, 5000);
-						events.CancelEvent(EVENT_OUTRO);
-						break;
+                            _lichKing->DespawnOrUnsummon(0);
 
-						case EVENT_START:
-						if (Creature *morbidus = me->FindNearestCreature(NPC_MORBIDUS, 50.0f, true))
-						{
-							morbidus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_DISABLE_MOVE);
-							morbidus->setFaction(FACTION_HOSTILE);
-						}
-						events.CancelEvent(EVENT_START);
-						break;
-					}
-				}
-				DoMeleeAttackIfReady();
-			}
+                            _events.ScheduleEvent(EVENT_START, 5000);
+                            break;
+                        }
+                        case EVENT_START:
+                        {
+                            if (Creature* morbidus = me->FindNearestCreature(NPC_MORBIDUS, 50.0f, true))
+                            {
+                                morbidus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_DISABLE_MOVE);
+                                morbidus->setFaction(FACTION_HOSTILE);
+                            }
 
-			private:
-            EventMap events;
-		};
-		
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_margrave_dhakarAI(creature);
-        }
+                            break;
+                        }
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            EventMap _events;
+            Creature* _lichKing;
+            SummonList _summons;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_margrave_dhakarAI(creature);
+    }
 };
+
 class npc_morbidus : public CreatureScript
 {
     public:
@@ -1145,22 +1120,19 @@ class npc_morbidus : public CreatureScript
         {
             npc_morbidusAI(Creature* creature) : ScriptedAI(creature) { }
 
-			void Reset()
-			{
-				if (Creature * dhakar = me->FindNearestCreature(31306, 50.0f, true))
-					dhakar->AI()->Reset();
-				// this will prevent the event to start without morbidus being alive
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				me->SetReactState(REACT_PASSIVE);
-				me->setFaction(FACTION_BASIC);
-			}
-			void UpdateAI(uint32 diff)
-			{
-				DoMeleeAttackIfReady();
-			}
+            void Reset() OVERRIDE
+            {
+                if (Creature* dhakar = me->FindNearestCreature(NPC_DHAKAR, 50.0f, true))
+                    dhakar->AI()->Reset();
 
-		};
-        CreatureAI* GetAI(Creature* creature) const
+                // this will prevent the event to start without morbidus being alive
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_PASSIVE);
+                me->setFaction(FACTION_BASIC);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_morbidusAI(creature);
         }
@@ -1176,7 +1148,6 @@ void AddSC_icecrown()
     new npc_tournament_training_dummy;
     new npc_blessed_banner();
     new npc_frostbrood_skytalon();
-	new npc_margrave_dhakar();
-	new npc_morbidus();
-
+    new npc_margrave_dhakar();
+    new npc_morbidus();
 }
