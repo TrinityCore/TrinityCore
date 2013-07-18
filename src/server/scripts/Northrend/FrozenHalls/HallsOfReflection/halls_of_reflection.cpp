@@ -1985,7 +1985,7 @@ public:
                        _doEmerge = true;
                        _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
 
-                       if (Creature* leader = Unit::GetUnit(*me, _leaderGUID)->ToCreature())
+                       if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
                        {
                            DoResetThreat();
                            me->GetMotionMaster()->Clear();
@@ -2082,7 +2082,7 @@ public:
                {
                    _doWalk = true;
                    _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
-                   if (Creature* leader = Unit::GetUnit(*me, _leaderGUID)->ToCreature())
+                   if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
                    {
                        DoResetThreat();
                        me->GetMotionMaster()->Clear();
