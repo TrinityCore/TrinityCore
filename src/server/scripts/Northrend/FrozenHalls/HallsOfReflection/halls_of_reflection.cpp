@@ -1648,16 +1648,16 @@ public:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHIELD_THROWN);
                         _events.ScheduleEvent(EVENT_SHIELD, urand(8000, 12000));
-                    break;
+                        break;
                     case EVENT_SPIKE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_SPIKE);
-                    _events.ScheduleEvent(EVENT_SPIKE, urand(15000, 20000));
-                    break;
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SPIKE);
+                        _events.ScheduleEvent(EVENT_SPIKE, urand(15000, 20000));
+                        break;
                     case EVENT_CLONE:
                         SummonClones();
                         _events.ScheduleEvent(EVENT_CLONE, 60000);
-                    break;
+                        break;
                 }
             }
             DoMeleeAttackIfReady();
@@ -1825,7 +1825,7 @@ public:
 
    struct npc_raging_gnoulAI : public ScriptedAI
    {
-       npc_raging_gnoulAI(Creature *creature) : ScriptedAI(creature)
+       npc_raging_gnoulAI(Creature* creature) : ScriptedAI(creature)
        {
            _instance = me->GetInstanceScript();
            me->setActive(true);
@@ -1924,7 +1924,7 @@ public:
 
    struct npc_risen_witch_doctorAI : public ScriptedAI
    {
-       npc_risen_witch_doctorAI(Creature *creature) : ScriptedAI(creature)
+       npc_risen_witch_doctorAI(Creature* creature) : ScriptedAI(creature)
        {
            _instance = me->GetInstanceScript();
            me->setActive(true);
@@ -2045,7 +2045,7 @@ public:
 
    struct npc_lumbering_abominationAI : public ScriptedAI
    {
-       npc_lumbering_abominationAI(Creature *creature) : ScriptedAI(creature)
+       npc_lumbering_abominationAI(Creature* creature) : ScriptedAI(creature)
        {
            _instance = me->GetInstanceScript();
            if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)

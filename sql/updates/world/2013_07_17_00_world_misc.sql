@@ -21,11 +21,3 @@ update `creature_template` SET `ScriptName` = 'npc_risen_witch_doctor' WHERE `en
 -- LumberINg Abomination scriptai
 update `creature_template` SET `ScriptName` = 'npc_lumbering_abomination' WHERE `entry` = 37069;
 
--- Spells Witch Doctor / Abomination
-DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (70144,70145,70080, 70176);
-INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES 
-(70144,70144,70183),-- Spell Curse of Doom Witch Doctor
-(70145,70145,70184),-- Spell Shadow Bolt Volley Witch Doctor
-(70080,70080,70182),-- Spell Shadow Bolt Witch Doctor
-(70176,70176,70181);-- Spell Vomit Spray Abomination
-
