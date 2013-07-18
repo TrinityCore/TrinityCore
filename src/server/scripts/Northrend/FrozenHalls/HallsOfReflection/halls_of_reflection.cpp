@@ -638,9 +638,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     break;
                 case EVENT_INTRO_LK_9:
                     if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FALRIC_EVENT)))
-                    {
                         falric->AI()->Talk(SAY_FALRIC_INTRO_2);
-                    }
                     _instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
                     _events.ScheduleEvent(EVENT_INTRO_LK_10, 4000);
                     break;
@@ -1516,7 +1514,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_spectral_footmanAI(creature);
     }
@@ -2147,7 +2145,7 @@ public:
 
    };
 
-   CreatureAI* GetAI(Creature* creature) const
+   CreatureAI* GetAI(Creature* creature) const OVERRIDE
    {
        return new npc_lumbering_abominationAI(creature);
    }
