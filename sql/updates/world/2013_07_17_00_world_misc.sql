@@ -21,5 +21,17 @@ update `creature_template` set `ScriptName` = 'npc_raging_gnoul' where `entry` =
 -- Risen Witch Doctor scriptai
 update `creature_template` set `ScriptName` = 'npc_risen_witch_doctor' where `entry` = 36941;
 
--- Abnon scriptai
+-- Lumbering Abomination scriptai
 update `creature_template` set `ScriptName` = 'npc_lumbering_abomination' where `entry` = 37069;
+
+-- Spell Curse of Doom Witch Doctor
+delete from `spelldifficulty_dbc` where `id` in (70144,70144);
+insert into `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) values (70144,70144,70183);
+
+-- Spell Shadow Bolt Volley Witch Doctor
+delete from `spelldifficulty_dbc` where `id` in (70145,70145);
+insert into `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) values (70145,70145,70184);
+
+-- Spell Shadow Bolt Witch Doctor
+delete from `spelldifficulty_dbc` where `id` in (70080,70080);
+insert into `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) values (70080,70080,70182);
