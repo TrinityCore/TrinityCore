@@ -1854,9 +1854,8 @@ public:
 
        void JustDied(Unit* /*killer*/) OVERRIDE
        {
-            if (!_instance)
-                return;
-            _instance->SetData(DATA_SUMMONS, 0);
+            if (_instance)
+                instance->SetData(DATA_SUMMONS, 0);
        }
 
        void AttackStart(Unit* who) OVERRIDE
@@ -1871,7 +1870,7 @@ public:
        void UpdateAI(uint32 diff) OVERRIDE
        {
            if (!_instance)
-                  return;
+               return;
 
            if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
            {
@@ -1956,9 +1955,8 @@ public:
 
        void JustDied(Unit* /*killer*/) OVERRIDE
        {
-           if (!_instance)
-               return;
-           _instance->SetData(DATA_SUMMONS, 0);
+           if (_instance)               
+               _instance->SetData(DATA_SUMMONS, 0);
 
        }
 
@@ -2115,9 +2113,8 @@ public:
 
        void JustDied(Unit* /*killer*/) OVERRIDE
        {
-           if (!_instance)
-               return;
-           _instance->SetData(DATA_SUMMONS, 0);
+           if (_instance)              
+               _instance->SetData(DATA_SUMMONS, 0);
        }
 
    };
