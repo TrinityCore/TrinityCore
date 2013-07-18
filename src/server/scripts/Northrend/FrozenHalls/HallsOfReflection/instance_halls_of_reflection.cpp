@@ -28,7 +28,6 @@ Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 
 Position const JainaSpawnPos2               = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Jaina Spawn Position 2
 Position const SylvanasSpawnPos2            = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Sylvanas Spawn Position 2
 
-
 Position const SpawnPos[] =
 {
     {5309.577f, 2042.668f, 707.7781f, 4.694936f},
@@ -229,7 +228,7 @@ public:
             return true;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             switch (type)
             {
@@ -255,12 +254,9 @@ public:
                     {
                         HandleGameObject(_arthasDoorGUID, true);
                         if (_teamInInstance == ALLIANCE)
-                        {
                             instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
-                        }
-                        else{
-                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
-                        }                                 
+                        else
+                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);                                 
                     }
                     _frostwornGeneral = data;
                     
@@ -271,19 +267,17 @@ public:
                         if (!_escapeevent)
                         {
                             if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
-                                if (jaina_or_sylvanas->AI())
                                     jaina_or_sylvanas->AI()->DoAction(ACTION_START_ESCAPING);
                         }
                     } else if (data == NOT_STARTED)
                     {
                         if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                             jaina_or_sylvanas->DespawnOrUnsummon(1);
-                        if (_teamInInstance == ALLIANCE)                        
+                        if (_teamInInstance == ALLIANCE)
                             instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
                         else
-                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);                        
+                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
                         SetData(DATA_ESCAPE_EVENT,IN_PROGRESS);
-
                     }
                      _escapeevent = data;
                     break;
@@ -294,10 +288,10 @@ public:
                         if (_mobsaticewall == 0)
                         {
                             if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
-                                if (jaina_or_sylvanas->AI())
-                                    jaina_or_sylvanas->AI()->DoAction(ACTION_WALL_BROKEN);
+                                jaina_or_sylvanas->AI()->DoAction(ACTION_WALL_BROKEN);
                         }
-                    } else if (data == 1)
+                    } 
+                    else if (data == 1)
                         _mobsaticewall++;
                     break;
             }
@@ -329,7 +323,6 @@ public:
                         if (!npc || !npc->IsAlive())
                             ++deadNpcs;
                     }
-
                     // because the current npc returns IsAlive when OnUnitDeath happens
                     // we check if the number of dead npcs is equal to the list-1
                     if (deadNpcs == waveGuidList[waveId].size() - 1)
@@ -419,7 +412,7 @@ public:
                             {
                                 temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, true);
                                 temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
-                                temp->AI()->DoZoneInCombat(temp,100.00f);
+                                temp->AI()->DoZoneInCombat(temp, 100.00f);
                             }
                         }
                     }
@@ -429,8 +422,7 @@ public:
                         if (GetBossState(DATA_FALRIC_EVENT + bossIndex) != DONE)
                         {
                             if (Creature* boss = instance->GetCreature(bossIndex ? _marwynGUID : _falricGUID))
-                                if (boss->AI())
-                                    boss->AI()->DoAction(ACTION_ENTER_COMBAT);
+                                boss->AI()->DoAction(ACTION_ENTER_COMBAT);
                         }
                         else if (_waveCount != 10)
                         {
@@ -457,12 +449,12 @@ public:
                             if (Creature* creature = instance->GetCreature(*itr))
                                 creature->DespawnOrUnsummon(1);
                         waveGuidList[i].clear();
-                    }                   
+                    }
                     break;
             }
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -485,7 +477,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type) const
+        uint64 GetData64(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -499,7 +491,7 @@ public:
                     return _frostwornDoorGUID;
                 case DATA_FROSTMOURNE:
                     return _frostmourneGUID;
-                case DATA_ESCAPE_LIDER:
+                case DATA_ESCAPE_LEADER:
                     return _jainaOrSylvanasPart2GUID;    
                 case DATA_CAVE_IN:
                     return _caveGUID;     
@@ -600,7 +592,7 @@ public:
         std::set<uint64> waveGuidList[8];
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_halls_of_reflection_InstanceMapScript(map);
     }

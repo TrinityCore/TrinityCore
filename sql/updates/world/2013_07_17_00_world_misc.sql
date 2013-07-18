@@ -1,25 +1,23 @@
 -- areatrigger for the shadow throne
-delete from `areatrigger_scripts` where `entry` = 5605
-insert into `areatrigger_scripts` (`entry`,`scriptname`) values (5605,'at_shadow_throne');
+DELETE FROM `areatrigger_scripts` WHERE `entry` = 5605;
+INSERT INTO `areatrigger_scripts` (`entry`,`scriptname`) VALUES (5605,'at_shadow_throne');
 
 -- jaina's equipment
-delete from `creature_equip_template` where `entry` = 36955 and `id` = 1
-insert into `creature_equip_template` (`entry`, `id`, `itementry1`, `itementry2`,`itementry3`) values (36955,1,2177,12869,0);
+DELETE FROM `creature_equip_template` WHERE `entry` = 36955 AND `id` = 1;
+INSERT INTO `creature_equip_template` (`entry`, `id`, `itementry1`, `itementry2`,`itementry3`) VALUES (36955,1,2177,12869,0);
 
--- jaina's gossip menu (the same one from sylvanas)
-update `creature_template` set `gossip_menu_id` = 10909 where `entry` = 36955;
+-- jaina's gossip menu (the same one FROM sylvanas)
+UPDATE `creature_template` SET `gossip_menu_id` = 10909 WHERE `entry` = 36955;
 
 -- jaina's scriptai part 2
-update `creature_template` set `ScriptName` = 'npc_jaina_or_sylvanas_escape_hor' where `entry` = 36955;
-
--- Sylvanas scriptai part 2
-update `creature_template` set `ScriptName` = 'npc_jaina_or_sylvanas_escape_hor' where `entry` = 37554;
+UPDATE `creature_template` SET `ScriptName` = 'npc_jaina_or_sylvanas_escape_hor' WHERE `entry` in (36955,37554);
 
 -- Raging Gnoul scriptai
-update `creature_template` set `ScriptName` = 'npc_raging_gnoul' where `entry` = 36940;
+UPDATE `creature_template` SET `ScriptName` = 'npc_raging_gnoul' WHERE `entry` = 36940;
 
 -- Risen Witch Doctor scriptai
-update `creature_template` set `ScriptName` = 'npc_risen_witch_doctor' where `entry` = 36941;
+UPDATE `creature_template` SET `ScriptName` = 'npc_risen_witch_doctor' WHERE `entry` = 36941;
 
--- Abnon scriptai
-update `creature_template` set `ScriptName` = 'npc_abon' where `entry` = 37069;
+-- LumberINg Abomination scriptai
+UPDATE `creature_template` SET `ScriptName` = 'npc_lumbering_abomination' WHERE `entry` = 37069;
+
