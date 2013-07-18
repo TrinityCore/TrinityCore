@@ -40,10 +40,10 @@ enum Data
     DATA_FROSTMOURNE                            = 7,
     DATA_FROSTWORN_DOOR                         = 8,
     DATA_ESCAPE_EVENT                           = 9,
-    DATA_ESCAPE_LIDER                           = 10,
+    DATA_ESCAPE_LEADER                          = 10,
     DATA_SUMMONS                                = 11,
     DATA_ICEWALL                                = 12,
-    DATA_CAVE_IN                                = 13,
+    DATA_CAVE_IN                                = 13
 };
 
 enum Creatures
@@ -75,7 +75,7 @@ enum Creatures
 
     NPC_RAGING_GNOUL                              = 36940,
     NPC_RISEN_WITCH_DOCTOR                        = 36941,
-    NPC_ABON                                      = 37069,
+    NPC_ABON                                      = 37069
 };
 
 enum GameObjects
@@ -112,7 +112,7 @@ enum Actions
 {
     ACTION_ENTER_COMBAT,
     ACTION_START_ESCAPING,
-    ACTION_WALL_BROKEN,
+    ACTION_WALL_BROKEN
 };
 
 enum TrashGeneralSpells
