@@ -58,6 +58,8 @@ enum PaladinSpells
 
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
 
+    SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
+
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
@@ -589,6 +591,41 @@ class spell_pal_hand_of_salvation : public SpellScriptLoader
         }
 };
 
+// 37705 - Greater Heal Refund
+class spell_pri_item_greater_heal_refund : public SpellScriptLoader
+{
+    public:
+        spell_pri_item_greater_heal_refund() : SpellScriptLoader("spell_pri_item_greater_heal_refund") { }
+
+        class spell_pri_item_greater_heal_refund_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_item_greater_heal_refund_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_ITEM_HEALING_TRANCE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_item_greater_heal_refund_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pri_item_greater_heal_refund_AuraScript();
+        }
+};
+
 // -20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScriptLoader
 {
@@ -971,6 +1008,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
+    new spell_pri_item_greater_heal_refund();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();

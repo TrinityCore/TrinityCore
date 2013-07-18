@@ -2466,6 +2466,86 @@ public:
     }
 };
 
+enum AegisOfPreservation
+{
+    SPELL_AEGIS_HEAL   = 23781
+};
+
+// 23780 - Blazing Speed
+class spell_item_aegis_of_preservation : public SpellScriptLoader
+{
+    public:
+        spell_item_aegis_of_preservation() : SpellScriptLoader("spell_item_aegis_of_preservation") { }
+
+        class spell_item_aegis_of_preservation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_aegis_of_preservation_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_AEGIS_HEAL))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_AEGIS_HEAL, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_aegis_of_preservation_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_item_aegis_of_preservation_AuraScript();
+        }
+};
+
+enum DesperateDefense
+{
+    SPELL_DESPERATE_RAGE    = 33898
+};
+
+// 33896 - Desperate Defense
+class spell_item_desperate_defense : public SpellScriptLoader
+{
+    public:
+        spell_item_desperate_defense() : SpellScriptLoader("spell_item_desperate_defense") { }
+
+        class spell_item_desperate_defense_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_desperate_defense_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DESPERATE_RAGE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_DESPERATE_RAGE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_desperate_defense_AuraScript::OnProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_item_desperate_defense_AuraScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2530,4 +2610,6 @@ void AddSC_item_spell_scripts()
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
+    new spell_item_aegis_of_preservation();
+    new spell_item_desperate_defense();
 }
