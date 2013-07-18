@@ -1876,14 +1876,13 @@ public:
            if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
            {
                _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
-               Creature* leader = Unit::GetUnit(*me, _leaderGUID)->ToCreature();
+               Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER));
 
                if (_doEmerge != true)
                {
                    if (_emergeTimer < diff)
                    {
-                       _doEmerge = true;
-                       _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
+                       _doEmerge = true;                       
                        if (leader)
                        {
                            DoResetThreat();
