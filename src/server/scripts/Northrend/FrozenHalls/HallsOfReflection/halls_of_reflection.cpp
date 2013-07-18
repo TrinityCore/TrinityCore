@@ -898,7 +898,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             lichking->AI()->DoCast(lichking, SPELL_REMORSELESS_WINTER, true);                            
-                            lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                            lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             lichking->GetMotionMaster()->Clear();
                             lichking->GetMotionMaster()->MoveChase(me);
                         }
@@ -982,11 +982,11 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             if (_icewall == 1)
-                                lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             else if (_icewall == 2)
-                                lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             else if (_icewall == 3)
-                                lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             lichking->GetMotionMaster()->Clear();
                             lichking->GetMotionMaster()->MoveChase(me);
                             lichking->SetReactState(REACT_PASSIVE);
@@ -1028,11 +1028,11 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             if (_icewall == 1)
-                                lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             else if (_icewall == 2)
-                                lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             else if (_icewall == 3)
-                                lichking->AI()->DoCast(SPELL_SUMMON_LUMBERING_ABOMINATION);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_LUMBERING_ABOMINATION);
                         }
                         if (_icewall == 3)
                             _events.ScheduleEvent(EVENT_ESCAPE_21, 8000); // last wall, really far
@@ -1050,20 +1050,20 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             if (_icewall == 1)
-                                lichking->AI()->DoCast(SPELL_SUMMON_LUMBERING_ABOMINATION);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_LUMBERING_ABOMINATION);
                             else if (_icewall == 2)
-                                lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             else if (_icewall == 3)
-                                lichking->AI()->DoCast(SPELL_SUMMON_RISE_WITCH_DOCTOR);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                         }
                         break;
                     case EVENT_ESCAPE_22:
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             if (_icewall == 2)
-                                lichking->AI()->DoCast(SPELL_SUMMON_LUMBERING_ABOMINATION);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_LUMBERING_ABOMINATION);
                             else if (_icewall == 3)
-                                lichking->AI()->DoCast(SPELL_SUMMON_LUMBERING_ABOMINATION);
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_LUMBERING_ABOMINATION);
                         }
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         {
