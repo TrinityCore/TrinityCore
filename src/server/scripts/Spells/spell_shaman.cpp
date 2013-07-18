@@ -49,6 +49,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 65264,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
+    SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TELLURIC_CURRENTS              = 82987,
@@ -770,6 +771,60 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
         }
 };
 
+// -30881 - Nature's Guardian
+class spell_sha_nature_guardian : public SpellScriptLoader
+{
+    public:
+        spell_sha_nature_guardian() : SpellScriptLoader("spell_sha_nature_guardian") { }
+
+        class spell_sha_nature_guardian_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_nature_guardian_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_NATURE_GUARDIAN))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                //! HACK due to currenct proc system implementation
+                if (Player* player = GetTarget()->ToPlayer())
+                    if (player->HasSpellCooldown(GetSpellInfo()->Id))
+                        return false;
+
+                return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 basePoints0 = GetTarget()->CountPctFromMaxHealth(aurEff->GetAmount());
+
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_NATURE_GUARDIAN, &basePoints0, NULL, NULL, true);
+
+                if (eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive())
+                    eventInfo.GetProcTarget()->getThreatManager().modifyThreatPercent(GetTarget(), -10);
+
+                if (Player* player = GetTarget()->ToPlayer())
+                    player->AddSpellCooldown(GetSpellInfo()->Id, 0, time(NULL) + aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_sha_nature_guardian_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_sha_nature_guardian_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_sha_nature_guardian_AuraScript();
+        }
+};
+
 // 88756 - Rolling Thunder
 class spell_sha_rolling_thunder : public SpellScriptLoader
 {
@@ -930,6 +985,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
     new spell_sha_mana_tide_totem();
+    new spell_sha_nature_guardian();
     new spell_sha_rolling_thunder();
     new spell_sha_telluric_currents();
     new spell_sha_thunderstorm();

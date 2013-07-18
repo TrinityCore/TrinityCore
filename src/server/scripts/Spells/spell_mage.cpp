@@ -29,6 +29,7 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
@@ -159,6 +160,41 @@ class spell_mage_blast_wave : public SpellScriptLoader
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_mage_blast_wave_SpellScript();
+        }
+};
+
+// -31641 - Blazing Speed
+class spell_mage_blazing_speed : public SpellScriptLoader
+{
+    public:
+        spell_mage_blazing_speed() : SpellScriptLoader("spell_mage_blazing_speed") { }
+
+        class spell_mage_blazing_speed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_blazing_speed_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_BLAZING_SPEED))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_blazing_speed_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_mage_blazing_speed_AuraScript();
         }
 };
 
@@ -1189,6 +1225,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
+    new spell_mage_blazing_speed();
     new spell_mage_blizzard();
     new spell_mage_burnout();
     new spell_mage_cold_snap();
