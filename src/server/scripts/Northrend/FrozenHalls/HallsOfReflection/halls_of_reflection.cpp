@@ -2150,7 +2150,7 @@ public:
 };
 void AddSC_halls_of_reflection()
 {
-	new at_hor_intro_start();
+    new at_hor_intro_start();
     new at_hor_waves_restarter();
     new at_shadow_throne();
     new npc_jaina_or_sylvanas_hor();
