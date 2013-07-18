@@ -28,7 +28,6 @@ Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 
 Position const JainaSpawnPos2               = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Jaina Spawn Position 2
 Position const SylvanasSpawnPos2            = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Sylvanas Spawn Position 2
 
-
 Position const SpawnPos[] =
 {
     {5309.577f, 2042.668f, 707.7781f, 4.694936f},

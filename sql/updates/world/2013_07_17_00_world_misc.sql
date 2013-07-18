@@ -10,10 +10,7 @@ INSERT INTO `creature_equip_template` (`entry`, `id`, `itementry1`, `itementry2`
 update `creature_template` SET `gossip_menu_id` = 10909 WHERE `entry` = 36955;
 
 -- jaina's scriptai part 2
-update `creature_template` SET `ScriptName` = 'npc_jaina_or_sylvanas_escape_hor' WHERE `entry` = 36955;
-
--- Sylvanas scriptai part 2
-update `creature_template` SET `ScriptName` = 'npc_jaina_or_sylvanas_escape_hor' WHERE `entry` = 37554;
+update `creature_template` SET `ScriptName` = 'npc_jaina_or_sylvanas_escape_hor' WHERE `entry` in (36955,37554);
 
 -- Raging Gnoul scriptai
 update `creature_template` SET `ScriptName` = 'npc_raging_gnoul' WHERE `entry` = 36940;
@@ -24,13 +21,11 @@ update `creature_template` SET `ScriptName` = 'npc_risen_witch_doctor' WHERE `en
 -- LumberINg Abomination scriptai
 update `creature_template` SET `ScriptName` = 'npc_lumbering_abomination' WHERE `entry` = 37069;
 
--- Spells Witch Doctor
-DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (70144,70145,70080);
+-- Spells Witch Doctor / Abomination
+DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (70144,70145,70080, 70176);
 INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES 
 (70144,70144,70183),-- Spell Curse of Doom Witch Doctor
 (70145,70145,70184),-- Spell Shadow Bolt Volley Witch Doctor
-(70080,70080,70182);-- Spell Shadow Bolt Witch Doctor
+(70080,70080,70182),-- Spell Shadow Bolt Witch Doctor
+(70176,70176,70181);-- Spell Vomit Spray Abomination
 
--- Spell Vomit Spray Abomination
-DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (70176,70176);
-INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES (70176,70176,70181);
