@@ -229,7 +229,7 @@ public:
             return true;
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data)
         {
             switch (type)
             {
@@ -254,7 +254,8 @@ public:
                     if (data == DONE)
                     {
                         HandleGameObject(_arthasDoorGUID, true);
-                        if (_teamInInstance == ALLIANCE){
+                        if (_teamInInstance == ALLIANCE)
+                        {
                             instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
                         }
                         else{
@@ -265,37 +266,39 @@ public:
                     
                     break;                
                 case DATA_ESCAPE_EVENT:
-                    if (data == IN_PROGRESS){
-                        if (!_escapeevent){
+                    if (data == IN_PROGRESS)
+                    {
+                        if (!_escapeevent)
+                        {
                             if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                                 if (jaina_or_sylvanas->AI())
                                     jaina_or_sylvanas->AI()->DoAction(ACTION_START_ESCAPING);
                         }
-                    } else if (data == NOT_STARTED){
+                    } else if (data == NOT_STARTED)
+                    {
                         if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                             jaina_or_sylvanas->DespawnOrUnsummon(1);
-                        if (_teamInInstance == ALLIANCE){
+                        if (_teamInInstance == ALLIANCE)                        
                             instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
-                        }
-                        else{
-                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
-                        }              
+                        else
+                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);                        
                         SetData(DATA_ESCAPE_EVENT,IN_PROGRESS);
 
                     }
                      _escapeevent = data;
                     break;
                 case DATA_SUMMONS:
-                    if (data == 0){
+                    if (data == 0)
+                    {
                         _mobsaticewall--;
-                        if (_mobsaticewall == 0){
+                        if (_mobsaticewall == 0)
+                        {
                             if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                                 if (jaina_or_sylvanas->AI())
                                     jaina_or_sylvanas->AI()->DoAction(ACTION_WALL_BROKEN);
                         }
-                    } else if (data == 1){
+                    } else if (data == 1)
                         _mobsaticewall++;
-                    }
                     break;
             }
 
@@ -459,7 +462,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const OVERRIDE
+        uint32 GetData(uint32 type) const
         {
             switch (type)
             {
@@ -482,7 +485,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type) const OVERRIDE
+        uint64 GetData64(uint32 type) const
         {
             switch (type)
             {
@@ -597,7 +600,7 @@ public:
         std::set<uint64> waveGuidList[8];
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_halls_of_reflection_InstanceMapScript(map);
     }
