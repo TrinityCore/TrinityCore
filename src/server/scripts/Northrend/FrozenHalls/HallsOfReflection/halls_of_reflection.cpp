@@ -899,7 +899,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             lichking->GetMotionMaster()->Clear();
                             lichking->GetMotionMaster()->MoveChase(me);
                         }
-                        if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL,IceWalls[0].GetPositionX(),IceWalls[0].GetPositionY(),IceWalls[0].GetPositionZ(),IceWalls[0].GetOrientation(),TEMPSUMMON_MANUAL_DESPAWN,720000))
+                        if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL,IceWalls[0].GetPositionX(), IceWalls[0].GetPositionY(), IceWalls[0].GetPositionZ(), IceWalls[0].GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
                         {
                             _walltargetGUID = walltarget->GetGUID();
                             walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);                            
@@ -925,7 +925,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         }                       
                         _events.ScheduleEvent(EVENT_ESCAPE_15, 1000);
                         break;
-                    case EVENT_ESCAPE_15:                        
+                    case EVENT_ESCAPE_15:
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             lichking->GetMotionMaster()->Clear();
