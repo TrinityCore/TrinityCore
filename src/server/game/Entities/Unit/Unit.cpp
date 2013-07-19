@@ -5912,20 +5912,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 24406;
                     break;
                 }
-                case 2236: // Thrill of the Hunt
-                {
-                    if (!procSpell)
-                        return false;
-
-                    basepoints0 = CalculatePct(procSpell->CalcPowerCost(this, SpellSchoolMask(procSpell->SchoolMask)), triggerAmount);
-
-                    if (basepoints0 <= 0)
-                        return false;
-
-                    target = this;
-                    triggered_spell_id = 34720;
-                    break;
-                }
             }
             break;
         }
@@ -6509,14 +6495,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return false;
 
                 triggered_spell_id = dummySpell->Effects[effIndex].TriggerSpell;
-                break;
-            }
-            // Butchery
-            if (dummySpell->SpellIconID == 2664)
-            {
-                basepoints0 = triggerAmount;
-                triggered_spell_id = 50163;
-                target = this;
                 break;
             }
             // Dancing Rune Weapon

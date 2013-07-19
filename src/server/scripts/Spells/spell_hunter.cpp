@@ -39,6 +39,7 @@ enum HunterSpells
     SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
     SPELL_HUNTER_CHIMERA_SHOT_SCORPID               = 53359,
     SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER       = 56851,
+    SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
@@ -597,7 +598,7 @@ class spell_hun_rapid_recuperation : public SpellScriptLoader
             {
                 // This effect only from Rapid Fire (ability cast)
                 if (!(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[0] & 0x20))
-                    return;
+                    PreventDefaultAction();
             }
 
             void HandleFocusRegen(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -613,7 +614,7 @@ class spell_hun_rapid_recuperation : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                OnEffectProc += AuraEffectProcFn(spell_hun_rapid_recuperation_AuraScript::HandleAbilityCast, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_hun_rapid_recuperation_AuraScript::HandleAbilityCast, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
                 OnEffectProc += AuraEffectProcFn(spell_hun_rapid_recuperation_AuraScript::HandleFocusRegen, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
