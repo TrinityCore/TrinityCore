@@ -665,7 +665,7 @@ class spell_warr_second_wind_trigger : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_second_wind_trigger_AuraScript);
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 amount = int32(GetUnitOwner()->CountPctFromMaxHealth(amount));
             }
