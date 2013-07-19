@@ -1868,10 +1868,10 @@ public:
        void AttackStart(Unit* who) OVERRIDE
        {
            if (!who)
-                  return;
+               return;
 
            if (!_doEmerge)
-                  return;
+               return;
 
            ScriptedAI::AttackStart(who);
        }
