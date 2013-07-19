@@ -3679,8 +3679,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_clone_weapon();
     new spell_gen_clone_weapon_aura();
     new spell_gen_count_pct_from_max_hp("spell_gen_default_count_pct_from_max_hp");
-    new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
     new spell_gen_count_pct_from_max_hp("spell_gen_30pct_count_pct_from_max_hp", 30);
+    new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
     new spell_gen_create_lance();
     new spell_gen_creature_permanent_feign_death();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
