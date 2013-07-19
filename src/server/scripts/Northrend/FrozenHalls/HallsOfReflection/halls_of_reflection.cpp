@@ -227,11 +227,12 @@ enum Spells
     SPELL_FURY_OF_FROSTMOURNE          = 70063, // Lich King Fury of FrostMourne
     SPELL_JAINA_DESTROY_ICE_WALL       = 69784, // Jaina
     SPELL_SYLVANAS_DESTROY_ICE_WALL    = 70225, // Sylvanas
-    SPELL_SYLVANAS_JUMP                = 68339,// Sylvanas Jump
+    SPELL_SYLVANAS_JUMP                = 68339, // Sylvanas Jump
     SPELL_RAISE_DEAD                   = 69818,
     SPELL_HARVEST_SOUL                 = 70070,
     SPELL_SUMMON_RISE_WITCH_DOCTOR     = 69836,
     SPELL_SUMMON_LUMBERING_ABOMINATION = 69835,
+    SPELL_SUMMON_ICE_WALL              = 69768, // Visual effect and icewall summoning
 
     //Raging gnoul
     SPELL_EMERGE_VISUAL                = 50142,
@@ -898,29 +899,33 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             lichking->GetMotionMaster()->Clear();
                             lichking->GetMotionMaster()->MoveChase(me);
                         }
-                        if (GameObject* icewall = me->SummonGameObject(GO_ICE_WALL,IceWalls[0].GetPositionX(),IceWalls[0].GetPositionY(),IceWalls[0].GetPositionZ(),IceWalls[0].GetOrientation(),0,0,0,0,720000))
+                        if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL,IceWalls[0].GetPositionX(),IceWalls[0].GetPositionY(),IceWalls[0].GetPositionZ(),IceWalls[0].GetOrientation(),TEMPSUMMON_MANUAL_DESPAWN,720000))
                         {
-                            _icewallGUID = icewall->GetGUID();
-                            icewall->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                            _instance->HandleGameObject(0, false, icewall);
-                            if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                                me->AI()->Talk(SAY_JAINA_ESCAPE_2);
-                            else
-                                me->AI()->Talk(SAY_SYLVANAS_ESCAPE_2);
-                            if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL,IceWalls[0].GetPositionX(),IceWalls[0].GetPositionY(),IceWalls[0].GetPositionZ(),IceWalls[0].GetOrientation(),TEMPSUMMON_MANUAL_DESPAWN,720000))
-                            {
-                                _walltargetGUID = walltarget->GetGUID();
-                                walltarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                me->Attack(walltarget,false);
-                            }
+                            _walltargetGUID = walltarget->GetGUID();
+                            walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);                            
+                            walltarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            me->Attack(walltarget,false);                            
                         }
-                        _events.ScheduleEvent(EVENT_ESCAPE_14, 1);
+                         me->GetMotionMaster()->MovePoint(0, NpcJainaOrSylvanasEscapeRoute[3]);
+                        _events.ScheduleEvent(EVENT_ESCAPE_14, 8000);
                         break;
                     case EVENT_ESCAPE_14:
-                        me->GetMotionMaster()->MovePoint(0, NpcJainaOrSylvanasEscapeRoute[3]);
-                        _events.ScheduleEvent(EVENT_ESCAPE_15, 8000);
+                        if (Creature* walltarget = me->GetCreature(*me, _walltargetGUID))
+                        {
+                            if (GameObject* icewall = walltarget->FindNearestGameObject(GO_ICE_WALL, 50.00f))
+                            {
+                                _icewallGUID = icewall->GetGUID();
+                                icewall->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                                _instance->HandleGameObject(0, false, icewall);
+                                if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                                    me->AI()->Talk(SAY_JAINA_ESCAPE_2);
+                                else
+                                    me->AI()->Talk(SAY_SYLVANAS_ESCAPE_2);
+                            }
+                        }                       
+                        _events.ScheduleEvent(EVENT_ESCAPE_15, 1000);
                         break;
-                    case EVENT_ESCAPE_15:
+                    case EVENT_ESCAPE_15:                        
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             lichking->GetMotionMaster()->Clear();
@@ -944,7 +949,6 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 _events.ScheduleEvent(EVENT_ESCAPE_16, 1000);
                         }
                         break;
-
                     case EVENT_ESCAPE_17:// ICEWALL BROKEN
                         me->GetMotionMaster()->Clear();
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
@@ -985,39 +989,43 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             lichking->SetReactState(REACT_PASSIVE);
                             lichking->Attack(me,true);
                         }
-                        if (GameObject* icewall = me->SummonGameObject(GO_ICE_WALL, IceWalls[_icewall].GetPositionX(), IceWalls[_icewall].GetPositionY(), IceWalls[_icewall].GetPositionZ(), IceWalls[0].GetOrientation(), 0, 0, 0, 0, 720000))
-                        {
-                            _icewallGUID = icewall->GetGUID();
-                            icewall->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                            _instance->HandleGameObject(0, false, icewall);
-                            if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                            {
-                                if (_icewall == 1)
-                                    me->AI()->Talk(SAY_JAINA_ESCAPE_3);
-                                else if (_icewall == 2)
-                                    me->AI()->Talk(SAY_JAINA_ESCAPE_4);
-                                else if (_icewall == 3)
-                                    me->AI()->Talk(SAY_JAINA_ESCAPE_5);
-                            }
-                            else if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                            {
-                                if (_icewall == 1)
-                                    me->AI()->Talk(SAY_SYLVANAS_ESCAPE_3);
-                                else if (_icewall == 2)
-                                    me->AI()->Talk(SAY_SYLVANAS_ESCAPE_4);
-                                else if (_icewall == 3)
-                                    me->AI()->Talk(SAY_SYLVANAS_ESCAPE_5);
-                            }
-                        }
                         if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL, IceWalls[_icewall].GetPositionX(), IceWalls[_icewall].GetPositionY(), IceWalls[_icewall].GetPositionZ(), IceWalls[_icewall].GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
                         {
                             _walltargetGUID = walltarget->GetGUID();
+                            walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);                           
                             walltarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->Attack(walltarget,false);
                         }
-                        _events.ScheduleEvent(EVENT_ESCAPE_20, 7000);
+                        _events.ScheduleEvent(EVENT_ESCAPE_20, 3000);
                         break;
                     case EVENT_ESCAPE_20:
+                        if (Creature* walltarget = me->GetCreature(*me, _walltargetGUID))
+                        {
+                            if (GameObject* icewall = walltarget->FindNearestGameObject(GO_ICE_WALL, 50.00f))
+                            {
+                                _icewallGUID = icewall->GetGUID();
+                                _instance->HandleGameObject(0, false, icewall);
+                                icewall->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                                if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                                {
+                                    if (_icewall == 1)
+                                        me->AI()->Talk(SAY_JAINA_ESCAPE_3);
+                                    else if (_icewall == 2)
+                                        me->AI()->Talk(SAY_JAINA_ESCAPE_4);
+                                    else if (_icewall == 3)
+                                        me->AI()->Talk(SAY_JAINA_ESCAPE_5);
+                                }
+                                else if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                                {
+                                    if (_icewall == 1)
+                                        me->AI()->Talk(SAY_SYLVANAS_ESCAPE_3);
+                                    else if (_icewall == 2)
+                                        me->AI()->Talk(SAY_SYLVANAS_ESCAPE_4);
+                                    else if (_icewall == 3)
+                                        me->AI()->Talk(SAY_SYLVANAS_ESCAPE_5);
+                                }
+                            }
+                        }
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             if (_icewall && _icewall < 3)
@@ -1026,9 +1034,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 lichking->AI()->DoCast(lichking, SPELL_SUMMON_LUMBERING_ABOMINATION);                            
                         }
                         if (_icewall == 3)
-                            _events.ScheduleEvent(EVENT_ESCAPE_21, 8000); // last wall, really far
+                            _events.ScheduleEvent(EVENT_ESCAPE_21, 16000); // last wall, really far
                         else
-                            _events.ScheduleEvent(EVENT_ESCAPE_21, 4000);
+                            _events.ScheduleEvent(EVENT_ESCAPE_21, 9000);
                         break;
                     case EVENT_ESCAPE_21:
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
@@ -1855,7 +1863,7 @@ public:
        void JustDied(Unit* /*killer*/) OVERRIDE
        {
             if (_instance)
-                instance->SetData(DATA_SUMMONS, 0);
+                _instance->SetData(DATA_SUMMONS, 0);
        }
 
        void AttackStart(Unit* who) OVERRIDE
