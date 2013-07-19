@@ -1587,7 +1587,7 @@ void ObjectMgr::LoadCreatures()
         data.curmana        = fields[13].GetUInt32();
         data.movementType   = fields[14].GetUInt8();
         data.spawnMask      = fields[15].GetUInt8();
-        data.phaseMask      = fields[16].GetUInt16();
+        data.phaseMask      = fields[16].GetUInt32();
         int16 gameEvent     = fields[17].GetInt8();
         uint32 PoolId       = fields[18].GetUInt32();
         data.npcflag        = fields[19].GetUInt32();
@@ -1939,9 +1939,9 @@ void ObjectMgr::LoadGameobjects()
         if (data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
-        data.phaseMask      = fields[15].GetUInt16();
+        data.phaseMask      = fields[15].GetUInt32();
         int16 gameEvent     = fields[16].GetInt8();
-        uint32 PoolId        = fields[17].GetUInt32();
+        uint32 PoolId       = fields[17].GetUInt32();
 
         if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
         {
@@ -2542,7 +2542,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.Name1                     = fields[4].GetString();
             itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
             itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
-            itemTemplate.Flags                     = uint32(fields[7].GetUInt32());
+            itemTemplate.Flags                     = fields[7].GetUInt32();
             itemTemplate.Flags2                    = fields[8].GetUInt32();
             itemTemplate.Unk430_1                  = fields[9].GetFloat();
             itemTemplate.Unk430_2                  = fields[10].GetFloat();
