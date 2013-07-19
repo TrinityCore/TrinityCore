@@ -1039,7 +1039,7 @@ class npc_margrave_dhakar : public CreatureScript
                                 _lichKingGuid = lichKing->GetGUID();
                                 lichKing = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX()+10, morbidus->GetPositionY(), morbidus->GetPositionZ());
                                 lichKing->SetFacingTo(morbidus->GetOrientation());
-                                lichKing->CastSpell(_lichKing, SPELL_SIMPLE_TELEPORT, true);
+                                lichKing->CastSpell(lichKing, SPELL_SIMPLE_TELEPORT, true);
                             }
 
                             _events.ScheduleEvent(EVENT_LK_SAY_1, 5000);
