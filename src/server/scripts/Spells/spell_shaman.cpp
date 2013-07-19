@@ -800,7 +800,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
                 int32 mana = eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), SpellSchoolMask(eventInfo.GetDamageInfo()->GetSchoolMask()));
                 int32 basePoints0 = int32(CalculatePct(mana, 35));
 
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_ITEM_MANA_SURGE, &basePoints0, NULL, NULL, true);
+                GetTarget()->CastCustomSpell(GetTarget(), SPELL_SHAMAN_ITEM_MANA_SURGE, &basePoints0, NULL, NULL, true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
