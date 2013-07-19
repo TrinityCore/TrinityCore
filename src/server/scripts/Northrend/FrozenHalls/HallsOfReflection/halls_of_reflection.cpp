@@ -236,7 +236,7 @@ enum Spells
 
     //Raging gnoul
     SPELL_EMERGE_VISUAL                = 50142,
-    SPELL_GNOUL_JUMP                   = 70150,
+    SPELL_GHOUL_JUMP                   = 70150,
 
     //Witch Doctor
     SPELL_COURSE_OF_DOOM               = 70144,
@@ -690,11 +690,11 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     break;
                 case EVENT_OPEN_FROSTWORN_DOOR:
                     if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_FROSTWORN_DOOR)))
-                        _instance->HandleGameObject(0 ,true, gate);
+                        _instance->HandleGameObject(0, true, gate);
                     break;
                 case EVENT_CLOSE_FROSTWORN_DOOR:
                     if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_FROSTWORN_DOOR)))
-                        _instance->HandleGameObject(0 ,false, gate);
+                        _instance->HandleGameObject(0, false, gate);
                     break;
             }
         }
@@ -742,10 +742,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
             _events.ScheduleEvent(EVENT_ESCAPE, 0);
         }
 
-        void JustDied(Unit* /*pKiller*/) OVERRIDE
+        void JustDied(Unit* /*Killer*/) OVERRIDE
         {
-            if (!_instance)
-                return;
+            if (_instance)                
             _instance->SetData(DATA_ESCAPE_EVENT, FAIL);
         }
 
@@ -755,7 +754,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
             {
                 case ACTION_START_ESCAPING:  // called by InstanceScript when we need to start the escaping event
                     _events.ScheduleEvent(EVENT_ESCAPE_1, 1000);
-                break;
+                    break;
                 case ACTION_WALL_BROKEN:
                     _icewall++;
                     if (_icewall != 4)
@@ -763,7 +762,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     else
                         _events.ScheduleEvent(EVENT_ESCAPE_23,3000);
                     _isattackingwall = false;
-                break;
+                    break;
             }
         }
 
@@ -858,7 +857,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 lichking->RemoveAurasDueToSpell(SPELL_JAINA_ICEPRISON);
                             else
                                 lichking->RemoveAurasDueToSpell(SPELL_SYLVANAS_DARKBINDING);
-                       }
+                        }
                         _events.ScheduleEvent(EVENT_ESCAPE_8, 1000);
                         break;
                     case EVENT_ESCAPE_8:
@@ -896,7 +895,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         {
                             lichking->AI()->DoCast(lichking, SPELL_REMORSELESS_WINTER, true);                            
                             lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
-                            lichking->GetMotionMaster()->Clear();
+                            lichking->GetMotionMaster()->MoveIdle();
                             lichking->GetMotionMaster()->MoveChase(me);
                         }
                         if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL,IceWalls[0].GetPositionX(), IceWalls[0].GetPositionY(), IceWalls[0].GetPositionZ(), IceWalls[0].GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
@@ -928,7 +927,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     case EVENT_ESCAPE_15:
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
-                            lichking->GetMotionMaster()->Clear();
+                            lichking->GetMotionMaster()->MoveIdle();
                             lichking->GetMotionMaster()->MoveChase(me);
                             lichking->SetReactState(REACT_PASSIVE);
                         }
@@ -950,7 +949,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         }
                         break;
                     case EVENT_ESCAPE_17:// ICEWALL BROKEN
-                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveIdle();
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             lichking->StopMoving();
@@ -974,7 +973,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     case EVENT_ESCAPE_18:
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
-                            lichking->GetMotionMaster()->Clear();
+                            lichking->GetMotionMaster()->MoveIdle();
                             lichking->GetMotionMaster()->MoveChase(me);
                         }
                         _events.ScheduleEvent(EVENT_ESCAPE_19, 6000);
@@ -984,7 +983,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         {
                             if (_icewall && _icewall < 4)
                                 lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
-                            lichking->GetMotionMaster()->Clear();
+                            lichking->GetMotionMaster()->MoveIdle();
                             lichking->GetMotionMaster()->MoveChase(me);
                             lichking->SetReactState(REACT_PASSIVE);
                             lichking->Attack(me,true);
@@ -1474,7 +1473,7 @@ public:
         {
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000); /// @todo adjust timers
             _events.ScheduleEvent(EVENT_SHIELD_BASH, 10000);
@@ -1811,7 +1810,7 @@ class at_shadow_throne : public AreaTriggerScript
 {
 public:
     at_shadow_throne() : AreaTriggerScript("at_shadow_throne") { }
-    EventMap _events;
+
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
     {
         InstanceScript* _instance = player->GetInstanceScript();
@@ -1826,19 +1825,16 @@ public:
     }
 };
 
-class npc_raging_gnoul : public CreatureScript
+class npc_raging_ghoul : public CreatureScript
 {
 public:
-   npc_raging_gnoul() : CreatureScript("npc_raging_gnoul") { }
+   npc_raging_ghoul() : CreatureScript("npc_raging_ghoul") { }
 
-   struct npc_raging_gnoulAI : public ScriptedAI
+   struct npc_raging_ghoulAI : public ScriptedAI
    {
-       npc_raging_gnoulAI(Creature* creature) : ScriptedAI(creature)
+       npc_raging_ghoulAI(Creature* creature) : ScriptedAI(creature)
        {
-           _instance = me->GetInstanceScript();
-           me->setActive(true);
-           if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
-               _instance->SetData(DATA_SUMMONS, 1);
+           _instance = me->GetInstanceScript();           
        }
 
        InstanceScript* _instance;
@@ -1852,6 +1848,9 @@ public:
            _emergeTimer = 4000;
            _doEmerge = false;
            _doJump = false;
+           if (_instance && _instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
+               _instance->SetData(DATA_SUMMONS, 1);
+
        }
 
        void IsSummonedBy(Unit*) OVERRIDE
@@ -1870,8 +1869,10 @@ public:
        {
            if (!who)
                   return;
-           if (_doEmerge == false)
+
+           if (!_doEmerge)
                   return;
+
            ScriptedAI::AttackStart(who);
        }
 
@@ -1893,7 +1894,7 @@ public:
                        if (leader)
                        {
                            DoResetThreat();
-                           me->GetMotionMaster()->Clear();
+                           me->GetMotionMaster()->MoveIdle();
                            me->GetMotionMaster()->MoveChase(leader);
                        }
                    }
@@ -1906,7 +1907,7 @@ public:
                    if (!_doJump && me->IsWithinDistInMap(leader, 30.0f) && !me->IsWithinDistInMap(leader, 5.0f))
                    {
                        _doJump = true;
-                       DoCast(leader, SPELL_GNOUL_JUMP);
+                       DoCast(leader, SPELL_GHOUL_JUMP);
                    }
                }
            }
@@ -1918,7 +1919,7 @@ public:
 
    CreatureAI* GetAI(Creature* creature) const OVERRIDE
    {
-       return new npc_raging_gnoulAI(creature);
+       return new npc_raging_ghoulAI(creature);
    }
 
 };
@@ -1932,10 +1933,7 @@ public:
    {
        npc_risen_witch_doctorAI(Creature* creature) : ScriptedAI(creature)
        {
-           _instance = me->GetInstanceScript();
-           me->setActive(true);
-           if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
-               _instance->SetData(DATA_SUMMONS, 1);
+           _instance = me->GetInstanceScript();           
        }
 
        InstanceScript* _instance;
@@ -1953,6 +1951,9 @@ public:
            _boltVolleyTimer = 15000;
            _curseTimer = 7000;
            _doEmerge = false;
+           if (_instance)
+               if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
+                   _instance->SetData(DATA_SUMMONS, 1);
        }
 
        void IsSummonedBy(Unit*) OVERRIDE
@@ -1972,8 +1973,10 @@ public:
        {
            if (!who)
                return;
+
            if (_doEmerge == false)
                return;
+
            ScriptedAI::AttackStart(who);
        }
 
@@ -1994,7 +1997,7 @@ public:
                        if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
                        {
                            DoResetThreat();
-                           me->GetMotionMaster()->Clear();
+                           me->GetMotionMaster()->MoveIdle();
                            me->GetMotionMaster()->MoveChase(leader);
                        }
                    }
@@ -2052,10 +2055,7 @@ public:
    {
        npc_lumbering_abominationAI(Creature* creature) : ScriptedAI(creature)
        {
-           _instance = me->GetInstanceScript();
-           if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
-               _instance->SetData(DATA_SUMMONS, 1);
-           me->setActive(true);
+           _instance = me->GetInstanceScript();           
        }
 
        InstanceScript* _instance;
@@ -2069,6 +2069,9 @@ public:
            _doWalk = false;
            _vomitTimer = 15000;
            _strikeTimer = 6000;
+           if (_instance)
+               if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
+                   _instance->SetData(DATA_SUMMONS, 1);          
        }
 
        void IsSummonedBy(Unit*) OVERRIDE
@@ -2091,11 +2094,10 @@ public:
                    if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
                    {
                        DoResetThreat();
-                       me->GetMotionMaster()->Clear();
+                       me->GetMotionMaster()->MoveIdle();
                        me->GetMotionMaster()->MoveChase(leader);
                    }
                }
-
                if (_strikeTimer < diff)
                {
                    if (Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO))
@@ -2145,7 +2147,7 @@ void AddSC_halls_of_reflection()
     new npc_shadowy_mercenary();
     new npc_spectral_footman();
     new npc_tortured_rifleman();
-    new npc_raging_gnoul();
+    new npc_raging_ghoul();
     new npc_risen_witch_doctor();
     new npc_lumbering_abomination();  
     new npc_frostworn_general();

@@ -12,8 +12,8 @@ UPDATE `creature_template` SET `gossip_menu_id` = 10909 WHERE `entry` = 36955;
 -- jaina's scriptai part 2
 UPDATE `creature_template` SET `ScriptName` = 'npc_jaina_or_sylvanas_escape_hor' WHERE `entry` in (36955,37554);
 
--- Raging Gnoul scriptai
-UPDATE `creature_template` SET `ScriptName` = 'npc_raging_gnoul' WHERE `entry` = 36940;
+-- Raging Ghoul scriptai
+UPDATE `creature_template` SET `ScriptName` = 'npc_raging_ghoul' WHERE `entry` = 36940;
 
 -- Risen Witch Doctor scriptai
 UPDATE `creature_template` SET `ScriptName` = 'npc_risen_witch_doctor' WHERE `entry` = 36941;

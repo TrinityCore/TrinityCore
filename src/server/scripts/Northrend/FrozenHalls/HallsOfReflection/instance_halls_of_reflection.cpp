@@ -258,18 +258,16 @@ public:
                         else
                             instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);                                 
                     }
-                    _frostwornGeneral = data;
-                    
+                    _frostwornGeneral = data;                    
                     break;                
                 case DATA_ESCAPE_EVENT:
                     if (data == IN_PROGRESS)
                     {
                         if (!_escapeevent)
-                        {
                             if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
-                                    jaina_or_sylvanas->AI()->DoAction(ACTION_START_ESCAPING);
-                        }
-                    } else if (data == NOT_STARTED)
+                                jaina_or_sylvanas->AI()->DoAction(ACTION_START_ESCAPING);
+                    } 
+                    else if (data == NOT_STARTED)
                     {
                         if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                             jaina_or_sylvanas->DespawnOrUnsummon(1);
