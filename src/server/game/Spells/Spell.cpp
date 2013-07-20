@@ -2075,8 +2075,9 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const* /*triggeredByAura*/)
         (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||     // Freezing and Frost Trap, Freezing Arrow
         m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
         m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
-
+    {
         m_procAttacker |= PROC_FLAG_DONE_TRAP_ACTIVATION;
+    }
 
     /* Effects which are result of aura proc from triggered spell cannot proc
         to prevent chain proc of these spells */
@@ -2517,8 +2518,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
         }
-
-
 
         m_damage = damageInfo.damage;
 
