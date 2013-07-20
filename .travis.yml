@@ -19,13 +19,17 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake .. -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1
   - make -j16
 
 notifications:
   irc:
+    template:
+      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+      - "Build details : %{build_url}"
     channels:
+      - "irc.rizon.net#bloodcraft-staff"
       - "irc.bloodcraft.org#dev"
     channel_key: 'in5RPn'
-    on_success: [always|never|change] # default: always
-    on_failure: [always|never|change] # default: always
+    on_success: always
+    on_failure: always
