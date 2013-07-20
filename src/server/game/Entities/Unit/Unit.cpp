@@ -6235,15 +6235,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->SpellIconID)
             {
-                case 267: // Improved Mend Pet
-                {
-                    int32 chance = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcValue();
-                    if (!roll_chance_i(chance))
-                        return false;
-
-                    triggered_spell_id = 24406;
-                    break;
-                }
                 case 2236: // Thrill of the Hunt
                 {
                     if (!procSpell)
