@@ -1190,6 +1190,14 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_focus_fire();
     new spell_hun_frenzy_effect();
     new spell_hun_tnt();
+<<<<<<< 4.3.4
+=======
+	new spell_hun_improved_steady_shot();
+	new spell_hun_improved_serpent_sting();
+    new spell_hun_focus_fire();
+    new spell_hun_frenzy_effect();
+    new spell_hun_tnt();
+>>>>>>> local
     new spell_hun_improved_steady_shot();
     new spell_hun_improved_serpent_sting();
     new spell_hun_tnt();
