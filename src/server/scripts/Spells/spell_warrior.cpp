@@ -368,6 +368,7 @@ class spell_warr_intimidating_shout : public SpellScriptLoader
 };
 
 /// Updated 4.3.4
+// 12975 - Last Stand
 class spell_warr_last_stand : public SpellScriptLoader
 {
     public:
@@ -386,11 +387,8 @@ class spell_warr_last_stand : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
-                    caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-                }
+                int32 healthModSpellBasePoints0 = int32(GetCaster()->CountPctFromMaxHealth(GetEffectValue()));
+                GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
             }
 
             void Register() OVERRIDE

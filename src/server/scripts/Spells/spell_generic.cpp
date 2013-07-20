@@ -163,6 +163,75 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
         }
 };
 
+enum AlchemistStone
+{
+    ALECHEMIST_STONE_HEAL      = 21399,
+    ALECHEMIST_STONE_MANA      = 21400,
+};
+
+// 17619 - Alchemist Stone
+class spell_gen_alchemist_stone : public SpellScriptLoader
+{
+    public:
+        spell_gen_alchemist_stone() : SpellScriptLoader("spell_gen_alchemist_stone") { }
+
+        class spell_gen_alchemist_stone_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_alchemist_stone_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(ALECHEMIST_STONE_HEAL) ||
+                    !sSpellMgr->GetSpellInfo(ALECHEMIST_STONE_MANA))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_POTION;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 spellId = 0;
+                int32 basepoints0 = 0;
+                TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                {
+                    if (eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_HEAL)
+                        spellId = ALECHEMIST_STONE_HEAL;
+                    else if (eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_ENERGIZE)
+                        spellId = ALECHEMIST_STONE_MANA;
+                    else
+                        continue;
+
+                    basepoints0 = int32(GetTarget()->CalculateSpellDamage(GetTarget(), eventInfo.GetDamageInfo()->GetSpellInfo(), i) * 0.4f);
+                }
+
+                if (!spellId)
+                    return;
+
+
+                GetTarget()->CastCustomSpell(GetTarget(), spellId, &basepoints0, NULL, NULL, true, NULL, aurEff);
+            }
+
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_gen_alchemist_stone_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_gen_alchemist_stone_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_gen_alchemist_stone_AuraScript();
+        }
+};
+
 class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 {
     public:
@@ -3616,6 +3685,7 @@ void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_adaptive_warding();
+    new spell_gen_alchemist_stone();
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_animal_blood();
     new spell_gen_aura_of_anger();
