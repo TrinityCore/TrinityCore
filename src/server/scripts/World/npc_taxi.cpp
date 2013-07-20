@@ -59,13 +59,14 @@ EndScriptData
 #define GOSSIP_WILLIAMKEILAR1   "Take me to Northpass Tower."
 #define GOSSIP_WILLIAMKEILAR2   "Take me to Eastwall Tower."
 #define GOSSIP_WILLIAMKEILAR3   "Take me to Crown Guard Tower."
+#define GOSSIP_CAMILLE					"Take me to the Windrunner."
 
 class npc_taxi : public CreatureScript
 {
 public:
     npc_taxi() : CreatureScript("npc_taxi") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -176,13 +177,18 @@ public:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 29);
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 30);
             break;
+				case 23816:
+						if (player->GetQuestStatus(11229) == QUEST_STATUS_COMPLETE)
+								player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, GOSSIP_CAMILLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
+						break;
+
         }
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -287,7 +293,9 @@ public:
             break;
         case GOSSIP_ACTION_INFO_DEF + 23:
             player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 43074, true);               //TaxiPath 736
+						player->ActivateTaxiPathTo(736);
+						// The Windrunner Fleet 11229
+						// Spell removed. Didn't work. Taxi path load, ok.
             break;
         case GOSSIP_ACTION_INFO_DEF + 24:
             player->CLOSE_GOSSIP_MENU();
