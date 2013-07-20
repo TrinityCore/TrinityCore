@@ -37,6 +37,7 @@ enum MageSpells
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
+    SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
     SPELL_MAGE_INCANTERS_ABSORBTION_R1           = 44394,
@@ -644,6 +645,48 @@ class spell_mage_frostbolt : public SpellScriptLoader
        {
            return new spell_mage_frostbolt_SpellScript();
        }
+};
+
+// 56372 - Glyph of Ice Block
+class spell_mage_glyph_of_ice_block : public SpellScriptLoader
+{
+    public:
+        spell_mage_glyph_of_ice_block() : SpellScriptLoader("spell_mage_glyph_of_ice_block") { }
+
+        class spell_mage_glyph_of_ice_block_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_glyph_of_ice_block_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_NOVA))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                return GetTarget()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                // Remove Frost Nova cooldown
+                GetTarget()->ToPlayer()->RemoveSpellCooldown(SPELL_MAGE_FROST_NOVA, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_glyph_of_ice_block_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_mage_glyph_of_ice_block_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_mage_glyph_of_ice_block_AuraScript();
+        }
 };
 
 // -44457 - Living Bomb
@@ -1289,6 +1332,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_frostbolt();
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
+    new spell_mage_glyph_of_ice_block();
     new spell_mage_living_bomb();
     new spell_mage_mage_ward();
     new spell_mage_mana_shield();
