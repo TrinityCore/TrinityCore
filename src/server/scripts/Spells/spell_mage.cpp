@@ -36,7 +36,7 @@ enum MageSpells
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
     SPELL_MAGE_INCANTERS_ABSORBTION_R1           = 44394,
     SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED    = 44413,
-	SPELL_MAGE_INCANTERS_ABSORPTION_KNOCKBACK    = 86261,
+    SPELL_MAGE_INCANTERS_ABSORPTION_KNOCKBACK    = 86261,
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
     SPELL_MAGE_SLOW                              = 31589,
@@ -74,12 +74,12 @@ enum MageSpells
 
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
 
-	SPELL_MAGE_EARLY_FROST_R1_T                  = 83049,
+    SPELL_MAGE_EARLY_FROST_R1_T                  = 83049,
     SPELL_MAGE_EARLY_FROST_R2_T                  = 83050,
     SPELL_MAGE_EARLY_FROST_R1_CD                 = 83162,
     SPELL_MAGE_EARLY_FROST_R2_CD                 = 83239,
 	
-	SPELL_MAGE_GLYPH_OF_MIRROR_IMAGE             = 63093,
+    SPELL_MAGE_GLYPH_OF_MIRROR_IMAGE             = 63093,
     SPELL_MAGE_SUMMON_IMAGES_FROST               = 58832,
     SPELL_MAGE_SUMMON_IMAGES_FIRE                = 88092,
     SPELL_MAGE_SUMMON_IMAGES_ARCANE              = 88091,
@@ -87,9 +87,9 @@ enum MageSpells
     SPELL_MAGE_NETHER_VORTEX_R1                  = 86181,
     SPELL_MAGE_NETHER_VORTEX_R2                  = 86209,
 
-	SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE        = 83853,
+    SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE        = 83853,
 
-	SPELL_MAGE_CAUTERIZE_R2                      = 86949,
+    SPELL_MAGE_CAUTERIZE_R2                      = 86949,
     SPELL_MAGE_CAUTERIZE_R1                      = 86948,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
 };
@@ -1306,10 +1306,10 @@ class spell_mage_cauterize : public SpellScriptLoader
                     return;    
 
                 target->CastSpell(target, SPELL_MAGE_CAUTERIZE_DOT, true);
-		        target->SetHealth(target->CountPctFromMaxHealth(40));
-				target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_DOT, 0, time(NULL) + 60);
-				target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R1, 0, time(NULL) + 60);
-				target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R2, 0, time(NULL) + 60);
+                target->SetHealth(target->CountPctFromMaxHealth(40));
+                target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_DOT, 0, time(NULL) + 60);
+                target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R1, 0, time(NULL) + 60);
+                target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R2, 0, time(NULL) + 60);
 
             }
 
@@ -1423,7 +1423,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_summon_water_elemental();
     new spell_mage_water_elemental_freeze();
-	new spell_mage_combustion();
+    new spell_mage_combustion();
     new spell_mage_cauterize();
 	new spell_mage_mirror_image();
 }

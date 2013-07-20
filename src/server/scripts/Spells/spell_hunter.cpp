@@ -51,23 +51,23 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
-	SPELL_HUNTER_IMPROVED_STEADY_SHOT               = 53220,
-	SPELL_HUNTER_STEADY_SHOT                        = 56641,
-	SPELL_HUNTER_FOCUS_FIRE						    = 82692,
-	SPELL_HUNTER_VISUAL_FOCUS_FIRE					= 88843,
-    SPELL_HUNTER_PET_SPELL_FRENZY					= 19615,
-	SPELL_HUNTER_PET_SPELL_FOCUS_FIRE_REGEN			= 83468,
-	SPELL_HUNTER_PET_AURA_FRENZY_TRIGGER			= 20784,
-	SPELL_HUNTER_INSTANT_SERPENT_STING				= 83077,
-	SPELL_HUNTER_IMPROVED_SERPENT_STING_R1			= 19464,
-	SPELL_HUNTER_IMPROVED_SERPENT_STING_R2			= 82834,
+    SPELL_HUNTER_IMPROVED_STEADY_SHOT               = 53220,
+    SPELL_HUNTER_STEADY_SHOT                        = 56641,
+    SPELL_HUNTER_FOCUS_FIRE                         = 82692,
+    SPELL_HUNTER_VISUAL_FOCUS_FIRE                  = 88843,
+    SPELL_HUNTER_PET_SPELL_FRENZY                   = 19615,
+    SPELL_HUNTER_PET_SPELL_FOCUS_FIRE_REGEN         = 83468,
+    SPELL_HUNTER_PET_AURA_FRENZY_TRIGGER            = 20784,
+    SPELL_HUNTER_INSTANT_SERPENT_STING              = 83077,
+    SPELL_HUNTER_IMPROVED_SERPENT_STING_R1          = 19464,
+    SPELL_HUNTER_IMPROVED_SERPENT_STING_R2          = 82834,
 
     
 };
 
 enum HunterSpellIcons
 {
-	HUNTER_ICON_ID_IMPROVED_SERPENT_STING			= 536,
+    HUNTER_ICON_ID_IMPROVED_SERPENT_STING           = 536,
 };
 
 // 13161 - Aspect of the Beast
@@ -966,7 +966,7 @@ public:
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-			PreventDefaultAction();
+            PreventDefaultAction();
             if (Unit* caster = GetUnitOwner())
             {
                 if (Unit* pet = caster->GetGuardianPet())
@@ -1000,7 +1000,7 @@ public:
     {
         PrepareAuraScript(spell_hun_frenzy_effect_AuraScript)
 
-		bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+        bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_SPELL_FRENZY))
                 return false;
@@ -1038,7 +1038,7 @@ public:
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-			PreventDefaultAction();
+            PreventDefaultAction();
             // Apply UI Visual when at 5 stack
             if (Unit* petOwner = GetUnitOwner()->GetOwner())
             {
@@ -1081,21 +1081,21 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
 
-			bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_SERPENT_STING_R1)||!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_SERPENT_STING_R2))
                     return false;
                 return true;
             }                
 
-			void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
 	        {
             Unit* caster = GetCaster();
             
             if (!caster)
                 return;
             
-				if (Unit* target = GetTarget())
+                if (Unit* target = GetTarget())
                 {
                     if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, HUNTER_ICON_ID_IMPROVED_SERPENT_STING, EFFECT_0))
                     {
@@ -1103,7 +1103,7 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
                     caster->CastCustomSpell(target, SPELL_HUNTER_INSTANT_SERPENT_STING, &basepoints0, NULL, NULL, true, NULL, GetAura()->GetEffect(0));
                     }
 			    }
-			}
+            }
 
             void Register() OVERRIDE
             {
@@ -1136,9 +1136,9 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
-	new spell_hun_focus_fire();
+    new spell_hun_focus_fire();
     new spell_hun_frenzy_effect();
     new spell_hun_tnt();
-	new spell_hun_improved_steady_shot();
-	new spell_hun_improved_serpent_sting();
+    new spell_hun_improved_steady_shot();
+    new spell_hun_improved_serpent_sting();
 }

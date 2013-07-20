@@ -53,16 +53,21 @@ enum DruidSpells
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
-	SPELL_DRUID_INSTANT_REJUVENATION		= 64801,
-	SPELL_DRUID_NPC_WILD_MUSHROOM           = 47649,
-	SPELL_DRUID_NPC_FUNGAL_GROWTH_1         = 43497,
-	SPELL_DRUID_NPC_FUNGAL_GROWTH_2         = 43484,
-	SPELL_DRUID_TALENT_FUNGAL_GROWTH_1      = 78788,
-	SPELL_DRUID_TALENT_FUNGAL_GROWTH_2      = 78789,
-	SPELL_DRUID_FUNGAL_GROWTH_1				= 81291,
-	SPELL_DRUID_FUNGAL_GROWTH_2				= 81283,
-	SPELL_DRUID_WILD_MUSHROOM_SUICIDE		= 92853,
-	SPELL_DRUID_WILD_MUSHROOM_DAMAGE		= 78777,
+    SPELL_DRUID_INSTANT_REJUVENATION        = 64801,
+    SPELL_DRUID_NPC_WILD_MUSHROOM           = 47649,
+    SPELL_DRUID_NPC_FUNGAL_GROWTH_1         = 43497,
+    SPELL_DRUID_NPC_FUNGAL_GROWTH_2         = 43484,
+    SPELL_DRUID_TALENT_FUNGAL_GROWTH_1      = 78788,
+    SPELL_DRUID_TALENT_FUNGAL_GROWTH_2      = 78789,
+    SPELL_DRUID_FUNGAL_GROWTH_1             = 81291,
+    SPELL_DRUID_FUNGAL_GROWTH_2             = 81283,
+    SPELL_DRUID_WILD_MUSHROOM_SUICIDE       = 92853,
+    SPELL_DRUID_WILD_MUSHROOM_DAMAGE        = 78777,
+};
+
+enum DruidSpellIcons
+{
+    DRUID_ICON_ID_GIFT_OF_THE_EARTHMOTHER_TALENT	= 3186,
 };
 
 // 2912, 5176, 78674 - Starfire, Wrath, and Starsurge
@@ -1129,7 +1134,7 @@ class spell_druid_wild_mushroom : public SpellScriptLoader
                 if (Player* player = GetCaster()->ToPlayer())
                 {
                     if (Unit* gtarget = GetExplTargetUnit())
-					{
+                    {
                     PreventHitDefaultEffect(effIndex);
                     SpellInfo const* spell = GetSpellInfo();
 
@@ -1151,8 +1156,8 @@ class spell_druid_wild_mushroom : public SpellScriptLoader
 
                     Position pos;
                     gtarget->GetPosition(&pos);
-					const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
-					TempSummon* summon = player->SummonCreature(spell->Effects[0].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 75000);
+                    const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
+                    TempSummon* summon = player->SummonCreature(spell->Effects[0].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 75000);
 
                     if (!summon)
                         return;
@@ -1163,7 +1168,7 @@ class spell_druid_wild_mushroom : public SpellScriptLoader
                     summon->SetMaxHealth(5);
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                     summon->StopMoving();
-					}
+                    }
                 }
             }
 
@@ -1219,7 +1224,7 @@ class spell_druid_wild_mushroom_detonate : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-				spellRange = GetSpellInfo()->GetMaxRange();
+                spellRange = GetSpellInfo()->GetMaxRange();
                 Player* player = GetCaster()->ToPlayer();
                 if (!player)
                     return false;
@@ -1293,9 +1298,9 @@ class spell_druid_wild_mushroom_detonate : public SpellScriptLoader
                         fungal = SPELL_DRUID_FUNGAL_GROWTH_2;
                         npcfungal = SPELL_DRUID_NPC_FUNGAL_GROWTH_2;
                     }
-					else
+                    else
                     {
-						// Nothing do
+                        // Nothing do
                     }
 
                     for (std::list<TempSummon*>::const_iterator i = mushroomList.begin(); i != mushroomList.end(); ++i)
@@ -1350,11 +1355,11 @@ class spell_druid_wild_mushroom_detonate : public SpellScriptLoader
                         list.remove((*i));
                     }
                     if ((int32)list.size() > 0)
-                   	for (std::list<Creature*>::iterator i = list.begin(); i != list.end(); ++i)
-					{
+                    for (std::list<Creature*>::iterator i = list.begin(); i != list.end(); ++i)
+                    {
                         (*i)->ToTempSummon()->UnSummon();
 						list.front()->ToTempSummon()->UnSummon();
-					}
+                    }
                 }
             }
 
@@ -1381,7 +1386,7 @@ class spell_druid_rejuvenation : public SpellScriptLoader
         {
             PrepareAuraScript(spell_druid_rejuvenation_AuraScript);
 
-			bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_INSTANT_REJUVENATION))
                     return false;
@@ -1397,7 +1402,7 @@ class spell_druid_rejuvenation : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-					PreventDefaultAction();
+                    PreventDefaultAction();
                     // Gift of the Earthmother
                     if (AuraEffect const* empoweredRenewAurEff = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, DRUID_ICON_ID_GIFT_OF_THE_EARTHMOTHER_TALENT, EFFECT_0))
                     {
@@ -1447,7 +1452,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_tiger_s_fury();
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
-	new spell_druid_wild_mushroom();
+    new spell_druid_wild_mushroom();
     new spell_druid_wild_mushroom_detonate();
-	new spell_druid_rejuvenation();
+    new spell_druid_rejuvenation();
 }
