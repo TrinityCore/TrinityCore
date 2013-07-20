@@ -5834,21 +5834,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             break;
         }
-        case SPELLFAMILY_HUNTER:
-        {
-            switch (dummySpell->SpellIconID)
-            {
-                case 267: // Improved Mend Pet
-                {
-                    if (!roll_chance_i(triggerAmount))
-                        return false;
-
-                    triggered_spell_id = 24406;
-                    break;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_PALADIN:
         {
             // Light's Beacon - Beacon of Light

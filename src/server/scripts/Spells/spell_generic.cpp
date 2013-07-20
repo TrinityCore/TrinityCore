@@ -203,7 +203,7 @@ class spell_gen_alchemist_stone : public SpellScriptLoader
                     spellId = ALECHEMIST_STONE_HEAL;
                 else if (eventInfo.GetDamageInfo()->GetSpellInfo()->HasEffect(SPELL_EFFECT_ENERGIZE))
                     spellId = ALECHEMIST_STONE_MANA;
-                TC_LOG_ERROR(LOG_FILTER_GENERAL, "spellId: %u, procSpell: %u", spellId, eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
+
                 if (!spellId)
                     return;
 
