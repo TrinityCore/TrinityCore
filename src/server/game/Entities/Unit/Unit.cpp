@@ -5432,16 +5432,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
-                // Glyph of Polymorph
-                case 56375:
-                {
-                    if (!target)
-                        return false;
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                    return true;
-                }
                 // Glyph of Icy Veins
                 case 56374:
                 {
