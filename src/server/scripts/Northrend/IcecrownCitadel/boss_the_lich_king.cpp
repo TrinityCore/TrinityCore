@@ -3291,4 +3291,7 @@ void AddSC_boss_the_lich_king()
     new spell_the_lich_king_play_movie();
     new achievement_been_waiting_long_time();
     new achievement_neck_deep_in_vile();
+    // Vehicle Hack(Strangulate Vehicle)
+    if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(6166)))
+    vehSeat->m_flags |= 0x400;
 }

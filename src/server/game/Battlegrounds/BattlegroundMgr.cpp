@@ -1156,7 +1156,105 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         }
     }
 
-    if (weight)
+    if (weight && bgTypeId == BATTLEGROUND_RB)
+    {
+		uint32 playersInBG;
+		uint32 playersInBG1;
+		uint32 playersInBG2;
+		uint32 playersInBG3;
+		QueryResult result = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and (map=489 or map=566 or map=529 or map=607 or map=30 or map=628)");
+		if (result)
+		{
+			do
+			{
+				Field* fields = result->Fetch();
+				playersInBG = fields[0].GetUInt32();
+			}
+			while (result->NextRow());
+		}
+		QueryResult result1 = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and map=489");
+		if (result1)
+		{
+			do
+			{
+				Field* fields = result1->Fetch();
+				playersInBG1 = fields[0].GetUInt32();
+			}
+			while (result1->NextRow());
+		}
+		QueryResult result2 = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and (map=566 or map=529 or map=607)");
+		if (result2)
+		{
+			do
+			{
+				Field* fields = result2->Fetch();
+				playersInBG2 = fields[0].GetUInt32();
+			}
+			while (result2->NextRow());
+		}
+		QueryResult result3 = CharacterDatabase.Query("select count(guid) from characters where level=80 and online=1 and (map=30 or map=628)");
+		if (result3)
+		{
+			do
+			{
+				Field* fields = result3->Fetch();
+				playersInBG3 = fields[0].GetUInt32();
+			}
+			while (result3->NextRow());
+		}
+		if (playersInBG>39 && playersInBG3<20)
+		{
+			uint32 selectedWeight = 0;
+			// Select a random value
+			selectedWeight = urand(0, 0);
+			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+			weight = 0;
+			for (BattlegroundSelectionWeightMap::const_iterator it = selectionWeights.begin(); it != selectionWeights.end(); ++it)
+			{
+				weight += it->second;
+				if (selectedWeight < weight && weight > 2 && weight < 4)
+				{
+					returnBgTypeId = it->first;
+					break;
+				}
+			}
+		}
+		else if (playersInBG<16 || (((playersInBG2>30 && playersInBG2<46) || (playersInBG2>60 && playersInBG2<76) || (playersInBG2>90 && playersInBG2<106) || (playersInBG2>120 && playersInBG2<136) || (playersInBG2>150 && playersInBG2<166) || (playersInBG>80 && (playersInBG2<16 || (playersInBG2>30 && playersInBG2<46) || (playersInBG2>60 && playersInBG2<76) || (playersInBG2>90 && playersInBG2<106)))) && playersInBG1<6))
+		{
+			uint32 selectedWeight = 0;
+			// Select a random value
+			selectedWeight = urand(0, 0);
+			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+			weight = 0;
+			for (BattlegroundSelectionWeightMap::const_iterator it = selectionWeights.begin(); it != selectionWeights.end(); ++it)
+			{
+				weight += it->second;
+				if (selectedWeight < weight && weight > 3 && weight < 5)
+				{
+					returnBgTypeId = it->first;;
+					break;
+				}
+			}
+		}
+		else
+		{
+			uint32 selectedWeight = 0;
+			// Select a random value
+			selectedWeight = urand(4, 7);
+			// Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+			weight = 0;
+			for (BattlegroundSelectionWeightMap::const_iterator it = selectionWeights.begin(); it != selectionWeights.end(); ++it)
+			{
+				weight += it->second;
+				if (selectedWeight < weight && ((weight > 5 && weight < 7) || (weight > 7 && weight < 9)))
+				{
+					returnBgTypeId = it->first;
+					break;
+				}
+			}
+		}
+    }
+    else if (weight)
     {
         // Select a random value
         uint32 selectedWeight = urand(0, weight - 1);

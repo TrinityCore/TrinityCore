@@ -163,6 +163,8 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     {
         ArenaTeam* Team = sArenaTeamMgr->GetArenaTeamById(arenateamid);
         if (Team)
+            Team = sArenaTeamMgr->GetArenaTeamById(0);
+        if (Team)
             sWorld->SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, Team->GetName().c_str(), ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
     }
 
@@ -354,9 +356,6 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     m_QueuedPlayers.erase(itr);
 
     // announce to world if arena team left queue for rated match, show only once
-    if (group->ArenaType && group->IsRated && group->Players.empty() && sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
-        if (ArenaTeam* Team = sArenaTeamMgr->GetArenaTeamById(group->ArenaTeamId))
-            sWorld->SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, Team->GetName().c_str(), group->ArenaType, group->ArenaType, group->ArenaTeamRating);
 
     // if player leaves queue and he is invited to rated arena match, then he have to lose
     if (group->IsInvitedToBGInstanceGUID && group->IsRated && decreaseInvitedCount)
@@ -505,14 +504,16 @@ void BattlegroundQueue::FillPlayersToBG(Battleground* bg, BattlegroundBracketId 
     uint32 aliCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].size();
     //index to queue which group is current
     uint32 aliIndex = 0;
-    for (; aliIndex < aliCount && m_SelectionPools[TEAM_ALLIANCE].AddGroup((*Ali_itr), aliFree); aliIndex++)
-        ++Ali_itr;
+    if ((hordeFree == aliFree && m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].size() > 0 && m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size() > 0) || hordeFree != aliFree) {
+    for (; aliIndex < aliCount && m_SelectionPools[TEAM_ALLIANCE].AddGroup((*Ali_itr), aliFree); aliIndex++) {
+        ++Ali_itr;}}
     //the same thing for horde
     GroupsQueueType::const_iterator Horde_itr = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].begin();
     uint32 hordeCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size();
     uint32 hordeIndex = 0;
-    for (; hordeIndex < hordeCount && m_SelectionPools[TEAM_HORDE].AddGroup((*Horde_itr), hordeFree); hordeIndex++)
-        ++Horde_itr;
+    if ((hordeFree == aliFree && m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].size() > 0 && m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size() > 0) || hordeFree != aliFree) {
+    for (; hordeIndex < hordeCount && m_SelectionPools[TEAM_HORDE].AddGroup((*Horde_itr), hordeFree); hordeIndex++) {
+        ++Horde_itr;}}
 
     //if ofc like BG queue invitation is set in config, then we are happy
     if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == 0)
@@ -907,6 +908,25 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
                 // if group match conditions, then add it to pool
                 if (!(*itr2)->IsInvitedToBGInstanceGUID
                     && (((*itr2)->ArenaMatchmakerRating >= arenaMinRating && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating)
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 50 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 50 && (*itr2)->JoinTime + 30000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 100 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 100 && (*itr2)->JoinTime + 60000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 150 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 150 && (*itr2)->JoinTime + 90000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 200 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 200 && (*itr2)->JoinTime + 120000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 250 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 250 && (*itr2)->JoinTime + 150000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 300 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 300 && (*itr2)->JoinTime + 180000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 350 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 350 && (*itr2)->JoinTime + 210000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 400 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 400 && (*itr2)->JoinTime + 240000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 450 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 450 && (*itr2)->JoinTime + 270000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 500 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 500 && (*itr2)->JoinTime + 300000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 550 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 550 && (*itr2)->JoinTime + 330000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 600 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 600 && (*itr2)->JoinTime + 360000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 650 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 650 && (*itr2)->JoinTime + 390000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 700 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 700 && (*itr2)->JoinTime + 420000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 750 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 750 && (*itr2)->JoinTime + 450000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 800 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 800 && (*itr2)->JoinTime + 480000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 850 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 850 && (*itr2)->JoinTime + 510000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 900 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 900 && (*itr2)->JoinTime + 540000 < getMSTime())
+                    || ((*itr2)->ArenaMatchmakerRating >= arenaMinRating - 950 && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating + 950 && (*itr2)->JoinTime + 570000 < getMSTime())
                         || (*itr2)->JoinTime < discardTime))
                 {
                     itr_teams[found++] = itr2;
@@ -925,6 +945,25 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             {
                 if (!(*itr3)->IsInvitedToBGInstanceGUID
                     && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 50 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 50 && (*itr3)->JoinTime + 30000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 100 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 100 && (*itr3)->JoinTime + 60000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 150 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 150 && (*itr3)->JoinTime + 90000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 200 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 200 && (*itr3)->JoinTime + 120000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 250 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 250 && (*itr3)->JoinTime + 150000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 300 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 300 && (*itr3)->JoinTime + 180000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 350 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 350 && (*itr3)->JoinTime + 210000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 400 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 400 && (*itr3)->JoinTime + 240000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 450 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 450 && (*itr3)->JoinTime + 270000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 500 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 500 && (*itr3)->JoinTime + 300000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 550 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 550 && (*itr3)->JoinTime + 330000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 600 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 600 && (*itr3)->JoinTime + 360000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 650 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 650 && (*itr3)->JoinTime + 390000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 700 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 700 && (*itr3)->JoinTime + 420000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 750 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 750 && (*itr3)->JoinTime + 450000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 800 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 800 && (*itr3)->JoinTime + 480000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 850 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 850 && (*itr3)->JoinTime + 510000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 900 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 900 && (*itr3)->JoinTime + 540000 < getMSTime())
+                    || ((*itr3)->ArenaMatchmakerRating >= arenaMinRating - 950 && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating + 950 && (*itr3)->JoinTime + 570000 < getMSTime())
                         || (*itr3)->JoinTime < discardTime)
                     && (*itr_teams[0])->ArenaTeamId != (*itr3)->ArenaTeamId)
                 {

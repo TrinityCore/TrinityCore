@@ -702,6 +702,15 @@ bool Guild::Member::CheckStats() const
 
 void Guild::Member::WritePacket(WorldPacket& data) const
 {
+    if (m_zoneId == 4378 || m_zoneId == 4406 || m_zoneId == 3968 || m_zoneId == 3702 || m_zoneId == 3698)
+    data << uint64(m_guid)
+         << uint8(m_flags)
+         << m_name
+         << uint32(m_rankId)
+         << uint8(m_level)
+         << uint8(m_class)
+         << uint8(0)
+         << uint32(4395); else
     data << uint64(m_guid)
          << uint8(m_flags)
          << m_name

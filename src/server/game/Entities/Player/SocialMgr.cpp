@@ -164,6 +164,7 @@ void PlayerSocial::SendSocialList(Player* player)
             data << uint8(itr->second.Status);              // online/offline/etc?
             if (itr->second.Status)                         // if online
             {
+        if (itr->second.Area == 4378 || itr->second.Area == 4406 || itr->second.Area == 3968 || itr->second.Area == 3702 || itr->second.Area == 3698) data << uint32(4395); else
                 data << uint32(itr->second.Area);           // player area
                 data << uint32(itr->second.Level);          // player level
                 data << uint32(itr->second.Class);          // player class
@@ -272,6 +273,7 @@ void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, uint32 fr
         case FRIEND_ADDED_ONLINE:
         case FRIEND_ONLINE:
             data << uint8(fi.Status);
+        if (fi.Area == 4378 || fi.Area == 4406 || fi.Area == 3968 || fi.Area == 3702 || fi.Area == 3698) data << uint32(4395); else
             data << uint32(fi.Area);
             data << uint32(fi.Level);
             data << uint32(fi.Class);

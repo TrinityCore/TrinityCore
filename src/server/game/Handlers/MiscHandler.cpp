@@ -291,7 +291,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         bool z_show = true;
         for (uint32 i = 0; i < zones_count; ++i)
         {
-            if (zoneids[i] == pzoneid)
+            if (zoneids[i] == pzoneid && zoneids[i] != 4378 && zoneids[i] != 4406 && zoneids[i] != 3968 && zoneids[i] != 3702 && zoneids[i] != 3698)
             {
                 z_show = true;
                 break;
@@ -353,6 +353,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         data << uint32(class_);                           // player class
         data << uint32(race);                             // player race
         data << uint8(gender);                            // player gender
+        if (pzoneid == 4378 || pzoneid == 4406 || pzoneid == 3968 || pzoneid == 3702 || pzoneid == 3698) data << uint32(4395); else
         data << uint32(pzoneid);                          // player zone id
 
         ++displaycount;
