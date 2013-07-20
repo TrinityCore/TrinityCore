@@ -197,25 +197,17 @@ class spell_gen_alchemist_stone : public SpellScriptLoader
                 PreventDefaultAction();
 
                 uint32 spellId = 0;
-                int32 basepoints0 = 0;
-                TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                {
-                    if (eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_HEAL)
-                        spellId = ALECHEMIST_STONE_HEAL;
-                    else if (eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_ENERGIZE)
-                        spellId = ALECHEMIST_STONE_MANA;
-                    else
-                        continue;
+                int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() * 0.4f);
 
-                    basepoints0 = int32(GetTarget()->CalculateSpellDamage(GetTarget(), eventInfo.GetDamageInfo()->GetSpellInfo(), i) * 0.4f);
-                }
-
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->HasEffect(SPELL_EFFECT_HEAL))
+                    spellId = ALECHEMIST_STONE_HEAL;
+                else if (eventInfo.GetDamageInfo()->GetSpellInfo()->HasEffect(SPELL_EFFECT_ENERGIZE))
+                    spellId = ALECHEMIST_STONE_MANA;
+                TC_LOG_ERROR(LOG_FILTER_GENERAL, "spellId: %u, procSpell: %u", spellId, eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
                 if (!spellId)
                     return;
 
-
-                GetTarget()->CastCustomSpell(GetTarget(), spellId, &basepoints0, NULL, NULL, true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, NULL, aurEff);
             }
 
 
