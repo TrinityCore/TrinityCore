@@ -901,10 +901,6 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
         }
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> trinitycore/4.3.4
 // -56333 - T.N.T.
 class spell_hun_tnt : public SpellScriptLoader
 {
@@ -946,7 +942,7 @@ class spell_hun_tnt : public SpellScriptLoader
         }
 };
 
-<<<<<<< HEAD
+
 // 82692 Focus Fire
 class spell_hun_focus_fire : public SpellScriptLoader
 {
@@ -1171,8 +1167,6 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
         }
 };
 
-=======
->>>>>>> trinitycore/4.3.4
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -1193,13 +1187,10 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
-<<<<<<< HEAD
     new spell_hun_focus_fire();
     new spell_hun_frenzy_effect();
     new spell_hun_tnt();
     new spell_hun_improved_steady_shot();
     new spell_hun_improved_serpent_sting();
-=======
     new spell_hun_tnt();
->>>>>>> trinitycore/4.3.4
 }
