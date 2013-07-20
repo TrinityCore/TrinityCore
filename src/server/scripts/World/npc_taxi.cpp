@@ -178,7 +178,7 @@ public:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 30);
             break;
 				case 23816:
-						if (player->GetQuestStatus(11229) == QUEST_STATUS_COMPLETE)
+						if (player->GetQuestStatus(11229) == QUEST_STATUS_INCOMPLETE)
 								player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, GOSSIP_CAMILLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
 						break;
 
@@ -294,6 +294,7 @@ public:
         case GOSSIP_ACTION_INFO_DEF + 23:
             player->CLOSE_GOSSIP_MENU();
 						player->ActivateTaxiPathTo(736);
+						player->CompleteQuest(11229);
 						// The Windrunner Fleet 11229
 						// Spell removed. Didn't work. Taxi path load, ok.
             break;
