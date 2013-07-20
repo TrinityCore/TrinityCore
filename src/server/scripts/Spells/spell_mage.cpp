@@ -89,6 +89,11 @@ enum MageIcons
     ICON_MAGE_IMPROVED_MANA_GEM                  = 1036
 };
 
+enum MiscSpells
+{
+    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
+};
+
 // -31571 - Arcane Potency
 class spell_mage_arcane_potency : public SpellScriptLoader
 {
@@ -686,6 +691,45 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mage_glyph_of_ice_block_AuraScript();
+        }
+};
+
+// 56375 - Glyph of Polymorph
+class spell_mage_glyph_of_polymorph : public SpellScriptLoader
+{
+    public:
+        spell_mage_glyph_of_polymorph() : SpellScriptLoader("spell_mage_glyph_of_polymorph") { }
+
+        class spell_mage_glyph_of_polymorph_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_glyph_of_polymorph_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                Unit* target = eventInfo.GetProcTarget();
+
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(SPELL_PRIEST_SHADOW_WORD_DEATH)); // SW:D shall not be removed.
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_glyph_of_polymorph_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_mage_glyph_of_polymorph_AuraScript();
         }
 };
 
@@ -1333,6 +1377,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
     new spell_mage_glyph_of_ice_block();
+    new spell_mage_glyph_of_polymorph();
     new spell_mage_living_bomb();
     new spell_mage_mage_ward();
     new spell_mage_mana_shield();
