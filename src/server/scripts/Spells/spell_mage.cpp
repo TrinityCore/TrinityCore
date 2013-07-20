@@ -1425,5 +1425,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_water_elemental_freeze();
     new spell_mage_combustion();
     new spell_mage_cauterize();
-	new spell_mage_mirror_image();
+    new spell_mage_mirror_image();
 }
