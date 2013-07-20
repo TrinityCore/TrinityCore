@@ -101,10 +101,10 @@ public:
             if (GetHitUnit()->IsFriendlyTo(GetCaster()))
             {
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY, true);
-                if (GetCaster()->HasAura(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC))
+                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC, EFFECT_0))
                 {
-                    int32 healAmount = CalculatePct(GetHitUnit()->GetMaxHealth(), sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL)->Effects[EFFECT_0].CalcValue());
-                    GetCaster()->CastCustomSpell(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL, SPELLVALUE_BASE_POINT0, healAmount, GetHitUnit());
+                    int32 heal = GetHitUnit()->CountPctFromMaxHealth(aurEff->GetAmount());
+                    GetCaster()->CastCustomSpell(SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL, SPELLVALUE_BASE_POINT0, heal, GetHitUnit());
                 }
             }
             else

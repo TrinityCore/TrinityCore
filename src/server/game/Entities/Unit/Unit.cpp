@@ -5604,16 +5604,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     RemoveMovementImpairingAuras();
                     break;
                 }
-                // Glyph of Dispel Magic
-                case 55677:
-                {
-                    if (!target || !target->IsFriendlyTo(this))
-                        return false;
-
-                    basepoints0 = int32(target->CountPctFromMaxHealth(triggerAmount));
-                    triggered_spell_id = 56131;
-                    break;
-                }
                 // Oracle Healing Bonus ("Garments of the Oracle" set)
                 case 26169:
                 {
@@ -6522,34 +6512,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             break;
         }
-        case SPELLFAMILY_POTION:
-        {
-            // alchemist's stone
-            if (dummySpell->Id == 17619)
-            {
-                if (procSpell->SpellFamilyName == SPELLFAMILY_POTION)
-                {
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-                    {
-                        if (procSpell->Effects[i].Effect == SPELL_EFFECT_HEAL)
-                        {
-                            triggered_spell_id = 21399;
-                        }
-                        else if (procSpell->Effects[i].Effect == SPELL_EFFECT_ENERGIZE)
-                        {
-                            triggered_spell_id = 21400;
-                        }
-                        else
-                            continue;
-
-                        basepoints0 = int32(CalculateSpellDamage(this, procSpell, i) * 0.4f);
-                        CastCustomSpell(this, triggered_spell_id, &basepoints0, NULL, NULL, true, NULL, triggeredByAura);
-                    }
-                    return true;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_PET:
         {
             switch (dummySpell->SpellIconID)
@@ -6797,13 +6759,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                     }
                     return true;
                 }
-                // Hungering Cold aura drop
-                case 51209:
-                    *handled = true;
-                    // Drop only in not disease case
-                    if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
-                        return false;
-                    return true;
             }
             break;
         }
