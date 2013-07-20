@@ -5430,24 +5430,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 37436;
                 break;
             }
-            switch (dummySpell->Id)
-            {
-                // Permafrost
-                case 11175:
-                case 12569:
-                case 12571:
-                {
-                    if (!GetGuardianPet())
-                        return false;
-
-                    // heal amount
-                    basepoints0 = CalculatePct(damage, triggerAmount);
-                    target = this;
-                    triggered_spell_id = 91394;
-                    break;
-                }
-            }
-            break;
         }
         case SPELLFAMILY_WARRIOR:
         {
