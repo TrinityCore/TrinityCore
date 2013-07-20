@@ -1190,6 +1190,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_focus_fire();
     new spell_hun_frenzy_effect();
     new spell_hun_tnt();
+<<<<<<< HEAD
 <<<<<<< 4.3.4
 =======
 	new spell_hun_improved_steady_shot();
@@ -1198,6 +1199,8 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_frenzy_effect();
     new spell_hun_tnt();
 >>>>>>> local
+=======
+>>>>>>> d4736f2... Revert "Cleaning all the code"
     new spell_hun_improved_steady_shot();
     new spell_hun_improved_serpent_sting();
     new spell_hun_tnt();

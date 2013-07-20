@@ -45,7 +45,6 @@ enum MageSpells
     SPELL_MAGE_INCANTERS_ABSORPTION_KNOCKBACK    = 86261,
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
-    SPELL_MAGE_PERMAFROST                        = 91394,
     SPELL_MAGE_SLOW                              = 31589,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
@@ -733,31 +732,31 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
 // 56374 - Glyph of Icy Veins
 class spell_mage_glyph_of_icy_veins : public SpellScriptLoader
 {
-    public:
-        spell_mage_glyph_of_icy_veins() : SpellScriptLoader("spell_mage_glyph_of_icy_veins") { }
+public:
+    spell_mage_glyph_of_icy_veins() : SpellScriptLoader("spell_mage_glyph_of_icy_veins") { }
 
-        class spell_mage_glyph_of_icy_veins_AuraScript : public AuraScript
+    class spell_mage_glyph_of_icy_veins_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_glyph_of_icy_veins_AuraScript);
+
+        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
-            PrepareAuraScript(spell_mage_glyph_of_icy_veins_AuraScript);
+            PreventDefaultAction();
 
-            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-
-                GetTarget()->RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, 0, 0, true, false);
-                GetTarget()->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectProc += AuraEffectProcFn(spell_mage_glyph_of_icy_veins_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_mage_glyph_of_icy_veins_AuraScript();
+            GetTarget()->RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, 0, 0, true, false);
+            GetTarget()->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
         }
+
+        void Register() OVERRIDE
+        {
+            OnEffectProc += AuraEffectProcFn(spell_mage_glyph_of_icy_veins_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new spell_mage_glyph_of_icy_veins_AuraScript();
+    }
 };
 
 // 56375 - Glyph of Polymorph
@@ -1078,49 +1077,6 @@ class spell_mage_nether_vortex : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mage_nether_vortex_AuraScript();
-        }
-};
-
-// -11175 - Permafrost
-class spell_mage_permafrost : public SpellScriptLoader
-{
-    public:
-        spell_mage_permafrost() : SpellScriptLoader("spell_mage_permafrost") { }
-
-        class spell_mage_permafrost_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_permafrost_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_PERMAFROST))
-                    return false;
-               return true;
-            }
-
-            bool DoCheck(ProcEventInfo& eventInfo)
-            {
-                return GetTarget()->GetGuardianPet() && eventInfo.GetDamageInfo()->GetDamage();
-            }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-                GetTarget()->CastCustomSpell(SPELL_MAGE_PERMAFROST, SPELLVALUE_BASE_POINT0, heal, (Unit*)NULL, true, NULL, aurEff);
-            }
-
-            void Register() OVERRIDE
-            {
-                DoCheckProc += AuraCheckProcFn(spell_mage_permafrost_AuraScript::DoCheck);
-                OnEffectProc += AuraEffectProcFn(spell_mage_permafrost_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_mage_permafrost_AuraScript();
         }
 };
 
@@ -1671,7 +1627,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
     new spell_mage_nether_vortex();
-    new spell_mage_permafrost();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
