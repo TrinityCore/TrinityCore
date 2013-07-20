@@ -655,11 +655,9 @@ public:
             return false;
         }
 
-        if (target->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (handler->HasLowerSecurity((Player*)target, 0, false))
+        if (Player* player = target->ToPlayer())
+            if (handler->HasLowerSecurity(player, 0, false))
                 return false;
-        }
 
         if (target->IsAlive())
         {
@@ -2227,11 +2225,9 @@ public:
             return false;
         }
 
-        if (target->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (handler->HasLowerSecurity((Player*)target, 0, false))
+        if (Player* player = target->ToPlayer())
+            if (handler->HasLowerSecurity(player, 0, false))
                 return false;
-        }
 
         if (!target->IsAlive())
             return true;
