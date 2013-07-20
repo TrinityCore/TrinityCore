@@ -1035,11 +1035,12 @@ class npc_margrave_dhakar : public CreatureScript
 
                             if (Creature* morbidus = me->FindNearestCreature(NPC_MORBIDUS, 50.0f, true))
                             {
-                                Creature* lichKing = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX()+10, morbidus->GetPositionY(), morbidus->GetPositionZ());
-                                _lichKingGuid = lichKing->GetGUID();
-                                lichKing = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX()+10, morbidus->GetPositionY(), morbidus->GetPositionZ());
-                                lichKing->SetFacingTo(morbidus->GetOrientation());
-                                lichKing->CastSpell(lichKing, SPELL_SIMPLE_TELEPORT, true);
+                                if (Creature* lichKing = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX() + 10.0f, morbidus->GetPositionY(), morbidus->GetPositionZ()))
+                                {
+                                    _lichKingGuid = lichKing->GetGUID();
+                                    lichKing->SetFacingTo(morbidus->GetOrientation());
+                                    lichKing->CastSpell(lichKing, SPELL_SIMPLE_TELEPORT, true);
+                                }
                             }
 
                             _events.ScheduleEvent(EVENT_LK_SAY_1, 5000);
