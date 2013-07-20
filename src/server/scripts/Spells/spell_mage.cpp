@@ -694,6 +694,36 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
         }
 };
 
+// 56374 - Glyph of Icy Veins
+class spell_mage_glyph_of_icy_veins : public SpellScriptLoader
+{
+public:
+    spell_mage_glyph_of_icy_veins() : SpellScriptLoader("spell_mage_glyph_of_icy_veins") { }
+
+    class spell_mage_glyph_of_icy_veins_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_glyph_of_icy_veins_AuraScript);
+
+        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+        {
+            PreventDefaultAction();
+
+            GetTarget()->RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, 0, 0, true, false);
+            GetTarget()->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+        }
+
+        void Register() OVERRIDE
+        {
+            OnEffectProc += AuraEffectProcFn(spell_mage_glyph_of_icy_veins_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new spell_mage_glyph_of_icy_veins_AuraScript();
+    }
+};
+
 // 56375 - Glyph of Polymorph
 class spell_mage_glyph_of_polymorph : public SpellScriptLoader
 {
@@ -1377,6 +1407,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
     new spell_mage_glyph_of_ice_block();
+    new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_polymorph();
     new spell_mage_living_bomb();
     new spell_mage_mage_ward();
