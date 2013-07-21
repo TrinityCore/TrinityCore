@@ -5582,16 +5582,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     target = this;
                     break;
                 }
-                // Phantasm
-                case 47569:
-                case 47570:
-                {
-                    if (!roll_chance_i(triggerAmount))
-                        return false;
-
-                    RemoveMovementImpairingAuras();
-                    break;
-                }
                 // Oracle Healing Bonus ("Garments of the Oracle" set)
                 case 26169:
                 {
