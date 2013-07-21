@@ -5628,17 +5628,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
-                // Glyph of Innervate
-                case 54832:
-                {
-                    if (procSpell->SpellIconID != 62)
-                        return false;
-
-                    basepoints0 = int32(CalculatePct(GetCreatePowers(POWER_MANA), triggerAmount) / 5);
-                    triggered_spell_id = 54833;
-                    target = this;
-                    break;
-                }
                 // Glyph of Starfire
                 case 54845:
                 {

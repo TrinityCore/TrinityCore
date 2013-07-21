@@ -55,7 +55,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
-    SPELL_PRIEST_VAMPRIC_EMBRACE_HEAL               = 15290,
+    SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
 };
 
@@ -907,7 +907,7 @@ class spell_pri_vampiric_embrace : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPRIC_EMBRACE_HEAL))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL))
                     return false;
                 return true;
             }
@@ -924,7 +924,7 @@ class spell_pri_vampiric_embrace : public SpellScriptLoader
                 int32 self = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
                 int32 team = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount() / 2));
 
-                GetTarget()->CastCustomSpell((Unit*)NULL, SPELL_PRIEST_VAMPRIC_EMBRACE_HEAL, &team, &self, NULL, true, NULL, aurEff);
+                GetTarget()->CastCustomSpell((Unit*)NULL, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, &team, &self, NULL, true, NULL, aurEff);
             }
 
             void Register() OVERRIDE

@@ -80,7 +80,6 @@ enum MiscSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
 };
 
-
 // -85113 - Aftermath
 class spell_warl_aftermath : public SpellScriptLoader
 {
@@ -104,15 +103,9 @@ class spell_warl_aftermath : public SpellScriptLoader
                 {
                     PreventDefaultAction();
 
-                    TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u - blub", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
                     if (roll_chance_i(aurEff->GetAmount()))
-                    {
                         GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, NULL, aurEff);
-                        TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u -- proc", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
-                    }
                 }
-                else
-                    TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u - xxx", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
             }
 
             void Register() OVERRIDE
