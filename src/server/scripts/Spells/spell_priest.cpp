@@ -94,6 +94,7 @@ class spell_pri_body_and_soul : public SpellScriptLoader
             void HandleEffectSpeedProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
+                // Proc only with Power Word: Shield or Leap of Faith
                 if (!(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[0] & 0x1 || eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[2] & 0x80000))
                     return;
 
@@ -103,6 +104,7 @@ class spell_pri_body_and_soul : public SpellScriptLoader
             void HandleEffectDispelProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
+                // Proc only with Cure Disease
                 if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_PRIEST_CURE_DISEASE || eventInfo.GetProcTarget() != GetTarget())
                     return;
 
