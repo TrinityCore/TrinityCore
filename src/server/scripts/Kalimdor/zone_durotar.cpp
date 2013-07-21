@@ -43,7 +43,7 @@ class npc_lazy_peon : public CreatureScript
 public:
     npc_lazy_peon() : CreatureScript("npc_lazy_peon") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_lazy_peonAI(creature);
     }
@@ -57,7 +57,7 @@ public:
         uint32 RebuffTimer;
         bool work;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             PlayerGUID = 0;
             RebuffTimer = 0;
@@ -86,17 +86,17 @@ public:
             }
         }
 
-        void UpdateAI(uint32 Diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (work == true)
                 me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
-            if (RebuffTimer <= Diff)
+            if (RebuffTimer <= diff)
             {
                 DoCast(me, SPELL_BUFF_SLEEP);
                 RebuffTimer = 300000; //Rebuff agian in 5 minutes
             }
             else
-                RebuffTimer -= Diff;
+                RebuffTimer -= diff;
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
@@ -125,7 +125,7 @@ class spell_voodoo : public SpellScriptLoader
         {
             PrepareSpellScript(spell_voodoo_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BREW) || !sSpellMgr->GetSpellInfo(SPELL_GHOSTLY) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HEX1) || !sSpellMgr->GetSpellInfo(SPELL_HEX2) ||
@@ -142,13 +142,13 @@ class spell_voodoo : public SpellScriptLoader
                     GetCaster()->CastSpell(target, spellid, false);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_voodoo_SpellScript();
         }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,13 +50,15 @@ enum PaladinSpells
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
 
     SPELL_PALADIN_FORBEARANCE                    = 25771,
-    //SPELL_PALADIN_AVENGING_WRATH_MARKER          = 61987,
-    //SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
+    SPELL_PALADIN_AVENGING_WRATH_MARKER          = 61987,
+    SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
 
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
 
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
+
+    SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
 
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
@@ -476,7 +478,7 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         }
 };
 
-// 63521 - Guarded by The Light (53592?)
+// 63521 - Guarded by The Light
 class spell_pal_guarded_by_the_light : public SpellScriptLoader
 {
     public:
@@ -557,11 +559,7 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 };
 
 // 1038 - Hand of Salvation
-// En cataclismo cambia el efecto del glifo, que ahora elimina el 100% del agro del que tiene Hand of Salvation
-// mientras la mano está activa.
-// Aunque lo dejo comentado en lo que se comprueba si va el glifo sin script o no,
-// he cambiado el tipo de efecto de SPEL_AURA_MOD_DAMAGE_PERCENT_TAKEN a SPELL_AURA_MOD_THREAT
-/*class spell_pal_hand_of_salvation : public SpellScriptLoader
+class spell_pal_hand_of_salvation : public SpellScriptLoader
 {
     public:
         spell_pal_hand_of_salvation() : SpellScriptLoader("spell_pal_hand_of_salvation") { }
@@ -569,9 +567,9 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         class spell_pal_hand_of_salvation_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pal_hand_of_salvation_AuraScript);
-*/
-//           void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-/*            {
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
                 if (Unit* caster = GetCaster())
                 {
                     // Glyph of Salvation
@@ -583,7 +581,7 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_hand_of_salvation_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_THREAT);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_hand_of_salvation_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
             }
         };
 
@@ -591,7 +589,42 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         {
             return new spell_pal_hand_of_salvation_AuraScript();
         }
-};*/
+};
+
+// 37705 - Healing Discount
+class spell_pal_item_healing_discount : public SpellScriptLoader
+{
+    public:
+        spell_pal_item_healing_discount() : SpellScriptLoader("spell_pal_item_healing_discount") { }
+
+        class spell_pal_item_healing_discount_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_item_healing_discount_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_ITEM_HEALING_TRANCE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_item_healing_discount_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_item_healing_discount_AuraScript();
+        }
+};
 
 // -20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScriptLoader
@@ -694,9 +727,6 @@ class spell_pal_judgement_of_command : public SpellScriptLoader
 };
 
 // -633 - Lay on Hands
-// En cataclismo ya solo no se puede usar sobre objetivos con abstinencia (Forbearance)
-// SPELL_PALADIN_AVENGING_WRATH_MARKER y SPELL_PALADIN_IMMUNE_SHIELD_MARKER desaparecen
-// por lo que se quitan de Validate y de CheckCast, y no se castean.
 class spell_pal_lay_on_hands : public SpellScriptLoader
 {
     public:
@@ -710,10 +740,10 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_FORBEARANCE))
                     return false;
-                //if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_AVENGING_WRATH_MARKER))
-                //    return false;
-                //if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
-                //    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_AVENGING_WRATH_MARKER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
+                    return false;
                 return true;
             }
 
@@ -722,7 +752,7 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* target = GetExplTargetUnit())
                     if (caster == target)
-                        if ( target->HasAura(SPELL_PALADIN_FORBEARANCE) ) //|| target->HasAura(SPELL_PALADIN_AVENGING_WRATH_MARKER) || target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
+                        if (target->HasAura(SPELL_PALADIN_FORBEARANCE) || target->HasAura(SPELL_PALADIN_AVENGING_WRATH_MARKER) || target->HasAura(SPELL_PALADIN_IMMUNE_SHIELD_MARKER))
                             return SPELL_FAILED_TARGET_AURASTATE;
 
                 return SPELL_CAST_OK;
@@ -734,8 +764,8 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
                 if (caster == GetHitUnit())
                 {
                     caster->CastSpell(caster, SPELL_PALADIN_FORBEARANCE, true);
-                    //caster->CastSpell(caster, SPELL_PALADIN_AVENGING_WRATH_MARKER, true);
-                    //caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
+                    caster->CastSpell(caster, SPELL_PALADIN_AVENGING_WRATH_MARKER, true);
+                    caster->CastSpell(caster, SPELL_PALADIN_IMMUNE_SHIELD_MARKER, true);
                 }
             }
 
@@ -838,13 +868,13 @@ class spell_pal_sacred_shield : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_pal_sacred_shield_SpellScript();
         }
@@ -869,7 +899,7 @@ class spell_pal_templar_s_verdict : public SpellScriptLoader
                 return true;
             }
 
-            bool Load()
+            bool Load() OVERRIDE
             {
                 if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                     return false;
@@ -977,7 +1007,8 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_eye_for_an_eye();
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
-    //new spell_pal_hand_of_salvation();
+    new spell_pal_hand_of_salvation();
+    new spell_pal_item_healing_discount();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();

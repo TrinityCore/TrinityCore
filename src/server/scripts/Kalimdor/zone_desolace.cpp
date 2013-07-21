@@ -108,7 +108,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_aged_dying_ancient_kodoAI(creature);
     }

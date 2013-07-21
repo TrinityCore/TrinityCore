@@ -149,14 +149,14 @@ class instance_zulgurub : public InstanceMapScript
             }
 
             /*
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -166,7 +166,7 @@ class instance_zulgurub : public InstanceMapScript
             }
             */
 
-            uint64 GetData64(uint32 type) const
+            uint64 GetData64(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -254,7 +254,7 @@ class instance_zulgurub : public InstanceMapScript
              uint64 jindoTiggerGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_zulgurub_InstanceMapScript(map);
         }

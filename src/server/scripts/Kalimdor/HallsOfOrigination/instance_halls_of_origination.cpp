@@ -270,7 +270,7 @@ class instance_halls_of_origination : public InstanceMapScript
             uint32 _deadElementals;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_halls_of_origination_InstanceMapScript(map);
         }

@@ -54,7 +54,7 @@ class npc_aquementas : public CreatureScript
 public:
     npc_aquementas() : CreatureScript("npc_aquementas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_aquementasAI (creature);
     }
@@ -70,7 +70,7 @@ public:
         uint32 FrostShockTimer;
         uint32 AquaJetTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             SendItemTimer = 0;
             SwitchFactionTimer = 10000;
@@ -102,7 +102,7 @@ public:
             Talk(AGGRO_YELL_AQUE, who->GetGUID());
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (isFriendly)
             {
@@ -171,7 +171,7 @@ class npc_custodian_of_time : public CreatureScript
 public:
     npc_custodian_of_time() : CreatureScript("npc_custodian_of_time") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_custodian_of_timeAI(creature);
     }
@@ -265,10 +265,10 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
         void Reset() {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -361,7 +361,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_OOX17AI(creature);
     }
@@ -400,12 +400,12 @@ public:
 
         void Reset(){}
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->AI()->AttackStart(me);
         }
@@ -451,7 +451,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_toogaAI(creature);
     }
@@ -466,7 +466,7 @@ public:
 
         uint64 TortaGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CheckSpeechTimer = 2500;
             PostEventTimer = 1000;

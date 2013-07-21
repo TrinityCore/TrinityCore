@@ -21,6 +21,11 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
+enum Spells
+{
+    SPELL_UK_SECOUND_WIND_TRIGGER    = 42771
+};
+
 uint32 entry_search[3] =
 {
     186609,
@@ -337,10 +342,56 @@ public:
     }
 };
 
+class spell_uk_second_wind_proc : public SpellScriptLoader
+{
+    public:
+        spell_uk_second_wind_proc() : SpellScriptLoader("spell_uk_second_wind_proc") { }
+
+        class spell_uk_second_wind_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_uk_second_wind_proc_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_UK_SECOUND_WIND_TRIGGER))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetProcTarget() == GetTarget())
+                    return false;
+                if (!(eventInfo.GetDamageInfo() || eventInfo.GetDamageInfo()->GetSpellInfo()->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastCustomSpell(SPELL_UK_SECOUND_WIND_TRIGGER, SPELLVALUE_BASE_POINT0, 5, GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_uk_second_wind_proc_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_uk_second_wind_proc_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_uk_second_wind_proc_AuraScript();
+        }
+};
+
 void AddSC_utgarde_keep()
 {
     new npc_dragonflayer_forge_master();
     new npc_enslaved_proto_drake();
     new spell_ticking_time_bomb();
     new spell_fixate();
+    new spell_uk_second_wind_proc();
 }

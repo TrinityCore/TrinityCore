@@ -105,7 +105,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 Cleave_Timer = 5000;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
 
@@ -113,7 +113,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     instance->SetBossState(DATA_NETHEKURSE, DONE);
             }
 
-            void SetData(uint32 data, uint32 value)
+            void SetData(uint32 data, uint32 value) OVERRIDE
             {
                 if (data != SETDATA_DATA)
                     return;
@@ -340,9 +340,9 @@ class npc_fel_orc_convert : public CreatureScript
                 {
                     if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
                         return;
-                    if (instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE))
-                        if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
-                            Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
+
+                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                        Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
                 }
             }
 
@@ -404,4 +404,3 @@ void AddSC_boss_grand_warlock_nethekurse()
     new npc_fel_orc_convert();
     new npc_lesser_shadow_fissure();
 }
-

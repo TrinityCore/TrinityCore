@@ -583,7 +583,7 @@ struct GameObjectData
     explicit GameObjectData() : dbData(true) {}
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
-    uint16 phaseMask;
+    uint32 phaseMask;
     float posX;
     float posY;
     float posZ;

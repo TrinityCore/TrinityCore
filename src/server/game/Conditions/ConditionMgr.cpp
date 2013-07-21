@@ -1660,7 +1660,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
 
             if (cond->ConditionValue2 < 1 || cond->ConditionValue2 > sWorld->GetConfigMaxSkillValue())
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Skill condition specifies invalid skill value (%u), skipped", cond->ConditionValue2);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Skill condition specifies skill (%u) with invalid value (%u), skipped", cond->ConditionValue1, cond->ConditionValue2);
                 return false;
             }
             if (cond->ConditionValue3)

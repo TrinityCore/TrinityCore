@@ -32,6 +32,8 @@ enum DeathKnightSpells
     SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
     SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
+    SPELL_DK_BLOOD_PRESENCE                     = 48266,
+    SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_CORPSE_EXPLOSION_VISUAL            = 51270,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
@@ -39,17 +41,16 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
-    SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
-    SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
-    SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
-    SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
-    SPELL_DK_BLOOD_PRESENCE                     = 48266,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
-    SPELL_DK_UNHOLY_PRESENCE                    = 48265,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
-	SPELL_DK_NECROTIC_STRIKE					= 73975
+    SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
+    SPELL_DK_SCENT_OF_BLOOD                     = 50422,
+    SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
+    SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
+    SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
+    SPELL_DK_UNHOLY_PRESENCE                    = 48265,
 };
 
 enum DeathKnightSpellIcons
@@ -298,6 +299,41 @@ class spell_dk_blood_gorged : public SpellScriptLoader
 
         private:
             Unit* _procTarget;
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dk_blood_gorged_AuraScript();
+        }
+};
+
+// -48979 - Butchery
+class spell_dk_butchery : public SpellScriptLoader
+{
+    public:
+        spell_dk_butchery() : SpellScriptLoader("spell_dk_butchery") { }
+
+        class spell_dk_blood_gorged_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blood_gorged_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_BUTCHERY))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastCustomSpell(SPELL_DK_BUTCHERY, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_blood_gorged_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
         };
 
         AuraScript* GetAuraScript() const OVERRIDE
@@ -808,6 +844,42 @@ class spell_dk_rune_tap_party : public SpellScriptLoader
         }
 };
 
+// 50421 - Scent of Blood
+class spell_dk_scent_of_blood : public SpellScriptLoader
+{
+    public:
+        spell_dk_scent_of_blood() : SpellScriptLoader("spell_dk_scent_of_blood") { }
+
+        class spell_dk_scent_of_blood_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_scent_of_blood_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_SCENT_OF_BLOOD))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_DK_SCENT_OF_BLOOD, true, NULL, aurEff);
+                GetTarget()->RemoveAuraFromStack(GetSpellInfo()->Id);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_scent_of_blood_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dk_scent_of_blood_AuraScript();
+        }
+};
+
 // 55090 - Scourge Strike (55265, 55270, 55271)
 class spell_dk_scourge_strike : public SpellScriptLoader
 {
@@ -1006,58 +1078,6 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         }
 };
 
-
-// 73975 - Necrotic strike
-class spell_dk_necrotic_strike: public SpellScriptLoader
-{
-public:
-    spell_dk_necrotic_strike () : SpellScriptLoader("spell_dk_necrotic_strike") { }
-
-    class spell_dk_necrotic_strike_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_necrotic_strike_AuraScript);
-        
-        bool Validate(SpellInfo const* /*spellEntry*/)
-        {
-            // check if spellid exists in dbc
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_NECROTIC_STRIKE))
-                return false;
-            return true;
-        }
-
-		// Heal absorb effect
-		void HandleEffectCalcAmount_1(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-        {
-			Unit* caster = GetCaster();
-            
-			if (caster)
-				amount = (int32) (caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.7f);
-
-            canBeRecalculated = false;
-        }
-
-		// Mod spell haste effect
-		void HandleEffectCalcAmount_2(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-        {
-			amount = -30;
-            
-            canBeRecalculated = false;
-        }
-
-        void Register ()
-        {
-			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_necrotic_strike_AuraScript::HandleEffectCalcAmount_1, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB);
-			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_necrotic_strike_AuraScript::HandleEffectCalcAmount_2, EFFECT_2, SPELL_AURA_HASTE_SPELLS);
-        }
-    };
-
-    // function which creates AuraScript
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dk_necrotic_strike_AuraScript();
-    }
-};
-
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1065,6 +1085,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_zone();
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
+    new spell_dk_butchery();
     new spell_dk_corpse_explosion();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
@@ -1076,9 +1097,9 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_unholy_presence();
     new spell_dk_rune_tap_party();
+    new spell_dk_scent_of_blood();
     new spell_dk_scourge_strike();
     new spell_dk_spell_deflection();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
-	new spell_dk_necrotic_strike();
 }
