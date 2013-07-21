@@ -15,16 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: Boss epoch
-SDAuthor: Tartalo
-SD%Complete: 80
-SDComment: @todo Intro, consecutive attacks to a random target durin time wrap, adjust timers
-SDCategory:
-Script Data End */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
@@ -38,11 +29,15 @@ enum Spells
 
 enum Yells
 {
-    SAY_INTRO                                   = 0,
-    SAY_AGGRO                                   = 1,
-    SAY_TIME_WARP                               = 2,
-    SAY_SLAY                                    = 3,
-    SAY_DEATH                                   = 4
+    SAY_INTRO                                   = 0, //"Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."
+    SAY_AGGRO                                   = 1, //"We'll see about that, young prince."
+    SAY_TIME_WARP_1                             = 2, //"Tick tock, tick tock..."
+    SAY_TIME_WARP_2                             = 2, //"Not quick enough!"
+    SAY_TIME_WARP_3                             = 2, //"Let's get this over with. "
+    SAY_SLAY_1                                  = 3, //"There is no future for you."
+    SAY_SLAY_2                                  = 3, //"This is the hour of our greatest triumph!"
+    SAY_SLAY_3                                  = 3, //"You were destined to fail. "
+    SAY_DEATH                                   = 4 //"*gurgles*"
 };
 
 class boss_epoch : public CreatureScript
@@ -50,16 +45,16 @@ class boss_epoch : public CreatureScript
 public:
     boss_epoch() : CreatureScript("boss_epoch") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_epochAI(creature);
+        return new boss_epochAI (creature);
     }
 
     struct boss_epochAI : public ScriptedAI
     {
-        boss_epochAI(Creature* creature) : ScriptedAI(creature)
+        boss_epochAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint8 uiStep;
@@ -72,7 +67,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset()
         {
             uiStep = 1;
             uiStepTimer = 26000;
@@ -85,7 +80,7 @@ public:
                 instance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
 
@@ -93,7 +88,7 @@ public:
                 instance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -120,7 +115,7 @@ public:
 
             if (uiTimeWarpTimer < diff)
             {
-                Talk(SAY_TIME_WARP);
+                Talk(SAY_TIME_WARP_1);
                 DoCastAOE(SPELL_TIME_WARP);
                 uiTimeWarpTimer = 25300;
             } else uiTimeWarpTimer -= diff;
@@ -128,7 +123,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/)
         {
             Talk(SAY_DEATH);
 
@@ -136,12 +131,12 @@ public:
                 instance->SetData(DATA_EPOCH_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim == me)
                 return;
 
-            Talk(SAY_SLAY);
+            Talk(SAY_SLAY_1);
         }
     };
 

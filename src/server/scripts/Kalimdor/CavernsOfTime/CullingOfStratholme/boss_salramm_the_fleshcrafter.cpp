@@ -19,12 +19,11 @@
 SDName: Boss salramm
 SDAuthor: Tartalo
 SD%Complete: 80
-SDComment: @todo Intro
+SDComment: TODO: Intro
 SDCategory:
 Script Data End */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
@@ -42,11 +41,17 @@ enum Yells
 {
     SAY_AGGRO                                   = 0,
     SAY_SPAWN                                   = 1,
-    SAY_SLAY                                    = 2,
+    SAY_SLAY_1                                  = 2,
+    SAY_SLAY_2                                  = 2,
+    SAY_SLAY_3                                  = 2,
     SAY_DEATH                                   = 3,
-    SAY_EXPLODE_GHOUL                           = 4,
-    SAY_STEAL_FLESH                             = 5,
-    SAY_SUMMON_GHOULS                           = 6
+    SAY_EXPLODE_GHOUL_1                         = 4,
+    SAY_EXPLODE_GHOUL_2                         = 4,
+    SAY_STEAL_FLESH_1                           = 5,
+    SAY_STEAL_FLESH_2                           = 5,
+    SAY_STEAL_FLESH_3                           = 5,
+    SAY_SUMMON_GHOULS_1                         = 6,
+    SAY_SUMMON_GHOULS_2                         = 6
 };
 
 class boss_salramm : public CreatureScript
@@ -54,16 +59,16 @@ class boss_salramm : public CreatureScript
 public:
     boss_salramm() : CreatureScript("boss_salramm") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_salrammAI(creature);
+        return new boss_salrammAI (creature);
     }
 
     struct boss_salrammAI : public ScriptedAI
     {
-        boss_salrammAI(Creature* creature) : ScriptedAI(creature)
+        boss_salrammAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             if (instance)
                 Talk(SAY_SPAWN);
         }
@@ -73,22 +78,26 @@ public:
         uint32 uiShadowBoltTimer;
         uint32 uiStealFleshTimer;
         uint32 uiSummonGhoulsTimer;
+        uint32 uiRespawnZombiesTimer;
+        bool bTransformed;
 
         InstanceScript* instance;
 
-        void Reset() OVERRIDE
+        void Reset()
         {
-             uiCurseFleshTimer = 30000;  //30s DBM
-             uiExplodeGhoulTimer = urand(25000, 28000); //approx 6 sec after summon ghouls
-             uiShadowBoltTimer = urand(8000, 12000); // approx 10s
+             uiCurseFleshTimer = 30000; 
+             uiExplodeGhoulTimer = 25000; 
+             uiShadowBoltTimer = 8000; 
              uiStealFleshTimer = 12345;
-             uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
+             uiSummonGhoulsTimer = 19000; 
+             uiRespawnZombiesTimer = 200000;
+             bTransformed = false;
 
              if (instance)
                  instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
 
@@ -96,7 +105,7 @@ public:
                  instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -105,7 +114,7 @@ public:
             //Curse of twisted flesh timer
             if (uiCurseFleshTimer <= diff)
             {
-                DoCastVictim(SPELL_CURSE_OF_TWISTED_FLESH);
+                DoCast(me->GetVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
                 uiCurseFleshTimer = 37000;
             } else uiCurseFleshTimer -= diff;
 
@@ -114,31 +123,42 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_SHADOW_BOLT);
-                uiShadowBoltTimer = urand(8000, 12000);
+                uiShadowBoltTimer = 8000;
             } else uiShadowBoltTimer -= diff;
 
             //Steal Flesh timer
             if (uiStealFleshTimer <= diff)
             {
-                Talk(SAY_STEAL_FLESH);
+                Talk(SAY_STEAL_FLESH_1);
                 if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(random_pTarget, SPELL_STEAL_FLESH);
                 uiStealFleshTimer = 10000;
-            } else uiStealFleshTimer -= diff;
+            } 
+			else uiStealFleshTimer -= diff; 
 
             //Summon ghouls timer
             if (uiSummonGhoulsTimer <= diff)
             {
-                Talk(SAY_SUMMON_GHOULS);
+                Talk(SAY_SUMMON_GHOULS_1);
                 if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
                 uiSummonGhoulsTimer = 10000;
-            } else uiSummonGhoulsTimer -= diff;
+            } 
+			else uiSummonGhoulsTimer -= diff;
+			
+            // Respawn risen zombies at town
+            if(!bTransformed)
+                if (uiRespawnZombiesTimer <= diff)
+                {
+                    instance->SetData(DATA_TRANSFORM_CITIZENS, SPECIAL);
+                    bTransformed = true;
+                }
+                else uiRespawnZombiesTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/)
         {
             Talk(SAY_DEATH);
 
@@ -146,12 +166,12 @@ public:
                 instance->SetData(DATA_SALRAMM_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim) OVERRIDE
+        void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim == me)
                 return;
 
-            Talk(SAY_SLAY);
+            Talk(SAY_SLAY_1);
         }
     };
 
