@@ -23,13 +23,10 @@ script:
   - make -j16
 
 notifications:
-  irc:
-    template:
-      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
-      - "Build details : %{build_url}"
-    channels:
-      - "irc.rizon.net#bloodcraft-staff"
-      - "irc.bloodcraft.org#dev"
-    channel_key: 'in5RPn'
+  email: false
+  webhooks:
+    urls:
+      - http://irc.bloodcraft.org:8080/travis
     on_success: always
     on_failure: always
+    on_start: always
