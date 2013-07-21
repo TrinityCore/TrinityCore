@@ -5431,23 +5431,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 break;
             }
         }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Glyph of Sunder Armor
-            if (dummySpell->Id == 58387)
-            {
-                if (!victim || !victim->IsAlive() || !procSpell)
-                    return false;
-
-                target = SelectNearbyTarget(victim);
-                if (!target)
-                    return false;
-
-                triggered_spell_id = 58567;
-                break;
-            }
-            break;
-        }
         case SPELLFAMILY_WARLOCK:
         {
             // Seed of Corruption
