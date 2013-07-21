@@ -66,6 +66,11 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
 };
 
+enum MiscSpells
+{
+    SPELL_GEN_REPLENISHMENT                         = 57669
+};
+
 // 527 - Dispel magic
 class spell_pri_dispel_magic : public SpellScriptLoader
 {
@@ -979,7 +984,8 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_REPLENISHMENT))
                     return false;
                 return true;
             }
@@ -996,9 +1002,21 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                         }
             }
 
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget() == GetCaster();
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                eventInfo.GetProcTarget()->CastSpell((Unit*)NULL, SPELL_GEN_REPLENISHMENT, true, NULL, aurEff);
+            }
+
             void Register() OVERRIDE
             {
                 AfterDispel += AuraDispelFn(spell_pri_vampiric_touch_AuraScript::HandleDispel);
+                DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_touch_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_touch_AuraScript::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
             }
         };
 
