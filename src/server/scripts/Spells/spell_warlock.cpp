@@ -29,6 +29,7 @@
 
 enum WarlockSpells
 {
+    SPELL_WARLOCK_AFTERMATH_STUN                         = 85387,
     SPELL_WARLOCK_BANE_OF_DOOM_EFFECT               = 18662,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
@@ -59,6 +60,7 @@ enum WarlockSpells
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
+    SPELL_WARLOCK_RAIN_OF_FIRE                      = 42223,
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
@@ -76,6 +78,53 @@ enum MiscSpells
 {
     SPELL_GEN_REPLENISHMENT                         = 57669,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
+};
+
+
+// -85113 - Aftermath
+class spell_warl_aftermath : public SpellScriptLoader
+{
+    public:
+        spell_warl_aftermath() : SpellScriptLoader("spell_warl_aftermath") { }
+
+        class spell_warl_aftermath_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_aftermath_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_AFTERMATH_STUN))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_WARLOCK_RAIN_OF_FIRE)
+                {
+                    PreventDefaultAction();
+
+                    TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u - blub", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
+                    if (roll_chance_i(aurEff->GetAmount()))
+                    {
+                        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, NULL, aurEff);
+                        TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u -- proc", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
+                    }
+                }
+                else
+                    TC_LOG_ERROR(LOG_FILTER_GENERAL, "procSpell: %u - xxx", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_aftermath_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_warl_aftermath_AuraScript();
+        }
 };
 
 // 710 - Banish
@@ -1177,6 +1226,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_aftermath();
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
     new spell_warl_conflagrate();
