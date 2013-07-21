@@ -314,6 +314,7 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
             return new spell_hun_improved_mend_pet_AuraScript();
         }
 };
+
 // 53412 - Invigoration
 class spell_hun_invigoration : public SpellScriptLoader
 {
