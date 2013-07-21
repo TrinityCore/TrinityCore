@@ -1741,52 +1741,76 @@ void SpellMgr::LoadSpellProcEvents()
     }
 
     uint32 count = 0;
-    uint32 customProc = 0;
+
     do
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        int32 spellId = fields[0].GetInt32();
 
-        SpellInfo const* spell = GetSpellInfo(entry);
-        if (!spell)
+        bool allRanks = false;
+        if (spellId < 0)
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` does not exist", entry);
+            allRanks = true;
+            spellId = -spellId;
+        }
+
+        SpellInfo const* spellInfo = GetSpellInfo(spellId);
+        if (!spellInfo)
+        {
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` does not exist", spellId);
             continue;
         }
 
-        SpellProcEventEntry spe;
-
-        spe.schoolMask      = fields[1].GetInt8();
-        spe.spellFamilyName = fields[2].GetUInt16();
-        spe.spellFamilyMask[0] = fields[3].GetUInt32();
-        spe.spellFamilyMask[1] = fields[4].GetUInt32();
-        spe.spellFamilyMask[2] = fields[5].GetUInt32();
-        spe.procFlags       = fields[6].GetUInt32();
-        spe.procEx          = fields[7].GetUInt32();
-        spe.ppmRate         = fields[8].GetFloat();
-        spe.customChance    = fields[9].GetFloat();
-        spe.cooldown        = fields[10].GetUInt32();
-
-        mSpellProcEventMap[entry] = spe;
-
-        if (spell->ProcFlags == 0)
+        if (allRanks)
         {
-            if (spe.procFlags == 0)
+            if (!spellInfo->IsRanked())
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` with all ranks, but spell has no ranks.", spellId);
+
+            if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` probally not triggered spell", entry);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` is not first rank of spell.", spellId);
                 continue;
             }
-            customProc++;
         }
+
+        SpellProcEventEntry spellProcEvent;
+
+        spellProcEvent.schoolMask         = fields[1].GetInt8();
+        spellProcEvent.spellFamilyName    = fields[2].GetUInt16();
+        spellProcEvent.spellFamilyMask[0] = fields[3].GetUInt32();
+        spellProcEvent.spellFamilyMask[1] = fields[4].GetUInt32();
+        spellProcEvent.spellFamilyMask[2] = fields[5].GetUInt32();
+        spellProcEvent.procFlags          = fields[6].GetUInt32();
+        spellProcEvent.procEx             = fields[7].GetUInt32();
+        spellProcEvent.ppmRate            = fields[8].GetFloat();
+        spellProcEvent.customChance       = fields[9].GetFloat();
+        spellProcEvent.cooldown           = fields[10].GetUInt32();
+
+        while (spellInfo)
+        {
+            if (mSpellProcEventMap.find(spellInfo->Id) != mSpellProcEventMap.end())
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` already has its first rank in table.", spellInfo->Id);
+                break;
+            }
+
+            if (!spellInfo->ProcFlags && !spellProcEvent.procFlags)
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` probally not triggered spell", spellInfo->Id);
+
+            mSpellProcEventMap[spellInfo->Id] = spellProcEvent;
+
+            if (allRanks)
+                spellInfo = spellInfo->GetNextRankSpell();
+            else
+                break;
+        }
+
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
-    if (customProc)
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u extra and %u custom spell proc event conditions in %u ms",  count, customProc, GetMSTimeDiffToNow(oldMSTime));
-    else
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u extra spell proc event conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u extra spell proc event conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellProcs()
@@ -1826,6 +1850,9 @@ void SpellMgr::LoadSpellProcs()
 
         if (allRanks)
         {
+            if (!spellInfo->IsRanked())
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` with all ranks, but spell has no ranks.", spellId);
+
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` is not first rank of spell.", spellId);
@@ -1855,9 +1882,10 @@ void SpellMgr::LoadSpellProcs()
         {
             if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` has duplicate entry in the table", spellInfo->Id);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` already has its first rank in table.", spellInfo->Id);
                 break;
             }
+
             SpellProcEntry procEntry = SpellProcEntry(baseProcEntry);
 
             // take defaults from dbcs
