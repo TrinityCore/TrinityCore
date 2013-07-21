@@ -55,6 +55,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
+    SPELL_PRIEST_VAMPRIC_EMBRACE                    = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
 };
 
@@ -860,6 +861,78 @@ class spell_pri_shadowform : public SpellScriptLoader
         }
 };
 
+// 15286 - Vampiric Embrace
+class spell_pri_vampiric_embrace : public SpellScriptLoader
+{
+    public:
+        spell_pri_vampiric_embrace() : SpellScriptLoader("spell_pri_vampiric_embrace") { }
+
+        class spell_pri_vampiric_embrace_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_vampiric_embrace_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPRIC_EMBRACE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                // Not proc from Mind Sear
+                return !(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x80000);
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 self = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+                int32 team = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount() / 2));
+
+                GetTarget()->CastCustomSpell((Unit*)NULL, SPELL_PRIEST_VAMPRIC_EMBRACE, &team, &self, NULL, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pri_vampiric_embrace_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_embrace_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pri_vampiric_embrace_AuraScript();
+        }
+};
+
+// 15290 - Vampiric Embrace (heal)
+class spell_pri_vampiric_embrace_target : public SpellScriptLoader
+{
+    public:
+        spell_pri_vampiric_embrace_target() : SpellScriptLoader("spell_pri_vampiric_embrace_target") { }
+
+        class spell_pri_vampiric_embrace_target_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_vampiric_embrace_target_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
+            {
+                unitList.remove(GetCaster());
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_vampiric_embrace_target_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pri_vampiric_embrace_target_SpellScript();
+        }
+};
+
 // 34914 - Vampiric Touch
 class spell_pri_vampiric_touch : public SpellScriptLoader
 {
@@ -921,5 +994,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
     new spell_pri_shadowform();
+    new spell_pri_vampiric_embrace();
+    new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
 }
