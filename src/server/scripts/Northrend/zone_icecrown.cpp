@@ -1110,8 +1110,8 @@ class npc_margrave_dhakar : public CreatureScript
 
         private:
             EventMap _events;
-            uint64 _lichKingGuid;
             SummonList _summons;
+            uint64 _lichKingGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
