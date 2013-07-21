@@ -39,6 +39,7 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
     SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
+    SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
@@ -219,6 +220,48 @@ class spell_dru_enrage : public SpellScriptLoader
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_dru_enrage_SpellScript();
+        }
+};
+
+// 54832 - Glyph of Innervate
+class spell_dru_glyph_of_innervate : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_innervate() : SpellScriptLoader("spell_dru_glyph_of_innervate") { }
+
+        class spell_dru_glyph_of_innervate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_innervate_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                // Not proc from self Innervate
+                return GetTarget() != eventInfo.GetProcTarget();
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_GLYPH_OF_INNERVATE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dru_glyph_of_innervate_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_innervate_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_glyph_of_innervate_AuraScript();
         }
 };
 
@@ -1109,6 +1152,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_dash();
     new spell_dru_eclipse_energize();
     new spell_dru_enrage();
+    new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_starfire();
     new spell_dru_idol_lifebloom();
     new spell_dru_innervate();
