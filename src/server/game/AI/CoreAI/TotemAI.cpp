@@ -98,12 +98,14 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
 void TotemAI::AttackStart(Unit* /*victim*/)
 {
     // Sentry totem sends ping on attack
-    if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-    {
-        WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
-        data << me->GetGUID();
-        data << me->GetPositionX();
-        data << me->GetPositionY();
-        ((Player*)me->GetOwner())->GetSession()->SendPacket(&data);
-    }
+    if (me->GetEntry() == SENTRY_TOTEM_ENTRY)
+        if (Unit* owner = me->GetOwner())
+            if (Player* player = owner->ToPlayer())
+            {
+                WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
+                data << me->GetGUID();
+                data << me->GetPositionX();
+                data << me->GetPositionY();
+                player->GetSession()->SendPacket(&data);
+            }
 }
