@@ -135,7 +135,11 @@ struct ItemExtendedCostEntry
     //uint32    ItemPurchaseGroup;                          // 15
     uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];// 16-20 required curency id
     uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];// 21-25 required curency count
-    //uint32    Unknown[5];                               // 26-30
+    uint32      RequiredFactionId;
+    uint32      RequiredFactionStanding;
+    uint32      RequirementFlags;
+    uint32      RequiredGuildLevel;
+    uint32      RequiredAchievement;
 };
 
 #define KEYCHAIN_SIZE   32
