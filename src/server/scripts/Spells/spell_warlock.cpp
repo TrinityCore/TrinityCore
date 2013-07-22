@@ -1037,55 +1037,6 @@ class spell_warl_shadow_ward : public SpellScriptLoader
         }
 };
 
-// 63108 - Siphon Life
-class spell_warl_siphon_life : public SpellScriptLoader
-{
-    public:
-        spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
-
-        class spell_warl_siphon_life_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SIPHON_LIFE_HEAL))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                    return false;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetDamageInfo()->GetDamage();
-            }
-
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-                // Glyph of Siphon Life
-                if (AuraEffect const* glyph = GetTarget()->GetAuraEffect(SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE, EFFECT_0))
-                    AddPct(amount, glyph->GetAmount());
-
-                GetTarget()->CastCustomSpell(SPELL_WARLOCK_SIPHON_LIFE_HEAL, SPELLVALUE_BASE_POINT0, amount, GetTarget(), true, NULL, aurEff);
-            }
-
-            void Register() OVERRIDE
-            {
-                DoCheckProc += AuraCheckProcFn(spell_warl_siphon_life_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_warl_siphon_life_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_warl_siphon_life_AuraScript();
-        }
-};
-
 // -30293 - Soul Leech
 class spell_warl_soul_leech : public SpellScriptLoader
 {
@@ -1223,7 +1174,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_seed_of_corruption();
     new spell_warl_shadow_trance_proc();
     new spell_warl_shadow_ward();
-    new spell_warl_siphon_life();
     new spell_warl_soul_leech();
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
