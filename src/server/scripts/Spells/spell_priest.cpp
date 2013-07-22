@@ -382,13 +382,15 @@ class spell_pri_penance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1))
-                    return false;
-                // can't use other spell than this penance due to spell_ranks dependency
-                if (sSpellMgr->GetFirstSpellInChain(SPELL_PRIEST_PENANCE_R1) != sSpellMgr->GetFirstSpellInChain(spellInfo->Id))
+                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1);
+                if (!firstRankSpellInfo)
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spellInfo->Id);
+                // can't use other spell than this penance due to spell_ranks dependency
+                if (!spellInfo->IsRankOf(firstRankSpellInfo))
+                    return false;
+
+                uint8 rank = spellInfo->GetRank();
                 if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank, true))
                     return false;
                 if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank, true))
@@ -405,12 +407,12 @@ class spell_pri_penance : public SpellScriptLoader
                     if (!unitTarget->IsAlive())
                         return;
 
-                    uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                    uint8 rank = GetSpellInfo()->GetRank();
 
                     if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
                     else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
                 }
             }
 
