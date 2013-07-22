@@ -170,7 +170,6 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
                 GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_CHIMERA_SHOT_HEAL, true);
 
                 if (Aura* aur = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING))
