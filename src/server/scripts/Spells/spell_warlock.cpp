@@ -135,7 +135,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
             {
                 if (Player* caster = GetCaster()->ToPlayer())
                 {
-                    uint8 spellRank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                    uint8 spellRank = GetSpellInfo()->GetRank();
                     ItemPosCountVec dest;
                     InventoryResult msg = caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, iTypes[spellRank - 1][0], 1, NULL);
                     if (msg != EQUIP_ERR_OK)
@@ -165,7 +165,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                                 break;
                         }
                     }
-                    uint8 spellRank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                    uint8 spellRank = GetSpellInfo()->GetRank();
                     if (spellRank > 0 && spellRank <= 8)
                         CreateItem(effIndex, iTypes[spellRank - 1][rank]);
                 }
