@@ -77,9 +77,6 @@ void Totem::InitStats(uint32 duration)
         if (totemSpell->CalcCastTime())   // If spell has cast time -> its an active totem
             m_type = TOTEM_ACTIVE;
 
-    if (GetEntry() == SENTRY_TOTEM_ENTRY)
-        SetReactState(REACT_AGGRESSIVE);
-
     m_duration = duration;
 
     SetLevel(GetOwner()->getLevel());
@@ -88,13 +85,14 @@ void Totem::InitStats(uint32 duration)
 void Totem::InitSummon()
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
-    {
         CastSpell(this, GetSpell(), true);
-    }
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
         CastSpell(this, GetSpell(1), true);
+
+    if (m_Properties->Id == SUMMON_TYPE_TOTEM_FIRE && GetOwner()->HasAura(SPELL_TOTEMIC_WRATH_TALENT))
+        CastSpell(this, SPELL_TOTEMIC_WRATH, true);
 }
 
 void Totem::UnSummon(uint32 msTime)
@@ -120,11 +118,7 @@ void Totem::UnSummon(uint32 msTime)
 
     GetOwner()->RemoveAurasDueToSpell(GetSpell(), GetGUID());
 
-    // Remove Sentry Totem Aura
-    if (GetEntry() == SENTRY_TOTEM_ENTRY)
-        GetOwner()->RemoveAurasDueToSpell(SENTRY_TOTEM_SPELLID);
-
-    //remove aura all party members too
+    // remove aura all party members too
     if (Player* owner = GetOwner()->ToPlayer())
     {
         owner->SendAutoRepeatCancel(this);
