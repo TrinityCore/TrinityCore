@@ -92,7 +92,7 @@ struct npc_escortAI : public ScriptedAI
         uint64 GetEventStarterGUID() { return m_uiPlayerGUID; }
 
     protected:
-        Player* GetPlayerForEscort() { return (Player*)Unit::GetUnit(*me, m_uiPlayerGUID); }
+        Player* GetPlayerForEscort() { return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID); }
 
     private:
         bool AssistPlayerInCombat(Unit* who);
