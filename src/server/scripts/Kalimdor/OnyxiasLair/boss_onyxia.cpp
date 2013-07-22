@@ -413,7 +413,7 @@ public:
                             }
                             break;
                         case EVENT_MOVEMENT:         // Phase PHASE_BREATH
-                            if (!IsMoving)
+                            if (!IsMoving && !(me->HasUnitState(UNIT_STATE_CASTING)))
                             {
                                 SetNextRandomPoint();
                                 PointData = GetMoveData();
