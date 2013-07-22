@@ -375,6 +375,9 @@ class Battleground
         void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
         void RemovePlayerFromResurrectQueue(uint64 player_guid);
 
+        /// Relocate all players in ReviveQueue to the closest graveyard
+        void RelocateDeadPlayers(uint32 queueIndex);
+
         void StartBattleground();
 
         GameObject* GetBGObject(uint32 type);
