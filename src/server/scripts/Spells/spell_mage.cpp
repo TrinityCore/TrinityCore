@@ -257,51 +257,6 @@ class spell_mage_blazing_speed : public SpellScriptLoader
         }
 };
 
-// -44449 - Burnout
-class spell_mage_burnout : public SpellScriptLoader
-{
-    public:
-        spell_mage_burnout() : SpellScriptLoader("spell_mage_burnout") { }
-
-        class spell_mage_burnout_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_burnout_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_BURNOUT))
-                    return false;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetDamageInfo()->GetSpellInfo(); // eventInfo.GetSpellInfo()
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                int32 mana = int32(eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), eventInfo.GetDamageInfo()->GetSchoolMask()));
-                mana = CalculatePct(mana, aurEff->GetAmount());
-
-                GetTarget()->CastCustomSpell(SPELL_MAGE_BURNOUT, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
-            }
-
-            void Register() OVERRIDE
-            {
-                DoCheckProc += AuraCheckProcFn(spell_mage_burnout_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_mage_burnout_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_mage_burnout_AuraScript();
-        }
-};
-
 // 42208 - Blizzard
 /// Updated 4.3.4
 class spell_mage_blizzard : public SpellScriptLoader
@@ -1441,7 +1396,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
     new spell_mage_blizzard();
-    new spell_mage_burnout();
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
