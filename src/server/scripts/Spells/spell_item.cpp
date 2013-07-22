@@ -2362,51 +2362,6 @@ class spell_item_chicken_cover : public SpellScriptLoader
         }
 };
 
-enum Refocus
-{
-    SPELL_AIMED_SHOT    = 19434,
-    SPELL_MULTISHOT     = 2643,
-    SPELL_VOLLEY        = 42243,
-};
-
-class spell_item_refocus : public SpellScriptLoader
-{
-    public:
-        spell_item_refocus() : SpellScriptLoader("spell_item_refocus") { }
-
-        class spell_item_refocus_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_item_refocus_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-
-                if (!caster || caster->getClass() != CLASS_HUNTER)
-                    return;
-
-                if (caster->HasSpellCooldown(SPELL_AIMED_SHOT))
-                    caster->RemoveSpellCooldown(SPELL_AIMED_SHOT, true);
-
-                if (caster->HasSpellCooldown(SPELL_MULTISHOT))
-                    caster->RemoveSpellCooldown(SPELL_MULTISHOT, true);
-
-                if (caster->HasSpellCooldown(SPELL_VOLLEY))
-                    caster->RemoveSpellCooldown(SPELL_VOLLEY, true);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_item_refocus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_item_refocus_SpellScript();
-        }
-};
-
 class spell_item_muisek_vessel : public SpellScriptLoader
 {
     public:
@@ -2590,7 +2545,6 @@ void AddSC_item_spell_scripts()
 
     new spell_item_ashbringer();
     new spell_magic_eater_food();
-    new spell_item_refocus();
     new spell_item_shimmering_vessel();
     new spell_item_purify_helboar_meat();
     new spell_item_crystal_prison_dummy_dnd();
