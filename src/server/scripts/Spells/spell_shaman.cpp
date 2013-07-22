@@ -441,10 +441,11 @@ class spell_sha_fire_nova : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FIRE_NOVA_R1) || sSpellMgr->GetFirstSpellInChain(SPELL_SHAMAN_FIRE_NOVA_R1) != sSpellMgr->GetFirstSpellInChain(spellInfo->Id))
+                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FIRE_NOVA_R1);
+                if (!firstRankSpellInfo || !spellInfo->IsRankOf(firstRankSpellInfo))
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spellInfo->Id);
+                uint8 rank = spellInfo->GetRank();
                 if (!sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank, true))
                     return false;
                 return true;
@@ -464,15 +465,12 @@ class spell_sha_fire_nova : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                Unit* caster = GetCaster();
+                if (Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]))
                 {
-                    uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
-                    if (uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank))
-                    {
-                        Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
-                        if (totem && totem->IsTotem())
-                            caster->CastSpell(totem, spellId, true);
-                    }
+                    uint8 rank = GetSpellInfo()->GetRank();
+                    if (totem->IsTotem())
+                        caster->CastSpell(totem, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank), true);
                 }
             }
 
@@ -514,10 +512,11 @@ class spell_sha_flame_shock : public SpellScriptLoader
                     // Lava Flows
                     if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW, EFFECT_0))
                     {
-                        if (sSpellMgr->GetFirstSpellInChain(SPELL_SHAMAN_LAVA_FLOWS_R1) != sSpellMgr->GetFirstSpellInChain(aurEff->GetId()))
+                        SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_FLOWS_R1);
+                        if (!aurEff->GetSpellInfo()->IsRankOf(firstRankSpellInfo))
                             return;
 
-                        uint8 rank = sSpellMgr->GetSpellRank(aurEff->GetId());
+                        uint8 rank = aurEff->GetSpellInfo()->GetRank();
                         caster->CastSpell(caster, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1, rank), true);
                     }
             }
