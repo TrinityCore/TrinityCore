@@ -847,7 +847,6 @@ class spell_hun_tame_beast : public SpellScriptLoader
         }
 };
 
-// -24604 - Furious Howl
 //  53434 - Call of the Wild
 class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
 {
