@@ -17015,7 +17015,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     SetORace();
     m_team = TeamForRace(getORace());
     SetFakeRaceAndMorph(); // m_team must be set before this can be used.
-    SetFakeMorph();
     setFactionForRace(getORace());
 
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
