@@ -38,15 +38,16 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER     = 54509,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
+    SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
+    SPELL_WARLOCK_HAUNT                             = 48181,
+    SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
-    SPELL_WARLOCK_HAUNT                             = 48181,
-    SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
@@ -205,7 +206,7 @@ class spell_warl_curse_of_doom : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_curse_of_doom_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT))
                     return false;
@@ -242,7 +243,7 @@ class spell_warl_curse_of_doom : public SpellScriptLoader
         }
 };
 
-// 48018 - Demonic Circle Summon
+// 48018 - Demonic Circle: Summon
 class spell_warl_demonic_circle_summon : public SpellScriptLoader
 {
     public:
@@ -294,7 +295,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
         }
 };
 
-// 48020 - Demonic Circle Teleport
+// 48020 - Demonic Circle: Teleport
 class spell_warl_demonic_circle_teleport : public SpellScriptLoader
 {
     public:
@@ -464,6 +465,41 @@ class spell_warl_fel_synergy : public SpellScriptLoader
         }
 };
 
+// 63310 - Glyph of Shadowflame
+class spell_warl_glyph_of_shadowflame : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_shadowflame() : SpellScriptLoader("spell_warl_glyph_of_shadowflame") { }
+
+        class spell_warl_glyph_of_shadowflame_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_shadowflame_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_shadowflame_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_warl_glyph_of_shadowflame_AuraScript();
+        }
+};
+
 // -48181 - Haunt
 class spell_warl_haunt : public SpellScriptLoader
 {
@@ -491,7 +527,7 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_haunt_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HAUNT_HEAL))
                     return false;
@@ -753,7 +789,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetDamageInfo()->GetDamage();
+                return eventInfo.GetDamageInfo()->GetDamage() && GetTarget()->IsAlive();
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -791,7 +827,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soulshatter_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOULSHATTER))
                     return false;
@@ -830,7 +866,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_unstable_affliction_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL))
                     return false;
@@ -870,6 +906,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_empowerment();
     new spell_warl_everlasting_affliction();
     new spell_warl_fel_synergy();
+    new spell_warl_glyph_of_shadowflame();
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_life_tap();
