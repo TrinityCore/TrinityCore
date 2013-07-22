@@ -752,10 +752,28 @@ class spell_warl_health_funnel : public SpellScriptLoader
                 target->RemoveAurasDueToSpell(SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2);
             }
 
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+                //! HACK for self damage, is not blizz :/
+                uint32 damage = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount());
+
+                if (Player* modOwner = caster->GetSpellModOwner())
+                    modOwner->ApplySpellMod(GetId(), SPELLMOD_COST, damage);
+
+                SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                damageInfo.damage = damage;
+                caster->SendSpellNonMeleeDamageLog(&damageInfo);
+                caster->DealSpellDamage(&damageInfo, false);
+            }
+
             void Register() OVERRIDE
             {
                 OnEffectApply += AuraEffectApplyFn(spell_warl_health_funnel_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_warl_health_funnel_AuraScript::RemoveEffect, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_health_funnel_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
             }
         };
 
