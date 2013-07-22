@@ -9,5 +9,5 @@ INSERT INTO `spell_ranks` (`first_spell_id`, `spell_id`, `rank`) VALUES
 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (64127,64129);
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
-(64127, 0, 6, 0x1, 0x1, 0x80000, 0, 0, 0, 100, 0),
-(64129, 0, 6, 0x1, 0x1, 0x80000, 0, 0, 0, 100, 0);
+(64127, 0, 6, 0x1, 0x1, 0x80000, 0x4000, 0, 0, 100, 0),
+(64129, 0, 6, 0x1, 0x1, 0x80000, 0x4000, 0, 0, 100, 0);
