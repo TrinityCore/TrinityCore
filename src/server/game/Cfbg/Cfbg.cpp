@@ -46,9 +46,47 @@ bool Player::SendRealNameQuery()
     return true;
 }
 
-void Player::SetFakeRace()
+void Player::SetFakeRaceAndMorph()
 {
-    m_FakeRace = GetOTeam() == ALLIANCE ? RACE_BLOODELF : RACE_HUMAN;
+    if (getClass() == CLASS_DRUID)
+    {
+        if (GetOTeam() == ALLIANCE)
+        {
+            m_FakeMorph = getGender() == GENDER_MALE ? FAKE_M_TAUREN : FAKE_F_TAUREN;
+            m_FakeRace == RACE_TAUREN;
+        }
+        else if (getGender() == GENDER_MALE) // HORDE PLAYER, ONLY HAVE MALE NELF ID
+        {
+            m_FakeMorph = FAKE_M_NELF;
+            m_FakeRace == RACE_NIGHTELF;
+        }
+        else
+            m_FakeRace = GetOTeam() == ALLIANCE ? RACE_BLOODELF : RACE_HUMAN;
+    }
+    else if (getClass() == CLASS_SHAMAN && GetOTeam() == HORDE && getGender() == GENDER_FEMALE)
+    {
+        m_FakeMorph = FAKE_F_DRANAEI; // Female Draenei
+        m_FakeRace == RACE_DRAENEI;
+    }
+    else
+    {
+        m_FakeRace = GetOTeam() == ALLIANCE ? RACE_BLOODELF : RACE_HUMAN;
+
+        if (GetOTeam() == HORDE)
+        {
+            if (getGender() == GENDER_MALE)
+                m_FakeMorph = 19723;
+            else
+                m_FakeMorph = 19724;
+        }
+        else
+        {
+            if (getGender() == GENDER_MALE)
+                m_FakeMorph = 20578;
+            else
+                m_FakeMorph = 20579;
+        }
+    }
 }
 
 bool Player::SendBattleGroundChat(uint32 msgtype, std::string message)
@@ -88,32 +126,8 @@ void Player::MorphFit(bool value)
 {
     if (!IsPlayingNative() && value)
     {
-        if (GetOTeam() == HORDE)
-        {
-            if (getGender() == GENDER_MALE)
-            {
-                SetDisplayId(19723);
-                SetNativeDisplayId(19723);
-            }
-            else
-            {
-                SetDisplayId(19724);
-                SetNativeDisplayId(19724);
-            }
-        }
-        else
-        {
-            if (getGender() == GENDER_MALE)
-            {
-                SetDisplayId(20578);
-                SetNativeDisplayId(20578);
-            }
-            else
-            {
-                SetDisplayId(20579);
-                SetNativeDisplayId(20579);
-            }
-        }
+        SetDisplayId(GetFakeMorph());
+        SetNativeDisplayId(GetFakeMorph());
     }
     else
         InitDisplayIds();

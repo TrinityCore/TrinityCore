@@ -1071,6 +1071,7 @@ class Player : public Unit, public GridObject<Player>
         bool m_ForgetInListPlayers;
         uint8 m_FakeRace;
         uint8 m_RealRace;
+        uint32 m_FakeMorph;
     public:
         typedef std::vector<uint64> FakePlayers;
         void SendChatMessage(const char *format, ...);
@@ -1079,7 +1080,8 @@ class Player : public Unit, public GridObject<Player>
         void DoForgetPlayersInBG(Battleground* pBattleGround);
         uint8 getORace() const { return m_RealRace; }
         void SetORace() { m_RealRace = GetByteValue(UNIT_FIELD_BYTES_0, 0); }; // SHOULD ONLY BE CALLED ON LOGIN
-        void SetFakeRace(); // SHOULD ONLY BE CALLED ON LOGIN
+        void SetFakeRaceAndMorph(); // SHOULD ONLY BE CALLED ON LOGIN
+        uint32 GetFakeMorph() { return m_FakeMorph; };
         uint8 getFRace() const { return m_FakeRace; }
         void SetForgetBGPlayers(bool value) { m_ForgetBGPlayers = value; }
         bool ShouldForgetBGPlayers() { return m_ForgetBGPlayers; }
