@@ -915,14 +915,6 @@ int LuaUnit::GetLatency(lua_State* L, Unit* unit)
     return 1;
 }
 
-int LuaUnit::GetOwnerGUID(lua_State* L, Unit* unit)
-{
-    TO_UNIT();
-
-    sEluna->PushULong(L, unit->GetOwnerGUID());
-    return 1;
-}
-
 int LuaUnit::GetCreatorGUID(lua_State* L, Unit* unit)
 {
     TO_UNIT();
@@ -3916,15 +3908,6 @@ int LuaUnit::UnsetKnownTitle(lua_State* L, Unit* unit)
     CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
     if (t)
         player->SetTitle(t, true);
-    return 0;
-}
-
-int LuaUnit::SetOwnerGUID(lua_State* L, Unit* unit)
-{
-    TO_UNIT();
-
-    uint64 guid = sEluna->CHECK_ULONG(L, 1);
-    unit->SetOwnerGUID(guid);
     return 0;
 }
 

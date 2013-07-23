@@ -94,7 +94,6 @@ namespace LuaUnit
     int GetSelectedUnit(lua_State*, Unit*);
     int GetDistance(lua_State*, Unit*);
     int GetLatency(lua_State*, Unit*);
-    int GetOwnerGUID(lua_State*, Unit*);
     int GetCreatorGUID(lua_State*, Unit*);
     int GetMinionGUID(lua_State*, Unit*);
     int GetCharmerGUID(lua_State*, Unit*);
