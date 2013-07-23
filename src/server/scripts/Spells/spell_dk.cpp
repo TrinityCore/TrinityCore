@@ -33,6 +33,8 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
     SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
     SPELL_DK_BLOOD_PRESENCE                     = 48266,
+    SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
+    SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_CORPSE_EXPLOSION_VISUAL            = 51270,
@@ -52,15 +54,7 @@ enum DeathKnightSpells
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
-    SPELL_DK_UNHOLY_PRESENCE                    = 48265,
-    
-    SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
-    SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535
-};
-
-enum DeathKnightSpellIcons
-{
-    DK_ICON_ID_IMPROVED_DEATH_STRIKE            = 2751
+    SPELL_DK_UNHOLY_PRESENCE                    = 48265
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -609,8 +603,10 @@ class spell_dk_death_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_STRIKE_ENABLER)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_STRIKE_HEAL))
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_STRIKE_ENABLER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_STRIKE_HEAL) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_SHIELD_MASTERY) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_SHIELD_ABSORB))
                     return false;
                 return true;
             }
@@ -651,75 +647,75 @@ class spell_dk_death_strike : public SpellScriptLoader
 // 89832 - Death Strike (Save damage taken in last 5 sec)
 class spell_dk_death_strike_enabler : public SpellScriptLoader
 {
-public:
-    spell_dk_death_strike_enabler() : SpellScriptLoader("spell_dk_death_strike_enabler") { }
+    public:
+        spell_dk_death_strike_enabler() : SpellScriptLoader("spell_dk_death_strike_enabler") { }
 
-    class spell_dk_death_strike_enabler_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_death_strike_enabler_AuraScript);
-
-        bool Load() OVERRIDE
+        class spell_dk_death_strike_enabler_AuraScript : public AuraScript
         {
-            for (uint8 i = 0; i < 5; ++i)
-                _damagePerSecond[i] = 0;
-            return true;
-        }
+            PrepareAuraScript(spell_dk_death_strike_enabler_AuraScript);
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            if (!GetUnitOwner()->HasAura(SPELL_DK_BLOOD_PRESENCE))
+            bool Load() OVERRIDE
             {
                 for (uint8 i = 0; i < 5; ++i)
                     _damagePerSecond[i] = 0;
+                return true;
             }
-            else
-                _damagePerSecond[0] += eventInfo.GetDamageInfo()->GetDamage();
-        }
 
-        bool CheckProc(ProcEventInfo& eventInfo)
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetDamageInfo();
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                if (!GetUnitOwner()->HasAura(SPELL_DK_BLOOD_PRESENCE))
+                {
+                    for (uint8 i = 0; i < 5; ++i)
+                        _damagePerSecond[i] = 0;
+                }
+                else
+                    _damagePerSecond[0] += eventInfo.GetDamageInfo()->GetDamage();
+            }
+
+            // Cheap hack to have update calls
+            void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+            {
+                isPeriodic = true;
+                amplitude = 1000;
+            }
+
+            void Update(AuraEffect* /*aurEff*/)
+            {
+                // Move backwards all datas by one
+                for (uint8 i = 4; i > 0; --i)
+                    _damagePerSecond[i] = _damagePerSecond[i - 1];
+                _damagePerSecond[0] = 0;
+            }
+
+            void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = true;
+                amount = 0;
+                for (uint8 i = 0; i < 5; ++i)
+                    amount += int32(_damagePerSecond[i]);
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_death_strike_enabler_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_death_strike_enabler_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+                DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_dk_death_strike_enabler_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dk_death_strike_enabler_AuraScript::Update, EFFECT_0, SPELL_AURA_DUMMY);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_strike_enabler_AuraScript::HandleCalcAmount, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+            uint32 _damagePerSecond[5];
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
         {
-            return eventInfo.GetDamageInfo();
+            return new spell_dk_death_strike_enabler_AuraScript();
         }
-
-        // Cheap hack to have update calls
-        void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
-        {
-            isPeriodic = true;
-            amplitude = 1000;
-        }
-
-        void Update(AuraEffect* aurEff)
-        {
-            // Move backwards all datas by one
-            for (uint8 i = 4; i > 0; --i)
-                _damagePerSecond[i] = _damagePerSecond[i - 1];
-            _damagePerSecond[0] = 0;
-        }
-
-        void HandleCalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
-        {
-            canBeRecalculated = true;
-            amount = 0;
-            for (uint8 i = 0; i < 5; ++i)
-                amount += int32(_damagePerSecond[i]);
-        }
-
-        void Register() OVERRIDE
-        {
-            DoCheckProc += AuraCheckProcFn(spell_dk_death_strike_enabler_AuraScript::CheckProc);
-            OnEffectProc += AuraEffectProcFn(spell_dk_death_strike_enabler_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_dk_death_strike_enabler_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
-            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dk_death_strike_enabler_AuraScript::Update, EFFECT_0, SPELL_AURA_DUMMY);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_strike_enabler_AuraScript::HandleCalcAmount, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-
-        uint32 _damagePerSecond[5];
-    };
-
-    AuraScript* GetAuraScript() const OVERRIDE
-    {
-        return new spell_dk_death_strike_enabler_AuraScript();
-    }
 };
 
 // 47496 - Explode, Ghoul spell for Corpse Explosion
