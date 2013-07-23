@@ -28,6 +28,7 @@
 
 enum RogueSpells
 {
+    SPELL_ROGUE_BLADE_FLURRY                     = 13877,
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK        = 22482,
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN             = 31231,
     SPELL_ROGUE_GLYPH_OF_PREPARATION             = 56819,
@@ -68,24 +69,27 @@ class spell_rog_blade_flurry : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                _procTarget = eventInfo.GetActor()->SelectNearbyTarget(eventInfo.GetProcTarget());
-                return _procTarget;
+                _procTarget = GetTarget()->SelectNearbyTarget(eventInfo.GetProcTarget());
+                return _procTarget && eventInfo.GetDamageInfo();
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                if (eventInfo.GetDamageInfo())
-                {
-                    int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-                    GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, NULL, aurEff);
-                }
+
+                TC_LOG_ERROR(LOG_FILTER_GENERAL, "damage: %u procSpell: %u",
+                    eventInfo.GetDamageInfo()->GetDamage(), eventInfo.GetDamageInfo()->GetSpellInfo() ? eventInfo.GetDamageInfo()->GetSpellInfo()->Id : 0);
+
+                GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, eventInfo.GetDamageInfo()->GetDamage(), _procTarget, true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
             {
                 DoCheckProc += AuraCheckProcFn(spell_rog_blade_flurry_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
+                if (m_scriptSpellId == SPELL_ROGUE_BLADE_FLURRY)
+                    OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+                else
+                    OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
             }
 
         private:
