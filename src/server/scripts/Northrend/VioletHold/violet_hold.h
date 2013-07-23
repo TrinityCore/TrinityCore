@@ -93,7 +93,7 @@ enum CreaturesIds
     CREATURE_SINCLARI                               = 30658,
     CREATURE_SABOTEOUR                              = 31079,
     NPC_VIOLET_HOLD_GUARD                           = 30659,
-    DEFENSE_SYSTEM                                  = 30837
+    NPC_DEFENSE_SYSTEM                              = 30837
 };
 
 enum WorldStateIds
@@ -101,6 +101,11 @@ enum WorldStateIds
     WORLD_STATE_VH              = 3816,
     WORLD_STATE_VH_PRISON_STATE = 3815,
     WORLD_STATE_VH_WAVE_COUNT   = 3810,
+};
+
+enum Events
+{
+    EVENT_ACTIVATE_CRYSTAL = 20001
 };
 
 #endif
