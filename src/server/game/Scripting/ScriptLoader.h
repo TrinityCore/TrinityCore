@@ -27,7 +27,7 @@ void AddEasternKingdomsScripts();
 void AddKalimdorScripts();
 void AddOutlandScripts();
 void AddNorthrendScripts();
-void AddMaelestormScripts();
+void AddMaelstromScripts();
 void AddEventScripts();
 void AddBattlegroundScripts();
 void AddOutdoorPvPScripts();

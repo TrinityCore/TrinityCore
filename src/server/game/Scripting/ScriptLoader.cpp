@@ -647,7 +647,7 @@ void AddScripts()
     AddKalimdorScripts();
     AddOutlandScripts();
     AddNorthrendScripts();
-    AddMaelestormScripts();
+    AddMaelstromScripts();
     AddEventScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
@@ -1281,7 +1281,7 @@ void AddNorthrendScripts()
 }
 
 
-void AddMaelestormScripts()
+void AddMaelstromScripts()
 {
 #ifdef SCRIPTS
     AddSC_kezan();
