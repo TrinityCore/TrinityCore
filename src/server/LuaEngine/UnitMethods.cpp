@@ -971,7 +971,7 @@ int LuaUnit::GetCritterGUID(lua_State* L, Unit* unit)
     return 1;
 }
 
-int LuaUnit::GetCharmerOrOwnerGUID(lua_State* L, Unit* unit)
+int LuaUnit::GetControllerGUID(lua_State* L, Unit* unit)
 {
     TO_UNIT();
 
@@ -979,7 +979,7 @@ int LuaUnit::GetCharmerOrOwnerGUID(lua_State* L, Unit* unit)
     return 1;
 }
 
-int LuaUnit::GetCharmerOrOwnerOrOwnGUID(lua_State* L, Unit* unit)
+int LuaUnit::GetControllerGUIDS(lua_State* L, Unit* unit)
 {
     TO_UNIT();
 

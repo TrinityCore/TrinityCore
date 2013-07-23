@@ -148,8 +148,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetCharmGUID", &LuaUnit::GetCharmGUID},                                                               // :GetCharmGUID() - Returns the unit's UNIT_FIELD_CHARM guid
     {"GetPetGUID", &LuaUnit::GetPetGUID},                                                                   // :GetPetGUID() - Returns the unit's pet GUID
     {"GetCritterGUID", &LuaUnit::GetCritterGUID},                                                           // :GetCritterGUID() - Returns the critter's GUID
-    {"GetCharmerOrOwnerGUID", &LuaUnit::GetCharmerOrOwnerGUID},                                             // :GetCharmerOrOwnerGUID() - Returns the Charmer or Owner GUID
-    {"GetCharmerOrOwnerOrOwnGUID", &LuaUnit::GetCharmerOrOwnerOrOwnGUID},                                   // :GetCharmerOrOwnerOrOwnGUID() - Returns the charmer, owner or unit's own GUID
+    {"GetControllerGUID", &LuaUnit::GetCharmerOrOwnerGUID},                                                 // :GetControllerGUID() - Returns the Charmer or Owner GUID
+    {"GetControllerGUIDS", &LuaUnit::GetCharmerOrOwnerOrOwnGUID},                                           // :GetControllerGUIDS() - Returns the charmer, owner or unit's own GUID
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},                                                   // :AdvanceSkillsToMax() - Advances all currently known skills to the currently known max level
     {"AdvanceSkill", &LuaUnit::AdvanceSkill},                                                               // :AdvanceSkill(skill_id, step) - Advances skill by ID and the amount(step)

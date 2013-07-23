@@ -101,8 +101,8 @@ namespace LuaUnit
     int GetCharmGUID(lua_State*, Unit*);
     int GetPetGUID(lua_State*, Unit*);
     int GetCritterGUID(lua_State*, Unit*);
-    int GetCharmerOrOwnerGUID(lua_State*, Unit*);
-    int GetCharmerOrOwnerOrOwnGUID(lua_State*, Unit*);
+    int GetControllerGUID(lua_State*, Unit*);
+    int GetControllerGUIDS(lua_State*, Unit*);
     int SendAuctionMenu(lua_State*, Unit*);
     int SendMailMenu(lua_State*, Unit*);
     int SendTaxiMenu(lua_State*, Unit*);
