@@ -21,6 +21,10 @@
 #include "violet_hold.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 #define MAX_ENCOUNTER          3
 
@@ -61,7 +65,8 @@ enum AzureSaboteurSpells
 
 enum CrystalSpells
 {
-    SPELL_ARCANE_LIGHTNING                          = 57912
+    SPELL_ARCANE_LIGHTNING                          = 57930,
+    SPELL_ARCANE_SPHERE_PASSIVE                     = 44263
 };
 
 enum Events
@@ -79,6 +84,7 @@ const Position PortalLocation[] =
     {1908.31f, 809.657f, 38.7037f, 3.08701f}      // WP 6
 };
 
+const Position ArcaneSphere    = {1887.060059f, 806.151001f, 61.321602f, 0.0f};
 const Position BossStartMove1  = {1894.684448f, 739.390503f, 47.668003f, 0.0f};
 const Position BossStartMove2  = {1875.173950f, 860.832703f, 43.333565f, 0.0f};
 const Position BossStartMove21 = {1858.854614f, 855.071411f, 43.333565f, 0.0f};
@@ -140,7 +146,7 @@ public:
         uint64 uiTeleportationPortal;
         uint64 uiSaboteurPortal;
 
-        uint64 uiActivationCrystal[3];
+        uint64 uiActivationCrystal[4];
 
         uint32 uiActivationTimer;
         uint32 uiCyanigosaEventTimer;
@@ -308,7 +314,7 @@ public:
                     uiMainDoor = go->GetGUID();
                     break;
                 case GO_ACTIVATION_CRYSTAL:
-                    if (uiCountActivationCrystals < 3)
+                    if (uiCountActivationCrystals < 4)
                         uiActivationCrystal[uiCountActivationCrystals++] = go->GetGUID();
                     break;
             }
@@ -401,6 +407,11 @@ public:
                             pMainDoor->SetGoState(GO_STATE_READY);
                         uiWaveCount = 1;
                         bActive = true;
+                        for (int i = 0; i < 4; ++i)
+                        {
+                            if (GameObject* pCrystal = instance->GetGameObject(uiActivationCrystal[i]))
+                                pCrystal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        }
                         uiRemoveNpc = 0; // might not have been reset after a wipe on a boss.
                     }
                     break;
@@ -710,6 +721,12 @@ public:
                 SetData(DATA_WAVE_COUNT, 0);
                 uiMainEventPhase = NOT_STARTED;
 
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (GameObject* pCrystal = instance->GetGameObject(uiActivationCrystal[i]))
+                        pCrystal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
+
                 if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                 {
                     pSinclari->SetVisible(true);
@@ -791,13 +808,28 @@ public:
 
         void ActivateCrystal()
         {
+            // just to make things easier we'll get the a gameobject from the map
+            GameObject* invoker=instance->GetGameObject(uiActivationCrystal[0]);
+
+            SpellInfo const* spellInfoLightning=sSpellMgr->GetSpellInfo(SPELL_ARCANE_LIGHTNING);
+            if (!spellInfoLightning)
+                return;
+
+            // the orb
+            TempSummon* trigger=invoker->SummonCreature(DEFENSE_SYSTEM, ArcaneSphere, TEMPSUMMON_MANUAL_DESPAWN, 0);
+
+            if ( !trigger )
+                return;
+
+            // visuals
+            trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
+
             // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
-            /// @todo All visual, spells etc
             for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 Creature* creature = instance->GetCreature(*itr);
                 if (creature && creature->IsAlive())
-                    creature->CastSpell(creature, SPELL_ARCANE_LIGHTNING, true);  // Who should cast the spell?
+                    trigger->Kill(creature);
             }
         }
 
@@ -814,7 +846,57 @@ public:
     };
 };
 
+class npc_violet_hold_arcane_sphere : public CreatureScript
+{
+public:
+    npc_violet_hold_arcane_sphere() : CreatureScript("npc_violet_hold_arcane_sphere") { }
+
+    CreatureAI* GetAI(Creature* c) const
+    {
+        return new npc_violet_hold_arcane_sphereAI(c);
+    }
+
+    struct npc_violet_hold_arcane_sphereAI : public ScriptedAI
+    {
+        npc_violet_hold_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+
+        uint32 DespawnTimer;
+
+        void Reset()
+        {
+            DespawnTimer = 3000;
+
+            me->SetDisableGravity(true);
+            DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
+        }
+
+        void EnterCombat(Unit* /*who*/) {}
+
+        void UpdateAI(uint32 diff)
+        {
+            if (DespawnTimer <= diff)
+                me->Kill(me);
+            else
+                DespawnTimer -= diff;
+        }
+    };
+};
+
+class go_activation_crystal : public GameObjectScript
+{
+public:
+    go_activation_crystal() : GameObjectScript("go_activation_crystal") { }
+
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
+    {
+        go->EventInform(EVENT_ACTIVATE_CRYSTAL);
+        return false;
+    }
+};
+
 void AddSC_instance_violet_hold()
 {
+    new go_activation_crystal();
+    new npc_violet_hold_arcane_sphere();
     new instance_violet_hold();
 }

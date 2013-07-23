@@ -120,7 +120,7 @@ enum TrashDoorSpell
 enum Spells
 {
     SPELL_PORTAL_CHANNEL              = 58012,
-    SPELL_CRYSTALL_ACTIVATION         = 57804
+    SPELL_CRYSTAL_ACTIVATION          = 57804
 };
 
 enum Sinclari
