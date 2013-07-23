@@ -347,6 +347,14 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
     // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
 }
 
+AuraScript* Aura::GetScriptByName(std::string const& scriptName) const
+{
+    for (std::list<AuraScript*>::const_iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
+        if ((*itr)->_GetScriptName()->compare(scriptName) == 0)
+            return *itr;
+    return NULL;
+}
+
 void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount)
 {
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
