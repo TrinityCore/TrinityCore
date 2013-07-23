@@ -61,9 +61,12 @@ enum WarlockSpells
     SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE          = 85385,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
+    SPELL_WARLOCK_NETHER_WARD                       = 91711,
+    SPELL_WARLOCK_NETHER_TALENT                     = 91713,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 42223,
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
+    SPELL_WARLOCK_SHADOW_WARD                       = 6229,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
@@ -920,6 +923,46 @@ class spell_warl_life_tap : public SpellScriptLoader
         }
 };
 
+// 687 - Demon Armor
+// 28176 - Fel Armor
+class spell_warl_nether_ward_overrride : public SpellScriptLoader
+{
+    public:
+        spell_warl_nether_ward_overrride() : SpellScriptLoader("spell_warl_nether_ward_overrride") { }
+
+        class spell_warl_nether_ward_overrride_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_nether_ward_overrride_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_TALENT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_WARD) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SHADOW_WARD))
+                    return false;
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (GetUnitOwner()->HasAura(SPELL_WARLOCK_NETHER_TALENT))
+                    amount = SPELL_WARLOCK_NETHER_WARD;
+                else
+                    amount = SPELL_WARLOCK_SHADOW_WARD;
+            }
+
+            void Register() OVERRIDE
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_nether_ward_overrride_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_warl_nether_ward_overrride_AuraScript();
+        }
+};
+
 // 18541 - Ritual of Doom Effect
 class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
 {
@@ -1227,6 +1270,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_healthstone_heal();
     new spell_warl_improved_soul_fire();
     new spell_warl_life_tap();
+    new spell_warl_nether_ward_overrride();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seduction();
     new spell_warl_seed_of_corruption();
