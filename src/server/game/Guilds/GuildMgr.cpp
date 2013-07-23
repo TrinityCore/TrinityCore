@@ -199,7 +199,7 @@ void GuildMgr::LoadGuilds()
             }
             while (result->NextRow());
 
-            TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild members int %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 

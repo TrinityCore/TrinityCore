@@ -1303,17 +1303,17 @@ void World::SetInitialWorldSettings()
     LoadDBCStores(m_dataPath);
     DetectDBCLang();
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading spell dbc data corrections...");
-    sSpellMgr->LoadDbcDataCorrections();
-
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
+
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo corrections...");
+    sSpellMgr->LoadSpellInfoCorrections();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
-    sSpellMgr->LoadSpellCustomAttr();
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo custom attributes...");
+    sSpellMgr->LoadSpellInfoCustomAttributes();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
     LoadGameObjectModelList();
