@@ -57,6 +57,8 @@ enum WarlockSpells
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
+    SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT            = 85383,
+    SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE          = 85385,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 42223,
@@ -811,6 +813,43 @@ class spell_warl_healthstone_heal : public SpellScriptLoader
         }
 };
 
+// -18119 - Improved Soul Fire
+class spell_warl_improved_soul_fire : public SpellScriptLoader
+{
+    public:
+        spell_warl_improved_soul_fire() : SpellScriptLoader("spell_warl_improved_soul_fire") { }
+
+        class spell_warl_improved_soul_fire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_improved_soul_fire_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastCustomSpell(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_improved_soul_fire_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_warl_improved_soul_fire_AuraScript();
+        }
+};
+
 // 1454 - Life Tap
 /// Updated 4.3.4
 class spell_warl_life_tap : public SpellScriptLoader
@@ -1186,6 +1225,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_healthstone_heal();
+    new spell_warl_improved_soul_fire();
     new spell_warl_life_tap();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seduction();
