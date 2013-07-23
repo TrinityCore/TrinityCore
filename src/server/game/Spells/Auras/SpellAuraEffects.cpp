@@ -5009,20 +5009,19 @@ void AuraEffect::HandleForceReaction(AuraApplication const* aurApp, uint8 mode, 
 
     Unit* target = aurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    Player* player = target->ToPlayer();
+    if (!player)
         return;
 
-    Player* player = (Player*)target;
+    uint32 factionId = GetMiscValue();
+    ReputationRank factionRank = ReputationRank(m_amount);
 
-    uint32 faction_id = GetMiscValue();
-    ReputationRank faction_rank = ReputationRank(m_amount);
-
-    player->GetReputationMgr().ApplyForceReaction(faction_id, faction_rank, apply);
+    player->GetReputationMgr().ApplyForceReaction(factionId, factionRank, apply);
     player->GetReputationMgr().SendForceReactions();
 
     // stop fighting if at apply forced rank friendly or at remove real rank friendly
-    if ((apply && faction_rank >= REP_FRIENDLY) || (!apply && player->GetReputationRank(faction_id) >= REP_FRIENDLY))
-        player->StopAttackFaction(faction_id);
+    if ((apply && factionRank >= REP_FRIENDLY) || (!apply && player->GetReputationRank(factionId) >= REP_FRIENDLY))
+        player->StopAttackFaction(factionId);
 }
 
 void AuraEffect::HandleAuraEmpathy(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5088,10 +5087,9 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
 
     Unit* target = aurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    Player* player = target->ToPlayer();
+    if (!player)
         return;
-
-    Player* player = (Player*)target;
 
     if (player->getClass() != CLASS_DEATH_KNIGHT)
         return;

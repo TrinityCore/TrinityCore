@@ -23326,8 +23326,8 @@ void Player::resetSpells(bool myClassOnly)
                 continue;
 
             // skip spells with first rank learned as talent (and all talents then also)
-            uint32 first_rank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
-            if (GetTalentSpellCost(first_rank) > 0)
+            uint32 firstRank = spellInfo->GetFirstRankSpell()->Id;
+            if (GetTalentSpellCost(firstRank) > 0)
                 continue;
 
             // skip broken spells
@@ -23397,13 +23397,12 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
     uint32 learned_0 = spellInfo->Effects[0].TriggerSpell;
     if (sSpellMgr->GetSpellRank(learned_0) > 1 && !HasSpell(learned_0))
     {
-        // not have first rank learned (unlearned prof?)
-        uint32 first_spell = sSpellMgr->GetFirstSpellInChain(learned_0);
-        if (!HasSpell(first_spell))
-            return;
-
         SpellInfo const* learnedInfo = sSpellMgr->GetSpellInfo(learned_0);
         if (!learnedInfo)
+            return;
+
+        // not have first rank learned (unlearned prof?)
+        if (!HasSpell(learnedInfo->GetFirstRankSpell()->Id))
             return;
 
         SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(learned_0);

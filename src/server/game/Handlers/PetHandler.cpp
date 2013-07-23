@@ -346,19 +346,19 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 if (unit_target)
                 {
                     pet->SetInFront(unit_target);
-                    if (unit_target->GetTypeId() == TYPEID_PLAYER)
-                        pet->SendUpdateToPlayer((Player*)unit_target);
+                    if (Player* player = unit_target->ToPlayer())
+                        pet->SendUpdateToPlayer(player);
                 }
                 else if (Unit* unit_target2 = spell->m_targets.GetUnitTarget())
                 {
                     pet->SetInFront(unit_target2);
-                    if (unit_target2->GetTypeId() == TYPEID_PLAYER)
-                        pet->SendUpdateToPlayer((Player*)unit_target2);
+                    if (Player* player = unit_target2->ToPlayer())
+                        pet->SendUpdateToPlayer(player);
                 }
 
                 if (Unit* powner = pet->GetCharmerOrOwner())
-                    if (powner->GetTypeId() == TYPEID_PLAYER)
-                        pet->SendUpdateToPlayer(powner->ToPlayer());
+                    if (Player* player = powner->ToPlayer())
+                        pet->SendUpdateToPlayer(player);
 
                 result = SPELL_CAST_OK;
             }
@@ -637,9 +637,9 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     pet->SetName(name);
 
-    Unit* owner = pet->GetOwner();
-    if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-        owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
+    Player* owner = pet->GetOwner();
+    if (owner && owner->GetGroup())
+        owner->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
     pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
 
