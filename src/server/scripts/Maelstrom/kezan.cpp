@@ -24,6 +24,7 @@ enum NPC_DeffiantTroll
 {
     DEFFIANT_KILL_CREDIT               = 34830,
     SPELL_LIGHTNING_VISUAL             = 45870,
+    SPELL_ENRAGE                       = 45111,
     QUEST_GOOD_HELP_IS_HARD_TO_FIND    = 14069,
     GO_DEPOSIT                         = 195489,
 };
@@ -61,7 +62,7 @@ public:
         {
             rebuffTimer = 0;
             work = false;
-            me->CastSpell(me, 45111, true);
+            me->CastSpell(me, SPELL_ENRAGE, true);
         }
 
         void MovementInform(uint32 /*type*/, uint32 id) OVERRIDE
@@ -70,12 +71,7 @@ public:
                 work = true;
         }
 
-        bool isworking()
-        {
-            if(work) return true;
-            return false;
-        }
-
+        bool IsWorking() const { return work; }
 
         void UpdateAI(const uint32 diff) OVERRIDE
         {
@@ -98,7 +94,7 @@ public:
                         me->HandleEmoteCommand(0);
                         break;
                 }
-                rebuffTimer = 120000;                 //Rebuff agian in 2 minutes
+                rebuffTimer = 120000;                 //Rebuff again in 2 minutes
             }
             else
                 rebuffTimer -= diff;
@@ -112,7 +108,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
-        if (player->GetQuestStatus(QUEST_GOOD_HELP_IS_HARD_TO_FIND) == QUEST_STATUS_INCOMPLETE && !CAST_AI(npc_defiant_troll::npc_defiant_trollAI, creature->AI())->isworking())
+        if (player->GetQuestStatus(QUEST_GOOD_HELP_IS_HARD_TO_FIND) == QUEST_STATUS_INCOMPLETE && !CAST_AI(npc_defiant_troll::npc_defiant_trollAI, creature->AI())->IsWorking())
         {
             player->CastSpell(creature, SPELL_LIGHTNING_VISUAL, true);
             player->KilledMonsterCredit(DEFFIANT_KILL_CREDIT, creature->GetGUID());
