@@ -864,7 +864,7 @@ class spell_dk_scent_of_blood : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(GetTarget(), SPELL_DK_SCENT_OF_BLOOD, true, NULL, aurEff);
-                GetTarget()->RemoveAuraFromStack(GetSpellInfo()->Id);
+                GetTarget()->RemoveAuraFromStack(GetId());
             }
 
             void Register() OVERRIDE
