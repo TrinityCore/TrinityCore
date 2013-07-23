@@ -4853,7 +4853,7 @@ void ObjectMgr::LoadSpellScriptNames()
             while (spellInfo)
             {
                 _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
-                spellInfo = sSpellMgr->GetSpellInfo(spellInfo->Id)->GetNextRankSpell();
+                spellInfo = spellInfo->GetNextRankSpell();
             }
         }
         else

@@ -236,7 +236,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                     // apply percent damage mods
                     damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
-                    ApplyPct(damage, 16 * sSpellMgr->GetSpellRank(GetSpellInfo()->Id));
+                    ApplyPct(damage, 16 * GetSpellInfo()->GetRank());
 
                     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
@@ -440,8 +440,9 @@ class spell_warr_last_stand : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 healthModSpellBasePoints0 = int32(GetCaster()->CountPctFromMaxHealth(GetEffectValue()));
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                Unit* caster = GetCaster();
+                int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
+                caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
             }
 
             void Register() OVERRIDE

@@ -1498,6 +1498,29 @@ void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
     }
 }
 
+void Battleground::RelocateDeadPlayers(uint32 queueIndex)
+{
+    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
+    std::vector<uint64>& ghostList = m_ReviveQueue[queueIndex];
+    if (!ghostList.empty())
+    {
+        WorldSafeLocsEntry const* closestGrave = NULL;
+        for (std::vector<uint64>::const_iterator itr = ghostList.begin(); itr != ghostList.end(); ++itr)
+        {
+            Player* player = ObjectAccessor::FindPlayer(*itr);
+            if (!player)
+                continue;
+
+            if (!closestGrave)
+                closestGrave = GetClosestGraveYard(player);
+
+            if (closestGrave)
+                player->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
+        }
+        ghostList.clear();
+    }
+}
+
 bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
     // If the assert is called, means that BgObjects must be resized!
