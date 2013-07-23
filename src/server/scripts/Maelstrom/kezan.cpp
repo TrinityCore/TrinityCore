@@ -31,14 +31,7 @@ enum NPC_DeffiantTroll
 
 enum Yells
 {
-    SAY_WORK_0 = 0, // "Oops, break's over."
-    SAY_WORK_1 = 1, // "Don't tase me, mon!"
-    SAY_WORK_2 = 2, // "I report you to HR!"
-    SAY_WORK_3 = 3, // "Work was bettah in da Undermine!"
-    SAY_WORK_4 = 4, // "I'm going. I'm going!"
-    SAY_WORK_5 = 5, // "Sorry, mon. It won't happen again."
-    SAY_WORK_6 = 6, // "What I doin' wrong? Don't I get a lunch and two breaks a day, mon?"
-    SAY_WORK_7 = 7  // "Ouch! Dat hurt!"
+    SAY_WORK = 0
 };
 
 class npc_defiant_troll : public CreatureScript
@@ -112,36 +105,9 @@ public:
         {
             player->CastSpell(creature, SPELL_LIGHTNING_VISUAL, true);
             player->KilledMonsterCredit(DEFFIANT_KILL_CREDIT, creature->GetGUID());
-
-            switch (urand(0, 7))
-            {
-                case 0:
-                    creature->AI()->Talk(SAY_WORK_0);
-                    break;
-                case 1:
-                    creature->AI()->Talk(SAY_WORK_1);
-                    break;
-                case 2:
-                     creature->AI()->Talk(SAY_WORK_2);
-                     break;
-                case 3:
-                     creature->AI()->Talk(SAY_WORK_3);
-                     break;
-                case 4:
-                     creature->AI()->Talk(SAY_WORK_4);
-                     break;
-                case 5:
-                     creature->AI()->Talk(SAY_WORK_5);
-                     break;
-                case 6:
-                     creature->AI()->Talk(SAY_WORK_6);
-                     break;
-                case 7:
-                     creature->AI()->Talk(SAY_WORK_7);
-                     break;
-            }
-
+            creature->AI()->Talk(SAY_WORK);
             creature->RemoveAllAuras();
+
             if (GameObject* Deposit = creature->FindNearestGameObject(GO_DEPOSIT, 20))
                 creature->GetMotionMaster()->MovePoint(1, Deposit->GetPositionX()-1, Deposit->GetPositionY(), Deposit->GetPositionZ());
 
