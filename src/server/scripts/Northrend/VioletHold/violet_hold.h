@@ -92,7 +92,8 @@ enum CreaturesIds
     CREATURE_CYANIGOSA                              = 31134,
     CREATURE_SINCLARI                               = 30658,
     CREATURE_SABOTEOUR                              = 31079,
-    NPC_VIOLET_HOLD_GUARD                           = 30659
+    NPC_VIOLET_HOLD_GUARD                           = 30659,
+    DEFENSE_SYSTEM                                  = 30837
 };
 
 enum WorldStateIds
