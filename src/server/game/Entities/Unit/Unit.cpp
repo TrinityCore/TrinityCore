@@ -12203,6 +12203,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN] = true;
     isTriggerAura[SPELL_AURA_SPELL_MAGNET] = true;
     isTriggerAura[SPELL_AURA_MOD_ATTACK_POWER] = true;
+    isTriggerAura[SPELL_AURA_MOD_POWER_REGEN_PERCENT] = true;
     isTriggerAura[SPELL_AURA_ADD_CASTER_HIT_TRIGGER] = true;
     isTriggerAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
     isTriggerAura[SPELL_AURA_MOD_MECHANIC_RESISTANCE] = true;
@@ -12495,6 +12496,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_OBS_MOD_POWER:
                     case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
                     case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
+                    case SPELL_AURA_MOD_POWER_REGEN_PERCENT:
                     case SPELL_AURA_MOD_MELEE_HASTE:
                     case SPELL_AURA_MOD_MELEE_HASTE_3:
                         TC_LOG_DEBUG(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id, isVictim ? "a victim's" : "an attacker's", triggeredByAura->GetId());
