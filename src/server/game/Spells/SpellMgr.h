@@ -692,6 +692,9 @@ class SpellMgr
         SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
 
+    private:
+        SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
+
     // Modifiers
     public:
 
@@ -718,8 +721,8 @@ class SpellMgr
         void LoadSpellInfoStore();
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
-        void LoadSpellCustomAttr();
-        void LoadDbcDataCorrections();
+        void LoadSpellInfoCustomAttributes();
+        void LoadSpellInfoCorrections();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
