@@ -915,6 +915,78 @@ int LuaUnit::GetLatency(lua_State* L, Unit* unit)
     return 1;
 }
 
+int LuaUnit::GetOwnerGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetOwnerGUID());
+    return 1;
+}
+
+int LuaUnit::GetCreatorGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetCreatorGUID());
+    return 1;
+}
+
+int LuaUnit::GetMinionGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetMinionGUID());
+    return 1;
+}
+
+int LuaUnit::GetCharmerGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetCharmerGUID());
+    return 1;
+}
+
+int LuaUnit::GetCharmGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetCharmGUID());
+    return 1;
+}
+
+int LuaUnit::GetPetGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetPetGUID());
+    return 1;
+}
+
+int LuaUnit::GetCritterGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetCritterGUID());
+    return 1;
+}
+
+int LuaUnit::GetCharmerOrOwnerGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetCharmerOrOwnerGUID());
+    return 1;
+}
+
+int LuaUnit::GetCharmerOrOwnerOrOwnGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    sEluna->PushULong(L, unit->GetCharmerOrOwnerOrOwnGUID());
+    return 1;
+}
+
 int LuaUnit::SendAuctionMenu(lua_State* L, Unit* unit)
 {
     TO_PLAYER();
@@ -3844,6 +3916,60 @@ int LuaUnit::UnsetKnownTitle(lua_State* L, Unit* unit)
     CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
     if (t)
         player->SetTitle(t, true);
+    return 0;
+}
+
+int LuaUnit::SetOwnerGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint64 guid = sEluna->CHECK_ULONG(L, 1);
+    unit->SetOwnerGUID(guid);
+    return 0;
+}
+
+int LuaUnit::SetCreatorGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint64 guid = sEluna->CHECK_ULONG(L, 1);
+    unit->SetCreatorGUID(guid);
+    return 0;
+}
+
+int LuaUnit::SetMinionGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint64 guid = sEluna->CHECK_ULONG(L, 1);
+    unit->SetMinionGUID(guid);
+    return 0;
+}
+
+int LuaUnit::SetCharmerGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint64 guid = sEluna->CHECK_ULONG(L, 1);
+    unit->SetCharmerGUID(guid);
+    return 0;
+}
+
+int LuaUnit::SetPetGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint64 guid = sEluna->CHECK_ULONG(L, 1);
+    unit->SetPetGUID(guid);
+    return 0;
+}
+
+int LuaUnit::SetCritterGUID(lua_State* L, Unit* unit)
+{
+    TO_UNIT();
+
+    uint64 guid = sEluna->CHECK_ULONG(L, 1);
+    unit->SetCritterGUID(guid);
     return 0;
 }
 
