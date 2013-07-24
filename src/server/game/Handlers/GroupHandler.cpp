@@ -1144,13 +1144,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
         }
     }
 
-    if (mask & GROUP_UPDATE_FLAG_PHASE)
-    {
-        *data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
-        *data << uint32(0); // count
-        // for (count) *data << uint16(phaseId)
-    }
-
     if (mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
     {
         if (Vehicle* veh = player->GetVehicle())
@@ -1158,6 +1151,13 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
         else
             *data << uint32(0);
 
+    }
+
+    if (mask & GROUP_UPDATE_FLAG_PHASE)
+    {
+        *data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
+        *data << uint32(0); // byte count in next block
+        // for (count) *data << uint16(phaseId)
     }
 }
 
@@ -1266,6 +1266,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
             }
         }
     }
+
     data.put<uint64>(maskPos, auramask);                    // GROUP_UPDATE_FLAG_AURAS
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_GUID)
@@ -1289,23 +1290,19 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     if (updateFlags & GROUP_UPDATE_FLAG_PET_MAX_POWER)
         data << uint16(pet->GetMaxPower(pet->getPowerType()));
 
+    // GROUP_UPDATE_FLAG_PET_AURAS
     uint64 petAuraMask = 0;
     maskPos = data.wpos();
+    data << uint8(1);
     data << uint64(petAuraMask);                            // placeholder
+    data << uint32(MAX_AURAS);                              // count
     if (pet)
     {
-        // GROUP_UPDATE_FLAG_PET_AURAS
-        data << uint8(1);
-        uint64 petauramask = 0;
-        size_t petMaskPos = data.wpos();
-        data << uint64(petauramask);                       // placeholder
-        data << uint32(MAX_AURAS);                         // count
-
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
             if (AuraApplication const* aurApp = pet->GetVisibleAura(i))
             {
-                petauramask |= (uint64(1) << i);
+                petAuraMask |= (uint64(1) << i);
 
                 data << uint32(aurApp->GetBase()->GetId());
                 data << uint16(aurApp->GetFlags());
@@ -1322,20 +1319,19 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
                 }
             }
         }
-
-        data.put<uint64>(petMaskPos, petauramask);           // GROUP_UPDATE_FLAG_PET_AURAS
     }
-    // else not needed, flags do not include any PET_ update
-
-    // GROUP_UPDATE_FLAG_PHASE
-    data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
-    data << uint32(0); // count
-    // for (count) *data << uint16(phaseId)
 
     data.put<uint64>(maskPos, petAuraMask);                 // GROUP_UPDATE_FLAG_PET_AURAS
 
     if (updateFlags & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
         data << uint32(player->GetVehicle()->GetVehicleInfo()->m_seatID[player->m_movementInfo.transport.seat]);
+
+    if (updateFlags & GROUP_UPDATE_FLAG_PHASE)
+    {
+        data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
+        data << uint32(0); // byte count in next block
+        // for (count) *data << uint16(phaseId)
+    }
 
     SendPacket(&data);
 }
