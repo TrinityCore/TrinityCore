@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "Opcodes.h"
+#include "WorldSession.h"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 
@@ -198,7 +199,7 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    uint8 count = 128;
+    uint16 count = 256;
     WorldPacket data(SMSG_INITIALIZE_FACTIONS, 4 + count * 5);
     data << uint32(count);
 

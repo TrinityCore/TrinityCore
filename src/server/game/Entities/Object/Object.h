@@ -54,6 +54,7 @@ enum TypeMask
     TYPEMASK_GAMEOBJECT     = 0x0020,
     TYPEMASK_DYNAMICOBJECT  = 0x0040,
     TYPEMASK_CORPSE         = 0x0080,
+    TYPEMASK_AREATRIGGER    = 0x0100,
     TYPEMASK_SEER           = TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 
@@ -66,10 +67,11 @@ enum TypeID
     TYPEID_PLAYER        = 4,
     TYPEID_GAMEOBJECT    = 5,
     TYPEID_DYNAMICOBJECT = 6,
-    TYPEID_CORPSE        = 7
+    TYPEID_CORPSE        = 7,
+    TYPEID_AREATRIGGER   = 8
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             8
+#define NUM_CLIENT_OBJECT_TYPES             9
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
 
@@ -116,6 +118,62 @@ class ZoneScript;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
+//! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
+//! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
+struct ObjectGuid
+{
+    public:
+        ObjectGuid() { _data.u64 = UI64LIT(0); }
+        ObjectGuid(uint64 guid) { _data.u64 = guid; }
+        ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
+
+        uint8& operator[](uint32 index)
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        operator uint64()
+        {
+            return _data.u64;
+        }
+
+        ObjectGuid& operator=(uint64 guid)
+        {
+            _data.u64 = guid;
+            return *this;
+        }
+
+        ObjectGuid& operator=(ObjectGuid const& other)
+        {
+            _data.u64 = other._data.u64;
+            return *this;
+        }
+
+    private:
+        union
+        {
+            uint64 u64;
+            uint8 byte[8];
+        } _data;
+};
+
 class Object
 {
     public:
@@ -144,7 +202,6 @@ class Object
 
         void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
-        void BuildMovementUpdateBlock(UpdateData* data, uint32 flags = 0) const;
 
         virtual void DestroyForPlayer(Player* target, bool onDeath = false) const;
 
@@ -225,6 +282,9 @@ class Object
 
         DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return NULL; }
         DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return NULL; }
+
+        AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
+        AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
 
     protected:
         Object();
@@ -418,6 +478,7 @@ struct MovementInfo
             seat = -1;
             time = 0;
             time2 = 0;
+            time3 = 0;
         }
 
         uint64 guid;
@@ -425,21 +486,23 @@ struct MovementInfo
         int8 seat;
         uint32 time;
         uint32 time2;
+        uint32 time3;
     } transport;
 
     // swimming/flying
     float pitch;
 
-    // falling
-    uint32 fallTime;
 
-        // jumping
+    // jumping
     struct JumpInfo
     {
         void Reset()
         {
+            fallTime = 0;
             zspeed = sinAngle = cosAngle = xyspeed = 0.0f;
         }
+
+        uint32 fallTime;
 
         float zspeed, sinAngle, cosAngle, xyspeed;
 
@@ -448,12 +511,24 @@ struct MovementInfo
     // spline
     float splineElevation;
 
+    // bit markers
+    struct MovementElementMarkers
+    {
+        bool hasTransportTime2;
+        bool hasTransportTime3;
+        bool hasPitch;
+        bool hasFallData;
+        bool hasFallDirection;
+        bool hasSplineElevation;
+    } bits;
+
     MovementInfo() :
         guid(0), flags(0), flags2(0), time(0), pitch(0.0f)
     {
         pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         transport.Reset();
         jump.Reset();
+        memset(&bits, 0, sizeof(bits));
     }
 
     uint32 GetMovementFlags() const { return flags; }
@@ -463,10 +538,26 @@ struct MovementInfo
     bool HasMovementFlag(uint32 flag) const { return flags & flag; }
 
     uint16 GetExtraMovementFlags() const { return flags2; }
+    void SetExtraMovementFlags(uint16 flag) { flags2 = flag; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
+    void RemoveExtraMovementFlag(uint16 flag) { flags2 &= ~flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return flags2 & flag; }
 
-    void SetFallTime(uint32 time) { fallTime = time; }
+    void SetFallTime(uint32 time) { jump.fallTime = time; }
+
+    void ResetTransport()
+    {
+        transport.Reset();
+        bits.hasTransportTime2 = false;
+        bits.hasTransportTime3 = false;
+    }
+
+    void ResetJump()
+    {
+        jump.Reset();
+        bits.hasFallData = false;
+        bits.hasFallDirection = false;
+    }
 
     void OutDebug();
 };

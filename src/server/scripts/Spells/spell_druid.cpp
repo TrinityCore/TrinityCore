@@ -29,7 +29,18 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_WRATH                       = 5176,
+    SPELL_DRUID_STARFIRE                    = 2912,
+    SPELL_DRUID_STARSURGE                   = 78674,
+    SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE    = 89265,
+    SPELL_DRUID_STARSURGE_ENERGIZE          = 86605,
+    SPELL_DRUID_LUNAR_ECLIPSE_MARKER        = 67484, // Will make the yellow arrow on eclipse bar point to the blue side (lunar)
+    SPELL_DRUID_SOLAR_ECLIPSE_MARKER        = 67483, // Will make the yellow arrow on eclipse bar point to the yellow side (solar)
+    SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
+    SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
     SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
+    SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
+    SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
     SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
@@ -39,11 +50,120 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
-    SPELL_DRUID_NATURES_SPLENDOR            = 57865,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
-    SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
+    SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950
+};
+
+// 2912, 5176, 78674 - Starfire, Wrath, and Starsurge
+class spell_dru_eclipse_energize : public SpellScriptLoader
+{
+    public:
+        spell_dru_eclipse_energize() : SpellScriptLoader("spell_dru_eclipse_energize") { }
+
+        class spell_dru_eclipse_energize_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_eclipse_energize_SpellScript);
+
+            int32 energizeAmount;
+
+            bool Load() OVERRIDE
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
+                if (GetCaster()->ToPlayer()->getClass() != CLASS_DRUID)
+                    return false;
+
+                energizeAmount = 0;
+
+                return true;
+            }
+
+            void HandleEnergize(SpellEffIndex effIndex)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+
+                // No boomy, no deal.
+                if (caster->GetPrimaryTalentTree(caster->GetActiveSpec()) != TALENT_TREE_DRUID_BALANCE)
+                    return;
+
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_DRUID_WRATH:
+                    {
+                        energizeAmount = -GetSpellInfo()->Effects[effIndex].BasePoints; // -13
+                        // If we are set to fill the lunar side or we've just logged in with 0 power..
+                        if ((!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER))
+                            || caster->GetPower(POWER_ECLIPSE) == 0)
+                        {
+                            caster->CastCustomSpell(caster, SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE, &energizeAmount, 0, 0, true);
+                            // If the energize was due to 0 power, cast the eclipse marker aura
+                            if (!caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER))
+                                caster->CastSpell(caster, SPELL_DRUID_LUNAR_ECLIPSE_MARKER, true);
+                        }
+                        // The energizing effect brought us out of the solar eclipse, remove the aura
+                        if (caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE) && caster->GetPower(POWER_ECLIPSE) <= 0)
+                            caster->RemoveAurasDueToSpell(SPELL_DRUID_SOLAR_ECLIPSE);
+                        break;
+                    }
+                    case SPELL_DRUID_STARFIRE:
+                    {
+                        energizeAmount = GetSpellInfo()->Effects[effIndex].BasePoints; // 20
+                        // If we are set to fill the solar side or we've just logged in with 0 power..
+                        if ((!caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER))
+                            || caster->GetPower(POWER_ECLIPSE) == 0)
+                        {
+                            caster->CastCustomSpell(caster, SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE, &energizeAmount, 0, 0, true);
+                            // If the energize was due to 0 power, cast the eclipse marker aura
+                            if (!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER))
+                                caster->CastSpell(caster, SPELL_DRUID_SOLAR_ECLIPSE_MARKER, true);
+                        }
+                        // The energizing effect brought us out of the lunar eclipse, remove the aura
+                        if (caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE) && caster->GetPower(POWER_ECLIPSE) >= 0)
+                            caster->RemoveAura(SPELL_DRUID_LUNAR_ECLIPSE);
+                        break;
+                    }
+                    case SPELL_DRUID_STARSURGE:
+                    {
+                        // If we are set to fill the solar side or we've just logged in with 0 power (confirmed with sniffs)
+                        if ((!caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER))
+                            || caster->GetPower(POWER_ECLIPSE) == 0)
+                        {
+                            energizeAmount = GetSpellInfo()->Effects[effIndex].BasePoints; // 15
+                            caster->CastCustomSpell(caster, SPELL_DRUID_STARSURGE_ENERGIZE, &energizeAmount, 0, 0, true);
+
+                            // If the energize was due to 0 power, cast the eclipse marker aura
+                            if (!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER))
+                                caster->CastSpell(caster, SPELL_DRUID_SOLAR_ECLIPSE_MARKER, true);
+                        }
+                        else if (!caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_MARKER) && caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE_MARKER))
+                        {
+                            energizeAmount = -GetSpellInfo()->Effects[effIndex].BasePoints; // -15
+                            caster->CastCustomSpell(caster, SPELL_DRUID_STARSURGE_ENERGIZE, &energizeAmount, 0, 0, true);
+                        }
+                        // The energizing effect brought us out of the lunar eclipse, remove the aura
+                        if (caster->HasAura(SPELL_DRUID_LUNAR_ECLIPSE) && caster->GetPower(POWER_ECLIPSE) >= 0)
+                            caster->RemoveAura(SPELL_DRUID_LUNAR_ECLIPSE);
+                        // The energizing effect brought us out of the solar eclipse, remove the aura
+                        else if (caster->HasAura(SPELL_DRUID_SOLAR_ECLIPSE) && caster->GetPower(POWER_ECLIPSE) <= 0)
+                            caster->RemoveAura(SPELL_DRUID_SOLAR_ECLIPSE);
+                        break;
+                    }
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_eclipse_energize_SpellScript::HandleEnergize, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_dru_eclipse_energize_SpellScript;
+        }
 };
 
 // -1850 - Dash
@@ -103,6 +223,48 @@ class spell_dru_enrage : public SpellScriptLoader
         }
 };
 
+// 54832 - Glyph of Innervate
+class spell_dru_glyph_of_innervate : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_innervate() : SpellScriptLoader("spell_dru_glyph_of_innervate") { }
+
+        class spell_dru_glyph_of_innervate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_innervate_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                // Not proc from self Innervate
+                return GetTarget() != eventInfo.GetProcTarget();
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_GLYPH_OF_INNERVATE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dru_glyph_of_innervate_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_innervate_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_glyph_of_innervate_AuraScript();
+        }
+};
+
 // 54846 - Glyph of Starfire
 class spell_dru_glyph_of_starfire : public SpellScriptLoader
 {
@@ -115,7 +277,7 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_INCREASED_MOONFIRE_DURATION) || !sSpellMgr->GetSpellInfo(SPELL_DRUID_NATURES_SPLENDOR))
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_INCREASED_MOONFIRE_DURATION))
                     return false;
                 return true;
             }
@@ -124,15 +286,13 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
-                    if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00000002, 0, 0, caster->GetGUID()))
+                    if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x2, 0, 0, caster->GetGUID()))
                     {
                         Aura* aura = aurEff->GetBase();
 
                         uint32 countMin = aura->GetMaxDuration();
                         uint32 countMax = aura->GetSpellInfo()->GetMaxDuration() + 9000;
                         if (caster->HasAura(SPELL_DRUID_INCREASED_MOONFIRE_DURATION))
-                            countMax += 3000;
-                        if (caster->HasAura(SPELL_DRUID_NATURES_SPLENDOR))
                             countMax += 3000;
 
                         if (countMin < countMax)
@@ -152,6 +312,41 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_dru_glyph_of_starfire_SpellScript();
+        }
+};
+
+// 54845 - Glyph of Starfire
+class spell_dru_glyph_of_starfire_proc : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_starfire_proc() : SpellScriptLoader("spell_dru_glyph_of_starfire_proc") { }
+
+        class spell_dru_glyph_of_starfire_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_starfire_proc_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_STARFIRE))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_GLYPH_OF_STARFIRE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_starfire_proc_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_glyph_of_starfire_proc_AuraScript();
         }
 };
 
@@ -664,7 +859,7 @@ class spell_dru_savage_roar : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_savage_roar_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_SAVAGE_ROAR))
                     return false;
@@ -857,7 +1052,7 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (Player* caster = GetCaster()->ToPlayer())
-                    if (caster->Has310Flyer(false))
+                    if (caster->GetSkillValue(SKILL_RIDING) >= 375)
                         amount = 310;
             }
 
@@ -988,8 +1183,11 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
+    new spell_dru_eclipse_energize();
     new spell_dru_enrage();
+    new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_starfire();
+    new spell_dru_glyph_of_starfire_proc();
     new spell_dru_idol_lifebloom();
     new spell_dru_innervate();
     new spell_dru_insect_swarm();

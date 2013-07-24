@@ -1,0 +1,1 @@
+ALTER TABLE `item_template_addon` ADD `FlagsCu` INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER `Id`;

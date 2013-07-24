@@ -18,17 +18,13 @@
 
 /* ScriptData
 SDName: Moonglade
-SD%Complete: 100
-SDComment: Quest support: 30, 272, 5929, 5930, 10965. Special Flight Paths for Druid class.
+SD%Complete: 0
+SDComment: Quest support:
 SDCategory: Moonglade
 EndScriptData */
 
 /* ContentData
-npc_bunthen_plainswind
-npc_great_bear_spirit
-npc_silva_filnaveth
-npc_clintar_spirit
-npc_clintar_dreamwalker
+npc_omen
 EndContentData */
 
 #include "ScriptMgr.h"

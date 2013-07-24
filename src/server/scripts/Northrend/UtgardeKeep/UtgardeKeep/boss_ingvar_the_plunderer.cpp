@@ -279,7 +279,6 @@ public:
 
 };
 
-
 class npc_annhylde_the_caller : public CreatureScript
 {
 public:
