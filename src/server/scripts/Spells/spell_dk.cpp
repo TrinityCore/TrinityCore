@@ -50,10 +50,10 @@ enum DeathKnightSpells
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
+    SPELL_DK_RUNE_TAP                           = 48982,
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
-    SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
-    SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
+    SPELL_DK_WILL_OF_THE_NECROPOLIS             = 96171,
     SPELL_DK_UNHOLY_PRESENCE                    = 48265
 };
 
@@ -1095,7 +1095,7 @@ class spell_dk_vampiric_blood : public SpellScriptLoader
         }
 };
 
-// 52284 - Will of the Necropolis
+// -52284 - Will of the Necropolis
 class spell_dk_will_of_the_necropolis : public SpellScriptLoader
 {
     public:
@@ -1107,53 +1107,36 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1);
-                if (!firstRankSpellInfo)
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_WILL_OF_THE_NECROPOLIS))
                     return false;
-
-                // can't use other spell than will of the necropolis due to spell_ranks dependency
-                if (!spellInfo->IsRankOf(firstRankSpellInfo))
-                    return false;
-
-                uint8 rank = spellInfo->GetRank();
-                if (!sSpellMgr->GetSpellWithRank(SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank, true))
-                    return false;
-
                 return true;
             }
 
-            uint32 absorbPct;
-
-            bool Load() OVERRIDE
+            bool CheckProc(ProcEventInfo& eventInfo)
             {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                return true;
+                //! HACK due to currenct proc system implementation
+                if (Player* player = GetTarget()->ToPlayer())
+                    if (player->HasSpellCooldown(GetId()))
+                        return false;
+
+               return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
             }
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
+                GetTarget()->CastSpell(GetTarget(), SPELL_DK_WILL_OF_THE_NECROPOLIS, true, NULL, aurEff);
 
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                // min pct of hp is stored in effect 0 of talent spell
-                uint8 rank = GetSpellInfo()->GetRank();
-                SpellInfo const* talentProto = sSpellMgr->GetSpellInfo(sSpellMgr->GetSpellWithRank(SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank));
-
-                int32 remainingHp = int32(GetTarget()->GetHealth() - dmgInfo.GetDamage());
-                int32 minHp = int32(GetTarget()->CountPctFromMaxHealth(talentProto->Effects[EFFECT_0].CalcValue(GetCaster())));
-
-                // Damage that would take you below [effect0] health or taken while you are at [effect0]
-                if (remainingHp < minHp)
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+                if (Player* player = GetTarget()->ToPlayer())
+                {
+                    player->RemoveSpellCooldown(SPELL_DK_RUNE_TAP, true);
+                    player->AddSpellCooldown(GetId(), 0, time(NULL) + 45);
+                }
             }
 
             void Register() OVERRIDE
             {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_will_of_the_necropolis_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_will_of_the_necropolis_AuraScript::Absorb, EFFECT_0);
+                DoCheckProc += AuraCheckProcFn(spell_dk_will_of_the_necropolis_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_will_of_the_necropolis_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
             }
         };
 
