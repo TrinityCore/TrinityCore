@@ -1141,6 +1141,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
         {
             *data << uint8(0);
             *data << uint64(0);
+            *data << uint32(0);
         }
     }
 
@@ -1148,6 +1149,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     {
         *data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
         *data << uint32(0); // count
+        *data << uint8(0);
         // for (count) *data << uint16(phaseId)
     }
 
