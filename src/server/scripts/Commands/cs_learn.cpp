@@ -116,8 +116,7 @@ public:
         else
             targetPlayer->learnSpell(spell, false);
 
-        uint32 firstSpell = sSpellMgr->GetFirstSpellInChain(spell);
-        if (GetTalentSpellCost(firstSpell))
+        if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id))
             targetPlayer->SendTalentsInfoData(false);
 
         return true;
@@ -178,8 +177,7 @@ public:
                 continue;
 
             // skip spells with first rank learned as talent (and all talents then also)
-            uint32 firstRank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
-            if (GetTalentSpellCost(firstRank) > 0)
+            if (GetTalentSpellCost(spellInfo->GetFirstRankSpell()->Id) > 0)
                 continue;
 
             // skip broken spells
@@ -493,7 +491,7 @@ public:
         }
 
         if (allRanks)
-            spellId = sSpellMgr->GetFirstSpellInChain (spellId);
+            spellId = sSpellMgr->GetFirstSpellInChain(spellId);
 
         if (target->HasSpell(spellId))
             target->removeSpell(spellId, false, !allRanks);
