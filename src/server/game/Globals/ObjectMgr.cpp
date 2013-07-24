@@ -4862,10 +4862,10 @@ void ObjectMgr::LoadSpellScriptNames()
         Field* fields = result->Fetch();
 
         int32 spellId          = fields[0].GetInt32();
-        const char *scriptName = fields[1].GetCString();
+        char const* scriptName = fields[1].GetCString();
 
         bool allRanks = false;
-        if (spellId <= 0)
+        if (spellId < 0)
         {
             allRanks = true;
             spellId = -spellId;
@@ -4874,17 +4874,21 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname:`%s` spell (spell_id:%d) does not exist in `Spell.dbc`.", scriptName, fields[0].GetInt32());
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName, spellId);
             continue;
         }
 
         if (allRanks)
         {
-            if (sSpellMgr->GetFirstSpellInChain(spellId) != uint32(spellId))
+            if (!spellInfo->IsRanked())
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName, fields[0].GetInt32());
+
+            if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname:`%s` spell (spell_id:%d) is not first rank of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName, fields[0].GetInt32());
                 continue;
             }
+
             while (spellInfo)
             {
                 _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
@@ -4892,7 +4896,13 @@ void ObjectMgr::LoadSpellScriptNames()
             }
         }
         else
+        {
+            if (spellInfo->IsRanked())
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) is ranked spell. Properly not all ranks are assigned to this script.", scriptName, spellId);
+
             _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
+        }
+
         ++count;
     }
     while (result->NextRow());
