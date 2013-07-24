@@ -70,7 +70,7 @@ enum MiscSpells
 
 enum WarriorSpellIcons
 {
-    WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989,
+    WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989
 };
 
 /// Updated 4.3.4
