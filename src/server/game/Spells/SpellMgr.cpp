@@ -1335,14 +1335,14 @@ void SpellMgr::LoadSpellRequired()
             continue;
         }
 
-        SpellInfo const* req_spell = GetSpellInfo(spell_req);
-        if (!req_spell)
+        SpellInfo const* reqSpell = GetSpellInfo(spell_req);
+        if (!reqSpell)
         {
             TC_LOG_ERROR(LOG_FILTER_SQL, "req_spell %u in `spell_required` table is not found in dbcs, skipped", spell_req);
             continue;
         }
 
-        if (GetFirstSpellInChain(spell_id) == GetFirstSpellInChain(spell_req))
+        if (spell->IsRankOf(reqSpell))
         {
             TC_LOG_ERROR(LOG_FILTER_SQL, "req_spell %u and spell_id %u in `spell_required` table are ranks of the same spell, entry not needed, skipped", spell_req, spell_id);
             continue;
