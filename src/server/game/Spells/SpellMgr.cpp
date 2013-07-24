@@ -3123,9 +3123,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
-            case 53096: // Quetz'lun's Judgment
-                spellInfo->MaxAffectedTargets = 1;
-                break;
             case 42730: // Woe Strike
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
                 break;
@@ -3153,7 +3150,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 63665: // Charge (Argent Tournament emote on riders)
             case 31298: // Sleep (needs target selection script)
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
-            case 2895:  // Wrath of Air Totem rank 1 (Aura)
             case 68933: // Wrath of Air Totem rank 2 (Aura)
             case 29200: // Purify Helboar Meat
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
@@ -3182,10 +3178,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 59372: // Energize Cores
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
                 break;
-            case 8494: // Mana Shield (rank 2)
-                // because of bug in dbc
-                spellInfo->ProcChance = 0;
-                break;
             case 63320: // Glyph of Life Tap
             case 53228: // Rapid Killing (Rank 1)
             case 53232: // Rapid Killing (Rank 2)
@@ -3197,46 +3189,46 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
                 break;
-            case 44978: // Wild Magic
-            case 45001:
-            case 45002:
-            case 45004:
-            case 45006:
-            case 45010:
             case 31347: // Doom
+            case 39365: // Thundering Storm
+            case 41071: // Raise Dead (HACK)
+            case 42442: // Vengeance Landing Cannonfire
+            case 42611: // Shoot
+            case 44978: // Wild Magic
+            case 45001: // Wild Magic
+            case 45002: // Wild Magic
+            case 45004: // Wild Magic
+            case 45006: // Wild Magic
+            case 45010: // Wild Magic
+            case 45761: // Shoot Gun
+            case 45863: // Cosmetic - Incinerate to Random Target
+            case 48246: // Ball of Flame
             case 41635: // Prayer of Mending
             case 44869: // Spectral Blast
             case 45027: // Revitalize
             case 45976: // Muru Portal Channel
-            case 39365: // Thundering Storm
-            case 41071: // Raise Dead (HACK)
             case 52124: // Sky Darkener Assault
-            case 42442: // Vengeance Landing Cannonfire
-            case 45863: // Cosmetic - Incinerate to Random Target
-            case 25425: // Shoot
-            case 45761: // Shoot
-            case 42611: // Shoot
-            case 61588: // Blazing Harpoon
+            case 53096: // Quetz'lun's Judgment
             case 52479: // Gift of the Harvester
-            case 48246: // Ball of Flame
+            case 61588: // Blazing Harpoon
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
                 spellInfo->MaxAffectedTargets = 2;
                 break;
-            case 41376: // Spite
-            case 39992: // Needle Spine
-            case 29576: // Multi-Shot
-            case 40816: // Saber Lash
-            case 37790: // Spread Shot
-            case 46771: // Flame Sear
-            case 45248: // Shadow Blades
-            case 41303: // Soul Drain
-            case 54172: // Divine Storm (heal)
-            case 29213: // Curse of the Plaguebringer - Noth
             case 28542: // Life Drain - Sapphiron
-            case 66588: // Flaming Spear
+            case 29213: // Curse of the Plaguebringer - Noth
+            case 29576: // Multi-Shot
+            case 37790: // Spread Shot
+            case 39992: // Needle Spine
+            case 40816: // Saber Lash
+            case 41303: // Soul Drain
+            case 41376: // Spite
+            case 45248: // Shadow Blades
+            case 46771: // Flame Sear
             case 54171: // Divine Storm
+            case 54172: // Divine Storm (heal)
+            case 66588: // Flaming Spear
                 spellInfo->MaxAffectedTargets = 3;
                 break;
             case 38310: // Multi-Shot
@@ -3264,23 +3256,19 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->MaxAffectedTargets = 15;
                 break;
             case 33711: // Murmur's Touch
-            case 38794:
+            case 38794: // Murmur's Touch
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 33760;
                 break;
             case 17941: // Shadow Trance
             case 22008: // Netherwind Focus
-            case 31834: // Light's Grace
-            case 34754: // Clearcasting
+            case 34477: // Misdirection
             case 34936: // Backlash
             case 48108: // Hot Streak
             case 51124: // Killing Machine
             case 54741: // Firestarter
             case 57761: // Fireball!
-            case 39805: // Lightning Overload
             case 64823: // Item - Druid T8 Balance 4P Bonus
-            case 34477: // Misdirection
-            case 44401: // Missile Barrage
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
@@ -3293,11 +3281,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
-            case 47201: // Everlasting Affliction
-            case 47202:
-            case 47203:
-            case 47204:
-            case 47205:
+            case 47201: // Everlasting Affliction (1)
+            case 47202: // Everlasting Affliction (2)
+            case 47203: // Everlasting Affliction (3)
+            case 47204: // Everlasting Affliction (4)
+            case 47205: // Everlasting Affliction (5)
                 // add corruption to affected spells
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
                 break;
@@ -3307,19 +3295,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
                 spellInfo->Effects[EFFECT_0].Amplitude = 3000;
                 break;
-            case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
-                break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
-            case 48420:
+            case 48420: // Master Shapeshifter
                 spellInfo->Stances = 1 << (FORM_CAT - 1);
                 break;
-            case 48421:
+            case 48421: // Master Shapeshifter
                 spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
-                break;
-            case 48422:
-                spellInfo->Stances = 1 << (FORM_TREE - 1);
                 break;
             case 51466: // Elemental Oath (Rank 1)
             case 51470: // Elemental Oath (Rank 2)
@@ -3338,13 +3320,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 30421: // Nether Portal - Perseverence
                 spellInfo->Effects[EFFECT_2].BasePoints += 30000;
                 break;
-            case 51735: // Ebon Plague
-            case 51734:
-            case 51726:
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                spellInfo->SpellFamilyFlags[2] = 0x10;
-                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
-                break;
             case 41913: // Parasitic Shadowfiend Passive
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY; // proc debuff, and summon infinite fiends
                 break;
@@ -3354,7 +3329,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 27915: // Anchor to Skulls
             case 27931: // Anchor to Skulls
             case 27937: // Anchor to Skulls
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
             // this is the only known exception, probably just wrong data
@@ -3372,9 +3347,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
-            case 53244: // Marked for Death (Rank 3)
-            case 53245: // Marked for Death (Rank 4)
-            case 53246: // Marked for Death (Rank 5)
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00067801, 0x10820001, 0x00000801);
                 break;
             case 5176:  // Wrath
@@ -3417,19 +3389,12 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 45602: // Ride Carpet
                 spellInfo->Effects[EFFECT_0].BasePoints = 0; // force seat 0, vehicle doesn't have the required seat flags for "no seat specified (-1)"
                 break;
-            case 64745: // Item - Death Knight T8 Tank 4P Bonus
-            case 64936: // Item - Warrior T8 Protection 4P Bonus
-                spellInfo->Effects[EFFECT_0].BasePoints = 100; // 100% chance of procc'ing, not -10% (chance calculated in PrepareTriggersExecutedOnHit)
-                break;
             case 59414: // Pulsing Shockwave Aura (Loken)
                 // this flag breaks movement, remove it
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
-                break;
-            case 70650: // Death Knight T10 Tank 2P Bonus
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
                 break;
             case 71838: // Drain Life - Bryntroll Normal
             case 71839: // Drain Life - Bryntroll Heroic
@@ -3763,17 +3728,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
             // ENDOF EYE OF ETERNITY SPELLS
-            //
-            // OCULUS SPELLS
-            // The spells below are here because their effect 1 is giving warning due to
-            // triggered spell not found in any dbc and is missing from encounter source* of data.
-            // Even judged as clientside these spells can't be guessed for* now.
-            case 49462: // Call Ruby Drake
-            case 49461: // Call Amber Drake
-            case 49345: // Call Emerald Drake
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                break;
-            // ENDOF OCULUS SPELLS
             //
             case 40055: // Introspection
             case 40165: // Introspection
