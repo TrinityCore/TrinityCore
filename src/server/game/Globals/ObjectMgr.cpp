@@ -4850,6 +4850,11 @@ void ObjectMgr::LoadSpellScriptNames()
                 TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname:`%s` spell (spell_id:%d) is not first rank of spell.", scriptName, fields[0].GetInt32());
                 continue;
             }
+            if (!sSpellMgr->GetNextSpellInChain(spellId))
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname:`%s` spell (spell_id:%d) has no ranks of spell.", scriptName, fields[0].GetInt32());
+                continue;
+            }
             while (spellInfo)
             {
                 _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
