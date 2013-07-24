@@ -32,6 +32,13 @@ enum AccountOpResult
     AOR_DB_INTERNAL_ERROR
 };
 
+enum PasswordChangeSecurity
+{
+    PW_NONE,
+    PW_EMAIL,
+    PW_RBAC
+};
+
 #define MAX_ACCOUNT_STR 16
 
 typedef std::map<uint32, RBACPermission*> RBACPermissionsContainer;
@@ -53,11 +60,13 @@ class AccountMgr
         static AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
         static AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
         static bool CheckPassword(uint32 accountId, std::string password);
+        static bool CheckEmail(uint32 accountId, std::string newEmail);
 
         static uint32 GetId(std::string const& username);
         static uint32 GetSecurity(uint32 accountId);
         static uint32 GetSecurity(uint32 accountId, int32 realmId);
         static bool GetName(uint32 accountId, std::string& name);
+        static bool GetEmail(uint32 accountId, std::string& email);
         static uint32 GetCharactersCount(uint32 accountId);
 
         static std::string CalculateShaPassHash(std::string const& name, std::string const& password);

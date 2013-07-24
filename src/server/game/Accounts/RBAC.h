@@ -96,6 +96,7 @@ enum RBACPermissions
     RBAC_PERM_CHANGE_CHANNEL_NOT_MODERATOR                   = 46,
     RBAC_PERM_CHECK_FOR_LOWER_SECURITY                       = 47,
     RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA             = 48,
+    RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE                  = 49,
     RBAC_PERM_MAX
 };
 

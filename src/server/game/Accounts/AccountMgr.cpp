@@ -245,6 +245,21 @@ bool AccountMgr::GetName(uint32 accountId, std::string& name)
     return false;
 }
 
+bool AccountMgr::GetEmail(uint32 accountId, std::string& email)
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_EMAIL_BY_ID);
+    stmt->setUInt32(0, accountId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    if (result)
+    {
+        email = (*result)[0].GetString();
+        return true;
+    }
+
+    return false;
+}
+
 bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
 {
     std::string username;
@@ -261,6 +276,26 @@ bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return (result) ? true : false;
+}
+
+bool AccountMgr::CheckEmail(uint32 accountId, std::string newEmail)
+{
+    std::string oldEmail;
+
+    if (!GetEmail(accountId, oldEmail))
+        return false;
+
+    // We simply return false for a non-existing email
+    if (oldEmail.empty())
+        return false;
+
+    normalizeString(oldEmail);
+    normalizeString(newEmail);
+
+    if (strcmp(oldEmail.c_str(), newEmail.c_str()) == 0)
+        return true;
+
+    return false;
 }
 
 uint32 AccountMgr::GetCharactersCount(uint32 accountId)
