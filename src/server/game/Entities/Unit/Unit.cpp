@@ -5733,12 +5733,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
-                // Glyph of Shadowflame
-                case 63310:
-                {
-                    triggered_spell_id = 63311;
-                    break;
-                }
                 // Nightfall
                 case 18094:
                 case 18095:
@@ -7712,12 +7706,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             case SPELLFAMILY_GENERIC:
                 switch (auraSpellInfo->Id)
                 {
-                    case 23780:             // Aegis of Preservation (Aegis of Preservation trinket)
-                        trigger_spell_id = 23781;
-                        break;
-                    case 33896:             // Desperate Defense (Stonescythe Whelp, Stonescythe Alpha, Stonescythe Ambusher)
-                        trigger_spell_id = 33898;
-                        break;
                     case 43820:             // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
                         // Pct value stored in dummy
                         basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
@@ -7800,14 +7788,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     }
                 }
                 break;
-            case SPELLFAMILY_WARRIOR:
-                if (auraSpellInfo->Id == 50421)             // Scent of Blood
-                {
-                    CastSpell(this, 50422, true);
-                    RemoveAuraFromStack(auraSpellInfo->Id);
-                    return false;
-                }
-                break;
             case SPELLFAMILY_WARLOCK:
             {
                 // Drain Soul
@@ -7853,11 +7833,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }
             case SPELLFAMILY_PRIEST:
             {
-                // Greater Heal Refund
-                if (auraSpellInfo->Id == 37594)
-                    trigger_spell_id = 37595;
                 // Blessed Recovery
-                else if (auraSpellInfo->SpellIconID == 1875)
+                if (auraSpellInfo->SpellIconID == 1875)
                 {
                     switch (auraSpellInfo->Id)
                     {
@@ -7949,13 +7926,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             {
                 switch (auraSpellInfo->Id)
                 {
-                    // Healing Discount
-                    case 37705:
-                    {
-                        trigger_spell_id = 37706;
-                        target = this;
-                        break;
-                    }
                     // Soul Preserver
                     case 60510:
                     {
@@ -8062,29 +8032,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             {
                 switch (auraSpellInfo->Id)
                 {
-                    // Lightning Shield (The Ten Storms set)
-                    case 23551:
-                    {
-                        trigger_spell_id = 23552;
-                        target = victim;
-                        break;
-                    }
-                    // Damage from Lightning Shield (The Ten Storms set)
-                    case 23552:
-                    {
-                        trigger_spell_id = 27635;
-                        break;
-                    }
-                    // Mana Surge (The Earthfury set)
-                    case 23572:
-                    {
-                        if (!procSpell)
-                            return false;
-                        basepoints0 = int32(CalculatePct(procSpell->ManaCost, 35));
-                        trigger_spell_id = 23571;
-                        target = this;
-                        break;
-                    }
                     case 30881: // Nature's Guardian Rank 1
                     case 30883: // Nature's Guardian Rank 2
                     case 30884: // Nature's Guardian Rank 3
