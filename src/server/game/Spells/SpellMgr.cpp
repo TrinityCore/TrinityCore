@@ -1187,23 +1187,88 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     return true;
 }
 
+void SpellMgr::UnloadSpellInfoChains()
+{
+    for (SpellChainMap::iterator itr = mSpellChains.begin(); itr != mSpellChains.end(); ++itr)
+        mSpellInfoMap[itr->first]->ChainEntry = NULL;
+
+    mSpellChains.clear();
+}
+
+void SpellMgr::LoadSpellTalentRanks()
+{
+    // cleanup core data before reload - remove reference to ChainNode from SpellInfo
+    UnloadSpellInfoChains();
+
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    {
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+        if (!talentInfo)
+            continue;
+
+        SpellInfo const* lastSpell = NULL;
+        for (uint8 rank = MAX_TALENT_RANK - 1; rank > 0; --rank)
+        {
+            if (talentInfo->RankID[rank])
+            {
+                lastSpell = GetSpellInfo(talentInfo->RankID[rank]);
+                break;
+            }
+        }
+
+        if (!lastSpell)
+            continue;
+
+        SpellInfo const* firstSpell = GetSpellInfo(talentInfo->RankID[0]);
+        if (!firstSpell)
+        {
+            TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "SpellMgr::LoadSpellTalentRanks: First Rank Spell %u for TalentEntry %u does not exist.", talentInfo->RankID[0], i);
+            continue;
+        }
+
+        SpellInfo const* prevSpell = NULL;
+        for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
+        {
+            uint32 spellId = talentInfo->RankID[rank];
+            if (!spellId)
+                break;
+
+            SpellInfo const* currentSpell = GetSpellInfo(spellId);
+            if (!currentSpell)
+            {
+                TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "SpellMgr::LoadSpellTalentRanks: Spell %u (Rank: %u) for TalentEntry %u does not exist.", spellId, rank + 1, i);
+                break;
+            }
+
+            SpellChainNode node;
+            node.first = firstSpell;
+            node.last  = lastSpell;
+            node.rank  = rank + 1;
+
+            node.prev = prevSpell;
+            node.next = node.rank < MAX_TALENT_RANK ? GetSpellInfo(talentInfo->RankID[rank + 1]) : NULL;
+
+            mSpellChains[spellId] = node;
+            mSpellInfoMap[spellId]->ChainEntry = &mSpellChains[spellId];
+
+            prevSpell = currentSpell;
+        }
+    }
+}
+
 void SpellMgr::LoadSpellRanks()
 {
+    // cleanup data and load spell ranks for talents from dbc
+    LoadSpellTalentRanks();
+
     uint32 oldMSTime = getMSTime();
 
-    // cleanup core data before reload - remove reference to ChainNode from SpellInfo
-    for (SpellChainMap::iterator itr = mSpellChains.begin(); itr != mSpellChains.end(); ++itr)
-    {
-        mSpellInfoMap[itr->first]->ChainEntry = NULL;
-    }
-    mSpellChains.clear();
     //                                                     0             1      2
     QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, rank from spell_ranks ORDER BY first_spell_id, rank");
 
     if (!result)
     {
         TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");
-
         return;
     }
 
@@ -1280,6 +1345,10 @@ void SpellMgr::LoadSpellRanks()
         {
             ++count;
             int32 addedSpell = itr->first;
+
+            if (mSpellInfoMap[addedSpell]->ChainEntry)
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u (rank: %u, first: %u) listed in `spell_ranks` has already ChainEntry from dbc.", addedSpell, itr->second, lastSpell);
+
             mSpellChains[addedSpell].first = GetSpellInfo(lastSpell);
             mSpellChains[addedSpell].last = GetSpellInfo(rankChain.back().first);
             mSpellChains[addedSpell].rank = itr->second;
@@ -1296,10 +1365,10 @@ void SpellMgr::LoadSpellRanks()
                 mSpellChains[addedSpell].next = GetSpellInfo(itr->first);
         }
         while (true);
-    } while (!finished);
+    }
+    while (!finished);
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell rank records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 void SpellMgr::LoadSpellRequired()
