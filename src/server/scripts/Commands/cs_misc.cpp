@@ -1586,6 +1586,7 @@ public:
 
         // Guild data print variables defined so that they exist, but are not necessarily used
         uint32 guildId           = 0;
+        uint8 guildRankId        = 0;
         std::string guildName;
         std::string guildRank;
         std::string note;
@@ -1752,8 +1753,9 @@ public:
                     guildId        = fields[0].GetUInt32();
                     guildName      = fields[1].GetString();
                     guildRank      = fields[2].GetString();
-                    note           = fields[3].GetString();
-                    officeNote     = fields[4].GetString();
+                    guildRankId    = fields[3].GetUInt8();
+                    note           = fields[4].GetString();
+                    officeNote     = fields[5].GetString();
                 }
             }
         }
@@ -1762,7 +1764,7 @@ public:
         // Output I. LANG_PINFO_PLAYER
         handler->PSendSysMessage(LANG_PINFO_PLAYER, target ? "" : handler->GetTrinityString(LANG_OFFLINE), nameLink.c_str(), lowguid);
 
-        // Output II. LANG_PINFO_GM_ACTIVE
+        // Output II. LANG_PINFO_GM_ACTIVE if character is gamemaster
         if (target && target->IsGameMaster())
             handler->PSendSysMessage(LANG_PINFO_GM_ACTIVE);
 
@@ -1829,7 +1831,7 @@ public:
         if (!guildName.empty())
         {
             handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName.c_str(), guildId);
-            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank.c_str());
+            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank.c_str(), uint32(guildRankId));
             if (!note.empty())
                 handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_NOTE, note.c_str());
             if (!officeNote.empty())

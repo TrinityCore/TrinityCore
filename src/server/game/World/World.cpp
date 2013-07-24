@@ -1357,8 +1357,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
-    sSpellMgr->LoadSpellCustomAttr();
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo custom attributes...");
+    sSpellMgr->LoadSpellInfoCustomAttributes();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
     LoadGameObjectModelList();
