@@ -934,6 +934,10 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)            // same for pets
         mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
 
+    Pet* pet = player->GetPet();
+    if (!pet)
+        mask &= ~GROUP_UPDATE_PET;
+
     data->Initialize(SMSG_PARTY_MEMBER_STATS, 80);          // average value
     data->append(player->GetPackGUID());
     *data << uint32(mask);
@@ -1036,7 +1040,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
         }
     }
 
-    Pet* pet = player->GetPet();
     if (mask & GROUP_UPDATE_FLAG_PET_GUID)
     {
         if (pet)
@@ -1192,7 +1195,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     uint32 updateFlags = GROUP_UPDATE_FLAG_STATUS | GROUP_UPDATE_FLAG_CUR_HP | GROUP_UPDATE_FLAG_MAX_HP
                       | GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER | GROUP_UPDATE_FLAG_LEVEL
                       | GROUP_UPDATE_FLAG_ZONE | GROUP_UPDATE_FLAG_POSITION | GROUP_UPDATE_FLAG_AURAS
-                      | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID | GROUP_UPDATE_FLAG_PET_AURAS;
+                      | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID | GROUP_UPDATE_FLAG_PET_AURAS | GROUP_UPDATE_FLAG_PHASE;
 
     if (powerType != POWER_MANA)
         updateFlags |= GROUP_UPDATE_FLAG_POWER_TYPE;
@@ -1238,7 +1241,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     data << uint16(player->GetZoneId());                    // GROUP_UPDATE_FLAG_ZONE
     data << uint16(player->GetPositionX());                 // GROUP_UPDATE_FLAG_POSITION
     data << uint16(player->GetPositionY());                 // GROUP_UPDATE_FLAG_POSITION
-    data << uint16(player->GetPositionZ());               // GROUP_UPDATE_FLAG_POSITION
+    data << uint16(player->GetPositionZ());                 // GROUP_UPDATE_FLAG_POSITION
 
     // GROUP_UPDATE_FLAG_AURAS
     data << uint8(1);
@@ -1273,8 +1276,11 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     if (updateFlags & GROUP_UPDATE_FLAG_PET_GUID)
         data << uint64(pet->GetGUID());
 
-    data << std::string(pet ? pet->GetName() : "");         // GROUP_UPDATE_FLAG_PET_NAME
-    data << uint16(pet ? pet->GetDisplayId() : 0);          // GROUP_UPDATE_FLAG_PET_MODEL_ID
+    if (updateFlags & GROUP_UPDATE_FLAG_PET_NAME)
+        data << std::string(pet ? pet->GetName() : "");
+
+    if (updateFlags & GROUP_UPDATE_FLAG_PET_MODEL_ID)
+        data << uint16(pet ? pet->GetDisplayId() : 0);
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_CUR_HP)
         data << uint32(pet->GetHealth());
@@ -1292,8 +1298,6 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
         data << uint16(pet->GetMaxPower(pet->getPowerType()));
 
     uint64 petAuraMask = 0;
-    maskPos = data.wpos();
-    data << uint64(petAuraMask);                            // placeholder
     if (pet)
     {
         // GROUP_UPDATE_FLAG_PET_AURAS
@@ -1326,15 +1330,19 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
         }
 
         data.put<uint64>(petMaskPos, petauramask);           // GROUP_UPDATE_FLAG_PET_AURAS
+    }else
+    {
+        data << uint8(0);
+        data << uint64(0);
+        data << uint32(0);
     }
-    // else not needed, flags do not include any PET_ update
 
-    // GROUP_UPDATE_FLAG_PHASE
-    data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
-    data << uint32(0); // count
-    // for (count) *data << uint16(phaseId)
-
-    data.put<uint64>(maskPos, petAuraMask);                 // GROUP_UPDATE_FLAG_PET_AURAS
+    if (updateFlags & GROUP_UPDATE_FLAG_PHASE)
+    {
+        data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
+        data << uint32(0); // count
+        // for (count) *data << uint16(phaseId)
+    }
 
     if (updateFlags & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
         data << uint32(player->GetVehicle()->GetVehicleInfo()->m_seatID[player->m_movementInfo.transport.seat]);
