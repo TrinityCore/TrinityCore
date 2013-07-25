@@ -366,21 +366,20 @@ class spell_rog_preparation : public SpellScriptLoader
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-                    if (!spellInfo)
+                    if (!spellInfo || spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
                         continue;
 
-                    if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && 
-                        (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||        // Cold Blood, Shadowstep
-                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_VAN_EVAS_SPRINT) ||         // Vanish, Evasion, Sprint
+                    if ((spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP ||              // Shadowstep
+                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT) ||              // Vanish, Sprint
                         // Glyph of Preparation
                         caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION) &&
                         (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB ||    // Dismantle, Smoke Bomb
                         spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_KICK))                      // Kick
-                        {
-                            caster->RemoveSpellCooldown((itr++)->first, true);
-                        }
-                        else
-                            ++itr;
+                    {
+                        caster->RemoveSpellCooldown((itr++)->first, true);
+                    }
+                    else
+                        ++itr;
                 }
             }
 
