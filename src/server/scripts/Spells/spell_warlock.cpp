@@ -61,7 +61,7 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_MANA_FEED                       = 1982
 };
 
-// 710, 18647 - Banish
+// -710 - Banish
 class spell_warl_banish : public SpellScriptLoader
 {
     public:
