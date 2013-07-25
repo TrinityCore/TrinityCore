@@ -63,7 +63,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (28880, 'spell_gen_gift_of_naaru'),
 (29166, 'spell_dru_innervate'),
 (34246, 'spell_dru_idol_lifebloom'),
-(39610, 'spell_sha_mana_tide_totem'),
+(16191, 'spell_sha_mana_tide_totem'),
 (48129, 'spell_item_scroll_of_recall'),
 (48391, 'spell_dru_owlkin_frenzy'),
 (48792, 'spell_dk_icebound_fortitude'),
