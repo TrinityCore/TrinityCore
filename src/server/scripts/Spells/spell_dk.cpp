@@ -37,12 +37,10 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
-    SPELL_DK_CORPSE_EXPLOSION_VISUAL            = 51270,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832,
-    SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     SPELL_DK_IMPROVED_DEATH_STRIKE              = 62905,
@@ -337,59 +335,6 @@ class spell_dk_butchery : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_dk_blood_gorged_AuraScript();
-        }
-};
-
-// 49158 - Corpse Explosion (51325, 51326, 51327, 51328)
-class spell_dk_corpse_explosion : public SpellScriptLoader
-{
-    public:
-        spell_dk_corpse_explosion() : SpellScriptLoader("spell_dk_corpse_explosion") { }
-
-        class spell_dk_corpse_explosion_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_corpse_explosion_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_DK_GHOUL_EXPLODE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_VISUAL))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    int32 bp = 0;
-                    if (unitTarget->IsAlive())  // Living ghoul as a target
-                    {
-                        bp = int32(unitTarget->CountPctFromMaxHealth(25));
-                        unitTarget->CastCustomSpell(unitTarget, SPELL_DK_GHOUL_EXPLODE, &bp, NULL, NULL, false);
-                    }
-                    else                        // Some corpse
-                    {
-                        bp = GetEffectValue();
-                        GetCaster()->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
-                        // Corpse Explosion (Suicide)
-                        unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
-                    }
-                    // Set corpse look
-                    GetCaster()->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
-                }
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_corpse_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_dk_corpse_explosion_SpellScript();
         }
 };
 
@@ -1024,50 +969,6 @@ class spell_dk_scourge_strike : public SpellScriptLoader
         }
 };
 
-// 49145 - Spell Deflection
-class spell_dk_spell_deflection : public SpellScriptLoader
-{
-    public:
-        spell_dk_spell_deflection() : SpellScriptLoader("spell_dk_spell_deflection") { }
-
-        class spell_dk_spell_deflection_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_spell_deflection_AuraScript);
-
-            uint32 absorbPct;
-
-            bool Load() OVERRIDE
-            {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                return true;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                // You have a chance equal to your Parry chance
-                if ((dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE) && roll_chance_f(GetTarget()->GetUnitParryChance()))
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_spell_deflection_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_spell_deflection_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_dk_spell_deflection_AuraScript();
-        }
-};
-
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public SpellScriptLoader
 {
@@ -1154,7 +1055,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
     new spell_dk_butchery();
-    new spell_dk_corpse_explosion();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
     new spell_dk_death_grip();
@@ -1168,7 +1068,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_rune_tap_party();
     new spell_dk_scent_of_blood();
     new spell_dk_scourge_strike();
-    new spell_dk_spell_deflection();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
 }

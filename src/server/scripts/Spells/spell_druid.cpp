@@ -595,50 +595,6 @@ class spell_dru_living_seed_proc : public SpellScriptLoader
         }
 };
 
-// 69366 - Moonkin Form passive
-class spell_dru_moonkin_form_passive : public SpellScriptLoader
-{
-    public:
-        spell_dru_moonkin_form_passive() : SpellScriptLoader("spell_dru_moonkin_form_passive") { }
-
-        class spell_dru_moonkin_form_passive_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_moonkin_form_passive_AuraScript);
-
-            uint32 absorbPct;
-
-            bool Load() OVERRIDE
-            {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                return true;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                // reduces all damage taken while Stunned in Moonkin Form
-                if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-            }
-
-            void Register() OVERRIDE
-            {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_moonkin_form_passive_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_moonkin_form_passive_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_dru_moonkin_form_passive_AuraScript();
-        }
-};
-
 // 48391 - Owlkin Frenzy
 class spell_dru_owlkin_frenzy : public SpellScriptLoader
 {
@@ -692,50 +648,6 @@ class spell_dru_predatory_strikes : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_dru_predatory_strikes_AuraScript();
-        }
-};
-
-// 33851 - Primal Tenacity
-class spell_dru_primal_tenacity : public SpellScriptLoader
-{
-    public:
-        spell_dru_primal_tenacity() : SpellScriptLoader("spell_dru_primal_tenacity") { }
-
-        class spell_dru_primal_tenacity_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_primal_tenacity_AuraScript);
-
-            uint32 absorbPct;
-
-            bool Load() OVERRIDE
-            {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
-                return true;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                // reduces all damage taken while Stunned in Cat Form
-                if (GetTarget()->GetShapeshiftForm() == FORM_CAT && GetTarget()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-            }
-
-            void Register() OVERRIDE
-            {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_primal_tenacity_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_primal_tenacity_AuraScript::Absorb, EFFECT_1);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_dru_primal_tenacity_AuraScript();
         }
 };
 
@@ -895,34 +807,7 @@ class spell_dru_savage_roar : public SpellScriptLoader
         }
 };
 
-// -50294 - Starfall (AOE)
-class spell_dru_starfall_aoe : public SpellScriptLoader
-{
-    public:
-        spell_dru_starfall_aoe() : SpellScriptLoader("spell_dru_starfall_aoe") { }
-
-        class spell_dru_starfall_aoe_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_starfall_aoe_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove(GetExplTargetUnit());
-            }
-
-            void Register() OVERRIDE
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_starfall_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_dru_starfall_aoe_SpellScript();
-        }
-};
-
-// -50286 - Starfall (Dummy)
+// 50286 - Starfall (Dummy)
 class spell_dru_starfall_dummy : public SpellScriptLoader
 {
     public:
@@ -1194,14 +1079,11 @@ void AddSC_druid_spell_scripts()
     new spell_dru_lifebloom();
     new spell_dru_living_seed();
     new spell_dru_living_seed_proc();
-    new spell_dru_moonkin_form_passive();
     new spell_dru_owlkin_frenzy();
     new spell_dru_predatory_strikes();
-    new spell_dru_primal_tenacity();
     new spell_dru_rip();
     new spell_dru_savage_defense();
     new spell_dru_savage_roar();
-    new spell_dru_starfall_aoe();
     new spell_dru_starfall_dummy();
     new spell_dru_survival_instincts();
     new spell_dru_swift_flight_passive();
