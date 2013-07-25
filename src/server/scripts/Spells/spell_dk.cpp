@@ -338,7 +338,7 @@ class spell_dk_butchery : public SpellScriptLoader
         }
 };
 
-// -47541, 52375, 59134, -62900 - Death Coil
+// 47541, 52375, 59134, -62900 - Death Coil
 class spell_dk_death_coil : public SpellScriptLoader
 {
     public:
@@ -536,7 +536,7 @@ class spell_dk_death_pact : public SpellScriptLoader
         }
 };
 
-// -49998 - Death Strike
+// 49998 - Death Strike
 class spell_dk_death_strike : public SpellScriptLoader
 {
     public:

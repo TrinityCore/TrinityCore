@@ -195,7 +195,7 @@ class spell_dru_dash : public SpellScriptLoader
         }
 };
 
-// -5229 - Enrage
+// 5229 - Enrage
 class spell_dru_enrage : public SpellScriptLoader
 {
     public:
@@ -413,7 +413,7 @@ class spell_dru_innervate : public SpellScriptLoader
         }
 };
 
-// -5570 - Insect Swarm
+// 5570 - Insect Swarm
 class spell_dru_insect_swarm : public SpellScriptLoader
 {
     public:
@@ -442,7 +442,7 @@ class spell_dru_insect_swarm : public SpellScriptLoader
         }
 };
 
-// -33763 - Lifebloom
+// 33763 - Lifebloom
 class spell_dru_lifebloom : public SpellScriptLoader
 {
     public:
@@ -953,7 +953,7 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         }
 };
 
-// -5217 - Tiger's Fury
+// 5217 - Tiger's Fury
 class spell_dru_tiger_s_fury : public SpellScriptLoader
 {
     public:

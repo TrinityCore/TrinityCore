@@ -212,6 +212,7 @@ class spell_warr_concussion_blow : public SpellScriptLoader
 };
 
 /// Updated 4.3.4
+// 12162 - Deep Wounds
 class spell_warr_deep_wounds : public SpellScriptLoader
 {
     public:
