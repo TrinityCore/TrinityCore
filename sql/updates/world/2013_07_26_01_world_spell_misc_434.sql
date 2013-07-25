@@ -4,7 +4,7 @@ INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `A
 
 DELETE FROM `spelleffect_dbc` WHERE `Id` IN (153096,153097);
 INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectApplyAuraName`, `EffectAplitude`, `EffectBasePoints`, `EffectBonusMultiplier`, `EffectDamageMultiplier`, `EffectChainTarget`, `EffectDieSides`, `EffectMechanic`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectRealPointsPerLevel`, `EffectSpellClassMaskA`, `EffectSpellClassMaskB`, `EffectSpellClassMaskC`, `EffectTriggerSpell`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`) VALUES
-(153096, 76, 0, 0, 0, 0, 0, 0, 0, 0, 0, 202796, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 123456, 1),
+(153096, 76, 0, 0, 0, 0, 0, 0, 0, 0, 0, 202796, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 123456, 0),
 (153097, 76, 0, 0, 0, 0, 0, 0, 0, 0, 0, 202796, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 123456, 1);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_halion_summon_exit_portals';
