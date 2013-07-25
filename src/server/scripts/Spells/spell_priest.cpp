@@ -57,6 +57,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
+    SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
@@ -714,7 +715,7 @@ class spell_pri_phantasm : public SpellScriptLoader
         }
 };
 
-// -17 - Power Word: Shield
+// 17 - Power Word: Shield
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
     public:
@@ -755,7 +756,7 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                     amount += int32(bonus);
 
                     // Twin Disciplines
-                    if (AuraEffect const* twinDisciplines = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, GetCasterGUID()))
+                    if (AuraEffect* twinDisciplines = caster->GetAuraEffectOfRankedSpell(SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1, EFFECT_1))
                         AddPct(amount, twinDisciplines->GetAmount());
 
                     // Focused Power
