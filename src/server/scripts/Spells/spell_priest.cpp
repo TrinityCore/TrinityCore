@@ -141,7 +141,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
         }
 };
 
-// -47788 - Guardian Spirit
+// 47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public SpellScriptLoader
 {
     public:
@@ -265,7 +265,7 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
         }
 };
 
-// -8129 - Mana Burn
+// 8129 - Mana Burn
 class spell_pri_mana_burn : public SpellScriptLoader
 {
     public:
