@@ -75,7 +75,7 @@ class spell_dru_dash : public SpellScriptLoader
         }
 };
 
-// -5229 - Enrage
+// 5229 - Enrage
 class spell_dru_enrage : public SpellScriptLoader
 {
     public:
@@ -84,6 +84,14 @@ class spell_dru_enrage : public SpellScriptLoader
         class spell_dru_enrage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_enrage_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_KING_OF_THE_JUNGLE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DRUID_ENRAGE_MOD_DAMAGE))
+                    return false;
+                return true;
+            }
 
             void OnHit()
             {
