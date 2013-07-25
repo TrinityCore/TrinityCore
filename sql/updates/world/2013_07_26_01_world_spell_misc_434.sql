@@ -9,4 +9,4 @@ INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectValueMultiplier`, `EffectA
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_halion_summon_exit_portals';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(153097, 'spell_halion_summon_exit_portals');
+(123456, 'spell_halion_summon_exit_portals');
