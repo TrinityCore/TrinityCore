@@ -33,7 +33,6 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
-    SPELL_PALADIN_DIVINE_PLEA                    = 54428,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
     SPELL_PALADIN_DIVINE_STORM                   = 53385,
@@ -408,42 +407,6 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         }
 };
 
-// 63521 - Guarded by The Light
-class spell_pal_guarded_by_the_light : public SpellScriptLoader
-{
-    public:
-        spell_pal_guarded_by_the_light() : SpellScriptLoader("spell_pal_guarded_by_the_light") { }
-
-        class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_guarded_by_the_light_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_PLEA))
-                    return false;
-                return true;
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                // Divine Plea
-                if (Aura* aura = GetCaster()->GetAura(SPELL_PALADIN_DIVINE_PLEA))
-                    aura->RefreshDuration();
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_guarded_by_the_light_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_pal_guarded_by_the_light_SpellScript();
-        }
-};
-
 // 6940 - Hand of Sacrifice
 class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 {
@@ -625,35 +588,6 @@ class spell_pal_holy_shock : public SpellScriptLoader
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_pal_holy_shock_SpellScript();
-        }
-};
-
-// 20425 - Judgement of Command
-class spell_pal_judgement_of_command : public SpellScriptLoader
-{
-    public:
-        spell_pal_judgement_of_command() : SpellScriptLoader("spell_pal_judgement_of_command") { }
-
-        class spell_pal_judgement_of_command_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_judgement_of_command_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                    if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
-                        GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_pal_judgement_of_command_SpellScript();
         }
 };
 
@@ -934,12 +868,10 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
-    new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
     new spell_pal_item_healing_discount();
     new spell_pal_holy_shock();
-    new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();

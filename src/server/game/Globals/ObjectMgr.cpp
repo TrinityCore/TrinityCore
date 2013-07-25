@@ -4839,7 +4839,7 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName, spellId);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName, fields[0].GetInt32());
             continue;
         }
 
