@@ -56,17 +56,14 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_2        = 46860,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
-    SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
-    SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
-    SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT         = 59665
+    SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850
 };
 
 enum MiscSpells
 {
     SPELL_PALADIN_BLESSING_OF_SANCTUARY             = 20911,
     SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
-    SPELL_PRIEST_RENEWED_HOPE                       = 63944,
-    SPELL_GEN_DAMAGE_REDUCTION_AURA                 = 68066
+    SPELL_PRIEST_RENEWED_HOPE                       = 63944
 };
 
 enum WarriorSpellIcons
@@ -929,100 +926,6 @@ class spell_warr_victorious : public SpellScriptLoader
         }
 };
 
-// 50720 - Vigilance
-class spell_warr_vigilance : public SpellScriptLoader
-{
-    public:
-        spell_warr_vigilance() : SpellScriptLoader("spell_warr_vigilance") { }
-
-        class spell_warr_vigilance_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_vigilance_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_VIGILANCE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_VIGILANCE_PROC))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_DAMAGE_REDUCTION_AURA))
-                    return false;
-                return true;
-            }
-
-            bool Load() OVERRIDE
-            {
-                _procTarget = NULL;
-                return true;
-            }
-
-            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->CastSpell(target, SPELL_GEN_DAMAGE_REDUCTION_AURA, true);
-
-                if (Unit* caster = GetCaster())
-                    target->CastSpell(caster, SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT, true);
-            }
-
-            void HandleAfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                //! WORKAROUND
-                //! this glyph is a proc
-                if (Unit* caster = GetCaster())
-                {
-                    if (AuraEffect const* glyph = caster->GetAuraEffect(SPELL_WARRIOR_GLYPH_OF_VIGILANCE, EFFECT_0))
-                        GetTarget()->ModifyRedirectThreat(glyph->GetAmount());
-                }
-            }
-
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                if (target->HasAura(SPELL_GEN_DAMAGE_REDUCTION_AURA) &&
-                    !(target->HasAura(SPELL_PALADIN_BLESSING_OF_SANCTUARY) ||
-                    target->HasAura(SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY) ||
-                    target->HasAura(SPELL_PRIEST_RENEWED_HOPE)))
-                {
-                    target->RemoveAurasDueToSpell(SPELL_GEN_DAMAGE_REDUCTION_AURA);
-                }
-
-                target->ResetRedirectThreat();
-            }
-
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                _procTarget = GetCaster();
-                return _procTarget;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, NULL, aurEff);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_warr_vigilance_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectApply += AuraEffectApplyFn(spell_warr_vigilance_AuraScript::HandleAfterApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                DoCheckProc += AuraCheckProcFn(spell_warr_vigilance_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_warr_vigilance_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-
-        private:
-            Unit* _procTarget;
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_warr_vigilance_AuraScript();
-        }
-};
-
 // 50725 Vigilance
 class spell_warr_vigilance_trigger : public SpellScriptLoader
 {
@@ -1078,6 +981,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
     new spell_warr_victorious();
-    new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
 }

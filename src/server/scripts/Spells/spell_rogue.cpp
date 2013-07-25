@@ -367,7 +367,10 @@ class spell_rog_preparation : public SpellScriptLoader
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
                     if (!spellInfo || spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
+                    {
+                        ++itr;
                         continue;
+                    }
 
                     if ((spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP ||              // Shadowstep
                         spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT) ||              // Vanish, Sprint
