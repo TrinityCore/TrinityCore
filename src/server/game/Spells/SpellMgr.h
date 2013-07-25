@@ -57,8 +57,8 @@ enum SpellFamilyFlag
 
     // Rogue
     SPELLFAMILYFLAG0_ROGUE_VANISH               = 0x00000800,
-    SPELLFAMILYFLAG0_ROGUE_VAN_EVAS_SPRINT      = 0x00000860, // Vanish, Evasion, Sprint
-    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP     = 0x00000240, // Cold Blood, Shadowstep
+    SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT           = 0x00000840, // Vanish, Sprint
+    SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP           = 0x00000200, // Shadowstep
     SPELLFAMILYFLAG0_ROGUE_KICK                 = 0x00000010, // Kick
     SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB = 0x80100000, // Dismantle, Smoke Bomb
 
