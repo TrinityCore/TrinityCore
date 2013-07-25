@@ -57,7 +57,7 @@ enum MiscSpells
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
     SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
 };
-
+/*
 // 31850 - Ardent Defender
 class spell_pal_ardent_defender : public SpellScriptLoader
 {
@@ -133,7 +133,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
             return new spell_pal_ardent_defender_AuraScript();
         }
 };
-
+*/
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
