@@ -73,6 +73,46 @@ class spell_item_trigger_spell : public SpellScriptLoader
         }
 };
 
+enum AegisOfPreservation
+{
+    SPELL_AEGIS_HEAL   = 23781
+};
+
+// 23780 - Aegis of Preservation
+class spell_item_aegis_of_preservation : public SpellScriptLoader
+{
+    public:
+        spell_item_aegis_of_preservation() : SpellScriptLoader("spell_item_aegis_of_preservation") { }
+
+        class spell_item_aegis_of_preservation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_aegis_of_preservation_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_AEGIS_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_AEGIS_HEAL, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_aegis_of_preservation_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_item_aegis_of_preservation_AuraScript();
+        }
+};
+
 // 26400 - Arcane Shroud
 class spell_item_arcane_shroud : public SpellScriptLoader
 {
@@ -215,6 +255,46 @@ class spell_item_defibrillate : public SpellScriptLoader
     private:
         uint8 _chance;
         uint32 _failSpell;
+};
+
+enum DesperateDefense
+{
+    SPELL_DESPERATE_RAGE    = 33898
+};
+
+// 33896 - Desperate Defense
+class spell_item_desperate_defense : public SpellScriptLoader
+{
+    public:
+        spell_item_desperate_defense() : SpellScriptLoader("spell_item_desperate_defense") { }
+
+        class spell_item_desperate_defense_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_desperate_defense_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DESPERATE_RAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_DESPERATE_RAGE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_desperate_defense_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_item_desperate_defense_AuraScript();
+        }
 };
 
 // http://www.wowhead.com/item=6522 Deviate Fish
@@ -615,15 +695,21 @@ class spell_item_necrotic_touch : public SpellScriptLoader
                 return true;
             }
 
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive();
+            }
+
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 int32 bp = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_ITEM_NECROTIC_TOUCH_PROC, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_ITEM_NECROTIC_TOUCH_PROC, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
             {
+                DoCheckProc += AuraCheckProcFn(spell_item_necrotic_touch_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_item_necrotic_touch_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -2454,51 +2540,6 @@ class spell_item_chicken_cover : public SpellScriptLoader
         }
 };
 
-enum Refocus
-{
-    SPELL_AIMED_SHOT    = 19434,
-    SPELL_MULTISHOT     = 2643,
-    SPELL_VOLLEY        = 42243,
-};
-
-class spell_item_refocus : public SpellScriptLoader
-{
-    public:
-        spell_item_refocus() : SpellScriptLoader("spell_item_refocus") { }
-
-        class spell_item_refocus_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_item_refocus_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-
-                if (!caster || caster->getClass() != CLASS_HUNTER)
-                    return;
-
-                if (caster->HasSpellCooldown(SPELL_AIMED_SHOT))
-                    caster->RemoveSpellCooldown(SPELL_AIMED_SHOT, true);
-
-                if (caster->HasSpellCooldown(SPELL_MULTISHOT))
-                    caster->RemoveSpellCooldown(SPELL_MULTISHOT, true);
-
-                if (caster->HasSpellCooldown(SPELL_VOLLEY))
-                    caster->RemoveSpellCooldown(SPELL_VOLLEY, true);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_item_refocus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_item_refocus_SpellScript();
-        }
-};
-
 class spell_item_muisek_vessel : public SpellScriptLoader
 {
     public:
@@ -2558,86 +2599,6 @@ public:
     }
 };
 
-enum AegisOfPreservation
-{
-    SPELL_AEGIS_HEAL   = 23781
-};
-
-// 23780 - Blazing Speed
-class spell_item_aegis_of_preservation : public SpellScriptLoader
-{
-    public:
-        spell_item_aegis_of_preservation() : SpellScriptLoader("spell_item_aegis_of_preservation") { }
-
-        class spell_item_aegis_of_preservation_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_item_aegis_of_preservation_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AEGIS_HEAL))
-                    return false;
-                return true;
-            }
-
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_AEGIS_HEAL, true, NULL, aurEff);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectProc += AuraEffectProcFn(spell_item_aegis_of_preservation_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_item_aegis_of_preservation_AuraScript();
-        }
-};
-
-enum DesperateDefense
-{
-    SPELL_DESPERATE_RAGE    = 33898
-};
-
-// 33896 - Desperate Defense
-class spell_item_desperate_defense : public SpellScriptLoader
-{
-    public:
-        spell_item_desperate_defense() : SpellScriptLoader("spell_item_desperate_defense") { }
-
-        class spell_item_desperate_defense_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_item_desperate_defense_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DESPERATE_RAGE))
-                    return false;
-                return true;
-            }
-
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_DESPERATE_RAGE, true, NULL, aurEff);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectProc += AuraEffectProcFn(spell_item_desperate_defense_AuraScript::OnProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_item_desperate_defense_AuraScript();
-        }
-};
-
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2649,11 +2610,13 @@ void AddSC_item_spell_scripts()
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
 
+    new spell_item_aegis_of_preservation();
     new spell_item_arcane_shroud();
     new spell_item_blessing_of_ancient_kings();
     new spell_item_defibrillate("spell_item_goblin_jumper_cables", 67, SPELL_GOBLIN_JUMPER_CABLES_FAIL);
     new spell_item_defibrillate("spell_item_goblin_jumper_cables_xl", 50, SPELL_GOBLIN_JUMPER_CABLES_XL_FAIL);
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
+    new spell_item_desperate_defense();
     new spell_item_deviate_fish();
     new spell_item_flask_of_the_north();
 	new spell_item_flask_of_enhancement();
@@ -2683,7 +2646,6 @@ void AddSC_item_spell_scripts()
 
     new spell_item_ashbringer();
     new spell_magic_eater_food();
-    new spell_item_refocus();
     new spell_item_shimmering_vessel();
     new spell_item_purify_helboar_meat();
     new spell_item_crystal_prison_dummy_dnd();
@@ -2703,6 +2665,4 @@ void AddSC_item_spell_scripts()
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
-    new spell_item_aegis_of_preservation();
-    new spell_item_desperate_defense();
 }
