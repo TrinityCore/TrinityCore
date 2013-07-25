@@ -59,7 +59,7 @@ enum MiscSpells
 };
 
 // 31850 - Ardent Defender
-/*class spell_pal_ardent_defender : public SpellScriptLoader
+class spell_pal_ardent_defender : public SpellScriptLoader
 {
     public:
         spell_pal_ardent_defender() : SpellScriptLoader("spell_pal_ardent_defender") { }
@@ -132,7 +132,7 @@ enum MiscSpells
         {
             return new spell_pal_ardent_defender_AuraScript();
         }
-};*/
+};
 
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScriptLoader
@@ -519,7 +519,7 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
         }
 };
 
-// -20473 - Holy Shock
+// 20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScriptLoader
 {
     public:

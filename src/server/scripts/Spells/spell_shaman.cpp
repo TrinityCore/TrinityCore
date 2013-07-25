@@ -246,7 +246,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
-// -974 - Earth Shield
+// 974 - Earth Shield
 class spell_sha_earth_shield : public SpellScriptLoader
 {
     public:
