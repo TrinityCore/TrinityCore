@@ -198,7 +198,7 @@ class SpellImplicitTargetInfo
 private:
     Targets _target;
 public:
-    SpellImplicitTargetInfo() {}
+    SpellImplicitTargetInfo() : _target(Targets(0)) { }
     SpellImplicitTargetInfo(uint32 target);
 
     bool IsArea() const;
