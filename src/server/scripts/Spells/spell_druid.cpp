@@ -166,7 +166,7 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
         }
 };
 
-// -1850 - Dash
+// 1850 - Dash
 class spell_dru_dash : public SpellScriptLoader
 {
     public:
@@ -739,7 +739,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
         }
 };
 
-// -1079 - Rip
+// 1079 - Rip
 class spell_dru_rip : public SpellScriptLoader
 {
     public:
@@ -1096,7 +1096,7 @@ class spell_dru_tiger_s_fury : public SpellScriptLoader
         }
 };
 
-// -61391 - Typhoon
+// 61391 - Typhoon
 class spell_dru_typhoon : public SpellScriptLoader
 {
     public:
