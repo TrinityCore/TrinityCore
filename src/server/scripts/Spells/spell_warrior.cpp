@@ -459,7 +459,7 @@ class spell_warr_last_stand : public SpellScriptLoader
         }
 };
 
-// 7384, 7887, 11584, 11585 - Overpower
+// 7384 - Overpower
 class spell_warr_overpower : public SpellScriptLoader
 {
     public:
@@ -538,7 +538,7 @@ class spell_warr_rallying_cry : public SpellScriptLoader
         }
 };
 
-// -772 - Rend
+// 772 - Rend
 class spell_warr_rend : public SpellScriptLoader
 {
     public:

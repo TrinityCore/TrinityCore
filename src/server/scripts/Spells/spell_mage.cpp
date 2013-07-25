@@ -454,8 +454,7 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
         }
 };
 
-// -543  - Fire Ward
-// -6143 - Frost Ward
+// 543  - Fire War
 class spell_mage_fire_frost_ward : public SpellScriptLoader
 {
     public:

@@ -968,34 +968,6 @@ class spell_warl_nether_ward_overrride : public SpellScriptLoader
         }
 };
 
-// 18541 - Ritual of Doom Effect
-class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
-{
-    public:
-        spell_warl_ritual_of_doom_effect() : SpellScriptLoader("spell_warl_ritual_of_doom_effect") { }
-
-        class spell_warl_ritual_of_doom_effect_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_ritual_of_doom_effect_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                caster->CastSpell(caster, GetEffectValue(), true);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHit += SpellEffectFn(spell_warl_ritual_of_doom_effect_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_warl_ritual_of_doom_effect_SpellScript();
-        }
-};
-
 // 6358 - Seduction (Special Ability)
 class spell_warl_seduction : public SpellScriptLoader
 {
@@ -1479,7 +1451,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_improved_soul_fire();
     new spell_warl_life_tap();
     new spell_warl_nether_ward_overrride();
-    new spell_warl_ritual_of_doom_effect();
     new spell_warl_seduction();
     new spell_warl_seed_of_corruption();
     new spell_warl_shadow_trance_proc();
