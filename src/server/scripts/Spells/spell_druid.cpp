@@ -595,33 +595,6 @@ class spell_dru_living_seed_proc : public SpellScriptLoader
         }
 };
 
-// 48391 - Owlkin Frenzy
-class spell_dru_owlkin_frenzy : public SpellScriptLoader
-{
-    public:
-        spell_dru_owlkin_frenzy() : SpellScriptLoader("spell_dru_owlkin_frenzy") { }
-
-        class spell_dru_owlkin_frenzy_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_owlkin_frenzy_AuraScript);
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                amount = CalculatePct(GetUnitOwner()->GetCreatePowers(POWER_MANA), amount);
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_owlkin_frenzy_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_PERIODIC_ENERGIZE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_dru_owlkin_frenzy_AuraScript();
-        }
-};
-
 // -16972 - Predatory Strikes
 class spell_dru_predatory_strikes : public SpellScriptLoader
 {
@@ -1079,7 +1052,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_lifebloom();
     new spell_dru_living_seed();
     new spell_dru_living_seed_proc();
-    new spell_dru_owlkin_frenzy();
     new spell_dru_predatory_strikes();
     new spell_dru_rip();
     new spell_dru_savage_defense();
