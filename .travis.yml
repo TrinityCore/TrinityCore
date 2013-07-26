@@ -27,7 +27,6 @@ notifications:
   webhooks:
     urls:
       - http://irc.bloodcraft.org:8080/travis
-      - http://requestb.in/vmz1h0vm
     on_success: always
     on_failure: always
     on_start: always
