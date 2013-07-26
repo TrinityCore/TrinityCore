@@ -130,7 +130,6 @@ class spell_warl_aftermath : public SpellScriptLoader
 };
 
 // 710 - Banish
-/// Updated 4.3.4
 class spell_warl_banish : public SpellScriptLoader
 {
     public:
