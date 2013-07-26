@@ -1049,25 +1049,8 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             //spawning/despawning of aura
             SpawnBGObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_IMMEDIATELY); //neutral aura spawn
             SpawnBGObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+GetTeamIndexByTeamId(owner)+3*node, RESPAWN_ONE_DAY); //teeamaura despawn
-            // Those who are waiting to resurrect at this object are taken to the closest own object's graveyard
-            std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
-            if (!ghost_list.empty())
-            {
-                Player* waitingPlayer;  // player waiting at graveyard for resurrection
-                WorldSafeLocsEntry const* closestGrave = NULL;
-                for (std::vector<uint64>::iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
-                {
-                    waitingPlayer = ObjectAccessor::FindPlayer(*ghost_list.begin());
-                    if (!waitingPlayer)
-                        continue;
 
-                    if (!closestGrave)
-                        closestGrave = GetClosestGraveYard(waitingPlayer);
-                    else
-                        waitingPlayer->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
-                }
-                m_ReviveQueue[BgCreatures[node]].clear();
-            }
+            RelocateDeadPlayers(BgCreatures[node]);
         }
         DePopulateNode(node);
     }

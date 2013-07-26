@@ -55,6 +55,8 @@ enum PaladinSpells
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
 
+    SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
+
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
@@ -587,6 +589,41 @@ class spell_pal_hand_of_salvation : public SpellScriptLoader
         }
 };
 
+// 37705 - Healing Discount
+class spell_pal_item_healing_discount : public SpellScriptLoader
+{
+    public:
+        spell_pal_item_healing_discount() : SpellScriptLoader("spell_pal_item_healing_discount") { }
+
+        class spell_pal_item_healing_discount_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_item_healing_discount_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_ITEM_HEALING_TRANCE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_item_healing_discount_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_item_healing_discount_AuraScript();
+        }
+};
+
 // -20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScriptLoader
 {
@@ -597,16 +634,17 @@ class spell_pal_holy_shock : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_holy_shock_SpellScript);
 
-            bool Validate(SpellInfo const* spell) OVERRIDE
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1))
+                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1);
+                if (!firstRankSpellInfo)
                     return false;
 
                 // can't use other spell than holy shock due to spell_ranks dependency
-                if (sSpellMgr->GetFirstSpellInChain(SPELL_PALADIN_HOLY_SHOCK_R1) != sSpellMgr->GetFirstSpellInChain(spell->Id))
+                if (!spellInfo->IsRankOf(firstRankSpellInfo))
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spell->Id);
+                uint8 rank = spellInfo->GetRank();
                 if (!sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank, true) || !sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank, true))
                     return false;
 
@@ -618,11 +656,11 @@ class spell_pal_holy_shock : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
                 {
-                    uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                    uint8 rank = GetSpellInfo()->GetRank();
                     if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank), true, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank), true);
                     else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank), true, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank), true);
                 }
             }
 
@@ -910,6 +948,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
+    new spell_pal_item_healing_discount();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();

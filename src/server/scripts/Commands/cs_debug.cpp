@@ -258,7 +258,7 @@ public:
         if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
             player = handler->GetSession()->GetPlayer();
         else
-            player = (Player*)unit;
+            player = unit->ToPlayer();
 
         if (!unit)
             unit = player;
