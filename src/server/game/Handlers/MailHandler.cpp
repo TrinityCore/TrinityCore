@@ -28,6 +28,7 @@
 #include "DBCStores.h"
 #include "Item.h"
 #include "AccountMgr.h"
+#include "GuildMgr.h"
 
 void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
@@ -338,7 +339,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
 
     // Mail sent between guild members arrives instantly if they have the guild perk "Guild Mail"
-    if (Guild* guild = player->GetGuild())
+    if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
         if (guild->GetLevel() >= 17 && guild->IsMember(receiverGuid))
             deliver_delay = 0;
 
