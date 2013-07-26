@@ -451,39 +451,6 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         }
 };
 
-// 1038 - Hand of Salvation
-class spell_pal_hand_of_salvation : public SpellScriptLoader
-{
-    public:
-        spell_pal_hand_of_salvation() : SpellScriptLoader("spell_pal_hand_of_salvation") { }
-
-        class spell_pal_hand_of_salvation_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_hand_of_salvation_AuraScript);
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    // Glyph of Salvation
-                    if (caster->GetGUID() == GetUnitOwner()->GetGUID())
-                        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PALADIN_GLYPH_OF_SALVATION, EFFECT_0))
-                            amount -= aurEff->GetAmount();
-                }
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_hand_of_salvation_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_pal_hand_of_salvation_AuraScript();
-        }
-};
-
 // 37705 - Healing Discount
 class spell_pal_item_healing_discount : public SpellScriptLoader
 {
@@ -869,7 +836,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_hand_of_sacrifice();
-    new spell_pal_hand_of_salvation();
     new spell_pal_item_healing_discount();
     new spell_pal_holy_shock();
     new spell_pal_lay_on_hands();
