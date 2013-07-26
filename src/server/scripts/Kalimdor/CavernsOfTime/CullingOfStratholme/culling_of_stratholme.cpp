@@ -111,7 +111,6 @@ enum NPCs
     NPC_INFINITE_ADVERSARY                     = 27742,
     NPC_INFINITE_HUNTER                        = 27743,
     NPC_INFINITE_AGENT                         = 27744,
-    NPC_TIME_RIFT                              = 28409,
     NPC_ZOMBIE                                 = 27737,
     NPC_GHOUL                                  = 28249,
     NPC_NECROMANCER                            = 28200,
@@ -357,6 +356,7 @@ public:
 
         InstanceScript* instance;
 
+        bool HasStartedTimer;
         bool bStepping;
         uint32 step;
         uint32 phaseTimer;
@@ -414,6 +414,8 @@ public:
                 phaseTimer = 1000;
                 exorcismTimer = 7300;
                 wave = 0;
+
+                HasStartedTimer = false;
             }
         }
 
@@ -903,6 +905,12 @@ public:
                         case 53:
                         case 55:
                         case 57:
+                            if (instance && !HasStartedTimer) // Check if event has already happened, so it doesn't repeat itself
+                            {
+                                instance->SetData(DATA_INFINITE_COUNTER, IN_PROGRESS);
+                                HasStartedTimer = true;
+                            }
+
                             if (instance->GetData(bossEvent) != DONE)
                             {
                                 SpawnWaveGroup(wave, waveGUID);

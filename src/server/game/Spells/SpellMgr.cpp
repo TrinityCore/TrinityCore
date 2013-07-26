@@ -3748,6 +3748,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+                break;
+            case 60422: // Corruption of Time Channel (Infinite Corruptor - CoS)
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
+                break;
             default:
                 break;
         }

@@ -35,10 +35,26 @@
 
 enum Texts
 {
-    SAY_CRATES_COMPLETED    = 0,
+    SAY_CRATES_COMPLETED    = 0, // Chromie
+
+    SAY_INFINITE_START      = 0, // Chromie - On Infinite Corruptor event start
+    SAY_INFINITE            = 1, // Chromie - On Infinite Corruptor event at 5 minutes
+    SAY_INFINITE_FAIL       = 2, // Chromie - On Infinite Corruptor event fail
+
+    SAY_FAIL                = 2  // Infinite Corruptor - On Infinite Corruptor event fail
+
 };
 
-Position const ChromieSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
+enum Events
+{
+    EVENT_INFINITE_TIMER   = 1
+};
+
+Position const ChromieSummonPos[] = 
+{
+    {1813.298f, 1283.578f, 142.3258f, 3.878161f},
+    {2273.725f, 1483.684f, 128.7205f, 6.057528f}
+};
 
 class instance_culling_of_stratholme : public InstanceMapScript
 {
@@ -66,12 +82,15 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _exitGateGUID = 0;
                 _malGanisChestGUID = 0;
                 _genericBunnyGUID = 0;
+                _chromieGUID = 0;
                 memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
                 _crateCount = 0;
+                _eventMinute = 0;
             }
 
             bool IsEncounterInProgress() const
             {
+
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (_encounterState[i] == IN_PROGRESS)
                         return true;
@@ -112,6 +131,9 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         break;
                     case NPC_GENERIC_BUNNY:
                         _genericBunnyGUID = creature->GetGUID();
+                        break;
+                    case NPC_CHROMIE:
+                        _chromieGUID = creature->GetGUID();
                         break;
                 }
             }
@@ -171,11 +193,17 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 HandleGameObject(_exitGateGUID, true);
                                 if (GameObject* go = instance->GetGameObject(_malGanisChestGUID))
                                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                                instance->SummonCreature(NPC_CHROMIE_3, ChromieSummonPos[1]);
                                 break;
                         }
                         break;
                     case DATA_INFINITE_EVENT:
                         _encounterState[4] = data;
+                        if(data == DONE)
+                        {
+                            DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                            events.CancelEvent(EVENT_INFINITE_TIMER);
+                        }
                         break;
                     case DATA_CRATE_COUNT:
                         _crateCount = data;
@@ -185,14 +213,22 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
 
                             // Summon Chromie and global whisper
-                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos))
+                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos[0]))
                                 if (!instance->GetPlayers().isEmpty())
                                     if (Player* player = instance->GetPlayers().getFirst()->GetSource())
                                         sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                         }
                         DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
-                }
+                    case DATA_INFINITE_COUNTER:
+                        _eventCounterState = data;
+                        if (data == IN_PROGRESS)
+                            if (_infiniteGUID != 0)
+                            {
+                                events.ScheduleEvent(EVENT_INFINITE_TIMER, 1);
+                                _eventMinute = 25;
+                            }
+                    }
 
                 if (data == DONE)
                     SaveToDB();
@@ -214,6 +250,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         return _encounterState[4];
                     case DATA_CRATE_COUNT:
                         return _crateCount;
+                    case DATA_INFINITE_COUNTER:
+                        return _eventCounterState;
                 }
                 return 0;
             }
@@ -295,6 +333,57 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
+            void Update(uint32 diff) OVERRIDE
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                    case EVENT_INFINITE_TIMER:
+                        DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1);
+                        DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, _eventMinute);
+                        events.ScheduleEvent(EVENT_INFINITE_TIMER, MINUTE*IN_MILLISECONDS);
+
+                        switch(_eventMinute)
+                        {
+                        case 25:
+                            if (!instance->GetPlayers().isEmpty())
+                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_START, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                            break;
+                        case 5:
+                            if (!instance->GetPlayers().isEmpty())
+                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                            break;
+                        case 0:
+                            if (!instance->GetPlayers().isEmpty())
+                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_FAIL, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+
+                            if (Creature* infinite = instance->GetCreature(_infiniteGUID))
+                                if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
+                                {
+                                    infinite->Kill(infinite->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f));
+                                    infinite->GetMotionMaster()->MovePoint(0, rift->GetPositionX(), rift->GetPositionY(), rift->GetPositionZ());
+                                    infinite->AI()->Talk(SAY_FAIL);
+                                    rift->DespawnOrUnsummon();
+                                    infinite->DespawnOrUnsummon(3*IN_MILLISECONDS);     
+                                    events.CancelEvent(EVENT_INFINITE_TIMER);
+                                    DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                                }
+                                break;
+                        } 
+                    } 
+                    --_eventMinute;
+                }
+
+            }
         private:
             uint64 _arthasGUID;
             uint64 _meathookGUID;
@@ -308,8 +397,13 @@ class instance_culling_of_stratholme : public InstanceMapScript
             uint64 _exitGateGUID;
             uint64 _malGanisChestGUID;
             uint64 _genericBunnyGUID;
+            uint64 _chromieGUID;
             uint32 _encounterState[MAX_ENCOUNTER];
+            uint32 _eventCounterState;
             uint32 _crateCount;
+            uint32 _eventMinute;
+
+            EventMap events;
         };
 };
 
@@ -317,3 +411,4 @@ void AddSC_instance_culling_of_stratholme()
 {
     new instance_culling_of_stratholme();
 }
+
