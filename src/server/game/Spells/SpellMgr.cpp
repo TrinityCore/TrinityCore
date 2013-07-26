@@ -3298,7 +3298,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
             case 48420: // Master Shapeshifter
+            case 24900: // Heart of the Wild - Cat Effect
                 spellInfo->Stances = 1 << (FORM_CAT - 1);
+                break;
+            case 24899: // Heart of the Wild - Bear Effect
+                spellInfo->Stances = 1 << (FORM_BEAR - 1);
                 break;
             case 48421: // Master Shapeshifter
                 spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
