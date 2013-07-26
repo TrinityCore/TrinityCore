@@ -29,7 +29,6 @@ enum Spells
     SPELL_GRIEVOUS_BITE                           = 48920,
     SPELL_MANGLING_SLASH                          = 48873, // casted on the current tank, adds debuf
     SPELL_FEARSOME_ROAR                           = 48849,
-    H_SPELL_FEARSOME_ROAR                         = 59422, // Not stacking, debuff
     SPELL_PIERCING_SLASH                          = 48878, // debuff --> Armor reduced by 75%
     SPELL_RAPTOR_CALL                             = 59416, // dummy
     SPELL_GUT_RIP                                 = 49710,
@@ -50,7 +49,7 @@ enum Misc
 
 enum Events
 {
-    EVENT_BELLOWING_ROAR,
+    EVENT_BELLOWING_ROAR                          = 1,
     EVENT_GRIEVOUS_BITE,
     EVENT_MANGLING_SLASH,
     EVENT_FEARSOME_ROAR,
