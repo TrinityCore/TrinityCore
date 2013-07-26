@@ -860,12 +860,6 @@ class spell_dru_stampede : public SpellScriptLoader
                 return true;
             }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "procSpell: %u", eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
-                return true;
-            }
-
             void HandleEffectCatProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
@@ -887,7 +881,6 @@ class spell_dru_stampede : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                DoCheckProc += AuraCheckProcFn(spell_dru_stampede_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_dru_stampede_AuraScript::HandleEffectCatProc, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectProc += AuraEffectProcFn(spell_dru_stampede_AuraScript::HandleEffectBearProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
