@@ -878,62 +878,45 @@ class spell_dk_presence : public SpellScriptLoader
                 return true;
             }
 
-            void CheckImprovedBloodPresence()
+            void HandleImprovedBloodPresence(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1, EFFECT_0))
+
+                if (GetSpellInfo()->Id == SPELL_DK_BLOOD_PRESENCE)
+                    target->CastSpell(target, SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, true);
+                else if (AuraEffect const* impAurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1, EFFECT_0))
                     if (!target->HasAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
-                        target->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), target, true, NULL, aurEff);
+                        target->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT1, impAurEff->GetAmount(), target, true, NULL, aurEff);
             }
 
-            void CheckImprovedFrostPresence()
+            void HandleImprovedFrostPresence(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_R1, EFFECT_0))
+
+                if (GetSpellInfo()->Id == SPELL_DK_FROST_PRESENCE)
+                    target->CastSpell(target, SPELL_DK_FROST_PRESENCE_TRIGGERED, true);
+                else if (AuraEffect const* impAurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_FROST_PRESENCE_R1, EFFECT_0))
                     if (!target->HasAura(SPELL_DK_FROST_PRESENCE_TRIGGERED))
-                        target->CastCustomSpell(SPELL_DK_FROST_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, NULL, aurEff);
+                        target->CastCustomSpell(SPELL_DK_FROST_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, impAurEff->GetAmount(), target, true, NULL, aurEff);
             }
 
-            void CheckImprovedUnholyPresence(bool inUnholy = false)
+            void HandleImprovedUnholyPresence(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1, EFFECT_0))
+
+                if (GetSpellInfo()->Id == SPELL_DK_UNHOLY_PRESENCE)
+                    target->CastSpell(target, SPELL_DK_UNHOLY_PRESENCE_TRIGGERED, true);
+
+                if (AuraEffect const* impAurEff = target->GetAuraEffectOfRankedSpell(SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1, EFFECT_0))
                 {
-                    if (inUnholy)
+                    if (GetSpellInfo()->Id == SPELL_DK_UNHOLY_PRESENCE)
                     {
                         // Not listed as any effect, only base points set
-                        int32 bp = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                        target->CastCustomSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &bp, &bp, &bp, true, 0, aurEff);
+                        int32 bp = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                        target->CastCustomSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &bp, &bp, &bp, true, NULL, aurEff);
                     }
                     else if (!target->HasAura(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED))
-                        target->CastCustomSpell(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, NULL, aurEff);
-                }
-            }
-
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case SPELL_DK_BLOOD_PRESENCE:
-                        target->CastSpell(target, SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, true);
-                        CheckImprovedFrostPresence();
-                        CheckImprovedUnholyPresence();
-                        break;
-                    case SPELL_DK_FROST_PRESENCE:
-                        target->CastSpell(target, SPELL_DK_FROST_PRESENCE_TRIGGERED, true);
-                        CheckImprovedBloodPresence();
-                        CheckImprovedUnholyPresence();
-                        break;
-                    case SPELL_DK_UNHOLY_PRESENCE:
-                        target->CastSpell(target, SPELL_DK_UNHOLY_PRESENCE_TRIGGERED, true);
-                        CheckImprovedBloodPresence();
-                        CheckImprovedFrostPresence();
-                        CheckImprovedUnholyPresence(true);
-                        break;
-                    default:
-                        return;
+                        target->CastCustomSpell(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT0, impAurEff->GetAmount(), target, true, NULL, aurEff);
                 }
             }
 
@@ -948,7 +931,9 @@ class spell_dk_presence : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleImprovedBloodPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleImprovedFrostPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleImprovedUnholyPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL); 
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dk_presence_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
             }
         };
