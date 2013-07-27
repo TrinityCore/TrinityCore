@@ -31,6 +31,7 @@ enum RogueSpells
     SPELL_ROGUE_BLADE_FLURRY                     = 13877,
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK        = 22482,
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN             = 31231,
+    SPELL_ROGUE_CRIPPLING_POISON                 = 3409,
     SPELL_ROGUE_GLYPH_OF_PREPARATION             = 56819,
     SPELL_ROGUE_PREY_ON_THE_WEAK                 = 58670,
     SPELL_ROGUE_SHIV_TRIGGERED                   = 5940,
@@ -162,6 +163,41 @@ class spell_rog_cheat_death : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_rog_cheat_death_AuraScript();
+        }
+};
+
+// -51625 - Deadly Brew
+class spell_rog_crippling_poison : public SpellScriptLoader
+{
+    public:
+        spell_rog_crippling_poison() : SpellScriptLoader("spell_rog_crippling_poison") { }
+
+        class spell_rog_crippling_poison_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_crippling_poison_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_CRIPPLING_POISON))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_CRIPPLING_POISON, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_crippling_poison_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_rog_crippling_poison_AuraScript();
         }
 };
 
@@ -680,6 +716,7 @@ void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
+    new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
     new spell_rog_nerves_of_steel();
