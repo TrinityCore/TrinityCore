@@ -5,7 +5,7 @@ INSERT INTO `spell_script_names`(`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_proc_event` WHERE `entry`IN (82368,-80128);
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 (82368, 0, 4, 0, 0x100, 0, 16, 0, 0, 100, 0),
-(-80128, 0, 4, 0, 0x40, 0, 0, 0, 0, 100, 0);
+(-80128, 0, 4, 0, 0x40, 0, 0, 0, 0, 0, 0);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=24 AND `SourceEntry` IN (80128,80129);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
