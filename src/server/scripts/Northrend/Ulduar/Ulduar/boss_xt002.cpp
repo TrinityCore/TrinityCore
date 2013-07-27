@@ -365,9 +365,6 @@ class boss_xt002 : public CreatureScript
             {
                 switch (type)
                 {
-                    case DATA_TRANSFERED_HEALTH:
-                        _transferHealth = data;
-                        break;
                     case DATA_GRAVITY_BOMB_CASUALTY:
                         _gravityBombCasualty = (data > 0) ? true : false;
                         break;
@@ -433,12 +430,7 @@ class boss_xt002 : public CreatureScript
                 heart->RemoveAurasDueToSpell(SPELL_EXPOSED_HEART);
 
                 if (!_hardMode)
-                {
-                    if (!_transferHealth)
-                        _transferHealth = (heart->GetMaxHealth() - heart->GetHealth());
-
-                    me->ModifyHealth(-((int32)_transferHealth));
-                }
+                    me->DealDamage(me, heart->GetMaxHealth() - heart->GetHealth());
             }
 
             private:
@@ -449,7 +441,6 @@ class boss_xt002 : public CreatureScript
 
                 uint8 _phase;
                 uint8 _heartExposed;
-                uint32 _transferHealth;
         };
 };
 
@@ -480,7 +471,6 @@ class npc_xt002_heart : public CreatureScript
                 if (!xt002 || !xt002->AI())
                     return;
 
-                xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetHealth());
                 xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
             }
 
