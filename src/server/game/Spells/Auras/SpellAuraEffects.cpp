@@ -1264,32 +1264,25 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 
             // Heart of the Wild
             if (HotWSpellId)
-            {   
-                // hacky, but the only way as spell family is not SPELLFAMILY_DRUID
-                Unit::AuraEffectList const& mModTotalStatPct = target->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
-                for (Unit::AuraEffectList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
+            {
+                // Heart of the Wild
+                if (AuraEffect const* heartOfTheWild = target->GetAuraEffectOfRankedSpell(17003, EFFECT_0))
                 {
-                    // Heart of the Wild
-                    if (AuraEffect const* heartOfTheWild = target->GetAuraEffectOfRankedSpell(17003, EFFECT_0))
+                    int32 heartOfTheWildAmount = 0;
+
+                    switch (GetMiscValue())
                     {
-
-                        int32 heartOfTheWildAmount = 0;
-
-                        switch (GetMiscValue())
-                        {
-                            case FORM_CAT:
-                                heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                                break;
-                            case FORM_BEAR:
-                                heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
-                                break;
-                            default:
-                                break;
-                        }
-
-                        target->CastCustomSpell(target, HotWSpellId, &heartOfTheWildAmount, NULL, NULL, true, NULL, this);
-                        break;
+                        case FORM_CAT:
+                            heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                            break;
+                        case FORM_BEAR:
+                            heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                            break;
+                        default:
+                            break;
                     }
+
+                    target->CastCustomSpell(target, HotWSpellId, &heartOfTheWildAmount, NULL, NULL, true, NULL, this);
                 }
             }
 
