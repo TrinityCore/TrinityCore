@@ -5730,15 +5730,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     break;
                 }
             }
-
-            switch (dummySpell->SpellIconID)
-            {
-                case 2963: // Deadly Brew
-                {
-                    triggered_spell_id = 3409;
-                    break;
-                }
-            }
             break;
         }
         case SPELLFAMILY_PALADIN:
