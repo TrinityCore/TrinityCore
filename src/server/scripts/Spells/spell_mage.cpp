@@ -40,6 +40,9 @@ enum MageSpells
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
+    SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1         = 11210,
+    SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1    = 83046,
+    SPELL_MAGE_IMPROVED_POLYMORPH_MARKER         = 87515,
     SPELL_MAGE_INCANTERS_ABSORBTION_R1           = 44394,
     SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED    = 44413,
     SPELL_MAGE_IGNITE                            = 12654,
@@ -1042,6 +1045,67 @@ class spell_mage_permafrost : public SpellScriptLoader
         }
 };
 
+// 118 - Polymorph
+class spell_mage_polymorph : public SpellScriptLoader
+{
+    public:
+        spell_mage_polymorph() : SpellScriptLoader("spell_mage_polymorph") { }
+
+        class spell_mage_polymorph_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_polymorph_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_POLYMORPH_MARKER))
+                    return false;
+               return true;
+            }
+
+            bool Load() OVERRIDE
+            {
+                _caster = NULL;
+                return true;
+            }
+
+            bool DoCheck(ProcEventInfo& eventInfo)
+            {
+                _caster = GetCaster();
+                return _caster && eventInfo.GetDamageInfo();
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                // Improved Polymorph
+                if (AuraEffect const* improvedPolymorph = _caster->GetAuraEffectOfRankedSpell(SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1, EFFECT_0))
+                {
+                    if (_caster->HasAura(SPELL_MAGE_IMPROVED_POLYMORPH_MARKER))
+                        return;
+
+                    GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1, improvedPolymorph->GetSpellInfo()->GetRank()), true, NULL, aurEff);
+                    _caster->CastSpell(_caster, SPELL_MAGE_IMPROVED_POLYMORPH_MARKER, true, NULL, aurEff);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_polymorph_AuraScript::DoCheck);
+                OnEffectProc += AuraEffectProcFn(spell_mage_polymorph_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_MOD_CONFUSE);
+            }
+
+        private:
+            Unit* _caster;
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_mage_polymorph_AuraScript();
+        }
+};
+
 enum SilvermoonPolymorph
 {
     NPC_AUROSALIA       = 18744
@@ -1363,6 +1427,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_master_of_elements();
     new spell_mage_nether_vortex();
     new spell_mage_permafrost();
+    new spell_mage_polymorph();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
