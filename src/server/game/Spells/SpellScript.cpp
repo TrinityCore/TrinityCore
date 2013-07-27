@@ -136,7 +136,7 @@ bool _SpellScript::EffectAuraNameCheck::Check(SpellInfo const* spellEntry, uint8
         return true;
     if (!spellEntry->Effects[effIndex].ApplyAuraName)
         return false;
-    return (effAurName == SPELL_EFFECT_ANY) || (spellEntry->Effects[effIndex].ApplyAuraName == effAurName);
+    return (effAurName == SPELL_AURA_ANY) || (spellEntry->Effects[effIndex].ApplyAuraName == effAurName);
 }
 
 std::string _SpellScript::EffectAuraNameCheck::ToString()
