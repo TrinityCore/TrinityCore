@@ -452,13 +452,14 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                // get 2 targets except 2 nearest
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-
+                
+                // Selects 5 nearest dummies, including the caster
                 // .resize() runs pop_back();
-                if (targets.size() > 4)
-                    targets.resize(4);
+                if (targets.size() > 5)
+                    targets.resize(5);
 
+                // Selects 2 farthest ones to cast a spell
                 while (targets.size() > 2)
                     targets.pop_front();
             }
