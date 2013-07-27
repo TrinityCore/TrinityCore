@@ -9,7 +9,7 @@ INSERT INTO `spell_script_names`(`spell_id`, `ScriptName`) VALUES
 
 DELETE FROM `spell_ranks` WHERE `first_spell_id` IN (81016,81021);
 INSERT INTO `spell_ranks` (`first_spell_id`, `spell_id`, `rank`) VALUES
--- Bär
+-- Bear
 (81016, 81016, 1),
 (81016, 81017, 2),
 -- Cat

@@ -1128,13 +1128,11 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 {
     uint32 spellId = 0;
     uint32 spellId2 = 0;
-    uint32 HotWSpellId = 0;
 
     switch (GetMiscValue())
     {
         case FORM_CAT:
             spellId = 3025;
-            HotWSpellId = 24900;
             break;
         case FORM_TREE:
             spellId = 34123;
@@ -1148,7 +1146,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_BEAR:
             spellId = 1178;
             spellId2 = 21178;
-            HotWSpellId = 24899;
             break;
         case FORM_BATTLESTANCE:
             spellId = 21156;
@@ -1185,7 +1182,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_GHOSTWOLF:
             spellId = 67116;
             break;
-        case FORM_DIREBEAR:
         case FORM_GHOUL:
         case FORM_AMBIENT:
         case FORM_STEALTH:
@@ -1258,32 +1254,32 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             if (plrTarget->HasSpell(17007))
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (1<<(GetMiscValue()-1)))
+                if (spellInfo && spellInfo->Stances & (1 << (GetMiscValue() -1)))
                     target->CastSpell(target, 24932, true, NULL, this);
             }
 
             // Heart of the Wild
-            if (HotWSpellId)
+            if (AuraEffect const* heartOfTheWild = target->GetAuraEffectOfRankedSpell(17003, EFFECT_0))
             {
-                // Heart of the Wild
-                if (AuraEffect const* heartOfTheWild = target->GetAuraEffectOfRankedSpell(17003, EFFECT_0))
+                uint32 heartOfTheWildSpellId = 0;
+                int32 heartOfTheWildAmount = 0;
+
+                switch (GetMiscValue())
                 {
-                    int32 heartOfTheWildAmount = 0;
-
-                    switch (GetMiscValue())
-                    {
-                        case FORM_CAT:
-                            heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                            break;
-                        case FORM_BEAR:
-                            heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
-                            break;
-                        default:
-                            break;
-                    }
-
-                    target->CastCustomSpell(target, HotWSpellId, &heartOfTheWildAmount, NULL, NULL, true, NULL, this);
+                    case FORM_CAT:
+                        heartOfTheWildSpellId = 24900;
+                        heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                        break;
+                    case FORM_BEAR:
+                        heartOfTheWildSpellId = 24899;
+                        heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                        break;
+                    default:
+                        break;
                 }
+
+                if (heartOfTheWildSpellId)
+                    target->CastCustomSpell(target, heartOfTheWildSpellId, &heartOfTheWildAmount, NULL, NULL, true, NULL, this);
             }
 
             switch (GetMiscValue())
@@ -1359,6 +1355,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 break;
             }
         }
+
         Unit::AuraApplicationMap& tAuras = target->GetAppliedAuras();
         for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
