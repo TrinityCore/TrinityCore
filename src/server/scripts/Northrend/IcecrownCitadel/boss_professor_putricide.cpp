@@ -202,19 +202,6 @@ class AbominationDespawner
         Unit* _owner;
 };
 
-struct RotfaceHeightCheck
-{
-    RotfaceHeightCheck(Creature* rotface) : _rotface(rotface) { }
-
-    bool operator()(Creature* stalker) const
-    {
-        return stalker->GetPositionZ() < _rotface->GetPositionZ() + 5.0f;
-    }
-
-private:
-    Creature* _rotface;
-};
-
 class boss_professor_putricide : public CreatureScript
 {
     public:
@@ -448,7 +435,6 @@ class boss_professor_putricide : public CreatureScript
                         {
                             std::list<Creature*> list;
                             GetCreatureListWithEntryInGrid(list, rotface, NPC_PUDDLE_STALKER, 50.0f);
-                            list.remove_if(RotfaceHeightCheck(rotface));
                             if (list.size() > 4)
                             {
                                 list.sort(Trinity::ObjectDistanceOrderPred(rotface));
