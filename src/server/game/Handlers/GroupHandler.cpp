@@ -928,6 +928,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask == GROUP_UPDATE_FLAG_NONE)
         return;
 
+    std::set<uint32> phases;
+    player->GetPhaseMgr().GetActivePhases(phases);
+
     if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)                // if update power type, update current/max power also
         mask |= (GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER);
 
@@ -1155,9 +1158,10 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
 
     if (mask & GROUP_UPDATE_FLAG_PHASE)
     {
-        *data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
-        *data << uint32(0); // byte count in next block
-        // for (count) *data << uint16(phaseId)
+        data << uint32(phases.empty() ? 8 : 0);
+        data << uint32(phases.size());
+        for (std::set<uint32>::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+            data << uint16(*itr);
     }
 }
 
@@ -1182,6 +1186,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 
     Pet* pet = player->GetPet();
     Powers powerType = player->getPowerType();
+    std::set<uint32> phases;
+    player->GetPhaseMgr().GetActivePhases(phases);
 
     WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 4+2+2+2+1+2*6+8+1+8);
     data << uint8(0);                                       // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
@@ -1201,6 +1207,9 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 
     if (player->GetVehicle())
         updateFlags |= GROUP_UPDATE_FLAG_VEHICLE_SEAT;
+
+    if (!phases.empty())
+        updateFlags |= GROUP_UPDATE_FLAG_PHASE;
 
     uint16 playerStatus = MEMBER_STATUS_ONLINE;
     if (player->IsPvP())
@@ -1292,8 +1301,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 
     // GROUP_UPDATE_FLAG_PET_AURAS
     uint64 petAuraMask = 0;
-    maskPos = data.wpos();
     data << uint8(1);
+    maskPos = data.wpos();
     data << uint64(petAuraMask);                            // placeholder
     data << uint32(MAX_AURAS);                              // count
     if (pet)
@@ -1328,9 +1337,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 
     if (updateFlags & GROUP_UPDATE_FLAG_PHASE)
     {
-        data << uint32(8); // either 0 or 8, same unk found in SMSG_PHASESHIFT
-        data << uint32(0); // byte count in next block
-        // for (count) *data << uint16(phaseId)
+        data << uint32(phases.empty() ? 8 : 0);
+        data << uint32(phases.size());
+        for (std::set<uint32>::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+            data << uint16(*itr);
     }
 
     SendPacket(&data);
