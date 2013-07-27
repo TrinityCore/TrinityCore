@@ -64,10 +64,7 @@ class boss_dred : public CreatureScript
 
         struct boss_dredAI : public BossAI
         {
-            boss_dredAI(Creature* creature) : BossAI(creature)
-            {
-                instance = me->GetInstanceScript();
-            }
+            boss_dredAI(Creature* creature) : BossAI(creature) { }
 
             uint8 raptorsKilled;
 
@@ -118,7 +115,7 @@ class boss_dred : public CreatureScript
                         events.ScheduleEvent(EVENT_FEARSOME_ROAR, urand(10000, 20000));
                         break;
                     case EVENT_PIERCING_SLASH:
-                        DoCastVictim(SPELL_PIERCING_SLASH, false
+                        DoCastVictim(SPELL_PIERCING_SLASH, false);
                         events.ScheduleEvent(EVENT_PIERCING_SLASH, 17000);
                         break;
                     case EVENT_RAPTOR_CALL:
