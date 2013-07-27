@@ -718,10 +718,7 @@ class spell_dk_improved_blood_presence : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 if ((target->HasAura(SPELL_DK_FROST_PRESENCE) || target->HasAura(SPELL_DK_UNHOLY_PRESENCE)) && !target->HasAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
-                {
-                    int32 basePoints1 = aurEff->GetAmount();
-                    target->CastCustomSpell(target, SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, NULL, &basePoints1, NULL, true, NULL, aurEff);
-                }
+                    target->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), target, true, NULL, aurEff);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -818,8 +815,8 @@ class spell_dk_improved_unholy_presence : public SpellScriptLoader
                 if (target->HasAura(SPELL_DK_UNHOLY_PRESENCE) && !target->HasAura(SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
                 {
                     // Not listed as any effect, only base points set in dbc
-                    int32 basePoints0 = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                    target->CastCustomSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &basePoints0, &basePoints0, &basePoints0, true, NULL, aurEff);
+                    int32 basePoints = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                    target->CastCustomSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &basePoints, &basePoints, &basePoints, true, NULL, aurEff);
                 }
 
                 if ((target->HasAura(SPELL_DK_BLOOD_PRESENCE) || target->HasAura(SPELL_DK_FROST_PRESENCE)) && !target->HasAura(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED))
@@ -912,7 +909,7 @@ class spell_dk_presence : public SpellScriptLoader
                     if (GetSpellInfo()->Id == SPELL_DK_UNHOLY_PRESENCE)
                     {
                         // Not listed as any effect, only base points set
-                        int32 bp = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                        int32 bp = impAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                         target->CastCustomSpell(target, SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &bp, &bp, &bp, true, NULL, aurEff);
                     }
                     else if (!target->HasAura(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED))
