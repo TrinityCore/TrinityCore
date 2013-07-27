@@ -4627,8 +4627,8 @@ int LuaUnit::AddAura(lua_State* L, Unit* unit)
     Unit* target = sEluna->CHECK_UNIT(L, 2);
     if (!target)
         return 0;
-    unit->AddAura(spellId, target);
-    return 0;
+    sEluna->PushAura(L, unit->AddAura(spellId, target));
+    return 1;
 }
 
 int LuaUnit::RemoveAura(lua_State* L, Unit* unit)

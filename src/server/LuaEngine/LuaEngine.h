@@ -77,17 +77,17 @@ enum ServerEvents
     PLAYER_EVENT_ON_MAP_CHANGE              =     28,           // (event, player)
 
     // Guild
-    GUILD_EVENT_ON_ADD_MEMBER               =     29,           // Implemented -- Commented out
-    GUILD_EVENT_ON_REMOVE_MEMBER            =     30,           // Implemented -- Commented out
-    GUILD_EVENT_ON_MOTD_CHANGE              =     31,           // Implemented -- Commented out
-    GUILD_EVENT_ON_INFO_CHANGE              =     32,           // Implemented -- Commented out
-    GUILD_EVENT_ON_CREATE                   =     33,           // Implemented -- Commented out
-    GUILD_EVENT_ON_DISBAND                  =     34,           // Implemented -- Commented out
-    GUILD_EVENT_ON_MONEY_WITHDRAW           =     35,           // Implemented -- Commented out
-    GUILD_EVENT_ON_MONEY_DEPOSIT            =     36,           // Implemented -- Commented out
-    GUILD_EVENT_ON_ITEM_MOVE                =     37,           // Implemented -- Commented out
-    GUILD_EVENT_ON_EVENT                    =     38,           // Implemented -- Commented out
-    GUILD_EVENT_ON_BANK_EVENT               =     39,           // Implemented -- Commented out
+    GUILD_EVENT_ON_ADD_MEMBER               =     29,           // (event, guild, player, rank)
+    GUILD_EVENT_ON_REMOVE_MEMBER            =     30,           // (event, guild, isDisbanding, isKicked)
+    GUILD_EVENT_ON_MOTD_CHANGE              =     31,           // (event, guild, newMotd)
+    GUILD_EVENT_ON_INFO_CHANGE              =     32,           // (event, guild, newInfo)
+    GUILD_EVENT_ON_CREATE                   =     33,           // (event, guild, leader, name)
+    GUILD_EVENT_ON_DISBAND                  =     34,           // (event, guild)
+    GUILD_EVENT_ON_MONEY_WITHDRAW           =     35,           // (event, guild, player, amount, isRepair)
+    GUILD_EVENT_ON_MONEY_DEPOSIT            =     36,           // (event, guild, player, amount)
+    GUILD_EVENT_ON_ITEM_MOVE                =     37,           // (event, guild, player, item, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId)
+    GUILD_EVENT_ON_EVENT                    =     38,           // (event, guild, eventType, plrGUIDLow1, plrGUIDLow2, newRank)
+    GUILD_EVENT_ON_BANK_EVENT               =     39,           // (event, guild, eventType, tabId, playerGUIDLow, itemOrMoney, itemStackCount, destTabId)
 
     // Server
     SERVER_EVENT_ON_NETWORK_START           =     40,           // Not Implemented
