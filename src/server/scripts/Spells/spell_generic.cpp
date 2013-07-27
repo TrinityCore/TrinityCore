@@ -1715,6 +1715,48 @@ class spell_gen_gunship_portal : public SpellScriptLoader
         }
 };
 
+
+enum Interrupt
+{
+    SPELL_GEN_THROW_INTERRUPT           = 32747
+};
+
+// 32748 - Deadly Throw Interrupt
+// 44835 - Maim Interrupt
+class spell_gen_interrupt : public SpellScriptLoader
+{
+    public:
+        spell_gen_interrupt() : SpellScriptLoader("spell_gen_interrupt") { }
+
+        class spell_gen_interrupt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_interrupt_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_THROW_INTERRUPT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_GEN_THROW_INTERRUPT, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_interrupt_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_gen_interrupt_AuraScript();
+        }
+};
+
 enum Launch
 {
     SPELL_LAUNCH_NO_FALLING_DAMAGE  = 66251
@@ -3650,6 +3692,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_pri_shadow_protection");
     new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
     new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
+    new spell_gen_interrupt();
     new spell_gen_launch();
     new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
