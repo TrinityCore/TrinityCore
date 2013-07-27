@@ -3269,6 +3269,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 54741: // Firestarter
             case 57761: // Fireball!
             case 64823: // Item - Druid T8 Balance 4P Bonus
+            case 88819: // Daybreak
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
