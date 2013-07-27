@@ -337,12 +337,15 @@ class boss_xt002 : public CreatureScript
             {
                 if (apply && who->GetEntry() == NPC_XS013_SCRAPBOT)
                 {
-                    // Need this so we can properly determine when to expose heart again in damagetaken hook
-                    if (me->GetHealthPct() > (25 * (4 - _heartExposed)))
-                        ++_heartExposed;
-
+                    // Heal XT002 for 1% of his max HP
+                    me->ModifyHealth((uint32)(me->GetMaxHealth()/100));
+                    // Unapply vehicle aura again
+                    me->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
+                    who->ToCreature()->DespawnOrUnsummon();
                     Talk(EMOTE_SCRAPBOT);
-                    _healthRecovered = true;
+
+                    if(!_healthRecovered)
+                        _healthRecovered = true;
                 }
             }
 
@@ -521,15 +524,8 @@ class npc_scrapbot : public CreatureScript
                 if (_rangeCheckTimer <= diff)
                 {
                     if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
-                    {
                         if (me->IsWithinMeleeRange(xt002))
-                        {
                             DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
-                            // Unapply vehicle aura again
-                            xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
-                            me->DespawnOrUnsummon();
-                        }
-                    }
                 }
                 else
                     _rangeCheckTimer -= diff;
