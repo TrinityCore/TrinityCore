@@ -26,9 +26,13 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                       = 0,
+};
+
+enum Spells
+{
     SPELL_SUMMONSCARLETHOUND        = 17164,
     SPELL_BLOODLUST                 = 6742
 };
@@ -38,9 +42,9 @@ class boss_houndmaster_loksey : public CreatureScript
 public:
     boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_houndmaster_lokseyAI (creature);
+        return new boss_houndmaster_lokseyAI(creature);
     }
 
     struct boss_houndmaster_lokseyAI : public ScriptedAI
@@ -49,17 +53,17 @@ public:
 
         uint32 BloodLust_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             BloodLust_Timer = 20000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

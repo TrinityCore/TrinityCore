@@ -24,7 +24,7 @@ SDCategory: Stranglethorn Vale
 EndScriptData */
 
 /* ContentData
-mob_yenniku
+npc_yenniku
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -33,22 +33,22 @@ EndContentData */
 #include "SpellInfo.h"
 
 /*######
-## mob_yenniku
+## npc_yenniku
 ######*/
 
-class mob_yenniku : public CreatureScript
+class npc_yenniku : public CreatureScript
 {
 public:
-    mob_yenniku() : CreatureScript("mob_yenniku") { }
+    npc_yenniku() : CreatureScript("npc_yenniku") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_yennikuAI (creature);
+        return new npc_yennikuAI(creature);
     }
 
-    struct mob_yennikuAI : public ScriptedAI
+    struct npc_yennikuAI : public ScriptedAI
     {
-        mob_yennikuAI(Creature* creature) : ScriptedAI(creature)
+        npc_yennikuAI(Creature* creature) : ScriptedAI(creature)
         {
             bReset = false;
         }
@@ -56,13 +56,13 @@ public:
         uint32 Reset_Timer;
         bool bReset;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Reset_Timer = 0;
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
             if (bReset || spell->Id != 3607)
                 return;
@@ -82,9 +82,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (bReset)
             {
@@ -126,5 +126,5 @@ public:
 
 void AddSC_stranglethorn_vale()
 {
-    new mob_yenniku();
+    new npc_yenniku();
 }

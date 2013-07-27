@@ -27,22 +27,28 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_DRAININGBLOW    16793
-#define SPELL_CROWDPUMMEL    10887
-#define SPELL_MIGHTYBLOW    14099
-#define SPELL_FURIOUS_ANGER     16791
+enum Spells
+{
+    SPELL_DRAININGBLOW      = 16793,
+    SPELL_CROWDPUMMEL       = 10887,
+    SPELL_MIGHTYBLOW        = 14099,
+    SPELL_FURIOUS_ANGER     = 16791
+};
 
-#define MODEL_NORMAL            10433
-#define MODEL_HUMAN             3637
+enum Models
+{
+    MODEL_NORMAL            = 10433,
+    MODEL_HUMAN             = 3637
+};
 
 class boss_magistrate_barthilas : public CreatureScript
 {
 public:
     boss_magistrate_barthilas() : CreatureScript("boss_magistrate_barthilas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_magistrate_barthilasAI (creature);
+        return new boss_magistrate_barthilasAI(creature);
     }
 
     struct boss_magistrate_barthilasAI : public ScriptedAI
@@ -55,7 +61,7 @@ public:
         uint32 FuriousAnger_Timer;
         uint32 AngerCount;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DrainingBlow_Timer = 20000;
             CrowdPummel_Timer = 15000;
@@ -69,23 +75,24 @@ public:
                 me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             //nothing to see here yet
 
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

@@ -29,7 +29,11 @@ EndScriptData */
 enum Spells
 {
     SPELL_FOUL_SPORES           = 31673,
-    SPELL_ACID_GEYSER           = 38739
+    SPELL_ACID_GEYSER           = 38739,
+
+    SPELL_SPORE_CLOUD           = 34168,
+    SPELL_PUTRID_MUSHROOM       = 31690,
+    SPELL_GROW                  = 31698
 };
 
 class boss_hungarfen : public CreatureScript
@@ -37,9 +41,9 @@ class boss_hungarfen : public CreatureScript
 public:
     boss_hungarfen() : CreatureScript("boss_hungarfen") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_hungarfenAI (creature);
+        return new boss_hungarfenAI(creature);
     }
 
     struct boss_hungarfenAI : public ScriptedAI
@@ -52,18 +56,18 @@ public:
         uint32 Mushroom_Timer;
         uint32 AcidGeyser_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Root = false;
             Mushroom_Timer = 5000;                              // 1 mushroom after 5s, then one per 10s. This should be different in heroic mode
             AcidGeyser_Timer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -100,29 +104,25 @@ public:
 
 };
 
-#define SPELL_SPORE_CLOUD       34168
-#define SPELL_PUTRID_MUSHROOM   31690
-#define SPELL_GROW              31698
-
-class mob_underbog_mushroom : public CreatureScript
+class npc_underbog_mushroom : public CreatureScript
 {
 public:
-    mob_underbog_mushroom() : CreatureScript("mob_underbog_mushroom") { }
+    npc_underbog_mushroom() : CreatureScript("npc_underbog_mushroom") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_underbog_mushroomAI (creature);
+        return new npc_underbog_mushroomAI(creature);
     }
 
-    struct mob_underbog_mushroomAI : public ScriptedAI
+    struct npc_underbog_mushroomAI : public ScriptedAI
     {
-        mob_underbog_mushroomAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_underbog_mushroomAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool Stop;
         uint32 Grow_Timer;
         uint32 Shrink_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Stop = false;
             Grow_Timer = 0;
@@ -132,13 +132,14 @@ public:
             DoCast(me, SPELL_SPORE_CLOUD, true);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
 
-        void AttackStart(Unit* /*who*/) {}
 
-        void EnterCombat(Unit* /*who*/) {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Stop)
                 return;
@@ -162,5 +163,5 @@ public:
 void AddSC_boss_hungarfen()
 {
     new boss_hungarfen();
-    new mob_underbog_mushroom();
+    new npc_underbog_mushroom();
 }

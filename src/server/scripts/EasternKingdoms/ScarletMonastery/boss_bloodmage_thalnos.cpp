@@ -26,12 +26,15 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO               = 0,
     SAY_HEALTH              = 1,
-    SAY_KILL                = 2,
+    SAY_KILL                = 2
+};
 
+enum Spells
+{
     SPELL_FLAMESHOCK        = 8053,
     SPELL_SHADOWBOLT        = 1106,
     SPELL_FLAMESPIKE        = 8814,
@@ -43,9 +46,9 @@ class boss_bloodmage_thalnos : public CreatureScript
 public:
     boss_bloodmage_thalnos() : CreatureScript("boss_bloodmage_thalnos") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_bloodmage_thalnosAI (creature);
+        return new boss_bloodmage_thalnosAI(creature);
     }
 
     struct boss_bloodmage_thalnosAI : public ScriptedAI
@@ -58,7 +61,7 @@ public:
         uint32 FlameSpike_Timer;
         uint32 FireNova_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             HpYell = false;
             FlameShock_Timer = 10000;
@@ -67,17 +70,17 @@ public:
             FireNova_Timer = 40000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*Victim*/)
+        void KilledUnit(Unit* /*Victim*/) OVERRIDE
         {
             Talk(SAY_KILL);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

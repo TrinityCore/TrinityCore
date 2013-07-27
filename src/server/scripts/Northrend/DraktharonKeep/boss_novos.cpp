@@ -79,7 +79,7 @@ public:
     {
         boss_novosAI(Creature* creature) : BossAI(creature, DATA_NOVOS_EVENT) {}
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             events.Reset();
             summons.DespawnAll();
@@ -92,7 +92,7 @@ public:
             SetBubbled(false);
         }
 
-        void EnterCombat(Unit* /* victim */)
+        void EnterCombat(Unit* /* victim */) OVERRIDE
         {
             me->setActive(true);
             DoZoneInCombat();
@@ -103,7 +103,7 @@ public:
             SetBubbled(true);
         }
 
-        void AttackStart(Unit* target)
+        void AttackStart(Unit* target) OVERRIDE
         {
             if (!target)
                 return;
@@ -112,7 +112,7 @@ public:
                 DoStartNoMovement(target);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim() || _bubbled)
                 return;
@@ -141,13 +141,14 @@ public:
             }
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 action) OVERRIDE
         {
             if (action == ACTION_CRYSTAL_HANDLER_DIED)
                 CrystalHandlerDied();
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             BossAI::MoveInLineOfSight(who);
 
@@ -159,12 +160,12 @@ public:
                 _ohNovos = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             return type == DATA_NOVOS_ACHIEV && _ohNovos ? 1 : 0;
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             summons.Summon(summon);
         }
@@ -257,7 +258,7 @@ public:
         bool _bubbled;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_novosAI(creature);
     }
@@ -272,14 +273,14 @@ public:
     {
         npc_crystal_channel_targetAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _spell = 0;
             _timer = 0;
             _temp = 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (_spell)
             {
@@ -293,14 +294,14 @@ public:
             }
         }
 
-        void SetData(uint32 id, uint32 value)
+        void SetData(uint32 id, uint32 value) OVERRIDE
         {
             _spell = id;
             _timer = value;
             _temp = value;
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             if (InstanceScript* instance = me->GetInstanceScript())
                 if (uint64 guid = instance->GetData64(DATA_NOVOS))
@@ -320,7 +321,7 @@ public:
         uint32 _temp;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_crystal_channel_targetAI(creature);
     }
@@ -331,7 +332,7 @@ class achievement_oh_novos : public AchievementCriteriaScript
 public:
     achievement_oh_novos() : AchievementCriteriaScript("achievement_oh_novos") {}
 
-    bool OnCheck(Player* /*player*/, Unit* target)
+    bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
     {
         return target && target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->AI()->GetData(DATA_NOVOS_ACHIEV);
     }
@@ -357,13 +358,13 @@ public:
             GetCaster()->CastSpell((Unit*)NULL, SPELL_COPY_OF_SUMMON_MINIONS, true);
         }
 
-        void Register()
+        void Register() OVERRIDE
         {
             OnEffectHitTarget += SpellEffectFn(spell_summon_minions_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const OVERRIDE
     {
         return new spell_summon_minions_SpellScript();
     }

@@ -109,7 +109,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             return NULL;
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
     {
         Unit* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
@@ -126,7 +126,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) OVERRIDE
     {
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
@@ -140,12 +140,12 @@ struct boss_twinemperorsAI : public ScriptedAI
             DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
     }
 
-    void KilledUnit(Unit* /*victim*/)
+    void KilledUnit(Unit* /*victim*/) OVERRIDE
     {
         DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* who) OVERRIDE
     {
         DoZoneInCombat();
         Creature* pOtherBoss = GetOtherBoss();
@@ -163,7 +163,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* entry)
+    void SpellHit(Unit* caster, const SpellInfo* entry) OVERRIDE
     {
         if (caster == me)
             return;
@@ -292,7 +292,8 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit* who)
+    void MoveInLineOfSight(Unit* who) OVERRIDE
+
     {
         if (!who || me->GetVictim())
             return;
@@ -391,9 +392,9 @@ class boss_veknilash : public CreatureScript
 public:
     boss_veknilash() : CreatureScript("boss_veknilash") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_veknilashAI (creature);
+        return new boss_veknilashAI(creature);
     }
 
     struct boss_veknilashAI : public boss_twinemperorsAI
@@ -410,7 +411,7 @@ public:
 
         Creature* Summoned;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TwinReset();
             UpperCut_Timer = urand(14000, 29000);
@@ -429,7 +430,7 @@ public:
             target->SetFullHealth();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -477,9 +478,9 @@ class boss_veklor : public CreatureScript
 public:
     boss_veklor() : CreatureScript("boss_veklor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_veklorAI (creature);
+        return new boss_veklorAI(creature);
     }
 
     struct boss_veklorAI : public boss_twinemperorsAI
@@ -497,7 +498,7 @@ public:
 
         Creature* Summoned;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TwinReset();
             ShadowBolt_Timer = 0;
@@ -518,7 +519,7 @@ public:
             target->SetFullHealth();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -579,7 +580,7 @@ public:
             //DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;

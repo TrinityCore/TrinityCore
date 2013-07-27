@@ -63,19 +63,19 @@ class boss_golemagg : public CreatureScript
             {
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 BossAI::Reset();
                 DoCast(me, SPELL_MAGMASPLASH, true);
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* victim) OVERRIDE
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_PYROBLAST, 7000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
             {
                 if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
                     return;
@@ -84,7 +84,7 @@ class boss_golemagg : public CreatureScript
                 events.ScheduleEvent(EVENT_EARTHQUAKE, 3000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -116,30 +116,30 @@ class boss_golemagg : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_golemaggAI(creature);
         }
 };
 
-class mob_core_rager : public CreatureScript
+class npc_core_rager : public CreatureScript
 {
     public:
-        mob_core_rager() : CreatureScript("mob_core_rager") { }
+        npc_core_rager() : CreatureScript("npc_core_rager") { }
 
-        struct mob_core_ragerAI : public ScriptedAI
+        struct npc_core_ragerAI : public ScriptedAI
         {
-            mob_core_ragerAI(Creature* creature) : ScriptedAI(creature)
+            npc_core_ragerAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 mangleTimer = 7*IN_MILLISECONDS;                 // These times are probably wrong
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
             {
                 if (HealthAbovePct(50) || !instance)
                     return;
@@ -155,7 +155,7 @@ class mob_core_rager : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -177,14 +177,14 @@ class mob_core_rager : public CreatureScript
             uint32 mangleTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_core_ragerAI(creature);
+            return new npc_core_ragerAI(creature);
         }
 };
 
 void AddSC_boss_golemagg()
 {
     new boss_golemagg();
-    new mob_core_rager();
+    new npc_core_rager();
 }

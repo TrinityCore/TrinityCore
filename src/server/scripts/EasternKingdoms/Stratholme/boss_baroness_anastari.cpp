@@ -27,19 +27,22 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_BANSHEEWAIL   16565
-#define SPELL_BANSHEECURSE    16867
-#define SPELL_SILENCE    18327
-//#define SPELL_POSSESS   17244
+enum Spells
+{
+    SPELL_BANSHEEWAIL       = 16565,
+    SPELL_BANSHEECURSE      = 16867,
+    SPELL_SILENCE           = 18327
+    //SPELL_POSSESS           = 17244
+};
 
 class boss_baroness_anastari : public CreatureScript
 {
 public:
     boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baroness_anastariAI (creature);
+        return new boss_baroness_anastariAI(creature);
     }
 
     struct boss_baroness_anastariAI : public ScriptedAI
@@ -56,7 +59,7 @@ public:
         uint32 Silence_Timer;
         //uint32 Possess_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             BansheeWail_Timer = 1000;
             BansheeCurse_Timer = 11000;
@@ -64,17 +67,17 @@ public:
             //Possess_Timer = 35000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-         void JustDied(Unit* /*killer*/)
+         void JustDied(Unit* /*killer*/) OVERRIDE
          {
              if (instance)
                  instance->SetData(TYPE_BARONESS, IN_PROGRESS);
          }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

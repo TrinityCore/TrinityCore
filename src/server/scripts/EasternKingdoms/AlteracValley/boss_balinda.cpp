@@ -43,26 +43,26 @@ enum WaterElementalSpells
     SPELL_WATERBOLT                               = 46983
 };
 
-class mob_water_elemental : public CreatureScript
+class npc_water_elemental : public CreatureScript
 {
 public:
-    mob_water_elemental() : CreatureScript("mob_water_elemental") { }
+    npc_water_elemental() : CreatureScript("npc_water_elemental") { }
 
-    struct mob_water_elementalAI : public ScriptedAI
+    struct npc_water_elementalAI : public ScriptedAI
     {
-        mob_water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 waterBoltTimer;
         uint64 balindaGUID;
         uint32 resetTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             waterBoltTimer            = 3 * IN_MILLISECONDS;
             resetTimer                = 5 * IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -86,9 +86,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_water_elementalAI(creature);
+        return new npc_water_elementalAI(creature);
     }
 };
 
@@ -110,7 +110,7 @@ public:
 
         SummonList summons;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             arcaneExplosionTimer      = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
             coneOfColdTimer           = 8 * IN_MILLISECONDS;
@@ -122,30 +122,30 @@ public:
             summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(YELL_AGGRO);
         }
 
-        void JustRespawned()
+        void JustRespawned() OVERRIDE
         {
             Reset();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
-            CAST_AI(mob_water_elemental::mob_water_elementalAI, summoned->AI())->balindaGUID = me->GetGUID();
+            CAST_AI(npc_water_elemental::npc_water_elementalAI, summoned->AI())->balindaGUID = me->GetGUID();
             summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
             summoned->setFaction(me->getFaction());
             summons.Summon(summoned);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             summons.DespawnAll();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -196,7 +196,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_balindaAI(creature);
     }
@@ -205,5 +205,5 @@ public:
 void AddSC_boss_balinda()
 {
     new boss_balinda;
-    new mob_water_elemental;
+    new npc_water_elemental;
 };

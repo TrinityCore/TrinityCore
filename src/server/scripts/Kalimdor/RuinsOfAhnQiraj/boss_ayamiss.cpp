@@ -82,7 +82,7 @@ class boss_ayamiss : public CreatureScript
             {
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 _phase = PHASE_AIR;
@@ -90,7 +90,7 @@ class boss_ayamiss : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void JustSummoned(Creature* who)
+            void JustSummoned(Creature* who) OVERRIDE
             {
                 switch (who->GetEntry())
                 {
@@ -107,7 +107,7 @@ class boss_ayamiss : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
             {
                 if (type == POINT_MOTION_TYPE)
                 {
@@ -123,13 +123,13 @@ class boss_ayamiss : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() OVERRIDE
             {
                 me->ClearUnitState(UNIT_STATE_ROOT);
                 BossAI::EnterEvadeMode();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* attacker) OVERRIDE
             {
                 BossAI::EnterCombat(attacker);
 
@@ -144,7 +144,7 @@ class boss_ayamiss : public CreatureScript
                 me->GetMotionMaster()->MovePoint(POINT_AIR, AyamissAirPos);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -230,7 +230,7 @@ class boss_ayamiss : public CreatureScript
             bool _enraged;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_ayamissAI(creature);
         }
@@ -248,7 +248,7 @@ class npc_hive_zara_larva : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
             {
                 if (type == POINT_MOTION_TYPE)
                     if (id == POINT_PARALYZE)
@@ -256,7 +256,8 @@ class npc_hive_zara_larva : public CreatureScript
                             DoCast(target, SPELL_FEED); // Omnomnom
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;
@@ -264,7 +265,7 @@ class npc_hive_zara_larva : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void AttackStart(Unit* victim)
+            void AttackStart(Unit* victim) OVERRIDE
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;
@@ -272,7 +273,7 @@ class npc_hive_zara_larva : public CreatureScript
                 ScriptedAI::AttackStart(victim);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;
@@ -283,7 +284,7 @@ class npc_hive_zara_larva : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_hive_zara_larvaAI(creature);
         }

@@ -40,7 +40,7 @@ enum Creatures
     NPC_TRIGGER                                     = 19656
 };
 
-enum event
+enum Events
 {
     EVENT_SPAWN = 1,
     EVENT_MINI,
@@ -59,7 +59,7 @@ public:
     {
         boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _Reset();
 
@@ -74,7 +74,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*Killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -85,7 +85,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
 
@@ -129,7 +129,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -171,24 +171,24 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_amanitarAI(creature);
     }
 };
 
-class mob_amanitar_mushrooms : public CreatureScript
+class npc_amanitar_mushrooms : public CreatureScript
 {
 public:
-    mob_amanitar_mushrooms() : CreatureScript("mob_amanitar_mushrooms") { }
+    npc_amanitar_mushrooms() : CreatureScript("npc_amanitar_mushrooms") { }
 
-    struct mob_amanitar_mushroomsAI : public ScriptedAI
+    struct npc_amanitar_mushroomsAI : public ScriptedAI
     {
-        mob_amanitar_mushroomsAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_amanitar_mushroomsAI(Creature* creature) : ScriptedAI(creature) {}
 
         EventMap events;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             events.Reset();
             events.ScheduleEvent(EVENT_AURA, 1 * IN_MILLISECONDS);
@@ -202,16 +202,16 @@ public:
                 DoCast(SPELL_POWER_MUSHROOM_VISUAL_AURA);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage)
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) OVERRIDE
         {
             if (damage >= me->GetHealth() && me->GetEntry() == NPC_HEALTHY_MUSHROOM)
                 DoCast(me, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, true);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*victim*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*victim*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -240,14 +240,14 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_amanitar_mushroomsAI(creature);
+        return new npc_amanitar_mushroomsAI(creature);
     }
 };
 
 void AddSC_boss_amanitar()
 {
     new boss_amanitar();
-    new mob_amanitar_mushrooms();
+    new npc_amanitar_mushrooms();
 }

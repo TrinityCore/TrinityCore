@@ -30,9 +30,9 @@ class boss_gorosh_the_dervish : public CreatureScript
 public:
     boss_gorosh_the_dervish() : CreatureScript("boss_gorosh_the_dervish") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_gorosh_the_dervishAI (creature);
+        return new boss_gorosh_the_dervishAI(creature);
     }
 
     struct boss_gorosh_the_dervishAI : public ScriptedAI
@@ -42,17 +42,17 @@ public:
         uint32 WhirlWind_Timer;
         uint32 MortalStrike_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             WhirlWind_Timer = 12000;
             MortalStrike_Timer = 22000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

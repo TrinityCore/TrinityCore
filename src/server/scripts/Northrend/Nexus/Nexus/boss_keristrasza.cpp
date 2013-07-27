@@ -58,9 +58,9 @@ class boss_keristrasza : public CreatureScript
 public:
     boss_keristrasza() : CreatureScript("boss_keristrasza") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_keristraszaAI (creature);
+        return new boss_keristraszaAI(creature);
     }
 
     struct boss_keristraszaAI : public ScriptedAI
@@ -80,7 +80,7 @@ public:
         bool intenseCold;
         bool bEnrage;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
             uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
@@ -98,7 +98,7 @@ public:
                 instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
             DoCastAOE(SPELL_INTENSE_COLD);
@@ -107,7 +107,7 @@ public:
                 instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -115,7 +115,7 @@ public:
                 instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
@@ -161,13 +161,13 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        void SetGUID(uint64 guid, int32 id/* = 0 */) OVERRIDE
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -212,7 +212,7 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
     {
         InstanceScript* instance = go->GetInstanceScript();
 
@@ -250,13 +250,13 @@ class spell_intense_cold : public SpellScriptLoader
                 caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_intense_cold_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_intense_cold_AuraScript();
         }
@@ -269,7 +269,7 @@ class achievement_intense_cold : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* player, Unit* target)
+        bool OnCheck(Player* player, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

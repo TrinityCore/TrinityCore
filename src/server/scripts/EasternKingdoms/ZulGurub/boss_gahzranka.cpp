@@ -49,17 +49,17 @@ class boss_gahzranka : public CreatureScript // gahzranka
         {
             boss_gahzrankaAI(Creature* creature) : BossAI(creature, DATA_GAHZRANKA) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_FROSTBREATH, 8000);
@@ -67,7 +67,7 @@ class boss_gahzranka : public CreatureScript // gahzranka
                 events.ScheduleEvent(EVENT_SLAM, 17000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -102,7 +102,7 @@ class boss_gahzranka : public CreatureScript // gahzranka
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_gahzrankaAI(creature);
         }

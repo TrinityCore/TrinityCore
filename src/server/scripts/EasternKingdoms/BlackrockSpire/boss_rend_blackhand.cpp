@@ -166,29 +166,29 @@ public:
     {
         boss_rend_blackhandAI(Creature* creature) : BossAI(creature, DATA_WARCHIEF_REND_BLACKHAND) { }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _Reset();
             gythEvent = false;
             victorGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WHIRLWIND,     urand (13000, 15000));
-            events.ScheduleEvent(EVENT_CLEAVE,        urand (15000, 17000));
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand (17000, 19000));
+            events.ScheduleEvent(EVENT_WHIRLWIND,     urand(13000, 15000));
+            events.ScheduleEvent(EVENT_CLEAVE,        urand(15000, 17000));
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             _JustDied();
             if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
                 victor->AI()->SetData(1, 2);
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             if (instance && type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM)
             {
@@ -208,7 +208,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type == WAYPOINT_MOTION_TYPE)
             {
@@ -226,7 +226,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (gythEvent)
             {
@@ -435,7 +435,7 @@ public:
             uint64 portcullisGUID;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_rend_blackhandAI(creature);
     }

@@ -256,7 +256,7 @@ class instance_naxxramas : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 id, uint32 value)
+            void SetData(uint32 id, uint32 value) OVERRIDE
             {
                 switch (id)
                 {
@@ -292,7 +292,7 @@ class instance_naxxramas : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 id) const
+            uint32 GetData(uint32 id) const OVERRIDE
             {
                 switch (id)
                 {
@@ -305,7 +305,7 @@ class instance_naxxramas : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 id) const
+            uint64 GetData64(uint32 id) const OVERRIDE
             {
                 switch (id)
                 {
@@ -513,7 +513,7 @@ class instance_naxxramas : public InstanceMapScript
             uint32 playerDied;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_naxxramas_InstanceMapScript(map);
         }

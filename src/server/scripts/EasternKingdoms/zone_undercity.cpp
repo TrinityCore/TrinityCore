@@ -77,7 +77,7 @@ class npc_lady_sylvanas_windrunner : public CreatureScript
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
 
-    bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest *_Quest, uint32 /*slot*/)
+    bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest *_Quest, uint32 /*slot*/) OVERRIDE
     {
         if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
         {
@@ -92,9 +92,9 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_lady_sylvanas_windrunnerAI (creature);
+        return new npc_lady_sylvanas_windrunnerAI(creature);
     }
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
@@ -111,7 +111,7 @@ public:
         uint32 ShotTimer;
         uint32 MultiShotTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             LamentEventTimer = 5000;
             LamentEvent = false;
@@ -124,9 +124,9 @@ public:
             MultiShotTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == ENTRY_HIGHBORNE_BUNNY)
             {
@@ -142,7 +142,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (LamentEvent)
             {
@@ -224,9 +224,9 @@ class npc_highborne_lamenter : public CreatureScript
 public:
     npc_highborne_lamenter() : CreatureScript("npc_highborne_lamenter") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_highborne_lamenterAI (creature);
+        return new npc_highborne_lamenterAI(creature);
     }
 
     struct npc_highborne_lamenterAI : public ScriptedAI
@@ -238,7 +238,7 @@ public:
         bool EventMove;
         bool EventCast;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             EventMoveTimer = 10000;
             EventCastTimer = 17500;
@@ -246,9 +246,9 @@ public:
             EventCast = true;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (EventMove)
             {
@@ -276,18 +276,21 @@ public:
 ## npc_parqual_fintallas
 ######*/
 
-#define SPELL_MARK_OF_SHAME 6767
+enum ParqualFintallas
+{
+    SPELL_MARK_OF_SHAME         = 6767
+};
 
-#define GOSSIP_HPF1 "Gul'dan"
-#define GOSSIP_HPF2 "Kel'Thuzad"
-#define GOSSIP_HPF3 "Ner'zhul"
+#define GOSSIP_HPF1             "Gul'dan"
+#define GOSSIP_HPF2             "Kel'Thuzad"
+#define GOSSIP_HPF3             "Ner'zhul"
 
 class npc_parqual_fintallas : public CreatureScript
 {
 public:
     npc_parqual_fintallas() : CreatureScript("npc_parqual_fintallas") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -303,7 +306,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());

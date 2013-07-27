@@ -57,14 +57,14 @@ class boss_garr : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* victim) OVERRIDE
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 25000);
                 events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 15000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -95,29 +95,29 @@ class boss_garr : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_garrAI(creature);
         }
 };
 
-class mob_firesworn : public CreatureScript
+class npc_firesworn : public CreatureScript
 {
     public:
-        mob_firesworn() : CreatureScript("mob_firesworn") { }
+        npc_firesworn() : CreatureScript("npc_firesworn") { }
 
-        struct mob_fireswornAI : public ScriptedAI
+        struct npc_fireswornAI : public ScriptedAI
         {
-            mob_fireswornAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_fireswornAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 immolateTimer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 immolateTimer = 4000;                              //These times are probably wrong
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
             {
                 uint32 const health10pct = me->CountPctFromMaxHealth(10);
                 uint32 health = me->GetHealth();
@@ -129,7 +129,7 @@ class mob_firesworn : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -147,14 +147,14 @@ class mob_firesworn : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_fireswornAI(creature);
+            return new npc_fireswornAI(creature);
         }
 };
 
 void AddSC_boss_garr()
 {
     new boss_garr();
-    new mob_firesworn();
+    new npc_firesworn();
 }

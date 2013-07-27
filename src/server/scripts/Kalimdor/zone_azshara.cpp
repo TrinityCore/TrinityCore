@@ -24,10 +24,10 @@ SDCategory: Azshara
 EndScriptData */
 
 /* ContentData
-mobs_spitelashes
+npc_spitelashes
 npc_loramus_thalipedes
-mob_rizzle_sprysprocket
-mob_depth_charge
+npc_rizzle_sprysprocket
+npc_depth_charge
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -38,35 +38,35 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
-## mobs_spitelashes
+## npc_spitelashes
 ######*/
 
-class mobs_spitelashes : public CreatureScript
+class npc_spitelashes : public CreatureScript
 {
 public:
-    mobs_spitelashes() : CreatureScript("mobs_spitelashes") { }
+    npc_spitelashes() : CreatureScript("npc_spitelashes") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mobs_spitelashesAI (creature);
+        return new npc_spitelashesAI(creature);
     }
 
-    struct mobs_spitelashesAI : public ScriptedAI
+    struct npc_spitelashesAI : public ScriptedAI
     {
-        mobs_spitelashesAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 morphtimer;
         bool spellhit;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             morphtimer = 0;
             spellhit = false;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void SpellHit(Unit* unit, const SpellInfo* spell)
+        void SpellHit(Unit* unit, const SpellInfo* spell) OVERRIDE
         {
             if (spellhit)
                 return;
@@ -89,7 +89,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
             if (spellhit && morphtimer >= 5000)
@@ -134,7 +134,7 @@ class npc_loramus_thalipedes : public CreatureScript
 public:
     npc_loramus_thalipedes() : CreatureScript("npc_loramus_thalipedes") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -172,7 +172,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -190,14 +190,14 @@ public:
 };
 
 /*####
-# mob_rizzle_sprysprocket
+# npc_rizzle_sprysprocket
 ####*/
 
 enum RizzleSprysprocketData
 {
     QUEST_CHASING_THE_MOONSTONE     = 10994,
 
-    MOB_DEPTH_CHARGE                = 23025,
+    NPC_DEPTH_CHARGE                = 23025,
 
     SPELL_RIZZLE_BLACKJACK          = 39865,
     SPELL_RIZZLE_ESCAPE             = 39871,
@@ -276,25 +276,25 @@ Position const WPs[58] =
     {1873.57f, -3695.32f, 33.9118f, 3.44f}
 };
 
-class mob_rizzle_sprysprocket : public CreatureScript
+class npc_rizzle_sprysprocket : public CreatureScript
 {
 public:
-    mob_rizzle_sprysprocket() : CreatureScript("mob_rizzle_sprysprocket") { }
+    npc_rizzle_sprysprocket() : CreatureScript("npc_rizzle_sprysprocket") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1 && player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
         {
             player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
-            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->MustDieTimer = 3000;
-            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->MustDie = true;
+            CAST_AI(npc_rizzle_sprysprocket::npc_rizzle_sprysprocketAI, creature->AI())->MustDieTimer = 3000;
+            CAST_AI(npc_rizzle_sprysprocket::npc_rizzle_sprysprocketAI, creature->AI())->MustDie = true;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
             return true;
@@ -303,14 +303,14 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_rizzle_sprysprocketAI (creature);
+        return new npc_rizzle_sprysprocketAI(creature);
     }
 
-    struct mob_rizzle_sprysprocketAI : public ScriptedAI
+    struct npc_rizzle_sprysprocketAI : public ScriptedAI
     {
-        mob_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 SpellEscapeTimer;
         uint32 TeleportTimer;
@@ -326,7 +326,7 @@ public:
         bool ContinueWP;
         bool Reached;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             SpellEscapeTimer = 1300;
             TeleportTimer = 3500;
@@ -343,7 +343,7 @@ public:
             Reached = false;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (MustDie)
             {
@@ -436,7 +436,7 @@ public:
             sWorld->SendServerMessage(SERVER_MSG_STRING, text, player);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!who || PlayerGUID)
                 return;
@@ -452,9 +452,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -472,26 +472,26 @@ public:
 };
 
 /*####
-# mob_depth_charge
+# npc_depth_charge
 ####*/
-class mob_depth_charge : public CreatureScript
+class npc_depth_charge : public CreatureScript
 {
 public:
-    mob_depth_charge() : CreatureScript("mob_depth_charge") { }
+    npc_depth_charge() : CreatureScript("npc_depth_charge") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_depth_chargeAI (creature);
+        return new npc_depth_chargeAI(creature);
     }
 
-    struct mob_depth_chargeAI : public ScriptedAI
+    struct npc_depth_chargeAI : public ScriptedAI
     {
-        mob_depth_chargeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool WeMustDie;
         uint32 WeMustDieTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetHover(true);
             me->SetSwim(true);
@@ -500,7 +500,7 @@ public:
             WeMustDieTimer = 1000;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (WeMustDie)
             {
@@ -512,7 +512,8 @@ public:
             return;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!who)
                 return;
@@ -525,16 +526,16 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
     };
 };
 
 void AddSC_azshara()
 {
-    new mobs_spitelashes();
+    new npc_spitelashes();
     new npc_loramus_thalipedes();
-    new mob_rizzle_sprysprocket();
-    new mob_depth_charge();
+    new npc_rizzle_sprysprocket();
+    new npc_depth_charge();
 }

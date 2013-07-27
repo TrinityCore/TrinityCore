@@ -55,7 +55,7 @@ class boss_renataki : public CreatureScript
             bool Invisible;
             bool Ambushed;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 Invisible_Timer = urand(8000, 18000);
@@ -68,17 +68,17 @@ class boss_renataki : public CreatureScript
                 Ambushed = false;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -158,7 +158,7 @@ class boss_renataki : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_renatakiAI(creature);
         }

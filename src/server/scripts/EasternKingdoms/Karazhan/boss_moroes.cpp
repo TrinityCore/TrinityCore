@@ -27,20 +27,51 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "karazhan.h"
 
-enum Moroes
+enum Yells
 {
     SAY_AGGRO           = 0,
     SAY_SPECIAL         = 1,
     SAY_KILL            = 2,
-    SAY_DEATH           = 3,
-
-    SPELL_VANISH        = 29448,
-    SPELL_GARROTE       = 37066,
-    SPELL_BLIND         = 34694,
-    SPELL_GOUGE         = 29425,
-    SPELL_FRENZY        = 37023,
+    SAY_DEATH           = 3
 };
 
+enum Spells
+{
+    SPELL_VANISH                = 29448,
+    SPELL_GARROTE               = 37066,
+    SPELL_BLIND                 = 34694,
+    SPELL_GOUGE                 = 29425,
+    SPELL_FRENZY                = 37023,
+
+    // Adds
+    SPELL_MANABURN              = 29405,
+    SPELL_MINDFLY               = 29570,
+    SPELL_SWPAIN                = 34441,
+    SPELL_SHADOWFORM            = 29406,
+
+    SPELL_HAMMEROFJUSTICE       = 13005,
+    SPELL_JUDGEMENTOFCOMMAND    = 29386,
+    SPELL_SEALOFCOMMAND         = 29385,
+
+    SPELL_DISPELMAGIC           = 15090,
+    SPELL_GREATERHEAL           = 29564,
+    SPELL_HOLYFIRE              = 29563,
+    SPELL_PWSHIELD              = 29408,
+
+    SPELL_CLEANSE               = 29380,
+    SPELL_GREATERBLESSOFMIGHT   = 29381,
+    SPELL_HOLYLIGHT             = 29562,
+    SPELL_DIVINESHIELD          = 41367,
+
+    SPELL_HAMSTRING             = 9080,
+    SPELL_MORTALSTRIKE          = 29572,
+    SPELL_WHIRLWIND             = 29573,
+
+    SPELL_DISARM                = 8379,
+    SPELL_HEROICSTRIKE          = 29567,
+    SPELL_SHIELDBASH            = 11972,
+    SPELL_SHIELDWALL            = 29390
+};
 
 #define POS_Z               81.73f
 
@@ -67,9 +98,9 @@ class boss_moroes : public CreatureScript
 public:
     boss_moroes() : CreatureScript("boss_moroes") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_moroesAI (creature);
+        return new boss_moroesAI(creature);
     }
 
     struct boss_moroesAI : public ScriptedAI
@@ -96,7 +127,7 @@ public:
         bool InVanish;
         bool Enrage;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Vanish_Timer = 30000;
             Blind_Timer = 35000;
@@ -121,7 +152,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             StartEvent();
 
@@ -130,12 +161,12 @@ public:
             DoZoneInCombat();
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
@@ -228,7 +259,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -324,7 +355,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         instance = creature->GetInstanceScript();
     }
 
-    void Reset()
+    void Reset() OVERRIDE
     {
         if (instance)
             instance->SetData(TYPE_MOROES, NOT_STARTED);
@@ -354,7 +385,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         return me;
     }
 
-    void UpdateAI(uint32 /*diff*/)
+    void UpdateAI(uint32 /*diff*/) OVERRIDE
     {
         if (instance && !instance->GetData(TYPE_MOROES))
             EnterEvadeMode();
@@ -363,42 +394,14 @@ struct boss_moroes_guestAI : public ScriptedAI
     }
 };
 
-#define SPELL_MANABURN       29405
-#define SPELL_MINDFLY        29570
-#define SPELL_SWPAIN         34441
-#define SPELL_SHADOWFORM     29406
-
-#define SPELL_HAMMEROFJUSTICE       13005
-#define SPELL_JUDGEMENTOFCOMMAND    29386
-#define SPELL_SEALOFCOMMAND         29385
-
-#define SPELL_DISPELMAGIC           15090                   //Self or other guest+Moroes
-#define SPELL_GREATERHEAL           29564                   //Self or other guest+Moroes
-#define SPELL_HOLYFIRE              29563
-#define SPELL_PWSHIELD              29408
-
-#define SPELL_CLEANSE               29380                   //Self or other guest+Moroes
-#define SPELL_GREATERBLESSOFMIGHT   29381                   //Self or other guest+Moroes
-#define SPELL_HOLYLIGHT             29562                   //Self or other guest+Moroes
-#define SPELL_DIVINESHIELD          41367
-
-#define SPELL_HAMSTRING         9080
-#define SPELL_MORTALSTRIKE      29572
-#define SPELL_WHIRLWIND         29573
-
-#define SPELL_DISARM            8379
-#define SPELL_HEROICSTRIKE      29567
-#define SPELL_SHIELDBASH        11972
-#define SPELL_SHIELDWALL        29390
-
 class boss_baroness_dorothea_millstipe : public CreatureScript
 {
 public:
     boss_baroness_dorothea_millstipe() : CreatureScript("boss_baroness_dorothea_millstipe") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baroness_dorothea_millstipeAI (creature);
+        return new boss_baroness_dorothea_millstipeAI(creature);
     }
 
     struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
@@ -410,7 +413,7 @@ public:
         uint32 MindFlay_Timer;
         uint32 ShadowWordPain_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ManaBurn_Timer = 7000;
             MindFlay_Timer = 1000;
@@ -421,7 +424,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -459,9 +462,9 @@ class boss_baron_rafe_dreuger : public CreatureScript
 public:
     boss_baron_rafe_dreuger() : CreatureScript("boss_baron_rafe_dreuger") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baron_rafe_dreugerAI (creature);
+        return new boss_baron_rafe_dreugerAI(creature);
     }
 
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
@@ -473,7 +476,7 @@ public:
         uint32 SealOfCommand_Timer;
         uint32 JudgementOfCommand_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             HammerOfJustice_Timer = 1000;
             SealOfCommand_Timer = 7000;
@@ -482,7 +485,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -516,9 +519,9 @@ class boss_lady_catriona_von_indi : public CreatureScript
 public:
     boss_lady_catriona_von_indi() : CreatureScript("boss_lady_catriona_von_indi") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_catriona_von_indiAI (creature);
+        return new boss_lady_catriona_von_indiAI(creature);
     }
 
     struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
@@ -531,7 +534,7 @@ public:
         uint32 HolyFire_Timer;
         uint32 PowerWordShield_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             DispelMagic_Timer = 11000;
             GreaterHeal_Timer = 1500;
@@ -543,7 +546,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -586,9 +589,9 @@ class boss_lady_keira_berrybuck : public CreatureScript
 public:
     boss_lady_keira_berrybuck() : CreatureScript("boss_lady_keira_berrybuck") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_keira_berrybuckAI (creature);
+        return new boss_lady_keira_berrybuckAI(creature);
     }
 
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
@@ -601,7 +604,7 @@ public:
         uint32 HolyLight_Timer;
         uint32 DivineShield_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Cleanse_Timer = 13000;
             GreaterBless_Timer = 1000;
@@ -613,7 +616,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -660,9 +663,9 @@ class boss_lord_robin_daris : public CreatureScript
 public:
     boss_lord_robin_daris() : CreatureScript("boss_lord_robin_daris") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_robin_darisAI (creature);
+        return new boss_lord_robin_darisAI(creature);
     }
 
     struct boss_lord_robin_darisAI : public boss_moroes_guestAI
@@ -674,7 +677,7 @@ public:
         uint32 MortalStrike_Timer;
         uint32 WhirlWind_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Hamstring_Timer = 7000;
             MortalStrike_Timer = 10000;
@@ -683,7 +686,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -716,9 +719,9 @@ class boss_lord_crispin_ference : public CreatureScript
 public:
     boss_lord_crispin_ference() : CreatureScript("boss_lord_crispin_ference") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_crispin_ferenceAI (creature);
+        return new boss_lord_crispin_ferenceAI(creature);
     }
 
     struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
@@ -731,7 +734,7 @@ public:
         uint32 ShieldBash_Timer;
         uint32 ShieldWall_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Disarm_Timer = 6000;
             HeroicStrike_Timer = 10000;
@@ -741,7 +744,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

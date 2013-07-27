@@ -30,7 +30,24 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-//Trash Waves
+enum Spells
+{
+    SPELL_BERSERK           = 45078,
+
+    // Troll form
+    SPELL_BRUTALSWIPE       = 42384,
+    SPELL_MANGLE            = 42389,
+    SPELL_MANGLEEFFECT      = 44955,
+    SPELL_SURGE             = 42402,
+    SPELL_BEARFORM          = 42377,
+
+    // Bear form
+    SPELL_LACERATINGSLASH   = 42395,
+    SPELL_RENDFLESH         = 42397,
+    SPELL_DEAFENINGROAR     = 42398
+};
+
+// Trash Waves
 float NalorakkWay[8][3] =
 {
     { 18.569f, 1414.512f, 11.42f}, // waypoint 1
@@ -69,26 +86,12 @@ float NalorakkWay[8][3] =
 #define SOUND_YELL_DEATH        12077
 #define YELL_BERSERK            "You had your chance, now it be too late!" //Never seen this being used, so just guessing from what I hear.
 #define SOUND_YELL_BERSERK      12074
-
-#define SPELL_BERSERK           45078
-
-//Defines for Troll form
-#define SPELL_BRUTALSWIPE       42384
-#define SPELL_MANGLE            42389
-#define SPELL_MANGLEEFFECT      44955
-#define SPELL_SURGE             42402
-#define SPELL_BEARFORM          42377
-
 #define YELL_SURGE              "I bring da pain!"
 #define SOUND_YELL_SURGE        12071
 
 #define YELL_SHIFTEDTOTROLL     "Make way for Nalorakk!"
 #define SOUND_YELL_TOTROLL      12073
 
-//Defines for Bear form
-#define SPELL_LACERATINGSLASH   42395
-#define SPELL_RENDFLESH         42397
-#define SPELL_DEAFENINGROAR     42398
 
 #define YELL_SHIFTEDTOBEAR      "You call on da beast, you gonna get more dan you bargain for!"
 #define SOUND_YELL_TOBEAR       12072
@@ -130,7 +133,7 @@ class boss_nalorakk : public CreatureScript
             uint32 MovePhase;
             uint32 waitTimer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 if (MoveEvent)
                 {
@@ -190,13 +193,14 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (!MoveEvent)
                     ScriptedAI::AttackStart(who);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+
             {
                 if (!MoveEvent)
                 {
@@ -269,7 +273,7 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
@@ -279,7 +283,7 @@ class boss_nalorakk : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_NALORAKKEVENT, DONE);
@@ -288,7 +292,7 @@ class boss_nalorakk : public CreatureScript
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 switch (urand(0, 1))
                 {
@@ -303,7 +307,7 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
             {
                 if (MoveEvent)
                 {
@@ -343,7 +347,7 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (waitTimer && inMove)
                 {
@@ -447,7 +451,7 @@ class boss_nalorakk : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_nalorakkAI(creature);
         }

@@ -36,8 +36,9 @@ EndContentData */
 ## npc_professor_phizzlethorpe
 ######*/
 
-enum eEnums
+enum ProfessorPhizzlethorpe
 {
+    // Yells
     SAY_PROGRESS_1      = 0,
     SAY_PROGRESS_2      = 1,
     SAY_PROGRESS_3      = 2,
@@ -49,8 +50,11 @@ enum eEnums
     EMOTE_PROGRESS_8    = 8,
     SAY_PROGRESS_9      = 9,
 
+    // Quests
     QUEST_SUNKEN_TREASURE   = 665,
-    MOB_VENGEFUL_SURGE      = 2776
+
+    // Creatures
+    NPC_VENGEFUL_SURGE      = 2776
 };
 
 class npc_professor_phizzlethorpe : public CreatureScript
@@ -66,7 +70,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
         {
             npc_professor_phizzlethorpeAI(Creature* creature) : npc_escortAI(creature) {}
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId) OVERRIDE
             {
                 Player* player = GetPlayerForEscort();
                 if (!player)
@@ -84,8 +88,8 @@ class npc_professor_phizzlethorpe : public CreatureScript
                         Talk(EMOTE_PROGRESS_4);
                         break;
                     case 9:
-                        me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         break;
                     case 10:
                         Talk(SAY_PROGRESS_5, player->GetGUID());
@@ -105,28 +109,28 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 summoned->AI()->AttackStart(me);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 npc_escortAI::UpdateAI(diff);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_professor_phizzlethorpeAI(creature);
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
         {
             if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
             {

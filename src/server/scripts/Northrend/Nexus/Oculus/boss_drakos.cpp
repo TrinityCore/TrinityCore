@@ -55,16 +55,16 @@ class boss_drakos : public CreatureScript
 public:
     boss_drakos() : CreatureScript("boss_drakos") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_drakosAI (creature);
+        return new boss_drakosAI(creature);
     }
 
     struct boss_drakosAI : public BossAI
     {
         boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS_EVENT) {}
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _Reset();
 
@@ -75,13 +75,13 @@ public:
             postPull = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -125,7 +125,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             _JustDied();
 
@@ -135,7 +135,7 @@ public:
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_KILL);
         }
@@ -149,16 +149,16 @@ class npc_unstable_sphere : public CreatureScript
 public:
     npc_unstable_sphere() : CreatureScript("npc_unstable_sphere") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_unstable_sphereAI (creature);
+        return new npc_unstable_sphereAI(creature);
     }
 
     struct npc_unstable_sphereAI : public ScriptedAI
     {
         npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetReactState(REACT_PASSIVE);
             me->GetMotionMaster()->MoveRandom(40.0f);
@@ -170,7 +170,7 @@ public:
             deathTimer = 19000;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (pulseTimer <= diff)
             {

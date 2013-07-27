@@ -87,20 +87,20 @@ class boss_thekal : public CreatureScript
             bool Enraged;
             bool WasDead;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 Enraged = false;
                 WasDead = false;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_MORTALCLEAVE, 4000, 0, PHASE_ONE);     // Phase 1
@@ -110,13 +110,13 @@ class boss_thekal : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void JustReachedHome()
+            void JustReachedHome() OVERRIDE
             {
                 if (instance)
                     instance->SetBossState(DATA_THEKAL, NOT_STARTED);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -249,20 +249,20 @@ class boss_thekal : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_thekalAI(creature);
         }
 };
 
 //Zealot Lor'Khan
-class mob_zealot_lorkhan : public CreatureScript
+class npc_zealot_lorkhan : public CreatureScript
 {
-    public: mob_zealot_lorkhan() : CreatureScript("mob_zealot_lorkhan") {}
+    public: npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") {}
 
-        struct mob_zealot_lorkhanAI : public ScriptedAI
+        struct npc_zealot_lorkhanAI : public ScriptedAI
         {
-            mob_zealot_lorkhanAI(Creature* creature) : ScriptedAI(creature)
+            npc_zealot_lorkhanAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -277,7 +277,7 @@ class mob_zealot_lorkhan : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Shield_Timer = 1000;
                 BloodLust_Timer = 16000;
@@ -294,11 +294,11 @@ class mob_zealot_lorkhan : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -404,25 +404,25 @@ class mob_zealot_lorkhan : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_zealot_lorkhanAI(creature);
+            return new npc_zealot_lorkhanAI(creature);
         }
 };
 
 //Zealot Zath
-class mob_zealot_zath : public CreatureScript
+class npc_zealot_zath : public CreatureScript
 {
     public:
 
-        mob_zealot_zath()
-            : CreatureScript("mob_zealot_zath")
+        npc_zealot_zath()
+            : CreatureScript("npc_zealot_zath")
         {
         }
 
-        struct mob_zealot_zathAI : public ScriptedAI
+        struct npc_zealot_zathAI : public ScriptedAI
         {
-            mob_zealot_zathAI(Creature* creature) : ScriptedAI(creature)
+            npc_zealot_zathAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -438,7 +438,7 @@ class mob_zealot_zath : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 SweepingStrikes_Timer = 13000;
                 SinisterStrike_Timer = 8000;
@@ -456,11 +456,11 @@ class mob_zealot_zath : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -557,15 +557,15 @@ class mob_zealot_zath : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_zealot_zathAI(creature);
+            return new npc_zealot_zathAI(creature);
         }
 };
 
 void AddSC_boss_thekal()
 {
     new boss_thekal();
-    new mob_zealot_lorkhan();
-    new mob_zealot_zath();
+    new npc_zealot_lorkhan();
+    new npc_zealot_zath();
 }

@@ -67,7 +67,7 @@ class boss_sulfuron : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim)
+            void EnterCombat(Unit* victim) OVERRIDE
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_DARK_STRIKE, 10000);
@@ -77,7 +77,7 @@ class boss_sulfuron : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAMESPEAR, 2000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -127,34 +127,34 @@ class boss_sulfuron : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_sulfuronAI(creature);
         }
 };
 
-class mob_flamewaker_priest : public CreatureScript
+class npc_flamewaker_priest : public CreatureScript
 {
     public:
-        mob_flamewaker_priest() : CreatureScript("mob_flamewaker_priest") { }
+        npc_flamewaker_priest() : CreatureScript("npc_flamewaker_priest") { }
 
-        struct mob_flamewaker_priestAI : public ScriptedAI
+        struct npc_flamewaker_priestAI : public ScriptedAI
         {
-            mob_flamewaker_priestAI(Creature* creature) : ScriptedAI(creature)
+            npc_flamewaker_priestAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
-            void Reset()
-            {
-                events.Reset();
-            }
-
-            void JustDied(Unit* /*killer*/)
+            void Reset() OVERRIDE
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* victim)
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* victim) OVERRIDE
             {
                 ScriptedAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_HEAL, urand(15000, 30000));
@@ -162,7 +162,7 @@ class mob_flamewaker_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_IMMOLATE, 8000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -203,14 +203,14 @@ class mob_flamewaker_priest : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_flamewaker_priestAI(creature);
+            return new npc_flamewaker_priestAI(creature);
         }
 };
 
 void AddSC_boss_sulfuron()
 {
     new boss_sulfuron();
-    new mob_flamewaker_priest();
+    new npc_flamewaker_priest();
 }

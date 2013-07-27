@@ -37,52 +37,66 @@ EndContentData */
 # npc_henry_stern
 ####*/
 
-enum eEnums
+enum Spells
 {
-    SPELL_GOLDTHORN_TEA                         = 13028,
     SPELL_TEACHING_GOLDTHORN_TEA                = 13029,
-    SPELL_MIGHT_TROLLS_BLOOD_POTION             = 3451,
-    SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION   = 13030,
-    GOSSIP_TEXT_TEA_ANSWER                      = 2114,
-    GOSSIP_TEXT_POTION_ANSWER                   = 2115,
+    SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION   = 13030
 };
 
-#define GOSSIP_ITEM_TEA     "Teach me the cooking recipe"
-#define GOSSIP_ITEM_POTION  "Teach me the alchemy recipe"
+enum Gossips
+{
+    GOSSIP_COOKING_SKILL_HIGH                   = 1444,
+    GOSSIP_COOKING_SKILL_LOW                    = 1501,
+    GOSSIP_ALCHEMY_SKILL_HIGH                   = 1442,
+    GOSSIP_ALCHEMY_SKILL_LOW                    = 1502
+};
 
 class npc_henry_stern : public CreatureScript
 {
 public:
     npc_henry_stern() : CreatureScript("npc_henry_stern") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    struct npc_henry_sternAI : public ScriptedAI
     {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        npc_henry_sternAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
         {
-            player->CastSpell(player, SPELL_TEACHING_GOLDTHORN_TEA, true);
-            player->SEND_GOSSIP_MENU(GOSSIP_TEXT_TEA_ANSWER, creature->GetGUID());
+            if (action == 0)
+            {
+                if (player->GetBaseSkillValue(SKILL_COOKING) >= 175)
+                {
+                    player->PrepareGossipMenu(me, GOSSIP_COOKING_SKILL_HIGH);
+                    player->SendPreparedGossip(me);
+                    DoCast(player, SPELL_TEACHING_GOLDTHORN_TEA);
+                }
+                else
+                {
+                    player->PrepareGossipMenu(me, GOSSIP_COOKING_SKILL_LOW);
+                    player->SendPreparedGossip(me);
+                }
+            }
+
+            if (action == 1)
+            {
+                if (player->GetBaseSkillValue(SKILL_ALCHEMY) >= 180)
+                {
+                    player->PrepareGossipMenu(me, GOSSIP_ALCHEMY_SKILL_HIGH);
+                    player->SendPreparedGossip(me);
+                    DoCast(player, SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION);
+                }
+                else
+                {
+                    player->PrepareGossipMenu(me, GOSSIP_ALCHEMY_SKILL_LOW);
+                    player->SendPreparedGossip(me);
+                }
+            }
         }
+    };
 
-        if (action == GOSSIP_ACTION_INFO_DEF + 2)
-        {
-            player->CastSpell(player, SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION, true);
-            player->SEND_GOSSIP_MENU(GOSSIP_TEXT_POTION_ANSWER, creature->GetGUID());
-        }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        if (player->GetBaseSkillValue(SKILL_COOKING) >= 175 && !player->HasSpell(SPELL_GOLDTHORN_TEA))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        if (player->GetBaseSkillValue(SKILL_ALCHEMY) >= 180 && !player->HasSpell(SPELL_MIGHT_TROLLS_BLOOD_POTION))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_POTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
+        return new npc_henry_sternAI(creature);
     }
 };
 
@@ -95,7 +109,7 @@ class go_gong : public GameObjectScript
 public:
     go_gong() : GameObjectScript("go_gong") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
     {
         //basic support, not blizzlike data is missing...
         InstanceScript* instance = go->GetInstanceScript();
@@ -111,7 +125,7 @@ public:
 
 };
 
-enum eTombCreature
+enum TombCreature
 {
     SPELL_WEB                   = 745
 };
@@ -121,9 +135,9 @@ class npc_tomb_creature : public CreatureScript
 public:
     npc_tomb_creature() : CreatureScript("npc_tomb_creature") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_tomb_creatureAI (creature);
+        return new npc_tomb_creatureAI(creature);
     }
 
     struct npc_tomb_creatureAI : public ScriptedAI
@@ -137,18 +151,18 @@ public:
 
         uint32 uiWebTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiWebTimer = urand(5000, 8000);
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
 
             //from acid
-            if (me->GetEntry() == CREATURE_TOMB_REAVER)
+            if (me->GetEntry() == NPC_TOMB_REAVER)
             {
                 if (uiWebTimer <= uiDiff)
                 {
@@ -160,7 +174,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(DATA_GONG_WAVES, instance->GetData(DATA_GONG_WAVES)+1);

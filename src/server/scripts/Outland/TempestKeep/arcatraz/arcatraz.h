@@ -16,20 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_ARCATRAZ_H
-#define DEF_ARCATRAZ_H
+#ifndef ARCATRAZ_H_
+#define ARCATRAZ_H_
 
-#define TYPE_ZEREKETH           1
-#define TYPE_DALLIAH            2
-#define TYPE_SOCCOTHRATES       3
-#define TYPE_HARBINGERSKYRISS   4
-#define TYPE_WARDEN_1           5
-#define TYPE_WARDEN_2           6
-#define TYPE_WARDEN_3           7
-#define TYPE_WARDEN_4           8
-#define TYPE_WARDEN_5           9
-#define DATA_MELLICHAR          10
-#define TYPE_SHIELD_OPEN        11
-#define DATA_SPHERE_SHIELD      12
-#endif
+enum DataTypes
+{
+    TYPE_ZEREKETH          = 1,
+    TYPE_DALLIAH           = 2,
+    TYPE_SOCCOTHRATES      = 3,
+    TYPE_HARBINGERSKYRISS  = 4,
+    TYPE_WARDEN_1          = 5,
+    TYPE_WARDEN_2          = 6,
+    TYPE_WARDEN_3          = 7,
+    TYPE_WARDEN_4          = 8,
+    TYPE_WARDEN_5          = 9,
+    DATA_MELLICHAR         = 10,
+    TYPE_SHIELD_OPEN       = 11,
+    DATA_SPHERE_SHIELD     = 12
+};
 
+#endif // ARCATRAZ_H_

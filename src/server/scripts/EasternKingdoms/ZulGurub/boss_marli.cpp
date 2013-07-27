@@ -77,25 +77,25 @@ class boss_marli : public CreatureScript
         {
             boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) {}
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_SPAWN_START_SPIDERS, 1000, 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -210,33 +210,33 @@ class boss_marli : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_marliAI(creature);
         }
 };
 
 // Spawn of Marli
-class mob_spawn_of_marli : public CreatureScript
+class npc_spawn_of_marli : public CreatureScript
 {
-    public: mob_spawn_of_marli() : CreatureScript("mob_spawn_of_marli") {}
+    public: npc_spawn_of_marli() : CreatureScript("npc_spawn_of_marli") {}
 
-        struct mob_spawn_of_marliAI : public ScriptedAI
+        struct npc_spawn_of_marliAI : public ScriptedAI
         {
-            mob_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 LevelUp_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 LevelUp_Timer = 3000;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -253,14 +253,14 @@ class mob_spawn_of_marli : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_spawn_of_marliAI(creature);
+            return new npc_spawn_of_marliAI(creature);
         }
 };
 
 void AddSC_boss_marli()
 {
     new boss_marli();
-    new mob_spawn_of_marli();
+    new npc_spawn_of_marli();
 }

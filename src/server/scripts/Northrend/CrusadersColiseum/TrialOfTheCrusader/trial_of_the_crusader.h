@@ -140,13 +140,13 @@ const Position EndSpawnLoc[]=
     {644.6250f, 149.2743f, 140.6015f, 0}  // 2 - Portal to Dalaran
 };
 
-enum euiWorldStates
+enum WorldStateIds
 {
     UPDATE_STATE_UI_SHOW            = 4390,
     UPDATE_STATE_UI_COUNT           = 4389
 };
 
-enum eNorthrendBeasts
+enum NorthrendBeasts
 {
     GORMOK_IN_PROGRESS              = 1000,
     GORMOK_DONE                     = 1001,
@@ -159,7 +159,7 @@ enum eNorthrendBeasts
     ICEHOWL_DONE                    = 3001
 };
 
-enum eAnnouncerMessages
+enum AnnouncerMessages
 {
     MSG_BEASTS                 = 724001,
     MSG_JARAXXUS               = 724002,
@@ -169,7 +169,7 @@ enum eAnnouncerMessages
     MSG_ANUBARAK               = 724006
 };
 
-enum eCreature
+enum CreatureIds
 {
     NPC_BARRENT                 = 34816,
     NPC_TIRION                  = 34996,
@@ -234,7 +234,7 @@ enum eCreature
     NPC_ANUBARAK                = 34564
 };
 
-enum eGameObject
+enum GameObjectIds
 {
     GO_CRUSADERS_CACHE_10       = 195631,
     GO_CRUSADERS_CACHE_25       = 195632,
@@ -260,7 +260,7 @@ enum eGameObject
     GO_PORTAL_TO_DALARAN        = 195682
 };
 
-enum eAchievementData
+enum AchievementData
 {
     // Northrend Beasts
     UPPER_BACK_PAIN_10_PLAYER               = 11779,

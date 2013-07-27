@@ -4,6 +4,7 @@
 namespace LuaUnit
 {
     int Attack(lua_State*, Unit*);
+    int DealDamage(lua_State*, Unit*);
     int SetFlag(lua_State*, Unit*);
     int RemoveFlag(lua_State*, Unit*);
     int HasFlag(lua_State*, Unit*);
@@ -93,6 +94,14 @@ namespace LuaUnit
     int GetSelectedUnit(lua_State*, Unit*);
     int GetDistance(lua_State*, Unit*);
     int GetLatency(lua_State*, Unit*);
+    int GetCreatorGUID(lua_State*, Unit*);
+    int GetMinionGUID(lua_State*, Unit*);
+    int GetCharmerGUID(lua_State*, Unit*);
+    int GetCharmGUID(lua_State*, Unit*);
+    int GetPetGUID(lua_State*, Unit*);
+    int GetCritterGUID(lua_State*, Unit*);
+    int GetControllerGUID(lua_State*, Unit*);
+    int GetControllerGUIDS(lua_State*, Unit*);
     int SendAuctionMenu(lua_State*, Unit*);
     int SendMailMenu(lua_State*, Unit*);
     int SendTaxiMenu(lua_State*, Unit*);
@@ -358,6 +367,11 @@ namespace LuaUnit
     int SetBindPoint(lua_State*, Unit*);
     int SetBindPointAtPlayerLoc(lua_State*, Unit*);
     int SetKnownTitle(lua_State*, Unit*);
+    int SetCreatorGUID(lua_State*, Unit*);
+    int SetMinionGUID(lua_State*, Unit*);
+    int SetCharmerGUID(lua_State*, Unit*);
+    int SetPetGUID(lua_State*, Unit*);
+    int SetCritterGUID(lua_State*, Unit*);
     int UnsetKnownTitle(lua_State*, Unit*);
     int AdvanceSkillsToMax(lua_State*, Unit*);
     int AdvanceAllSkills(lua_State*, Unit*);

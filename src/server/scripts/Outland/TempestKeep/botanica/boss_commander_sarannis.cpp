@@ -52,13 +52,13 @@ class boss_commander_sarannis : public CreatureScript
         {
             boss_commander_sarannisAI(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS) { }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 _phase = true;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -66,18 +66,18 @@ class boss_commander_sarannis : public CreatureScript
                 events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage) OVERRIDE
             {
                 if (me->HealthBelowPctDamaged(50, damage) && _phase)
                 {
@@ -88,12 +88,12 @@ class boss_commander_sarannis : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 BossAI::JustSummoned(summon);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -129,7 +129,7 @@ class boss_commander_sarannis : public CreatureScript
             bool _phase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_commander_sarannisAI(creature);
         }
@@ -167,13 +167,13 @@ class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
                     GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[3], TEMPSUMMON_CORPSE_DESPAWN);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_commander_sarannis_summon_reinforcements_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_commander_sarannis_summon_reinforcements_SpellScript();
         }

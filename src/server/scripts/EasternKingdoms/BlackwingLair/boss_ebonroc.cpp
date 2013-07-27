@@ -43,7 +43,7 @@ public:
     {
         boss_ebonrocAI(Creature* creature) : BossAI(creature, BOSS_EBONROC) { }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance && instance->GetBossState(BOSS_BROODLORD) != DONE)
             {
@@ -57,7 +57,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOWOFEBONROC, urand(8000, 10000));
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -90,9 +90,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ebonrocAI (creature);
+        return new boss_ebonrocAI(creature);
     }
 };
 

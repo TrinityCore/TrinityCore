@@ -21,7 +21,6 @@
 #include "gundrak.h"
 #include "Player.h"
 
-//Spells
 enum Spells
 {
     SPELL_POISON_NOVA                             = 55081,
@@ -32,7 +31,6 @@ enum Spells
     H_SPELL_VENOM_BOLT                            = 59839
 };
 
-//Yell
 enum Yells
 {
     SAY_AGGRO                                     = 0,
@@ -43,14 +41,12 @@ enum Yells
     EMOTE_NOVA                                    = 5
 };
 
-//Creatures
 enum Creatures
 {
     CREATURE_SNAKE                                = 29680,
     CREATURE_CONSTRICTORS                         = 29713
 };
 
-//Creatures' spells
 enum ConstrictorSpells
 {
     SPELL_GRIP_OF_SLAD_RAN                        = 55093,
@@ -68,16 +64,19 @@ static Position SpawnLoc[]=
   {1716.76f, 635.159f, 129.282f, 0.191986f}
 };
 
-#define DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES 1
+enum Misc
+{
+    DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES       = 1
+};
 
 class boss_slad_ran : public CreatureScript
 {
 public:
     boss_slad_ran() : CreatureScript("boss_slad_ran") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_slad_ranAI (creature);
+        return new boss_slad_ranAI(creature);
     }
 
     struct boss_slad_ranAI : public ScriptedAI
@@ -99,7 +98,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiPoisonNovaTimer = 10*IN_MILLISECONDS;
             uiPowerfullBiteTimer = 3*IN_MILLISECONDS;
@@ -114,7 +113,7 @@ public:
                 instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
@@ -122,7 +121,7 @@ public:
                 instance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -176,7 +175,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
             lSummons.DespawnAll();
@@ -185,18 +184,18 @@ public:
                 instance->SetData(DATA_SLAD_RAN_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             lSummons.Summon(summoned);
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(uint64 guid, int32 type) OVERRIDE
         {
             if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
                 lWrappedPlayers.insert(guid);
@@ -210,28 +209,28 @@ public:
 
 };
 
-class mob_slad_ran_constrictor : public CreatureScript
+class npc_slad_ran_constrictor : public CreatureScript
 {
 public:
-    mob_slad_ran_constrictor() : CreatureScript("mob_slad_ran_constrictor") { }
+    npc_slad_ran_constrictor() : CreatureScript("npc_slad_ran_constrictor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_slad_ran_constrictorAI (creature);
+        return new npc_slad_ran_constrictorAI(creature);
     }
 
-    struct mob_slad_ran_constrictorAI : public ScriptedAI
+    struct npc_slad_ran_constrictorAI : public ScriptedAI
     {
-        mob_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_slad_ran_constrictorAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiGripOfSladRanTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiGripOfSladRanTimer = 1*IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -263,30 +262,30 @@ public:
 
 };
 
-class mob_slad_ran_viper : public CreatureScript
+class npc_slad_ran_viper : public CreatureScript
 {
 public:
-    mob_slad_ran_viper() : CreatureScript("mob_slad_ran_viper") { }
+    npc_slad_ran_viper() : CreatureScript("npc_slad_ran_viper") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_slad_ran_viperAI (creature);
+        return new npc_slad_ran_viperAI(creature);
     }
 
-    struct mob_slad_ran_viperAI : public ScriptedAI
+    struct npc_slad_ran_viperAI : public ScriptedAI
     {
-        mob_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiVenomousBiteTimer;
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiVenomousBiteTimer = 2*IN_MILLISECONDS;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -308,7 +307,7 @@ class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaS
         {
         }
 
-        bool OnCheck(Player* player, Unit* target)
+        bool OnCheck(Player* player, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;
@@ -322,7 +321,7 @@ class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaS
 void AddSC_boss_slad_ran()
 {
     new boss_slad_ran();
-    new mob_slad_ran_constrictor();
-    new mob_slad_ran_viper();
+    new npc_slad_ran_constrictor();
+    new npc_slad_ran_viper();
     new achievement_snakes_whyd_it_have_to_be_snakes();
 }

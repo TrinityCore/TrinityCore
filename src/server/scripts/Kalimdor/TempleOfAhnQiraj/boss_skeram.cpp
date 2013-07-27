@@ -57,26 +57,26 @@ class boss_skeram : public CreatureScript
         {
             boss_skeramAI(Creature* creature) : BossAI(creature, DATA_SKERAM) { }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _flag = 0;
                 _hpct = 75.0f;
                 me->SetVisible(true);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() OVERRIDE
             {
                 ScriptedAI::EnterEvadeMode();
                 if (me->IsSummon())
                     ((TempSummon*)me)->UnSummon();
             }
 
-            void JustSummoned(Creature* creature)
+            void JustSummoned(Creature* creature) OVERRIDE
             {
                 // Shift the boss and images (Get it? *Shift*?)
                 uint8 rand = 0;
@@ -113,7 +113,7 @@ class boss_skeram : public CreatureScript
                 creature->SetHealth(creature->GetMaxHealth() * (me->GetHealthPct() / 100.0f));
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (!me->IsSummon())
                     Talk(SAY_DEATH);
@@ -121,7 +121,7 @@ class boss_skeram : public CreatureScript
                     me->RemoveCorpse();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.Reset();
@@ -134,7 +134,7 @@ class boss_skeram : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -189,7 +189,7 @@ class boss_skeram : public CreatureScript
             uint8 _flag;
         };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_skeramAI(creature);
     }
@@ -222,13 +222,13 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
                 targets.remove_if(PlayerOrPetCheck());
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skeram_arcane_explosion_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_skeram_arcane_explosion_SpellScript();
         }

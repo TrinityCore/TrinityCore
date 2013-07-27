@@ -18,17 +18,20 @@
 #ifndef DEF_UTGARDE_KEEP_H
 #define DEF_UTGARDE_KEEP_H
 
-#define DATA_PRINCEKELESETH             1
-#define DATA_SKARVALD                   3
-#define DATA_DALRONN                    4
-#define DATA_INGVAR                     6
+enum DataTypes
+{
+    DATA_PRINCEKELESETH            = 1,
+    DATA_SKARVALD                  = 3,
+    DATA_DALRONN                   = 4,
+    DATA_INGVAR                    = 6,
 
-#define DATA_PRINCEKELESETH_EVENT       2
-#define DATA_SKARVALD_DALRONN_EVENT     5
-#define DATA_INGVAR_EVENT               7
+    DATA_PRINCEKELESETH_EVENT      = 2,
+    DATA_SKARVALD_DALRONN_EVENT    = 5,
+    DATA_INGVAR_EVENT              = 7,
 
-#define EVENT_FORGE_1                   8
-#define EVENT_FORGE_2                   9
-#define EVENT_FORGE_3                   10
+    EVENT_FORGE_1                  = 8,
+    EVENT_FORGE_2                  = 9,
+    EVENT_FORGE_3                  = 10
+};
 
 #endif

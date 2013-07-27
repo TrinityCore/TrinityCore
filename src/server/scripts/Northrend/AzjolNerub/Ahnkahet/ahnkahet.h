@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_AHNKAHET_H
-#define DEF_AHNKAHET_H
+#ifndef AHNKAHET_H_
+#define AHNKAHET_H_
 
 enum Data64
 {
@@ -47,4 +47,4 @@ enum Data
     DATA_ALL_INITIAND_DEAD
 };
 
-#endif
+#endif // AHNKAHET_H_

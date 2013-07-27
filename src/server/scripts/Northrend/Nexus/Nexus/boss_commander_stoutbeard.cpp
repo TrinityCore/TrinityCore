@@ -41,19 +41,20 @@ class boss_commander_stoutbeard : public CreatureScript
 public:
     boss_commander_stoutbeard() : CreatureScript("boss_commander_stoutbeard") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_commander_stoutbeardAI (creature);
+        return new boss_commander_stoutbeardAI(creature);
     }
 
     struct boss_commander_stoutbeardAI : public ScriptedAI
     {
         boss_commander_stoutbeardAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset() {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(uint32 /*diff*/)
+        void Reset() OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

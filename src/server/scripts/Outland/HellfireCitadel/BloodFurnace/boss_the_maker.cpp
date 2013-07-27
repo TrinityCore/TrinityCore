@@ -27,12 +27,15 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "blood_furnace.h"
 
-enum eEnums
+enum Yells
 {
     SAY_AGGRO                   = 0,
     SAY_KILL                    = 1,
-    SAY_DIE                     = 2,
+    SAY_DIE                     = 2
+};
 
+enum Spells
+{
     SPELL_ACID_SPRAY            = 38153,
     SPELL_EXPLODING_BREAKER     = 30925,
     SPELL_KNOCKDOWN             = 20276,
@@ -62,7 +65,7 @@ class boss_the_maker : public CreatureScript
             uint32 Domination_Timer;
             uint32 Knockdown_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 AcidSpray_Timer = 15000;
                 ExplodingBreaker_Timer = 6000;
@@ -76,7 +79,7 @@ class boss_the_maker : public CreatureScript
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
 
@@ -87,12 +90,12 @@ class boss_the_maker : public CreatureScript
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), false);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
 
@@ -105,7 +108,7 @@ class boss_the_maker : public CreatureScript
 
              }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -151,7 +154,7 @@ class boss_the_maker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_the_makerAI(creature);
         }

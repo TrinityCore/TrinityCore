@@ -94,7 +94,7 @@ class boss_arlokk : public CreatureScript
         {
             boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK) { }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _summonCountA = 0;
                 _summonCountB = 0;
@@ -110,7 +110,7 @@ class boss_arlokk : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
                 me->RemoveAllAuras();
@@ -122,7 +122,7 @@ class boss_arlokk : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(7000, 9000), 0, PHASE_ONE);
@@ -159,7 +159,7 @@ class boss_arlokk : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() OVERRIDE
             {
                 if (instance)
                 {
@@ -172,7 +172,7 @@ class boss_arlokk : public CreatureScript
                 me->DespawnOrUnsummon(4000);
             }
 
-            void SetData(uint32 id, uint32 /*value*/)
+            void SetData(uint32 id, uint32 /*value*/) OVERRIDE
             {
                 if (id == 1)
                     --_summonCountA;
@@ -180,7 +180,7 @@ class boss_arlokk : public CreatureScript
                     --_summonCountB;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -309,7 +309,7 @@ class boss_arlokk : public CreatureScript
             uint64 _triggersSideBGUID[5];
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return GetZulGurubAI<boss_arlokkAI>(creature);
         }
@@ -344,7 +344,7 @@ class npc_zulian_prowler : public CreatureScript
         {
             npc_zulian_prowlerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 if (me->GetPositionY() < -1625.0f)
                     _sideData = 1;
@@ -360,20 +360,20 @@ class npc_zulian_prowler : public CreatureScript
                 _events.ScheduleEvent(EVENT_ATTACK, 6000);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 me->GetMotionMaster()->Clear(false);
                 me->RemoveAura(SPELL_SNEAK_RANK_1_1);
                 me->RemoveAura(SPELL_SNEAK_RANK_1_2);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
             {
                 if (spell->Id == SPELL_MARK_OF_ARLOKK_TRIGGER) // Should only hit if line of sight
                     me->Attack(caster, true);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (_instance)
                 {
@@ -386,7 +386,7 @@ class npc_zulian_prowler : public CreatureScript
                 me->DespawnOrUnsummon(4000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (UpdateVictim())
                 {
@@ -416,7 +416,7 @@ class npc_zulian_prowler : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return GetZulGurubAI<npc_zulian_prowlerAI>(creature);
         }
@@ -435,7 +435,7 @@ class go_gong_of_bethekk : public GameObjectScript
 {
     public: go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk") {}
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {
             if (go->GetInstanceScript())
             {

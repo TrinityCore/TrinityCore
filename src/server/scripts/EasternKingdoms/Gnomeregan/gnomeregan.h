@@ -18,14 +18,14 @@
 #ifndef DEF_GNOMEREGAN_H
 #define DEF_GNOMEREGAN_H
 
-enum eGameObjects
+enum GameObjectIds
 {
     GO_CAVE_IN_LEFT     = 146085,
     GO_CAVE_IN_RIGHT    = 146086,
     GO_RED_ROCKET       = 103820
 };
 
-enum eCreatures
+enum CreatureIds
 {
     NPC_BLASTMASTER_EMI_SHORTFUSE   = 7998,
     NPC_CAVERNDEEP_AMBUSHER         = 6207,
@@ -33,12 +33,12 @@ enum eCreatures
     NPC_CHOMPER                     = 6215
 };
 
-enum eData
+enum Data
 {
     TYPE_EVENT = 1
 };
 
-enum eData64
+enum Data64
 {
     DATA_GO_CAVE_IN_LEFT,
     DATA_GO_CAVE_IN_RIGHT,

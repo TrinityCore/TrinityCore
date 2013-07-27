@@ -68,7 +68,7 @@ class boss_jeklik : public CreatureScript //jeklik
 
             bool PhaseTwo;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _Reset();
                 Charge_Timer = 20000;
@@ -84,20 +84,20 @@ class boss_jeklik : public CreatureScript //jeklik
                 PhaseTwo = false;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_BAT_FORM);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -211,25 +211,25 @@ class boss_jeklik : public CreatureScript //jeklik
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_jeklikAI(creature);
         }
 };
 
 //Flying Bat
-class mob_batrider : public CreatureScript
+class npc_batrider : public CreatureScript
 {
     public:
 
-        mob_batrider()
-            : CreatureScript("mob_batrider")
+        npc_batrider()
+            : CreatureScript("npc_batrider")
         {
         }
 
-        struct mob_batriderAI : public ScriptedAI
+        struct npc_batriderAI : public ScriptedAI
         {
-            mob_batriderAI(Creature* creature) : ScriptedAI(creature)
+            npc_batriderAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -239,7 +239,7 @@ class mob_batrider : public CreatureScript
             uint32 Bomb_Timer;
             uint32 Check_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Bomb_Timer = 2000;
                 Check_Timer = 1000;
@@ -247,9 +247,9 @@ class mob_batrider : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -284,15 +284,15 @@ class mob_batrider : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_batriderAI(creature);
+            return new npc_batriderAI(creature);
         }
 };
 
 void AddSC_boss_jeklik()
 {
     new boss_jeklik();
-    new mob_batrider();
+    new npc_batrider();
 }
 

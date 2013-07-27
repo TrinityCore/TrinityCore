@@ -51,7 +51,7 @@ class instance_sunken_temple : public InstanceMapScript
 public:
     instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_sunken_temple_InstanceMapScript(map);
     }
@@ -193,13 +193,13 @@ public:
          }
          */
 
-         void SetData(uint32 type, uint32 data)
+         void SetData(uint32 type, uint32 data) OVERRIDE
          {
             if (type == EVENT_STATE)
                 State = data;
          }
 
-         uint32 GetData(uint32 type) const
+         uint32 GetData(uint32 type) const OVERRIDE
          {
             if (type == EVENT_STATE)
                 return State;

@@ -42,8 +42,11 @@ enum Creatures
     NPC_RAPTOR_2                                  = 26628
 };
 
-#define ACTION_RAPTOR_KILLED                      1
-#define DATA_KING_DRED                            2
+enum Misc
+{
+    ACTION_RAPTOR_KILLED                          = 1,
+    DATA_KING_DRED                                = 2
+};
 
 class boss_dred : public CreatureScript
 {
@@ -67,7 +70,7 @@ class boss_dred : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_DRED_EVENT, NOT_STARTED);
@@ -80,13 +83,13 @@ class boss_dred : public CreatureScript
                 uiRaptorCallTimer    = urand(20000, 25000);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_DRED_EVENT, IN_PROGRESS);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -148,13 +151,13 @@ class boss_dred : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) OVERRIDE
             {
                 if (action == ACTION_RAPTOR_KILLED)
                     ++raptorsKilled;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 if (type == DATA_KING_DRED)
                     return raptorsKilled;
@@ -162,14 +165,14 @@ class boss_dred : public CreatureScript
                 return 0;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (instance)
                     instance->SetData(DATA_DRED_EVENT, DONE);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_dredAI(creature);
         }
@@ -191,12 +194,12 @@ class npc_drakkari_gutripper : public CreatureScript
 
             uint32 GutRipTimer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 GutRipTimer = urand(10000, 15000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -212,14 +215,14 @@ class npc_drakkari_gutripper : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (Creature* Dred = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRED)))
                     Dred->AI()->DoAction(ACTION_RAPTOR_KILLED);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_drakkari_gutripperAI(creature);
         }
@@ -241,12 +244,12 @@ class npc_drakkari_scytheclaw : public CreatureScript
 
             uint32 uiRendTimer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 uiRendTimer = urand(10000, 15000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -262,14 +265,14 @@ class npc_drakkari_scytheclaw : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (Creature* Dred = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_DRED)))
                     Dred->AI()->DoAction(ACTION_RAPTOR_KILLED);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_drakkari_scytheclawAI(creature);
         }
@@ -282,7 +285,7 @@ class achievement_king_dred : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

@@ -32,7 +32,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
     public:
         instance_temple_of_ahnqiraj() : InstanceMapScript("instance_temple_of_ahnqiraj", 531) { }
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_temple_of_ahnqiraj_InstanceMapScript(map);
         }
@@ -105,7 +105,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 return false;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -133,7 +133,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 identifier) const
+            uint64 GetData64(uint32 identifier) const OVERRIDE
             {
                 switch (identifier)
                 {
@@ -153,7 +153,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 return 0;
             }                                                       // end GetData64
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
