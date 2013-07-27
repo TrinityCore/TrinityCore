@@ -123,7 +123,7 @@ enum Timers
     TIMER_VOID_ZONE                             = 3000,
 
     // Life Spark
-    TIMER_SHOCK                                 = 12000,
+    TIMER_SHOCK                                 = 1200,
 
     // Pummeller
     // Timers may be off
@@ -699,7 +699,7 @@ class npc_boombot : public CreatureScript
                     // so that can't be the issue
                     // See BoomEvent class
                     // Schedule 1s delayed
-                    me->m_Events.AddEvent(new BoomEvent(me), me->m_Events.CalculateTime(1*IN_MILLISECONDS));
+                    me->m_Events.AddEvent(new BoomEvent(me), me->m_Events.CalculateTime(0.2*IN_MILLISECONDS));
                 }
             }
 
@@ -743,6 +743,8 @@ class npc_life_spark : public CreatureScript
             {
                 DoCast(me, RAID_MODE(SPELL_STATIC_CHARGED_10, SPELL_STATIC_CHARGED_25));
                 _shockTimer = 0; // first one is immediate.
+                
+                me->SetInCombatWithZone();
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -759,6 +761,8 @@ class npc_life_spark : public CreatureScript
                     }
                 }
                 else _shockTimer -= diff;
+                
+                DoMeleeAttackIfReady();
             }
 
             private:
@@ -787,7 +791,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
                 if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            player->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
+                            xt002->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
             }
 
             void Register() OVERRIDE
@@ -823,7 +827,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
                 if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            player->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
+                            xt002->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
             }
 
             void OnPeriodic(AuraEffect const* aurEff)
