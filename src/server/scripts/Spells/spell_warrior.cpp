@@ -443,9 +443,8 @@ class spell_warr_lambs_to_the_slaughter : public SpellScriptLoader
 
             void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_WARRIOR_MORTAL_STRIKE)
-                    if (Aura* aur = eventInfo.GetProcTarget()->GetAura(SPELL_WARRIOR_REND, GetTarget()->GetGUID()))
-                        aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+                if (Aura* aur = eventInfo.GetProcTarget()->GetAura(SPELL_WARRIOR_REND, GetTarget()->GetGUID()))
+                    aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
 
             }
 
