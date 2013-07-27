@@ -41,7 +41,9 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
+    SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
+    SPELL_WARRIOR_REND                              = 94009,
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
     SPELL_WARRIOR_SECOUND_WIND_PROC_RANK_1          = 29834,
     SPELL_WARRIOR_SECOUND_WIND_PROC_RANK_2          = 29838,
@@ -418,6 +420,44 @@ class spell_warr_intimidating_shout : public SpellScriptLoader
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_warr_intimidating_shout_SpellScript();
+        }
+};
+
+// -84583 Lambs to the Slaughter
+class spell_warr_lambs_to_the_slaughter : public SpellScriptLoader
+{
+    public:
+        spell_warr_lambs_to_the_slaughter() : SpellScriptLoader("spell_warr_lambs_to_the_slaughter") { }
+
+        class spell_warr_lambs_to_the_slaughter_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_lambs_to_the_slaughter_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_MORTAL_STRIKE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_REND))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_WARRIOR_MORTAL_STRIKE)
+                    if (Aura* aur = eventInfo.GetProcTarget()->GetAura(SPELL_WARRIOR_REND, GetTarget()->GetGUID()))
+                        aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_lambs_to_the_slaughter_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_warr_lambs_to_the_slaughter_AuraScript();
         }
 };
 
@@ -1026,6 +1066,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_sunder_armor();
     new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
+    new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
     new spell_warr_overpower();
     new spell_warr_rallying_cry();
