@@ -103,6 +103,7 @@ enum Events
     EVENT_HEART_PHASE,
     EVENT_ENERGY_ORB,
     EVENT_DISPOSE_HEART,
+    EVENT_EXPOSE_HEART,
     EVENT_ENRAGE,
     EVENT_ENTER_HARD_MODE,
 };
@@ -114,6 +115,7 @@ enum Timers
     TIMER_SEARING_LIGHT                         = 20000,
     TIMER_GRAVITY_BOMB                          = 20000,
     TIMER_HEART_PHASE                           = 30000,
+    TIMER_HEART_CHANGE_SEATS                    = 1000,
     TIMER_ENERGY_ORB_MIN                        = 9000,
     TIMER_ENERGY_ORB_MAX                        = 10000,
     TIMER_ENRAGE                                = 600000,
@@ -247,6 +249,8 @@ class boss_xt002 : public CreatureScript
                 {
                     case ACTION_ENTER_HARD_MODE:
                         events.ScheduleEvent(EVENT_ENTER_HARD_MODE, 1);
+                        // Heart is already dead
+                        events.CancelEvent(EVENT_DISPOSE_HEART);
                         break;
                 }
             }
@@ -265,6 +269,9 @@ class boss_xt002 : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
             {
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+                
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1)))
                     ExposeHeart();
             }
@@ -303,6 +310,10 @@ class boss_xt002 : public CreatureScript
                             break;
                         case EVENT_DISPOSE_HEART:
                             SetPhaseOne();
+                            break;
+                        case EVENT_EXPOSE_HEART:
+                            if(Unit* heart = me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT_EXPOSED))
+                                heart->CastSpell(heart, SPELL_EXPOSED_HEART, false);    // Channeled
                             break;
                         case EVENT_ENRAGE:
                             Talk(SAY_BERSERK);
@@ -378,7 +389,6 @@ class boss_xt002 : public CreatureScript
                     heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
-                    heart->CastSpell(heart, SPELL_EXPOSED_HEART, false);    // Channeled
                     heart->ChangeSeat(HEART_VEHICLE_SEAT_EXPOSED, true);
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
@@ -387,9 +397,12 @@ class boss_xt002 : public CreatureScript
                 events.CancelEvent(EVENT_SEARING_LIGHT);
                 events.CancelEvent(EVENT_GRAVITY_BOMB);
                 events.CancelEvent(EVENT_TYMPANIC_TANTRUM);
+                
+                // After heart is exposed it should cast a spell
+                events.ScheduleEvent(EVENT_EXPOSE_HEART, TIMER_HEART_CHANGE_SEATS);
 
                 // Start "end of phase 2 timer"
-                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE);
+                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE + TIMER_HEART_CHANGE_SEATS);
 
                 // Phase 2 has officially started
                 _phase = 2;
