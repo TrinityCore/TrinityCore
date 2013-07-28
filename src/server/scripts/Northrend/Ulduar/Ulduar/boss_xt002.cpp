@@ -928,14 +928,22 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
 
                             // This should probably be incorporated in a dummy effect handler, but I've had trouble getting the correct target
                             // Weighed randomization (approximation)
-                            uint32 const spells[] = { SPELL_RECHARGE_SCRAPBOT, SPELL_RECHARGE_SCRAPBOT, SPELL_RECHARGE_SCRAPBOT,
-                                SPELL_RECHARGE_PUMMELER, SPELL_RECHARGE_BOOMBOT };
-
-                            for (uint8 i = 0; i < 5; ++i)
+                            for (uint8 i = 0; i <= 7; ++i)
                             {
-                                uint8 a = urand(0, 4);
-                                uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                switch(i)
+                                {   
+                                    case 1: case 2: case 3: case 4: case 5:
+                                        toyPile->CastSpell(toyPile, SPELL_RECHARGE_SCRAPBOT, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                        break;
+                                    case 6:
+                                        toyPile->CastSpell(toyPile, SPELL_RECHARGE_BOOMBOT, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                        break;
+                                    case 7:
+                                        // 50% chance for Pummeler to spawn
+                                        if(urand(0,1))
+                                            toyPile->CastSpell(toyPile, SPELL_RECHARGE_PUMMELER, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                        break;
+                                }
                             }
                         }
                     }
