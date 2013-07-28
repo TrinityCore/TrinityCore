@@ -150,6 +150,10 @@ class boss_kologarn : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
                 _JustDied();
+                if (Creature* leftArm = me->FindNearestCreature(NPC_LEFT_ARM, 50.0f))
+                    leftArm->DespawnOrUnsummon();
+                if (Creature* rightArm = me->FindNearestCreature(NPC_RIGHT_ARM, 50.0f))
+                    rightArm->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit* who) OVERRIDE
