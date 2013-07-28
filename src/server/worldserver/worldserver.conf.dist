@@ -149,7 +149,9 @@ BindIP = "0.0.0.0"
 # PERFORMANCE SETTINGS
 #
 #    UseProcessors
-#        Description: Processors mask for Windows based multi-processor systems.
+#        Description: Processors mask for Windows and Linux based multi-processor systems.
+#        Example:     A computer with 2 CPUs:
+#                     1 - 1st CPU only, 2 - 2nd CPU only, 3 - 1st and 2nd CPU, because 1 | 2 is 3
 #        Default:     0  - (Selected by OS)
 #                     1+ - (Bit mask value of selected processors)
 
@@ -157,7 +159,8 @@ UseProcessors = 0
 
 #
 #    ProcessPriority
-#        Description: Process priority setting for Windows based systems.
+#        Description: Process priority setting for Windows and Linux based systems.
+#        Details:     On Linux, a nice value of -15 is used. On Windows, process is set to HIGH class.
 #        Default:     1 - (High)
 #                     0 - (Normal)
 
