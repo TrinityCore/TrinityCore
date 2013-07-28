@@ -3754,6 +3754,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+                break;
+            case 49575: // Death Grip
+                spellInfo->Effects[EFFECT_0].MiscValueB = 1;
+                break;
             default:
                 break;
         }
