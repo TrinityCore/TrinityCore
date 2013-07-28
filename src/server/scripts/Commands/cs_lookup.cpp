@@ -59,7 +59,7 @@ public:
             { "account",        SEC_MODERATOR,      true,  &HandleLookupOnlineAccountCommand,   "", NULL },
             { "character",      SEC_MODERATOR,      true,  &HandleLookupOnlineCharacterCommand, "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
-        }
+        };
 
         static ChatCommand lookupCommandTable[] =
         {
