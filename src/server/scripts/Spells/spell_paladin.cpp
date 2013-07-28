@@ -225,6 +225,67 @@ class spell_pal_aura_mastery_immune : public SpellScriptLoader
         }
 };
 
+// 53651 - Beacon of Light
+class spell_pal_beacon_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_beacon_of_light() : SpellScriptLoader("spell_pal_beacon_of_light") { }
+
+        class spell_pal_beacon_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_beacon_of_light_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetActionTarget()->GetAura(SPELL_PALADIN_BEACON_OF_LIGHT_MARKER, GetCasterGUID()))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 heal = eventInfo.GetHealInfo()->GetHeal();
+
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_PALADIN_HOLY_LIGHT)
+                    heal = int32(CalculatePct(heal, aurEff->GetAmount()));
+
+                Unit::AuraList const& auras = GetCaster()->GetSingleCastAuras();
+                for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    if ((*itr)->GetId() == SPELL_PALADIN_BEACON_OF_LIGHT_MARKER)
+                    {
+                        std::list<AuraApplication*> applications;
+                        (*itr)->GetApplicationList(applications);
+                        if (applications.empty())
+                            return;
+
+                        GetCaster()->CastCustomSpell(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, heal, applications.front()->GetTarget(), true, NULL, aurEff);
+                        return;
+                    }
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pal_beacon_of_light_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_beacon_of_light_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_beacon_of_light_AuraScript();
+        }
+};
+
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
@@ -334,67 +395,6 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pal_divine_sacrifice_AuraScript();
-        }
-};
-
-// 53651 - Beacon of Light
-class spell_pal_beacon_of_light : public SpellScriptLoader
-{
-    public:
-        spell_pal_beacon_of_light() : SpellScriptLoader("spell_pal_beacon_of_light") { }
-
-        class spell_pal_beacon_of_light_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_beacon_of_light_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL))
-                    return false;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                if (eventInfo.GetActionTarget()->GetAura(SPELL_PALADIN_BEACON_OF_LIGHT_MARKER, GetCasterGUID()))
-                    return false;
-                return true;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                int32 heal = eventInfo.GetHealInfo()->GetHeal();
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_PALADIN_HOLY_LIGHT)
-                    heal = int32(CalculatePct(heal, aurEff->GetAmount()));
-
-                Unit::AuraList const& auras = GetCaster()->GetSingleCastAuras();
-                for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    if ((*itr)->GetId() == SPELL_PALADIN_BEACON_OF_LIGHT_MARKER)
-                    {
-                        std::list<AuraApplication*> applications;
-                        (*itr)->GetApplicationList(applications);
-                        if (applications.empty())
-                            return;
-
-                        GetCaster()->CastCustomSpell(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, heal, applications.front()->GetTarget(), true, NULL, aurEff);
-                        return;
-                    }
-                }
-            }
-
-            void Register() OVERRIDE
-            {
-                DoCheckProc += AuraCheckProcFn(spell_pal_beacon_of_light_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pal_beacon_of_light_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_pal_beacon_of_light_AuraScript();
         }
 };
 
@@ -603,39 +603,6 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         }
 };
 
-// 1038 - Hand of Salvation
-class spell_pal_hand_of_salvation : public SpellScriptLoader
-{
-    public:
-        spell_pal_hand_of_salvation() : SpellScriptLoader("spell_pal_hand_of_salvation") { }
-
-        class spell_pal_hand_of_salvation_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_hand_of_salvation_AuraScript);
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    // Glyph of Salvation
-                    if (caster->GetGUID() == GetUnitOwner()->GetGUID())
-                        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PALADIN_GLYPH_OF_SALVATION, EFFECT_0))
-                            amount -= aurEff->GetAmount();
-                }
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_hand_of_salvation_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_pal_hand_of_salvation_AuraScript();
-        }
-};
-
 // 20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScriptLoader
 {
@@ -706,71 +673,6 @@ class spell_pal_holy_shock : public SpellScriptLoader
         {
             return new spell_pal_holy_shock_SpellScript();
         }
-};
-
-// Maybe this is incorrect
-// These spells should always be cast on login, regardless of whether the player has the talent or not
-
-// -20254 - Improved Concentration Aura
-// -20138 - Improved Devotion Aura
-//  31869 - Sanctified Retribution
-// -53379 - Swift Retribution
-class spell_pal_improved_aura : public SpellScriptLoader
-{
-    public:
-        spell_pal_improved_aura(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
-
-        class spell_pal_improved_aura_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_improved_aura_AuraScript);
-
-        public:
-            spell_pal_improved_aura_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(_spellId)
-                    || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_SWIFT_RETRIBUTION_R1))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                if (!target->GetOwnedAura(_spellId))
-                    target->CastSpell(target, _spellId, true);
-            }
-
-            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                uint32 spellId = GetSpellInfo()->GetFirstRankSpell()->Id;
-
-                if ((spellId == SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1 && GetTarget()->GetAuraOfRankedSpell(SPELL_PALADIN_SWIFT_RETRIBUTION_R1))
-                    || (spellId == SPELL_PALADIN_SWIFT_RETRIBUTION_R1 && GetTarget()->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1)))
-                    return;
-
-                GetTarget()->RemoveOwnedAura(_spellId, GetCasterGUID());
-            }
-
-            void Register() OVERRIDE
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_pal_improved_aura_AuraScript::HandleEffectApply, EFFECT_FIRST_FOUND, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_improved_aura_AuraScript::HandleEffectRemove, EFFECT_FIRST_FOUND, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-            }
-
-        private:
-            uint32 _spellId;
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_pal_improved_aura_AuraScript(_spellId);
-        }
-
-    private:
-        uint32 _spellId;
 };
 
 // 63510 - Improved Concentraction Aura (Area Aura)
@@ -847,35 +749,6 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pal_item_healing_discount_AuraScript();
-        }
-};
-
-// 20425 - Judgement of Command
-class spell_pal_judgement_of_command : public SpellScriptLoader
-{
-    public:
-        spell_pal_judgement_of_command() : SpellScriptLoader("spell_pal_judgement_of_command") { }
-
-        class spell_pal_judgement_of_command_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_judgement_of_command_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                    if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
-                        GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_pal_judgement_of_command_SpellScript();
         }
 };
 
@@ -1160,17 +1033,11 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_hand_of_sacrifice();
-    new spell_pal_hand_of_salvation();
     new spell_pal_holy_shock();
-    new spell_pal_improved_aura("spell_pal_improved_concentraction_aura", SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA);
-    new spell_pal_improved_aura("spell_pal_improved_devotion_aura", SPELL_PALADIN_IMPROVED_DEVOTION_AURA);
-    new spell_pal_improved_aura("spell_pal_sanctified_retribution", SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA);
-    new spell_pal_improved_aura("spell_pal_swift_retribution", SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA);
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_item_healing_discount();
-    new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
