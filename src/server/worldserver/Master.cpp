@@ -237,7 +237,7 @@ int Master::Run()
         {
             CPU_ZERO(&mask);
             sched_getaffinity(0, sizeof(mask), &mask);
-            TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Using processors (bitmask, hex): %x", *(uint32*)(&mask))
+            TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Using processors (bitmask, hex): %x", *(uint32*)(&mask));
         }
     }
 
