@@ -36,26 +36,22 @@ RASocket::RASocket()
     _commandExecuting = false;
 }
 
-RASocket::~RASocket()
-{
-}
-
 int RASocket::open(void *)
 {
-    ACE_INET_Addr remote_addr;
+    ACE_INET_Addr remoteAddress;
 
-    if (peer().get_remote_addr(remote_addr) == -1)
+    if (peer().get_remote_addr(remoteAddress) == -1)
     {
         TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "RASocket::open: peer().get_remote_addr error is %s", ACE_OS::strerror(errno));
         return -1;
     }
 
-    TC_LOG_INFO(LOG_FILTER_REMOTECOMMAND, "Incoming connection from %s", remote_addr.get_host_addr());
+    TC_LOG_INFO(LOG_FILTER_REMOTECOMMAND, "Incoming connection from %s", remoteAddress.get_host_addr());
 
     return activate();
 }
 
-int RASocket::handle_close(ACE_HANDLE, ACE_Reactor_Mask)
+int RASocket::handle_close(ACE_HANDLE /*handle*/, ACE_Reactor_Mask /*mask*/)
 {
     TC_LOG_INFO(LOG_FILTER_REMOTECOMMAND, "Closing connection");
     peer().close_reader();
@@ -89,9 +85,7 @@ int RASocket::recv_line(ACE_Message_Block& buffer)
         ssize_t n = peer().recv(&byte, sizeof(byte));
 
         if (n < 0)
-        {
             return -1;
-        }
 
         if (n == 0)
         {
@@ -110,8 +104,8 @@ int RASocket::recv_line(ACE_Message_Block& buffer)
             return -1;
     }
 
-    const char null_term = '\0';
-    if (buffer.copy(&null_term, sizeof(null_term)) == -1)
+    const char nullTerm = '\0';
+    if (buffer.copy(&nullTerm, sizeof(nullTerm)) == -1)
         return -1;
 
     return 0;
