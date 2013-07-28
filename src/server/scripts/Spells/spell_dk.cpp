@@ -906,6 +906,34 @@ class spell_dk_improved_unholy_presence : public SpellScriptLoader
         }
 };
 
+// 73975 - Necrotic Strike
+class spell_dk_necrotic_strike : public SpellScriptLoader
+{
+    public:
+        spell_dk_necrotic_strike() : SpellScriptLoader("spell_dk_necrotic_strike") { }
+
+        class spell_dk_necrotic_strike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_necrotic_strike_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                    amount = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.7f);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_necrotic_strike_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_necrotic_strike_AuraScript();
+        }
+};
+
 // 48266 - Blood Presence
 // 48263 - Frost Presence
 // 48265 - Unholy Presence
@@ -1227,6 +1255,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_frost_presence();
     new spell_dk_improved_unholy_presence();
+    new spell_dk_necrotic_strike();
     new spell_dk_presence();
     new spell_dk_rune_tap_party();
     new spell_dk_scent_of_blood();
