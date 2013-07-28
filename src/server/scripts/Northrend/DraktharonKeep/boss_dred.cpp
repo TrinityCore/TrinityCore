@@ -96,6 +96,9 @@ class boss_dred : public CreatureScript
 
                 events.Update(diff);
 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_BELLOWING_ROAR:
