@@ -214,8 +214,7 @@ class spell_warr_concussion_blow : public SpellScriptLoader
         }
 };
 
-/// Updated 4.3.4
-// 12162 - Deep Wounds
+// -12162 - Deep Wounds
 class spell_warr_deep_wounds : public SpellScriptLoader
 {
     public:
@@ -229,7 +228,8 @@ class spell_warr_deep_wounds : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_1) ||
                     !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_3))
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_3) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_PERIODIC))
                     return false;
                 return true;
             }
