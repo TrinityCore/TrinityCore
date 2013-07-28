@@ -1475,23 +1475,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         case SPELLFAMILY_PALADIN:
             switch (GetId())
             {
-                case 31821:
-                    // Aura Mastery Triggered Spell Handler
-                    // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity
-                    // If remove Concentration Aura -> trigger -> remove Aura Mastery Immunity
-                    // If remove Aura Mastery -> trigger -> remove Aura Mastery Immunity
-                    // Do effects only on aura owner
-                    if (GetCasterGUID() != target->GetGUID())
-                        break;
-
-                    if (apply)
-                    {
-                        if ((GetSpellInfo()->Id == 31821 && target->HasAura(19746, GetCasterGUID())) || (GetSpellInfo()->Id == 19746 && target->HasAura(31821)))
-                            target->CastSpell(target, 64364, true);
-                    }
-                    else
-                        target->RemoveAurasDueToSpell(64364, GetCasterGUID());
-                    break;
                 case 31842: // Divine Favor
                     // Item - Paladin T10 Holy 2P Bonus
                     if (target->HasAura(70755))
