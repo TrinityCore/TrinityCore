@@ -33,7 +33,7 @@
 
 #ifndef _TRINITY_CORE_CONFIG
 # define _TRINITY_CORE_CONFIG  "worldserver.conf"
-#endif //_TRINITY_CORE_CONFIG
+#endif
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -56,7 +56,7 @@ LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the
 uint32 realmID;                                             ///< Id of the realm
 
 /// Print out the usage string for this program on the console.
-void usage(const char *prog)
+void usage(const char* prog)
 {
     printf("Usage:\n");
     printf(" %s [<options>]\n", prog);
@@ -70,14 +70,14 @@ void usage(const char *prog)
 }
 
 /// Launch the Trinity server
-extern int main(int argc, char **argv)
+extern int main(int argc, char** argv)
 {
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_CORE_CONFIG;
     int c = 1;
-    while ( c < argc )
+    while (c < argc)
     {
-        if (strcmp(argv[c], "-c") == 0)
+        if (!strcmp(argv[c], "-c"))
         {
             if (++c >= argc)
             {
@@ -90,10 +90,7 @@ extern int main(int argc, char **argv)
         }
 
         #ifdef _WIN32
-        ////////////
-        //Services//
-        ////////////
-        if (strcmp(argv[c], "-s") == 0)
+        if (strcmp(argv[c], "-s") == 0) // Services
         {
             if (++c >= argc)
             {
@@ -101,6 +98,7 @@ extern int main(int argc, char **argv)
                 usage(argv[0]);
                 return 1;
             }
+
             if (strcmp(argv[c], "install") == 0)
             {
                 if (WinServiceInstall())
@@ -120,11 +118,9 @@ extern int main(int argc, char **argv)
                 return 1;
             }
         }
+
         if (strcmp(argv[c], "--service") == 0)
-        {
             WinServiceRun();
-        }
-        ////
         #endif
         ++c;
     }
