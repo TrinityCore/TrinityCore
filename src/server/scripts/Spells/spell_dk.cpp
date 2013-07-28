@@ -922,13 +922,13 @@ class spell_dk_necrotic_strike : public SpellScriptLoader
                     amount = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.7f);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_necrotic_strike_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_dk_necrotic_strike_AuraScript();
         }
