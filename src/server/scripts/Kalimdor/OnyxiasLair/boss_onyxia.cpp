@@ -409,6 +409,7 @@ public:
 
                                 Talk(EMOTE_BREATH);
                                 if (PointData)
+                                    DoCast(me, PointData->SpellId);
                                 events.ScheduleEvent(EVENT_DEEP_BREATH, 70000);
                             }
                             break;
