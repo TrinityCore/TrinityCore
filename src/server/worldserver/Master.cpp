@@ -50,6 +50,12 @@
 extern int m_ServiceStatus;
 #endif
 
+#ifdef __linux__
+#include <sched.h>
+#include <sys/resource.h>
+#define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
+#endif
+
 /// Handle worldservers's termination signals
 class WorldServerSignalHandler : public Trinity::SignalHandler
 {
@@ -231,7 +237,7 @@ int Master::Run()
             if (affinity & (1 << i))
                 CPU_SET(i, &mask);
 
-        if (int err = sched_setaffinity(0, sizeof(mask), &mask))
+        if (sched_setaffinity(0, sizeof(mask), &mask))
             TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
         else
         {
@@ -243,7 +249,7 @@ int Master::Run()
 
     if (highPriority)
     {
-        if (int err = setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
+        if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
             TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Can't set worldserver process priority class, error: %s", strerror(errno));
         else
             TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "worldserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
