@@ -130,6 +130,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.88 - 05/07/2013: Mejoramos el llamado de deflect y resist parcial, añadimos una formula mas blizlike acorde a comentarios de oficiales respecto al calculo de esto, se realiza una limpieza y optimizacion por Retriman
 0.90 - 07/07/2013: Duel Reset: Fix problema CD con spell Elemental Mastery (chamy) por Gildor
 0.91 - 07/07/2013: GCD(Delay Magico): Se implementa de una manera mas macro este sistema usando las auras llamas del core por ende enredamos a la mayor parte de spells con el delay como debe ser excluyendo algunas spells que tengan que tner un delay mas bajo.
+0.92 - 09/07/2013: PerformanceLog por Eilo
+0.93 - 22/07/2013: Cmake: Añadimos al cmake la opcion de forzar el Zm para no tener que usar el cmake 2.8 y poder usar las ultimas versiones de visual + ultimo cmake por Retriman
+0.94 - 22/07/2013: Build: Fix compilacion en vs10 x64
+0.95 - 24/07/2013: Implementamos el metodo IsAreaAuraEffect por Retriman
+0.96 - 28/07/2013: Implementamos el metodo RemoveNegativeAuras por Retriman
 
 
 ###############
@@ -239,6 +244,23 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.156 - 06/07/2013: SotA: Fix regenhealth del demolisher por Apa
 1.157 - 05/07/2013: Wintergrasp: Fix Regenhealth de Tower Cannon por komix
 1.158 - 05/07/2013: Wintergrasp: Fix del movimiento de Tower Cannon por komix
+1.159 - 09/07/2013: IoC: Fix SiegeEngine, ahora sera atacable en todo momento por los jugadores del equipo contrario por jar
+1.160 - 09/07/2013: IoC: Agregadas las inmunidades de los boss por jar
+1.161 - 09/07/2013: Profesiones: corregidas las misiones de especializaciones para que no se vuelvan a aprender al reloguear por Muzashi
+1.162 - 13/03/2013: Vehiculos, funcionamiento de VEHICLE_SEAT_FLAG_CAN_CONTROL a cualquier asiento por Machiavell1
+1.163 - 12/07/2013: FleeingMovementGenerator: Ahora el fear no debera tirar al vacio por Retriman
+1.164 - 12/07/2013: Chequeo para ver si el source puede ver al target, spells como blood boil o fan of knives por Retriman
+1.165 - 12/07/2013: Chequeo de zonales para ver si el caster puede ver el lugar donde se castea el spell por Retriman
+1.166 - 12/07/2013: Core/Pet: Ahora las pet que tengan informacion en la DB de resistencias no la tomaran en cuenta, arregla el exeso de resistencia magica de la pet Devilsaur por Retriman
+1.167 - 12/07/2013: Update al movimiento astronauta ahora si realmente se notara el cambio blizlike por Retriman
+1.168 - 12/07/2013: Core/Movement: Spells de salto a distancia corregidos... ahora se veran mejor por Retriman
+1.170 - 12/07/2013: Core/Movement: Fix collision para spells como fire nova por Retriman
+1.171 - 13/07/2013: Wintergrasp: Ahora los cementerios de la base horda y alianza daran resurreccion de forma correcta.Ademas todos los cementerios estarán funcionales solo cuando se este llevando a cabo una batalla por Jar
+1.172 - 13/07/2013: Wintergrasp: Fix cementerio del Workshop  Broken temple, ahora los espíritus horda y alianza cambiaran  de fase dependiendo de quien controle  el Workshop, para que los personajes puedan ser resucitados por Jar
+1.173 - 22/07/2013: Wintergrasp: Ahora tenacity se actualizara cuando los jugadores summonen vehículos por Jar
+1.174 - 28/07/2013: Wintergrasp: Implementadas las quest  Victory in Wintergrasp, Toppling the Towers y Southern Sabotage por Jar
+1.175 - 28/07/2013: SoTA: Ahora cuando un jugador se sube a un Battleground Demolisher como acompañante, estara protegido del daño que se recibe de los cañones y los enemigos no podran atacarte por Jar
+1.176 - 29/07/2013: Pesca: Arreglado el tema de que la pesca no iba bien por Eilo
 
 
 ########################
@@ -398,6 +420,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.15 - 25/04/2013: Ulduar: El combate contra Freya no dejera el aura "Esencia de Hierrorrama" a todos los mobs cercanos por Dolanpls
 2.6.16 - 28/06/2013: Ulduar: Los npc del camino hasta Thorim ya no seran inmunes al ataque de jugadores por Dolanpls 
 2.6.17 - 28/06/2013: Ulduar: Las trampas que hay antes del boss Thorim ya no perseguiran al jugador ni seran seleccionables y atacables por Dolanpls
+2.6.18 - 15/07/2013: Ulduar: La puerta antes del General Vezax ya no se quedara cerrada al morir los 4 titanes por Dolanpls
+2.6.19 - 28/07/2013: Ulduar: Traduccion de los textos del teleport por Apa 
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -618,6 +642,14 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.167 - 07/06/2013: Fix spells Pvp Trinket, Every Man For Himself(Racial - Humano), ahora aplicarán su inmunidad correspondiente en la duración (0.1 secs) por Gildor
 3.168 - 07/06/2013: Mago: Fix spell Hot Streak, ahora se eliminará al lanzar piroexplosión y no al impactar al objetivo con ella por Gildor
 3.169 - 12/06/2013: DK: Fix spell Dark Command, ahora al usar la spell podrá activar los encantamientos de runas de las armas del DK por Gildor
+3.171 - 12/07/2013: Hunter: Flare ahora tiene las yardas correctas de efecto y la velocidad por Retriman
+3.172 - 12/07/2013: Dk/Pet: Cuando la pet de dk aparece en el mapa, tiene que esperar hasta que la animacion termine para moverse por Retriman
+3.173 - 12/07/2013: Sacer: Spell Levitate ahora no podra ser usada cuando el player target esta en montura por Retriman
+3.174 - 12/07/2013: Mago: Mirror Image atacara al target que tiene seleccionado el owner primero por Retriman y Phantons
+3.175 - 23/07/2013: DK: Fix spell Raise Dead, ahora requerirá el componente necesario, el glifo o un cadaver cercano (y pasado a spell_script) por Tibbi y modificado por Gildor
+3.176 - 08/07/2013: Warrior: Fix spell Deep Wounds, ahora hará el daño correcto con la habilidad trauma por Gildor
+3.179 - 27/07/2013: Paladin: Fix spell Beacon of Light, ahora funcionará tambien con las pets por darvid
+3.180 - 28/07/2013: Brujo: Fix spell Spell Lock (Felhunter), ahora funcionará la parte de silenciar los 6 segundos por A-Metaphysical-Drama
 
 
 #################
@@ -635,6 +667,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.130 - 07/01/2013: Rogue: Fix T10 2P Bonus, ahora no dará dos veces el bonus de +15 energía por Gildor
 3.149 - 04/03/2013: Reign of the Dead (47316,47477) / Reign of the Unliving (47182,47188), ahora respetarán los 2 segundos de cooldown por Elron103
 3.170 - 16/06/2013: Mago: Fix t10 2p bonus, ahora Hot Streak tambien dará el bonus (causado por 3.168) por Gildor
+3.177 - 26/07/2013: Mago: Fix t7 2p bonus, ahora al usar la gema de maná recibirás el poder con hechizos correspondiente por bazgrim
+3.178 - 26/07/2013: Items: Fix item Serpent-Coil Braid (30720), ahora al usar la gema de maná recibirás el poder con hechizos correspondiente por bazgrim
 
 
 ############
@@ -655,6 +689,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.0.11 - 20/04/2013: Clases: Los mortacechadores (Picaro) por YTDB
 4.0.12 - 20/04/2013: Clases: La hoja antigua (Cazador) por YTDB
 4.0.13 - 17/05/2013: Clases: El báculo de los antiguos (Cazador) por Rincewind
+4.0.14 - 10/07/2013: Clases: Ulag el Cuchilla (Guerrero) por Muzashi
 - Especiales -
 4.1.0 - 26/03/2012: Quel'Delar: loot de Empuñadura Maltrecha por Skull
 4.1.1 - 16/03/2012: Quel'Delar: Un disfraz apropiado por Discovered, adecuaciones por Muzashi y Strolch
@@ -776,6 +811,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.3.64 - 12/06/2013: Corona de Hielo: Semillas de caos por Muzashi
 4.3.65 - 14/06/2013: Corona de Hielo: El Frente Roto por Muzashi
 4.3.66 - 15/06/2013: Corona de Hielo: Segundas Oportunidades por Kirkhammett ajustes de Muzashi
+4.3.67 - 11/07/2013: Corona de Hielo: Asalto por Aire por Muzashi
+4.3.68 - 11/07/2013: Corona de Hielo: Se Aproxima un Frente Frío por Muzashi
+4.3.69 - 12/07/2013: Corona de Hielo: ¡Eso es abominable! por Muzashi
+4.3.70 - 28/07/2013: Corona de Hielo: Hecho trozos por YTDB
+4.3.71 - 28/07/2013: Corona de Hielo: Volver a unir a Olakin por Muzashi
 - Cuenca de Sholazar -
 4.4.0  - 16/04/2012: Cuenca de Sholazar: Seguir la corriente por Muzashi
 4.4.1  - 16/04/2012: Cuenca de Sholazar: Atormentar a los badanudillos por Muzashi
@@ -807,6 +847,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.4.27 - 14/03/2013: Cuenca de Sholazar: Cazar un mamut por Muzashi
 4.4.28 - 14/03/2013: Cuenca de Sholazar: ¿Retroceso? ¿Qué retroceso? por Muzashi
 4.4.29 - 15/03/2013: Cuenca de Sholazar: El gran desafío del cazador por Muzashi
+4.4.30 - 13/03/2013: Cuenca de Sholazar: Vuelo de reconocimiento por WishToDie
 - Cementerio de Dragones -
 4.5.0  - 15/08/2012: Cementerio de Dragones: Correcciones en requisitos de las quest por Muzashi
 4.5.1  - 17/08/2012: Cementerio de Dragones: Rescátalos de Plaza de la Ciudad por Muzashi
@@ -1134,5 +1175,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 7.15 - 10/12/2012: Transfigurar: Ligar el item al transfigurar si se liga al equiparlo/usarlo/recogerlo (incluye BOP Items Trade) por Gildor
 7.16 - 15/05/2013: Isla de maestros de juego: Añadir banquero, buzon y banco de hermandad por Rincewind
 7.17 - 15/05/2013: El más sabio de Azeroth por Muzashi y Abismo
+7.18 - 27/07/2013: Cerdoball por Muzashi
 
 
