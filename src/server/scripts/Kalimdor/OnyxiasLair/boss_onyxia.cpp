@@ -408,7 +408,8 @@ public:
                                     me->InterruptNonMeleeSpells(false);
 
                                 Talk(EMOTE_BREATH);
-                                DoCast(me, PointData->SpellId);
+                                if (PointData) /// @todo: In what cases is this null? What should we do?
+                                    DoCast(me, PointData->SpellId);
                                 events.ScheduleEvent(EVENT_DEEP_BREATH, 70000);
                             }
                             break;
