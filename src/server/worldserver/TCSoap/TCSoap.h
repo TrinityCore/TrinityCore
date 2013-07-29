@@ -24,21 +24,24 @@
 #include <ace/Task.h>
 #include <Threading.h>
 
-class TCSoapRunnable: public ACE_Based::Runnable
+class TCSoapRunnable : public ACE_Based::Runnable
 {
     public:
-        TCSoapRunnable() : m_host(""), m_port(0) { }
-        void run();
-        void setListenArguments(std::string host, uint16 port)
+        TCSoapRunnable() : _port(0) { }
+
+        void run() OVERRIDE;
+
+        void SetListenArguments(const std::string& host, uint16 port)
         {
-            m_host = host;
-            m_port = port;
+            _host = host;
+            _port = port;
         }
+
     private:
         void process_message(ACE_Message_Block* mb);
 
-        std::string m_host;
-        uint16 m_port;
+        std::string _host;
+        uint16 _port;
 };
 
 class SOAPCommand
