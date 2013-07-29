@@ -336,7 +336,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_LAND, 30000);
                         break;
                     case POINT_LAND:
-                        events.ScheduleEvent(EVENT_LAND_GROUND, 1);
+                        events.ScheduleEvent(EVENT_LAND_GROUND, 2*IN_MILLISECONDS);
                         break;
                     case POINT_LAND_GROUND:
                     {
