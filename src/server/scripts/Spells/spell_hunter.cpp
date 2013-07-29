@@ -201,6 +201,42 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
         }
 };
 
+// -19464 Improved Serpent Sting
+class spell_hun_improved_serpent_sting : public SpellScriptLoader
+{
+    public:
+        spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
+
+        class spell_hun_improved_serpent_sting_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
+
+            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+            {
+                if (!spellMod)
+                {
+                    spellMod = new SpellModifier(GetAura());
+                    spellMod->op = SpellModOp(aurEff->GetMiscValue());
+                    spellMod->type = SPELLMOD_PCT;
+                    spellMod->spellId = GetId();
+                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
+                }
+
+                spellMod->value = aurEff->GetAmount();
+            }
+
+            void Register() OVERRIDE
+            {
+                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_hun_improved_serpent_sting_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_hun_improved_serpent_sting_AuraScript();
+        }
+};
+
 // 53412 - Invigoration
 class spell_hun_invigoration : public SpellScriptLoader
 {
@@ -944,6 +980,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_disengage();
     new spell_hun_fire();
     new spell_hun_improved_mend_pet();
+    new spell_hun_improved_serpent_sting();
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
