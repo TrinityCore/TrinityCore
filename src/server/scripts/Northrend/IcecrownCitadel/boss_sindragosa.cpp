@@ -347,9 +347,6 @@ class boss_sindragosa : public CreatureScript
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                             me->GetMotionMaster()->MovementExpired();
                         _isInAirPhase = false;
-                        // trigger Asphyxiation
-                        EntryCheckPredicate pred(NPC_ICE_TOMB);
-                        summons.DoAction(ACTION_TRIGGER_ASPHYXIATION, pred);
                         break;
                     }
                     default:
@@ -556,14 +553,9 @@ class npc_ice_tomb : public CreatureScript
                 {
                     _trappedPlayerGUID = guid;
                     _existenceCheckTimer = 1000;
+                    _asphyxiationTimer = 20000;
+                    _asphyxiationTriggered = false;
                 }
-            }
-
-            void DoAction(int32 action) OVERRIDE
-            {
-                if (action == ACTION_TRIGGER_ASPHYXIATION)
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
-                        player->CastSpell(player, SPELL_ASPHYXIATION, true);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
@@ -582,6 +574,17 @@ class npc_ice_tomb : public CreatureScript
             {
                 if (!_trappedPlayerGUID)
                     return;
+                    
+                    
+                if (!_asphyxiationTriggered)
+                    if (_asphyxiationTimer <= diff)
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
+                            player->CastSpell(player, SPELL_ASPHYXIATION, true);
+                        _asphyxiationTriggered = true;
+                    }
+                    else
+                        _asphyxiationTimer -= diff;
 
                 if (_existenceCheckTimer <= diff)
                 {
@@ -602,6 +605,8 @@ class npc_ice_tomb : public CreatureScript
         private:
             uint64 _trappedPlayerGUID;
             uint32 _existenceCheckTimer;
+            uint32 _asphyxiationTimer;
+            bool _asphyxiationTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
