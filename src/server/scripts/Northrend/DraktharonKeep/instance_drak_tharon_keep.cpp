@@ -20,279 +20,185 @@
 #include "InstanceScript.h"
 #include "drak_tharon_keep.h"
 
-#define MAX_ENCOUNTER     4
-
-/* Drak'Tharon Keep encounters:
-0 - Trollgore
-1 - Novos
-2 - King Dred
-3 - Tharon Ja
-*/
-
-enum Creatures
+class instance_drak_tharon_keep : public InstanceMapScript
 {
-    NPC_TROLLGORE                               = 26630,
-    NPC_NOVOS                                   = 26631,
-    NPC_KING_DRED                               = 27483,
-    NPC_THARON_JA                               = 26632,
-    NPC_CRYSTAL_CHANNEL_TARGET                  = 26712,
-    NPC_CRYSTAL_HANDLER                         = 26627
-};
-enum GameObjects
-{
-    GO_NOVOS_CRYSTAL_1                          = 189299,
-    GO_NOVOS_CRYSTAL_2                          = 189300,
-    GO_NOVOS_CRYSTAL_3                          = 189301,
-    GO_NOVOS_CRYSTAL_4                          = 189302
-};
-enum Achievements
-{
-    ACM_CRITERIA_OH_NOVOS                       = 7361
-};
+    public:
+        instance_drak_tharon_keep() : InstanceMapScript(DrakTharonKeepScriptName, 600) { }
 
-class instance_drak_tharon : public InstanceMapScript
-{
-public:
-    instance_drak_tharon() : InstanceMapScript("instance_drak_tharon", 600) { }
-
-    struct instance_drak_tharon_InstanceScript : public InstanceScript
-    {
-        instance_drak_tharon_InstanceScript(Map* map) : InstanceScript(map) {}
-
-        uint8 dredAchievCounter;
-
-        uint64 trollgoreGUID;
-        uint64 novosGUID;
-        uint64 dredGUID;
-        uint64 tharonJaGUID;
-
-        uint64 novosCrystalGUID1;
-        uint64 novosCrystalGUID2;
-        uint64 novosCrystalGUID3;
-        uint64 novosCrystalGUID4;
-
-        uint64 novosSummonerGUID1;
-        uint64 novosSummonerGUID2;
-        uint64 novosSummonerGUID3;
-        uint64 novosSummonerGUID4;
-
-        uint16 m_auiEncounter[MAX_ENCOUNTER];
-
-        std::string str_data;
-
-        void Initialize()
+        struct instance_drak_tharon_keep_InstanceScript : public InstanceScript
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            dredAchievCounter = 0;
-
-            trollgoreGUID = 0;
-            novosGUID = 0;
-            dredGUID = 0;
-            tharonJaGUID = 0;
-
-            novosCrystalGUID1 = 0;
-            novosCrystalGUID2 = 0;
-            novosCrystalGUID3 = 0;
-            novosCrystalGUID4 = 0;
-
-            novosSummonerGUID1 = 0;
-            novosSummonerGUID2 = 0;
-            novosSummonerGUID3 = 0;
-            novosSummonerGUID4 = 0;
-        }
-
-        bool IsEncounterInProgress() const
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-
-            return false;
-        }
-
-        void OnGameObjectCreate(GameObject* go)
-        {
-            switch (go->GetEntry())
+            instance_drak_tharon_keep_InstanceScript(Map* map) : InstanceScript(map)
             {
-                case GO_NOVOS_CRYSTAL_1:
-                    novosCrystalGUID1 = go->GetGUID();
-                    go->SetGoState(GO_STATE_READY);
-                    break;
-                case GO_NOVOS_CRYSTAL_2:
-                    novosCrystalGUID2 = go->GetGUID();
-                    go->SetGoState(GO_STATE_READY);
-                    break;
-                case GO_NOVOS_CRYSTAL_3:
-                    novosCrystalGUID3 = go->GetGUID();
-                    go->SetGoState(GO_STATE_READY);
-                    break;
-                case GO_NOVOS_CRYSTAL_4:
-                    novosCrystalGUID4 = go->GetGUID();
-                    go->SetGoState(GO_STATE_READY);
-                    break;
-            }
-        }
+                SetBossNumber(EncounterCount);
 
-        void OnCreatureCreate(Creature* creature)
-        {
-            switch (creature->GetEntry())
-            {
-                case NPC_TROLLGORE:
-                    trollgoreGUID = creature->GetGUID();
-                    break;
-                case NPC_NOVOS:
-                    novosGUID = creature->GetGUID();
-                    break;
-                case NPC_KING_DRED:
-                    dredGUID = creature->GetGUID();
-                    break;
-                case NPC_THARON_JA:
-                    tharonJaGUID = creature->GetGUID();
-                    break;
-                case NPC_CRYSTAL_CHANNEL_TARGET:
-                    InitializeNovosSummoner(creature);
-                    break;
-            }
-        }
+                TrollgoreGUID       = 0;
+                NovosGUID           = 0;
+                KingDredGUID        = 0;
+                TharonJaGUID        = 0;
 
-        void InitializeNovosSummoner(Creature* creature)
-        {
-            float x = creature->GetPositionX();
-            float y = creature->GetPositionY();
-            float z = creature->GetPositionZ();
-
-            if (x < -374.0f && x > -379.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
-                novosSummonerGUID1 = creature->GetGUID();
-            else if (x < -379.0f && x > -385.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
-                novosSummonerGUID2 = creature->GetGUID();
-            else if (x < -374.0f && x > -385.0f && y > -827.0f && y < -820.0f && z < 60.0f && z > 58.0f)
-                novosSummonerGUID3 = creature->GetGUID();
-            else if (x < -338.0f && x > -344.0f && y > -727.0f && y < 721.0f && z < 30.0f && z > 26.0f)
-                novosSummonerGUID4 = creature->GetGUID();
-        }
-
-        uint64 GetData64(uint32 identifier) const OVERRIDE
-        {
-            switch (identifier)
-            {
-                case DATA_TROLLGORE:          return trollgoreGUID;
-                case DATA_NOVOS:              return novosGUID;
-                case DATA_DRED:               return dredGUID;
-                case DATA_THARON_JA:          return tharonJaGUID;
-                case DATA_NOVOS_CRYSTAL_1:    return novosCrystalGUID1;
-                case DATA_NOVOS_CRYSTAL_2:    return novosCrystalGUID2;
-                case DATA_NOVOS_CRYSTAL_3:    return novosCrystalGUID3;
-                case DATA_NOVOS_CRYSTAL_4:    return novosCrystalGUID4;
-                case DATA_NOVOS_SUMMONER_1:   return novosSummonerGUID1;
-                case DATA_NOVOS_SUMMONER_2:   return novosSummonerGUID2;
-                case DATA_NOVOS_SUMMONER_3:   return novosSummonerGUID3;
-                case DATA_NOVOS_SUMMONER_4:   return novosSummonerGUID4;
+                memset(NovosCrystalGUIDs, 0, 4 * sizeof(uint64));
+                memset(NovosSummonerGUIDs, 0, 4 * sizeof(uint64));
             }
 
-            return 0;
-        }
-
-        void SetData(uint32 type, uint32 data) OVERRIDE
-        {
-            switch (type)
+            void OnCreatureCreate(Creature* creature)
             {
-                case DATA_TROLLGORE_EVENT:
-                    m_auiEncounter[0] = data;
-                    break;
-                case DATA_NOVOS_EVENT:
-                    m_auiEncounter[1] = data;
-                    break;
-                case DATA_DRED_EVENT:
-                    m_auiEncounter[2] = data;
-                    break;
-                case DATA_THARON_JA_EVENT:
-                    m_auiEncounter[3] = data;
-                    break;
-
-                case DATA_KING_DRED_ACHIEV:
-                    dredAchievCounter = data;
-                    break;
+                switch (creature->GetEntry())
+                {
+                    case NPC_TROLLGORE:
+                        TrollgoreGUID = creature->GetGUID();
+                        break;
+                    case NPC_NOVOS:
+                        NovosGUID = creature->GetGUID();
+                        break;
+                    case NPC_KING_DRED:
+                        KingDredGUID = creature->GetGUID();
+                        break;
+                    case NPC_THARON_JA:
+                        TharonJaGUID = creature->GetGUID();
+                        break;
+                    case NPC_CRYSTAL_CHANNEL_TARGET:
+                        InitializeNovosSummoner(creature);
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            if (data == DONE)
+            void OnGameObjectCreate(GameObject* go)
             {
-                SaveToDB();
+                switch (go->GetEntry())
+                {
+                    case GO_NOVOS_CRYSTAL_1:
+                        NovosCrystalGUIDs[0] = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
+                    case GO_NOVOS_CRYSTAL_2:
+                        NovosCrystalGUIDs[1] = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
+                    case GO_NOVOS_CRYSTAL_3:
+                        NovosCrystalGUIDs[2] = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
+                    case GO_NOVOS_CRYSTAL_4:
+                        NovosCrystalGUIDs[3] = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
 
-        uint32 GetData(uint32 type) const OVERRIDE
-        {
-            switch (type)
+            void InitializeNovosSummoner(Creature* creature)
             {
-                case DATA_TROLLGORE_EVENT:    return m_auiEncounter[0];
-                case DATA_NOVOS_EVENT:        return m_auiEncounter[1];
-                case DATA_DRED_EVENT:         return m_auiEncounter[2];
-                case DATA_THARON_JA_EVENT:    return m_auiEncounter[3];
-                case DATA_KING_DRED_ACHIEV:   return dredAchievCounter;
+                float x = creature->GetPositionX();
+                float y = creature->GetPositionY();
+                float z = creature->GetPositionZ();
+
+                if (x < -374.0f && x > -379.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
+                    NovosCrystalGUIDs[0] = creature->GetGUID();
+                else if (x < -379.0f && x > -385.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
+                    NovosCrystalGUIDs[1] = creature->GetGUID();
+                else if (x < -374.0f && x > -385.0f && y > -827.0f && y < -820.0f && z < 60.0f && z > 58.0f)
+                    NovosCrystalGUIDs[2] = creature->GetGUID();
+                else if (x < -338.0f && x > -344.0f && y > -727.0f && y < 721.0f && z < 30.0f && z > 26.0f)
+                    NovosCrystalGUIDs[3] = creature->GetGUID();
             }
-            return 0;
-        }
 
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
+            uint64 GetData64(uint32 type) const OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_TROLLGORE:
+                        return TrollgoreGUID;
+                    case DATA_NOVOS:
+                        return NovosGUID;
+                    case DATA_KING_DRED:
+                        return KingDredGUID;
+                    case DATA_THARON_JA:
+                        return TharonJaGUID;
+                    case DATA_NOVOS_CRYSTAL_1:
+                    case DATA_NOVOS_CRYSTAL_2:
+                    case DATA_NOVOS_CRYSTAL_3:
+                    case DATA_NOVOS_CRYSTAL_4:
+                        return NovosCrystalGUIDs[type - DATA_NOVOS_CRYSTAL_1];
+                    case DATA_NOVOS_SUMMONER_1:
+                    case DATA_NOVOS_SUMMONER_2:
+                    case DATA_NOVOS_SUMMONER_3:
+                    case DATA_NOVOS_SUMMONER_4:
+                        return NovosSummonerGUIDs[type - DATA_NOVOS_SUMMONER_1];
+                }
 
-            std::ostringstream saveStream;
-            saveStream << "D K " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
-                << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
+                return 0;
+            }
 
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void OnUnitDeath(Unit* unit)
-        {
-            if (unit->GetEntry() == NPC_CRYSTAL_HANDLER)
-                if (novosGUID)
-                    if (Creature* novos = instance->GetCreature(novosGUID))
+            void OnUnitDeath(Unit* unit)
+            {
+                if (unit->GetEntry() == NPC_CRYSTAL_HANDLER)
+                    if (Creature* novos = instance->GetCreature(NovosGUID))
                         novos->AI()->DoAction(ACTION_CRYSTAL_HANDLER_DIED);
-        }
-
-        void Load(const char* in)
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
             }
 
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
-
-            if (dataHead1 == 'D' && dataHead2 == 'K')
+            std::string GetSaveData()
             {
-                m_auiEncounter[0] = data0;
-                m_auiEncounter[1] = data1;
-                m_auiEncounter[2] = data2;
-                m_auiEncounter[3] = data3;
+                OUT_SAVE_INST_DATA;
 
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        m_auiEncounter[i] = NOT_STARTED;
-            } else OUT_LOAD_INST_DATA_FAIL;
+                std::ostringstream saveStream;
+                saveStream << "D K " << GetBossSaveData();
 
-            OUT_LOAD_INST_DATA_COMPLETE;
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(char const* str)
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'D' && dataHead2 == 'K')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+        protected:
+            uint64 TrollgoreGUID;
+            uint64 NovosGUID;
+            uint64 KingDredGUID;
+            uint64 TharonJaGUID;
+
+            uint64 NovosCrystalGUIDs[4];
+            uint64 NovosSummonerGUIDs[4];
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        {
+            return new instance_drak_tharon_keep_InstanceScript(map);
         }
-    };
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
-    {
-        return new instance_drak_tharon_InstanceScript(map);
-    }
 };
 
-void AddSC_instance_drak_tharon()
+void AddSC_instance_drak_tharon_keep()
 {
-    new instance_drak_tharon;
+    new instance_drak_tharon_keep();
 }
