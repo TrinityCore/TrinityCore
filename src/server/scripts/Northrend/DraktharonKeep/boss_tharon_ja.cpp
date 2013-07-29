@@ -95,16 +95,13 @@ public:
             uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             Phase = SKELETAL;
             me->SetDisplayId(me->GetNativeDisplayId());
-            if (instance)
-                instance->SetData(DATA_THARON_JA_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_THARON_JA, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-
-            if (instance)
-                instance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_THARON_JA, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -239,14 +236,14 @@ public:
 
                 DoCast(me, SPELL_ACHIEVEMENT_CHECK);
 
-                instance->SetData(DATA_THARON_JA_EVENT, DONE);
+                instance->SetBossState(DATA_THARON_JA, DONE);
             }
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_tharon_jaAI(creature);
+        return GetDrakTharonKeepAI<boss_tharon_jaAI>(creature);
     }
 };
 
