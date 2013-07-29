@@ -99,16 +99,13 @@ public:
 
             me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
 
-            if (instance)
-                instance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
+            instance->SetData(DATA_TROLLGORE, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-
-            if (instance)
-                instance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_TROLLGORE, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -167,8 +164,7 @@ public:
 
             lSummons.DespawnAll();
 
-            if (instance)
-                instance->SetData(DATA_TROLLGORE_EVENT, DONE);
+            instance->SetBossState(DATA_TROLLGORE, DONE);
         }
 
         uint32 GetData(uint32 type) const OVERRIDE
@@ -197,7 +193,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_trollgoreAI(creature);
+        return GetDrakTharonKeepAI<boss_trollgoreAI>(creature);
     }
 };
 
