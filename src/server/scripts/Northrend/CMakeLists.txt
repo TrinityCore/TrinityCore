@@ -193,7 +193,7 @@ set(scripts_STAT_SRCS
   Northrend/DraktharonKeep/boss_novos.cpp
   Northrend/DraktharonKeep/drak_tharon_keep.h
   Northrend/DraktharonKeep/boss_tharon_ja.cpp
-  Northrend/DraktharonKeep/boss_dred.cpp
+  Northrend/DraktharonKeep/boss_king_dred.cpp
 )
 
 message("  -> Prepared: Northrend")
