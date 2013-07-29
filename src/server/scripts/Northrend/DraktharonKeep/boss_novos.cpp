@@ -32,8 +32,7 @@ enum Misc
 
 enum Creatures
 {
-    NPC_CRYSTAL_CHANNEL_TARGET      = 26712,
-    NPC_FETID_TROLL_CORPSE          = 27597,
+    NPC_FETID_TROLL_CORPSE          = 27598,
     NPC_RISEN_SHADOWCASTER          = 27600,
     NPC_HULKING_CORPSE              = 27597
 };
@@ -77,13 +76,11 @@ public:
 
     struct boss_novosAI : public BossAI
     {
-        boss_novosAI(Creature* creature) : BossAI(creature, DATA_NOVOS_EVENT) {}
+        boss_novosAI(Creature* creature) : BossAI(creature, DATA_NOVOS) { }
 
         void Reset() OVERRIDE
         {
-            events.Reset();
-            summons.DespawnAll();
-            instance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
+            _Reset();
 
             _ohNovos = true;
             _crystalHandlerCount = 0;
@@ -94,9 +91,7 @@ public:
 
         void EnterCombat(Unit* /* victim */) OVERRIDE
         {
-            me->setActive(true);
-            DoZoneInCombat();
-            instance->SetData(DATA_NOVOS_EVENT, IN_PROGRESS);
+            _EnterCombat();
 
             SetCrystalsStatus(true);
             SetSummonerStatus(true);
@@ -148,7 +143,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             BossAI::MoveInLineOfSight(who);
 
@@ -260,7 +254,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_novosAI(creature);
+        return GetDrakTharonKeepAI<boss_novosAI>(creature);
     }
 };
 
@@ -323,7 +317,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_crystal_channel_targetAI(creature);
+        return GetDrakTharonKeepAI<npc_crystal_channel_targetAI>(creature);
     }
 };
 
