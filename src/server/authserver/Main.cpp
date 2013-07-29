@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
 * @file main.cpp
 * @brief Authentication Server main program
@@ -22,6 +23,7 @@
 * This file contains the main program for the
 * authentication server
 */
+
 #include <ace/Dev_Poll_Reactor.h>
 #include <ace/TP_Reactor.h>
 #include <ace/ACE.h>
@@ -39,6 +41,12 @@
 #include "RealmList.h"
 #include "RealmAcceptor.h"
 
+#ifdef __linux__
+#include <sched.h>
+#include <sys/resource.h>
+#define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
+#endif
+
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
 #endif
@@ -48,15 +56,15 @@ void StopDB();
 
 bool stopEvent = false;                                     // Setting it to true stops the server
 
-LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the auth server database
+LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the authserver database
 
 /// Handle authserver's termination signals
 class AuthServerSignalHandler : public Trinity::SignalHandler
 {
 public:
-    virtual void HandleSignal(int SigNum)
+    virtual void HandleSignal(int sigNum)
     {
-        switch (SigNum)
+        switch (sigNum)
         {
         case SIGINT:
         case SIGTERM:
@@ -67,7 +75,7 @@ public:
 };
 
 /// Print out the usage string for this program on the console.
-void usage(const char *prog)
+void usage(const char* prog)
 {
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r",
@@ -75,37 +83,37 @@ void usage(const char *prog)
 }
 
 /// Launch the auth server
-extern int main(int argc, char **argv)
+extern int main(int argc, char** argv)
 {
     // Command line parsing to get the configuration file name
-    char const* cfg_file = _TRINITY_REALM_CONFIG;
-    int c = 1;
-    while (c < argc)
+    char const* configFile = _TRINITY_REALM_CONFIG;
+    int count = 1;
+    while (count < argc)
     {
-        if (strcmp(argv[c], "-c") == 0)
+        if (strcmp(argv[count], "-c") == 0)
         {
-            if (++c >= argc)
+            if (++count >= argc)
             {
                 printf("Runtime-Error: -c option requires an input argument\n");
                 usage(argv[0]);
                 return 1;
             }
             else
-                cfg_file = argv[c];
+                configFile = argv[count];
         }
-        ++c;
+        ++count;
     }
 
-    if (!sConfigMgr->LoadInitial(cfg_file))
+    if (!sConfigMgr->LoadInitial(configFile))
     {
-        printf("Invalid or missing configuration file : %s\n", cfg_file);
+        printf("Invalid or missing configuration file : %s\n", configFile);
         printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!\n");
         return 1;
     }
 
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "%s (authserver)", _FULLVERSION);
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", configFile);
 
     TC_LOG_WARN(LOG_FILTER_AUTHSERVER, "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
 
@@ -118,16 +126,16 @@ extern int main(int argc, char **argv)
     TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "Max allowed open files is %d", ACE::max_handles());
 
     // authserver PID file creation
-    std::string pidfile = sConfigMgr->GetStringDefault("PidFile", "");
-    if (!pidfile.empty())
+    std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
+    if (!pidFile.empty())
     {
-        uint32 pid = CreatePIDFile(pidfile);
-        if (!pid)
+        if (uint32 pid = CreatePIDFile(pidFile))
+            TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Daemon PID: %u\n", pid);
+        else
         {
-            TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Cannot create PID file %s.\n", pidfile.c_str());
+            TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Cannot create PID file %s.\n", pidFile.c_str());
             return 1;
         }
-        TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Daemon PID: %u\n", pid);
     }
 
     // Initialize the database connection
@@ -162,7 +170,7 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    // Initialise the signal handlers
+    // Initialize the signal handlers
     AuthServerSignalHandler SignalINT, SignalTERM;
 
     // Register authservers's signal handlers
@@ -170,42 +178,69 @@ extern int main(int argc, char **argv)
     Handler.register_handler(SIGINT, &SignalINT);
     Handler.register_handler(SIGTERM, &SignalTERM);
 
-    ///- Handle affinity for multiple processors and process priority on Windows
-#ifdef _WIN32
+    ///- Handle affinity for multiple processors and process priority
+    uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
+    bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
+
+#ifdef _WIN32 // Windows
     {
         HANDLE hProcess = GetCurrentProcess();
 
-        uint32 Aff = sConfigMgr->GetIntDefault("UseProcessors", 0);
-        if (Aff > 0)
+        if (affinity > 0)
         {
             ULONG_PTR appAff;
             ULONG_PTR sysAff;
 
             if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
             {
-                ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
+                ULONG_PTR currentAffinity = affinity & appAff;            // remove non accessible processors
 
-                if (!curAff)
-                    TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Processors marked in UseProcessors bitmask (hex) %x not accessible for authserver. Accessible processors bitmask (hex): %x", Aff, appAff);
-                else if (SetProcessAffinityMask(hProcess, curAff))
-                    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using processors (bitmask, hex): %x", curAff);
+                if (!currentAffinity)
+                    TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
+                else if (SetProcessAffinityMask(hProcess, currentAffinity))
+                    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using processors (bitmask, hex): %x", currentAffinity);
                 else
-                    TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x", curAff);
+                    TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x", currentAffinity);
             }
-
         }
 
-        bool Prio = sConfigMgr->GetBoolDefault("ProcessPriority", false);
-
-        if (Prio)
+        if (highPriority)
         {
             if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-                TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "The auth server process priority class has been set to HIGH");
+                TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "authserver process priority class set to HIGH");
             else
-                TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Can't set auth server process priority class.");
-
+                TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class.");
         }
     }
+#elif __linux__ // Linux
+
+    if (affinity > 0)
+    {
+        cpu_set_t mask;
+        CPU_ZERO(&mask);
+
+        for (unsigned int i = 0; i < sizeof(affinity) * 8; ++i)
+            if (affinity & (1 << i))
+                CPU_SET(i, &mask);
+
+        if (sched_setaffinity(0, sizeof(mask), &mask))
+            TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
+        else
+        {
+            CPU_ZERO(&mask);
+            sched_getaffinity(0, sizeof(mask), &mask);
+            TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using processors (bitmask, hex): %x", *(uint32*)(&mask));
+        }
+    }
+
+    if (highPriority)
+    {
+        if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
+            TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class, error: %s", strerror(errno));
+        else
+            TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
+    }
+
 #endif
 
     // maximum counter for next ping
