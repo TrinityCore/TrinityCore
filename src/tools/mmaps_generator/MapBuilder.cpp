@@ -716,8 +716,8 @@ namespace MMAP
         params.cs = config.cs;
         params.ch = config.ch;
         params.tileLayer = 0;
-        params.buildBvTree = true; 
- 
+        params.buildBvTree = true;
+
         // will hold final navmesh
         unsigned char* navData = NULL;
         int navDataSize = 0;

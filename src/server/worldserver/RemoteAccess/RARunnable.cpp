@@ -75,7 +75,8 @@ void RARunnable::run()
 
     while (!World::IsStopped())
     {
-        if (m_Reactor->run_reactor_event_loop(ACE_Time_Value(0, 100000)) == -1)
+        ACE_Time_Value interval(0, 100000);
+        if (m_Reactor->run_reactor_event_loop(interval) == -1)
             break;
     }
 
