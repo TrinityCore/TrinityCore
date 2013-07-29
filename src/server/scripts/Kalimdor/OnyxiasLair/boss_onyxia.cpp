@@ -408,7 +408,7 @@ public:
                                     me->InterruptNonMeleeSpells(false);
 
                                 Talk(EMOTE_BREATH);
-                                DoCast(me, PointData->SpellId);
+                                if (PointData)
                                 events.ScheduleEvent(EVENT_DEEP_BREATH, 70000);
                             }
                             break;
