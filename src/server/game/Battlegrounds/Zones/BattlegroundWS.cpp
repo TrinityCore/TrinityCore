@@ -42,6 +42,12 @@ uint32 BG_WSG_Honor[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] =
     {60, 40, 80}  // holiday
 };
 
+uint32 BG_WSG_Reputation[BG_HONOR_MODE_NUM][BG_WSG_REWARD_NUM] =
+{
+    {0, 35, 0}, // normal honor
+    {0, 45, 0}  // holiday
+};
+
 BattlegroundWS::BattlegroundWS()
 {
     BgObjects.resize(BG_WS_OBJECT_MAX);

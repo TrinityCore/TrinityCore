@@ -21,6 +21,12 @@
 
 #include "Battleground.h"
 
+enum BG_AB_Rewards
+{
+    BG_AB_MAP_COMPLETE,
+    BG_AB_REWARD_NUM
+};
+
 enum BG_AB_WorldStates
 {
     BG_AB_OP_OCCUPIED_BASES_HORDE       = 1778,

@@ -180,10 +180,10 @@ enum ScoreType
     //EY, but in MSG_PVP_LOG_DATA opcode!
     SCORE_DAMAGE_DONE           = 5,
     SCORE_HEALING_DONE          = 6,
-    //WS
+    //WS and TP
     SCORE_FLAG_CAPTURES         = 7,
     SCORE_FLAG_RETURNS          = 8,
-    //AB and IC
+    //AB IC and BG
     SCORE_BASES_ASSAULTED       = 9,
     SCORE_BASES_DEFENDED        = 10,
     //AV
