@@ -2761,11 +2761,13 @@ void SpellMgr::LoadSpellInfoStore()
     std::map<uint32, SpellEffectArray> effectsBySpell;
 
     for (uint32 i = 0; i < sSpellEffectStore.GetNumRows(); ++i)
+    {
         SpellEffectEntry const* effect = sSpellEffectStore.LookupEntry(i);
         if (!effect)
             continue;
 
         effectsBySpell[effect->EffectSpellId].effects[effect->EffectIndex] = effect;
+    }
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
