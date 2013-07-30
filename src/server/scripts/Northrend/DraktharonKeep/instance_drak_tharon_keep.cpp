@@ -96,13 +96,13 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 float z = creature->GetPositionZ();
 
                 if (x < -374.0f && x > -379.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
-                    NovosCrystalGUIDs[0] = creature->GetGUID();
+                    NovosSummonerGUIDs[0] = creature->GetGUID();
                 else if (x < -379.0f && x > -385.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
-                    NovosCrystalGUIDs[1] = creature->GetGUID();
+                    NovosSummonerGUIDs[1] = creature->GetGUID();
                 else if (x < -374.0f && x > -385.0f && y > -827.0f && y < -820.0f && z < 60.0f && z > 58.0f)
-                    NovosCrystalGUIDs[2] = creature->GetGUID();
+                    NovosSummonerGUIDs[2] = creature->GetGUID();
                 else if (x < -338.0f && x > -344.0f && y > -727.0f && y < 721.0f && z < 30.0f && z > 26.0f)
-                    NovosCrystalGUIDs[3] = creature->GetGUID();
+                    NovosSummonerGUIDs[3] = creature->GetGUID();
             }
 
             uint64 GetData64(uint32 type) const OVERRIDE
