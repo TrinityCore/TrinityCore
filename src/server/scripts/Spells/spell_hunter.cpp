@@ -35,6 +35,7 @@ enum HunterSpells
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_FIRE                               = 82926,
+    SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
@@ -73,6 +74,11 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                 return true;
             }
 
+            bool Load() OVERRIDE
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_CHIMERA_SHOT_HEAL, true);
@@ -90,6 +96,52 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_hun_chimera_shot_SpellScript();
+        }
+};
+
+// 77767 - Cobra Shot
+class spell_hun_cobra_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_cobra_shot() : SpellScriptLoader("spell_hun_cobra_shot") { }
+
+        class spell_hun_cobra_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_cobra_shot_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SERPENT_STING))
+                    return false;
+                return true;
+            }
+
+            bool Load() OVERRIDE
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, true);
+
+                if (Aura* aur = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, GetCaster()->GetGUID()))
+                {
+                    int32 newDuration = aur->GetDuration() + GetEffectValue() * IN_MILLISECONDS;
+                    aur->SetDuration(std::min(newDuration, aur->GetMaxDuration()), true);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_hun_cobra_shot_SpellScript();
         }
 };
 
@@ -932,7 +984,6 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
         }
 };
 
-
 // -56333 - T.N.T.
 class spell_hun_tnt : public SpellScriptLoader
 {
@@ -977,6 +1028,7 @@ class spell_hun_tnt : public SpellScriptLoader
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_chimera_shot();
+    new spell_hun_cobra_shot();
     new spell_hun_disengage();
     new spell_hun_fire();
     new spell_hun_improved_mend_pet();

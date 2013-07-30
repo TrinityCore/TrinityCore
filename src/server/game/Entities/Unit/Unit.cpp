@@ -7755,7 +7755,7 @@ Player* Unit::GetAffectingPlayer() const
     return NULL;
 }
 
-Minion *Unit::GetFirstMinion() const
+Minion* Unit::GetFirstMinion() const
 {
     if (uint64 pet_guid = GetMinionGUID())
     {
@@ -8931,16 +8931,6 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                                 crit_chance += rendAndTear->GetAmount();
                             break;
                         }
-                    break;
-                    case SPELLFAMILY_WARRIOR:
-                       // Victory Rush
-                       if (spellProto->SpellFamilyFlags[1] & 0x100)
-                       {
-                           // Glyph of Victory Rush
-                           if (AuraEffect const* aurEff = GetAuraEffect(58382, 0))
-                               crit_chance += aurEff->GetAmount();
-                           break;
-                       }
                     break;
                 }
             }
