@@ -2761,13 +2761,11 @@ void SpellMgr::LoadSpellInfoStore()
     std::map<uint32, SpellEffectArray> effectsBySpell;
 
     for (uint32 i = 0; i < sSpellEffectStore.GetNumRows(); ++i)
-    {
         SpellEffectEntry const* effect = sSpellEffectStore.LookupEntry(i);
         if (!effect)
             continue;
 
         effectsBySpell[effect->EffectSpellId].effects[effect->EffectIndex] = effect;
-    }
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
@@ -2779,20 +2777,16 @@ void SpellMgr::LoadSpellInfoStore()
 void SpellMgr::UnloadSpellInfoStore()
 {
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
-    {
-        if (mSpellInfoMap[i])
-            delete mSpellInfoMap[i];
-    }
+        delete mSpellInfoMap[i];
+
     mSpellInfoMap.clear();
 }
 
 void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 {
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
-    {
         if (mSpellInfoMap[i])
             mSpellInfoMap[i]->_UnloadImplicitTargetConditionLists();
-    }
 }
 
 void SpellMgr::LoadSpellInfoCustomAttributes()
@@ -3085,6 +3079,8 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             default:
                 break;
         }
+
+        spellInfo->_InitializeExplicitTargetMask();
     }
 
     CreatureAI::FillAISpellInfo();
