@@ -1450,6 +1450,23 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL, true);
                     }
                 }
+
+                if (AuraEffect const* aurEff = target->GetAuraEffect(58426, 0))
+                {
+                    if (!apply)
+                    {
+                        if(Aura* aurOverkill = target->GetAura(58427))
+                        {
+                             aurOverkill->SetDuration(20*IN_MILLISECONDS);
+                        }
+                    }
+                        else
+                    {
+                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(58427);
+                        int32 basepoints0 = spellInfo->Effects[EFFECT_0].BasePoints;
+                        target->CastCustomSpell(target, 58427, &basepoints0, NULL, NULL, true);
+                     }
+                 }
                 break;
             }
             break;
