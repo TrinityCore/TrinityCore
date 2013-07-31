@@ -364,6 +364,7 @@ public:
         uint32 playerFaction;
         uint32 bossEvent;
         uint32 wave;
+        uint32 waveCount;
 
         uint64 utherGUID;
         uint64 jainaGUID;
@@ -585,6 +586,7 @@ public:
                     break;
                 case 54:
                     gossipStep = 5;
+                    SetDespawnAtFar(false);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
                     break;
@@ -915,6 +917,8 @@ public:
                             {
                                 SpawnWaveGroup(wave, waveGUID);
                                 wave++;
+                                waveCount++;
+                                instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, waveCount);
                             }
                             JumpToNextStep(500);
                             break;
@@ -960,9 +964,11 @@ public:
 
                                 if (Unit* pBoss = me->SummonCreature(uiBossID, 2232.19f, 1331.933f, 126.662f, 3.15f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                                 {
+                                    waveCount++;
                                     bossGUID = pBoss->GetGUID();
                                     pBoss->SetWalk(true);
                                     pBoss->GetMotionMaster()->MovePoint(0, 2194.110f, 1332.00f, 130.00f);
+                                    instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, waveCount);
                                 }
                             }
                             JumpToNextStep(30000);
@@ -978,6 +984,8 @@ public:
                                         bossEvent = DATA_SALRAMM_EVENT;
                                     else if (bossEvent == DATA_SALRAMM_EVENT)
                                     {
+                                        if (instance)
+                                            instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, 0);
                                         SetHoldState(false);
                                         bStepping = false;
                                         bossEvent = DATA_EPOCH_EVENT;
