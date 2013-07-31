@@ -376,7 +376,7 @@ class Battleground
         void RemovePlayerFromResurrectQueue(uint64 player_guid);
 
         /// Relocate all players in ReviveQueue to the closest graveyard
-        void RelocateDeadPlayers(uint32 queueIndex);
+        void RelocateDeadPlayers(uint64 queueIndex);
 
         void StartBattleground();
 
