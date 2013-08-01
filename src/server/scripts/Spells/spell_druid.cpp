@@ -53,12 +53,89 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
+    SPELL_DRUID_NATURES_GRACE               = 16880,
+    SPELL_DRUID_NATURES_GRACE_TRIGGER       = 16886,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178
+};
+
+// 1850 - Dash
+class spell_dru_dash : public SpellScriptLoader
+{
+    public:
+        spell_dru_dash() : SpellScriptLoader("spell_dru_dash") { }
+
+        class spell_dru_dash_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_dash_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                // do not set speed if not in cat form
+                if (GetUnitOwner()->GetShapeshiftForm() != FORM_CAT)
+                    amount = 0;
+            }
+
+            void Register() OVERRIDE
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_dash_AuraScript();
+        }
+};
+
+// 48517 - Eclipse (Solar)
+// 48518 - Eclipse (Lunar)
+class spell_dru_eclipse : public SpellScriptLoader
+{
+    public:
+        spell_dru_eclipse(char const* scriptName) : SpellScriptLoader(scriptName) { }
+
+        class spell_dru_eclipse_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_eclipse_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_NATURES_GRACE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_NATURES_GRACE_TRIGGER))
+                    return false;
+                return true;
+            }
+
+            bool Load() OVERRIDE
+            {
+                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (caster->ToPlayer()->GetAuraOfRankedSpell(SPELL_DRUID_NATURES_GRACE))
+                    caster->ToPlayer()->RemoveSpellCooldown(SPELL_DRUID_NATURES_GRACE_TRIGGER, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_eclipse_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_eclipse_AuraScript();
+        }
 };
 
 // 2912, 5176, 78674 - Starfire, Wrath, and Starsurge
@@ -168,35 +245,6 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_dru_eclipse_energize_SpellScript;
-        }
-};
-
-// 1850 - Dash
-class spell_dru_dash : public SpellScriptLoader
-{
-    public:
-        spell_dru_dash() : SpellScriptLoader("spell_dru_dash") { }
-
-        class spell_dru_dash_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_dash_AuraScript);
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                // do not set speed if not in cat form
-                if (GetUnitOwner()->GetShapeshiftForm() != FORM_CAT)
-                    amount = 0;
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_dru_dash_AuraScript();
         }
 };
 
@@ -1107,6 +1155,8 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
+    new spell_dru_eclipse("spell_dru_eclipse_lunar");
+    new spell_dru_eclipse("spell_dru_eclipse_solar");
     new spell_dru_eclipse_energize();
     new spell_dru_enrage();
     new spell_dru_glyph_of_innervate();
