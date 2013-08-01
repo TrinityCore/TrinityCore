@@ -161,11 +161,11 @@ UseProcessors = 0
 #
 #    ProcessPriority
 #        Description: Process priority setting for Windows and Linux based systems.
-#        Details:     On Linux, a nice value of -15 is used. On Windows, process is set to HIGH class.
-#        Default:     1 - (High)
-#                     0 - (Normal)
+#        Details:     On Linux, a nice value of -15 is used. (requires superuser). On Windows, process is set to HIGH class.
+#        Default:     0 - (Normal)
+#                     1 - (High)
 
-ProcessPriority = 1
+ProcessPriority = 0
 
 #
 #    Compression

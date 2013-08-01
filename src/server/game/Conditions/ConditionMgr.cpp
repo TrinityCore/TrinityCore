@@ -317,6 +317,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = unit->HasUnitState(ConditionValue1);
             break;
         }
+        case CONDITION_CREATURE_TYPE:
+        {
+            if (Creature* creature = object->ToCreature())
+                condMeets = creature->GetCreatureTemplate()->type == ConditionValue1;
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -482,6 +488,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_UNIT_STATE:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_CREATURE_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2025,9 +2034,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
-        case CONDITION_UNUSED_24:
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_24 in `conditions` table - ignoring");
-            return false;
+        case CONDITION_CREATURE_TYPE:
+        {
+            if (!cond->ConditionValue1 || cond->ConditionValue1 > CREATURE_TYPE_GAS_CLOUD)
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureType condition has non existing CreatureType in value1 (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         default:
             break;
     }

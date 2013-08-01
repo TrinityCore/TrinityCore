@@ -520,6 +520,63 @@ public:
     }
 };
 
+
+class spell_oculus_touch_the_nightmare : public SpellScriptLoader
+{
+    public:
+        spell_oculus_touch_the_nightmare() : SpellScriptLoader("spell_oculus_touch_the_nightmare") { }
+
+        class spell_oculus_touch_the_nightmare_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_oculus_touch_the_nightmare_SpellScript);
+
+            void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+            {
+                SetHitDamage(int32(GetCaster()->CountPctFromMaxHealth(30)));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_oculus_touch_the_nightmare_SpellScript::HandleDamageCalc, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_oculus_touch_the_nightmare_SpellScript();
+        }
+};
+
+class spell_oculus_dream_funnel: public SpellScriptLoader
+{
+    public:
+        spell_oculus_dream_funnel() : SpellScriptLoader("spell_oculus_dream_funnel") { }
+
+        class spell_oculus_dream_funnel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_oculus_dream_funnel_AuraScript);
+
+            void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                if (Unit* caster = GetCaster())
+                    amount = int32(caster->CountPctFromMaxHealth(5));
+
+                canBeRecalculated = false;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_oculus_dream_funnel_AuraScript();
+        }
+};
+
 void AddSC_oculus()
 {
     new npc_verdisa_beglaristrasz_eternos();
@@ -527,4 +584,6 @@ void AddSC_oculus()
     new npc_ruby_emerald_amber_drake();
     new spell_gen_stop_time();
     new spell_call_ruby_emerald_amber_drake();
+    new spell_oculus_touch_the_nightmare();
+    new spell_oculus_dream_funnel();
 }
