@@ -28,21 +28,27 @@
 
 enum RogueSpells
 {
-    SPELL_ROGUE_BLADE_FLURRY                     = 13877,
-    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK        = 22482,
-    SPELL_ROGUE_CHEAT_DEATH_COOLDOWN             = 31231,
-    SPELL_ROGUE_CRIPPLING_POISON                 = 3409,
-    SPELL_ROGUE_GLYPH_OF_PREPARATION             = 56819,
-    SPELL_ROGUE_PREY_ON_THE_WEAK                 = 58670,
-    SPELL_ROGUE_SHIV_TRIGGERED                   = 5940,
-    SPELL_ROGUE_SILCE_AND_DICE                   = 5171,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST    = 57933,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC         = 59628,
+    SPELL_ROGUE_BLADE_FLURRY                        = 13877,
+    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
+    SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
+    SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
+    SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
+    SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
+    SPELL_ROGUE_OVERKILL_TALENT                     = 58426,
+    SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
+    SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
+    SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
+    SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
+    SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628
 };
 
 enum RogueSpellIcons
 {
-    ICON_ROGUE_IMPROVED_RECUPERATE               = 4819
+    ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -327,6 +333,43 @@ class spell_rog_deadly_poison : public SpellScriptLoader
         }
 };
 
+// 31666 - Master of Subtlety
+class spell_rog_master_of_subtlety : public SpellScriptLoader
+{
+    public:
+        spell_rog_master_of_subtlety() : SpellScriptLoader("spell_rog_master_of_subtlety") { }
+
+        class spell_rog_master_of_subtlety_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_master_of_subtlety_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                    target->RemoveAurasDueToSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_master_of_subtlety_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_master_of_subtlety_AuraScript();
+        }
+};
+
 // 31130 - Nerves of Steel
 class spell_rog_nerves_of_steel : public SpellScriptLoader
 {
@@ -368,6 +411,43 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_rog_nerves_of_steel_AuraScript();
+        }
+};
+
+// 58428 - Overkill
+class spell_rog_overkill : public SpellScriptLoader
+{
+    public:
+        spell_rog_overkill() : SpellScriptLoader("spell_rog_overkill") { }
+
+        class spell_rog_overkill_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_overkill_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                    target->RemoveAurasDueToSpell(SPELL_ROGUE_OVERKILL_POWER_REGEN);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_overkill_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_overkill_AuraScript();
         }
 };
 
@@ -621,6 +701,70 @@ class spell_rog_shiv : public SpellScriptLoader
         }
 };
 
+// 1784 - Stealth
+class spell_rog_stealth : public SpellScriptLoader
+{
+    public:
+        spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
+
+        class spell_rog_stealth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_stealth_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_TALENT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_PERIODIC))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                // Master of Subtlety
+                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
+                {
+                    int32 basepoints0 = aurEff->GetAmount();
+                    target->CastCustomSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, &basepoints0, NULL, NULL, true);
+                }
+
+                // Overkill
+                if (target->HasAura(SPELL_ROGUE_OVERKILL_TALENT))
+                    target->CastSpell(target, SPELL_ROGUE_OVERKILL_POWER_REGEN, true);
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                // Master of subtlety
+                if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
+                    target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
+
+                // Overkill
+                if (target->HasAura(SPELL_ROGUE_OVERKILL_TALENT))
+                    target->CastSpell(target, SPELL_ROGUE_OVERKILL_PERIODIC, true);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_stealth_AuraScript();
+        }
+};
+
 // 57934 - Tricks of the Trade
 class spell_rog_tricks_of_the_trade : public SpellScriptLoader
 {
@@ -719,12 +863,15 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
+    new spell_rog_master_of_subtlety();
     new spell_rog_nerves_of_steel();
+    new spell_rog_overkill();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
     new spell_rog_recuperate();
     new spell_rog_rupture();
     new spell_rog_shiv();
+    new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
 }

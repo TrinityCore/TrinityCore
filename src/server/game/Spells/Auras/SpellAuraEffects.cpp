@@ -5328,11 +5328,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
         {
             switch (GetSpellInfo()->Id)
             {
-                // Master of Subtlety
-                case 31666:
-                    if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
-                        target->RemoveAurasDueToSpell(31665);
-                    break;
                 // Killing Spree
                 case 51690:
                 {
@@ -5364,11 +5359,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     target->CastSpell(spellTarget, 57841, true);
                     break;
                 }
-                // Overkill
-                case 58428:
-                    if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
-                        target->RemoveAurasDueToSpell(58427);
-                    break;
             }
             break;
         }
