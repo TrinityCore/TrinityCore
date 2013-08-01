@@ -491,9 +491,9 @@ class spell_rog_preparation : public SpellScriptLoader
                     if ((spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP ||              // Shadowstep
                         spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT) ||              // Vanish, Sprint
                         // Glyph of Preparation
-                        caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION) &&
+                        (caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION) &&
                         (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB ||    // Dismantle, Smoke Bomb
-                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_KICK))                      // Kick
+                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_KICK)))                     // Kick
                     {
                         caster->RemoveSpellCooldown((itr++)->first, true);
                     }
