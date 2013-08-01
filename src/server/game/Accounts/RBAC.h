@@ -119,6 +119,8 @@ class RBACObject
         RBACObject(uint32 id = 0, std::string const& name = ""):
             _id(id), _name(name) { }
 
+        virtual ~RBACObject() { }
+
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
         /// Gets the Id of the Object

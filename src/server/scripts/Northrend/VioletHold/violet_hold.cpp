@@ -667,14 +667,14 @@ public:
         void JustSummoned(Creature* summoned) OVERRIDE
         {
             listOfMobs.Summon(summoned);
-            if (summoned)
+            if (instance)
                 instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
-        void SummonedMobDied(Creature* summoned)
+        void SummonedCreatureDies(Creature* summoned, Unit* killer) OVERRIDE
         {
             listOfMobs.Despawn(summoned);
-            if (summoned)
+            if (instance)
                 instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
@@ -737,7 +737,7 @@ struct violet_hold_trashAI : public npc_escortAI
         if (!bHasGotMovingPoints)
         {
             bHasGotMovingPoints = true;
-                switch (portalLocationID)
+            switch (portalLocationID)
             {
                 case 0:
                     for (int i=0;i<6;i++)
@@ -763,7 +763,7 @@ struct violet_hold_trashAI : public npc_escortAI
                 case 2:
                     for (int i=0;i<8;i++)
                         AddWaypoint(i, ThirdPortalWPs[i][0]+irand(-1, 1), ThirdPortalWPs[i][1]+irand(-1, 1), ThirdPortalWPs[i][2], 0);
-                        me->SetHomePosition(ThirdPortalWPs[7][0], ThirdPortalWPs[7][1], ThirdPortalWPs[7][2], 3.149439f);
+                    me->SetHomePosition(ThirdPortalWPs[7][0], ThirdPortalWPs[7][1], ThirdPortalWPs[7][2], 3.149439f);
                     break;
                 case 3:
                     for (int i=0;i<9;i++)
@@ -1080,26 +1080,18 @@ class npc_azure_stalker : public CreatureScript
 public:
     npc_azure_stalker() : CreatureScript("npc_azure_stalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_azure_stalkerAI(creature);
-    }
-
     struct npc_azure_stalkerAI : public violet_hold_trashAI
     {
         npc_azure_stalkerAI(Creature* creature) : violet_hold_trashAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
-        uint32 uiBackstabTimer;
-        uint32 uiTacticalBlinkTimer;
-        bool TacticalBlinkCasted;
 
         void Reset() OVERRIDE
         {
-            uiBackstabTimer = 1300;
-            uiTacticalBlinkTimer = 8000;
-            TacticalBlinkCasted =false;
+            _backstabTimer = 1300;
+            _tacticalBlinkTimer = 8000;
+            _tacticalBlinkCast =false;
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -1110,33 +1102,42 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!TacticalBlinkCasted)
+            if (!_tacticalBlinkCast)
             {
-                if (uiTacticalBlinkTimer <= diff)
+                if (_tacticalBlinkTimer <= diff)
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true);
                     if (target)
                         DoCast(target, SPELL_TACTICAL_BLINK);
-                        uiTacticalBlinkTimer = 6000;
-                    TacticalBlinkCasted = true;
-                } else uiTacticalBlinkTimer -= diff;
+                    _tacticalBlinkTimer = 6000;
+                    _tacticalBlinkCast = true;
+                } else _tacticalBlinkTimer -= diff;
             }
 
             else
             {
-                if (uiBackstabTimer <= diff)
+                if (_backstabTimer <= diff)
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 10, true);
                     DoCast(target, SPELL_BACKSTAB);
-                    TacticalBlinkCasted = false;
-                    uiBackstabTimer =1300;
-                } else uiBackstabTimer -= diff;
+                    _tacticalBlinkCast = false;
+                    _backstabTimer =1300;
+                } else _backstabTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        uint32 _backstabTimer;
+        uint32 _tacticalBlinkTimer;
+        bool _tacticalBlinkCast;
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_azure_stalkerAI(creature);
+    }
 };
 
 class npc_azure_spellbreaker : public CreatureScript
