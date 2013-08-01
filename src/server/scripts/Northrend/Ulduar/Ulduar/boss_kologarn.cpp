@@ -150,6 +150,10 @@ class boss_kologarn : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
                 _JustDied();
+                if (Creature* leftArm = me->FindNearestCreature(NPC_LEFT_ARM, 50.0f))
+                    leftArm->DespawnOrUnsummon();
+                if (Creature* rightArm = me->FindNearestCreature(NPC_RIGHT_ARM, 50.0f))
+                    rightArm->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit* who) OVERRIDE
@@ -166,7 +170,6 @@ class boss_kologarn : public CreatureScript
                     left = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
@@ -177,7 +180,6 @@ class boss_kologarn : public CreatureScript
                     right = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
@@ -195,6 +197,8 @@ class boss_kologarn : public CreatureScript
                         rubbleStalker->CastSpell(rubbleStalker, SPELL_FALLING_RUBBLE, true);
                         rubbleStalker->CastSpell(rubbleStalker, SPELL_SUMMON_RUBBLE, true);
                     }
+
+                    who->ToCreature()->DespawnOrUnsummon();
 
                     if (!right && !left)
                         events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);

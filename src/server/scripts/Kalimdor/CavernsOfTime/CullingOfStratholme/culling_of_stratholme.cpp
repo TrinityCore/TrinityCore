@@ -111,7 +111,6 @@ enum NPCs
     NPC_INFINITE_ADVERSARY                     = 27742,
     NPC_INFINITE_HUNTER                        = 27743,
     NPC_INFINITE_AGENT                         = 27744,
-    NPC_TIME_RIFT                              = 28409,
     NPC_ZOMBIE                                 = 27737,
     NPC_GHOUL                                  = 28249,
     NPC_NECROMANCER                            = 28200,
@@ -357,6 +356,7 @@ public:
 
         InstanceScript* instance;
 
+        bool HasStartedTimer;
         bool bStepping;
         uint32 step;
         uint32 phaseTimer;
@@ -364,6 +364,7 @@ public:
         uint32 playerFaction;
         uint32 bossEvent;
         uint32 wave;
+        uint32 waveCount;
 
         uint64 utherGUID;
         uint64 jainaGUID;
@@ -414,6 +415,8 @@ public:
                 phaseTimer = 1000;
                 exorcismTimer = 7300;
                 wave = 0;
+
+                HasStartedTimer = false;
             }
         }
 
@@ -583,6 +586,7 @@ public:
                     break;
                 case 54:
                     gossipStep = 5;
+                    SetDespawnAtFar(false);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
                     break;
@@ -903,10 +907,18 @@ public:
                         case 53:
                         case 55:
                         case 57:
+                            if (instance && !HasStartedTimer) // Check if event has already happened, so it doesn't repeat itself
+                            {
+                                instance->SetData(DATA_INFINITE_COUNTER, IN_PROGRESS);
+                                HasStartedTimer = true;
+                            }
+
                             if (instance->GetData(bossEvent) != DONE)
                             {
                                 SpawnWaveGroup(wave, waveGUID);
                                 wave++;
+                                waveCount++;
+                                instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, waveCount);
                             }
                             JumpToNextStep(500);
                             break;
@@ -952,9 +964,11 @@ public:
 
                                 if (Unit* pBoss = me->SummonCreature(uiBossID, 2232.19f, 1331.933f, 126.662f, 3.15f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                                 {
+                                    waveCount++;
                                     bossGUID = pBoss->GetGUID();
                                     pBoss->SetWalk(true);
                                     pBoss->GetMotionMaster()->MovePoint(0, 2194.110f, 1332.00f, 130.00f);
+                                    instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, waveCount);
                                 }
                             }
                             JumpToNextStep(30000);
@@ -970,6 +984,8 @@ public:
                                         bossEvent = DATA_SALRAMM_EVENT;
                                     else if (bossEvent == DATA_SALRAMM_EVENT)
                                     {
+                                        if (instance)
+                                            instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, 0);
                                         SetHoldState(false);
                                         bStepping = false;
                                         bossEvent = DATA_EPOCH_EVENT;

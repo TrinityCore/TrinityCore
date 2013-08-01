@@ -1296,36 +1296,6 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
         }
 };
 
-class spell_gen_dream_funnel: public SpellScriptLoader
-{
-    public:
-        spell_gen_dream_funnel() : SpellScriptLoader("spell_gen_dream_funnel") { }
-
-        class spell_gen_dream_funnel_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_dream_funnel_AuraScript);
-
-            void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                if (GetCaster())
-                    amount = GetCaster()->GetMaxHealth() * 0.05f;
-
-                canBeRecalculated = false;
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_gen_dream_funnel_AuraScript();
-        }
-};
-
 class spell_gen_ds_flush_knockback : public SpellScriptLoader
 {
     public:
@@ -3679,7 +3649,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_clone_weapon();
     new spell_gen_clone_weapon_aura();
     new spell_gen_count_pct_from_max_hp("spell_gen_default_count_pct_from_max_hp");
-    new spell_gen_count_pct_from_max_hp("spell_gen_30pct_count_pct_from_max_hp", 30);
     new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
     new spell_gen_create_lance();
     new spell_gen_creature_permanent_feign_death();
@@ -3689,7 +3658,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_defend();
     new spell_gen_despawn_self();
     new spell_gen_divine_storm_cd_reset();
-    new spell_gen_dream_funnel();
     new spell_gen_ds_flush_knockback();
     new spell_gen_dummy_trigger();
     new spell_gen_dungeon_credit();

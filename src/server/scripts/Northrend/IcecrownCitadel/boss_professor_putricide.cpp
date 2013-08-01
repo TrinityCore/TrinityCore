@@ -64,7 +64,8 @@ enum Spells
     SPELL_SLIME_PUDDLE_TRIGGER              = 70341,
     SPELL_MALLEABLE_GOO                     = 70852,
     SPELL_UNSTABLE_EXPERIMENT               = 70351,
-    SPELL_TEAR_GAS                          = 71617,    // phase transition
+    SPELL_TEAR_GAS_PLAYER                   = 71615,    // phase transition
+    SPELL_TEAR_GAS                          = 71617,
     SPELL_TEAR_GAS_CREATURE                 = 71618,
     SPELL_TEAR_GAS_CANCEL                   = 71620,
     SPELL_TEAR_GAS_PERIODIC_TRIGGER         = 73170,
@@ -200,19 +201,6 @@ class AbominationDespawner
 
     private:
         Unit* _owner;
-};
-
-struct RotfaceHeightCheck
-{
-    RotfaceHeightCheck(Creature* rotface) : _rotface(rotface) { }
-
-    bool operator()(Creature* stalker) const
-    {
-        return stalker->GetPositionZ() < _rotface->GetPositionZ() + 5.0f;
-    }
-
-private:
-    Creature* _rotface;
 };
 
 class boss_professor_putricide : public CreatureScript
@@ -448,7 +436,6 @@ class boss_professor_putricide : public CreatureScript
                         {
                             std::list<Creature*> list;
                             GetCreatureListWithEntryInGrid(list, rotface, NPC_PUDDLE_STALKER, 50.0f);
-                            list.remove_if(RotfaceHeightCheck(rotface));
                             if (list.size() > 4)
                             {
                                 list.sort(Trinity::ObjectDistanceOrderPred(rotface));
@@ -627,10 +614,14 @@ class boss_professor_putricide : public CreatureScript
                             AttackStart(me->GetVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71615);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_PLAYER);
                             DoCastAOE(SPELL_TEAR_GAS_CANCEL);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
+                            for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                                 if(Unit* unit = ObjectAccessor::GetUnit(*me, *itr))
+                                     if (unit->GetEntry() == NPC_MUTATED_ABOMINATION_10 || unit->GetEntry() == NPC_MUTATED_ABOMINATION_25)
+                                         unit->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PLAYER);
                             break;
                         case EVENT_MALLEABLE_GOO:
                             if (Is25ManRaid())

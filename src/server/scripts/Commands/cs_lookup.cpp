@@ -54,6 +54,13 @@ public:
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
+        static ChatCommand lookupOnlineCommandTable[] =
+        {
+            { "account",        SEC_MODERATOR,      true,  &HandleLookupOnlineAccountCommand,   "", NULL },
+            { "character",      SEC_MODERATOR,      true,  &HandleLookupOnlineCharacterCommand, "", NULL },
+            { NULL,             0,                  false, NULL,                                "", NULL }
+        };
+
         static ChatCommand lookupCommandTable[] =
         {
             { "area",           SEC_MODERATOR,      true,  &HandleLookupAreaCommand,            "", NULL },
@@ -62,6 +69,7 @@ public:
             { "faction",        SEC_ADMINISTRATOR,  true,  &HandleLookupFactionCommand,         "", NULL },
             { "item",           SEC_ADMINISTRATOR,  true,  &HandleLookupItemCommand,            "", NULL },
             { "itemset",        SEC_ADMINISTRATOR,  true,  &HandleLookupItemSetCommand,         "", NULL },
+            { "online",         SEC_MODERATOR,      true,  NULL,                                "", lookupOnlineCommandTable },
             { "object",         SEC_ADMINISTRATOR,  true,  &HandleLookupObjectCommand,          "", NULL },
             { "quest",          SEC_ADMINISTRATOR,  true,  &HandleLookupQuestCommand,           "", NULL },
             { "player",         SEC_GAMEMASTER,     true,  NULL,                                "", lookupPlayerCommandTable },
@@ -1423,6 +1431,102 @@ public:
         if (counter == 0) // empty accounts only
         {
             handler->PSendSysMessage(LANG_NO_PLAYERS_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        return true;
+    }
+
+    //Added a way to see if a player is on a different character without having to pinfo/lookup all toons on the account
+    static bool HandleLookupOnlineAccountCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        std::string account = strtok((char*)args, " ");
+        char* limitStr = strtok(NULL, " ");
+        int32 limit = limitStr ? atoi(limitStr) : -1;
+
+        if (!AccountMgr::normalizeString
+            (account))
+            return false;
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_ONLINE_NAME);
+        stmt->setString(0, account);
+        PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+        return LookupOnlineSearchCommand(result, limit, handler);
+    }
+
+    //Using the same way as above but using a character name to get the account id
+    static bool HandleLookupOnlineCharacterCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* name = strtok((char*)args, " ");
+        char* limitStr = strtok(NULL, " ");
+        int32 limit = limitStr ? atoi(limitStr) : -1;
+        name[0] = toupper(name[0]);
+        uint32 account = 0;
+        account = AccountMgr::GetId(name);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_ONLINE_ID);
+        stmt->setUInt32(0, account);
+        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        return LookupOnlineSearchCommand(result, limit, handler);
+    }
+
+    static bool LookupOnlineSearchCommand(PreparedQueryResult result, int32 limit, ChatHandler* handler)
+    {
+        if (!result)
+        {
+            handler->PSendSysMessage(LANG_NOT_ONLINE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 counter = 0;
+        uint32 count = 0;
+        uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+
+        do
+        {
+            if (maxResults && count++ == maxResults)
+            {
+                handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                return true;
+            }
+
+            Field* fields           = result->Fetch();
+            uint32 accountId        = fields[0].GetUInt32();
+            std::string accountName = fields[1].GetString();
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_GUID_NAME_BY_ONLINE);
+            stmt->setUInt32(0, accountId);
+            PreparedQueryResult result2 = CharacterDatabase.Query(stmt);
+
+            if (result2)
+            {
+                handler->PSendSysMessage(LANG_LOOKUP_PLAYER_ACCOUNT, accountName.c_str(), accountId);
+
+                do
+                {
+                    Field* characterFields  = result2->Fetch();
+                    uint32 guid             = characterFields[0].GetUInt32();
+                    std::string name        = characterFields[1].GetString();
+
+                    handler->PSendSysMessage(LANG_LOOKUP_ONLINE, name.c_str(), guid);
+                    ++counter;
+                }
+                while (result2->NextRow() && (limit == -1 || counter < limit));
+            }
+        }
+        while (result->NextRow());
+
+        if (counter == 0) // empty accounts only
+        {
+            handler->PSendSysMessage(LANG_NOT_ONLINE);
             handler->SetSentErrorMessage(true);
             return false;
         }
