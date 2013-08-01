@@ -728,7 +728,7 @@ class spell_rog_stealth : public SpellScriptLoader
                 Unit* target = GetTarget();
 
                 // Master of Subtlety
-                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
+                if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
                 {
                     int32 basepoints0 = aurEff->GetAmount();
                     target->CastCustomSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, &basepoints0, NULL, NULL, true);
