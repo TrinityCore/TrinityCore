@@ -106,7 +106,8 @@ class instance_ramparts : public InstanceMapScript
                         loadStream >> tmpState;
                         if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                             tmpState = NOT_STARTED;
-                            SetBossState(i, EncounterState(tmpState));
+
+                        SetBossState(i, EncounterState(tmpState));
                     }
                 }
                 else
