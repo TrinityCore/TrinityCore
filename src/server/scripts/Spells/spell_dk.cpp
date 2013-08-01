@@ -1195,7 +1195,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
 
-            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_WILL_OF_THE_NECROPOLIS))
                     return false;
@@ -1212,7 +1212,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
                return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 GetTarget()->CastSpell(GetTarget(), SPELL_DK_WILL_OF_THE_NECROPOLIS, true, NULL, aurEff);
 

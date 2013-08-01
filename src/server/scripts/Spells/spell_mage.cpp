@@ -1076,7 +1076,7 @@ class spell_mage_polymorph : public SpellScriptLoader
                 return _caster && eventInfo.GetDamageInfo();
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 // Improved Polymorph
