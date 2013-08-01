@@ -1425,7 +1425,7 @@ void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
     }
 }
 
-void Battleground::RelocateDeadPlayers(uint32 queueIndex)
+void Battleground::RelocateDeadPlayers(uint64 queueIndex)
 {
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
     std::vector<uint64>& ghostList = m_ReviveQueue[queueIndex];

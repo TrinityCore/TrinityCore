@@ -468,9 +468,9 @@ void AddSC_boss_toravon();
 void AddSC_instance_archavon();
 void AddSC_boss_trollgore();             //Drak'Tharon Keep
 void AddSC_boss_novos();
-void AddSC_boss_dred();
+void AddSC_boss_king_dred();
 void AddSC_boss_tharon_ja();
-void AddSC_instance_drak_tharon();
+void AddSC_instance_drak_tharon_keep();
 void AddSC_boss_cyanigosa();             //Violet Hold
 void AddSC_boss_erekem();
 void AddSC_boss_ichoron();
@@ -1211,9 +1211,9 @@ void AddNorthrendScripts()
     AddSC_instance_archavon();
     AddSC_boss_trollgore();             //Drak'Tharon Keep
     AddSC_boss_novos();
-    AddSC_boss_dred();
+    AddSC_boss_king_dred();
     AddSC_boss_tharon_ja();
-    AddSC_instance_drak_tharon();
+    AddSC_instance_drak_tharon_keep();
     AddSC_boss_cyanigosa();             //Violet Hold
     AddSC_boss_erekem();
     AddSC_boss_ichoron();

@@ -39,7 +39,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-char * command_finder(const char* text, int state)
+char* command_finder(const char* text, int state)
 {
     static int idx, len;
     const char* ret;
@@ -70,19 +70,18 @@ char * command_finder(const char* text, int state)
     return ((char*)NULL);
 }
 
-char ** cli_completion(const char * text, int start, int /*end*/)
+char** cli_completion(const char* text, int start, int /*end*/)
 {
-    char ** matches;
-    matches = (char**)NULL;
+    char** matches = NULL;
 
-    if (start == 0)
-        matches = rl_completion_matches((char*)text, &command_finder);
-    else
+    if (start)
         rl_bind_key('\t', rl_abort);
-    return (matches);
+    else
+        matches = rl_completion_matches((char*)text, &command_finder);
+    return matches;
 }
 
-int cli_hook_func(void)
+int cli_hook_func()
 {
        if (World::IsStopped())
            rl_done = 1;
