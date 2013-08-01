@@ -796,7 +796,7 @@ public:
         if (show == "info")
         {
             // Check if the user did specify a visual waypoint
-            if (target && target->GetEntry() != VISUAL_WAYPOINT)
+            if (!target || target->GetEntry() != VISUAL_WAYPOINT)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_SELECT);
                 handler->SetSentErrorMessage(true);
