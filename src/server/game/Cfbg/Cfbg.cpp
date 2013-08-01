@@ -42,6 +42,7 @@ bool Player::SendRealNameQuery()
     data << uint8(getGender());
     data << uint8(getClass());
     data << uint8(0);                                   // is not declined
+    GetSession()->SendPacket(&data);
 
     return true;
 }
