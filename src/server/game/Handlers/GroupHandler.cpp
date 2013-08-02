@@ -943,33 +943,28 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
 
     if (mask & GROUP_UPDATE_FLAG_STATUS)
     {
-        if (player)
+        uint16 playerStatus = MEMBER_STATUS_ONLINE;
+        if (player->IsPvP())
+            playerStatus |= MEMBER_STATUS_PVP;
+
+        if (!player->IsAlive())
         {
-            uint16 playerStatus = MEMBER_STATUS_ONLINE;
-            if (player->IsPvP())
-                playerStatus |= MEMBER_STATUS_PVP;
-
-            if (!player->IsAlive())
-            {
-                if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-                    playerStatus |= MEMBER_STATUS_GHOST;
-                else
-                    playerStatus |= MEMBER_STATUS_DEAD;
-            }
-
-            if (player->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                playerStatus |= MEMBER_STATUS_PVP_FFA;
-
-            if (player->isAFK())
-                playerStatus |= MEMBER_STATUS_AFK;
-
-            if (player->isDND())
-                playerStatus |= MEMBER_STATUS_DND;
-
-            *data << uint16(playerStatus);
+            if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+                playerStatus |= MEMBER_STATUS_GHOST;
+            else
+                playerStatus |= MEMBER_STATUS_DEAD;
         }
-        else
-            *data << uint16(MEMBER_STATUS_OFFLINE);
+
+        if (player->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            playerStatus |= MEMBER_STATUS_PVP_FFA;
+
+        if (player->isAFK())
+            playerStatus |= MEMBER_STATUS_AFK;
+
+        if (player->isDND())
+            playerStatus |= MEMBER_STATUS_DND;
+
+        *data << uint16(playerStatus);
     }
 
     if (mask & GROUP_UPDATE_FLAG_CUR_HP)
