@@ -114,7 +114,7 @@ public:
         InstanceScript* instance;
 
         bool bIsUndead;
-        bool HasEventStarted;
+        bool bHasEventStarted;
 
         void Reset() OVERRIDE
         {
@@ -122,7 +122,7 @@ public:
                 me->UpdateEntry(NPC_INGVAR_HUMAN);
 
             bIsUndead = false;
-            HasEventStarted = false;
+            bHasEventStarted = false;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -141,9 +141,9 @@ public:
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
-            if (damage >= me->GetHealth() && !bIsUndead)
+            if (damage >= me->GetHealth() && !bIsUndead && !bHasEventStarted)
             {
-                HasEventStarted = true;
+                bHasEventStarted = true;
                 //DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);  // Dont work ???
                 // visuel hack
                 me->SetHealth(0);
