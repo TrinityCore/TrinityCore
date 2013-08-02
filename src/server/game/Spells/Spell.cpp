@@ -825,7 +825,8 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             for (uint32 j = effIndex + 1; j < MAX_SPELL_EFFECTS; ++j)
             {
                 SpellEffectInfo const* effects = GetSpellInfo()->Effects;
-                if (effects[effIndex].TargetA.GetTarget() == effects[j].TargetA.GetTarget() &&
+                if (effects[j].IsEffect() &&
+                    effects[effIndex].TargetA.GetTarget() == effects[j].TargetA.GetTarget() &&
                     effects[effIndex].TargetB.GetTarget() == effects[j].TargetB.GetTarget() &&
                     effects[effIndex].ImplicitTargetConditions == effects[j].ImplicitTargetConditions &&
                     effects[effIndex].CalcRadius(m_caster) == effects[j].CalcRadius(m_caster) &&
@@ -5085,28 +5086,6 @@ SpellCastResult Spell::CheckCast(bool strict)
     castResult = CallScriptCheckCastHandlers();
     if (castResult != SPELL_CAST_OK)
         return castResult;
-
-    bool hasDispellableAura = false;
-    bool hasNonDispelEffect = false;
-    uint32 dispelMask = 0;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DISPEL)
-        {
-            if (m_spellInfo->Effects[i].IsTargetingArea() || m_spellInfo->AttributesEx & SPELL_ATTR1_MELEE_COMBAT_START)
-            {
-                hasDispellableAura = true;
-                break;
-            }
-
-            dispelMask |= SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[i].MiscValue));
-        }
-        else if (m_spellInfo->Effects[i].IsEffect())
-        {
-            hasNonDispelEffect = true;
-            break;
-        }
-    }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {

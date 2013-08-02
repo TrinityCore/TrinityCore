@@ -1313,36 +1313,6 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
         }
 };
 
-class spell_gen_dream_funnel: public SpellScriptLoader
-{
-    public:
-        spell_gen_dream_funnel() : SpellScriptLoader("spell_gen_dream_funnel") { }
-
-        class spell_gen_dream_funnel_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_dream_funnel_AuraScript);
-
-            void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                if (GetCaster())
-                    amount = GetCaster()->GetMaxHealth() * 0.05f;
-
-                canBeRecalculated = false;
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_gen_dream_funnel_AuraScript();
-        }
-};
-
 class spell_gen_ds_flush_knockback : public SpellScriptLoader
 {
     public:
@@ -1715,6 +1685,48 @@ class spell_gen_gunship_portal : public SpellScriptLoader
         }
 };
 
+
+enum Interrupt
+{
+    SPELL_GEN_THROW_INTERRUPT           = 32747
+};
+
+// 32748 - Deadly Throw Interrupt
+// 44835 - Maim Interrupt
+class spell_gen_interrupt : public SpellScriptLoader
+{
+    public:
+        spell_gen_interrupt() : SpellScriptLoader("spell_gen_interrupt") { }
+
+        class spell_gen_interrupt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_interrupt_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_THROW_INTERRUPT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_GEN_THROW_INTERRUPT, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_interrupt_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_gen_interrupt_AuraScript();
+        }
+};
+
 enum Launch
 {
     SPELL_LAUNCH_NO_FALLING_DAMAGE  = 66251
@@ -1850,61 +1862,6 @@ class spell_gen_lifebloom : public SpellScriptLoader
 
     private:
         uint32 _spellId;
-};
-
-enum MagicRoosterSpells
-{
-    SPELL_MAGIC_ROOSTER_NORMAL          = 66122,
-    SPELL_MAGIC_ROOSTER_DRAENEI_MALE    = 66123,
-    SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124
-};
-
-class spell_gen_magic_rooster : public SpellScriptLoader
-{
-    public:
-        spell_gen_magic_rooster() : SpellScriptLoader("spell_gen_magic_rooster") { }
-
-        class spell_gen_magic_rooster_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_magic_rooster_SpellScript);
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (Player* target = GetHitPlayer())
-                {
-                    // prevent client crashes from stacking mounts
-                    target->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    uint32 spellId = SPELL_MAGIC_ROOSTER_NORMAL;
-                    switch (target->getRace())
-                    {
-                        case RACE_DRAENEI:
-                            if (target->getGender() == GENDER_MALE)
-                                spellId = SPELL_MAGIC_ROOSTER_DRAENEI_MALE;
-                            break;
-                        case RACE_TAUREN:
-                            if (target->getGender() == GENDER_MALE)
-                                spellId = SPELL_MAGIC_ROOSTER_TAUREN_MALE;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    target->CastSpell(target, spellId, true);
-                }
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_magic_rooster_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_gen_magic_rooster_SpellScript();
-        }
 };
 
 /* DOCUMENTATION: Charge spells
@@ -3680,7 +3637,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_clone_weapon();
     new spell_gen_clone_weapon_aura();
     new spell_gen_count_pct_from_max_hp("spell_gen_default_count_pct_from_max_hp");
-    new spell_gen_count_pct_from_max_hp("spell_gen_30pct_count_pct_from_max_hp", 30);
     new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
     new spell_gen_create_lance();
     new spell_gen_creature_permanent_feign_death();
@@ -3689,7 +3645,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_defend();
     new spell_gen_despawn_self();
     new spell_gen_divine_storm_cd_reset();
-    new spell_gen_dream_funnel();
     new spell_gen_ds_flush_knockback();
     new spell_gen_dummy_trigger();
     new spell_gen_dungeon_credit();
@@ -3705,13 +3660,13 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_pri_shadow_protection");
     new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
     new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
+    new spell_gen_interrupt();
     new spell_gen_launch();
     new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_twisted_visage_lifebloom", SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_faction_champion_dru_lifebloom", SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL);
-    new spell_gen_magic_rooster();
     new spell_gen_mounted_charge();
     new spell_gen_netherbloom();
     new spell_gen_obsidian_armor();

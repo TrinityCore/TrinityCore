@@ -883,8 +883,10 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     PowerType = spellEntry->powerType;
     RangeEntry = spellEntry->rangeIndex ? sSpellRangeStore.LookupEntry(spellEntry->rangeIndex) : NULL;
     Speed = spellEntry->speed;
+
     for (uint8 i = 0; i < 2; ++i)
         SpellVisual[i] = spellEntry->SpellVisual[i];
+
     SpellIconID = spellEntry->SpellIconID;
     ActiveIconID = spellEntry->activeIconID;
     SpellName = spellEntry->SpellName;
@@ -1015,7 +1017,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     for (uint8 i = 0; i < 2; ++i)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
-    ExplicitTargetMask = _GetExplicitTargetMask();
     ChainEntry = NULL;
 }
 
@@ -2484,15 +2485,14 @@ bool SpellInfo::IsDifferentRankOf(SpellInfo const* spellInfo) const
 bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
 {
     if (ChainEntry && spellInfo->ChainEntry)
-    {
         if (ChainEntry->first == spellInfo->ChainEntry->first)
             if (ChainEntry->rank > spellInfo->ChainEntry->rank)
                 return true;
-    }
+
     return false;
 }
 
-uint32 SpellInfo::_GetExplicitTargetMask() const
+void SpellInfo::_InitializeExplicitTargetMask()
 {
     bool srcSet = false;
     bool dstSet = false;
@@ -2502,6 +2502,7 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
     {
         if (!Effects[i].IsEffect())
             continue;
+
         targetMask |= Effects[i].TargetA.GetExplicitTargetMask(srcSet, dstSet);
         targetMask |= Effects[i].TargetB.GetExplicitTargetMask(srcSet, dstSet);
 
@@ -2515,9 +2516,11 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
         // don't add explicit object/dest flags when spell has no max range
         if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
             effectTargetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_DEST_LOCATION);
+
         targetMask |= effectTargetMask;
     }
-    return targetMask;
+
+    ExplicitTargetMask = targetMask;
 }
 
 bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const

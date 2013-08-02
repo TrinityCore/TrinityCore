@@ -39,21 +39,103 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
     SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
+    SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
+    SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
     SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INCREASED_MOONFIRE_DURATION = 38414,
+    SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
+    SPELL_DRUID_NATURES_GRACE               = 16880,
+    SPELL_DRUID_NATURES_GRACE_TRIGGER       = 16886,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
-    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
-    SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950
+    SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
+    SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
+    SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
+    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178
+};
+
+// 1850 - Dash
+class spell_dru_dash : public SpellScriptLoader
+{
+    public:
+        spell_dru_dash() : SpellScriptLoader("spell_dru_dash") { }
+
+        class spell_dru_dash_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_dash_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                // do not set speed if not in cat form
+                if (GetUnitOwner()->GetShapeshiftForm() != FORM_CAT)
+                    amount = 0;
+            }
+
+            void Register() OVERRIDE
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_dash_AuraScript();
+        }
+};
+
+// 48517 - Eclipse (Solar)
+// 48518 - Eclipse (Lunar)
+class spell_dru_eclipse : public SpellScriptLoader
+{
+    public:
+        spell_dru_eclipse(char const* scriptName) : SpellScriptLoader(scriptName) { }
+
+        class spell_dru_eclipse_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_eclipse_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_NATURES_GRACE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_NATURES_GRACE_TRIGGER))
+                    return false;
+                return true;
+            }
+
+            bool Load() OVERRIDE
+            {
+                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (caster->ToPlayer()->GetAuraOfRankedSpell(SPELL_DRUID_NATURES_GRACE))
+                    caster->ToPlayer()->RemoveSpellCooldown(SPELL_DRUID_NATURES_GRACE_TRIGGER, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_eclipse_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_eclipse_AuraScript();
+        }
 };
 
 // 2912, 5176, 78674 - Starfire, Wrath, and Starsurge
@@ -166,35 +248,6 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
         }
 };
 
-// 1850 - Dash
-class spell_dru_dash : public SpellScriptLoader
-{
-    public:
-        spell_dru_dash() : SpellScriptLoader("spell_dru_dash") { }
-
-        class spell_dru_dash_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_dash_AuraScript);
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                // do not set speed if not in cat form
-                if (GetUnitOwner()->GetShapeshiftForm() != FORM_CAT)
-                    amount = 0;
-            }
-
-            void Register() OVERRIDE
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_dru_dash_AuraScript();
-        }
-};
-
 // 5229 - Enrage
 class spell_dru_enrage : public SpellScriptLoader
 {
@@ -204,6 +257,14 @@ class spell_dru_enrage : public SpellScriptLoader
         class spell_dru_enrage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_enrage_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_KING_OF_THE_JUNGLE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DRUID_ENRAGE_MOD_DAMAGE))
+                    return false;
+                return true;
+            }
 
             void OnHit()
             {
@@ -826,6 +887,59 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
         }
 };
 
+// -78892 - Stampede
+class spell_dru_stampede : public SpellScriptLoader
+{
+    public:
+        spell_dru_stampede() : SpellScriptLoader("spell_dru_stampede") { }
+
+        class spell_dru_stampede_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_stampede_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_STAMPEDE_BAER_RANK_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_STAMPEDE_CAT_RANK_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_STAMPEDE_CAT_STATE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_FERAL_CHARGE_CAT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_FERAL_CHARGE_BEAR))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectCatProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (GetTarget()->GetShapeshiftForm() != FORM_CAT || eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_CAT)
+                    return;
+
+                GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_CAT_RANK_1, GetSpellInfo()->GetRank()), true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STAMPEDE_CAT_STATE, true, NULL, aurEff);
+            }
+
+            void HandleEffectBearProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (GetTarget()->GetShapeshiftForm() != FORM_BEAR || eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_BEAR)
+                    return;
+
+                GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_BAER_RANK_1, GetSpellInfo()->GetRank()), true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_stampede_AuraScript::HandleEffectCatProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_dru_stampede_AuraScript::HandleEffectBearProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_dru_stampede_AuraScript();
+        }
+};
+
 // 61336 - Survival Instincts
 class spell_dru_survival_instincts : public SpellScriptLoader
 {
@@ -1041,6 +1155,8 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
+    new spell_dru_eclipse("spell_dru_eclipse_lunar");
+    new spell_dru_eclipse("spell_dru_eclipse_solar");
     new spell_dru_eclipse_energize();
     new spell_dru_enrage();
     new spell_dru_glyph_of_innervate();
@@ -1057,6 +1173,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_savage_defense();
     new spell_dru_savage_roar();
     new spell_dru_starfall_dummy();
+    new spell_dru_stampede();
     new spell_dru_survival_instincts();
     new spell_dru_swift_flight_passive();
     new spell_dru_tiger_s_fury();

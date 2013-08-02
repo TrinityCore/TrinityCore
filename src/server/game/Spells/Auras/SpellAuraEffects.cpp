@@ -1128,14 +1128,11 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 {
     uint32 spellId = 0;
     uint32 spellId2 = 0;
-    //uint32 spellId3 = 0;
-    uint32 HotWSpellId = 0;
 
     switch (GetMiscValue())
     {
         case FORM_CAT:
             spellId = 3025;
-            HotWSpellId = 24900;
             break;
         case FORM_TREE:
             spellId = 34123;
@@ -1149,7 +1146,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_BEAR:
             spellId = 1178;
             spellId2 = 21178;
-            HotWSpellId = 24899;
             break;
         case FORM_BATTLESTANCE:
             spellId = 21156;
@@ -1248,7 +1244,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR0_PASSIVE | SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                             continue;
 
-                        if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
+                        if (spellInfo->Stances & (1 << (GetMiscValue() - 1)))
                             target->CastSpell(target, glyph->SpellId, true, NULL, this);
                     }
                 }
@@ -1258,34 +1254,34 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             if (plrTarget->HasSpell(17007))
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (1<<(GetMiscValue()-1)))
+                if (spellInfo && spellInfo->Stances & (1 << (GetMiscValue() -1)))
                     target->CastSpell(target, 24932, true, NULL, this);
             }
 
-            // Improved Barkskin - apply/remove armor bonus due to shapeshift
-            if (plrTarget->HasSpell(63410) || target->ToPlayer()->HasSpell(63411))
-            {
-                target->RemoveAurasDueToSpell(66530);
-                if (GetMiscValue() == FORM_TRAVEL || GetMiscValue() == FORM_NONE) // "while in Travel Form or while not shapeshifted"
-                    target->CastSpell(target, 66530, true);
-            }
-
             // Heart of the Wild
-            if (HotWSpellId)
-            {   // hacky, but the only way as spell family is not SPELLFAMILY_DRUID
-                Unit::AuraEffectList const& mModTotalStatPct = target->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
-                for (Unit::AuraEffectList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
-                {
-                    // Heart of the Wild
-                    if ((*i)->GetSpellInfo()->SpellIconID == 240 && (*i)->GetMiscValue() == 3)
-                    {
-                        int32 HotWMod = (*i)->GetAmount() / 2; // For each 2% Intelligence, you get 1% stamina and 1% attack power.
+            if (AuraEffect const* heartOfTheWild = target->GetAuraEffectOfRankedSpell(17003, EFFECT_0))
+            {
+                uint32 heartOfTheWildSpellId = 0;
+                int32 heartOfTheWildAmount = 0;
 
-                        target->CastCustomSpell(target, HotWSpellId, &HotWMod, NULL, NULL, true, NULL, this);
+                switch (GetMiscValue())
+                {
+                    case FORM_CAT:
+                        heartOfTheWildSpellId = 24900;
+                        heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                         break;
-                    }
+                    case FORM_BEAR:
+                        heartOfTheWildSpellId = 24899;
+                        heartOfTheWildAmount = heartOfTheWild->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                        break;
+                    default:
+                        break;
                 }
+
+                if (heartOfTheWildSpellId)
+                    target->CastCustomSpell(target, heartOfTheWildSpellId, &heartOfTheWildAmount, NULL, NULL, true, NULL, this);
             }
+
             switch (GetMiscValue())
             {
                 case FORM_CAT:
@@ -1293,7 +1289,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     if (target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0, 0x10000000, 0))
                         target->CastSpell(target, 62071, true);
                     // Nurturing Instinct
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254, 0))
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254, EFFECT_0))
                     {
                         uint32 spellId3 = 0;
                         switch (aurEff->GetId())
@@ -1308,42 +1304,36 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         target->CastSpell(target, spellId3, true, NULL, this);
                     }
                     // Master Shapeshifter - Cat
-                    if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
                     {
                         int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48420, &bp, NULL, NULL, true);
                     }
-                break;
+                    break;
                 case FORM_BEAR:
                     // Master Shapeshifter - Bear
-                    if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
                     {
                         int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48418, &bp, NULL, NULL, true);
                     }
                     // Survival of the Fittest
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DRUID, 961, 0))
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DRUID, 961, EFFECT_0))
                     {
                         int32 bp = aurEff->GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster());
                         target->CastCustomSpell(target, 62069, &bp, NULL, NULL, true, 0, this);
                     }
-                break;
+                    break;
                 case FORM_MOONKIN:
                     // Master Shapeshifter - Moonkin
-                    if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
                     {
                         int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48421, &bp, NULL, NULL, true);
                     }
-                break;
-                    // Master Shapeshifter - Tree of Life
-                case FORM_TREE:
-                    if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
-                    {
-                        int32 bp = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 48422, &bp, NULL, NULL, true);
-                    }
-                break;
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -1354,17 +1344,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         if (spellId2)
             target->RemoveAurasDueToSpell(spellId2);
 
-        // Improved Barkskin - apply/remove armor bonus due to shapeshift
-        if (Player* player=target->ToPlayer())
-        {
-            if (player->HasSpell(63410) || player->HasSpell(63411))
-            {
-                target->RemoveAurasDueToSpell(66530);
-                target->CastSpell(target, 66530, true);
-            }
-        }
-
-        const Unit::AuraEffectList& shapeshifts = target->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
+        Unit::AuraEffectList const& shapeshifts = target->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
         AuraEffect* newAura = NULL;
         // Iterate through all the shapeshift auras that the target has, if there is another aura with SPELL_AURA_MOD_SHAPESHIFT, then this aura is being removed due to that one being applied
         for (Unit::AuraEffectList::const_iterator itr = shapeshifts.begin(); itr != shapeshifts.end(); ++itr)
@@ -1375,11 +1355,12 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 break;
             }
         }
+
         Unit::AuraApplicationMap& tAuras = target->GetAppliedAuras();
         for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
             // Use the new aura to see on what stance the target will be
-            uint32 newStance = (1<<((newAura ? newAura->GetMiscValue() : 0)-1));
+            uint32 newStance = (1 << ((newAura ? newAura->GetMiscValue() : 0) -1));
 
             // If the stances are not compatible with the spell, remove it
             if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
@@ -1877,9 +1858,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         if (!target->CanUseAttackType(BASE_ATTACK))
         {
             if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-            {
                 target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetTemplate(), NULL, apply);
-            }
         }
     }
 
@@ -1891,7 +1870,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     {
         SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
-        for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_SHAPESHIFT_SPELLS; ++i)
         {
             if (!shapeInfo->stanceSpell[i])
                 continue;
@@ -5349,11 +5328,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
         {
             switch (GetSpellInfo()->Id)
             {
-                // Master of Subtlety
-                case 31666:
-                    if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
-                        target->RemoveAurasDueToSpell(31665);
-                    break;
                 // Killing Spree
                 case 51690:
                 {
@@ -5385,11 +5359,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     target->CastSpell(spellTarget, 57841, true);
                     break;
                 }
-                // Overkill
-                case 58428:
-                    if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
-                        target->RemoveAurasDueToSpell(58427);
-                    break;
             }
             break;
         }
@@ -5694,13 +5663,6 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             case 66882:
                 target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000 * 2 / 3), NULL, true, NULL, this);
                 return;
-            // Beacon of Light
-            case 53563:
-            {
-                // area aura owner casts the spell
-                GetBase()->GetUnitOwner()->CastSpell(target, triggeredSpellInfo, true, 0, this, GetBase()->GetUnitOwner()->GetGUID());
-                return;
-            }
             // Slime Spray - temporary here until preventing default effect works again
             // added on 9.10.2010
             case 69508:
