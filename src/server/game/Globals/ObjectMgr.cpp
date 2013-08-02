@@ -6985,6 +6985,7 @@ void ObjectMgr::LoadPointsOfInterest()
         uint32 point_id = fields[0].GetUInt32();
 
         PointOfInterest POI;
+        POI.entry = point_id;
         POI.x = fields[1].GetFloat();
         POI.y = fields[2].GetFloat();
         POI.icon = fields[3].GetUInt32();
