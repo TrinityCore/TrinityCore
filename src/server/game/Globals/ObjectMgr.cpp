@@ -8388,6 +8388,12 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
+    if (type == ITEM_VENDOR_TYPE_CURRENCY && maxcount == 0)
+    {
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", id, type, ExtendedCost, vendor_entry);
+        return false;
+    }
+
     return true;
 }
 
