@@ -1,4 +1,4 @@
-SET @CGUID := 210018;
+﻿SET @CGUID := 210018;
 
 -- Spawn the Infinite Corruptor
 DELETE FROM `creature` WHERE `guid`=@CGUID AND `id`=32273;

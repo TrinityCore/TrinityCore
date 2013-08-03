@@ -399,6 +399,7 @@ public:
             epochGUID = 0;
             malganisGUID = 0;
             infiniteGUID = 0;
+            waveCount = 0;
 
             if (instance) {
                 instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
