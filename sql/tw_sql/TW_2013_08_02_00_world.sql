@@ -1,4 +1,4 @@
-﻿SET @CGUID := 210018;
+SET @CGUID := 210018;
 
 -- Spawn the Infinite Corruptor
 DELETE FROM `creature` WHERE `guid`=@CGUID AND `id`=32273;
@@ -42,4 +42,3 @@ DELETE FROM `disables` WHERE `entry` = 7494 AND `sourceType` = 4;
 
 -- Adds immunites to the Infinite Corruptor
 UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` |1|2|4|16|32|64|256|512|1024|2048|4096|8192|65536|131072|8388608|33554432|67108864 WHERE `entry` = 32273;
-
