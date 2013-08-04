@@ -41,7 +41,7 @@ struct NpcFlagText
 
 #define NPCFLAG_COUNT   24
 
-const NpcFlagText npcFlagTexts[NPCFLAG_COUNT] =
+NpcFlagText const npcFlagTexts[NPCFLAG_COUNT] =
 {
     { UNIT_NPC_FLAG_AUCTIONEER,         LANG_NPCINFO_AUCTIONEER         },
     { UNIT_NPC_FLAG_BANKER,             LANG_NPCINFO_BANKER             },
@@ -67,6 +67,51 @@ const NpcFlagText npcFlagTexts[NPCFLAG_COUNT] =
     { UNIT_NPC_FLAG_VENDOR_FOOD,        LANG_NPCINFO_VENDOR_FOOD        },
     { UNIT_NPC_FLAG_VENDOR_POISON,      LANG_NPCINFO_VENDOR_POISON      },
     { UNIT_NPC_FLAG_VENDOR_REAGENT,     LANG_NPCINFO_VENDOR_REAGENT     }
+};
+
+struct MechanicImmune
+{
+    uint32 flag;
+    char const* text;
+};
+
+#define MECHANIC_MAX   33
+
+MechanicImmune const mechanicImmunes[MECHANIC_MAX] =
+{
+    { MECHANIC_NONE            , "MECHANIC_NONE"            },
+    { MECHANIC_CHARM           , "MECHANIC_CHARM"           },
+    { MECHANIC_DISORIENTED     , "MECHANIC_DISORIENTED"     },
+    { MECHANIC_DISARM          , "MECHANIC_DISARM"          },
+    { MECHANIC_DISTRACT        , "MECHANIC_DISTRACT"        },
+    { MECHANIC_FEAR            , "MECHANIC_FEAR"            },
+    { MECHANIC_GRIP            , "MECHANIC_GRIP"            },
+    { MECHANIC_ROOT            , "MECHANIC_ROOT"            },
+    { MECHANIC_SLOW_ATTACK     , "MECHANIC_SLOW_ATTACK"     },
+    { MECHANIC_SILENCE         , "MECHANIC_SILENCE"         },
+    { MECHANIC_SLEEP           , "MECHANIC_SLEEP"           },
+    { MECHANIC_SNARE           , "MECHANIC_SNARE"           },
+    { MECHANIC_STUN            , "MECHANIC_STUN"            },
+    { MECHANIC_FREEZE          , "MECHANIC_FREEZE"          },
+    { MECHANIC_KNOCKOUT        , "MECHANIC_KNOCKOUT"        },
+    { MECHANIC_BLEED           , "MECHANIC_BLEED"           },
+    { MECHANIC_BANDAGE         , "MECHANIC_BANDAGE"         },
+    { MECHANIC_POLYMORPH       , "MECHANIC_POLYMORPH"       },
+    { MECHANIC_BANISH          , "MECHANIC_BANISH"          },
+    { MECHANIC_SHIELD          , "MECHANIC_SHIELD"          },
+    { MECHANIC_SHACKLE         , "MECHANIC_SHACKLE"         },
+    { MECHANIC_MOUNT           , "MECHANIC_MOUNT"           },
+    { MECHANIC_INFECTED        , "MECHANIC_INFECTED"        },
+    { MECHANIC_TURN            , "MECHANIC_TURN"            },
+    { MECHANIC_HORROR          , "MECHANIC_HORROR"          },
+    { MECHANIC_INVULNERABILITY , "MECHANIC_INVULNERABILITY" },
+    { MECHANIC_INTERRUPT       , "MECHANIC_INTERRUPT"       },
+    { MECHANIC_DAZE            , "MECHANIC_DAZE"            },
+    { MECHANIC_DISCOVERY       , "MECHANIC_DISCOVERY"       },
+    { MECHANIC_IMMUNE_SHIELD   , "MECHANIC_IMMUNE_SHIELD"   },
+    { MECHANIC_SAPPED          , "MECHANIC_SAPPED"          },
+    { MECHANIC_ENRAGED         , "MECHANIC_ENRAGED"         },
+    { MECHANIC_WOUNDED         , "MECHANIC_WOUNDED"         }
 };
 
 class npc_commandscript : public CommandScript
@@ -630,12 +675,14 @@ public:
             return false;
         }
 
+        CreatureTemplate const* cInfo = target->GetCreatureTemplate();
+
         uint32 faction = target->getFaction();
         uint32 npcflags = target->GetUInt32Value(UNIT_NPC_FLAGS);
+        uint32 mechanicImmuneMask = cInfo->MechanicImmuneMask;
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
-        CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
         int64 curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
         if (curRespawnDelay < 0)
@@ -659,6 +706,11 @@ public:
         for (uint8 i = 0; i < NPCFLAG_COUNT; i++)
             if (npcflags & npcFlagTexts[i].flag)
                 handler->PSendSysMessage(npcFlagTexts[i].text, npcFlagTexts[i].flag);
+
+        handler->PSendSysMessage(LANG_NPCINFO_MECHANIC_IMMUNE, mechanicImmuneMask);
+        for (uint8 i = 0; i < MECHANIC_MAX; ++i)
+            if ((mechanicImmuneMask << 1) & mechanicImmunes[i].flag)
+                handler->PSendSysMessage(mechanicImmunes[i].text, mechanicImmunes[i].flag);
 
         return true;
     }
