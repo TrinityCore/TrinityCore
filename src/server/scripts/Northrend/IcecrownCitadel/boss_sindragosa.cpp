@@ -471,7 +471,7 @@ class boss_sindragosa : public CreatureScript
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
                                 DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
-                                events.ScheduleEvent(EVENT_TRIGGER_AXPHYXIATION, 25000);
+                                events.ScheduleEvent(EVENT_TRIGGER_AXPHYXIATION, 27000);
                             }
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
                             break;
@@ -515,7 +515,6 @@ class boss_sindragosa : public CreatureScript
                         }
                         case EVENT_TRIGGER_AXPHYXIATION:
                             summons.DoAction(ACTION_TRIGGER_ASPHYXIATION, pred);
-                            events.CancelEvent(EVENT_TRIGGER_AXPHYXIATION);
                             break;
                         default:
                             break;
@@ -608,8 +607,6 @@ class npc_ice_tomb : public CreatureScript
         private:
             uint64 _trappedPlayerGUID;
             uint32 _existenceCheckTimer;
-            uint32 _asphyxiationTimer;
-            bool _asphyxiationTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
