@@ -3766,6 +3766,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 29307: // Infected Wounds (Zombie Chow)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 18754: // Improved succubus - problems with apply if target is pet
+            case 18755:
+            case 18756:
+                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
             default:
                 break;
         }
