@@ -26261,6 +26261,31 @@ float Player::GetCollisionHeight(bool mounted) const
     }
 }
 
+std::string Player::GetMapAreaAndZoneString()
+{
+    uint32 areaId = GetAreaId();
+    std::string areaName = "Unknown";
+    std::string zoneName = "Unknown";
+    if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+    {
+        int locale = GetSession()->GetSessionDbcLocale();
+        areaName = area->area_name[locale];
+        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
+            zoneName = zone->area_name[locale];
+    }
+
+    std::ostringstream str;
+    str << "Map: " << GetMapId() << " (" << (FindMap() ? FindMap()->GetMapName() : "Unknown") << ") Area: " << areaId << " (" << areaName.c_str() << ") Zone: " << zoneName.c_str();
+    return str.str();
+}
+
+std::string Player::GetCoordsMapAreaAndZoneString()
+{
+    std::ostringstream str;
+    str << Position::ToString() << " " << GetMapAreaAndZoneString();
+    return str.str();
+}
+
 Guild* Player::GetGuild()
 {
     uint32 guildId = GetGuildId();
