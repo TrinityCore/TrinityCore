@@ -736,7 +736,7 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
 
         handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS));
-        for (uint8 i = 0; i < UNIT_FLAGS_MAX; ++i)
+        for (uint8 i = 0; i < MAX_UNIT_FLAGS; ++i)
             if (target->GetUInt32Value(UNIT_FIELD_FLAGS) & unitFlags[i].flag)
                 handler->PSendSysMessage(unitFlags[i].text, unitFlags[i].flag);
 
@@ -754,7 +754,7 @@ public:
                 handler->PSendSysMessage(npcFlagTexts[i].text, npcFlagTexts[i].flag);
 
         handler->PSendSysMessage(LANG_NPCINFO_MECHANIC_IMMUNE, mechanicImmuneMask);
-        for (uint8 i = 0; i < MECHANIC_MAX; ++i)
+        for (uint8 i = 0; i < MAX_MECHANIC; ++i)
             if ((mechanicImmuneMask << 1) & mechanicImmunes[i].flag)
                 handler->PSendSysMessage(mechanicImmunes[i].text, mechanicImmunes[i].flag);
 
