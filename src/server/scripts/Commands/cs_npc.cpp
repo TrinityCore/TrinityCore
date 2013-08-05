@@ -123,7 +123,7 @@ struct UnitFlag
 
 #define UNIT_FLAGS_MAX   33
 
-UnitFlag const unitFlags[MECHANIC_MAX] =
+UnitFlag const unitFlags[UNIT_FLAGS_MAX] =
 {
     { UNIT_FLAG_SERVER_CONTROLLED   , "UNIT_FLAG_SERVER_CONTROLLED"     },
     { UNIT_FLAG_NON_ATTACKABLE      , "UNIT_FLAG_NON_ATTACKABLE"        },
