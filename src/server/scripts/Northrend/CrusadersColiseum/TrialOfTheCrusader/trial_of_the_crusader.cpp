@@ -210,7 +210,7 @@ class npc_announcer_toc10 : public CreatureScript
                 Creature* anubArak = Unit::GetCreature(*creature, instance->GetData64(NPC_ANUBARAK));
                 if (!anubArak || !anubArak->IsAlive())
                     anubArak = creature->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-
+                
                 instance->SetBossState(BOSS_ANUBARAK, NOT_STARTED);
 
                 if (creature->IsVisible())
@@ -332,8 +332,11 @@ class boss_lich_king_toc : public CreatureScript
                             _instance->SetBossState(BOSS_LICH_KING, DONE);
                             Creature* temp = Unit::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK));
                             if (!temp || !temp->IsAlive())
+                            {
                                 temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-
+                                temp->SetRespawnDelay(7*DAY);
+                            }
+                            
                             _instance->SetData(TYPE_EVENT, 0);
 
                             me->DespawnOrUnsummon();
