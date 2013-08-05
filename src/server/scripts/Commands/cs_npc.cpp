@@ -75,9 +75,7 @@ struct MechanicImmune
     char const* text;
 };
 
-#define MECHANIC_MAX   33
-
-MechanicImmune const mechanicImmunes[MECHANIC_MAX] =
+MechanicImmune const mechanicImmunes[MAX_MECHANIC] =
 {
     { MECHANIC_NONE            , "MECHANIC_NONE"            },
     { MECHANIC_CHARM           , "MECHANIC_CHARM"           },
@@ -120,9 +118,7 @@ struct UnitFlag
     char const* text;
 };
 
-#define UNIT_FLAGS_MAX   33
-
-UnitFlag const unitFlags[UNIT_FLAGS_MAX] =
+UnitFlag const unitFlags[MAX_UNIT_FLAGS] =
 {
     { UNIT_FLAG_SERVER_CONTROLLED   , "UNIT_FLAG_SERVER_CONTROLLED"     },
     { UNIT_FLAG_NON_ATTACKABLE      , "UNIT_FLAG_NON_ATTACKABLE"        },
