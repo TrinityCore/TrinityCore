@@ -108,7 +108,6 @@ enum Events
     EVENT_THIRD_PHASE_CHECK         = 22,
     EVENT_AIR_MOVEMENT_FAR          = 23,
     EVENT_LAND_GROUND               = 24,
-    EVENT_TRIGGER_AXPHYXIATION      = 25,
 
     // Spinestalker
     EVENT_BELLOWING_ROAR            = 13,
@@ -348,7 +347,6 @@ class boss_sindragosa : public CreatureScript
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                             me->GetMotionMaster()->MovementExpired();
                         _isInAirPhase = false;
-                        events.ScheduleEvent(EVENT_TRIGGER_AXPHYXIATION, 1);
                         break;
                     }
                     default:
@@ -399,8 +397,6 @@ class boss_sindragosa : public CreatureScript
                     return;
 
                 events.Update(diff);
-                
-                EntryCheckPredicate pred(NPC_ICE_TOMB);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -471,7 +467,6 @@ class boss_sindragosa : public CreatureScript
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
                                 DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
-                                events.ScheduleEvent(EVENT_TRIGGER_AXPHYXIATION, 27000);
                             }
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
                             break;
@@ -513,9 +508,6 @@ class boss_sindragosa : public CreatureScript
                                 events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5000);
                             break;
                         }
-                        case EVENT_TRIGGER_AXPHYXIATION:
-                            summons.DoAction(ACTION_TRIGGER_ASPHYXIATION, pred);
-                            break;
                         default:
                             break;
                     }
@@ -561,14 +553,9 @@ class npc_ice_tomb : public CreatureScript
                 {
                     _trappedPlayerGUID = guid;
                     _existenceCheckTimer = 1000;
+                    _asphyxiationTimer = 20000;
+                    _asphyxiationTriggered = false;
                 }
-            }
-            
-            void DoAction(int32 action) OVERRIDE
-            {
-                if (action == ACTION_TRIGGER_ASPHYXIATION)
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
-                        player->CastSpell(player, SPELL_ASPHYXIATION, true);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
@@ -588,6 +575,17 @@ class npc_ice_tomb : public CreatureScript
                 if (!_trappedPlayerGUID)
                     return;
                     
+                    
+                if (!_asphyxiationTriggered)
+                    if (_asphyxiationTimer <= diff)
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
+                            player->CastSpell(player, SPELL_ASPHYXIATION, true);
+                        _asphyxiationTriggered = true;
+                    }
+                    else
+                        _asphyxiationTimer -= diff;
+
                 if (_existenceCheckTimer <= diff)
                 {
                     Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID);
@@ -607,6 +605,8 @@ class npc_ice_tomb : public CreatureScript
         private:
             uint64 _trappedPlayerGUID;
             uint32 _existenceCheckTimer;
+            uint32 _asphyxiationTimer;
+            bool _asphyxiationTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
