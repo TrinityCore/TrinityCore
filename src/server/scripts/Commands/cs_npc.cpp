@@ -110,8 +110,7 @@ MechanicImmune const mechanicImmunes[MECHANIC_MAX] =
     { MECHANIC_DISCOVERY       , "MECHANIC_DISCOVERY"       },
     { MECHANIC_IMMUNE_SHIELD   , "MECHANIC_IMMUNE_SHIELD"   },
     { MECHANIC_SAPPED          , "MECHANIC_SAPPED"          },
-    { MECHANIC_ENRAGED         , "MECHANIC_ENRAGED"         },
-    { MECHANIC_WOUNDED         , "MECHANIC_WOUNDED"         }
+    { MECHANIC_ENRAGED         , "MECHANIC_ENRAGED"         }
 };
 
 
