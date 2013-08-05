@@ -1278,7 +1278,7 @@ void Item::ItemContainerSaveLootToDB()
             stmt_items->setBool(6, _li->is_counted);
             stmt_items->setBool(7, _li->is_underthreshold);
             stmt_items->setBool(8, _li->needs_quest);
-            stmt_items->setUInt32(9, _li->randomPropertyId);
+            stmt_items->setInt32(9, _li->randomPropertyId);
             stmt_items->setUInt32(10, _li->randomSuffix);
             trans->Append(stmt_items);
         }
@@ -1339,7 +1339,7 @@ bool Item::ItemContainerLoadLootFromDB()
                 loot_item.canSave = true;
                 loot_item.is_underthreshold = fields[6].GetBool();
                 loot_item.needs_quest = fields[7].GetBool();
-                loot_item.randomPropertyId = fields[8].GetUInt32();
+                loot_item.randomPropertyId = fields[8].GetInt32();
                 loot_item.randomSuffix = fields[9].GetUInt32();
 
                 // Copy the extra loot conditions from the item in the loot template
