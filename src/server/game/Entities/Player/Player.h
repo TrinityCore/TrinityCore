@@ -2511,6 +2511,9 @@ class Player : public Unit, public GridObject<Player>
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted) const;
 
+        std::string GetMapAreaAndZoneString();
+        std::string GetCoordsMapAreaAndZoneString();
+
         // Void Storage
         bool IsVoidStorageUnlocked() const { return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_VOID_UNLOCKED); }
         void UnlockVoidStorage() { SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_VOID_UNLOCKED); }

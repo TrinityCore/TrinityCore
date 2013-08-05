@@ -1092,7 +1092,7 @@ enum TrinityStrings
     LANG_CALL_FOR_HELP                  = 5035,
     LANG_NPCINFO_EQUIPMENT              = 5036,
     LANG_NPCINFO_MECHANIC_IMMUNE        = 5037,
-    // Room for more Trinity strings      5037-9999
+    // Room for more Trinity strings      5038-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
