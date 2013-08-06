@@ -39,6 +39,11 @@ enum Data
     DATA_TEAM_IN_INSTANCE                       = 6,
     DATA_FROSTMOURNE                            = 7,
     DATA_FROSTWORN_DOOR                         = 8,
+    DATA_ESCAPE_EVENT                           = 9,
+    DATA_ESCAPE_LEADER                          = 10,
+    DATA_SUMMONS                                = 11,
+    DATA_ICEWALL                                = 12,
+    DATA_CAVE_IN                                = 13
 };
 
 enum Creatures
@@ -67,6 +72,10 @@ enum Creatures
     NPC_BARTLETT                                  = 37182, // High Captain Justin Bartlett
     NPC_KORM                                      = 37833, // Sky-Reaver Korm Blackscar
     NPC_ICE_WALL                                  = 37014, // Ice Wall Target
+
+    NPC_RAGING_GNOUL                              = 36940,
+    NPC_RISEN_WITCH_DOCTOR                        = 36941,
+    NPC_ABON                                      = 37069
 };
 
 enum GameObjects
@@ -102,6 +111,8 @@ enum HorWorldStates
 enum Actions
 {
     ACTION_ENTER_COMBAT,
+    ACTION_START_ESCAPING,
+    ACTION_WALL_BROKEN
 };
 
 enum TrashGeneralSpells
