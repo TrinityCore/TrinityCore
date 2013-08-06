@@ -335,15 +335,15 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger)
     /// @hack: this spell should be cast by npc 22515 (World Trigger) and not by the player
     if (trigger == 5555 && player->GetTeamId() == TEAM_HORDE)
     {
-        if (GateStatus[BG_IC_A_FRONT] != BG_IC_GATE_DESTROYED 
-            && GateStatus[BG_IC_A_WEST] != BG_IC_GATE_DESTROYED 
+        if (GateStatus[BG_IC_A_FRONT] != BG_IC_GATE_DESTROYED
+            && GateStatus[BG_IC_A_WEST] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_A_EAST] != BG_IC_GATE_DESTROYED)
         player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
     }
     else if (trigger == 5535 && player->GetTeamId() == TEAM_ALLIANCE)
     {
-        if (GateStatus[BG_IC_H_FRONT] != BG_IC_GATE_DESTROYED 
-            && GateStatus[BG_IC_H_WEST] != BG_IC_GATE_DESTROYED 
+        if (GateStatus[BG_IC_H_FRONT] != BG_IC_GATE_DESTROYED
+            && GateStatus[BG_IC_H_WEST] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_H_EAST] != BG_IC_GATE_DESTROYED)
         player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
     }
