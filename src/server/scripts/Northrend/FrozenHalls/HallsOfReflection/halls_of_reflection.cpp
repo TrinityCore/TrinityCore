@@ -198,7 +198,7 @@ enum Events
     EVENT_CLOSE_FROSTWORN_DOOR,
 };
 
-enum Enum
+enum Misc
 {
     ACTION_START_INTRO,
     ACTION_SKIP_INTRO,
