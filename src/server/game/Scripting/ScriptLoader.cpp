@@ -367,6 +367,9 @@ void AddSC_thunder_bluff();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
 
+// Maelstrom
+void AddSC_kezan();
+
 //northrend
 void AddSC_boss_slad_ran();
 void AddSC_boss_moorabi();
@@ -644,6 +647,7 @@ void AddScripts()
     AddKalimdorScripts();
     AddOutlandScripts();
     AddNorthrendScripts();
+    AddMaelstromScripts();
     AddEventScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
@@ -1273,6 +1277,14 @@ void AddNorthrendScripts()
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
+#endif
+}
+
+
+void AddMaelstromScripts()
+{
+#ifdef SCRIPTS
+    AddSC_kezan();
 #endif
 }
 
