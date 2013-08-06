@@ -1302,13 +1302,6 @@ void AddBattlegroundScripts()
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
 void AddSC_TW_boss_faction_champions();
-void AddSC_TW_instance_halls_of_reflection();   // Halls of Reflection
-void AddSC_TW_halls_of_reflection_trash();
-void AddSC_TW_npc_jaina_or_sylvanas_hor();
-void AddSC_TW_npc_frostsworn_general();
-void AddSC_TW_boss_falric();
-void AddSC_TW_boss_marwyn();
-void AddSC_TW_boss_hor_lichking();
 #endif
 
 void AddCustomScripts()
@@ -1316,12 +1309,5 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
 	AddSC_TW_boss_faction_champions();
-	AddSC_TW_instance_halls_of_reflection();   // Halls of Reflection
-	AddSC_TW_halls_of_reflection_trash();
-	AddSC_TW_npc_jaina_or_sylvanas_hor();
-	AddSC_TW_npc_frostsworn_general();
-	AddSC_TW_boss_falric();
-	AddSC_TW_boss_marwyn();
-	AddSC_TW_boss_hor_lichking();
 #endif
 }

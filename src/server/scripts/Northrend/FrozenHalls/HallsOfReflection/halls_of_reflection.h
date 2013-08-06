@@ -138,7 +138,7 @@ struct boss_horAI : ScriptedAI
         me->SetVisible(false);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
         me->SetReactState(REACT_PASSIVE);
-        if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
+        if (instance && instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
             instance->ProcessEvent(0, EVENT_DO_WIPE);
     }
 
