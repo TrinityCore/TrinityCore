@@ -375,9 +375,9 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                     if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
                     {
                         int locale = GetSessionDbcLocale();
-                        areaName = area->area_name[locale];
+                        areaName = area->area_name;
                         if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
-                            zoneName = zone->area_name[locale];
+                            zoneName = zone->area_name;
                     }
 
                     sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
