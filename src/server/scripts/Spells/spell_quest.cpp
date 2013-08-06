@@ -1802,8 +1802,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
             
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
             {
-                Spell* baseSpell = GetSpell();
-                SpellCastTargets targets = baseSpell->m_targets;
+                if (WorldLocation const* pos = GetExplTargetDest())
                 GetCaster()->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), GetEffectValue(), true);
             }
             void Register() OVERRIDE
@@ -1815,6 +1814,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
         {
             return new spell_q13086_cannons_target_SpellScript();
         }
+};
 
 void AddSC_quest_spell_scripts()
 {
