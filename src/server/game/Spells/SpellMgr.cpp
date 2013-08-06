@@ -1124,7 +1124,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             uint8 nodeType = spellId == 68719 ? NODE_TYPE_REFINERY : NODE_TYPE_QUARRY;
             uint8 nodeState = player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
 
-            BattlegroundIC* pIC = static_cast<BattlegroundIC*>(player->GetBattleground());
+            BattlegroundIC* pIC = player->GetBattleground()->ToBattlegroundIC();
             if (pIC->GetNodeState(nodeType) == nodeState)
                 return true;
 

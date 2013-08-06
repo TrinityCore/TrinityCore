@@ -9006,13 +9006,19 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
             /// @todo fix this big hack
             if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
+            {
                 if (Battleground* bg = GetBattleground())
+                {
                     if (bg->GetTypeID(true) == BATTLEGROUND_AV)
-                        if (!(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(), GetTeam())))
+                    {
+                        if (!bg->ToBattlegroundAV()->PlayerCanDoMineQuest(go->GetEntry(), GetTeam()))
                         {
                             SendLootRelease(guid);
                             return;
                         }
+                    }
+                }
+            }
 
             if (lootid)
             {
@@ -16280,7 +16286,7 @@ void Player::KilledMonster(CreatureTemplate const* cInfo, uint64 guid)
             KilledMonsterCredit(cInfo->KillCredit[i], 0);
 }
 
-void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
+void Player::KilledMonsterCredit(uint32 entry, uint64 guid /*= 0*/)
 {
     uint16 addkillcount = 1;
     uint32 real_entry = entry;
@@ -23277,6 +23283,11 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
         if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+            continue;
+
+        // Don't replace longer cooldowns by equip cooldown if we have any.
+        SpellCooldowns::iterator itr = m_spellCooldowns.find(spellData.SpellId);
+        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > time(NULL) + 30)
             continue;
 
         AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), time(NULL) + 30);
