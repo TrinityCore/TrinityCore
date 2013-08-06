@@ -26,7 +26,8 @@ enum Spells
     SPELL_CRUSH                                   = 49639,
     SPELL_CORPSE_EXPLODE                          = 49555,
     SPELL_CONSUME                                 = 49380,
-    SPELL_CONSUME_AURA                            = 49381
+    SPELL_CONSUME_AURA                            = 49381,
+    SPELL_CONSUME_AURA_H                          = 59805
 };
 
 enum Yells
@@ -50,6 +51,15 @@ enum Misc
     DATA_CONSUMPTION_JUNCTION                     = 1
 };
 
+enum Events
+{
+    EVENT_CONSUME                                 = 1,
+    EVENT_CRUSH,
+    EVENT_INFECTED_WOUND,
+    EVENT_CORPSE_EXPLODE,
+    EVENT_SPAWN
+};
+
 Position const Spawn[3] = 
 {
     { -212.266f, -654.887f, 54.3783f, 3.12414f },
@@ -64,48 +74,28 @@ class boss_trollgore : public CreatureScript
 public:
     boss_trollgore() : CreatureScript("boss_trollgore") { }
 
-    struct boss_trollgoreAI : public ScriptedAI
+    struct boss_trollgoreAI : public BossAI
     {
-        boss_trollgoreAI(Creature* creature) : ScriptedAI(creature), Summons(me)
-        {
-            instance = creature->GetInstanceScript();
-        }
-
-        uint32 uiConsumeTimer;
-        uint32 uiAuraCountTimer;
-        uint32 uiCrushTimer;
-        uint32 uiInfectedWoundTimer;
-        uint32 uiExplodeCorpseTimer;
-        uint32 uiSpawnTimer;
-
-        bool consumptionJunction;
-
-        SummonList Summons;
-
-        InstanceScript* instance;
+        boss_trollgoreAI(Creature* creature) : BossAI(creature, DATA_TROLLGORE), Summons(me) { }
 
         void Reset() OVERRIDE
         {
-            uiConsumeTimer = 15000;
-            uiAuraCountTimer = 15500;
-            uiCrushTimer = urand(1000, 5000);
-            uiInfectedWoundTimer = urand(10000, 60000);
-            uiExplodeCorpseTimer = 3000;
-            uiSpawnTimer = urand(30000, 40000);
-
+            _Reset();
+            me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA, SPELL_CONSUME_AURA_H));
             consumptionJunction = true;
-
             Summons.DespawnAll();
-
-            me->RemoveAura(SPELL_CONSUME_AURA);
-
-            instance->SetData(DATA_TROLLGORE, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            instance->SetBossState(DATA_TROLLGORE, IN_PROGRESS);
+            _EnterCombat();
+
+            events.ScheduleEvent(EVENT_CONSUME, 15000);
+            events.ScheduleEvent(EVENT_CRUSH, urand(1000, 5000));
+            events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(10000, 60000));
+            events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3000);
+            events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -113,52 +103,55 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiSpawnTimer <= diff)
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                for (uint8 i = 0; i < 3; ++i)
+                switch(eventId)
                 {
-                    Unit* target = DoSummon(RAND(NPC_DRAKKARI_INVADER_1, NPC_DRAKKARI_INVADER_2), Spawn[i], 0, TEMPSUMMON_DEAD_DESPAWN);
-                    target->Mount(MOUNT_DRAKKARI_BAT_DISPLAY);
-                    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-                    target->GetMotionMaster()->MovePoint(0, Landing);
+                    case EVENT_CONSUME:
+                        Talk(SAY_CONSUME);
+                        DoCast(SPELL_CONSUME);
+                        me->AddAura(DUNGEON_MODE(SPELL_CONSUME_AURA, SPELL_CONSUME_AURA_H), me);
+                        events.ScheduleEvent(EVENT_CONSUME, 15000);
+                        break;
+                    case EVENT_CRUSH:
+                        DoCastVictim(SPELL_CRUSH);
+                        events.ScheduleEvent(EVENT_CRUSH, urand(10000, 15000));
+                        break;
+                    case EVENT_INFECTED_WOUND:
+                        DoCastVictim(SPELL_INFECTED_WOUND);
+                        events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(25000, 35000));
+                        break;
+                    case EVENT_CORPSE_EXPLODE:
+                        Talk(SAY_EXPLODE);
+                        DoCast(SPELL_CORPSE_EXPLODE);
+                        events.ScheduleEvent(EVENT_CORPSE_EXPLODE, urand(15000, 19000));
+                        break;
+                    case EVENT_SPAWN:
+                        for (uint8 i = 0; i < 3; ++i)
+                        {
+                            Unit* target = DoSummon(RAND(NPC_DRAKKARI_INVADER_1, NPC_DRAKKARI_INVADER_2), Spawn[i], 0, TEMPSUMMON_DEAD_DESPAWN);
+                            target->Mount(MOUNT_DRAKKARI_BAT_DISPLAY);
+                            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+                            target->GetMotionMaster()->MovePoint(0, Landing);
+                        }
+                        events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
+                        break;
+                    default:
+                        break;
                 }
-
-                uiSpawnTimer = urand(30000, 40000);
-            } else uiSpawnTimer -= diff;
-
-            if (uiConsumeTimer <= diff)
-            {
-                Talk(SAY_CONSUME);
-                DoCast(SPELL_CONSUME);
-                me->AddAura(SPELL_CONSUME_AURA, me);
-                uiConsumeTimer = 15000;
-            } else uiConsumeTimer -= diff;
+            }
 
             if (consumptionJunction)
             {
-                Aura* ConsumeAura = me->GetAura(SPELL_CONSUME_AURA);
+                Aura* ConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, SPELL_CONSUME_AURA_H));
                 if (ConsumeAura && ConsumeAura->GetStackAmount() > 9)
                     consumptionJunction = false;
             }
-
-            if (uiCrushTimer <= diff)
-            {
-                DoCastVictim(SPELL_CRUSH);
-                uiCrushTimer = urand(10000, 15000);
-            } else uiCrushTimer -= diff;
-
-            if (uiInfectedWoundTimer <= diff)
-            {
-                DoCastVictim(SPELL_INFECTED_WOUND);
-                uiInfectedWoundTimer = urand(25000, 35000);
-            } else uiInfectedWoundTimer -= diff;
-
-            if (uiExplodeCorpseTimer <= diff)
-            {
-                DoCast(SPELL_CORPSE_EXPLODE);
-                Talk(SAY_EXPLODE);
-                uiExplodeCorpseTimer = urand(15000, 19000);
-            } else uiExplodeCorpseTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -166,10 +159,8 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-
             Summons.DespawnAll();
-
-            instance->SetBossState(DATA_TROLLGORE, DONE);
+            _JustDied();
         }
 
         uint32 GetData(uint32 type) const OVERRIDE
@@ -192,6 +183,10 @@ public:
         {
             Summons.Summon(summon);
         }
+
+        private:
+            bool consumptionJunction;
+            SummonList Summons;
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -210,10 +205,7 @@ public:
         npc_drakkari_invaderAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            if (instance)
-            {
-                trollgoreGUID = instance->GetData64(DATA_TROLLGORE);
-            }
+            trollgoreGUID = instance->GetData64(DATA_TROLLGORE);
         }
 
         InstanceScript* instance;
@@ -250,7 +242,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_drakkari_invaderAI(creature);
+        return GetDrakTharonKeepAI<npc_drakkari_invaderAI>(creature);
     }
 };
 
