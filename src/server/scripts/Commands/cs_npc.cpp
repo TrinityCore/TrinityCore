@@ -75,9 +75,7 @@ struct MechanicImmune
     char const* text;
 };
 
-#define MECHANIC_MAX   33
-
-MechanicImmune const mechanicImmunes[MECHANIC_MAX] =
+MechanicImmune const mechanicImmunes[MAX_MECHANIC] =
 {
     { MECHANIC_NONE            , "MECHANIC_NONE"            },
     { MECHANIC_CHARM           , "MECHANIC_CHARM"           },
@@ -121,9 +119,7 @@ struct UnitFlag
     char const* text;
 };
 
-#define UNIT_FLAGS_MAX   33
-
-UnitFlag const unitFlags[UNIT_FLAGS_MAX] =
+UnitFlag const unitFlags[MAX_UNIT_FLAGS] =
 {
     { UNIT_FLAG_SERVER_CONTROLLED   , "UNIT_FLAG_SERVER_CONTROLLED"     },
     { UNIT_FLAG_NON_ATTACKABLE      , "UNIT_FLAG_NON_ATTACKABLE"        },
@@ -745,7 +741,7 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
 
         handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS));
-        for (uint8 i = 0; i < UNIT_FLAGS_MAX; ++i)
+        for (uint8 i = 0; i < MAX_UNIT_FLAGS; ++i)
             if (target->GetUInt32Value(UNIT_FIELD_FLAGS) & unitFlags[i].flag)
                 handler->PSendSysMessage(unitFlags[i].text, unitFlags[i].flag);
 
@@ -763,7 +759,7 @@ public:
                 handler->PSendSysMessage(npcFlagTexts[i].text, npcFlagTexts[i].flag);
 
         handler->PSendSysMessage(LANG_NPCINFO_MECHANIC_IMMUNE, mechanicImmuneMask);
-        for (uint8 i = 0; i < MECHANIC_MAX; ++i)
+        for (uint8 i = 0; i < MAX_MECHANIC; ++i)
             if ((mechanicImmuneMask << 1) & mechanicImmunes[i].flag)
                 handler->PSendSysMessage(mechanicImmunes[i].text, mechanicImmunes[i].flag);
 
