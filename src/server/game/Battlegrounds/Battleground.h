@@ -29,6 +29,17 @@ class Group;
 class Player;
 class WorldPacket;
 class BattlegroundMap;
+class BattlegroundAV;
+class BattlegroundWS;
+class BattlegroundAB;
+class BattlegroundNA;
+class BattlegroundBE;
+class BattlegroundEY;
+class BattlegroundRL;
+class BattlegroundSA;
+class BattlegroundDS;
+class BattlegroundRV;
+class BattlegroundIC;
 
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
@@ -533,6 +544,39 @@ class Battleground
         uint32 GetTeamScore(uint32 TeamID) const;
 
         virtual uint32 GetPrematureWinner();
+
+        BattlegroundAV* ToBattlegroundAV() { if (GetTypeID() == BATTLEGROUND_AV) return reinterpret_cast<BattlegroundAV*>(this); else return NULL; }
+        BattlegroundAV const* ToBattlegroundAV() const { if (GetTypeID() == BATTLEGROUND_AV) return (BattlegroundAV const*)((BattlegroundAV*)this); else return NULL; }
+
+        BattlegroundWS* ToBattlegroundWS() { if (GetTypeID() == BATTLEGROUND_WS) return reinterpret_cast<BattlegroundWS*>(this); else return NULL; }
+        BattlegroundWS const* ToBattlegroundWS() const { if (GetTypeID() == BATTLEGROUND_WS) return (BattlegroundWS const*)((BattlegroundWS*)this); else return NULL; }
+
+        BattlegroundAB* ToBattlegroundAB() { if (GetTypeID() == BATTLEGROUND_AB) return reinterpret_cast<BattlegroundAB*>(this); else return NULL; }
+        BattlegroundAB const* ToBattlegroundAB() const { if (GetTypeID() == BATTLEGROUND_AB) return (BattlegroundAB const*)((BattlegroundAB*)this); else return NULL; }
+
+        BattlegroundNA* ToBattlegroundNA() { if (GetTypeID() == BATTLEGROUND_NA) return reinterpret_cast<BattlegroundNA*>(this); else return NULL; }
+        BattlegroundNA const* ToBattlegroundNA() const { if (GetTypeID() == BATTLEGROUND_NA) return (BattlegroundNA const*)((BattlegroundNA*)this); else return NULL; }
+
+        BattlegroundBE* ToBattlegroundBE() { if (GetTypeID() == BATTLEGROUND_BE) return reinterpret_cast<BattlegroundBE*>(this); else return NULL; }
+        BattlegroundBE const* ToBattlegroundBE() const { if (GetTypeID() == BATTLEGROUND_BE) return (BattlegroundBE const*)((BattlegroundBE*)this); else return NULL; }
+
+        BattlegroundEY* ToBattlegroundEY() { if (GetTypeID() == BATTLEGROUND_EY) return reinterpret_cast<BattlegroundEY*>(this); else return NULL; }
+        BattlegroundEY const* ToBattlegroundEY() const { if (GetTypeID() == BATTLEGROUND_EY) return (BattlegroundEY const*)((BattlegroundEY*)this); else return NULL; }
+
+        BattlegroundRL* ToBattlegroundRL() { if (GetTypeID() == BATTLEGROUND_RL) return reinterpret_cast<BattlegroundRL*>(this); else return NULL; }
+        BattlegroundRL const* ToBattlegroundRL() const { if (GetTypeID() == BATTLEGROUND_RL) return (BattlegroundRL const*)((BattlegroundRL*)this); else return NULL; }
+
+        BattlegroundSA* ToBattlegroundSA() { if (GetTypeID() == BATTLEGROUND_SA) return reinterpret_cast<BattlegroundSA*>(this); else return NULL; }
+        BattlegroundSA const* ToBattlegroundSA() const { if (GetTypeID() == BATTLEGROUND_SA) return (BattlegroundSA const*)((BattlegroundSA*)this); else return NULL; }
+
+        BattlegroundDS* ToBattlegroundDS() { if (GetTypeID() == BATTLEGROUND_DS) return reinterpret_cast<BattlegroundDS*>(this); else return NULL; }
+        BattlegroundDS const* ToBattlegroundDS() const { if (GetTypeID() == BATTLEGROUND_DS) return (BattlegroundDS const*)((BattlegroundDS*)this); else return NULL; }
+
+        BattlegroundRV* ToBattlegroundRV() { if (GetTypeID() == BATTLEGROUND_RV) return reinterpret_cast<BattlegroundRV*>(this); else return NULL; }
+        BattlegroundRV const* ToBattlegroundRV() const { if (GetTypeID() == BATTLEGROUND_RV) return (BattlegroundRV const*)((BattlegroundRV*)this); else return NULL; }
+
+        BattlegroundIC* ToBattlegroundIC() { if (GetTypeID() == BATTLEGROUND_IC) return reinterpret_cast<BattlegroundIC*>(this); else return NULL; }
+        BattlegroundIC const* ToBattlegroundIC() const { if (GetTypeID() == BATTLEGROUND_IC) return (BattlegroundIC const*)((BattlegroundIC*)this); else return NULL; }
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
