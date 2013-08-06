@@ -15,10 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Comment: @todo spawn troll waves
- */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
@@ -30,11 +26,7 @@ enum Spells
     SPELL_CRUSH                                   = 49639,
     SPELL_CORPSE_EXPLODE                          = 49555,
     SPELL_CONSUME                                 = 49380,
-    SPELL_CONSUME_AURA                            = 49381,
-    // Heroic spells
-    H_SPELL_CORPSE_EXPLODE                        = 59807,
-    H_SPELL_CONSUME                               = 59803,
-    H_SPELL_CONSUME_AURA                          = 59805,
+    SPELL_CONSUME_AURA                            = 49381
 };
 
 enum Yells
@@ -49,7 +41,8 @@ enum Yells
 enum Creatures
 {
     NPC_DRAKKARI_INVADER_1                        = 27753,
-    NPC_DRAKKARI_INVADER_2                        = 27709
+    NPC_DRAKKARI_INVADER_2                        = 27709,
+    MOUNT_DRAKKARI_BAT_DISPLAY                    = 26751
 };
 
 enum Misc
@@ -57,7 +50,14 @@ enum Misc
     DATA_CONSUMPTION_JUNCTION                     = 1
 };
 
-Position AddSpawnPoint = { -260.493011f, -622.968018f, 26.605301f, 3.036870f };
+Position const Spawn[3] = 
+{
+    { -212.266f, -654.887f, 54.3783f, 3.12414f },
+    { -213.252f, -666.073f, 53.4409f, 3.01942f },
+    { -213.076f, -679.635f, 53.1535f, 2.96706f }
+};
+
+Position Landing  = { -253.614f, -662.637f, 27.8484f, 3.32733f };
 
 class boss_trollgore : public CreatureScript
 {
@@ -66,7 +66,7 @@ public:
 
     struct boss_trollgoreAI : public ScriptedAI
     {
-        boss_trollgoreAI(Creature* creature) : ScriptedAI(creature), lSummons(me)
+        boss_trollgoreAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
         }
@@ -80,24 +80,24 @@ public:
 
         bool consumptionJunction;
 
-        SummonList lSummons;
+        SummonList Summons;
 
         InstanceScript* instance;
 
         void Reset() OVERRIDE
         {
-            uiConsumeTimer = 15*IN_MILLISECONDS;
+            uiConsumeTimer = 15000;
             uiAuraCountTimer = 15500;
-            uiCrushTimer = urand(1*IN_MILLISECONDS, 5*IN_MILLISECONDS);
-            uiInfectedWoundTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
-            uiExplodeCorpseTimer = 3*IN_MILLISECONDS;
-            uiSpawnTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
+            uiCrushTimer = urand(1000, 5000);
+            uiInfectedWoundTimer = urand(10000, 60000);
+            uiExplodeCorpseTimer = 3000;
+            uiSpawnTimer = urand(30000, 40000);
 
             consumptionJunction = true;
 
-            lSummons.DespawnAll();
+            Summons.DespawnAll();
 
-            me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
+            me->RemoveAura(SPELL_CONSUME_AURA);
 
             instance->SetData(DATA_TROLLGORE, NOT_STARTED);
         }
@@ -110,28 +110,33 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
             if (uiSpawnTimer <= diff)
             {
-                uint32 spawnNumber = urand(2, DUNGEON_MODE(3, 5));
-                for (uint8 i = 0; i < spawnNumber; ++i)
-                    DoSummon(RAND(NPC_DRAKKARI_INVADER_1, NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
-                uiSpawnTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
+                for (uint8 i = 0; i < 3; ++i)
+                {
+                    Unit* target = DoSummon(RAND(NPC_DRAKKARI_INVADER_1, NPC_DRAKKARI_INVADER_2), Spawn[i], 0, TEMPSUMMON_DEAD_DESPAWN);
+                    target->Mount(MOUNT_DRAKKARI_BAT_DISPLAY);
+                    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+                    target->GetMotionMaster()->MovePoint(0, Landing);
+                }
+
+                uiSpawnTimer = urand(30000, 40000);
             } else uiSpawnTimer -= diff;
 
             if (uiConsumeTimer <= diff)
             {
                 Talk(SAY_CONSUME);
                 DoCast(SPELL_CONSUME);
-                uiConsumeTimer = 15*IN_MILLISECONDS;
+                me->AddAura(SPELL_CONSUME_AURA, me);
+                uiConsumeTimer = 15000;
             } else uiConsumeTimer -= diff;
 
             if (consumptionJunction)
             {
-                Aura* ConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
+                Aura* ConsumeAura = me->GetAura(SPELL_CONSUME_AURA);
                 if (ConsumeAura && ConsumeAura->GetStackAmount() > 9)
                     consumptionJunction = false;
             }
@@ -139,20 +144,20 @@ public:
             if (uiCrushTimer <= diff)
             {
                 DoCastVictim(SPELL_CRUSH);
-                uiCrushTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+                uiCrushTimer = urand(10000, 15000);
             } else uiCrushTimer -= diff;
 
             if (uiInfectedWoundTimer <= diff)
             {
                 DoCastVictim(SPELL_INFECTED_WOUND);
-                uiInfectedWoundTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
+                uiInfectedWoundTimer = urand(25000, 35000);
             } else uiInfectedWoundTimer -= diff;
 
             if (uiExplodeCorpseTimer <= diff)
             {
                 DoCast(SPELL_CORPSE_EXPLODE);
                 Talk(SAY_EXPLODE);
-                uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS, 19*IN_MILLISECONDS);
+                uiExplodeCorpseTimer = urand(15000, 19000);
             } else uiExplodeCorpseTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -162,7 +167,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            lSummons.DespawnAll();
+            Summons.DespawnAll();
 
             instance->SetBossState(DATA_TROLLGORE, DONE);
         }
@@ -185,15 +190,67 @@ public:
 
         void JustSummoned(Creature* summon) OVERRIDE
         {
-            lSummons.Summon(summon);
-            if (summon->AI())
-                summon->AI()->AttackStart(me);
+            Summons.Summon(summon);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return GetDrakTharonKeepAI<boss_trollgoreAI>(creature);
+    }
+};
+
+class npc_drakkari_invader : public CreatureScript
+{
+public:
+    npc_drakkari_invader() : CreatureScript("npc_drakkari_invader") { }
+
+    struct npc_drakkari_invaderAI : public ScriptedAI
+    {
+        npc_drakkari_invaderAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = creature->GetInstanceScript();
+            if (instance)
+            {
+                trollgoreGUID = instance->GetData64(DATA_TROLLGORE);
+            }
+        }
+
+        InstanceScript* instance;
+        uint64 trollgoreGUID;
+
+        void WaypointReached(uint32 waypointId) OVERRIDE
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+        }
+        
+        void EnterCombat(Unit* who) OVERRIDE
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC); 
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (me->IsStopped()) {
+                me->Dismount();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
+            }
+
+            if (!me->IsMounted() && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC)) {
+                if (Unit* Trollgore = me->GetCreature(*me, trollgoreGUID)) {
+                    if (Trollgore->IsAlive()) {
+                        AttackStart(Trollgore);
+                    }
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_drakkari_invaderAI(creature);
     }
 };
 
@@ -220,5 +277,6 @@ class achievement_consumption_junction : public AchievementCriteriaScript
 void AddSC_boss_trollgore()
 {
     new boss_trollgore();
+    new npc_drakkari_invader();
     new achievement_consumption_junction();
 }
