@@ -600,7 +600,7 @@ struct boss_jormungarAI : public BossAI
                     events.ScheduleEvent(EVENT_SLIME_POOL, 30*IN_MILLISECONDS, 0, PHASE_MOBILE);
                     return;
                 case EVENT_SUMMON_ACIDMAW:
-                    if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*IN_MILLISECONDS))
                     {
                         acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         acidmaw->SetReactState(REACT_AGGRESSIVE);
@@ -625,6 +625,12 @@ struct boss_jormungarAI : public BossAI
             DoMeleeAttackIfReady();
         if (events.IsInPhase(PHASE_STATIONARY))
             DoSpellAttackIfReady(SpitSpell);
+    }
+
+    void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
+    {
+        if (summoned->GetEntry() == NPC_ACIDMAW && instance->GetBossState(BOSS_BEASTS) != FAIL)
+            instance->SetBossState(BOSS_BEASTS, FAIL);
     }
 
     void Submerge()

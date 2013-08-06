@@ -336,7 +336,7 @@ class boss_lich_king_toc : public CreatureScript
                                 temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
                                 temp->SetRespawnDelay(7*DAY);
                             }
-                            
+
                             _instance->SetData(TYPE_EVENT, 0);
 
                             me->DespawnOrUnsummon();
