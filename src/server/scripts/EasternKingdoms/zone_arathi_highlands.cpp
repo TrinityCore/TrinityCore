@@ -53,7 +53,7 @@ enum ProfessorPhizzlethorpe
     EVENT_SAY_3         = 1,
     EVENT_SAY_6         = 2,
     EVENT_SAY_8         = 3,
-    
+
     // Quests
     QUEST_SUNKEN_TREASURE   = 665,
     QUEST_GOGGLE_BOGGLE     = 26050,
