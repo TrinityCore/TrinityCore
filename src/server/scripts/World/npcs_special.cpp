@@ -273,7 +273,7 @@ public:
 ## npc_lunaclaw_spirit
 ######*/
 
-enum
+enum LunaclawSpirit
 {
     QUEST_BODY_HEART_A      = 6001,
     QUEST_BODY_HEART_H      = 6002,

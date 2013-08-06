@@ -936,10 +936,10 @@ public:
 ## npc_maxx_a_million
 ######*/
 
-enum
+enum MaxxAMillion
 {
-    QUEST_MARK_V_IS_ALIVE = 10191,
-    GO_DRAENEI_MACHINE = 183771
+    QUEST_MARK_V_IS_ALIVE   = 10191,
+    GO_DRAENEI_MACHINE      = 183771
 };
 
 class npc_maxx_a_million_escort : public CreatureScript
