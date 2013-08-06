@@ -629,7 +629,10 @@ struct boss_jormungarAI : public BossAI
 
     void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
     {
-        if (summoned->GetEntry() == NPC_ACIDMAW && instance->GetBossState(BOSS_BEASTS) != FAIL)
+        if (Enraged || !summoned->HasAura(SPELL_ENRAGE)) // We don't want this to happen if it's not a wipe
+            return;
+
+        if (summoned->GetEntry() == NPC_ACIDMAW && instance->GetBossState(BOSS_BEASTS) != FAIL) // Prevents double counter decrease in heroic
             instance->SetBossState(BOSS_BEASTS, FAIL);
     }
 
