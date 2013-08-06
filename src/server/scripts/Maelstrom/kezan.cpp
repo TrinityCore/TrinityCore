@@ -64,7 +64,7 @@ public:
 
         bool IsWorking() const { return work; }
 
-        void UpdateAI(const uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (IsWorking())
                 me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_MINING);
