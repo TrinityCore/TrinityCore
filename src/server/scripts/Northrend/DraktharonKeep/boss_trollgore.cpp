@@ -27,7 +27,9 @@ enum Spells
     SPELL_CORPSE_EXPLODE                          = 49555,
     SPELL_CONSUME                                 = 49380,
     SPELL_CONSUME_AURA                            = 49381,
-    SPELL_CONSUME_AURA_H                          = 59805
+    SPELL_CONSUME_AURA_H                          = 59805,
+
+    SPELL_INVADER_TAUNT                           = 49405
 };
 
 enum Yells
@@ -137,7 +139,6 @@ public:
                             Unit* target = DoSummon(RAND(NPC_DRAKKARI_INVADER_1, NPC_DRAKKARI_INVADER_2), Spawn[i], 0, TEMPSUMMON_DEAD_DESPAWN);
                             target->Mount(MOUNT_DRAKKARI_BAT_DISPLAY);
                             target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-                            target->GetMotionMaster()->MovePoint(0, Landing);
                         }
                         events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
                         break;
@@ -181,12 +182,12 @@ public:
 
         void JustSummoned(Creature* summon) OVERRIDE
         {
+            summon->GetMotionMaster()->MovePoint(0, Landing);
             Summons.Summon(summon);
         }
 
         private:
             bool consumptionJunction;
-            SummonList Summons;
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -231,7 +232,7 @@ public:
             if (!me->IsMounted() && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC)) {
                 if (Unit* Trollgore = me->GetCreature(*me, trollgoreGUID)) {
                     if (Trollgore->IsAlive()) {
-                        AttackStart(Trollgore);
+                        DoCastVictim(SPELL_INVADER_TAUNT);
                     }
                 }
             }
@@ -266,9 +267,81 @@ class achievement_consumption_junction : public AchievementCriteriaScript
         }
 };
 
+// 49380, 59803 - Consume
+class spell_trollgore_consume : public SpellScriptLoader
+{
+    public:
+        spell_trollgore_consume() : SpellScriptLoader("spell_trollgore_consume") { }
+
+        class spell_trollgore_consume_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trollgore_consume_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(49381))
+                    return false;
+                return true;
+            }
+
+            void HandleConsume(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(GetCaster(), 49381, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_trollgore_consume_SpellScript::HandleConsume, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_trollgore_consume_SpellScript();
+        }
+};
+
+// 49405 - Invader Taunt Trigger
+class spell_trollgore_invader_taunt : public SpellScriptLoader
+{
+    public:
+        spell_trollgore_invader_taunt() : SpellScriptLoader("spell_trollgore_invader_taunt") { }
+
+        class spell_trollgore_invader_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trollgore_invader_taunt_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
+                    return false;
+                return true;
+            }
+
+            void HandleTaunt(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_trollgore_invader_taunt_SpellScript::HandleTaunt, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_trollgore_invader_taunt_SpellScript();
+        }
+};
+
 void AddSC_boss_trollgore()
 {
     new boss_trollgore();
     new npc_drakkari_invader();
     new achievement_consumption_junction();
+    new spell_trollgore_consume();
+    new spell_trollgore_invader_taunt();
 }
