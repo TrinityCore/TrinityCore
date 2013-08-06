@@ -40,7 +40,7 @@ class achievement_resilient_victory : public AchievementCriteriaScript
             if (bg->GetTypeID(true) != BATTLEGROUND_AB)
                 return false;
 
-            if (!static_cast<BattlegroundAB*>(bg)->IsTeamScores500Disadvantage(source->GetTeam()))
+            if (!bg->ToBattlegroundAB()->IsTeamScores500Disadvantage(source->GetTeam()))
                 return false;
 
             return true;
@@ -84,7 +84,7 @@ class achievement_save_the_day : public AchievementCriteriaScript
                 if (bg->GetTypeID(true) != BATTLEGROUND_WS)
                     return false;
 
-                if (static_cast<BattlegroundWS*>(bg)->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
+                if (bg->ToBattlegroundWS()->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
                     return true;
             }
             return false;
@@ -209,7 +209,7 @@ class achievement_everything_counts : public AchievementCriteriaScript
             if (bg->GetTypeID(true) != BATTLEGROUND_AV)
                 return false;
 
-            if (static_cast<BattlegroundAV*>(bg)->IsBothMinesControlledByTeam(source->GetTeam()))
+            if (bg->ToBattlegroundAV()->IsBothMinesControlledByTeam(source->GetTeam()))
                 return true;
 
             return false;
@@ -230,7 +230,7 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
             if (bg->GetTypeID(true) != BATTLEGROUND_AV)
                 return false;
 
-            if (static_cast<BattlegroundAV*>(bg)->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
+            if (bg->ToBattlegroundAV()->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
                 return true;
 
             return false;
@@ -253,10 +253,10 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
             if (!battleground)
                 return false;
 
-            if (player->GetTeamId() == static_cast<BattlegroundSA*>(battleground)->Attackers)
+            if (player->GetTeamId() == battleground->ToBattlegroundSA()->Attackers)
                 return false;
 
-            if (!static_cast<BattlegroundSA*>(battleground)->gateDestroyed)
+            if (!battleground->ToBattlegroundSA()->gateDestroyed)
                 return true;
 
             return false;
@@ -308,7 +308,7 @@ class achievement_not_even_a_scratch : public AchievementCriteriaScript
             if (!battleground)
                 return false;
 
-            if (static_cast<BattlegroundSA*>(battleground)->notEvenAScratch(source->GetTeam()))
+            if (battleground->ToBattlegroundSA()->notEvenAScratch(source->GetTeam()))
                 return true;
 
             return false;
