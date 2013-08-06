@@ -8773,13 +8773,19 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
             /// @todo fix this big hack
             if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
+            {
                 if (Battleground* bg = GetBattleground())
+                {
                     if (bg->GetTypeID(true) == BATTLEGROUND_AV)
-                        if (!(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(), GetTeam())))
+                    {
+                        if (!bg->ToBattlegroundAV()->PlayerCanDoMineQuest(go->GetEntry(), GetTeam()))
                         {
                             SendLootRelease(guid);
                             return;
                         }
+                    }
+                }
+            }
 
             if (lootid)
             {
