@@ -27,16 +27,6 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "sethekk_halls.h"
 
-enum Creatures
-{
-    NPC_ANZU   = 23035
-};
-
-enum GameObjects
-{
-    GO_IKISS_DOOR = 177203
-};
-
 class instance_sethekk_halls : public InstanceMapScript
 {
 public:
@@ -49,49 +39,102 @@ public:
 
     struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
     {
-        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 AnzuEncounter;
-        uint64 m_uiIkissDoorGUID;
+        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetBossNumber(EncounterCount);
+        }
 
         void Initialize()
         {
-            AnzuEncounter = NOT_STARTED;
-            m_uiIkissDoorGUID = 0;
+            SetBossState(DATA_ANZU, NOT_STARTED);
+            iIkissDoorGUID = 0;
         }
 
         void OnCreatureCreate(Creature* creature)
         {
             if (creature->GetEntry() == NPC_ANZU)
             {
-                if (AnzuEncounter >= IN_PROGRESS)
+                if (GetBossState(DATA_ANZU) == DONE)
                     creature->DisappearAndDie();
                 else
-                    AnzuEncounter = IN_PROGRESS;
+                    SetBossState(DATA_ANZU, IN_PROGRESS);
             }
         }
 
         void OnGameObjectCreate(GameObject* go)
         {
              if (go->GetEntry() == GO_IKISS_DOOR)
-                m_uiIkissDoorGUID = go->GetGUID();
+                iIkissDoorGUID = go->GetGUID();
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        bool SetBossState(uint32 type, EncounterState state)
         {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
             switch (type)
             {
-                case DATA_IKISSDOOREVENT:
-                    if (data == DONE)
-                        DoUseDoorOrButton(m_uiIkissDoorGUID, DAY*IN_MILLISECONDS);
+                case DATA_DARKWEAVER_SYTH:
                     break;
-                case TYPE_ANZU_ENCOUNTER:
-                    AnzuEncounter = data;
+                case DATA_TALON_KING_IKISS:
+                    if (state == DONE)
+                        DoUseDoorOrButton(iIkissDoorGUID, DAY*IN_MILLISECONDS);
+                    break;
+                case DATA_ANZU:
+                    break;
+                default:
                     break;
             }
-        }
-    };
 
+            return true;
+        }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << "S H " << GetBossSaveData();
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+        }
+
+        void Load(const char* str)
+        {
+            if (!str)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(str);
+
+            char dataHead1, dataHead2;
+
+            std::istringstream loadStream(str);
+            loadStream >> dataHead1 >> dataHead2;
+
+            if (dataHead1 == 'S' && dataHead2 == 'H')
+            {
+                for (uint32 i = 0; i < EncounterCount; ++i)
+                {
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+                    SetBossState(i, EncounterState(tmpState));
+                }
+            }
+            else
+                OUT_LOAD_INST_DATA_FAIL;
+
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
+
+        protected:
+            uint64 iIkissDoorGUID;
+    };
 };
 
 void AddSC_instance_sethekk_halls()
