@@ -903,7 +903,7 @@ public:
     {
         PrepareAuraScript(spell_boss_lady_malande_shield_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+        bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
         {
             return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T);
         }

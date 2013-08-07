@@ -168,6 +168,7 @@ enum TickingTimeBomb
 {
     SPELL_TICKING_TIME_BOMB_EXPLODE = 59687
 };
+
 class spell_ticking_time_bomb : public SpellScriptLoader
 {
     public:
@@ -177,9 +178,11 @@ class spell_ticking_time_bomb : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ticking_time_bomb_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                return (bool) sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE);
+                if (!sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE))
+                    return false;
+                return true;
             }
 
             void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
@@ -215,9 +218,11 @@ class spell_fixate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_fixate_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                return (bool) sSpellMgr->GetSpellInfo(SPELL_FIXATE_TRIGGER);
+                if (!sSpellMgr->GetSpellInfo(SPELL_FIXATE_TRIGGER))
+                    return false;
+                return true;
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
