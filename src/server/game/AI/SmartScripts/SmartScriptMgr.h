@@ -429,7 +429,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature @todo)
     SMART_ACTION_MOVE_FORWARD                       = 46,     // distance
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
-    SMART_ACTION_SET_ACTIVE                         = 48,     // No Params
+    SMART_ACTION_SET_ACTIVE                         = 48,     // on/off
     SMART_ACTION_ATTACK_START                       = 49,     //
     SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in ms,
     SMART_ACTION_KILL_UNIT                          = 51,     //
@@ -725,6 +725,11 @@ struct SmartAction
             uint32 entry;
             uint32 despawnTime;
         } summonGO;
+
+        struct
+         {
+            uint32 state;
+        } active;
 
         struct
         {
