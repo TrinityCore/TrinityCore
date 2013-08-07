@@ -45,8 +45,6 @@
 #include "CreatureAI.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
-#include "BattlegroundEY.h"
-#include "BattlegroundWS.h"
 #include "OutdoorPvPMgr.h"
 #include "Language.h"
 #include "SocialMgr.h"

@@ -29,20 +29,19 @@ class Group;
 class Player;
 class WorldPacket;
 class BattlegroundMap;
-class BattlegroundAV;
-class BattlegroundWS;
-class BattlegroundAB;
-class BattlegroundNA;
-class BattlegroundBE;
-class BattlegroundEY;
-class BattlegroundRL;
-class BattlegroundSA;
-class BattlegroundDS;
-class BattlegroundRV;
-class BattlegroundIC;
 
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
+
+enum BattlegroundCriteriaId
+{
+    BG_CRITERIA_CHECK_RESILIENT_VICTORY,
+    BG_CRITERIA_CHECK_SAVE_THE_DAY,
+    BG_CRITERIA_CHECK_EVERYTHING_COUNTS,
+    BG_CRITERIA_CHECK_AV_PERFECTION,
+    BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS,
+    BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH,
+};
 
 enum BattlegroundSounds
 {
@@ -303,8 +302,9 @@ class Battleground
         virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
 
         /* achievement req. */
-        virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
+        virtual bool IsAllNodesControlledByTeam(uint32 /*team*/) const { return false; }
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         /* Battleground */
         // Get methods:
@@ -438,7 +438,7 @@ class Battleground
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
         void UpdateWorldState(uint32 Field, uint32 Value);
-        void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source);
+        void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* player);
         void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
 
@@ -453,7 +453,7 @@ class Battleground
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
-        virtual void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        virtual void UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
 
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
@@ -482,7 +482,7 @@ class Battleground
 
         // Triggers handle
         // must be implemented in BG subclass
-        virtual void HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/);
+        virtual void HandleAreaTrigger(Player* /*player*/, uint32 /*Trigger*/);
         // must be implemented in BG subclass if need AND call base class generic code
         virtual void HandleKillPlayer(Player* player, Player* killer);
         virtual void HandleKillUnit(Creature* /*unit*/, Player* /*killer*/);
@@ -546,42 +546,12 @@ class Battleground
 
         virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
         virtual void SetDroppedFlagGUID(uint64 /*guid*/, int32 /*team*/ = -1) {}
+        virtual void HandleQuestComplete(uint32 /*questid*/, Player* /*player*/) {}
+        virtual bool CanActivateGO(int32 /*entry*/, uint32 /*team*/) const { return true; }
+        virtual bool IsSpellAllowed(uint32 /*spellId*/, Player const* /*player*/) const { return true; }
         uint32 GetTeamScore(uint32 TeamID) const;
 
         virtual uint32 GetPrematureWinner();
-
-        BattlegroundAV* ToBattlegroundAV() { if (GetTypeID() == BATTLEGROUND_AV) return reinterpret_cast<BattlegroundAV*>(this); else return NULL; }
-        BattlegroundAV const* ToBattlegroundAV() const { if (GetTypeID() == BATTLEGROUND_AV) return reinterpret_cast<const BattlegroundAV*>(this); else return NULL; }
-
-        BattlegroundWS* ToBattlegroundWS() { if (GetTypeID() == BATTLEGROUND_WS) return reinterpret_cast<BattlegroundWS*>(this); else return NULL; }
-        BattlegroundWS const* ToBattlegroundWS() const { if (GetTypeID() == BATTLEGROUND_WS) return reinterpret_cast<const BattlegroundWS*>(this); else return NULL; }
-
-        BattlegroundAB* ToBattlegroundAB() { if (GetTypeID() == BATTLEGROUND_AB) return reinterpret_cast<BattlegroundAB*>(this); else return NULL; }
-        BattlegroundAB const* ToBattlegroundAB() const { if (GetTypeID() == BATTLEGROUND_AB) return reinterpret_cast<const BattlegroundAB*>(this); else return NULL; }
-
-        BattlegroundNA* ToBattlegroundNA() { if (GetTypeID() == BATTLEGROUND_NA) return reinterpret_cast<BattlegroundNA*>(this); else return NULL; }
-        BattlegroundNA const* ToBattlegroundNA() const { if (GetTypeID() == BATTLEGROUND_NA) return reinterpret_cast<const BattlegroundNA*>(this); else return NULL; }
-
-        BattlegroundBE* ToBattlegroundBE() { if (GetTypeID() == BATTLEGROUND_BE) return reinterpret_cast<BattlegroundBE*>(this); else return NULL; }
-        BattlegroundBE const* ToBattlegroundBE() const { if (GetTypeID() == BATTLEGROUND_BE) return reinterpret_cast<const BattlegroundBE*>(this); else return NULL; }
-
-        BattlegroundEY* ToBattlegroundEY() { if (GetTypeID() == BATTLEGROUND_EY) return reinterpret_cast<BattlegroundEY*>(this); else return NULL; }
-        BattlegroundEY const* ToBattlegroundEY() const { if (GetTypeID() == BATTLEGROUND_EY) return reinterpret_cast<const BattlegroundEY*>(this); else return NULL; }
-
-        BattlegroundRL* ToBattlegroundRL() { if (GetTypeID() == BATTLEGROUND_RL) return reinterpret_cast<BattlegroundRL*>(this); else return NULL; }
-        BattlegroundRL const* ToBattlegroundRL() const { if (GetTypeID() == BATTLEGROUND_RL) return reinterpret_cast<const BattlegroundRL*>(this); else return NULL; }
-
-        BattlegroundSA* ToBattlegroundSA() { if (GetTypeID() == BATTLEGROUND_SA) return reinterpret_cast<BattlegroundSA*>(this); else return NULL; }
-        BattlegroundSA const* ToBattlegroundSA() const { if (GetTypeID() == BATTLEGROUND_SA) return reinterpret_cast<const BattlegroundSA*>(this); else return NULL; }
-
-        BattlegroundDS* ToBattlegroundDS() { if (GetTypeID() == BATTLEGROUND_DS) return reinterpret_cast<BattlegroundDS*>(this); else return NULL; }
-        BattlegroundDS const* ToBattlegroundDS() const { if (GetTypeID() == BATTLEGROUND_DS) return reinterpret_cast<const BattlegroundDS*>(this); else return NULL; }
-
-        BattlegroundRV* ToBattlegroundRV() { if (GetTypeID() == BATTLEGROUND_RV) return reinterpret_cast<BattlegroundRV*>(this); else return NULL; }
-        BattlegroundRV const* ToBattlegroundRV() const { if (GetTypeID() == BATTLEGROUND_RV) return reinterpret_cast<const BattlegroundRV*>(this); else return NULL; }
-
-        BattlegroundIC* ToBattlegroundIC() { if (GetTypeID() == BATTLEGROUND_IC) return reinterpret_cast<BattlegroundIC*>(this); else return NULL; }
-        BattlegroundIC const* ToBattlegroundIC() const { if (GetTypeID() == BATTLEGROUND_IC) return reinterpret_cast<const BattlegroundIC*>(this); else return NULL; }
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground

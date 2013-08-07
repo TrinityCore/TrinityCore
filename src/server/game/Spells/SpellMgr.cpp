@@ -29,7 +29,6 @@
 #include "BattlegroundMgr.h"
 #include "CreatureAI.h"
 #include "MapManager.h"
-#include "BattlegroundIC.h"
 #include "BattlefieldWG.h"
 #include "BattlefieldMgr.h"
 #include "Player.h"
@@ -358,7 +357,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
     if (!spellInfo)
         return false;
 
-    bool need_check_reagents = false;
+    bool needCheckReagents = false;
 
     // check effects
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -401,7 +400,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
                     return false;
                 }
 
-                need_check_reagents = true;
+                needCheckReagents = true;
                 break;
             }
             case SPELL_EFFECT_LEARN_SPELL:
@@ -423,7 +422,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
         }
     }
 
-    if (need_check_reagents)
+    if (needCheckReagents)
     {
         for (uint8 j = 0; j < MAX_SPELL_REAGENTS; ++j)
         {
@@ -447,7 +446,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
 uint32 SpellMgr::GetSpellDifficultyId(uint32 spellId) const
 {
     SpellDifficultySearcherMap::const_iterator i = mSpellDifficultySearcherMap.find(spellId);
-    return i == mSpellDifficultySearcherMap.end() ? 0 : (*i).second;
+    return i == mSpellDifficultySearcherMap.end() ? 0 : i->second;
 }
 
 void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
@@ -1102,7 +1101,13 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
         if (!player || (auraSpell > 0 && !player->HasAura(auraSpell)) || (auraSpell < 0 && player->HasAura(-auraSpell)))
             return false;
 
-    // Extra conditions -- leaving the possibility add extra conditions...
+    if (player)
+    {
+        if (Battleground* bg = player->GetBattleground())
+            return bg->IsSpellAllowed(spellId, player);
+    }
+
+    // Extra conditions
     switch (spellId)
     {
         case 91604: // No fly Zone - Wintergrasp
@@ -1114,21 +1119,6 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             if (!Bf || Bf->CanFlyIn() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)))
                 return false;
             break;
-        }
-        case 68719: // Oil Refinery - Isle of Conquest.
-        case 68720: // Quarry - Isle of Conquest.
-        {
-            if (!player || player->GetBattlegroundTypeId() != BATTLEGROUND_IC || !player->GetBattleground())
-                return false;
-
-            uint8 nodeType = spellId == 68719 ? NODE_TYPE_REFINERY : NODE_TYPE_QUARRY;
-            uint8 nodeState = player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
-
-            BattlegroundIC* pIC = player->GetBattleground()->ToBattlegroundIC();
-            if (pIC->GetNodeState(nodeType) == nodeState)
-                return true;
-
-            return false;
         }
         case 56618: // Horde Controls Factory Phase Shift
         case 56617: // Alliance Controls Factory Phase Shift
@@ -1669,7 +1659,7 @@ void SpellMgr::LoadSpellTargetPositions()
         SpellInfo const* spellInfo = GetSpellInfo(Spell_ID);
         if (!spellInfo)
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Spell (ID:%u) listed in `spell_target_position` does not exist.", Spell_ID);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Spell (Id: %u) listed in `spell_target_position` does not exist.", Spell_ID);
             continue;
         }
 

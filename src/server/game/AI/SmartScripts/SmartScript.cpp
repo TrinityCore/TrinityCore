@@ -922,7 +922,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         (*itr)->ToPlayer()->KilledMonsterCredit(e.action.killedMonster.creature);
                         TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
                             (*itr)->GetGUIDLow(), e.action.killedMonster.creature);
-                    } 
+                    }
                     else if (IsUnit(*itr)) // Special handling for vehicles
                         if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
                             for (SeatMap::iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end(); ++itr)

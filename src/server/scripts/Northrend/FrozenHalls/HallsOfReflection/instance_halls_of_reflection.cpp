@@ -181,7 +181,7 @@ public:
                         HandleGameObject(0, true, go);
                     else
                         HandleGameObject(0, false, go);
-                    break;    
+                    break;
                 case GO_CAVE:
                     _caveGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
@@ -255,17 +255,17 @@ public:
                         if (_teamInInstance == ALLIANCE)
                             instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
                         else
-                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);                                 
+                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
                     }
-                    _frostwornGeneral = data;                    
-                    break;                
+                    _frostwornGeneral = data;
+                    break;
                 case DATA_ESCAPE_EVENT:
                     if (data == IN_PROGRESS)
                     {
                         if (!_escapeevent)
                             if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                                 jaina_or_sylvanas->AI()->DoAction(ACTION_START_ESCAPING);
-                    } 
+                    }
                     else if (data == NOT_STARTED)
                     {
                         if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
@@ -287,7 +287,7 @@ public:
                             if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                                 jaina_or_sylvanas->AI()->DoAction(ACTION_WALL_BROKEN);
                         }
-                    } 
+                    }
                     else if (data == 1)
                         _mobsaticewall++;
                     break;
@@ -489,9 +489,9 @@ public:
                 case DATA_FROSTMOURNE:
                     return _frostmourneGUID;
                 case DATA_ESCAPE_LEADER:
-                    return _jainaOrSylvanasPart2GUID;    
+                    return _jainaOrSylvanasPart2GUID;
                 case DATA_CAVE_IN:
-                    return _caveGUID;     
+                    return _caveGUID;
                 default:
                     break;
             }
