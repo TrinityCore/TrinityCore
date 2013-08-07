@@ -21,7 +21,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "drak_tharon_keep.h"
 
 enum Spells
@@ -257,7 +258,7 @@ class spell_trollgore_corpse_explode : public SpellScriptLoader
                         caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, true, NULL, aurEff);
             }
 
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     target->DespawnOrUnsummon();
