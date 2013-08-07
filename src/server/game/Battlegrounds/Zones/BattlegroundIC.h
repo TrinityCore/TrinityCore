@@ -868,7 +868,7 @@ class BattlegroundIC : public Battleground
         void PostUpdateImpl(uint32 diff);
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* player, uint32 trigger);
         bool SetupBattleground();
         void SpawnLeader(uint32 teamid);
         void HandleKillUnit(Creature* unit, Player* killer);
@@ -882,7 +882,7 @@ class BattlegroundIC : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
 
         void FillInitialWorldStates(WorldPacket& data);
 
@@ -892,7 +892,9 @@ class BattlegroundIC : public Battleground
 
         uint32 GetNodeState(uint8 nodeType) const { return (uint8)nodePoint[nodeType].nodeState; }
 
-        bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
+        bool IsAllNodesControlledByTeam(uint32 team) const;
+
+        bool IsSpellAllowed(uint32 spellId, Player const* player) const;
     private:
         uint32 closeFortressDoorsTimer;
         bool doorsClosed;
