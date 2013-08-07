@@ -26,35 +26,36 @@
 
 enum Spells
 {
-    SPELL_INFECTED_WOUND                          = 49637,
-    SPELL_CRUSH                                   = 49639,
-    SPELL_CORPSE_EXPLODE                          = 49555,
-    SPELL_CONSUME                                 = 49380,
-    SPELL_CONSUME_AURA                            = 49381,
-    // Heroic spells
-    H_SPELL_CORPSE_EXPLODE                        = 59807,
-    H_SPELL_CONSUME                               = 59803,
-    H_SPELL_CONSUME_AURA                          = 59805,
+    SPELL_INFECTED_WOUND                = 49637,
+    SPELL_CRUSH                         = 49639,
+    SPELL_CORPSE_EXPLODE                = 49555,
+    SPELL_CORPSE_EXPLODE_DAMAGE         = 49618,
+    SPELL_CONSUME                       = 49380,
+    SPELL_CONSUME_BUFF                  = 49381,
+    SPELL_CONSUME_BUFF_H                = 59805,
+
+    SPELL_SUMMON_INVADER_A              = 49456,
+    SPELL_SUMMON_INVADER_B              = 49457,
+    //SPELL_SUMMON_INVADER_C              = 49458, // can't find any sniffs
+
+    H_SPELL_CORPSE_EXPLODE              = 59807,
+    H_SPELL_CONSUME                     = 59803,
 };
+
+#define SPELL_CONSUME_BUFF_HELPER DUNGEON_MODE<uint32>(SPELL_CONSUME_BUFF, SPELL_CONSUME_BUFF_H)
 
 enum Yells
 {
-    SAY_AGGRO                                     = 0,
-    SAY_KILL                                      = 1,
-    SAY_CONSUME                                   = 2,
-    SAY_EXPLODE                                   = 3,
-    SAY_DEATH                                     = 4
-};
-
-enum Creatures
-{
-    NPC_DRAKKARI_INVADER_1                        = 27753,
-    NPC_DRAKKARI_INVADER_2                        = 27709
+    SAY_AGGRO                           = 0,
+    SAY_KILL                            = 1,
+    SAY_CONSUME                         = 2,
+    SAY_EXPLODE                         = 3,
+    SAY_DEATH                           = 4
 };
 
 enum Misc
 {
-    DATA_CONSUMPTION_JUNCTION                     = 1
+    DATA_CONSUMPTION_JUNCTION           = 1
 };
 
 Position AddSpawnPoint = { -260.493011f, -622.968018f, 26.605301f, 3.036870f };
@@ -97,9 +98,9 @@ public:
 
             lSummons.DespawnAll();
 
-            me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
+            me->RemoveAura(SPELL_CONSUME_BUFF_HELPER);
 
-            instance->SetData(DATA_TROLLGORE, NOT_STARTED);
+            instance->SetBossState(DATA_TROLLGORE, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -118,7 +119,7 @@ public:
             {
                 uint32 spawnNumber = urand(2, DUNGEON_MODE(3, 5));
                 for (uint8 i = 0; i < spawnNumber; ++i)
-                    DoSummon(RAND(NPC_DRAKKARI_INVADER_1, NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
+                    DoSummon(RAND(NPC_DRAKKARI_INVADER_A, NPC_DRAKKARI_INVADER_B), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
                 uiSpawnTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             } else uiSpawnTimer -= diff;
 
@@ -131,7 +132,7 @@ public:
 
             if (consumptionJunction)
             {
-                Aura* ConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
+                Aura* ConsumeAura = me->GetAura(SPELL_CONSUME_BUFF_HELPER);
                 if (ConsumeAura && ConsumeAura->GetStackAmount() > 9)
                     consumptionJunction = false;
             }
@@ -197,6 +198,119 @@ public:
     }
 };
 
+// 49380, 59803 - Consume
+class spell_trollgore_consume : public SpellScriptLoader
+{
+    public:
+        spell_trollgore_consume() : SpellScriptLoader("spell_trollgore_consume") { }
+
+        class spell_trollgore_consume_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trollgore_consume_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CONSUME_BUFF))
+                    return false;
+                return true;
+            }
+
+            void HandleConsume(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(GetCaster(), SPELL_CONSUME_BUFF, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_trollgore_consume_SpellScript::HandleConsume, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_trollgore_consume_SpellScript();
+        }
+};
+
+// 49555, 59807 - Corpse Explode
+class spell_trollgore_corpse_explode : public SpellScriptLoader
+{
+    public:
+        spell_trollgore_corpse_explode() : SpellScriptLoader("spell_trollgore_corpse_explode") { }
+
+        class spell_trollgore_corpse_explode_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_trollgore_corpse_explode_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CORPSE_EXPLODE_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void PeriodicTick(AuraEffect const* aurEff)
+            {
+                if (aurEff->GetTickNumber() == 2)
+                    if (Unit* caster = GetCaster())
+                        caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, true, NULL, aurEff);
+            }
+
+            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Creature* target = GetTarget()->ToCreature())
+                    target->DespawnOrUnsummon();
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trollgore_corpse_explode_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_trollgore_corpse_explode_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_trollgore_corpse_explode_AuraScript();
+        }
+};
+
+// 49405 - Invader Taunt Trigger
+class spell_trollgore_invader_taunt : public SpellScriptLoader
+{
+    public:
+        spell_trollgore_invader_taunt() : SpellScriptLoader("spell_trollgore_invader_taunt") { }
+
+        class spell_trollgore_invader_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trollgore_invader_taunt_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
+                    return false;
+                return true;
+            }
+
+            void HandleTaunt(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_trollgore_invader_taunt_SpellScript::HandleTaunt, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_trollgore_invader_taunt_SpellScript();
+        }
+};
+
 class achievement_consumption_junction : public AchievementCriteriaScript
 {
     public:
@@ -220,5 +334,8 @@ class achievement_consumption_junction : public AchievementCriteriaScript
 void AddSC_boss_trollgore()
 {
     new boss_trollgore();
+    new spell_trollgore_consume();
+    new spell_trollgore_corpse_explode();
+    new spell_trollgore_invader_taunt();
     new achievement_consumption_junction();
 }
