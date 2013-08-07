@@ -198,7 +198,7 @@ enum Events
     EVENT_CLOSE_FROSTWORN_DOOR,
 };
 
-enum Enum
+enum Misc
 {
     ACTION_START_INTRO,
     ACTION_SKIP_INTRO,
@@ -744,7 +744,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
         void JustDied(Unit* /*Killer*/) OVERRIDE
         {
-            if (_instance)                
+            if (_instance)
             _instance->SetData(DATA_ESCAPE_EVENT, FAIL);
         }
 
@@ -893,7 +893,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     case EVENT_ESCAPE_13:
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
-                            lichking->AI()->DoCast(lichking, SPELL_REMORSELESS_WINTER, true);                            
+                            lichking->AI()->DoCast(lichking, SPELL_REMORSELESS_WINTER, true);
                             lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             lichking->GetMotionMaster()->MoveIdle();
                             lichking->GetMotionMaster()->MoveChase(me);
@@ -901,9 +901,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL,IceWalls[0].GetPositionX(), IceWalls[0].GetPositionY(), IceWalls[0].GetPositionZ(), IceWalls[0].GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
                         {
                             _walltargetGUID = walltarget->GetGUID();
-                            walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);                            
+                            walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);
                             walltarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                            me->Attack(walltarget,false);                            
+                            me->Attack(walltarget,false);
                         }
                          me->GetMotionMaster()->MovePoint(0, NpcJainaOrSylvanasEscapeRoute[3]);
                         _events.ScheduleEvent(EVENT_ESCAPE_14, 8000);
@@ -921,7 +921,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 else
                                     me->AI()->Talk(SAY_SYLVANAS_ESCAPE_2);
                             }
-                        }                       
+                        }
                         _events.ScheduleEvent(EVENT_ESCAPE_15, 1000);
                         break;
                     case EVENT_ESCAPE_15:
@@ -966,7 +966,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             else
                                 me->RemoveAurasDueToSpell(SPELL_SYLVANAS_DESTROY_ICE_WALL);
                         }
-                        if (_icewall && _icewall < 4)                        
+                        if (_icewall && _icewall < 4)
                             me->GetMotionMaster()->MovePoint(0, NpcJainaOrSylvanasEscapeRoute[_icewall + 3]);
                         _events.ScheduleEvent(EVENT_ESCAPE_18, 2000);
                         break;
@@ -991,7 +991,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL, IceWalls[_icewall].GetPositionX(), IceWalls[_icewall].GetPositionY(), IceWalls[_icewall].GetPositionZ(), IceWalls[_icewall].GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
                         {
                             _walltargetGUID = walltarget->GetGUID();
-                            walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);                           
+                            walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);
                             walltarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->Attack(walltarget,false);
                         }
@@ -1028,9 +1028,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                         {
                             if (_icewall && _icewall < 3)
-                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR); 
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_RISE_WITCH_DOCTOR);
                             else
-                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_LUMBERING_ABOMINATION);                            
+                                lichking->AI()->DoCast(lichking, SPELL_SUMMON_LUMBERING_ABOMINATION);
                         }
                         if (_icewall == 3)
                             _events.ScheduleEvent(EVENT_ESCAPE_21, 16000); // last wall, really far
@@ -1826,20 +1826,20 @@ class npc_raging_ghoul : public CreatureScript
 {
 public:
     npc_raging_ghoul() : CreatureScript("npc_raging_ghoul") { }
-    
+
     struct npc_raging_ghoulAI : public ScriptedAI
     {
         npc_raging_ghoulAI(Creature* creature) : ScriptedAI(creature)
         {
-            _instance = me->GetInstanceScript();           
+            _instance = me->GetInstanceScript();
         }
-    
+
         InstanceScript* _instance;
         uint32 _emergeTimer;
         bool _doEmerge;
         bool _doJump;
         uint64 _leaderGUID;
-    
+
         void Reset() OVERRIDE
         {
             _emergeTimer = 4000;
@@ -1847,47 +1847,47 @@ public:
             _doJump = false;
             if (_instance && _instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
                 _instance->SetData(DATA_SUMMONS, 1);
-    
+
         }
-    
+
         void IsSummonedBy(Unit*) OVERRIDE
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             DoZoneInCombat(me, 100.00f);
         }
-    
+
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
              if (_instance)
                  _instance->SetData(DATA_SUMMONS, 0);
         }
-    
+
         void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
-    
+
             if (!_doEmerge)
                 return;
-    
+
             ScriptedAI::AttackStart(who);
         }
-    
+
         void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!_instance)
                 return;
-    
+
             if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
             {
                 _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
                 Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER));
-    
+
                 if (_doEmerge != true)
                 {
                     if (_emergeTimer < diff)
                     {
-                        _doEmerge = true;                       
+                        _doEmerge = true;
                         if (leader)
                         {
                             DoResetThreat();
@@ -1898,7 +1898,7 @@ public:
                     else
                         _emergeTimer -= diff;
                 }
-    
+
                 if (me->Attack(leader,true))/*(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f))*/
                 {
                     if (!_doJump && me->IsWithinDistInMap(leader, 30.0f) && !me->IsWithinDistInMap(leader, 5.0f))
@@ -1913,7 +1913,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_raging_ghoulAI(creature);
@@ -1924,14 +1924,14 @@ class npc_risen_witch_doctor : public CreatureScript
 {
 public:
     npc_risen_witch_doctor() : CreatureScript("npc_risen_witch_doctor") { }
-    
+
     struct npc_risen_witch_doctorAI : public ScriptedAI
     {
         npc_risen_witch_doctorAI(Creature* creature) : ScriptedAI(creature)
         {
-            _instance = me->GetInstanceScript();           
+            _instance = me->GetInstanceScript();
         }
-    
+
         InstanceScript* _instance;
         uint32 _emergeTimer;
         bool _doEmerge;
@@ -1939,7 +1939,7 @@ public:
         uint32 _boltTimer;
         uint32 _boltVolleyTimer;
         uint32 _curseTimer;
-    
+
         void Reset() OVERRIDE
         {
             _emergeTimer = 5000;
@@ -1951,36 +1951,36 @@ public:
                 if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
                     _instance->SetData(DATA_SUMMONS, 1);
         }
-    
+
         void IsSummonedBy(Unit*) OVERRIDE
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             DoZoneInCombat(me, 100.00f);
         }
-    
+
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (_instance)               
+            if (_instance)
                 _instance->SetData(DATA_SUMMONS, 0);
-    
+
         }
-    
+
         void AttackStart(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
-    
+
             if (_doEmerge == false)
                 return;
-    
+
             ScriptedAI::AttackStart(who);
         }
-    
+
         void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!_instance)
                 return;
-    
+
             if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
             {
                 if (_doEmerge != true)
@@ -1989,7 +1989,7 @@ public:
                     {
                         _doEmerge = true;
                         _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
-    
+
                         if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
                         {
                             DoResetThreat();
@@ -2000,25 +2000,25 @@ public:
                     else
                         _emergeTimer -= diff;
                 }
-    
+
                 if (_curseTimer < diff)
                 {
                     if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM))
                         DoCast(target, SPELL_COURSE_OF_DOOM);
                     _curseTimer = urand(10000, 15000);
-                } 
-                else 
+                }
+                else
                     _curseTimer -= diff;
-    
+
                 if (_boltTimer < diff)
                 {
                     if (Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                         DoCast(target, SPELL_SHADOW_BOLT);
                     _boltTimer = urand(2000, 3000);
-                } 
-                else 
+                }
+                else
                     _boltTimer -= diff;
-    
+
                 if (_boltVolleyTimer < diff)
                 {
                     if (Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO))
@@ -2033,7 +2033,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_risen_witch_doctorAI(creature);
@@ -2045,20 +2045,20 @@ class npc_lumbering_abomination : public CreatureScript
 {
 public:
     npc_lumbering_abomination() : CreatureScript("npc_lumbering_abomination") { }
-    
+
     struct npc_lumbering_abominationAI : public ScriptedAI
     {
         npc_lumbering_abominationAI(Creature* creature) : ScriptedAI(creature)
         {
-            _instance = me->GetInstanceScript();           
+            _instance = me->GetInstanceScript();
         }
-    
+
         InstanceScript* _instance;
         uint64 _leaderGUID;
         bool _doWalk;
         uint32 _strikeTimer;
         uint32 _vomitTimer;
-    
+
         void Reset() OVERRIDE
         {
             _doWalk = false;
@@ -2066,20 +2066,20 @@ public:
             _strikeTimer = 6000;
             if (_instance)
                 if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
-                    _instance->SetData(DATA_SUMMONS, 1);          
+                    _instance->SetData(DATA_SUMMONS, 1);
         }
-    
+
         void IsSummonedBy(Unit*) OVERRIDE
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             DoZoneInCombat(me, 100.00f);
         }
-    
+
         void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!_instance)
                 return;
-    
+
             if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
             {
                 if (_doWalk != true)
@@ -2101,7 +2101,7 @@ public:
                 }
                 else
                     _strikeTimer -= diff;
-    
+
                 if (_vomitTimer < diff)
                 {
                         if (Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO))
@@ -2115,15 +2115,15 @@ public:
                 me->DespawnOrUnsummon();
             DoMeleeAttackIfReady();
         }
-    
+
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (_instance)              
+            if (_instance)
                 _instance->SetData(DATA_SUMMONS, 0);
         }
-    
+
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_lumbering_abominationAI(creature);
@@ -2145,7 +2145,7 @@ void AddSC_halls_of_reflection()
     new npc_tortured_rifleman();
     new npc_raging_ghoul();
     new npc_risen_witch_doctor();
-    new npc_lumbering_abomination();  
+    new npc_lumbering_abomination();
     new npc_frostworn_general();
     new npc_spiritual_reflection();
 }

@@ -1785,6 +1785,40 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
         }
 };
 
+class spell_q13086_cannons_target : public SpellScriptLoader
+{
+    public:
+        spell_q13086_cannons_target() : SpellScriptLoader("spell_q13086_cannons_target") { }
+
+        class spell_q13086_cannons_target_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13086_cannons_target_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (WorldLocation const* pos = GetExplTargetDest())
+                    GetCaster()->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), GetEffectValue(), true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHit += SpellEffectFn(spell_q13086_cannons_target_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_q13086_cannons_target_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1829,4 +1863,5 @@ void AddSC_quest_spell_scripts()
     new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy();
     new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon();
     new spell_q12847_summon_soul_moveto_bunny();
+    new spell_q13086_cannons_target();
 }
