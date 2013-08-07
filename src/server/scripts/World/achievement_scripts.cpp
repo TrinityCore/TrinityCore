@@ -16,12 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-
-#include "BattlegroundAB.h"
-#include "BattlegroundWS.h"
-#include "BattlegroundIC.h"
 #include "BattlegroundSA.h"
-#include "BattlegroundAV.h"
+#include "BattlegroundIC.h"
 #include "Vehicle.h"
 #include "Player.h"
 #include "Creature.h"
@@ -31,19 +27,12 @@ class achievement_resilient_victory : public AchievementCriteriaScript
     public:
         achievement_resilient_victory() : AchievementCriteriaScript("achievement_resilient_victory") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/) OVERRIDE
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_RESILIENT_VICTORY, source, target);
 
-            if (bg->GetTypeID(true) != BATTLEGROUND_AB)
-                return false;
-
-            if (!static_cast<BattlegroundAB*>(bg)->IsTeamScores500Disadvantage(source->GetTeam()))
-                return false;
-
-            return true;
+            return false;
         }
 };
 
@@ -68,21 +57,9 @@ class achievement_save_the_day : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
-            if (!target)
-                return false;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_SAVE_THE_DAY, source, target);
 
-            if (Player const* player = target->ToPlayer())
-            {
-                Battleground* bg = source->GetBattleground();
-                if (!bg)
-                    return false;
-
-                if (bg->GetTypeID(true) != BATTLEGROUND_WS)
-                    return false;
-
-                if (static_cast<BattlegroundWS*>(bg)->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
-                    return true;
-            }
             return false;
         }
 };
@@ -196,17 +173,10 @@ class achievement_everything_counts : public AchievementCriteriaScript
     public:
         achievement_everything_counts() : AchievementCriteriaScript("achievement_everything_counts") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/) OVERRIDE
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
-
-            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
-                return false;
-
-            if (static_cast<BattlegroundAV*>(bg)->IsBothMinesControlledByTeam(source->GetTeam()))
-                return true;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_EVERYTHING_COUNTS, source, target);
 
             return false;
         }
@@ -217,17 +187,10 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
     public:
         achievement_bg_av_perfection() : AchievementCriteriaScript("achievement_bg_av_perfection") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/) OVERRIDE
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
-
-            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
-                return false;
-
-            if (static_cast<BattlegroundAV*>(bg)->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
-                return true;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_AV_PERFECTION, source, target);
 
             return false;
         }
@@ -236,28 +199,12 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
 class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
 {
     public:
-        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients")
+        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients") { }
+
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
-        }
-
-        bool OnCheck(Player* player, Unit* /*target*/) OVERRIDE
-        {
-            if (!player)
-                return false;
-
-            Battleground* battleground = player->GetBattleground();
-            if (!battleground)
-                return false;
-
-            BattlegroundSA* bg = static_cast<BattlegroundSA*>(battleground);
-            if (!bg)
-                return false;
-
-            if (player->GetTeamId() == bg->Attackers)
-                return false;
-
-            if (!bg->gateDestroyed)
-                return true;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS, source, target);
 
             return false;
         }
@@ -299,21 +246,10 @@ class achievement_not_even_a_scratch : public AchievementCriteriaScript
     public:
         achievement_not_even_a_scratch() : AchievementCriteriaScript("achievement_not_even_a_scratch") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/) OVERRIDE
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
-            if (!source)
-                return false;
-
-            Battleground* battleground = source->GetBattleground();
-            if (!battleground)
-                return false;
-
-            BattlegroundSA* bg = static_cast<BattlegroundSA*>(battleground);
-            if (!bg)
-                return false;
-
-            if (bg->notEvenAScratch(source->GetTeam()))
-                return true;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH, source, target);
 
             return false;
         }

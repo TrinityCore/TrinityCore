@@ -33,6 +33,16 @@ class BattlegroundMap;
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
+enum BattlegroundCriteriaId
+{
+    BG_CRITERIA_CHECK_RESILIENT_VICTORY,
+    BG_CRITERIA_CHECK_SAVE_THE_DAY,
+    BG_CRITERIA_CHECK_EVERYTHING_COUNTS,
+    BG_CRITERIA_CHECK_AV_PERFECTION,
+    BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS,
+    BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH,
+};
+
 enum BattlegroundSounds
 {
     SOUND_HORDE_WINS                = 8454,
@@ -291,6 +301,7 @@ class Battleground
         /* achievement req. */
         virtual bool IsAllNodesControlledByTeam(uint32 /*team*/) const { return false; }
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         /* Battleground */
         // Get methods:

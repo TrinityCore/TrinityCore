@@ -711,3 +711,14 @@ bool BattlegroundAB::IsAllNodesControlledByTeam(uint32 team) const
 
     return count == BG_AB_DYNAMIC_NODES_COUNT;
 }
+
+bool BattlegroundAB::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* player, Unit const* target, uint32 miscvalue)
+{
+    switch (criteriaId)
+    {
+        case BG_CRITERIA_CHECK_RESILIENT_VICTORY:
+            return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(player->GetTeam())];
+    }
+
+    return Battleground::CheckAchievementCriteriaMeet(criteriaId, player, target, miscvalue);
+}

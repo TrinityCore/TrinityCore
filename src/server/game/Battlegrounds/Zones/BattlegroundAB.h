@@ -271,7 +271,7 @@ class BattlegroundAB : public Battleground
 
         /* achievement req. */
         bool IsAllNodesControlledByTeam(uint32 team) const;
-        bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
+        bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         uint32 GetPrematureWinner();
     private:
