@@ -365,9 +365,63 @@ public:
 
 };
 
+enum Yor
+{
+    SPELL_DOUBLE_BREATH          = 38361,
+    EVENT_DOUBLE_BREATH          = 1
+};
+
+class npc_yor : public CreatureScript
+{
+public:
+    npc_yor() : CreatureScript("npc_yor") { }
+
+    struct npc_yorAI : public ScriptedAI
+    {
+        npc_yorAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset() OVERRIDE {}
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
+            events.ScheduleEvent(EVENT_DOUBLE_BREATH, urand(6000,9000));
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (!UpdateVictim())
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_DOUBLE_BREATH:
+                        if (me->IsWithinDist(me->GetVictim(), ATTACK_DISTANCE))
+                            DoCastVictim(SPELL_DOUBLE_BREATH);
+                        events.ScheduleEvent(EVENT_DOUBLE_BREATH, urand(6000,9000));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+        private:
+            EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_yorAI(creature);
+    }
+};
+
 void AddSC_boss_nexusprince_shaffar()
 {
     new boss_nexusprince_shaffar();
     new npc_ethereal_beacon();
     new npc_ethereal_apprentice();
+    new npc_yor();
 }
