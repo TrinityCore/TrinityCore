@@ -27,7 +27,6 @@ enum Spells
     SPELL_CORPSE_EXPLODE                          = 49555,
     SPELL_CONSUME                                 = 49380,
     SPELL_CONSUME_AURA                            = 49381,
-    SPELL_CONSUME_AURA_H                          = 59805,
 
     SPELL_INVADER_TAUNT                           = 49405
 };
@@ -83,9 +82,7 @@ public:
         void Reset() OVERRIDE
         {
             _Reset();
-            me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA, SPELL_CONSUME_AURA_H));
             consumptionJunction = true;
-            Summons.DespawnAll();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -117,7 +114,6 @@ public:
                     case EVENT_CONSUME:
                         Talk(SAY_CONSUME);
                         DoCast(SPELL_CONSUME);
-                        me->AddAura(DUNGEON_MODE(SPELL_CONSUME_AURA, SPELL_CONSUME_AURA_H), me);
                         events.ScheduleEvent(EVENT_CONSUME, 15000);
                         break;
                     case EVENT_CRUSH:
@@ -160,7 +156,6 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-            Summons.DespawnAll();
             _JustDied();
         }
 
@@ -183,7 +178,7 @@ public:
         void JustSummoned(Creature* summon) OVERRIDE
         {
             summon->GetMotionMaster()->MovePoint(0, Landing);
-            Summons.Summon(summon);
+            summons.Summon(summon);
         }
 
         private:
@@ -232,7 +227,7 @@ public:
             if (!me->IsMounted() && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC)) {
                 if (Unit* Trollgore = me->GetCreature(*me, trollgoreGUID)) {
                     if (Trollgore->IsAlive()) {
-                        DoCastVictim(SPELL_INVADER_TAUNT);
+                        DoCastAOE(SPELL_INVADER_TAUNT);
                     }
                 }
             }
