@@ -260,7 +260,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.173 - 22/07/2013: Wintergrasp: Ahora tenacity se actualizara cuando los jugadores summonen vehículos por Jar
 1.174 - 28/07/2013: Wintergrasp: Implementadas las quest  Victory in Wintergrasp, Toppling the Towers y Southern Sabotage por Jar
 1.175 - 28/07/2013: SoTA: Ahora cuando un jugador se sube a un Battleground Demolisher como acompañante, estara protegido del daño que se recibe de los cañones y los enemigos no podran atacarte por Jar
-1.176 - 29/07/2013: Pesca: Arreglado el tema de que la pesca no iba bien por Eilo
+1.177 - 01/08/2013: Wintergrasp: Solucionado el problema con las quest Stop the Siege, Slay them all! y No Mercy for the Merciles, ahora se pueden completar estando en grupo de banda por Jar
+1.178 - 06/08/2013: Ahora para entrar a una Arena o Bg, los players seran desmontados y se les hara dismiss a las pets evitando exploits por Eilo
 
 
 ########################
@@ -275,6 +276,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.1.8  - 24/01/2013: TrialOfTheCrusader: Jaraxxus inmune a taunt mientras se ejectua el evento de intro por Eilo
 2.1.9  - 24/03/2013: TrialOfTheCrusader: AnubArak invoca los Nerubian Burrower mas pausado en fase 3 por Eilo
 2.1.10 - 24/03/2013: TrialOfTheCrusader: AnubArak spike (dummy) añadidas las inmunidades por Eilo
+2.1.11 - 05/08/2013: TrialOfTheCrusader: El paralytic spray de Acidmaw dejara el aura paralytic toxin al golpear a un jugador por Dolanpls.
+2.1.12 - 05/08/2013: TrialOfTheCrusader: El burning spray de Dreadscale dejara el aura burning bile al golpear a un jugador por Dolanpls.
 - IcecrownCitadel - 
 2.2.4  - 26/11/2011: Inmunidades en script para todos los bosses y mini bosses por Eilo
 2.2.6  - 24/10/2011: Trash mob Deathbound Ward disminuido rango de aggro por Plangcoder
@@ -422,6 +425,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.17 - 28/06/2013: Ulduar: Las trampas que hay antes del boss Thorim ya no perseguiran al jugador ni seran seleccionables y atacables por Dolanpls
 2.6.18 - 15/07/2013: Ulduar: La puerta antes del General Vezax ya no se quedara cerrada al morir los 4 titanes por Dolanpls
 2.6.19 - 28/07/2013: Ulduar: Traduccion de los textos del teleport por Apa 
+2.6.20 - 30/07/2013: Ulduar: Freya ahora finalizara su encuentro correctamente, evitando que deje de funcionar el portal por Apa
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -650,6 +654,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.176 - 08/07/2013: Warrior: Fix spell Deep Wounds, ahora hará el daño correcto con la habilidad trauma por Gildor
 3.179 - 27/07/2013: Paladin: Fix spell Beacon of Light, ahora funcionará tambien con las pets por darvid
 3.180 - 28/07/2013: Brujo: Fix spell Spell Lock (Felhunter), ahora funcionará la parte de silenciar los 6 segundos por A-Metaphysical-Drama
+3.181 - 02/08/2013: DK: Ahora la gárgola se beneficiará de la celeridad del DK por Tibbi
 
 
 #################
@@ -816,6 +821,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.3.69 - 12/07/2013: Corona de Hielo: ¡Eso es abominable! por Muzashi
 4.3.70 - 28/07/2013: Corona de Hielo: Hecho trozos por YTDB
 4.3.71 - 28/07/2013: Corona de Hielo: Volver a unir a Olakin por Muzashi
+4.3.72 - 02/08/2013: Corona de Hielo: El gigante de carne campeón por Bluerak1, convertido a SAI por Muzashi
 - Cuenca de Sholazar -
 4.4.0  - 16/04/2012: Cuenca de Sholazar: Seguir la corriente por Muzashi
 4.4.1  - 16/04/2012: Cuenca de Sholazar: Atormentar a los badanudillos por Muzashi
@@ -1176,5 +1182,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 7.16 - 15/05/2013: Isla de maestros de juego: Añadir banquero, buzon y banco de hermandad por Rincewind
 7.17 - 15/05/2013: El más sabio de Azeroth por Muzashi y Abismo
 7.18 - 27/07/2013: Cerdoball por Muzashi
+7.19 - 01/08/2013: Misiones diarias de Lan'Dalock: actualizadas recompensas, activadas y metidas en pool por Rincewind
 
 
