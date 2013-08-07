@@ -213,7 +213,7 @@ class RBACData: public RBACObject
          * }
          * @endcode
          */
-        bool HasPermission(uint32 permission) { return _globalPerms.test(permission); }
+        bool HasPermission(uint32 permission) const { return _globalPerms.test(permission); }
 
         // Functions enabled to be used by command system
         /// Returns all the granted permissions (after computation)
