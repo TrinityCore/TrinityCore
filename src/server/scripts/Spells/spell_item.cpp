@@ -47,7 +47,7 @@ class spell_item_trigger_spell : public SpellScriptLoader
         public:
             spell_item_trigger_spell_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(_triggeredSpellId))
                     return false;
@@ -322,7 +322,7 @@ class spell_item_deviate_fish : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 for (uint32 spellId = SPELL_SLEEPY; spellId <= SPELL_HEALTHY_SPIRIT; ++spellId)
                     if (!sSpellMgr->GetSpellInfo(spellId))
@@ -367,7 +367,7 @@ class spell_item_flask_of_the_north : public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_flask_of_the_north_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_SP) || !sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_AP) || !sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_STR))
                     return false;
@@ -436,7 +436,7 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_gnomish_death_ray_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_GNOMISH_DEATH_RAY_SELF) || !sSpellMgr->GetSpellInfo(SPELL_GNOMISH_DEATH_RAY_TARGET))
                     return false;
@@ -492,7 +492,7 @@ class spell_item_make_a_wish : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MR_PINCHYS_BLESSING) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_MIGHTY_MR_PINCHY) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_FURIOUS_MR_PINCHY) || !sSpellMgr->GetSpellInfo(SPELL_TINY_MAGICAL_CRAWDAD) || !sSpellMgr->GetSpellInfo(SPELL_MR_PINCHYS_GIFT))
                     return false;
@@ -646,7 +646,7 @@ class spell_item_net_o_matic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_net_o_matic_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED1) || !sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED2) || !sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED3))
                     return false;
@@ -703,7 +703,7 @@ class spell_item_noggenfogger_elixir : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1) || !sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2) || !sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3))
                     return false;
@@ -788,7 +788,7 @@ class spell_item_savory_deviate_delight : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 for (uint32 spellId = SPELL_FLIP_OUT_MALE; spellId <= SPELL_YAAARRRR_FEMALE; ++spellId)
                     if (!sSpellMgr->GetSpellInfo(spellId))
@@ -1112,7 +1112,7 @@ class spell_item_six_demon_bag : public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_six_demon_bag_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FROSTBOLT) || !sSpellMgr->GetSpellInfo(SPELL_POLYMORPH) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_FELHOUND_MINION) || !sSpellMgr->GetSpellInfo(SPELL_FIREBALL) || !sSpellMgr->GetSpellInfo(SPELL_CHAIN_LIGHTNING) || !sSpellMgr->GetSpellInfo(SPELL_ENVELOPING_WINDS))
                     return false;
@@ -1213,7 +1213,7 @@ class spell_item_underbelly_elixir : public SpellScriptLoader
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED1) || !sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED2) || !sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED3))
                     return false;
@@ -1491,7 +1491,7 @@ class spell_item_vanquished_clutches : public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_vanquished_clutches_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CRUSHER) || !sSpellMgr->GetSpellInfo(SPELL_CONSTRICTOR) || !sSpellMgr->GetSpellInfo(SPELL_CORRUPTOR))
                     return false;

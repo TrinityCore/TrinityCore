@@ -125,7 +125,7 @@ class spell_voodoo : public SpellScriptLoader
         {
             PrepareSpellScript(spell_voodoo_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BREW) || !sSpellMgr->GetSpellInfo(SPELL_GHOSTLY) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HEX1) || !sSpellMgr->GetSpellInfo(SPELL_HEX2) ||
