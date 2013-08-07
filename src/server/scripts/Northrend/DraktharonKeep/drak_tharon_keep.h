@@ -36,6 +36,10 @@ enum DataTypes
     // Additional data
     //DATA_KING_DRED_ACHIEV,
 
+    DATA_TROLLGORE_INVADER_SUMMONER_1,
+    DATA_TROLLGORE_INVADER_SUMMONER_2,
+    DATA_TROLLGORE_INVADER_SUMMONER_3,
+
     DATA_NOVOS_CRYSTAL_1,
     DATA_NOVOS_CRYSTAL_2,
     DATA_NOVOS_CRYSTAL_3,
@@ -55,13 +59,23 @@ enum CreatureIds
     NPC_KING_DRED                       = 27483,
     NPC_THARON_JA                       = 26632,
 
+    // Trollgore
+    NPC_DRAKKARI_INVADER_A              = 27709,
+    NPC_DRAKKARI_INVADER_B              = 27753,
+    NPC_DRAKKARI_INVADER_C              = 27754,
+
     // Novos
     NPC_CRYSTAL_CHANNEL_TARGET          = 26712,
     NPC_CRYSTAL_HANDLER                 = 26627,
+    NPC_HULKING_CORPSE                  = 27597,
+    NPC_FETID_TROLL_CORPSE              = 27598,
+    NPC_RISEN_SHADOWCASTER              = 27600,
 
     // King Dred
     NPC_DRAKKARI_GUTRIPPER              = 26641,
-    NPC_DRAKKARI_SCYTHECLAW             = 26628
+    NPC_DRAKKARI_SCYTHECLAW             = 26628,
+
+    NPC_WORLD_TRIGGER                   = 22515
 };
 
 enum GameObjectIds

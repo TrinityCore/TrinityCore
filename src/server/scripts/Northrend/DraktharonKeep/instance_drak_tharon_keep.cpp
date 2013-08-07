@@ -36,11 +36,12 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 KingDredGUID        = 0;
                 TharonJaGUID        = 0;
 
+                memset(TrollgoreInvaderSummonerGuids, 0, 4 * sizeof(uint64));
                 memset(NovosCrystalGUIDs, 0, 4 * sizeof(uint64));
                 memset(NovosSummonerGUIDs, 0, 4 * sizeof(uint64));
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch (creature->GetEntry())
                 {
@@ -56,6 +57,9 @@ class instance_drak_tharon_keep : public InstanceMapScript
                     case NPC_THARON_JA:
                         TharonJaGUID = creature->GetGUID();
                         break;
+                    case NPC_WORLD_TRIGGER:
+                        InitializeTrollgoreInvaderSummoner(creature);
+                        break;
                     case NPC_CRYSTAL_CHANNEL_TARGET:
                         InitializeNovosSummoner(creature);
                         break;
@@ -64,29 +68,41 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
                     case GO_NOVOS_CRYSTAL_1:
                         NovosCrystalGUIDs[0] = go->GetGUID();
-                        go->SetGoState(GO_STATE_READY);
                         break;
                     case GO_NOVOS_CRYSTAL_2:
                         NovosCrystalGUIDs[1] = go->GetGUID();
-                        go->SetGoState(GO_STATE_READY);
                         break;
                     case GO_NOVOS_CRYSTAL_3:
                         NovosCrystalGUIDs[2] = go->GetGUID();
-                        go->SetGoState(GO_STATE_READY);
                         break;
                     case GO_NOVOS_CRYSTAL_4:
                         NovosCrystalGUIDs[3] = go->GetGUID();
-                        go->SetGoState(GO_STATE_READY);
                         break;
                     default:
                         break;
                 }
+            }
+
+            void InitializeTrollgoreInvaderSummoner(Creature* creature)
+            {
+                float y = creature->GetPositionY();
+                float z = creature->GetPositionZ();
+
+                if (z < 50.0f)
+                    return;
+
+                if (y < -650.0f && y > -660.0f)
+                    TrollgoreInvaderSummonerGuids[0] = creature->GetGUID();
+                else if (y < -660.0f && y > -670.0f)
+                    TrollgoreInvaderSummonerGuids[1] = creature->GetGUID();
+                else if (y < -675.0f && y > -685.0f)
+                    TrollgoreInvaderSummonerGuids[2] = creature->GetGUID();
             }
 
             void InitializeNovosSummoner(Creature* creature)
@@ -117,6 +133,10 @@ class instance_drak_tharon_keep : public InstanceMapScript
                         return KingDredGUID;
                     case DATA_THARON_JA:
                         return TharonJaGUID;
+                    case DATA_TROLLGORE_INVADER_SUMMONER_1:
+                    case DATA_TROLLGORE_INVADER_SUMMONER_2:
+                    case DATA_TROLLGORE_INVADER_SUMMONER_3:
+                        return TrollgoreInvaderSummonerGuids[type - DATA_TROLLGORE_INVADER_SUMMONER_1];
                     case DATA_NOVOS_CRYSTAL_1:
                     case DATA_NOVOS_CRYSTAL_2:
                     case DATA_NOVOS_CRYSTAL_3:
@@ -132,14 +152,14 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 return 0;
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) OVERRIDE
             {
                 if (unit->GetEntry() == NPC_CRYSTAL_HANDLER)
                     if (Creature* novos = instance->GetCreature(NovosGUID))
                         novos->AI()->DoAction(ACTION_CRYSTAL_HANDLER_DIED);
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -150,7 +170,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str)
+            void Load(char const* str) OVERRIDE
             {
                 if (!str)
                 {
@@ -188,6 +208,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
             uint64 KingDredGUID;
             uint64 TharonJaGUID;
 
+            uint64 TrollgoreInvaderSummonerGuids[3];
             uint64 NovosCrystalGUIDs[4];
             uint64 NovosSummonerGUIDs[4];
         };
