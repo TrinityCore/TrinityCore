@@ -182,12 +182,12 @@ class BattlegroundWS : public Battleground
         uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; }
 
         /* Battleground Events */
-        void EventPlayerDroppedFlag(Player* Source);
-        void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
-        void EventPlayerCapturedFlag(Player* Source);
+        void EventPlayerDroppedFlag(Player* player);
+        void EventPlayerClickedOnFlag(Player* player, GameObject* target_obj);
+        void EventPlayerCapturedFlag(Player* player);
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* player, uint32 trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         bool SetupBattleground();
         void Reset();
@@ -197,7 +197,7 @@ class BattlegroundWS : public Battleground
         void UpdateFlagState(uint32 team, uint32 value);
         void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }
         void UpdateTeamScore(uint32 team);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
         void SetDroppedFlagGUID(uint64 guid, int32 team = -1)
         {
             if (team == TEAM_ALLIANCE || team == TEAM_HORDE)

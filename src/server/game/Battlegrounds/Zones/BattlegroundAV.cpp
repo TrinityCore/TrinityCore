@@ -445,7 +445,7 @@ void BattlegroundAV::StartingEventOpenDoors()
     DoorOpen(BG_AV_OBJECT_DOOR_A);
 
     // Achievement: The Alterac Blitz
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, AV_EVENT_START_BATTLE);
+    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, BG_AV_EVENT_START_BATTLE);
 }
 
 void BattlegroundAV::AddPlayer(Player* player)
@@ -733,7 +733,7 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
     return;
 }
 
-bool BattlegroundAV::PlayerCanDoMineQuest(int32 GOId, uint32 team)
+bool BattlegroundAV::CanActivateGO(int32 GOId, uint32 team) const
 {
     if (GOId == BG_AV_OBJECTID_MINE_N)
          return (m_Mine_Owner[AV_NORTH_MINE] == team);

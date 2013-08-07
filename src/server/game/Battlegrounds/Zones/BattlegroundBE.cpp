@@ -142,12 +142,10 @@ bool BattlegroundBE::SetupBattleground()
 
 void BattlegroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-
     BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
     //there is nothing special in this score
     Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
-
 }
