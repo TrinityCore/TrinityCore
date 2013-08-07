@@ -27,6 +27,7 @@ class Creature;
 class GameObject;
 class Group;
 class Player;
+class Unit;
 class WorldPacket;
 class BattlegroundMap;
 
