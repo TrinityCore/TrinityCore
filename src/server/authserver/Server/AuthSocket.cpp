@@ -27,6 +27,7 @@
 #include "RealmList.h"
 #include "AuthSocket.h"
 #include "AuthCodes.h"
+#include "TOTP.h"
 #include "SHA1.h"
 #include "openssl/crypto.h"
 
@@ -492,6 +493,11 @@ bool AuthSocket::_HandleLogonChallenge()
                     pkt.append(s.AsByteArray(), s.GetNumBytes());   // 32 bytes
                     pkt.append(unk3.AsByteArray(16), 16);
                     uint8 securityFlags = 0;
+		    //Check if token is used
+		    _token_key = fields[8].GetString();
+		    if(_token_key.length())
+		      securityFlags = 4;
+
                     pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
                     if (securityFlags & 0x01)               // PIN input
@@ -651,6 +657,23 @@ bool AuthSocket::_HandleLogonProof()
         sha.Initialize();
         sha.UpdateBigNumbers(&A, &M, &K, NULL);
         sha.Finalize();
+
+	//Check auth token
+	if (lp.securityFlags & 0x04 || _token_key.length()) {
+	  uint8 size;
+	  socket().recv((char*)&size, 1);
+	  char *token = (char*)malloc(size+1);
+	  token[size] = 0x00;
+	  socket().recv(token, size);
+	  unsigned int valid_token = generate_token(_token_key.c_str());
+	  unsigned int incoming_token = atoi(token);
+	  free(token);
+	  if(valid_token != incoming_token) {
+	    char data[4] = { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0 };
+	    socket().send(data, sizeof(data));
+	    return false;
+	  }
+	}
 
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
         {
