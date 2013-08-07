@@ -40,7 +40,7 @@ class achievement_resilient_victory : public AchievementCriteriaScript
             if (bg->GetTypeID(true) != BATTLEGROUND_AB)
                 return false;
 
-            if (!bg->ToBattlegroundAB()->IsTeamScores500Disadvantage(source->GetTeam()))
+            if (!static_cast<BattlegroundAB*>(bg)->IsTeamScores500Disadvantage(source->GetTeam()))
                 return false;
 
             return true;
@@ -54,14 +54,10 @@ class achievement_bg_control_all_nodes : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* /*target*/) OVERRIDE
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->IsAllNodesControlledByTeam(source->GetTeam());
 
-            if (!bg->IsAllNodesConrolledByTeam(source->GetTeam()))
-                return false;
-
-            return true;
+            return false;
         }
 };
 
@@ -84,7 +80,7 @@ class achievement_save_the_day : public AchievementCriteriaScript
                 if (bg->GetTypeID(true) != BATTLEGROUND_WS)
                     return false;
 
-                if (bg->ToBattlegroundWS()->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
+                if (static_cast<BattlegroundWS*>(bg)->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
                     return true;
             }
             return false;
@@ -209,7 +205,7 @@ class achievement_everything_counts : public AchievementCriteriaScript
             if (bg->GetTypeID(true) != BATTLEGROUND_AV)
                 return false;
 
-            if (bg->ToBattlegroundAV()->IsBothMinesControlledByTeam(source->GetTeam()))
+            if (static_cast<BattlegroundAV*>(bg)->IsBothMinesControlledByTeam(source->GetTeam()))
                 return true;
 
             return false;
@@ -230,7 +226,7 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
             if (bg->GetTypeID(true) != BATTLEGROUND_AV)
                 return false;
 
-            if (bg->ToBattlegroundAV()->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
+            if (static_cast<BattlegroundAV*>(bg)->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
                 return true;
 
             return false;
@@ -253,10 +249,14 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
             if (!battleground)
                 return false;
 
-            if (player->GetTeamId() == battleground->ToBattlegroundSA()->Attackers)
+            BattlegroundSA* bg = static_cast<BattlegroundSA*>(battleground);
+            if (!bg)
                 return false;
 
-            if (!battleground->ToBattlegroundSA()->gateDestroyed)
+            if (player->GetTeamId() == bg->Attackers)
+                return false;
+
+            if (!bg->gateDestroyed)
                 return true;
 
             return false;
@@ -308,7 +308,11 @@ class achievement_not_even_a_scratch : public AchievementCriteriaScript
             if (!battleground)
                 return false;
 
-            if (battleground->ToBattlegroundSA()->notEvenAScratch(source->GetTeam()))
+            BattlegroundSA* bg = static_cast<BattlegroundSA*>(battleground);
+            if (!bg)
+                return false;
+
+            if (bg->notEvenAScratch(source->GetTeam()))
                 return true;
 
             return false;
