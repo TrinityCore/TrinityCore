@@ -250,9 +250,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsUnit(*itr))
                     {
-                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.range > 0 ? true : false);
+                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.onlySelf > 0 ? true : false);
                         TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
-                            (*itr)->GetName().c_str(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.range);
+                            (*itr)->GetName().c_str(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.onlySelf);
                     }
                 }
 
@@ -1131,13 +1131,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SET_VISIBILITY:
         {
             if (me)
-                me->SetVisible(e.action.visibility.state ? true : false);
+                me->SetVisible(e.action.visibility.state);
             break;
         }
         case SMART_ACTION_SET_ACTIVE:
         {
-            if (GetBaseObject())
-                GetBaseObject()->setActive(true);
+            if (WorldObject* baseObj = GetBaseObject())
+                baseObj->setActive(e.action.active.state);
             break;
         }
         case SMART_ACTION_ATTACK_START:
