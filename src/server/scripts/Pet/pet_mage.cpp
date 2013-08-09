@@ -22,6 +22,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "CombatAI.h"
+#include "Pet.h"
 
 enum MageSpells
 {
