@@ -101,7 +101,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
                 if (_spellTimer <= diff)
                 {
-                    if (_isViper) //Viper
+                    if (_isViper) // Viper
                     {
                         if (urand(0, 2) == 0) //33% chance to cast
                         {
