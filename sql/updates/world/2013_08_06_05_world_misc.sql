@@ -88,7 +88,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@NEXT+70, 30593, 571, 1, 64, 6236.617383, 113.980854, 380.351959, 5.6035, 5, 60, 0, 1);
 
 -- Frostbrood Destroyers 5
-UPDATE `creature_template` SET `maxlevel`=80,`minlevel`=80,`exp`=2,`InhabitType`=7,`speed_walk`=3,`mindmg` = 1170,`dmg_multiplier` = 2,`attackpower` = 342,`maxdmg` = 3470,`movementtype`=1,`faction_A`=2068, `faction_H`=2068,`AIName`= 'SmartAI' WHERE `entry`= 30575;
+UPDATE `creature_template` SET `maxlevel`=80,`minlevel`=80,`exp`=2,`InhabitType`=7,`speed_walk`=3,`mindmg` = 1170,`dmg_multiplier` = 2,`attackpower` = 342,`maxdmg` = 3470,`movementtype`=1,`faction_A`=2068, `faction_H`=2068 WHERE `entry`= 30575;
 DELETE FROM `creature` WHERE `id`=30575;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
 (@NEXT+71, 30575,571,1,64,6097.870117, 58.331299, 380.506012, 0.138359, 75,20,1),
