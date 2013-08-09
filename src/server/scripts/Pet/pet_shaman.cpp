@@ -63,7 +63,7 @@ class npc_pet_shaman_earth_elemental : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (_events.ExecuteEvent() == EVENT_SHAMAN_ANGEREDEARTH)
                 {
@@ -110,7 +110,7 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
