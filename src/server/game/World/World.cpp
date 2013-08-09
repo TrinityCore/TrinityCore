@@ -20,6 +20,7 @@
     \ingroup world
 */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "Memory.h"
 #include "DatabaseEnv.h"
@@ -2844,6 +2845,8 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
+
+    sAnticheatMgr->ResetDailyReportStates();
 }
 
 void World::LoadDBAllowedSecurityLevel()
