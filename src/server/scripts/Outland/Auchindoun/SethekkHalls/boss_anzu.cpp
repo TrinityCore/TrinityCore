@@ -18,7 +18,7 @@
 /*
 Name: Boss_Anzu
 %Complete: 80%
-Comment: 
+Comment:
 Category: Auchindoun, Sethekk Halls
 */
 
@@ -111,7 +111,7 @@ public:
                         events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21000);
                         break;
                     case EVENT_SUMMON:
-						// TODO: Add pathing for Brood of Anzu
+                        // TODO: Add pathing for Brood of Anzu
                         me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
                         me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
                         me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
@@ -119,7 +119,7 @@ public:
                         me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
                         me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[5], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
                         me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[6], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
-						DoCast(me, SPELL_BANISH_SELF);
+                        DoCast(me, SPELL_BANISH_SELF);
                         events.ScheduleEvent(EVENT_SPELL_BOMB, 12000);
                         break;
                     case EVENT_SPELL_BOMB:
