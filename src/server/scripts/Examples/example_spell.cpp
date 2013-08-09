@@ -50,7 +50,7 @@ class spell_ex_5581 : public SpellScriptLoader
 
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 // check if spellid 70522 exists in dbc, we will trigger it later
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGERED))
@@ -208,7 +208,7 @@ class spell_ex_66244 : public SpellScriptLoader
             PrepareAuraScript(spell_ex_66244AuraScript);
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 // check if spellid exists in dbc, we will trigger it later
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGERED))

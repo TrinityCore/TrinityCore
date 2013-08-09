@@ -272,8 +272,7 @@ class npc_harrison_jones : public CreatureScript
 {
     public:
 
-        npc_harrison_jones()
-            : CreatureScript("npc_harrison_jones")
+        npc_harrison_jones() : CreatureScript("npc_harrison_jones")
         {
         }
 
@@ -412,9 +411,11 @@ class npc_harrison_jones : public CreatureScript
                                                     ptarget->AI()->SetData(0, 1);
                                                 }
                                                 else
+                                                {
                                                     ptarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                                     ptarget->SetReactState(REACT_PASSIVE);
                                                     ptarget->AI()->SetData(0, 2);
+                                                }
                                             }
                                         }
                                     }

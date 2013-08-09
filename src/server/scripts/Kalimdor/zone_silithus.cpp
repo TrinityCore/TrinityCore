@@ -530,10 +530,10 @@ public:
             if (!player)
                 return;
 
-            Creature* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f, me);
-            Creature* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f, me);
-            Creature* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f, me);
-            Creature* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f, me);
+            Creature* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f);
+            Creature* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f);
+            Creature* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f);
+            Creature* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f);
 
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
