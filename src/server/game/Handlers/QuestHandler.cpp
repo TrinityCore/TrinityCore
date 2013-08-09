@@ -525,7 +525,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
     if (!quest)
         return;
-        
+
     Object* object = ObjectAccessor::GetObjectByTypeMask(*_player, playerGuid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
     if (!object || !object->hasInvolvedQuest(questId))
         return;

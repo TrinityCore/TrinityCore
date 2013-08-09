@@ -109,7 +109,7 @@ public:
             if (GameObject* deposit = creature->FindNearestGameObject(GO_DEPOSIT, 20))
                 creature->GetMotionMaster()->MovePoint(1, deposit->GetPositionX() - 1.0f, deposit->GetPositionY(), deposit->GetPositionZ());
 
-            if (player->GetQuestStatus(QUEST_GOOD_HELP_IS_HARD_TO_FIND) == QUEST_STATUS_COMPLETE) 
+            if (player->GetQuestStatus(QUEST_GOOD_HELP_IS_HARD_TO_FIND) == QUEST_STATUS_COMPLETE)
                 player->RemoveAura(SPELL_LIGHTNING_VISUAL);
 
             player->CLOSE_GOSSIP_MENU();
