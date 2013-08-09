@@ -619,6 +619,13 @@ void AddSC_zangarmarsh();
 // Events
 void AddSC_event_childrens_week();
 
+// Pets
+void AddSC_deathknight_pet_scripts();
+void AddSC_hunter_pet_scripts();
+void AddSC_mage_pet_scripts();
+void AddSC_priest_pet_scripts();
+void AddSC_shaman_pet_scripts();
+
 // battlegrounds
 
 // outdoor pvp
@@ -647,6 +654,7 @@ void AddScripts()
     AddOutlandScripts();
     AddNorthrendScripts();
     AddEventScripts();
+    AddPetScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -1280,6 +1288,17 @@ void AddEventScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_childrens_week();
+#endif
+}
+
+void AddPetScripts()
+{
+#ifdef SCRIPTS
+    AddSC_deathknight_pet_scripts();
+    AddSC_hunter_pet_scripts();
+    AddSC_mage_pet_scripts();
+    AddSC_priest_pet_scripts();
+    AddSC_shaman_pet_scripts();
 #endif
 }
 

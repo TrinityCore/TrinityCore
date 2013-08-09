@@ -38,6 +38,7 @@ if(SCRIPTS)
   include(Outland/CMakeLists.txt)
   include(Northrend/CMakeLists.txt)
   include(Events/CMakeLists.txt)
+  include(Pet/CMakeLists.txt)
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
