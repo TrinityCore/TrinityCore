@@ -31,6 +31,7 @@
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"

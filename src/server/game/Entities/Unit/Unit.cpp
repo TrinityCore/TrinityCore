@@ -17,6 +17,7 @@
  */
 
 #include "Unit.h"
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
@@ -16320,6 +16321,8 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
+     //if (this->ToPlayer())
+     //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
     Player* player = ToPlayer();
     if (!player)
     {
