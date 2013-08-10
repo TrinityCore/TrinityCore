@@ -639,7 +639,8 @@ namespace LuaGlobalFunctions
         if (!items || items->Empty())
             return 0;
 
-        for (VendorItemList::const_iterator itr = items->m_items.begin(); itr != items->m_items.end(); ++itr)
+        VendorItemList const itemlist = items->m_items;
+        for (VendorItemList::const_iterator itr = itemlist.begin(); itr != itemlist.end(); ++itr)
             sObjectMgr->RemoveVendorItem(entry, (*itr)->item, persist);
         return 0;
     }

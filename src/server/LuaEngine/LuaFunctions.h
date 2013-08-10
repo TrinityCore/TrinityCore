@@ -456,7 +456,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},                                                       // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius.
     {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},                                               // :GetNearestGameObject([radius, entry]) - Returns nearest gameobject with given entry in sight or given radius.
     {"GetNearestCreature", &LuaUnit::GetNearestCreature},                                                   // :GetNearestCreatureEntry([radius, entry]) - Returns nearest creature with given entry in sight or given radius.
-    {"GetRelativePoint", &LuaUnit::GetRelativePoint},                                                       // :GetRelativePoint(dist, degrees) - Returns the X, Y and orientation of a point dist away from unit. Degrees are - 90 for right and 90 for left.
+    {"GetRelativePoint", &LuaUnit::GetRelativePoint},                                                       // :GetRelativePoint(dist, rad) - Returns the X, Y and orientation of a point dist away from unit.
     {"GetHeight", &LuaUnit::GetHeight},                                                                     // :GetHeight(X, Y) - Returns the Z coord of the given location. If no valid position found, returns unit Z coordinate.
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
     {"GetOwner", &LuaUnit::GetOwner},                                                                       // :GetOwner() - Returns the owner
