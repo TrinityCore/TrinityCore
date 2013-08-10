@@ -30,7 +30,7 @@ class instance_firelands : public InstanceMapScript
             {
             }
 
-            void Initialize()
+            void Initialize() OVERRIDE
             {
                 SetBossNumber(EncounterCount);
             }
