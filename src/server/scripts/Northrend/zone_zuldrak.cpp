@@ -1460,9 +1460,9 @@ public:
                 _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
             }
 
-            void SetData(uint32 Type, uint32 Data) OVERRIDE
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
-                if (Type == 1 && Data == 1)
+                if (type == 1 && data == 1)
                     switch (_getingredienttry)
                    {
                         case 2:

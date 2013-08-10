@@ -47,7 +47,7 @@ public:
         uint64 DoorWardGUID;
         int WardKeeperDeath;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             WardKeeperDeath = 0;
             DoorWardGUID = 0;
@@ -69,7 +69,7 @@ public:
             return NULL;
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {

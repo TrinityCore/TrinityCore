@@ -170,7 +170,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) OVERRIDE
+            void Load(char const* str) OVERRIDE OVERRIDE
             {
                 if (!str)
                 {
