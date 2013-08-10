@@ -75,7 +75,7 @@ public:
             go_portcullis_tobossrooms = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -133,7 +133,7 @@ public:
              }
          }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -240,7 +240,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -270,7 +270,7 @@ public:
              return true;
         }
 
-        void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId)
+        void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) OVERRIDE
         {
             switch (eventId)
             {
@@ -414,7 +414,7 @@ public:
             return 0;
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 diff) OVERRIDE
         {
             Events.Update(diff);
 
@@ -531,7 +531,7 @@ public:
             }
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -542,7 +542,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* strIn)
+        void Load(const char* strIn) OVERRIDE
         {
             if (!strIn)
             {
