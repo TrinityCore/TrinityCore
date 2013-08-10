@@ -838,6 +838,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         }
+        case SMART_ACTION_SET_POWER:
+        case SMART_ACTION_ADD_POWER:
+        case SMART_ACTION_REMOVE_POWER:
+            if (e.action.power.powerType > MAX_POWERS)
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Power %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.power.powerType);
+                return false;
+            }
+            break;
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
