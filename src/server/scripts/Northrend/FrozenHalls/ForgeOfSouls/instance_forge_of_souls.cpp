@@ -43,7 +43,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 teamInInstance = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 Map::PlayerList const &players = instance->GetPlayers();
                 if (!players.isEmpty())
@@ -101,7 +101,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -112,7 +112,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in)
+            void Load(const char* in) OVERRIDE
             {
                 if (!in)
                 {

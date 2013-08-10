@@ -48,7 +48,7 @@ public:
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             SetBossNumber(EncounterCount);
 
@@ -61,7 +61,7 @@ public:
             achievSheDeepBreathMore  = true;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -71,7 +71,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
@@ -93,7 +93,7 @@ public:
             }
         }
 
-        void OnGameObjectRemove(GameObject* go)
+        void OnGameObjectRemove(GameObject* go) OVERRIDE
         {
             if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
@@ -133,7 +133,7 @@ public:
             FloorEruptionGUID[1].erase(floorEruptedGUID);
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -196,7 +196,7 @@ public:
             return 0;
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 diff) OVERRIDE
         {
             if (GetBossState(DATA_ONYXIA) == IN_PROGRESS)
             {
@@ -240,7 +240,7 @@ public:
             return false;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -251,7 +251,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* strIn)
+        void Load(const char* strIn) OVERRIDE
         {
             if (!strIn)
             {
