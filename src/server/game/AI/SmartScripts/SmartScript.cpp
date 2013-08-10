@@ -2097,11 +2097,45 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             GetBaseObject()->SummonCreatureGroup(e.action.creatureGroup.group, &summonList);
 
             for (std::list<TempSummon*>::const_iterator itr = summonList.begin(); itr != summonList.end(); ++itr)
-            {
                 if (unit && e.action.creatureGroup.attackInvoker)
                     (*itr)->AI()->AttackStart(unit);
-            }
 
+            break;
+        }
+        case SMART_ACTION_SET_POWER:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SetPower(Powers(e.action.power.powerType), e.action.power.newPower);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_ADD_POWER:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SetPower(Powers(e.action.power.powerType), (*itr)->ToUnit()->GetPower(Powers(e.action.power.powerType)) + e.action.power.newPower);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_REMOVE_POWER:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (IsUnit(*itr))
+                        (*itr)->ToUnit()->SetPower(Powers(e.action.power.powerType), (*itr)->ToUnit()->GetPower(Powers(e.action.power.powerType)) - e.action.power.newPower);
+
+            delete targets;
             break;
         }
         default:
