@@ -30,14 +30,14 @@ enum Spells
     SPELL_METEOR_SLASH          = 88942,
     SPELL_CONSUMING_DARKNESS    = 88954,
     SPELL_FEL_FIRESTORM         = 88972,
-    SPELL_BERSEKER              = 47008
+    SPELL_BERSERK               = 47008
 };
 
 enum Events
 {
     EVENT_METEOR_SLASH          = 1,
     EVENT_CONSUMING_DARKNESS    = 2,
-    EVENT_BERSEKER              = 3
+    EVENT_BERSERK               = 3
 };
 
 class boss_pit_lord_argaloth : public CreatureScript
@@ -55,7 +55,7 @@ class boss_pit_lord_argaloth : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_METEOR_SLASH, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
-                events.ScheduleEvent(SPELL_BERSEKER, 5 * MINUTE * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
             }
 
             void EnterEvadeMode() OVERRIDE
@@ -102,8 +102,8 @@ class boss_pit_lord_argaloth : public CreatureScript
                             DoCastAOE(SPELL_CONSUMING_DARKNESS, true);
                             events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
                             break;
-                        case EVENT_BERSEKER:
-                            DoCast(me, SPELL_BERSEKER, true);
+                        case EVENT_BERSERK:
+                            DoCast(me, SPELL_BERSERK, true);
                             break;
                         default:
                             break;
