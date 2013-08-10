@@ -17,11 +17,11 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,10024,0,0,28,12521,0,0,0,'','Show gossip option if player has quest Where in the World is Hemet Nesingwary?');
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=10024 AND `id`=1;
-/*
+
 -- Add spell target position
-DELETE FROM `spell_target_position` WHERE `id`=50859;
+DELETE FROM `spell_target_position` WHERE `id`=50987;
 INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES
-(50859,571,5832.892,482.8708,658.2753,0.9121326);
-*/
+(50987,571,5071.35,4642.54,72.164,0.878587);
+
 -- Update Archmage Pentarus' Flying Machine
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry`=28192;
