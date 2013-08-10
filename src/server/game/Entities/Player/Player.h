@@ -1246,7 +1246,6 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsInWater() const { return m_isInWater; }
         bool IsUnderWater() const;
-        bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
