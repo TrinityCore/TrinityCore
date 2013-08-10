@@ -19,24 +19,21 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-enum Anubrekhan
+enum Says
 {
     SAY_AGGRO           = 0,
     SAY_GREET           = 1,
-    SAY_SLAY            = 2,
-
-    NPC_CRYPT_GUARD     = 16573
+    SAY_SLAY            = 2
 };
 
-const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
+Position const GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
 
 enum Events
 {
-    EVENT_NONE,
-    EVENT_IMPALE,
+    EVENT_IMPALE                    = 1,
     EVENT_LOCUST,
     EVENT_SPAWN_GUARDIAN_NORMAL,
-    EVENT_BERSERK,
+    EVENT_BERSERK
 };
 
 enum Spells
@@ -47,12 +44,12 @@ enum Spells
     SPELL_LOCUST_SWARM_25           = 54021,
     SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
     SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards
-    SPELL_BERSERK                   = 27680,
+    SPELL_BERSERK                   = 27680
 };
 
-enum
+enum Misc
 {
-    ACHIEV_TIMED_START_EVENT                      = 9891,
+    ACHIEV_TIMED_START_EVENT                      = 9891
 };
 
 class boss_anubrekhan : public CreatureScript

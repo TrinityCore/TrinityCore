@@ -76,6 +76,7 @@ set(scripts_STAT_SRCS
   Outland/Auchindoun/ManaTombs/boss_nexusprince_shaffar.cpp
   Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
   Outland/Auchindoun/SethekkHalls/boss_darkweaver_syth.cpp
+  Outland/Auchindoun/SethekkHalls/boss_anzu.cpp
   Outland/Auchindoun/SethekkHalls/instance_sethekk_halls.cpp
   Outland/Auchindoun/SethekkHalls/sethekk_halls.h
   Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp

@@ -18,6 +18,7 @@
 #include "RBAC.h"
 #include "AccountMgr.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 
 void RBACRole::GrantPermission(uint32 permissionId)
 {

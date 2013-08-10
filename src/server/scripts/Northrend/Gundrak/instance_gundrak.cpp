@@ -242,6 +242,7 @@ public:
                     eckTheFerociousDoorBehindGUID = go->GetGUID();
                     if (isHeroic && m_auiEncounter[4] == DONE)
                         HandleGameObject(0, true, go);
+                    break;
                 case GO_GALDARAH_DOOR1:
                     galDarahDoor1GUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)

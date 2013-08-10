@@ -22,7 +22,7 @@
 #include "Utilities/ByteConverter.h"
 #include <cassert>
 
-enum
+enum DbcFieldFormat
 {
     FT_NA='x',                                              //not used or unknown, 4 byte size
     FT_NA_BYTE='X',                                         //not used or unknown, byte

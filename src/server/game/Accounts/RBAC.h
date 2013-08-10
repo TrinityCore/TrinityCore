@@ -119,6 +119,8 @@ class RBACObject
         RBACObject(uint32 id = 0, std::string const& name = ""):
             _id(id), _name(name) { }
 
+        virtual ~RBACObject() { }
+
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
         /// Gets the Id of the Object
@@ -211,7 +213,7 @@ class RBACData: public RBACObject
          * }
          * @endcode
          */
-        bool HasPermission(uint32 permission) { return _globalPerms.test(permission); }
+        bool HasPermission(uint32 permission) const { return _globalPerms.test(permission); }
 
         // Functions enabled to be used by command system
         /// Returns all the granted permissions (after computation)

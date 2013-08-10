@@ -250,9 +250,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsUnit(*itr))
                     {
-                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.range > 0 ? true : false);
+                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.onlySelf > 0 ? true : false);
                         TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
-                            (*itr)->GetName().c_str(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.range);
+                            (*itr)->GetName().c_str(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.onlySelf);
                     }
                 }
 
@@ -897,13 +897,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CALL_KILLEDMONSTER:
         {
-            Player* player = NULL;
-            if (me)
-                player = me->GetLootRecipient();
+            if (e.target.type == SMART_TARGET_NONE) // Loot recipient and his group members
+            {
+                if (!me)
+                    break;
 
-            if (me && player)
-                player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
-            else if (GetBaseObject())
+                if (Player* player = me->GetLootRecipient())
+                {
+                    player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
+                    TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
+                        player->GetGUIDLow(), e.action.killedMonster.creature);
+                }
+            }
+            else // Specific target type
             {
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets)
@@ -911,28 +917,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
-                    // Special handling for vehicles
-                    if (IsUnit(*itr))
+                    if (IsPlayer(*itr))
+                    {
+                        (*itr)->ToPlayer()->KilledMonsterCredit(e.action.killedMonster.creature);
+                        TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
+                            (*itr)->GetGUIDLow(), e.action.killedMonster.creature);
+                    }
+                    else if (IsUnit(*itr)) // Special handling for vehicles
                         if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
-                            for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
-                                if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger.Guid))
-                                    player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
-
-                    if (!IsPlayer(*itr))
-                        continue;
-
-                    (*itr)->ToPlayer()->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, (*itr)->ToPlayer());
-                    TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player %u, Killcredit: %u",
-                        (*itr)->GetGUIDLow(), e.action.killedMonster.creature);
+                            for (SeatMap::iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end(); ++itr)
+                                if (Player* player = ObjectAccessor::FindPlayer(itr->second.Passenger.Guid))
+                                    player->KilledMonsterCredit(e.action.killedMonster.creature);
                 }
 
                 delete targets;
-            }
-            else if (trigger && IsPlayer(unit))
-            {
-                unit->ToPlayer()->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, unit);
-                TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: (trigger == true) Player %u, Killcredit: %u",
-                    unit->GetGUIDLow(), e.action.killedMonster.creature);
             }
             break;
         }
@@ -1133,13 +1131,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SET_VISIBILITY:
         {
             if (me)
-                me->SetVisible(e.action.visibility.state ? true : false);
+                me->SetVisible(e.action.visibility.state);
             break;
         }
         case SMART_ACTION_SET_ACTIVE:
         {
-            if (GetBaseObject())
-                GetBaseObject()->setActive(true);
+            if (WorldObject* baseObj = GetBaseObject())
+                baseObj->setActive(e.action.active.state);
             break;
         }
         case SMART_ACTION_ATTACK_START:
@@ -1300,10 +1298,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if (!IsPlayer(*itr))
-                    continue;
-
-                (*itr)->ToPlayer()->TeleportTo(e.action.teleport.mapID, e.target.x, e.target.y, e.target.z, e.target.o);
+                if (IsPlayer(*itr))
+                    (*itr)->ToPlayer()->TeleportTo(e.action.teleport.mapID, e.target.x, e.target.y, e.target.z, e.target.o);
+                else if (IsCreature(*itr))
+                    (*itr)->ToCreature()->NearTeleportTo(e.target.x, e.target.y, e.target.z, e.target.o);
             }
 
             delete targets;
@@ -1424,7 +1422,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 e.GetTargetType() == SMART_TARGET_CREATURE_DISTANCE || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_RANGE ||
                 e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
                 e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
-                e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER)
+                e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER ||
+                e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY)
             {
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets)
@@ -2485,6 +2484,14 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                     if (Unit* temp = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                         l->push_back(temp);
             }
+            break;
+        }
+        case SMART_TARGET_CLOSEST_ENEMY:
+        {
+            if (me)
+                if (Unit* target = me->SelectNearestTarget(e.target.closestAttackable.maxDist))
+                    l->push_back(target);
+
             break;
         }
         case SMART_TARGET_POSITION:
