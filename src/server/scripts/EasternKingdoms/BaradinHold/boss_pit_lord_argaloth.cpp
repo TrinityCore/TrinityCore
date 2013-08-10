@@ -102,8 +102,8 @@ class boss_pit_lord_argaloth : public CreatureScript
                             DoCastAOE(SPELL_CONSUMING_DARKNESS, true);
                             events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
                             break;
-                        case SPELL_BERSEKER:
-                            DoCast(me, EVENT_BERSEKER, true);
+                        case EVENT_BERSEKER:
+                            DoCast(me, SPELL_BERSEKER, true);
                             break;
                         default:
                             break;
