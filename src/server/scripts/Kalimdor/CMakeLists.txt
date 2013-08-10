@@ -20,6 +20,7 @@ set(scripts_STAT_SRCS
   Kalimdor/ZulFarrak/zulfarrak.h
   Kalimdor/ZulFarrak/zulfarrak.cpp
   Kalimdor/ZulFarrak/instance_zulfarrak.cpp
+  Kalimdor/ZulFarrak/boss_zum_rah.cpp
   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/boss_epoch_hunter.cpp
   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/old_hillsbrad.h
   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/boss_leutenant_drake.cpp
