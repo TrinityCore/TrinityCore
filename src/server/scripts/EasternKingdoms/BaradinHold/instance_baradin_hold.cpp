@@ -44,7 +44,7 @@ class instance_baradin_hold: public InstanceMapScript
                 OccutharDoor = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch(creature->GetEntry())
                 {
@@ -60,7 +60,7 @@ class instance_baradin_hold: public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch(go->GetEntry())
                 {
@@ -75,7 +75,7 @@ class instance_baradin_hold: public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 data) const
+            uint64 GetData64(uint32 data) const OVERRIDE
             {
                 switch (data)
                 {
@@ -92,7 +92,7 @@ class instance_baradin_hold: public InstanceMapScript
                 return 0;
             }
 
-            void OnGameObjectRemove(GameObject* go)
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
             {
                 switch(go->GetEntry())
                 {
@@ -105,7 +105,7 @@ class instance_baradin_hold: public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -116,7 +116,7 @@ class instance_baradin_hold: public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in)
+            void Load(const char* in) OVERRIDE
             {
                 if (!in)
                 {

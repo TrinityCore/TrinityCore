@@ -36,13 +36,13 @@ class instance_ramparts : public InstanceMapScript
         {
             instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-            void Initialize()
+            void Initialize() OVERRIDE
             {
                 SetBossNumber(EncounterCount);
                 felIronChestGUID = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -53,7 +53,7 @@ class instance_ramparts : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -72,7 +72,7 @@ class instance_ramparts : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -83,7 +83,7 @@ class instance_ramparts : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* strIn)
+            void Load(const char* strIn) OVERRIDE
             {
                 if (!strIn)
                 {

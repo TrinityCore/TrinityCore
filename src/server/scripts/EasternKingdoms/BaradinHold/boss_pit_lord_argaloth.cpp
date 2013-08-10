@@ -178,7 +178,7 @@ class spell_argaloth_meteor_slash : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_argaloth_meteor_slash_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_argaloth_meteor_slash_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
                 OnHit += SpellHitFn(spell_argaloth_meteor_slash_SpellScript::SplitDamage);
             }
 

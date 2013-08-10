@@ -67,7 +67,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 _deadElementals = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -104,7 +104,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -125,7 +125,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch (creature->GetEntry())
                 {
@@ -141,7 +141,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 data) const
+            uint32 GetData(uint32 data) const OVERRIDE
             {
                 switch (data)
                 {
@@ -154,7 +154,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 index) const
+            uint64 GetData64(uint32 index) const OVERRIDE
             {
                 switch (index)
                 {
@@ -189,7 +189,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) OVERRIDE
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -211,7 +211,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -222,7 +222,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* str)
+            void Load(const char* str) OVERRIDE
             {
                 if (!str)
                 {
