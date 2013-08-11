@@ -2,7 +2,7 @@ SET @ENTRY := 16880;
 
 UPDATE `quest_template` SET `RequiredSpellCast1`=0 WHERE `Id`=10255;
 
-UPDATE `creature_template` SET `RequiredSpellCast1`=0,`AIName`='SmartAI' WHERE `entry`=@ENTRY;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
