@@ -65,7 +65,7 @@ public:
 
         std::string str_data;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             uiMaidenOfGrief = 0;
             uiKrystallus = 0;
@@ -90,7 +90,7 @@ public:
                 m_auiEncounter[i] = NOT_STARTED;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -104,7 +104,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -221,7 +221,7 @@ public:
             return 0;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -234,7 +234,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {

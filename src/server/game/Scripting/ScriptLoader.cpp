@@ -102,6 +102,7 @@ void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
 void AddSC_boss_alizabal();                  //Baradin Hold
+void AddSC_boss_pit_lord_argaloth();
 void AddSC_instance_baradin_hold();
 void AddSC_blackrock_depths();               //Blackrock Depths
 void AddSC_boss_ambassador_flamelash();
@@ -129,6 +130,7 @@ void AddSC_boss_gyth();
 void AddSC_boss_rend_blackhand();
 void AddSC_boss_gizrul_the_slavener();
 void AddSC_boss_urok_doomhowl();
+void AddSC_boss_lord_valthalak();
 void AddSC_instance_blackrock_spire();
 void AddSC_boss_razorgore();                 //Blackwing lair
 void AddSC_boss_vaelastrasz();
@@ -335,8 +337,9 @@ void AddSC_npc_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
 void AddSC_wailing_caverns();                //Wailing caverns
 void AddSC_instance_wailing_caverns();
-void AddSC_zulfarrak();                     //Zul'Farrak generic
-void AddSC_instance_zulfarrak();            //Zul'Farrak instance script
+void AddSC_boss_zum_rah();                   //Zul'Farrak
+void AddSC_zulfarrak();
+void AddSC_instance_zulfarrak();
 void AddSC_instance_halls_of_origination();
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
@@ -535,6 +538,7 @@ void AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
 void AddSC_boss_pandemonius();
 void AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
 void AddSC_boss_talon_king_ikiss();
+void AddSC_boss_anzu();
 void AddSC_instance_sethekk_halls();
 void AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
 void AddSC_boss_ambassador_hellmaw();
@@ -615,8 +619,18 @@ void AddSC_shattrath_city();
 void AddSC_terokkar_forest();
 void AddSC_zangarmarsh();
 
+// Maelstrom
+void AddSC_kezan();
+
 // Events
 void AddSC_event_childrens_week();
+
+// Pets
+void AddSC_deathknight_pet_scripts();
+void AddSC_hunter_pet_scripts();
+void AddSC_mage_pet_scripts();
+void AddSC_priest_pet_scripts();
+void AddSC_shaman_pet_scripts();
 
 // battlegrounds
 
@@ -644,7 +658,9 @@ void AddScripts()
     AddKalimdorScripts();
     AddOutlandScripts();
     AddNorthrendScripts();
+    AddMaelstromScripts();
     AddEventScripts();
+    AddPetScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -746,6 +762,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_galvangar();
     AddSC_boss_vanndar();
     AddSC_boss_alizabal();                  //Baradin Hold
+    AddSC_boss_pit_lord_argaloth();
     AddSC_instance_baradin_hold();
     AddSC_blackrock_depths();               //Blackrock Depths
     AddSC_boss_ambassador_flamelash();
@@ -773,6 +790,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_rend_blackhand();
     AddSC_boss_gizrul_the_slavener();
     AddSC_boss_urok_doomhowl();
+    AddSC_boss_lord_valthalak();
     AddSC_instance_blackrock_spire();
     AddSC_boss_razorgore();                 //Blackwing lair
     AddSC_boss_vaelastrasz();
@@ -984,8 +1002,9 @@ void AddKalimdorScripts()
     AddSC_instance_temple_of_ahnqiraj();
     AddSC_wailing_caverns();                //Wailing caverns
     AddSC_instance_wailing_caverns();
-    AddSC_zulfarrak();                      //Zul'Farrak generic
-    AddSC_instance_zulfarrak();             //Zul'Farrak instance script
+    AddSC_boss_zum_rah();                   //Zul'Farrak
+    AddSC_zulfarrak();
+    AddSC_instance_zulfarrak();
 
     AddSC_ashenvale();
     AddSC_azshara();
@@ -1029,6 +1048,7 @@ void AddOutlandScripts()
     AddSC_boss_pandemonius();
     AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
     AddSC_boss_talon_king_ikiss();
+    AddSC_boss_anzu();
     AddSC_instance_sethekk_halls();
     AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
     AddSC_boss_ambassador_hellmaw();
@@ -1276,10 +1296,29 @@ void AddNorthrendScripts()
 #endif
 }
 
+
+void AddMaelstromScripts()
+{
+#ifdef SCRIPTS
+    AddSC_kezan();
+#endif
+}
+
 void AddEventScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_childrens_week();
+#endif
+}
+
+void AddPetScripts()
+{
+#ifdef SCRIPTS
+    AddSC_deathknight_pet_scripts();
+    AddSC_hunter_pet_scripts();
+    AddSC_mage_pet_scripts();
+    AddSC_priest_pet_scripts();
+    AddSC_shaman_pet_scripts();
 #endif
 }
 

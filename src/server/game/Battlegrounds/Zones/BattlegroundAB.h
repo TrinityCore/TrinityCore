@@ -270,8 +270,8 @@ class BattlegroundAB : public Battleground
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
 
         /* achievement req. */
-        bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
-        bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
+        bool IsAllNodesControlledByTeam(uint32 team) const;
+        bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         uint32 GetPrematureWinner();
     private:

@@ -43,7 +43,7 @@ public:
     {
         instance_oculus_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             SetBossNumber(MAX_ENCOUNTER);
 
@@ -65,7 +65,7 @@ public:
             verdisaGUID = 0;
 }
 
-        void OnUnitDeath(Unit* unit)
+        void OnUnitDeath(Unit* unit) OVERRIDE
         {
             Creature* creature = unit->ToCreature();
             if (!creature)
@@ -81,7 +81,7 @@ public:
                     varos->RemoveAllAuras();
         }
 
-        void OnPlayerEnter(Player* player)
+        void OnPlayerEnter(Player* player) OVERRIDE
         {
             if (GetBossState(DATA_DRAKOS_EVENT) == DONE && GetBossState(DATA_VAROS_EVENT) != DONE)
             {
@@ -108,7 +108,7 @@ public:
                 drake->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -137,33 +137,41 @@ public:
                 case NPC_BELGARISTRASZ:
                     belgaristraszGUID = creature->GetGUID();
                     if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
+                    {
                         creature->SetWalk(true),
                         creature->GetMotionMaster()->MovePoint(0, 941.453f, 1044.1f, 359.967f),
                         creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    }
                     break;
                 case NPC_ETERNOS:
                     eternosGUID = creature->GetGUID();
                     if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
+                    {
                         creature->SetWalk(true),
                         creature->GetMotionMaster()->MovePoint(0, 943.202f, 1059.35f, 359.967f),
                         creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    }
                     break;
                 case NPC_VERDISA:
                     verdisaGUID = creature->GetGUID();
                     if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
+                    {
                         creature->SetWalk(true),
                         creature->GetMotionMaster()->MovePoint(0, 949.188f, 1032.91f, 359.967f),
                         creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    }
                     break;
                 case NPC_GREATER_WHELP:
                     if (GetBossState(DATA_UROM_EVENT) == DONE)
+                    {
                         creature->SetPhaseMask(1, true);
                         gwhelpList.push_back(creature->GetGUID());
+                    }
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -183,7 +191,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -209,9 +217,13 @@ public:
                     break;
                 case DATA_UROM_EVENT:
                     if (state == DONE)
+                    {
                         if (Creature* eregos = instance->GetCreature(eregosGUID))
+                        {
                             eregos->SetPhaseMask(1, true);
                             GreaterWhelps();
+                        }
+                    }
                     break;
                 case DATA_EREGOS_EVENT:
                     if (state == DONE)
@@ -288,13 +300,11 @@ public:
                 return;
 
             for (std::list<uint64>::const_iterator itr = gwhelpList.begin(); itr != gwhelpList.end(); ++itr)
-            {
                 if (Creature* gwhelp = instance->GetCreature(*itr))
                     gwhelp->SetPhaseMask(1, true);
-            }
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -307,7 +317,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {

@@ -907,6 +907,9 @@ namespace Trinity
             AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid) : _source(obj), _refUnit(funit), _range(range), _raid(raid) {}
             bool operator()(Unit* u)
             {
+                if (G3D::fuzzyEq(_range, 0))
+                    return false;
+
                 if (_raid)
                 {
                     if (!_refUnit->IsInRaidWith(u))

@@ -41,7 +41,7 @@ class instance_shattered_halls : public InstanceMapScript
         {
             instance_shattered_halls_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            void Initialize()
+            void Initialize() OVERRIDE
             {
                 SetBossNumber(EncounterCount);
                 nethekurseGUID      = 0;
@@ -114,7 +114,7 @@ class instance_shattered_halls : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -125,7 +125,7 @@ class instance_shattered_halls : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* strIn)
+            void Load(const char* strIn) OVERRIDE
             {
                 if (!strIn)
                 {
@@ -148,7 +148,7 @@ class instance_shattered_halls : public InstanceMapScript
                         loadStream >> tmpState;
                         if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                             tmpState = NOT_STARTED;
-                            SetBossState(i, EncounterState(tmpState));
+                        SetBossState(i, EncounterState(tmpState));
                     }
                 }
                 else

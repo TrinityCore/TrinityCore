@@ -80,8 +80,8 @@ ChatCommand* ChatHandler::getCommandTable()
             // cache top-level commands
             size_t added = 0;
             commandTableCache = (ChatCommand*)malloc(sizeof(ChatCommand) * total);
+            ASSERT(commandTableCache);
             memset(commandTableCache, 0, sizeof(ChatCommand) * total);
-            ACE_ASSERT(commandTableCache);
             for (std::vector<ChatCommand*>::const_iterator it = dynamic.begin(); it != dynamic.end(); ++it)
                 added += appendCommandTable(commandTableCache + added, *it);
         }
@@ -374,10 +374,9 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                     std::string zoneName = "Unknown";
                     if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
                     {
-                        int locale = GetSessionDbcLocale();
-                        areaName = area->area_name[locale];
+                        areaName = area->area_name;
                         if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
-                            zoneName = zone->area_name[locale];
+                            zoneName = zone->area_name;
                     }
 
                     sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",

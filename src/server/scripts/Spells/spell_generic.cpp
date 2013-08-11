@@ -680,7 +680,7 @@ class spell_gen_cannibalize : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_cannibalize_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CANNIBALIZE_TRIGGERED))
                     return false;
@@ -733,7 +733,7 @@ class spell_gen_chaos_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_chaos_blast_SpellScript)
 
-            bool Validate(SpellInfo const* /*SpellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CHAOS_BLAST))
                     return false;
@@ -853,7 +853,7 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
 
             uint32 prevItem;
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) ||
                     !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_2_AURA) ||
@@ -1095,9 +1095,10 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
         class spell_gen_dalaran_disguise_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gen_dalaran_disguise_SpellScript);
-            bool Validate(SpellInfo const* spellEntry) OVERRIDE
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                switch (spellEntry->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_SUNREAVER_DISGUISE_TRIGGER:
                         if (!sSpellMgr->GetSpellInfo(SPELL_SUNREAVER_DISGUISE_FEMALE) ||
@@ -1165,7 +1166,7 @@ class spell_gen_defend : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_defend_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
                     return false;
@@ -1287,7 +1288,7 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM))
                     return false;
@@ -1365,7 +1366,7 @@ class spell_gen_dummy_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_dummy_trigger_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD_TRIGGERED) ||
                     !sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD))
@@ -1458,7 +1459,7 @@ class spell_gen_elune_candle : public SpellScriptLoader
         class spell_gen_elune_candle_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gen_elune_candle_SpellScript);
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HEAD) ||
                     !sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_CHEST) ||
@@ -1525,7 +1526,7 @@ class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_gadgetzan_transporter_backfire_SpellScript)
 
-            bool Validate(SpellInfo const* /*SpellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH) ||
                     !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_EVIL_TWIN) ||
@@ -1626,7 +1627,7 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_gnomish_transporter_SpellScript)
 
-            bool Validate(SpellInfo const* /*SpellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_SUCCESS) ||
                     !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_FAILURE))
@@ -3191,7 +3192,7 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_summon_tournament_mount_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_LANCE_EQUIPPED))
                     return false;
@@ -3240,7 +3241,7 @@ class spell_gen_tournament_duel : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_tournament_duel_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ON_TOURNAMENT_MOUNT) ||
                     !sSpellMgr->GetSpellInfo(SPELL_MOUNTED_DUEL))
@@ -3332,7 +3333,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER) ||
                     !sSpellMgr->GetSpellInfo(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF))

@@ -161,7 +161,7 @@ enum InstanceInfo
     INSTANCE_INFO_BOSS_STATE
 };
 
-enum
+enum MaxConditionTargets
 {
     MAX_CONDITION_TARGETS = 3
 };

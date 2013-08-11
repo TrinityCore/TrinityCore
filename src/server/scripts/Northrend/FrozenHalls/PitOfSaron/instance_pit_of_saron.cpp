@@ -53,13 +53,13 @@ class instance_pit_of_saron : public InstanceMapScript
                 _teamInInstance = 0;
             }
 
-            void OnPlayerEnter(Player* player)
+            void OnPlayerEnter(Player* player) OVERRIDE
             {
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 if (!_teamInInstance)
                 {
@@ -164,7 +164,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -175,7 +175,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -186,7 +186,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -264,7 +264,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -275,7 +275,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in)
+            void Load(const char* in) OVERRIDE
             {
                 if (!in)
                 {

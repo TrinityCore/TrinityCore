@@ -720,10 +720,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, damage);
 
-        victim->ModifyHealth(- (int32)damage);
+        victim->ModifyHealth(-(int32)damage);
 
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
+        {
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
+            if (victim->GetTypeId() == TYPEID_UNIT && !victim->IsPet())
+                victim->SetLastDamagedTime(time(NULL));
+        }
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
             victim->AddThreat(this, float(damage), damageSchoolMask, spellProto);
@@ -3821,19 +3825,40 @@ void Unit::RemoveAllAurasExceptType(AuraType type)
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         Aura const* aura = iter->second->GetBase();
-        if (!aura->GetSpellInfo()->HasAura(type))
-            _UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
-        else
+        if (aura->GetSpellInfo()->HasAura(type))
             ++iter;
+        else
+            _UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
     }
 
     for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
         Aura* aura = iter->second;
-        if (!aura->GetSpellInfo()->HasAura(type))
-            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
-        else
+        if (aura->GetSpellInfo()->HasAura(type))
             ++iter;
+        else
+            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
+    }
+}
+
+void Unit::RemoveAllAurasExceptType(AuraType type1, AuraType type2)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        Aura const* aura = iter->second->GetBase();
+        if (aura->GetSpellInfo()->HasAura(type1) || aura->GetSpellInfo()->HasAura(type2))
+            ++iter;
+        else
+            _UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
+    }
+
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    {
+        Aura* aura = iter->second;
+        if (aura->GetSpellInfo()->HasAura(type1) || aura->GetSpellInfo()->HasAura(type2))
+            ++iter;
+        else
+            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
     }
 }
 
@@ -4920,6 +4945,9 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
                 {
                     case 0:
                     {
+                        if (HasAura(trigger_spell_id))
+                            return false;
+
                         // Do not proc if proc spell isnt starfire and starsurge
                         if (procSpell->Id != 2912 && procSpell->Id != 78674)
                             return false;
@@ -4933,6 +4961,9 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
                     }
                     case 1:
                     {
+                        if (HasAura(trigger_spell_id))
+                            return false;
+
                         // Do not proc if proc spell isnt wrath and starsurge
                         if (procSpell->Id != 5176 && procSpell->Id != 78674)
                             return false;
@@ -5240,18 +5271,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // Remove any stun effect on target
                     victim->RemoveAurasWithMechanic(1<<MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
                     return true;
-                }
-                // Glyph of Scourge Strike
-                case 58642:
-                {
-                    triggered_spell_id = 69961; // Glyph of Scourge Strike
-                    break;
-                }
-                // Glyph of Life Tap
-                case 63320:
-                {
-                    triggered_spell_id = 63321; // Life Tap
-                    break;
                 }
                 // Purified Shard of the Scale - Onyxia 10 Caster Trinket
                 case 69755:
@@ -10256,10 +10275,6 @@ int32 Unit::ModifyHealth(int32 dVal)
 
     if (dVal == 0)
         return 0;
-
-    // Part of Evade mechanics. Only track health lost, not gained.
-    if (dVal < 0 && GetTypeId() != TYPEID_PLAYER && !IsPet())
-        SetLastDamagedTime(time(NULL));
 
     int32 curHealth = (int32)GetHealth();
 
@@ -15992,16 +16007,14 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
         if (disable)
         {
             AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-            RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+            RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+            SetFall(false);
         }
         else
         {
             RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
             if (!HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
-            {
-                m_movementInfo.SetFallTime(0);
-                AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-            }
+                SetFall(true);
         }
     }
 
@@ -16009,6 +16022,28 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE).Send();
     else
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_GRAVITY_ENABLE, SMSG_MOVE_GRAVITY_ENABLE).Send();
+
+    return true;
+}
+
+bool Unit::SetFall(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+        return false;
+
+    if (enable)
+    {
+        AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        m_movementInfo.SetFallTime(0);
+        m_movementInfo.bits.hasFallData = true;
+        m_movementInfo.bits.hasFallDirection = true;
+    }
+    else
+    {
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
+        m_movementInfo.bits.hasFallDirection = false;
+        // Do not remove hasFallData marker
+    }
 
     return true;
 }
@@ -16039,16 +16074,14 @@ bool Unit::SetCanFly(bool enable)
     if (enable)
     {
         AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+        SetFall(false);
     }
     else
     {
         RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
         if (!IsLevitating())
-        {
-            m_movementInfo.SetFallTime(0);
-            AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        }
+            SetFall(true);
     }
 
     if (enable)

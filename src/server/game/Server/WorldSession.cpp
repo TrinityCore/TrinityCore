@@ -142,10 +142,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     _compressionStream->next_in = NULL;
     int32 z_res = deflateInit(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION));
     if (z_res != Z_OK)
-    {
         TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
-        return;
-    }
 }
 
 /// WorldSession destructor
