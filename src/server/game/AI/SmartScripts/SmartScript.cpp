@@ -2589,7 +2589,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 return;
 
             Unit* target = DoSelectLowestHpFriendly((float)e.event.friendlyHealt.radius, e.event.friendlyHealt.hpDeficit);
-            if (!target)
+            if (!target || !target->IsInCombat())
                 return;
             ProcessTimedAction(e, e.event.friendlyHealt.repeatMin, e.event.friendlyHealt.repeatMax, target);
             break;
