@@ -489,28 +489,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-        case SMART_ACTION_SEND_CASTCREATUREORGO:
-        {
-            if (!GetBaseObject())
-                break;
-
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                break;
-
-            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (IsPlayer(*itr))
-                {
-                    (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
-                    TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SEND_CASTCREATUREORGO: Player guidLow %u.org Creature: %u, BaseObject GUID: "UI64FMTD", Spell: %u",
-                        (*itr)->GetGUIDLow(), e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
-                }
-            }
-
-            delete targets;
-            break;
-        }
         case SMART_ACTION_CAST:
         {
             if (!me)
@@ -800,9 +778,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsPlayer((*itr)))
                 {
-                    (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
+                    (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.callCastedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.callCastedCreatureOrGO.spell);
                     TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_CASTEDCREATUREORGO: Player %u, target %u, spell %u",
-                        (*itr)->GetGUIDLow(), e.action.castedCreatureOrGO.creature, e.action.castedCreatureOrGO.spell);
+                        (*itr)->GetGUIDLow(), e.action.callCastedCreatureOrGO.creature, e.action.callCastedCreatureOrGO.spell);
                 }
             }
 
