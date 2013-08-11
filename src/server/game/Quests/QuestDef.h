@@ -46,7 +46,7 @@ class ObjectMgr;
 #define QUEST_REWARD_CURRENCY_COUNT 4
 #define QUEST_REQUIRED_CURRENCY_COUNT 4
 
-enum QuestFailedReasons
+enum QuestFailedReason
 {
     INVALIDREASON_DONT_HAVE_REQ                 = 0,
     INVALIDREASON_QUEST_FAILED_LOW_LEVEL        = 1,        // You are not high enough level for that quest.
