@@ -2819,10 +2819,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         switch (spellInfo->Id)
         {
-            case 60256:
-                //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
-                break;
             case 1776: // Gouge
             case 1777:
             case 8629:
@@ -3104,7 +3100,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53228: // Rapid Killing (Rank 1)
             case 53232: // Rapid Killing (Rank 2)
             case 63320: // Glyph of Life Tap
-            // Entries were not updated after spell effect change, we have to do that manually :/
+                // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 59725: // Improved Spell Reflection - aoe aura
@@ -3737,6 +3733,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+                break;
+            case 45257: // Using Steam Tonk Controller
+            case 45440: // Steam Tonk Controller
+            case 60256: // Collect Sample
+                // Crashes client on pressing ESC
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                break;
             default:
                 break;
         }
