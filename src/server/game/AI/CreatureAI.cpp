@@ -225,8 +225,9 @@ bool CreatureAI::_EnterEvadeMode()
     if (!me->IsAlive())
         return false;
 
-    // dont remove vehicle auras, passengers arent supposed to drop off the vehicle
-    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
+    // don't remove vehicle auras, passengers aren't supposed to drop off the vehicle
+    // don't remove clone caster on evade (to be verified)
+    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_CLONE_CASTER);
 
     // sometimes bosses stuck in combat?
     me->DeleteThreatList();
