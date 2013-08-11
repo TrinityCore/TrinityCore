@@ -1401,7 +1401,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
                 e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
                 e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER ||
-                e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY)
+                e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY || e.GetTargetType() == SMART_TARGET_CLOSEST_FRIENDLY)
             {
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets)
@@ -2506,6 +2506,14 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
 
             break;
         }
+        case SMART_TARGET_CLOSEST_FRIENDLY:
+        {
+            if (me)
+                if (Unit* target = DoFindClosestFriendlyInRange(e.target.closestFriendly.maxDist))
+                    l->push_back(target);
+
+            break;
+        }
         case SMART_TARGET_POSITION:
         default:
             break;
@@ -3322,6 +3330,24 @@ void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& list, float ra
     TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
     cell.Visit(p, grid_creature_searcher, *me->GetMap(), *me, range);
+}
+
+Unit* SmartScript::DoFindClosestFriendlyInRange(float range)
+{
+    if (!me)
+        return NULL;
+
+    CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
+    Cell cell(p);
+    cell.SetNoCreate();
+
+    Unit* unit = NULL;
+
+    Trinity::ClosestFriendlyInRange u_check(me, range);
+    Trinity::UnitLastSearcher<Trinity::ClosestFriendlyInRange> searcher(me, unit, u_check);
+    TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::ClosestFriendlyInRange>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+    cell.Visit(p, grid_unit_searcher, *me->GetMap(), *me, range);
+    return unit;
 }
 
 void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
