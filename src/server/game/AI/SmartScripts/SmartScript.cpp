@@ -2906,6 +2906,55 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessAction(e, unit, var0);
             break;
         }
+        case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+        {
+            if (!me || !me->IsInCombat())
+                return;
+
+            ObjectList* _targets = NULL;
+
+            switch (e.GetTargetType())
+            {
+                case SMART_TARGET_CREATURE_RANGE:
+                case SMART_TARGET_CREATURE_GUID:
+                case SMART_TARGET_CREATURE_DISTANCE:
+                case SMART_TARGET_CLOSEST_CREATURE:
+                case SMART_TARGET_CLOSEST_PLAYER:
+                case SMART_TARGET_PLAYER_RANGE:
+                case SMART_TARGET_PLAYER_DISTANCE:
+                    _targets = GetTargets(e);
+                    break;
+                default:
+                    return;
+            }
+
+            if (!_targets)
+                return;
+
+            Unit* target = NULL;
+
+            for (ObjectList::const_iterator itr = _targets->begin(); itr != _targets->end(); ++itr)
+            {
+                if (IsUnit(*itr) && me->IsFriendlyTo((*itr)->ToUnit()) && (*itr)->ToUnit()->IsAlive() && (*itr)->ToUnit()->IsInCombat())
+                {
+                    uint32 healthPct = uint32((*itr)->ToUnit()->GetHealthPct());
+
+                    if (healthPct > e.event.friendlyHealtPct.maxHpPct || healthPct < e.event.friendlyHealtPct.minHpPct)
+                        continue;
+
+                    target = (*itr)->ToUnit();
+                    break;
+                }
+            }
+
+            delete _targets;
+
+            if (!target)
+                return;
+
+            ProcessTimedAction(e, e.event.friendlyHealtPct.repeatMin, e.event.friendlyHealtPct.repeatMax, target);
+            break;
+        }
         default:
             TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript::ProcessEvent: Unhandled Event type %u", e.GetEventType());
             break;
@@ -2985,6 +3034,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_HAS_AURA:
             case SMART_EVENT_TARGET_BUFFED:
             case SMART_EVENT_IS_BEHIND_TARGET:
+            case SMART_EVENT_FRIENDLY_HEALTH_PCT:
             {
                 ProcessEvent(e);
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
