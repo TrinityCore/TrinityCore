@@ -218,6 +218,8 @@ class boss_tharon_ja : public CreatureScript
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* player = i->GetSource())
                         player->DeMorph();
+
+                DoCast(me, SPELL_ACHIEVEMENT_CHECK);
             }
         };
 
