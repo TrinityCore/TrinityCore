@@ -73,7 +73,7 @@ enum Spells
     SPELL_CONFESS               = 66680,
     SPELL_SUMMON_MEMORY         = 66545,
 
-    // Merory of X (Summon)
+    // Memory of X (Summon)
     SPELL_MEMORY_ALGALON        = 66715,
     SPELL_MEMORY_ARCHIMONDE     = 66704,
     SPELL_MEMORY_CHROMAGGUS     = 66697,
@@ -652,10 +652,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-
-                if (Player* target = GetHitPlayer())
-                    caster->CastSpell(target, memorySpellId[urand(0, 24)], true);
+                GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], true, NULL, NULL, GetCaster()->GetGUID());
             }
 
             void Register() OVERRIDE
