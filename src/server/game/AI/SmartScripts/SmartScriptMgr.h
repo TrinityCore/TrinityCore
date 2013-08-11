@@ -397,7 +397,7 @@ enum SMART_ACTION
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
     SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
-    SMART_ACTION_SEND_CASTCREATUREORGO              = 16,     // QuestID, SpellId
+    SMART_ACTION_UNUSED_16                          = 16,     // UNUSED
     SMART_ACTION_SET_EMOTE_STATE                    = 17,     // emoteID
     SMART_ACTION_SET_UNIT_FLAG                      = 18,     // Flags (may be more than one field OR'd together), Target
     SMART_ACTION_REMOVE_UNIT_FLAG                   = 19,     // Flags (may be more than one field OR'd together), Target
@@ -577,12 +577,6 @@ struct SmartAction
 
         struct
         {
-            uint32 quest;
-            uint32 spell;
-        } castCreatureOrGO;
-
-        struct
-        {
             uint32 flag1;
             uint32 flag2;
             uint32 flag3;
@@ -626,7 +620,7 @@ struct SmartAction
         {
             uint32 creature;
             uint32 spell;
-        } castedCreatureOrGO;
+        } callCastedCreatureOrGO;
 
         struct
         {
