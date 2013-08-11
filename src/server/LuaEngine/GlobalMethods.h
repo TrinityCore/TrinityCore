@@ -1019,5 +1019,24 @@ namespace LuaGlobalFunctions
         lua_settop(L, tbl);
         return 1;
     }
+
+    static int GetWorldObject(lua_State* L)
+    {
+        WorldObject* p = sEluna->CHECK_WORLDOBJECT(L, 1);
+        uint64 guid = sEluna->CHECK_ULONG(L, 2);
+
+        switch (GUID_HIPART(guid))
+        {
+        case HIGHGUID_PLAYER:        sEluna->PushUnit(L, sObjectAccessor->GetPlayer(*p, guid)); break;
+        case HIGHGUID_TRANSPORT:
+        case HIGHGUID_MO_TRANSPORT:
+        case HIGHGUID_GAMEOBJECT:    sEluna->PushGO(L, sObjectAccessor->GetGameObject(*p, guid)); break;
+        case HIGHGUID_VEHICLE:
+        case HIGHGUID_UNIT:          sEluna->PushUnit(L, sObjectAccessor->GetCreature(*p, guid)); break;
+        case HIGHGUID_PET:           sEluna->PushUnit(L, sObjectAccessor->GetPet(*p, guid)); break;
+        default:                     return 0;
+        }
+        return 1;
+    }
 }
 #endif
