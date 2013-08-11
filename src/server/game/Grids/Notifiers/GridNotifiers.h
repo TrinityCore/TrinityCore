@@ -794,22 +794,6 @@ namespace Trinity
             uint32 i_spell;
     };
 
-    class ClosestFriendlyInRange
-    {
-        public:
-            ClosestFriendlyInRange(Unit const* obj, float range) : i_obj(obj), i_range(range) { }
-            bool operator()(Unit* u)
-            {
-                if (u->IsAlive() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range))
-                    return true;
-
-                return false;
-            }
-        private:
-            Unit const* i_obj;
-            float i_range;
-    };
-
     class AnyUnfriendlyUnitInObjectRangeCheck
     {
         public:
