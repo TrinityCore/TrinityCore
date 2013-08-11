@@ -50,6 +50,10 @@ enum HunterSpells
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
+    SPELL_HUNTER_IMPROVED_MEND_PET_R1               = 19572,
+    SPELL_HUNTER_IMPROVED_MEND_PET_R2               = 19573,
+    SPELL_HUNTER_IMPROVED_MEND_PET_DISPEL           = 24406,
+
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
 };
 
@@ -802,6 +806,43 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
         }
 };
 
+class spell_hun_mend_pet : public SpellScriptLoader
+{
+    public:
+        spell_hun_mend_pet() : SpellScriptLoader("spell_hun_mend_pet") { }
+
+        class spell_hun_mend_pet_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_mend_pet_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_MEND_PET_R1) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_MEND_PET_R2) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_MEND_PET_DISPEL))
+                    return false;
+
+                return true;
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect* improvedMendPet = caster->GetAuraEffectOfRankedSpell(SPELL_HUNTER_IMPROVED_MEND_PET_R1, EFFECT_0))
+                        if (roll_chance_i(improvedMendPet->GetBaseAmount()))
+                            caster->CastSpell(caster, SPELL_HUNTER_IMPROVED_MEND_PET_DISPEL, false);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_mend_pet_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_hun_mend_pet_AuraScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -820,4 +861,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_sniper_training();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
+    new spell_hun_mend_pet();
 }
