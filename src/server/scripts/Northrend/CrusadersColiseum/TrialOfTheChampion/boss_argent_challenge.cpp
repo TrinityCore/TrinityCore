@@ -61,7 +61,7 @@ enum Spells
     SPELL_RADIANCE              = 66935,
     SPELL_VENGEANCE             = 66865,
 
-    //Paletress
+    // Paletress
     SPELL_SMITE                 = 66536,
     SPELL_SMITE_H               = 67674,
     SPELL_HOLY_FIRE             = 66538,
@@ -73,7 +73,34 @@ enum Spells
     SPELL_CONFESS               = 66680,
     SPELL_SUMMON_MEMORY         = 66545,
 
-    //Memory
+    // Merory of X (Summon)
+    SPELL_MEMORY_ALGALON        = 66715,
+    SPELL_MEMORY_ARCHIMONDE     = 66715,
+    SPELL_MEMORY_CHROMAGGUS     = 66697,
+    SPELL_MEMORY_CYANIGOSA      = 66697,
+    SPELL_MEMORY_DELRISSA       = 66706,
+    SPELL_MEMORY_ECK            = 66710,
+    SPELL_MEMORY_ENTROPIUS      = 66707,
+    SPELL_MEMORY_GRUUL          = 66702,
+    SPELL_MEMORY_HAKKAR         = 66698,
+    SPELL_MEMORY_HEIGAN         = 66712,
+    SPELL_MEMORY_HEROD          = 66694,
+    SPELL_MEMORY_HOGGER         = 66543,
+    SPELL_MEMORY_IGNIS          = 66713,
+    SPELL_MEMORY_ILLIDAN        = 66705,
+    SPELL_MEMORY_INGVAR         = 66708,
+    SPELL_MEMORY_KALITHRESH     = 66700,
+    SPELL_MEMORY_LUCIFRON       = 66695,
+    SPELL_MEMORY_MALCHEZAAR     = 66701,
+    SPELL_MEMORY_MUTANUS        = 66692,
+    SPELL_MEMORY_ONYXIA         = 66711,
+    SPELL_MEMORY_THUNDERAAN     = 66696,
+    SPELL_MEMORY_VANCLEEF       = 66691,
+    SPELL_MEMORY_VASHJ          = 66703,
+    SPELL_MEMORY_VEKNILASH      = 66699,
+    SPELL_MEMORY_VEZAX          = 66714,
+
+    // Memory
     SPELL_OLD_WOUNDS            = 66620,
     SPELL_OLD_WOUNDS_H          = 67679,
     SPELL_SHADOWS_PAST          = 66619,
@@ -566,6 +593,85 @@ public:
     }
 };
 
+uint32 const memorySpellId[25] =
+{
+    SPELL_MEMORY_ALGALON,
+    SPELL_MEMORY_ARCHIMONDE,
+    SPELL_MEMORY_CHROMAGGUS,
+    SPELL_MEMORY_CYANIGOSA,
+    SPELL_MEMORY_DELRISSA,
+    SPELL_MEMORY_ECK,
+    SPELL_MEMORY_ENTROPIUS,
+    SPELL_MEMORY_GRUUL,
+    SPELL_MEMORY_HAKKAR,
+    SPELL_MEMORY_HEIGAN,
+    SPELL_MEMORY_HEROD,
+    SPELL_MEMORY_HOGGER,
+    SPELL_MEMORY_IGNIS,
+    SPELL_MEMORY_ILLIDAN,
+    SPELL_MEMORY_INGVAR,
+    SPELL_MEMORY_KALITHRESH,
+    SPELL_MEMORY_LUCIFRON,
+    SPELL_MEMORY_MALCHEZAAR,
+    SPELL_MEMORY_MUTANUS,
+    SPELL_MEMORY_ONYXIA,
+    SPELL_MEMORY_THUNDERAAN,
+    SPELL_MEMORY_VANCLEEF,
+    SPELL_MEMORY_VASHJ,
+    SPELL_MEMORY_VEKNILASH,
+    SPELL_MEMORY_VEZAX
+};
+
+// 66545 - Summon Memory
+class spell_summon_memory : public SpellScriptLoader
+{
+    public:
+        spell_summon_memory() : SpellScriptLoader("spell_summon_memory") { }
+
+        class spell_summon_memory_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_summon_memory_SpellScript);
+
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                for (uint8 i = 0; i < 25; ++i)
+                    if (!sSpellMgr->GetSpellInfo(memorySpellId[i]))
+                        return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(target);
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* target = GetHitPlayer())
+                    caster->CastSpell(target, memorySpellId[urand(0, 24)], true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_summon_memory_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_summon_memory_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_summon_memory_SpellScript();
+        }
+};
+
 void AddSC_boss_argent_challenge()
 {
     new boss_eadric();
@@ -573,4 +679,5 @@ void AddSC_boss_argent_challenge()
     new boss_paletress();
     new npc_memory();
     new npc_argent_soldier();
+    new spell_summon_memory();
 }
