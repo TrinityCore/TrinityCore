@@ -1420,31 +1420,30 @@ class Player : public Unit, public GridObject<Player>
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void ReputationChanged2(FactionEntry const* factionEntry);
-        bool HasQuestForItem(uint32 itemid) const;
-        bool HasQuestForGO(int32 GOId) const;
+        bool HasQuestForItem(uint32 itemId) const;
+        bool HasQuestForGO(int32 goId) const;
         void UpdateForQuestWorldObjects();
-        bool CanShareQuest(uint32 quest_id) const;
+        bool CanShareQuest(uint32 questId) const;
 
-        void SendQuestComplete(uint32 quest_id);
+        void SendQuestComplete(uint32 questId);
         void SendQuestReward(Quest const* quest, uint32 XP);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
-        void SendQuestTimerFailed(uint32 quest_id);
-        void SendCanTakeQuestResponse(uint32 msg) const;
+        void SendQuestTimerFailed(uint32 questId);
+        void SendCanTakeQuestResponse(QuestFailedReason msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint8 msg);
-        void SendQuestUpdateAddItem(Quest const* quest, uint32 item_idx, uint16 count);
-        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
-        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddItem(Quest const* quest, uint32 itemIdx, uint16 count);
+        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGOIdx, uint16 oldCount, uint16 addCount);
+        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 oldCount, uint16 addCount);
 
-        uint64 GetDivider() { return m_divider; }
+        uint64 GetDivider() const { return m_divider; }
         void SetDivider(uint64 guid) { m_divider = guid; }
 
-        uint32 GetInGameTime() { return m_ingametime; }
-
+        uint32 GetInGameTime() const { return m_ingametime; }
         void SetInGameTime(uint32 time) { m_ingametime = time; }
 
-        void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
-        void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
+        void AddTimedQuest(uint32 questId) { m_timedquests.insert(questId); }
+        void RemoveTimedQuest(uint32 questId) { m_timedquests.erase(questId); }
 
         bool HasPvPForcingQuest() const;
 
