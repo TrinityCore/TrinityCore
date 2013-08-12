@@ -8,3 +8,7 @@ INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES
 (49548, 49548, 59969);
 
 UPDATE `creature_template` SET `AIName` = 'NullAI' WHERE `entry` = 30413;
+
+DELETE FROM `spell_script_names` WHERE `spell_id` = 53242;
+INSERT INTO `spell_script_names`(`spell_id`, `ScriptName`) VALUES
+(53242, 'spell_clear_gift_of_tharon_ja');

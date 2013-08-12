@@ -29,6 +29,7 @@ enum Spells
     SPELL_DECAY_FLESH                             = 49356, // casted at end of phase 1, starts phase 2
     // flesh spells (phase 2)
     SPELL_GIFT_OF_THARON_JA                       = 52509,
+    SPELL_CLEAR_GIFT_OF_THARON_JA                 = 53242,
     SPELL_EYE_BEAM                                = 49544,
     SPELL_LIGHTNING_BREATH                        = 49537,
     SPELL_POISON_CLOUD                            = 49548,
@@ -107,7 +108,7 @@ class boss_tharon_ja : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING) || me->IsNonMeleeSpellCasted(true))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -115,8 +116,8 @@ class boss_tharon_ja : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CURSE_OF_LIFE:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                                return;
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_CURSE_OF_LIFE);
                             events.ScheduleEvent(EVENT_CURSE_OF_LIFE, urand(10000, 15000));
                             break;
                         case EVENT_SHADOW_VOLLEY:
@@ -142,24 +143,19 @@ class boss_tharon_ja : public CreatureScript
                             events.ScheduleEvent(EVENT_POISON_CLOUD, urand(10000, 12000));
                             break;
                         case EVENT_PHASE_SWITCH:
-                            if (events.IsInPhase(PHASE_SKELETAL)) {
-                                DoCast(SPELL_DECAY_FLESH);
+                            if (events.IsInPhase(PHASE_SKELETAL))
+                            {
+                                DoCastAOE(SPELL_DECAY_FLESH);
                                 events.SetPhase(PHASE_GOING_FLESH);
                                 events.ScheduleEvent(EVENT_PHASE_SWITCH, 6000);
                             }
 
-                            if (events.IsInPhase(PHASE_GOING_FLESH)) {
+                            if (events.IsInPhase(PHASE_GOING_FLESH))
+                            {
                                 Talk(SAY_FLESH);
                                 me->SetDisplayId(MODEL_FLESH);
+                                DoCast(SPELL_GIFT_OF_THARON_JA);
 
-                                std::list<Unit*> playerList;
-                                SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
-                                for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                                {
-                                    Unit* temp = (*itr);
-                                    me->AddAura(SPELL_GIFT_OF_THARON_JA, temp);
-                                    temp->SetDisplayId(MODEL_SKELETON);
-                                }
                                 events.ScheduleEvent(EVENT_PHASE_SWITCH, 20000);
                                 events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(3000, 4000));
                                 events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 8000));
@@ -167,13 +163,15 @@ class boss_tharon_ja : public CreatureScript
                                 events.SetPhase(PHASE_FLESH);
                             }
 
-                            if (events.IsInPhase(PHASE_FLESH)) {
-                                DoCast(SPELL_RETURN_FLESH);
+                            if (events.IsInPhase(PHASE_FLESH))
+                            {
+                                DoCastAOE(SPELL_RETURN_FLESH);
                                 events.SetPhase(PHASE_GOING_SKELETAL);
                                 events.ScheduleEvent(EVENT_PHASE_SWITCH, 6000);
                             }
 
-                            if (events.IsInPhase(PHASE_GOING_SKELETAL)) {
+                            if (events.IsInPhase(PHASE_GOING_SKELETAL))
+                            {
                                 Talk(SAY_SKELETON);
                                 me->DeMorph();
                                 events.SetPhase(PHASE_SKELETAL);
@@ -181,17 +179,7 @@ class boss_tharon_ja : public CreatureScript
                                 events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
                                 events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
                                 events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
-
-                                std::list<Unit*> playerList;
-                                SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
-                                for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                                {
-                                    Unit* temp = (*itr);
-                                    if (temp->HasAura(SPELL_GIFT_OF_THARON_JA)) {
-                                        temp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
-                                    }
-                                    temp->DeMorph();
-                                }
+                                DoCast(SPELL_CLEAR_GIFT_OF_THARON_JA);
                             }
                             break;
                         default:
@@ -219,7 +207,7 @@ class boss_tharon_ja : public CreatureScript
                     if (Player* player = i->GetSource())
                         player->DeMorph();
 
-                DoCast(me, SPELL_ACHIEVEMENT_CHECK);
+                DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
             }
         };
 
@@ -229,7 +217,42 @@ class boss_tharon_ja : public CreatureScript
         }
 };
 
+class spell_clear_gift_of_tharon_ja : public SpellScriptLoader
+{
+    public:
+        spell_clear_gift_of_tharon_ja() : SpellScriptLoader("spell_clear_gift_of_tharon_ja") { }
+
+        class spell_clear_gift_of_tharon_ja_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_clear_gift_of_tharon_ja_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GIFT_OF_THARON_JA))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->RemoveAura(SPELL_GIFT_OF_THARON_JA);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_clear_gift_of_tharon_ja_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_clear_gift_of_tharon_ja_SpellScript();
+        }
+};
+
 void AddSC_boss_tharon_ja()
 {
     new boss_tharon_ja();
+    new spell_clear_gift_of_tharon_ja();
 }
