@@ -34,7 +34,9 @@ enum Spells
     SPELL_LIGHTNING_BREATH                        = 49537,
     SPELL_POISON_CLOUD                            = 49548,
     SPELL_RETURN_FLESH                            = 53463, // Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
-    SPELL_ACHIEVEMENT_CHECK                       = 61863
+    SPELL_ACHIEVEMENT_CHECK                       = 61863,
+    SPELL_FLESH_VISUAL                            = 52582,
+    SPELL_DUMMY                                   = 49551
 };
 
 enum Events
@@ -48,7 +50,10 @@ enum Events
     EVENT_POISON_CLOUD,
     EVENT_RETURN_FLESH,
 
-    EVENT_PHASE_SWITCH
+    EVENT_PHASE_SWITCH_SKELETAL,
+    EVENT_PHASE_SWITCH_GOING_FLESH,
+    EVENT_PHASE_SWITCH_FLESH,
+    EVENT_PHASE_SWITCH_GOING_SKELETAL
 };
 
 enum Yells
@@ -66,14 +71,6 @@ enum Models
     MODEL_SKELETON                                = 27511
 };
 
-enum Phases
-{
-    PHASE_SKELETAL,
-    PHASE_GOING_FLESH,
-    PHASE_FLESH,
-    PHASE_GOING_SKELETAL
-};
-
 class boss_tharon_ja : public CreatureScript
 {
     public:
@@ -86,7 +83,7 @@ class boss_tharon_ja : public CreatureScript
             void Reset() OVERRIDE
             {
                 _Reset();
-                me->SetDisplayId(me->GetNativeDisplayId());
+                me->RestoreDisplayId();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -94,8 +91,7 @@ class boss_tharon_ja : public CreatureScript
                 Talk(SAY_AGGRO);
                 _EnterCombat();
 
-                events.SetPhase(PHASE_SKELETAL);
-                events.ScheduleEvent(EVENT_PHASE_SWITCH, 20000);
+                events.ScheduleEvent(EVENT_PHASE_SWITCH_SKELETAL, 20000);
                 events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
                 events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
                 events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
@@ -125,7 +121,8 @@ class boss_tharon_ja : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
                             break;
                         case EVENT_RAIN_OF_FIRE:
-                            DoCastAOE(SPELL_RAIN_OF_FIRE);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_RAIN_OF_FIRE);
                             events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
                             break;
                         case EVENT_LIGHTNING_BREATH:
@@ -142,45 +139,34 @@ class boss_tharon_ja : public CreatureScript
                             DoCastAOE(SPELL_POISON_CLOUD);
                             events.ScheduleEvent(EVENT_POISON_CLOUD, urand(10000, 12000));
                             break;
-                        case EVENT_PHASE_SWITCH:
-                            if (events.IsInPhase(PHASE_SKELETAL))
-                            {
-                                DoCastAOE(SPELL_DECAY_FLESH);
-                                events.SetPhase(PHASE_GOING_FLESH);
-                                events.ScheduleEvent(EVENT_PHASE_SWITCH, 6000);
-                            }
+                        case EVENT_PHASE_SWITCH_SKELETAL:
+                            DoCastAOE(SPELL_DECAY_FLESH);
+                            events.ScheduleEvent(EVENT_PHASE_SWITCH_GOING_FLESH, 6000);
+                            break;
+                        case EVENT_PHASE_SWITCH_GOING_FLESH:
+                            Talk(SAY_FLESH);
+                            me->SetDisplayId(MODEL_FLESH);
+                            DoCast(SPELL_GIFT_OF_THARON_JA);
+                            DoCast(SPELL_FLESH_VISUAL);
+                            DoCast(SPELL_DUMMY);
 
-                            if (events.IsInPhase(PHASE_GOING_FLESH))
-                            {
-                                Talk(SAY_FLESH);
-                                me->SetDisplayId(MODEL_FLESH);
-                                DoCast(SPELL_GIFT_OF_THARON_JA);
-
-                                events.ScheduleEvent(EVENT_PHASE_SWITCH, 20000);
-                                events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(3000, 4000));
-                                events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 8000));
-                                events.ScheduleEvent(EVENT_POISON_CLOUD, urand(6000, 7000));
-                                events.SetPhase(PHASE_FLESH);
-                            }
-
-                            if (events.IsInPhase(PHASE_FLESH))
-                            {
-                                DoCastAOE(SPELL_RETURN_FLESH);
-                                events.SetPhase(PHASE_GOING_SKELETAL);
-                                events.ScheduleEvent(EVENT_PHASE_SWITCH, 6000);
-                            }
-
-                            if (events.IsInPhase(PHASE_GOING_SKELETAL))
-                            {
-                                Talk(SAY_SKELETON);
-                                me->DeMorph();
-                                events.SetPhase(PHASE_SKELETAL);
-                                events.ScheduleEvent(EVENT_PHASE_SWITCH, 20000);
-                                events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
-                                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
-                                events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
-                                DoCast(SPELL_CLEAR_GIFT_OF_THARON_JA);
-                            }
+                            events.ScheduleEvent(EVENT_PHASE_SWITCH_FLESH, 20000);
+                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(3000, 4000));
+                            events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 8000));
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(6000, 7000));
+                            break;
+                        case EVENT_PHASE_SWITCH_FLESH:
+                            DoCastAOE(SPELL_RETURN_FLESH);
+                            events.ScheduleEvent(EVENT_PHASE_SWITCH_GOING_SKELETAL, 6000);
+                            break;
+                        case EVENT_PHASE_SWITCH_GOING_SKELETAL:
+                            Talk(SAY_SKELETON);
+                            me->DeMorph();
+                            events.ScheduleEvent(EVENT_PHASE_SWITCH_SKELETAL, 20000);
+                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
+                            DoCast(SPELL_CLEAR_GIFT_OF_THARON_JA);
                             break;
                         default:
                             break;
@@ -201,12 +187,7 @@ class boss_tharon_ja : public CreatureScript
                 _JustDied();
 
                 // clean morph on players
-                Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* player = i->GetSource())
-                        player->DeMorph();
-
+                DoCast(SPELL_CLEAR_GIFT_OF_THARON_JA);
                 DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
             }
         };
