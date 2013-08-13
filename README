@@ -135,6 +135,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.94 - 22/07/2013: Build: Fix compilacion en vs10 x64
 0.95 - 24/07/2013: Implementamos el metodo IsAreaAuraEffect por Retriman
 0.96 - 28/07/2013: Implementamos el metodo RemoveNegativeAuras por Retriman
+0.97 - 12/08/2013: Implementacion de prioridad y multiprocesamiento en linux del authserver por Nay adaptacion por Eilo
+0.98 - 12/08/2013: Implementacion de prioridad y multiprocesamiento en linux del worldserver por Nay adaptacion por Eilo
 
 
 ###############
@@ -173,7 +175,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.69 - 20/11/2012: Crashfix de SelectImplicitAreaTargets por blipi
 1.70 - 27/11/2012: Bugs de estado de puertas en SoTA (playa de ancestros) por Eilo
 1.71 - 27/11/2012: Deshabilitar monturas de varios ocupantes en arenas por Gildor
-1.72 - 04/12/2012: Deshabilitar Isla de Conquista y Ring of Valor y habilitar Dalaran Sewers por Gildor
 1.73 - 04/12/2012: Fix Wintergrasp Tower Cannon, ahora no se moverán al subirse por Gildor
 1.74 - 04/12/2012: Fix Vehicle spells target damage on buildings, ahora no fallarán las spells, por ejemplo en wintergrasp a las torres por LiMCrosS
 1.75 - 04/12/2012: Wintergrasp: Temp fix para poder cruzar la puerta de la reliquia de Wintergrasp por Gildor
@@ -262,6 +263,20 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.175 - 28/07/2013: SoTA: Ahora cuando un jugador se sube a un Battleground Demolisher como acompañante, estara protegido del daño que se recibe de los cañones y los enemigos no podran atacarte por Jar
 1.177 - 01/08/2013: Wintergrasp: Solucionado el problema con las quest Stop the Siege, Slay them all! y No Mercy for the Merciles, ahora se pueden completar estando en grupo de banda por Jar
 1.178 - 06/08/2013: Ahora para entrar a una Arena o Bg, los players seran desmontados y se les hara dismiss a las pets evitando exploits por Eilo
+1.179 - 07/08/2013: JoinedPlayers: Nuevo sistema de anuncio configurable por # de pjs unidos a un bg queue por Eilo
+1.180 - 07/08/2013: BgTemplateMinMax: Ajustando valores de min y max para las bgs bajas por Eilo
+1.181 - 07/08/2013: Habilitando Circulo de Valor por Eilo
+1.182 - 07/08/2013: Habilitando Dalaran Sewers por Eilo
+1.183 - 07/08/2013: PerformanceLog Configs por Eilo
+1.184 - 08/08/2013: BgPlayerBroadcast: Implementado un pequeño sistema de broadcast a los que estan apuntados que actualiza el estado en tiempo real sin necesidad de anotar nuevamente por Eilo
+1.185 - 08/08/2013: SoTA: La spell Rocket Blast utilizada por los Antipersonnel Cannon, ahora hara el daño esperado cuando impacta en los jugadores Jar
+1.186 - 09/08/2013: Fix logico en  "Ignore LOS for gameobjects casts (wrongly casted by a trigger)" por Retriman
+1.187 - 12/08/2013: Wintergrasp: Algunos ajustes en el sistema del campo de batalla,ligamos cada WorkShop con sus GameObjects y NPCs, ahora las torres del atacante se mostraran neutrales entre batallas, los npc de la fortaleza serán teleportados a su correspondiente lugar según corresponda y dependiendo de quién este controlando, ahora cuando se gana una batalla haciendo click en la Reliquia, se actualizarán los Worldstates para mostrar correctamente quien está controlando la fortaleza por Jar
+1.188 - 12/08/2013: Wintergrasp: Ahora actualizamos Tenacity cuando los player se retiran de la batalla o cuando salen de la zona de combate por jar
+1.189 - 12/08/2013: Wintergrasp: Ahora los NPC Maestro de hudú Fu'jin horda y Sorceress Kaylana mostraran la opcion para ver sus productos por Jar
+1.190 - 12/08/2013: Wintergrasp: Limpiando NPCs y Gobject de la base de datos ya que estos son spawneados mediante el script del campo de batalla y provoca que hayan duplicados por Jar
+1.191 - 12/08/2013: Wintergrasp: Ahora el temporizador  de conquista de invierno será visible por los jugadores cuando ingresen a cualquier zona de rasgan norte por Jar
+1.192 - 12/08/2013: Armas s3 (vengeful) añadidas a Meminie en filospada por Angelinna
 
 
 ########################
@@ -655,6 +670,13 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.179 - 27/07/2013: Paladin: Fix spell Beacon of Light, ahora funcionará tambien con las pets por darvid
 3.180 - 28/07/2013: Brujo: Fix spell Spell Lock (Felhunter), ahora funcionará la parte de silenciar los 6 segundos por A-Metaphysical-Drama
 3.181 - 02/08/2013: DK: Ahora la gárgola se beneficiará de la celeridad del DK por Tibbi
+3.182 - 09/08/2013: Rogue: Update a la spell Cheat Death de rogue ahora su calculo sera el correcto baso en addon dr.damage por Retriman
+3.183 - 09/08/2013: Priest: Fix spell Penance, ahora no funcionará si el objetivo muere por Gildor
+3.184 - 11/08/2013: DK: Fix spell Avoidance (Pets), ahora Army of the dead ghoul tendrá avoidance de forma pasiva, Ebon Gargoyle y Risen Ghoul (temporal y permanente) lo obtendran al tener el talento NotD por Gildor
+3.185 - 11/08/2013: Chaman: Fix spell Avoidance (Pets), ahora el Elemental de Fuego y Spirit Wolf obtendran Avoidance de forma pasiva por Gildor
+3.186 - 11/08/2013: Mago: Fix spell Avoidance (Pets), ahora el Elemental de Agua (temporal y permanente) y Mirror Image obtendran Avoidance de forma pasiva por Gildor
+3.187 - 11/08/2013: Priest: Fix spell Avoidance (Pets), ahora Shadowfiend obtendra Avoidance de forma pasiva por Gildor
+3.188 - 11/08/2013: Druida: Fix spell Avoidance (Pets), ahora el Antárbol obtendra Avoidance de forma pasiva por Gildor
 
 
 #################
@@ -822,6 +844,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.3.70 - 28/07/2013: Corona de Hielo: Hecho trozos por YTDB
 4.3.71 - 28/07/2013: Corona de Hielo: Volver a unir a Olakin por Muzashi
 4.3.72 - 02/08/2013: Corona de Hielo: El gigante de carne campeón por Bluerak1, convertido a SAI por Muzashi
+4.3.73 - 07/08/2013: Corona de Hielo: ¡No estoy muerto aún! - ¡Salgamos de aquí! por Muzashi
+4.3.74 - 08/08/2013: Corona de Hielo: Imposible reproducir - Volver a probar por Muzashi
 - Cuenca de Sholazar -
 4.4.0  - 16/04/2012: Cuenca de Sholazar: Seguir la corriente por Muzashi
 4.4.1  - 16/04/2012: Cuenca de Sholazar: Atormentar a los badanudillos por Muzashi
@@ -1183,5 +1207,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 7.17 - 15/05/2013: El más sabio de Azeroth por Muzashi y Abismo
 7.18 - 27/07/2013: Cerdoball por Muzashi
 7.19 - 01/08/2013: Misiones diarias de Lan'Dalock: actualizadas recompensas, activadas y metidas en pool por Rincewind
+7.20 - 07/08/2013: Addons de migracion baneados por Crash
+7.21 - 08/08/2013: Nuevos textos para el Bg Queue ahora en una sola linea y mejorados por Eilo
+7.22 - 12/08/2013: Nuevos textos para el started! de bg por Eilo
 
 
