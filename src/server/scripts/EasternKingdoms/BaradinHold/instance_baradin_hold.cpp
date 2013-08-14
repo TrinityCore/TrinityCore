@@ -64,11 +64,7 @@ class instance_baradin_hold: public InstanceMapScript
                 switch(go->GetEntry())
                 {
                     case GO_ARGALOTH_DOOR:
-                        AddDoor(go, true);
-                        break;
                     case GO_OCCUTHAR_DOOR:
-                        AddDoor(go, true);
-                        break;
                     case GO_ALIZABAL:
                         AddDoor(go, true);
                         break;
@@ -97,11 +93,7 @@ class instance_baradin_hold: public InstanceMapScript
                 switch(go->GetEntry())
                 {
                     case GO_ARGALOTH_DOOR:
-                        AddDoor(go, false);
-                        break;
                     case GO_OCCUTHAR_DOOR:
-                        AddDoor(go, false);
-                        break;
                     case GO_ALIZABAL:
                         AddDoor(go, false);
                         break;
