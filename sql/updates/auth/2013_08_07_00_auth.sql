@@ -1,1 +1,0 @@
-alter table account add column `token_key` varchar(100) not null default '' after `s`;

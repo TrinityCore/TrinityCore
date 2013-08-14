@@ -21,7 +21,9 @@
 #include "openssl/hmac.h"
 #include "openssl/evp.h"
 
-unsigned int generate_token(const char*);
-int base32_decode(const char*, char*, int);
+namespace TOTP
+{
+    unsigned int GenerateToken(const char* b32key);
+}
 
 #endif
