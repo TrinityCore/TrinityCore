@@ -23,9 +23,9 @@
 enum Spells
 {
     SPELL_SEARING_SHADOWS               = 96913,
-    SPEll_FOCUSED_FIRE_FIRST_DAMAGE     = 97212,
-    SPEll_FOCUSED_FIRE_TRIGGER          = 96872,
-    SPEll_FOCUSED_FIRE_VISUAL           = 96886,
+    SPELL_FOCUSED_FIRE_FIRST_DAMAGE     = 97212,
+    SPELL_FOCUSED_FIRE_TRIGGER          = 96872,
+    SPELL_FOCUSED_FIRE_VISUAL           = 96886,
     SPELL_FOCUSED_FIRE                  = 96884,
     SPELL_EYES_OF_OCCUTHAR              = 96920,
     SPELL_GAZE_OF_OCCUTHAR              = 96942,
@@ -95,7 +95,7 @@ class boss_occuthar : public CreatureScript
                     for (uint8 i = 0; i < MAX_OCCUTHAR_VEHICLE_SEATS; ++i)
                     {
                         if (Unit* vehicle = _vehicle->GetPassenger(i))
-                            vehicle->CastSpell(summon, SPEll_FOCUSED_FIRE_VISUAL);
+                            vehicle->CastSpell(summon, SPELL_FOCUSED_FIRE_VISUAL);
                     }
                 }
             }
@@ -119,7 +119,7 @@ class boss_occuthar : public CreatureScript
                             events.ScheduleEvent(EVENT_SEARING_SHADOWS, 25 * IN_MILLISECONDS);
                             break;
                         case EVENT_FOCUSED_FIRE:
-                            DoCastAOE(SPEll_FOCUSED_FIRE_TRIGGER, true);
+                            DoCastAOE(SPELL_FOCUSED_FIRE_TRIGGER, true);
                             events.ScheduleEvent(EVENT_FOCUSED_FIRE, 15 * IN_MILLISECONDS);
                             break;
                         case EVENT_EYES_OF_OCCUTHAR:
@@ -180,7 +180,7 @@ class npc_eyestalk : public CreatureScript
 
                 if (_events.ExecuteEvent() == EVENT_FOCUSED_FIRE_FIRST_DAMAGE)
                 {
-                    DoCastAOE(SPEll_FOCUSED_FIRE_FIRST_DAMAGE);
+                    DoCastAOE(SPELL_FOCUSED_FIRE_FIRST_DAMAGE);
                     if (++_damageCount < 2)
                         _events.ScheduleEvent(EVENT_FOCUSED_FIRE_FIRST_DAMAGE, 1 * IN_MILLISECONDS);
                 }
