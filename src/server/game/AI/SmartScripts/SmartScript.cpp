@@ -3337,16 +3337,10 @@ Unit* SmartScript::DoFindClosestFriendlyInRange(float range)
     if (!me)
         return NULL;
 
-    CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
-
     Unit* unit = NULL;
-
     Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, range);
-    Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, unit, u_check);
-    TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-    cell.Visit(p, grid_unit_searcher, *me->GetMap(), *me, range);
+    Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, unit, u_check); 
+    me->VisitNearbyGridObject(range, searcher);
     return unit;
 }
 
