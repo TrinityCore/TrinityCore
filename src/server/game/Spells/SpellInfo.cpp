@@ -1172,7 +1172,7 @@ bool SpellInfo::NeedsExplicitUnitTarget() const
 
 bool SpellInfo::NeedsToBeTriggeredByCaster() const
 {
-    if (NeedsExplicitUnitTarget())
+    if (NeedsExplicitUnitTarget() || Id == 96946 || Id == 101005)
         return true;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
