@@ -3339,8 +3339,8 @@ Unit* SmartScript::DoFindClosestFriendlyInRange(float range)
 
     Unit* unit = NULL;
     Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, range);
-    Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, unit, u_check); 
-    me->VisitNearbyGridObject(range, searcher);
+    Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, unit, u_check);
+    me->VisitNearbyObject(range, searcher);
     return unit;
 }
 
