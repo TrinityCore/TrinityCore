@@ -65,9 +65,9 @@ class boss_occuthar : public CreatureScript
             {
                 _EnterCombat();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_SEARING_SHADOWS, 35 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_FOCUSED_FIRE, 40 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_EYES_OF_OCCUTHAR, 60 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SEARING_SHADOWS, 8 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_FOCUSED_FIRE, 15 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_EYES_OF_OCCUTHAR, 30 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
             }
 
@@ -200,6 +200,26 @@ class npc_eyestalk : public CreatureScript
         }
 };
 
+class FocusedFireTargetSelector : public std::unary_function<Unit *, bool>
+{
+    public:
+        FocusedFireTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) { }
+
+        bool operator() (WorldObject* target)
+        {
+            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+                return true;
+
+            if (target->GetTypeId() != TYPEID_PLAYER)
+                return true;
+
+            return false;
+        }
+
+        Creature* _me;
+        Unit const* _victim;
+};
+
 // 96872 - Focused Fire
 class spell_occuthar_focused_fire : public SpellScriptLoader
 {
@@ -215,6 +235,7 @@ class spell_occuthar_focused_fire : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
+                targets.remove_if(FocusedFireTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
                 WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
