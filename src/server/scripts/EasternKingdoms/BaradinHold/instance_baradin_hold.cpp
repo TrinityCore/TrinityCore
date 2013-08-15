@@ -23,7 +23,7 @@ DoorData const doorData[] =
 {
     { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
     { GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
-    { GO_ALIZABAL,       DATA_ALIZABAL, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
+    { GO_ALIZABAL_DOOR,       DATA_ALIZABAL, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
 };
 
 class instance_baradin_hold: public InstanceMapScript
@@ -65,7 +65,7 @@ class instance_baradin_hold: public InstanceMapScript
                 {
                     case GO_ARGALOTH_DOOR:
                     case GO_OCCUTHAR_DOOR:
-                    case GO_ALIZABAL:
+                    case GO_ALIZABAL_DOOR:
                         AddDoor(go, true);
                         break;
                 }
@@ -94,7 +94,7 @@ class instance_baradin_hold: public InstanceMapScript
                 {
                     case GO_ARGALOTH_DOOR:
                     case GO_OCCUTHAR_DOOR:
-                    case GO_ALIZABAL:
+                    case GO_ALIZABAL_DOOR:
                         AddDoor(go, false);
                         break;
                 }
