@@ -2238,7 +2238,7 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 
-uint32 SpellInfo::CalcCastTime(Spell* spell /*= NULL*/) const
+uint32 SpellInfo::CalcCastTime(Unit* caster /*= NULL*/, Spell* spell /*= NULL*/) const
 {
     int32 castTime = 0;
 
