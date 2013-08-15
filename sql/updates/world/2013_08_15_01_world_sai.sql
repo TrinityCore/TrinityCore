@@ -1,4 +1,4 @@
--- Random comment ™
+-- Random comment
 SET @SHREDDER		:= 27061; -- Xink's Shredder
 SET @XINK			:= 26660; -- Xink
 SET @SPELL			:= 52872; -- Forceitem Xink's Shredder
