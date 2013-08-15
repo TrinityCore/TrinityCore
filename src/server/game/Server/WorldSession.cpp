@@ -47,6 +47,8 @@
 #include "WardenWin.h"
 #include "WardenMac.h"
 
+#include "Cryptography/HMACSHA1.h"
+
 namespace {
 
 std::string const DefaultPlayerName = "<none>";
@@ -326,7 +328,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                         break;
                     case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
-                        if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
+		      if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
                             LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT",
                                 "the player has not logged in yet and not recently logout");
                         else
@@ -1071,6 +1073,45 @@ void WorldSession::SendAddonsInfo()
 
     SendPacket(&data);
 }
+
+bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
+{
+  uint32 hashSize = 20;
+  uint32 ip = ACE_OS::inet_addr(ip_str);
+  uint8 hash[hashSize];
+  uint8 msg[6];
+  uint8 sesskey[40];
+  WorldPacket data(SMSG_REDIRECT_CLIENT, 30);
+  data << ip;
+  data << port;
+  data << uint32(0x0);
+
+  PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REDIRECT_SESSKEY);
+  stmt->setUInt32(0, _accountId);
+  PreparedQueryResult res = LoginDatabase.Query(stmt);
+  Field *fields = res->Fetch();
+  BigNumber a;
+  a.SetHexStr(fields[0].GetString().c_str());
+ 
+  HmacHash hmac(40, a.AsByteArray());
+  hmac.UpdateData((uint8*)&ip, 4);
+  hmac.UpdateData((uint8*)&port, 2);
+  hmac.Finalize();
+  data.append(hmac.GetDigest(), hashSize);
+  SendPacket(&data);
+  WorldPacket flush(SMSG_SUSPEND_COMMS, 4);
+  flush << uint32(0);
+  SendPacket(&flush);
+  return true;
+}
+
+
+void WorldSession::HandleSuspendComms(WorldPacket& recv)
+{
+  WorldPacket pkt(SMSG_FORCE_SEND_QUEUED_PACKETS);
+  SendPacket(&pkt);
+}
+
 
 void WorldSession::SetPlayer(Player* player)
 {

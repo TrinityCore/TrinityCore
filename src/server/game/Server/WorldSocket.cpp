@@ -695,6 +695,8 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
+            case CMSG_REDIRECTION_AUTH_PROOF:
+   	        return HandleAuthRedirect(*new_pct);
             default:
             {
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
@@ -956,6 +958,98 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     sWorld->AddSession(m_Session);
     return 0;
+}
+
+int WorldSocket::HandleAuthRedirect (WorldPacket& recv)
+{
+  std::string account;
+  uint8 hmac[20];
+  uint64 unk;
+  uint32 token = 0;
+
+  recv >> account;
+  recv >> unk; // unk uint64
+  recv.read(hmac, 20);
+  //  LOGIN_SEL_SESSIONKEY;
+  PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
+  stmt->setString(0, account);
+  PreparedQueryResult res = LoginDatabase.Query(stmt);
+  
+  if( !res )
+    return 1;
+
+  Field *fld = res->Fetch();
+  
+  BigNumber key;
+  key.SetHexStr(fld[0].GetString().c_str());
+
+  SHA1Hash sha;
+  sha.UpdateData(account);
+  sha.UpdateData(key.AsByteArray(), 40);
+  sha.UpdateData((uint8*)&m_Seed, 4);
+  sha.Finalize();
+    
+  if( memcmp(sha.GetDigest(), hmac, 20) != 0)
+    {
+      BigNumber inc, hash;
+      inc.SetBinary(hmac, 20);
+      hash.SetBinary(sha.GetDigest(), 20);
+      CloseSocket();
+      return 1;
+    }
+
+  stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+  stmt->setString(0, account);
+  res = LoginDatabase.Query(stmt);
+  fld = res->Fetch();
+
+  uint32 accid = fld[0].GetUInt32();
+  uint8 expansion = fld[3].GetUInt8();
+  int64 mutetime = fld[5].GetInt64();
+  LocaleConstant locale = LocaleConstant(fld[5].GetUInt8());
+  uint32 recruiter = fld[7].GetUInt32();
+  uint8 security = 0;
+
+  // Checks gmlevel per Realm
+  stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
+
+  stmt->setUInt32(0, accid);
+  stmt->setInt32(1, int32(realmID));
+  
+  res = LoginDatabase.Query(stmt);
+  
+  if (!res)
+    security = 0;
+  else
+    {
+      fld = res->Fetch();
+      security = fld[0].GetUInt8();
+    }
+  
+  // Check if this user is by any chance a recruiter
+  stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_RECRUITER);
+
+  stmt->setUInt32(0, accid);
+  
+  res = LoginDatabase.Query(stmt);
+    
+  bool isRecruiter = false;
+  if (res)
+    isRecruiter = true;
+
+  ACE_NEW_RETURN(m_Session, WorldSession(accid, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
+
+  m_Crypt.Init(&key);
+
+  m_Session->LoadPermissions();
+    
+  // Sleep this Network thread for
+  uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
+  ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
+
+  sWorld->AddSession(m_Session);
+
+  return 0;
 }
 
 int WorldSocket::HandlePing (WorldPacket& recvPacket)

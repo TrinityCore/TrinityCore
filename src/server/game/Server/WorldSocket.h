@@ -158,6 +158,9 @@ class WorldSocket : public WorldHandler
         /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
         int HandleAuthSession(WorldPacket& recvPacket);
 
+	/// Called by ProcessIncoming() on CMSG_REDIRECTION_AUTH_PROOF
+	int HandleAuthRedirect(WorldPacket&);
+
         /// Called by ProcessIncoming() on CMSG_PING.
         int HandlePing(WorldPacket& recvPacket);
 
