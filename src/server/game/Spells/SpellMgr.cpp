@@ -3047,6 +3047,11 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 break;
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+                break;            
+            case 38729:  // Rod of Purification
+            case 96946:  // Gaze of Occu'thar
+            case 101005: // Gaze of Occu'thar
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_BY_CASTER;
                 break;
             default:
                 break;
