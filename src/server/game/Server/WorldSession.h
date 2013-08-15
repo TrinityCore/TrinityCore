@@ -199,7 +199,8 @@ class WorldSession
         WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool redirected);
         ~WorldSession();
 
-    bool SendRedirect(const char* ip, uint16 port);
+        bool SendRedirect(const char* ip, uint16 port);
+        bool WasRedirected() const { return m_redirected; }
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
@@ -244,8 +245,6 @@ class WorldSession
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
-
-        bool WasRedirected() const { return m_redirected; }
 
         /// Is the user engaged in a log out process?
         bool isLogingOut() const { return _logoutTime || m_playerLogout; }
