@@ -1010,7 +1010,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist
-    SMART_TARGET_END                            = 26
+    SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist
+
+    SMART_TARGET_END                            = 27
 };
 
 struct SmartTarget
@@ -1096,6 +1098,11 @@ struct SmartTarget
         {
             uint32 maxDist;
         } closestAttackable;
+
+        struct
+        {
+            uint32 maxDist;
+        } closestFriendly;
 
         struct
         {
