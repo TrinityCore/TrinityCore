@@ -1322,7 +1322,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x50D*/ { "SMSG_REDIRECT_CLIENT",                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x50E*/ { "CMSG_REDIRECTION_FAILED",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x50F*/ { "SMSG_SUSPEND_COMMS",                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x510*/ { "CMSG_SUSPEND_COMMS_ACK",                       STATUS_LOGGEDIN,    PROCESS_INPLACE,      &WorldSession::HandleSuspendComms                     },
+    /*0x510*/ { "CMSG_SUSPEND_COMMS_ACK",                       STATUS_AUTHED,   PROCESS_INPLACE,      &WorldSession::HandleSuspendComms                     },
     /*0x511*/ { "SMSG_FORCE_SEND_QUEUED_PACKETS",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x512*/ { "CMSG_REDIRECTION_AUTH_PROOF",                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x513*/ { "CMSG_DROP_NEW_CONNECTION",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },

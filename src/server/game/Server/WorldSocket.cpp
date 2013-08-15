@@ -166,8 +166,7 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     WorldPacket const* pkt = &pct;
 
 
-    if (m_Session)
-        TC_LOG_TRACE("network.opcode", "S->C: %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(pkt->GetOpcode()).c_str());
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (m_Session ? m_Session->GetPlayerInfo() : m_Address).c_str(), GetOpcodeNameForLogging(pkt->GetOpcode()).c_str());
 
     sScriptMgr->OnPacketSend(this, *pkt);
 
@@ -673,8 +672,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
     std::string opcodeName = GetOpcodeNameForLogging(opcode);
-    if (m_Session)
-        TC_LOG_TRACE("network.opcode", "C->S: %s %s", m_Session->GetPlayerInfo().c_str(), opcodeName.c_str());
+    TC_LOG_TRACE("network.opcode", "C->S: %s %s", (m_Session ? m_Session->GetPlayerInfo() : m_Address).c_str(), opcodeName.c_str());
 
     try
     {
@@ -696,7 +694,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             case CMSG_REDIRECTION_AUTH_PROOF:
-   	        return HandleAuthRedirect(*new_pct);
+               return HandleAuthRedirect(*new_pct);
             default:
             {
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
@@ -960,99 +958,93 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     return 0;
 }
 
-int WorldSocket::HandleAuthRedirect (WorldPacket& recv)
+int WorldSocket::HandleAuthRedirect(WorldPacket& recv)
 {
-  std::string account;
-  uint8 hmac[20];
-  uint64 unk;
-  uint32 token = 0;
+    WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS);
+    SendPacket(fsqp);
 
-  recv >> account;
-  recv >> unk; // unk uint64
-  recv.read(hmac, 20);
-  //  LOGIN_SEL_SESSIONKEY;
-  PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
-  stmt->setString(0, account);
-  PreparedQueryResult res = LoginDatabase.Query(stmt);
-  
-  if( !res )
-    return 1;
+    std::string account;
+    uint8 hmac[SHA_DIGEST_LENGTH];
+    uint64 unk;
 
-  Field *fld = res->Fetch();
-  
-  BigNumber key;
-  key.SetHexStr(fld[0].GetString().c_str());
+    recv >> account;
+    recv >> unk; // unk uint64
+    recv.read(hmac, 20);
 
-  SHA1Hash sha;
-  sha.UpdateData(account);
-  sha.UpdateData(key.AsByteArray(), 40);
-  sha.UpdateData((uint8*)&m_Seed, 4);
-  sha.Finalize();
-    
-  if( memcmp(sha.GetDigest(), hmac, 20) != 0)
+    //  LOGIN_SEL_SESSIONKEY;
+    PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
+    stmt->setString(0, account);
+    PreparedQueryResult res = LoginDatabase.Query(stmt);
+
+    if (!res)
+        return -1;
+
+    Field *fld = res->Fetch();
+
+    BigNumber key;
+    key.SetHexStr(fld[0].GetString().c_str());
+
+    SHA1Hash sha;
+    sha.UpdateData(account);
+    sha.UpdateData(key.AsByteArray(), 40);
+    sha.UpdateData((uint8*)&m_Seed, 4);
+    sha.Finalize();
+
+    if (memcmp(sha.GetDigest(), hmac, SHA_DIGEST_LENGTH) != 0)
     {
-      BigNumber inc, hash;
-      inc.SetBinary(hmac, 20);
-      hash.SetBinary(sha.GetDigest(), 20);
-      CloseSocket();
-      return 1;
+        //BigNumber inc, hash;
+        //inc.SetBinary(hmac, SHA_DIGEST_LENGTH);
+        //hash.SetBinary(sha.GetDigest(), sha.GetLength());
+        return -1;
     }
 
-  stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
-  stmt->setString(0, account);
-  res = LoginDatabase.Query(stmt);
-  fld = res->Fetch();
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    stmt->setString(0, account);
+    res = LoginDatabase.Query(stmt);
+    fld = res->Fetch();
 
-  uint32 accid = fld[0].GetUInt32();
-  uint8 expansion = fld[3].GetUInt8();
-  int64 mutetime = fld[5].GetInt64();
-  LocaleConstant locale = LocaleConstant(fld[5].GetUInt8());
-  uint32 recruiter = fld[7].GetUInt32();
-  uint8 security = 0;
+    uint32 accid = fld[0].GetUInt32();
+    uint8 expansion = fld[3].GetUInt8();
+    int64 mutetime = fld[5].GetInt64();
+    LocaleConstant locale = LocaleConstant(fld[5].GetUInt8());
+    uint32 recruiter = fld[7].GetUInt32();
+    uint8 security = 0;
 
-  // Checks gmlevel per Realm
-  stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
+    // Checks gmlevel per Realm
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
+    stmt->setUInt32(0, accid);
+    stmt->setInt32(1, int32(realmID));
+    res = LoginDatabase.Query(stmt);
 
-  stmt->setUInt32(0, accid);
-  stmt->setInt32(1, int32(realmID));
-  
-  res = LoginDatabase.Query(stmt);
-  
-  if (!res)
-    security = 0;
-  else
+    if (!res)
+        security = 0;
+    else
     {
-      fld = res->Fetch();
-      security = fld[0].GetUInt8();
+        fld = res->Fetch();
+        security = fld[0].GetUInt8();
     }
-  
-  // Check if this user is by any chance a recruiter
-  stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_RECRUITER);
 
-  stmt->setUInt32(0, accid);
-  
-  res = LoginDatabase.Query(stmt);
-    
-  bool isRecruiter = false;
-  if (res)
-    isRecruiter = true;
+    // Check if this user is by any chance a recruiter
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_RECRUITER);
+    stmt->setUInt32(0, accid);
+    res = LoginDatabase.Query(stmt);
 
-  ACE_NEW_RETURN(m_Session, WorldSession(accid, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
+    bool isRecruiter = !res.null();
 
-  m_Crypt.Init(&key);
+    ACE_NEW_RETURN(m_Session, WorldSession(accid, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
-  m_Session->LoadPermissions();
-    
-  // Sleep this Network thread for
-  uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
-  ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
+    m_Crypt.Init(&key);
+    m_Session->LoadPermissions();
 
-  sWorld->AddSession(m_Session);
+    // Sleep this Network thread for
+    uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
+    ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
 
-  return 0;
+    sWorld->AddSession(m_Session);
+    return 0;
 }
 
-int WorldSocket::HandlePing (WorldPacket& recvPacket)
+int WorldSocket::HandlePing(WorldPacket& recvPacket)
 {
     uint32 ping;
     uint32 latency;
@@ -1119,7 +1111,7 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
 
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-        packet << uint8(code);
-        SendPacket(packet);
+    WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
+    packet << uint8(code);
+    SendPacket(packet);
 }

@@ -328,7 +328,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                         break;
                     case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
-		      if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
+                        if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
                             LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT",
                                 "the player has not logged in yet and not recently logout");
                         else
@@ -977,7 +977,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
             addonInfo >> enabled >> crc >> unk1;
 
-            TC_LOG_INFO("misc", "ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk1);
+            TC_LOG_TRACE("network", "ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk1);
 
             AddonInfo addon(addonName, enabled, crc, 2, true);
 
@@ -985,15 +985,15 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
             if (savedAddon)
             {
                 if (addon.CRC != savedAddon->CRC)
-                    TC_LOG_INFO("misc", "ADDON: %s was known, but didn't match known CRC (0x%x)!", addon.Name.c_str(), savedAddon->CRC);
+                    TC_LOG_DEBUG("network", "ADDON: %s was known, but didn't match known CRC (0x%x)!", addon.Name.c_str(), savedAddon->CRC);
                 else
-                    TC_LOG_INFO("misc", "ADDON: %s was known, CRC is correct (0x%x)", addon.Name.c_str(), savedAddon->CRC);
+                    TC_LOG_TRACE("network", "ADDON: %s was known, CRC is correct (0x%x)", addon.Name.c_str(), savedAddon->CRC);
             }
             else
             {
                 AddonMgr::SaveAddon(addon);
 
-                TC_LOG_INFO("misc", "ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
+                TC_LOG_INFO("network", "ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
             }
 
             /// @todo Find out when to not use CRC/pubkey, and other possible states.
@@ -1002,10 +1002,10 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
         uint32 currentTime;
         addonInfo >> currentTime;
-        TC_LOG_DEBUG("network", "ADDON: CurrentTime: %u", currentTime);
+        TC_LOG_TRACE("network", "ADDON: CurrentTime: %u", currentTime);
     }
     else
-        TC_LOG_ERROR("misc", "Addon packet uncompress error!");
+        TC_LOG_ERROR("network", "Addon packet uncompress error!");
 }
 
 void WorldSession::SendAddonsInfo()
@@ -1076,42 +1076,42 @@ void WorldSession::SendAddonsInfo()
 
 bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
 {
-  uint32 hashSize = 20;
-  uint32 ip = ACE_OS::inet_addr(ip_str);
-  uint8 hash[hashSize];
-  uint8 msg[6];
-  uint8 sesskey[40];
-  WorldPacket data(SMSG_REDIRECT_CLIENT, 30);
-  data << ip;
-  data << port;
-  data << uint32(0x0);
+    uint32 ip = ACE_OS::inet_addr(ip_str);
+    uint8 hash[SHA_DIGEST_LENGTH];
+    uint8 msg[6];
+    uint8 sesskey[40];
 
-  PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REDIRECT_SESSKEY);
-  stmt->setUInt32(0, _accountId);
-  PreparedQueryResult res = LoginDatabase.Query(stmt);
-  Field *fields = res->Fetch();
-  BigNumber a;
-  a.SetHexStr(fields[0].GetString().c_str());
- 
-  HmacHash hmac(40, a.AsByteArray());
-  hmac.UpdateData((uint8*)&ip, 4);
-  hmac.UpdateData((uint8*)&port, 2);
-  hmac.Finalize();
-  data.append(hmac.GetDigest(), hashSize);
-  SendPacket(&data);
-  WorldPacket flush(SMSG_SUSPEND_COMMS, 4);
-  flush << uint32(0);
-  SendPacket(&flush);
-  return true;
+    WorldPacket data(SMSG_REDIRECT_CLIENT, 30);
+    data << ip;
+    data << port;
+    data << uint32(0x0);
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REDIRECT_SESSKEY);
+    stmt->setUInt32(0, _accountId);
+    PreparedQueryResult res = LoginDatabase.Query(stmt);
+    Field *fields = res->Fetch();
+    BigNumber a;
+    a.SetHexStr(fields[0].GetString().c_str());
+
+    HmacHash hmac(40, a.AsByteArray());
+    hmac.UpdateData((uint8*)&ip, 4);
+    hmac.UpdateData((uint8*)&port, 2);
+    hmac.Finalize();
+    data.append(hmac.GetDigest(), hmac.GetLength());
+    SendPacket(&data);
+
+    WorldPacket flush(SMSG_SUSPEND_COMMS, 4);
+    flush << uint32(0);
+    SendPacket(&flush);
+    return true;
 }
 
-
-void WorldSession::HandleSuspendComms(WorldPacket& recv)
+void WorldSession::HandleSuspendComms(WorldPacket& /*recv*/)
 {
-  WorldPacket pkt(SMSG_FORCE_SEND_QUEUED_PACKETS);
-  SendPacket(&pkt);
+    // I guess we will be closing the connection later
+    // atm its not on the stage to reliably determine if this breaks stuff or not
+    //m_Socket->CloseSocket();
 }
-
 
 void WorldSession::SetPlayer(Player* player)
 {
