@@ -2057,7 +2057,7 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 
-uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
+uint32 SpellInfo::CalcCastTime(Spell* spell /*= NULL*/) const
 {
     // not all spells have cast time index and this is all is pasiive abilities
     if (!CastTimeEntry)
@@ -2065,8 +2065,8 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
 
     int32 castTime = CastTimeEntry->CastTime;
 
-    if (caster)
-        caster->ModSpellCastTime(this, castTime, spell);
+    if (spell)
+        spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
 
     if (Attributes & SPELL_ATTR0_REQ_AMMO && (!IsAutoRepeatRangedSpell()))
         castTime += 500;
