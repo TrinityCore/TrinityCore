@@ -3106,6 +3106,17 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
+            case 5308:  // Execute (Rank 1)
+            case 20658: // Execute (Rank 2)
+            case 20660: // Execute (Rank 3)
+            case 20661: // Execute (Rank 4)
+            case 20662: // Execute (Rank 5)
+            case 25234: // Execute (Rank 6)
+            case 25236: // Execute (Rank 7)
+            case 47470: // Execute (Rank 8)
+            case 47471: // Execute (Rank 9)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
             case 59725: // Improved Spell Reflection - aoe aura
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
