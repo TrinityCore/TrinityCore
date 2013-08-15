@@ -495,7 +495,7 @@ public:
 
     uint32 GetMaxTicks() const;
 
-    uint32 CalcCastTime(Unit* caster = NULL, Spell* spell = NULL) const;
+    uint32 CalcCastTime(Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;
 
     int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
