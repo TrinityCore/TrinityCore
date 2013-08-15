@@ -162,7 +162,7 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
 #endif
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
-    m_TempSpeed(0.0f), IsAIEnabled(false), NeedChangeAI(false),
+    IsAIEnabled(false), NeedChangeAI(false),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(NULL), i_disabledAI(NULL), m_AutoRepeatFirstCast(false), m_procDeep(0),
     m_removedAurasCount(0), i_motionMaster(this), m_ThreatManager(this),
@@ -194,8 +194,6 @@ Unit::Unit(bool isWorldObject) :
 
     for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
         m_currentSpells[i] = NULL;
-
-    m_addDmgOnce = 0;
 
     for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
         m_SummonSlot[i] = 0;
@@ -4079,19 +4077,40 @@ void Unit::RemoveAllAurasExceptType(AuraType type)
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         Aura const* aura = iter->second->GetBase();
-        if (!aura->GetSpellInfo()->HasAura(type))
-            _UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
-        else
+        if (aura->GetSpellInfo()->HasAura(type))
             ++iter;
+        else
+            _UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
     }
 
     for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
         Aura* aura = iter->second;
-        if (!aura->GetSpellInfo()->HasAura(type))
-            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
-        else
+        if (aura->GetSpellInfo()->HasAura(type))
             ++iter;
+        else
+            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
+    }
+}
+
+void Unit::RemoveAllAurasExceptType(AuraType type1, AuraType type2)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        Aura const* aura = iter->second->GetBase();
+        if (aura->GetSpellInfo()->HasAura(type1) || aura->GetSpellInfo()->HasAura(type2))
+            ++iter;
+        else
+            _UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
+    }
+
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    {
+        Aura* aura = iter->second;
+        if (aura->GetSpellInfo()->HasAura(type1) || aura->GetSpellInfo()->HasAura(type2))
+            ++iter;
+        else
+            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
     }
 }
 
@@ -6225,15 +6244,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->SpellIconID)
             {
-                case 267: // Improved Mend Pet
-                {
-                    int32 chance = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcValue();
-                    if (!roll_chance_i(chance))
-                        return false;
-
-                    triggered_spell_id = 24406;
-                    break;
-                }
                 case 2236: // Thrill of the Hunt
                 {
                     if (!procSpell)
@@ -8140,12 +8150,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     {
                         if (victim != this)
                             return false;
-                        break;
-                    }
-                    // Rogue T10 4P bonus, should proc on victim
-                    case 70803:
-                    {
-                        target = victim;
                         break;
                     }
                 }
@@ -14358,22 +14362,6 @@ Player* Unit::GetSpellModOwner() const
 }
 
 ///----------Pet responses methods-----------------
-void Unit::SendPetCastFail(uint32 spellid, SpellCastResult result)
-{
-    if (result == SPELL_CAST_OK)
-        return;
-
-    Unit* owner = GetCharmerOrOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    WorldPacket data(SMSG_PET_CAST_FAILED, 1 + 4 + 1);
-    data << uint8(0);                                       // cast count
-    data << uint32(spellid);
-    data << uint8(result);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
-}
-
 void Unit::SendPetActionFeedback(uint8 msg)
 {
     Unit* owner = GetOwner();

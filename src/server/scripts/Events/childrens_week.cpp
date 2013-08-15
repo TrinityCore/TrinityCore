@@ -721,7 +721,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 // Existing SmartAI
                 if (type == 0)

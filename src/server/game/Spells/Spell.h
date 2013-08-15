@@ -370,6 +370,8 @@ class Spell
         void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList);
         void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal);
 
+        GameObject* SearchSpellFocus();
+
         void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
         void cancel();
         void update(uint32 difftime);
@@ -415,8 +417,10 @@ class Spell
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
+        static void WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
         void SendCastResult(SpellCastResult result);
+        void SendPetCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
         void SendSpellCooldown();

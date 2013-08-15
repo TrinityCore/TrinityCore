@@ -20,21 +20,14 @@
 #include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
 
-enum Misc
+enum Yells
 {
-    ACTION_RESET_CRYSTALS,
-    ACTION_ACTIVATE_CRYSTAL,
-    ACTION_DEACTIVATE,
-    EVENT_ATTACK,
-    EVENT_SUMMON_MINIONS,
-    DATA_NOVOS_ACHIEV
-};
-
-enum Creatures
-{
-    NPC_FETID_TROLL_CORPSE          = 27598,
-    NPC_RISEN_SHADOWCASTER          = 27600,
-    NPC_HULKING_CORPSE              = 27597
+    SAY_AGGRO                       = 0,
+    SAY_KILL                        = 1,
+    SAY_DEATH                       = 2,
+    SAY_SUMMONING_ADDS              = 3, // unused
+    SAY_ARCANE_FIELD                = 4,
+    EMOTE_SUMMONING_ADDS            = 5  // unused
 };
 
 enum Spells
@@ -46,12 +39,23 @@ enum Spells
     SPELL_SUMMON_FETID_TROLL_CORPSE = 49103,
     SPELL_SUMMON_HULKING_CORPSE     = 49104,
     SPELL_SUMMON_CRYSTAL_HANDLER    = 49179,
+    SPELL_SUMMON_COPY_OF_MINIONS    = 59933,
 
     SPELL_ARCANE_BLAST              = 49198,
     SPELL_BLIZZARD                  = 49034,
     SPELL_FROSTBOLT                 = 49037,
     SPELL_WRATH_OF_MISERY           = 50089,
     SPELL_SUMMON_MINIONS            = 59910
+};
+
+enum Misc
+{
+    ACTION_RESET_CRYSTALS,
+    ACTION_ACTIVATE_CRYSTAL,
+    ACTION_DEACTIVATE,
+    EVENT_ATTACK,
+    EVENT_SUMMON_MINIONS,
+    DATA_NOVOS_ACHIEV
 };
 
 struct SummonerInfo
@@ -92,6 +96,7 @@ public:
         void EnterCombat(Unit* /* victim */) OVERRIDE
         {
             _EnterCombat();
+            Talk(SAY_AGGRO);
 
             SetCrystalsStatus(true);
             SetSummonerStatus(true);
@@ -105,6 +110,18 @@ public:
 
             if (me->Attack(target, true))
                 DoStartNoMovement(target);
+        }
+
+        void KilledUnit(Unit* who) OVERRIDE
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_KILL);
+        }
+
+        void JustDied(Unit* /*killer*/) OVERRIDE
+        {
+            _JustDied();
+            Talk(SAY_DEATH);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -210,9 +227,6 @@ public:
 
         void SetCrystalStatus(GameObject* crystal, bool active)
         {
-            if (!crystal)
-                return;
-
             crystal->SetGoState(active ? GO_STATE_ACTIVE : GO_STATE_READY);
             if (Creature* crystalChannelTarget = crystal->FindNearestCreature(NPC_CRYSTAL_CHANNEL_TARGET, 5.0f))
             {
@@ -236,6 +250,7 @@ public:
 
             if (++_crystalHandlerCount >= 4)
             {
+                Talk(SAY_ARCANE_FIELD);
                 SetSummonerStatus(false);
                 SetBubbled(false);
                 events.ScheduleEvent(EVENT_ATTACK, 3000);
@@ -332,42 +347,44 @@ public:
     }
 };
 
-enum SummonMinions
+class spell_novos_summon_minions : public SpellScriptLoader
 {
-    SPELL_COPY_OF_SUMMON_MINIONS        = 59933
-};
+    public:
+        spell_novos_summon_minions() : SpellScriptLoader("spell_novos_summon_minions") { }
 
-class spell_summon_minions : public SpellScriptLoader
-{
-public:
-    spell_summon_minions() : SpellScriptLoader("spell_summon_minions") { }
-
-    class spell_summon_minions_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_summon_minions_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
+        class spell_novos_summon_minions_SpellScript : public SpellScript
         {
-            GetCaster()->CastSpell((Unit*)NULL, SPELL_COPY_OF_SUMMON_MINIONS, true);
-            GetCaster()->CastSpell((Unit*)NULL, SPELL_COPY_OF_SUMMON_MINIONS, true);
-        }
+            PrepareSpellScript(spell_novos_summon_minions_SpellScript);
 
-        void Register() OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_COPY_OF_MINIONS))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                for (uint8 i = 0; i < 2; ++i)
+                    GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_COPY_OF_MINIONS, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_novos_summon_minions_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
         {
-            OnEffectHitTarget += SpellEffectFn(spell_summon_minions_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_novos_summon_minions_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const OVERRIDE
-    {
-        return new spell_summon_minions_SpellScript();
-    }
 };
 
 void AddSC_boss_novos()
 {
     new boss_novos();
     new npc_crystal_channel_target();
-    new spell_summon_minions();
+    new spell_novos_summon_minions();
     new achievement_oh_novos();
 }

@@ -1548,16 +1548,16 @@ void Pet::InitLevelupSpellsForLevel()
     {
         for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(defSpells->spellid[i]);
-            if (!spellEntry)
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(defSpells->spellid[i]);
+            if (!spellInfo)
                 continue;
 
             // will called first if level down
-            if (spellEntry->SpellLevel > level)
-                unlearnSpell(spellEntry->Id, true);
+            if (spellInfo->SpellLevel > level)
+                unlearnSpell(spellInfo->Id, true);
             // will called if level up
             else
-                learnSpell(spellEntry->Id);
+                learnSpell(spellInfo->Id);
         }
     }
 }

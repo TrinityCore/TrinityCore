@@ -24,6 +24,7 @@
 
 enum BG_EY_Misc
 {
+    BG_EY_EVENT_START_BATTLE        = 13180, // Achievement: Flurry
     BG_EY_FLAG_RESPAWN_TIME         = (8*IN_MILLISECONDS),
     BG_EY_FPOINTS_TICK_TIME         = (2*IN_MILLISECONDS)
 };
@@ -219,8 +220,6 @@ enum EYBattlegroundObjectTypes
 #define BG_EY_NotEYWeekendHonorTicks    260
 #define BG_EY_EYWeekendHonorTicks       160
 
-#define EY_EVENT_START_BATTLE           13180 // Achievement: Flurry
-
 enum BG_EY_Score
 {
     BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1400,
@@ -368,7 +367,7 @@ class BattlegroundEY : public Battleground
         void EventPlayerDroppedFlag(Player* Source);
 
         /* achievement req. */
-        bool IsAllNodesConrolledByTeam(uint32 team) const;
+        bool IsAllNodesControlledByTeam(uint32 team) const;
 
         uint32 GetPrematureWinner();
     private:
