@@ -284,10 +284,13 @@ void World::AddSession_(WorldSession* s)
         return;
     }
 
-    s->SendAuthResponse(AUTH_OK, true);
-    s->SendAddonsInfo();
-    s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    s->SendTutorialsData();
+    if (!s->WasRedirected())
+    {
+        s->SendAuthResponse(AUTH_OK, true);
+        s->SendAddonsInfo();
+        s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
+        s->SendTutorialsData();
+    }
 
     UpdateMaxSessionCounters();
 

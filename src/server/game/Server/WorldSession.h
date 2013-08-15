@@ -196,10 +196,10 @@ class CharacterCreateInfo
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool redirected);
         ~WorldSession();
 
-	bool SendRedirect(const char* ip, uint16 port);
+    bool SendRedirect(const char* ip, uint16 port);
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
@@ -244,6 +244,8 @@ class WorldSession
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
+
+        bool WasRedirected() const { return m_redirected; }
 
         /// Is the user engaged in a log out process?
         bool isLogingOut() const { return _logoutTime || m_playerLogout; }
@@ -383,12 +385,12 @@ class WorldSession
         bool IsARecruiter() const { return isRecruiter; }
 
     public:                                                 // opcodes handlers
-
         void Handle_NULL(WorldPacket& recvPacket);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
+        void HandleSuspendComms(WorldPacket& recvData);
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
@@ -904,7 +906,6 @@ class WorldSession
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
 
-	void HandleSuspendComms(WorldPacket&);
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -988,6 +989,7 @@ class WorldSession
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
+        bool const m_redirected;
         bool m_playerLoading;                               // code processed in LoginPlayer
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;

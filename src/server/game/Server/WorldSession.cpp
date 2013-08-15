@@ -98,7 +98,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool redirected) :
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -108,6 +108,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     _security(sec),
     _accountId(id),
     m_expansion(expansion),
+    m_redirected(redirected),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
@@ -1077,9 +1078,6 @@ void WorldSession::SendAddonsInfo()
 bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
 {
     uint32 ip = ACE_OS::inet_addr(ip_str);
-    uint8 hash[SHA_DIGEST_LENGTH];
-    uint8 msg[6];
-    uint8 sesskey[40];
 
     WorldPacket data(SMSG_REDIRECT_CLIENT, 30);
     data << ip;
@@ -1106,11 +1104,10 @@ bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
     return true;
 }
 
-void WorldSession::HandleSuspendComms(WorldPacket& /*recv*/)
+void WorldSession::HandleSuspendComms(WorldPacket& recv)
 {
-    // I guess we will be closing the connection later
-    // atm its not on the stage to reliably determine if this breaks stuff or not
-    //m_Socket->CloseSocket();
+    recv.rfinish();
+    m_Socket->CloseSocket();
 }
 
 void WorldSession::SetPlayer(Player* player)

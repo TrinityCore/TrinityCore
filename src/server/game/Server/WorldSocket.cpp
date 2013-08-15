@@ -37,7 +37,6 @@
 #include "ByteBuffer.h"
 #include "Opcodes.h"
 #include "DatabaseEnv.h"
-#include "BigNumber.h"
 #include "SHA1.h"
 #include "WorldSession.h"
 #include "WorldSocketMgr.h"
@@ -734,13 +733,12 @@ int WorldSocket::HandleSendAuthSession()
     packet << uint32(1);                                    // 1...31
     packet << uint32(m_Seed);
 
-    BigNumber seed1;
-    seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
+    m_serverEncryptSeed.SetRand(16 * 8);
+    packet.append(m_serverEncryptSeed.AsByteArray(16).get(), 16);               // new encryption seeds
 
-    BigNumber seed2;
-    seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
+    m_clientDecryptSeed.SetRand(16 * 8);
+    packet.append(m_clientDecryptSeed.AsByteArray(16).get(), 16);               // new encryption seeds
+
     return SendPacket(packet);
 }
 
@@ -937,7 +935,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter, false), -1);
 
     m_Crypt.Init(&k);
 
@@ -958,87 +956,179 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     return 0;
 }
 
-int WorldSocket::HandleAuthRedirect(WorldPacket& recv)
+int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
 {
-    WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS);
-    SendPacket(fsqp);
-
+    uint8 digest[20];
+    uint8 security;
+    uint32 id;
+    LocaleConstant locale;
     std::string account;
-    uint8 hmac[SHA_DIGEST_LENGTH];
-    uint64 unk;
-
-    recv >> account;
-    recv >> unk; // unk uint64
-    recv.read(hmac, 20);
-
-    //  LOGIN_SEL_SESSIONKEY;
-    PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
-    stmt->setString(0, account);
-    PreparedQueryResult res = LoginDatabase.Query(stmt);
-
-    if (!res)
-        return -1;
-
-    Field *fld = res->Fetch();
-
-    BigNumber key;
-    key.SetHexStr(fld[0].GetString().c_str());
-
     SHA1Hash sha;
-    sha.UpdateData(account);
-    sha.UpdateData(key.AsByteArray(), 40);
-    sha.UpdateData((uint8*)&m_Seed, 4);
-    sha.Finalize();
+    uint64 unk;
+    BigNumber sessionKey;
+    std::string address = GetRemoteAddress();
 
-    if (memcmp(sha.GetDigest(), hmac, SHA_DIGEST_LENGTH) != 0)
+    if (sWorld->IsClosed())
     {
-        //BigNumber inc, hash;
-        //inc.SetBinary(hmac, SHA_DIGEST_LENGTH);
-        //hash.SetBinary(sha.GetDigest(), sha.GetLength());
+        SendAuthResponseError(AUTH_REJECT);
+        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: World closed, denying client (%s).", address.c_str());
         return -1;
     }
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
-    stmt->setString(0, account);
-    res = LoginDatabase.Query(stmt);
-    fld = res->Fetch();
+    // Read the content of the packet
+    recvPacket >> account;
+    recvPacket >> unk;
+    recvPacket.read(digest, 20);
 
-    uint32 accid = fld[0].GetUInt32();
-    uint8 expansion = fld[3].GetUInt8();
-    int64 mutetime = fld[5].GetInt64();
-    LocaleConstant locale = LocaleConstant(fld[5].GetUInt8());
-    uint32 recruiter = fld[7].GetUInt32();
-    uint8 security = 0;
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: account %s, unk " UI64FMTD "u", account.c_str(), unk);
+
+    // Get the account information from the realmd database
+    //         0           1        2       3          4         5       6          7   8
+    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    stmt->setString(0, account);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    // Stop if the account is not found
+    if (!result)
+    {
+        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
+        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Sent Auth Response (unknown account).");
+        return -1;
+    }
+
+    Field* fields = result->Fetch();
+
+    uint8 expansion = fields[4].GetUInt8();
+    uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
+    if (expansion > world_expansion)
+        expansion = world_expansion;
+
+    ///- Re-check ip locking (same check as in realmd).
+    if (fields[3].GetUInt8() == 1) // if ip is locked
+    {
+        if (strcmp(fields[2].GetCString(), GetRemoteAddress().c_str()))
+        {
+            SendAuthResponseError(AUTH_FAILED);
+            TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Sent Auth Response (Account IP differs).");
+            return -1;
+        }
+    }
+
+    id = fields[0].GetUInt32();
+
+    sessionKey.SetHexStr(fields[1].GetCString());
+
+    int64 mutetime = fields[5].GetInt64();
+    //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
+    if (mutetime < 0)
+    {
+        mutetime = time(NULL) + llabs(mutetime);
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
+
+        stmt->setInt64(0, mutetime);
+        stmt->setUInt32(1, id);
+
+        LoginDatabase.Execute(stmt);
+    }
+
+    locale = LocaleConstant (fields[6].GetUInt8());
+    if (locale >= TOTAL_LOCALES)
+        locale = LOCALE_enUS;
+
+    uint32 recruiter = fields[7].GetUInt32();
+    std::string os = fields[8].GetString();
+
+    // Must be done before WorldSession is created
+    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
+    {
+        SendAuthResponseError(AUTH_REJECT);
+        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), os.c_str());
+        return -1;
+    }
 
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
-    stmt->setUInt32(0, accid);
+    stmt->setUInt32(0, id);
     stmt->setInt32(1, int32(realmID));
-    res = LoginDatabase.Query(stmt);
+    result = LoginDatabase.Query(stmt);
 
-    if (!res)
+    if (!result)
         security = 0;
     else
     {
-        fld = res->Fetch();
-        security = fld[0].GetUInt8();
+        fields = result->Fetch();
+        security = fields[0].GetUInt8();
     }
+
+    // Re-check account ban (same check as in realmd)
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BANS);
+    stmt->setUInt32(0, id);
+    stmt->setString(1, GetRemoteAddress());
+    PreparedQueryResult banresult = LoginDatabase.Query(stmt);
+
+    if (banresult) // if account banned
+    {
+        SendAuthResponseError(AUTH_BANNED);
+        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Sent Auth Response (Account banned).");
+        return -1;
+    }
+
+    // Check locked state for server
+    AccountTypes allowedAccountType = sWorld->GetPlayerSecurityLimit();
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Allowed Level: %u Player Level %u", allowedAccountType, AccountTypes(security));
+    if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
+    {
+        SendAuthResponseError(AUTH_UNAVAILABLE);
+        TC_LOG_INFO(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: User tries to login but his security level is not enough");
+        return -1;
+    }
+
+    // Check that Key and account name are the same on client and server
+    uint32 seed = m_Seed;
+
+    sha.UpdateData(account);
+    sha.UpdateBigNumbers(&sessionKey, NULL);
+    sha.UpdateData((uint8*)&seed, 4);
+    sha.Finalize();
+
+    if (memcmp(sha.GetDigest(), digest, 20))
+    {
+        SendAuthResponseError(AUTH_FAILED);
+        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
+        return -1;
+    }
+
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthRedirect: Client '%s' authenticated successfully from %s.",
+        account.c_str(),
+        address.c_str());
 
     // Check if this user is by any chance a recruiter
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_RECRUITER);
-    stmt->setUInt32(0, accid);
-    res = LoginDatabase.Query(stmt);
+    stmt->setUInt32(0, id);
+    result = LoginDatabase.Query(stmt);
 
-    bool isRecruiter = !res.null();
+    bool isRecruiter = !result.null();
 
-    ACE_NEW_RETURN(m_Session, WorldSession(accid, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter, true), -1);
 
-    m_Crypt.Init(&key);
+    m_Crypt.Init(&sessionKey, m_serverEncryptSeed.AsByteArray(16).get(), m_clientDecryptSeed.AsByteArray(16).get());
+
+    m_Session->LoadGlobalAccountData();
+    m_Session->LoadTutorialsData();
     m_Session->LoadPermissions();
+
+    // Initialize Warden system only if it is enabled by config
+    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+        m_Session->InitWarden(&sessionKey, os);
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
     ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
+
+    WorldPacket fsqp(SMSG_FORCE_SEND_QUEUED_PACKETS);
+    SendPacket(fsqp);
 
     sWorld->AddSession(m_Session);
     return 0;

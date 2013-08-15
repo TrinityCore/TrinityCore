@@ -40,6 +40,7 @@
 
 #include "Common.h"
 #include "AuthCrypt.h"
+#include "BigNumber.h"
 
 class ACE_Message_Block;
 class WorldPacket;
@@ -158,8 +159,8 @@ class WorldSocket : public WorldHandler
         /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
         int HandleAuthSession(WorldPacket& recvPacket);
 
-	/// Called by ProcessIncoming() on CMSG_REDIRECTION_AUTH_PROOF
-	int HandleAuthRedirect(WorldPacket&);
+        /// Called by ProcessIncoming() on CMSG_REDIRECTION_AUTH_PROOF
+        int HandleAuthRedirect(WorldPacket&);
 
         /// Called by ProcessIncoming() on CMSG_PING.
         int HandlePing(WorldPacket& recvPacket);
@@ -210,7 +211,8 @@ class WorldSocket : public WorldHandler
         bool m_OutActive;
 
         uint32 m_Seed;
-
+        BigNumber m_serverEncryptSeed;
+        BigNumber m_clientDecryptSeed;
 };
 
 #endif  /* _WORLDSOCKET_H */

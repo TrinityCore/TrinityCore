@@ -28,7 +28,7 @@ class AuthCrypt
     public:
         AuthCrypt();
 
-        void Init(BigNumber* K);
+        void Init(BigNumber* K, uint8 const* serverEncryptionKey = NULL, uint8 const* clientDecryptionKey = NULL);
         void DecryptRecv(uint8 *, size_t);
         void EncryptSend(uint8 *, size_t);
 
