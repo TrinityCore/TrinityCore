@@ -17,29 +17,48 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "drak_tharon_keep.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "Player.h"
+#include "drak_tharon_keep.h"
+
+/*
+ * Known Issues: Spell 49356 and 53463 will be interrupted for an unknown reason
+ */
 
 enum Spells
 {
-    //skeletal spells (phase 1)
+    // Skeletal Spells (phase 1)
     SPELL_CURSE_OF_LIFE                           = 49527,
-    H_SPELL_CURSE_OF_LIFE                         = 59972,
     SPELL_RAIN_OF_FIRE                            = 49518,
-    H_SPELL_RAIN_OF_FIRE                          = 59971,
     SPELL_SHADOW_VOLLEY                           = 49528,
-    H_SPELL_SHADOW_VOLLEY                         = 59973,
-    SPELL_DECAY_FLESH                             = 49356, //casted at end of phase 1, starts phase 2
-    //flesh spells (phase 2)
+    SPELL_DECAY_FLESH                             = 49356, // casted at end of phase 1, starts phase 2
+    // Flesh Spells (phase 2)
     SPELL_GIFT_OF_THARON_JA                       = 52509,
+    SPELL_CLEAR_GIFT_OF_THARON_JA                 = 53242,
     SPELL_EYE_BEAM                                = 49544,
-    H_SPELL_EYE_BEAM                              = 59965,
     SPELL_LIGHTNING_BREATH                        = 49537,
-    H_SPELL_LIGHTNING_BREATH                      = 59963,
     SPELL_POISON_CLOUD                            = 49548,
-    H_SPELL_POISON_CLOUD                          = 59969,
-    SPELL_RETURN_FLESH                            = 53463, //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
+    SPELL_RETURN_FLESH                            = 53463, // Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
     SPELL_ACHIEVEMENT_CHECK                       = 61863,
+    SPELL_FLESH_VISUAL                            = 52582,
+    SPELL_DUMMY                                   = 49551
+};
+
+enum Events
+{
+    EVENT_CURSE_OF_LIFE                           = 1,
+    EVENT_RAIN_OF_FIRE,
+    EVENT_SHADOW_VOLLEY,
+
+    EVENT_EYE_BEAM,
+    EVENT_LIGHTNING_BREATH,
+    EVENT_POISON_CLOUD,
+
+    EVENT_DECAY_FLESH,
+    EVENT_GOING_FLESH,
+    EVENT_RETURN_FLESH,
+    EVENT_GOING_SKELETAL
 };
 
 enum Yells
@@ -50,204 +69,178 @@ enum Yells
     SAY_SKELETON                                  = 3,
     SAY_DEATH                                     = 4
 };
+
 enum Models
 {
-    MODEL_FLESH                                   = 27073,
-    MODEL_SKELETON                                = 27511
-};
-enum CombatPhase
-{
-    SKELETAL,
-    GOING_FLESH,
-    FLESH,
-    GOING_SKELETAL
+    MODEL_FLESH                                   = 27073
 };
 
 class boss_tharon_ja : public CreatureScript
 {
-public:
-    boss_tharon_ja() : CreatureScript("boss_tharon_ja") { }
+    public:
+        boss_tharon_ja() : CreatureScript("boss_tharon_ja") { }
 
-    struct boss_tharon_jaAI : public ScriptedAI
-    {
-        boss_tharon_jaAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_tharon_jaAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            boss_tharon_jaAI(Creature* creature) : BossAI(creature, DATA_THARON_JA) { }
 
-        uint32 uiPhaseTimer;
-        uint32 uiCurseOfLifeTimer;
-        uint32 uiRainOfFireTimer;
-        uint32 uiShadowVolleyTimer;
-        uint32 uiEyeBeamTimer;
-        uint32 uiLightningBreathTimer;
-        uint32 uiPoisonCloudTimer;
-
-        CombatPhase Phase;
-
-        InstanceScript* instance;
-
-        void Reset() OVERRIDE
-        {
-            uiPhaseTimer = 20*IN_MILLISECONDS;
-            uiCurseOfLifeTimer = 1*IN_MILLISECONDS;
-            uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
-            uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
-            Phase = SKELETAL;
-            me->SetDisplayId(me->GetNativeDisplayId());
-            instance->SetBossState(DATA_THARON_JA, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            Talk(SAY_AGGRO);
-            instance->SetBossState(DATA_THARON_JA, IN_PROGRESS);
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            switch (Phase)
+            void Reset() OVERRIDE
             {
-                case SKELETAL:
-                    if (uiCurseOfLifeTimer < diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_CURSE_OF_LIFE);
-                        uiCurseOfLifeTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-                    } else uiCurseOfLifeTimer -= diff;
-
-                    if (uiShadowVolleyTimer < diff)
-                    {
-                        DoCastVictim(SPELL_SHADOW_VOLLEY);
-                        uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
-                    } else uiShadowVolleyTimer -= diff;
-
-                    if (uiRainOfFireTimer < diff)
-                    {
-                        DoCastAOE(SPELL_RAIN_OF_FIRE);
-                        uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
-                    } else uiRainOfFireTimer -= diff;
-
-                    if (uiPhaseTimer < diff)
-                    {
-                        DoCast(SPELL_DECAY_FLESH);
-                        Phase = GOING_FLESH;
-                        uiPhaseTimer = 6*IN_MILLISECONDS;
-                    } else uiPhaseTimer -= diff;
-
-                    DoMeleeAttackIfReady();
-                    break;
-                case GOING_FLESH:
-                    if (uiPhaseTimer < diff)
-                    {
-                        Talk(SAY_FLESH);
-                        me->SetDisplayId(MODEL_FLESH);
-
-                        std::list<Unit*> playerList;
-                        SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
-                        for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                        {
-                            Unit* temp = (*itr);
-                            me->AddAura(SPELL_GIFT_OF_THARON_JA, temp);
-                            temp->SetDisplayId(MODEL_SKELETON);
-                        }
-                        uiPhaseTimer = 20*IN_MILLISECONDS;
-                        uiLightningBreathTimer = urand(3*IN_MILLISECONDS, 4*IN_MILLISECONDS);
-                        uiEyeBeamTimer = urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS);
-                        uiPoisonCloudTimer = urand(6*IN_MILLISECONDS, 7*IN_MILLISECONDS);
-                        Phase = FLESH;
-                    } else uiPhaseTimer -= diff;
-                    break;
-                case FLESH:
-                    if (uiLightningBreathTimer < diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_LIGHTNING_BREATH);
-                        uiLightningBreathTimer = urand(6*IN_MILLISECONDS, 7*IN_MILLISECONDS);
-                    } else uiLightningBreathTimer -= diff;
-
-                    if (uiEyeBeamTimer < diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_EYE_BEAM);
-                        uiEyeBeamTimer = urand(4*IN_MILLISECONDS, 6*IN_MILLISECONDS);
-                    } else uiEyeBeamTimer -= diff;
-
-                    if (uiPoisonCloudTimer < diff)
-                    {
-                        DoCastAOE(SPELL_POISON_CLOUD);
-                        uiPoisonCloudTimer = urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS);
-                    } else uiPoisonCloudTimer -= diff;
-
-                    if (uiPhaseTimer < diff)
-                    {
-                        DoCast(SPELL_RETURN_FLESH);
-                        Phase = GOING_SKELETAL;
-                        uiPhaseTimer = 6*IN_MILLISECONDS;
-                    } else uiPhaseTimer -= diff;
-                    DoMeleeAttackIfReady();
-                    break;
-                case GOING_SKELETAL:
-                    if (uiPhaseTimer < diff)
-                    {
-                        Talk(SAY_SKELETON);
-                        me->DeMorph();
-                        Phase = SKELETAL;
-                        uiPhaseTimer = 20*IN_MILLISECONDS;
-                        uiCurseOfLifeTimer = 1*IN_MILLISECONDS;
-                        uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
-                        uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
-
-                        std::list<Unit*> playerList;
-                        SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
-                        for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                        {
-                            Unit* temp = (*itr);
-                            if (temp->HasAura(SPELL_GIFT_OF_THARON_JA))
-                                temp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
-                            temp->DeMorph();
-                        }
-                    } else uiPhaseTimer -= diff;
-                    break;
+                _Reset();
+                me->RestoreDisplayId();
             }
-        }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
-        {
-            Talk(SAY_KILL);
-        }
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            Talk(SAY_DEATH);
-
-            if (instance)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                // clean morph on players
-                Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
+                Talk(SAY_AGGRO);
+                _EnterCombat();
 
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* player = i->GetSource())
-                        player->DeMorph();
-
-                DoCast(me, SPELL_ACHIEVEMENT_CHECK);
-
-                instance->SetBossState(DATA_THARON_JA, DONE);
+                events.ScheduleEvent(EVENT_DECAY_FLESH, 20000);
+                events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
+                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetDrakTharonKeepAI<boss_tharon_jaAI>(creature);
-    }
+            void KilledUnit(Unit* who) OVERRIDE
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
+            }
+
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                _JustDied();
+
+                Talk(SAY_DEATH);
+                DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
+                DoCastAOE(SPELL_ACHIEVEMENT_CHECK, true);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CURSE_OF_LIFE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_CURSE_OF_LIFE);
+                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, urand(10000, 15000));
+                            return;
+                        case EVENT_SHADOW_VOLLEY:
+                            DoCastVictim(SPELL_SHADOW_VOLLEY);
+                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
+                            return;
+                        case EVENT_RAIN_OF_FIRE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_RAIN_OF_FIRE);
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                            return;
+                        case EVENT_LIGHTNING_BREATH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_LIGHTNING_BREATH);
+                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(6000, 7000));
+                            return;
+                        case EVENT_EYE_BEAM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_EYE_BEAM);
+                            events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 6000));
+                            return;
+                        case EVENT_POISON_CLOUD:
+                            DoCastAOE(SPELL_POISON_CLOUD);
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(10000, 12000));
+                            return;
+                        case EVENT_DECAY_FLESH:
+                            DoCastAOE(SPELL_DECAY_FLESH);
+                            events.ScheduleEvent(EVENT_GOING_FLESH, 6000);
+                            return;
+                        case EVENT_GOING_FLESH:
+                            Talk(SAY_FLESH);
+                            me->SetDisplayId(MODEL_FLESH);
+                            DoCastAOE(SPELL_GIFT_OF_THARON_JA, true);
+                            DoCast(me, SPELL_FLESH_VISUAL, true);
+                            DoCast(me, SPELL_DUMMY, true);
+
+                            events.Reset();
+                            events.ScheduleEvent(EVENT_RETURN_FLESH, 20000);
+                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(3000, 4000));
+                            events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 8000));
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(6000, 7000));
+                            break;
+                        case EVENT_RETURN_FLESH:
+                            DoCastAOE(SPELL_RETURN_FLESH);
+                            events.ScheduleEvent(EVENT_GOING_SKELETAL, 6000);
+                            return;
+                        case EVENT_GOING_SKELETAL:
+                            Talk(SAY_SKELETON);
+                            me->RestoreDisplayId();
+                            DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
+
+                            events.Reset();
+                            events.ScheduleEvent(EVENT_DECAY_FLESH, 20000);
+                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetDrakTharonKeepAI<boss_tharon_jaAI>(creature);
+        }
+};
+
+class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
+{
+    public:
+        spell_tharon_ja_clear_gift_of_tharon_ja() : SpellScriptLoader("spell_tharon_ja_clear_gift_of_tharon_ja") { }
+
+        class spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GIFT_OF_THARON_JA))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->RemoveAura(SPELL_GIFT_OF_THARON_JA);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript();
+        }
 };
 
 void AddSC_boss_tharon_ja()
 {
-    new boss_tharon_ja;
+    new boss_tharon_ja();
+    new spell_tharon_ja_clear_gift_of_tharon_ja();
 }
