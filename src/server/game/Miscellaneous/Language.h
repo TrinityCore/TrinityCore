@@ -844,7 +844,8 @@ enum TrinityStrings
     LANG_ARENA_INFO_MEMBERS             = 869,
     LANG_ARENA_LOOKUP                   = 870,
     //                                  = 871, see LANG_PINFO_CHR_LEVEL_HIGH
-    // Room for in-game strings           872-999 not used
+    LANG_COMMAND_WRONGEMAIL             = 872,
+    // Room for in-game strings           873-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,

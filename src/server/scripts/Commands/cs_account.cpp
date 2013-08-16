@@ -347,9 +347,12 @@ public:
             return false;
         }
 
+        uint32 pwConfig = sWorld->getIntConfig(CONFIG_ACC_PASSCHANGESEC); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
+
         char* oldPassword = strtok((char*)args, " ");
         char* newPassword = strtok(NULL, " ");
         char* passwordConfirmation = strtok(NULL, " ");
+        char* emailConfirmation = strtok(NULL, " ");
 
         if (!oldPassword || !newPassword || !passwordConfirmation)
         {
@@ -358,14 +361,35 @@ public:
             return false;
         }
 
+        if ((pwConfig == PW_EMAIL || pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE)) && !emailConfirmation)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but entered no email at all. Has Perm: [%s]",
+                handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
+                handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? "Yes" : "No");
+        }
+
         if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password.",
+            TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
             return false;
+        }
+
+        if ((pwConfig == PW_EMAIL || pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE)) // Either PW_EMAIL or PW_RBAC with the Permission
+            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation)))
+        {
+            handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
+            handler->SetSentErrorMessage(true);
+            TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the entered email [%s] is wrong.",
+                handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
+                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
+                emailConfirmation);
         }
 
         if (strcmp(newPassword, passwordConfirmation) != 0)

@@ -1132,6 +1132,15 @@ AccountInstancesPerHour = 5
 RBAC.DefaultGroups = ""
 
 #
+#   Account.PasswordChangeSecurity
+#        Description: Controls how secure you want the password changes to be.
+#        Default:     2 - RBAC (RBAC en- or disables Email confirmation per group)
+#                     1 - Email (Email confirmation necessary)
+#                     0 - None (Just Old and new password comparision. Default.)
+
+Account.PasswordChangeSecurity = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
