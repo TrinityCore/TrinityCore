@@ -935,7 +935,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter, false), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&k);
 
@@ -1111,7 +1111,7 @@ int WorldSocket::HandleAuthRedirect(WorldPacket& recvPacket)
 
     bool isRecruiter = !result.null();
 
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter, true), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter, SESSION_FLAG_FROM_REDIRECT), -1);
 
     m_Crypt.Init(&sessionKey, m_serverEncryptSeed.AsByteArray(16).get(), m_clientDecryptSeed.AsByteArray(16).get());
 

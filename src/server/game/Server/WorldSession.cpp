@@ -98,7 +98,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool redirected) :
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, SessionFlags flags) :
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -108,7 +108,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     _security(sec),
     _accountId(id),
     m_expansion(expansion),
-    m_redirected(redirected),
+    m_flags(flags),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
@@ -144,7 +144,7 @@ WorldSession::~WorldSession()
 {
     ///- unload player if not unloaded
     if (_player)
-        LogoutPlayer (true);
+        LogoutPlayer(!HasRedirected());
 
     /// - If have unclosed socket, close it
     if (m_Socket)
@@ -455,7 +455,7 @@ void WorldSession::LogoutPlayer(bool save)
             _player->BuildPlayerRepop();
             _player->RepopAtGraveyard();
         }
-        else if (_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+        else if (_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION) && !HasRedirected())
         {
             // this will kill character by SPELL_AURA_SPIRIT_OF_REDEMPTION
             _player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
@@ -556,16 +556,19 @@ void WorldSession::LogoutPlayer(bool save)
 
         SetPlayer(NULL); //! Pointer already deleted during RemovePlayerFromMap
 
-        //! Send the 'logout complete' packet to the client
-        //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
-        WorldPacket data(SMSG_LOGOUT_COMPLETE, 0);
-        SendPacket(&data);
-        TC_LOG_DEBUG("network", "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
+        if (!HasRedirected())
+        {
+            //! Send the 'logout complete' packet to the client
+            //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
+            WorldPacket data(SMSG_LOGOUT_COMPLETE, 0);
+            SendPacket(&data);
+            TC_LOG_DEBUG("network", "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
 
-        //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
-        stmt->setUInt32(0, GetAccountId());
-        CharacterDatabase.Execute(stmt);
+            //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
+            stmt->setUInt32(0, GetAccountId());
+            CharacterDatabase.Execute(stmt);
+        }
     }
 
     m_playerLogout = false;
@@ -1077,6 +1080,24 @@ void WorldSession::SendAddonsInfo()
 
 bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
 {
+    m_flags |= SESSION_FLAG_HAS_REDIRECTED;
+
+    if (Player* player = GetPlayer())
+    {
+        // Save player state
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        trans->PAppend("UPDATE characters SET online = 0 WHERE account = %u AND guid != %u", GetAccountId(), player->GetGUID());
+        trans->PAppend("UPDATE characters SET online = 1 WHERE guid = %u", player->GetGUID());
+        CharacterDatabase.DirectCommitTransaction(trans);
+        player->SaveToDB();
+        player->RemoveFromWorld();
+        UpdateData data;
+        data.AddOutOfRangeGUID(player->m_clientGUIDs);
+        WorldPacket destroy;
+        data.BuildPacket(&destroy);
+        SendPacket(&destroy);
+    }
+
     uint32 ip = ACE_OS::inet_addr(ip_str);
 
     WorldPacket data(SMSG_REDIRECT_CLIENT, 30);

@@ -291,6 +291,15 @@ void World::AddSession_(WorldSession* s)
         s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
         s->SendTutorialsData();
     }
+    else
+    {
+        if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = %u AND online = 1", s->GetAccountId()))
+        {
+            WorldPacket data(CMSG_PLAYER_LOGIN, 8);
+            data << uint64((*result)[0].GetUInt32());
+            s->HandlePlayerLoginOpcode(data);
+        }
+    }
 
     UpdateMaxSessionCounters();
 

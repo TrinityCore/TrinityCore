@@ -192,15 +192,23 @@ class CharacterCreateInfo
         uint8 CharCount;
 };
 
+enum SessionFlags
+{
+    SESSION_FLAG_NONE           = 0x00,
+    SESSION_FLAG_FROM_REDIRECT  = 0x01,
+    SESSION_FLAG_HAS_REDIRECTED = 0x02
+};
+
 /// Player session in the World
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool redirected);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, SessionFlags flags = SESSION_FLAG_NONE);
         ~WorldSession();
 
         bool SendRedirect(const char* ip, uint16 port);
-        bool WasRedirected() const { return m_redirected; }
+        bool WasRedirected() const { return m_flags & SESSION_FLAG_FROM_REDIRECT; }
+        bool HasRedirected() const { return m_flags & SESSION_FLAG_HAS_REDIRECTED; }
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
@@ -988,7 +996,7 @@ class WorldSession
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
-        bool const m_redirected;
+        uint32 m_flags;
         bool m_playerLoading;                               // code processed in LoginPlayer
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;
