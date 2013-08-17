@@ -45,8 +45,6 @@
 #include "CreatureAI.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
-#include "BattlegroundEY.h"
-#include "BattlegroundWS.h"
 #include "OutdoorPvPMgr.h"
 #include "Language.h"
 #include "SocialMgr.h"
@@ -1338,7 +1336,7 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
     float gainMultiplier = 0.0f;
 
-    // Don`t restore from self drain
+    // Don't restore from self drain
     if (m_caster != unitTarget)
     {
         gainMultiplier = m_spellInfo->Effects[effIndex].CalcValueMultiplier(m_originalCaster, this);
@@ -4114,14 +4112,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         basepoints0 *= aur->GetAmount();
                         m_caster->CastCustomSpell(unitTarget, 55277, &basepoints0, NULL, NULL, true);
                     }
-                    break;
-                }
-                case 66545: //Summon Memory
-                {
-                    uint8 uiRandom = urand(0, 25);
-                    uint32 uiSpells[26] = {66704, 66705, 66706, 66707, 66709, 66710, 66711, 66712, 66713, 66714, 66715, 66708, 66708, 66691, 66692, 66694, 66695, 66696, 66697, 66698, 66699, 66700, 66701, 66702, 66703, 66543};
-
-                    m_caster->CastSpell(m_caster, uiSpells[uiRandom], true);
                     break;
                 }
                 case 45668:                                 // Ultra-Advanced Proto-Typical Shortening Blaster

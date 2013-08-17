@@ -5,7 +5,7 @@
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
 
-enum
+enum DataTypes
 {
     BOSS_BEASTS                 = 0,
     BOSS_JARAXXUS               = 1,
@@ -28,12 +28,18 @@ enum
 
     INCREASE                    = 501,
     DECREASE                    = 502,
+};
 
+enum SpellIds
+{
     SPELL_WILFRED_PORTAL        = 68424,
     SPELL_JARAXXUS_CHAINS       = 67924,
     SPELL_CORPSE_TELEPORT       = 69016,
     SPELL_DESTROY_FLOOR_KNOCKUP = 68193,
+};
 
+enum MiscData
+{
     DESPAWN_TIME                = 300000,
 
     DISPLAYID_DESTROYED_FLOOR   = 9060

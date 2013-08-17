@@ -33,7 +33,13 @@ uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUM
 enum EventIds
 {
     EVENT_DARGONSPIRE_ROOM_STORE           = 1,
-    EVENT_DARGONSPIRE_ROOM_CHECK           = 2
+    EVENT_DARGONSPIRE_ROOM_CHECK           = 2,
+    EVENT_UROK_DOOMHOWL_SPAWNS_1           = 3,
+    EVENT_UROK_DOOMHOWL_SPAWNS_2           = 4,
+    EVENT_UROK_DOOMHOWL_SPAWNS_3           = 5,
+    EVENT_UROK_DOOMHOWL_SPAWNS_4           = 6,
+    EVENT_UROK_DOOMHOWL_SPAWNS_5           = 7,
+    EVENT_UROK_DOOMHOWL_SPAWN_IN           = 8
 };
 
 class instance_blackrock_spire : public InstanceMapScript
@@ -69,7 +75,7 @@ public:
             go_portcullis_tobossrooms = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -127,7 +133,7 @@ public:
              }
          }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -234,7 +240,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -264,7 +270,7 @@ public:
              return true;
         }
 
-        void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId)
+        void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) OVERRIDE
         {
             switch (eventId)
             {
@@ -273,6 +279,12 @@ public:
                     {
                         if (Creature* Emberseer = instance->GetCreature(PyroguardEmberseer))
                             Emberseer->AI()->SetData(1, 1);
+                    }
+                    break;
+                case EVENT_UROK_DOOMHOWL:
+                    if (GetBossState(NPC_UROK_DOOMHOWL) == NOT_STARTED)
+                    {
+
                     }
                     break;
                 default:
@@ -402,7 +414,7 @@ public:
             return 0;
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 diff) OVERRIDE
         {
             Events.Update(diff);
 
@@ -519,7 +531,7 @@ public:
             }
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -530,7 +542,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* strIn)
+        void Load(const char* strIn) OVERRIDE
         {
             if (!strIn)
             {

@@ -25,7 +25,7 @@ enum Spells
     H_SPELL_HATEFUL_STRIKE                      = 59192,
     SPELL_FRENZY                                = 28131,
     SPELL_BERSERK                               = 26662,
-    SPELL_SLIME_BOLT                            = 32309,
+    SPELL_SLIME_BOLT                            = 32309
 };
 
 enum Yells
@@ -45,9 +45,9 @@ enum Events
     EVENT_SLIME
 };
 
-enum
+enum Misc
 {
-    ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286,
+    ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286
 };
 
 class boss_patchwerk : public CreatureScript
