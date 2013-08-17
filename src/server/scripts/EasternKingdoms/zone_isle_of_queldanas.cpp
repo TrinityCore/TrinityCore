@@ -113,32 +113,22 @@ public:
     {
         npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
-
-        void Reset() OVERRIDE
+        void SpellHit(Unit* caster, SpellInfo const* spellInfo) OVERRIDE
         {
-        PlayerGUID = 0;
-        }
-
-        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
-        {
-            if (!caster)
+            Player* player = caster->ToPlayer();
+            if (!player)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !me->HasAura(ENRAGE))
+            if (spellInfo->Id == ORB && !me->HasAura(ENRAGE))
             {
-                PlayerGUID = caster->GetGUID();
-                if (PlayerGUID)
-                {
-                    Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                    if (player && player->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
-                        DoCast(player, 45110, true);
-                }
+                if (player->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
+                    DoCast(player, 45110, true);
+
                 DoCast(me, ENRAGE);
-                Unit* Myrmidon = me->FindNearestCreature(DM, 70);
-                if (Myrmidon)
+
+                if (Creature* Myrmidon = me->FindNearestCreature(DM, 70))
                 {
                     me->AddThreat(Myrmidon, 100000.0f);
                     AttackStart(Myrmidon);

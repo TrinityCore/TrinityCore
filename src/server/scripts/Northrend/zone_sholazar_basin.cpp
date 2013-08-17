@@ -540,8 +540,8 @@ public:
         {
             if (timer <= diff)
             {
-                Player* player = Player::GetPlayer(*me, playerGUID);
-                Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                 if (!orphan || !player)
                 {

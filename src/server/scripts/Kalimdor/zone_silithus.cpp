@@ -526,7 +526,7 @@ public:
 
         void HandleAnimation()
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (!player)
                 return;
 
@@ -1002,14 +1002,13 @@ public:
 
         void CheckEventFail()
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
-
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (!player)
                 return;
 
             if (Group* EventGroup = player->GetGroup())
             {
-                Player* groupMember;
+                Player* groupMember = NULL;
 
                 uint8 GroupMemberCount = 0;
                 uint8 DeadMemberCount = 0;
@@ -1019,7 +1018,7 @@ public:
 
                 for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
-                    groupMember = (Unit::GetPlayer(*me, itr->guid));
+                    groupMember = ObjectAccessor::GetPlayer(*me, itr->guid);
                     if (!groupMember)
                         continue;
                     if (!groupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && groupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)

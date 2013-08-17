@@ -145,7 +145,7 @@ public:
                             break;
                         case 3:
                             me->setFaction(FACTION_HOSTILE);
-                            if (Player* target = Player::GetPlayer(*me, PlayerGUID))
+                            if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
                             if (instance)

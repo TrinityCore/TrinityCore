@@ -96,7 +96,7 @@ public:
             {
                 if (speechTimer <= diff)
                 {
-                    Player* player = Unit::GetPlayer(*me, playerGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
                     if (!player)
                     {
                         EnterEvadeMode();
@@ -683,7 +683,7 @@ public:
             {
                 if (ExecuteSpeech_Timer <= diff)
                 {
-                    Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
                     if (!player)
                     {
