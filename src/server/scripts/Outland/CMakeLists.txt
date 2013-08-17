@@ -42,8 +42,10 @@ set(scripts_STAT_SRCS
   Outland/CoilfangReservoir/SerpentShrine/boss_leotheras_the_blind.cpp
   Outland/CoilfangReservoir/SerpentShrine/boss_lurker_below.cpp
   Outland/CoilfangReservoir/SerpentShrine/boss_morogrim_tidewalker.cpp
-  Outland/CoilfangReservoir/underbog/boss_hungarfen.cpp
-  Outland/CoilfangReservoir/underbog/boss_the_black_stalker.cpp
+  Outland/CoilfangReservoir/TheSlavePens/instance_the_slave_pens.cpp
+  Outland/CoilfangReservoir/TheUnderbog/boss_hungarfen.cpp
+  Outland/CoilfangReservoir/TheUnderbog/boss_the_black_stalker.cpp
+  Outland/CoilfangReservoir/TheUnderbog/instance_the_underbog.cpp
   Outland/zone_shattrath_city.cpp
   Outland/TempestKeep/Mechanar/boss_mechano_lord_capacitus.cpp
   Outland/TempestKeep/Mechanar/boss_pathaleon_the_calculator.cpp
