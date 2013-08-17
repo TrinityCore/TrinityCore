@@ -33,6 +33,7 @@
 enum HunterSpells
 {
     SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,
+    SPELL_HUNTER_ASPECT_OF_THE_VIPER                = 34074,
     SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE       = 34075,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
@@ -51,6 +52,8 @@ enum HunterSpells
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
+    SPELL_HUNTER_VICIOUS_VIPER                      = 61609,
+    SPELL_HUNTER_VIPER_ATTACK_SPEED                 = 60144,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543
 };
 
@@ -115,9 +118,10 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER) || 
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VIPER_ATTACK_SPEED) || 
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VICIOUS_VIPER))
                     return false;
                 return true;
             }
@@ -135,9 +139,26 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
                 GetTarget()->CastCustomSpell(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
             }
 
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                // Hunter T7 4P Bonus
+                if (GetTarget()->HasAura(SPELL_HUNTER_VIPER_ATTACK_SPEED))
+                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_VICIOUS_VIPER, true, NULL, aurEff);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Hunter T7 4P Bonus
+                Unit* target = GetTarget();
+                if (GetTarget()->HasAura(SPELL_HUNTER_VIPER_ATTACK_SPEED))
+                    GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_VICIOUS_VIPER);
+            }
+
             void Register() OVERRIDE
             {
                 OnEffectProc += AuraEffectProcFn(spell_hun_ascpect_of_the_viper_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_OBS_MOD_POWER);
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_ascpect_of_the_viper_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OBS_MOD_POWER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_ascpect_of_the_viper_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OBS_MOD_POWER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -843,6 +864,49 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
         }
 };
 
+// 60144 - Viper Attack Speed
+class spell_hun_viper_attack_speed : public SpellScriptLoader
+{
+    public:
+        spell_hun_viper_attack_speed() : SpellScriptLoader("spell_hun_viper_attack_speed") { }
+
+        class spell_hun_viper_attack_speed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_viper_attack_speed_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER) || 
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VICIOUS_VIPER))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTarget()->HasAura(SPELL_HUNTER_ASPECT_OF_THE_VIPER))
+                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_VICIOUS_VIPER, true, NULL, aurEff);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // possible exploit
+                GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_VICIOUS_VIPER);
+            }
+
+            void Register() OVERRIDE
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_viper_attack_speed_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_viper_attack_speed_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_hun_viper_attack_speed_AuraScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -862,4 +926,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_sniper_training();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
+    new spell_hun_viper_attack_speed();
 }
