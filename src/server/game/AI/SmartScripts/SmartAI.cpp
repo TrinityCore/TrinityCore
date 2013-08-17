@@ -433,11 +433,12 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
 
 void SmartAI::RemoveAuras()
 {
+    /// @fixme: duplicated logic in CreatureAI::_EnterEvadeMode (could use RemoveAllAurasExceptType)
     Unit::AuraApplicationMap& appliedAuras = me->GetAppliedAuras();
     for (Unit::AuraApplicationMap::iterator iter = appliedAuras.begin(); iter != appliedAuras.end();)
     {
         Aura const* aura = iter->second->GetBase();
-        if (!aura->IsPassive() && !aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && aura->GetCasterGUID() != me->GetGUID())
+        if (!aura->IsPassive() && !aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && !aura->HasEffectType(SPELL_AURA_CLONE_CASTER) && aura->GetCasterGUID() != me->GetGUID())
             me->RemoveAura(iter);
         else
             ++iter;
