@@ -150,8 +150,7 @@ class npc_zulaman_hostage : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                if (player)
+                if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     player->SendLoot(me->GetGUID(), LOOT_CORPSE);
             }
 
