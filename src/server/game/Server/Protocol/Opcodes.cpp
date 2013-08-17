@@ -246,7 +246,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x0D9*/ { "MSG_MOVE_TOGGLE_COLLISION_CHEAT",              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x0DA*/ { "MSG_MOVE_SET_FACING",                          STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           },
     /*0x0DB*/ { "MSG_MOVE_SET_PITCH",                           STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           },
-    /*0x0DC*/ { "MSG_MOVE_WORLDPORT_ACK",                       STATUS_TRANSFER, PROCESS_THREADUNSAFE, &WorldSession::HandleMoveWorldportAckOpcode    },
+    /*0x0DC*/ { "MSG_MOVE_WORLDPORT_ACK",                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleMoveWorldportAckOpcode    },
     /*0x0DD*/ { "SMSG_MONSTER_MOVE",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x0DE*/ { "SMSG_MOVE_WATER_WALK",                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x0DF*/ { "SMSG_MOVE_LAND_WALK",                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },

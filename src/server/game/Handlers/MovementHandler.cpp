@@ -41,15 +41,25 @@ void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 
 void WorldSession::HandleMoveWorldportAckOpcode()
 {
+  if( WasRedirected())
+    {
+      GetPlayer()->SetTeleportDest(WorldLocation(GetPlayer()->GetMapId(),
+						 GetPlayer()->GetPositionX(),
+						 GetPlayer()->GetPositionY(),
+						 GetPlayer()->GetPositionZ(),
+						 GetPlayer()->GetOrientation()));
+      GetPlayer()->SetSemaphoreTeleportFar(true);
+    }
     // ignore unexpected far teleports
-    if (!GetPlayer()->IsBeingTeleportedFar())
+  if (!GetPlayer()->IsBeingTeleportedFar())
         return;
 
     GetPlayer()->SetSemaphoreTeleportFar(false);
-
+    
     // get the teleport destination
+    
     WorldLocation const& loc = GetPlayer()->GetTeleportDest();
-
+    
     // possible errors in the coordinate validity check
     if (!MapManager::IsValidMapCoord(loc))
     {
