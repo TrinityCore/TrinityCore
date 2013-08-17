@@ -25,23 +25,23 @@ gets instead the deserter debuff.
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 
-class instance_the_stockade : public InstanceMapScript
+class instance_ragefire_chasm : public InstanceMapScript
 {
 public:
-    instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
+    instance_ragefire_chasm() : InstanceMapScript("instance_ragefire_chasm", 389) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
-        return new instance_the_stockade_InstanceMapScript(map);
+        return new instance_ragefire_chasm_InstanceMapScript(map);
     }
 
-    struct instance_the_stockade_InstanceMapScript : public InstanceScript
+    struct instance_ragefire_chasm_InstanceMapScript : public InstanceScript
     {
-        instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_ragefire_chasm_InstanceMapScript(Map* map) : InstanceScript(map) {}
     };
 };
 
-void AddSC_instance_the_stockade()
+void AddSC_instance_ragefire_chasm()
 {
-    new instance_the_stockade();
+    new instance_ragefire_chasm();
 }
