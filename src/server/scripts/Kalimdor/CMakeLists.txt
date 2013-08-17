@@ -112,6 +112,7 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/boss_onyxia.cpp
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
+  Kalimdor/RagefireChasm/instance_ragefire_chasm.cpp
 )
 
 message("  -> Prepared: Kalimdor")
