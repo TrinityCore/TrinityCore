@@ -39,7 +39,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 _paralyzedGUID  = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch (creature->GetEntry())
                 {
@@ -101,7 +101,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 

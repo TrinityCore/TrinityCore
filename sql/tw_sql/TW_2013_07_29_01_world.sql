@@ -1,4 +1,4 @@
-﻿--  Gluth's emote texts
+--  Gluth's emote texts
 DELETE FROM `creature_text` WHERE `entry` = '15932';
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15932,0,0,41,0,100,"gluth EMOTE_ZOMBIE","%s spots a nearby zombie to devour!"),

@@ -48,7 +48,7 @@ public:
 
         uint32 auiEncounter[MAX_ENCOUNTER];
 
-       void Initialize()
+       void Initialize() OVERRIDE
        {
             memset(&auiEncounter, 0, sizeof(auiEncounter));
             memset(&uiAnubarakDoor, 0, sizeof(uiAnubarakDoor));
@@ -62,7 +62,7 @@ public:
             uiKrikthirDoor = 0;
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const OVERRIDE
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (auiEncounter[i] == IN_PROGRESS)
@@ -71,7 +71,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -84,7 +84,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -161,7 +161,7 @@ public:
             return 0;
         }
 
-       std::string GetSaveData()
+       std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -173,7 +173,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {

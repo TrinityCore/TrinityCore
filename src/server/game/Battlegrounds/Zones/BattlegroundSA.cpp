@@ -56,8 +56,8 @@ void BattlegroundSA::Reset()
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
     gateDestroyed = false;
-    _notEvenAScratch[TEAM_ALLIANCE] = true;
-    _notEvenAScratch[TEAM_HORDE] = true;
+    _allVehiclesAlive[TEAM_ALLIANCE] = true;
+    _allVehiclesAlive[TEAM_HORDE] = true;
     Status = BG_SA_WARMUP;
 }
 
@@ -274,7 +274,7 @@ void BattlegroundSA::StartShips()
                 WorldPacket pkt;
                 GetBGObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
                 data.BuildPacket(&pkt);
-                p->GetSession()->SendPacket(&pkt);
+                p->SendDirectMessage(&pkt);
             }
         }
     }
@@ -566,7 +566,7 @@ void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
         UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
-        _notEvenAScratch[Attackers] = false;
+        _allVehiclesAlive[Attackers] = false;
     }
 }
 
@@ -947,7 +947,7 @@ void BattlegroundSA::SendTransportInit(Player* player)
             GetBGObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
         WorldPacket packet;
         transData.BuildPacket(&packet);
-        player->GetSession()->SendPacket(&packet);
+        player->SendDirectMessage(&packet);
     }
 }
 
@@ -962,6 +962,19 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
             GetBGObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
         WorldPacket packet;
         transData.BuildPacket(&packet);
-        player->GetSession()->SendPacket(&packet);
+        player->SendDirectMessage(&packet);
     }
+}
+
+bool BattlegroundSA::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue)
+{
+    switch (criteriaId)
+    {
+        case BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH:
+            return _allVehiclesAlive[GetTeamIndexByTeamId(source->GetTeam())];
+        case BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS:
+            return source->GetTeamId() != Attackers && !gateDestroyed;
+    }
+
+    return Battleground::CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue);
 }

@@ -363,6 +363,14 @@ public:
                 instance->SetData(TYPE_SARTHARION_EVENT, IN_PROGRESS);
                 FetchDragons();
             }
+
+            std::list<Creature*> Type[4];
+            for (int i = 0; i < 4; ++i)
+                GetCreatureListWithEntryInGrid(Type[i], me, i == 3 ? 30453 : 30680 + i, 200);
+            for (int x = 0; x < 4; ++x)
+                for (std::list<Creature*>::const_iterator itr = Type[x].begin(); itr != Type[x].end(); ++itr)
+                    if ((*itr)->IsAlive())
+                        (*itr)->SetInCombatWithZone();
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE

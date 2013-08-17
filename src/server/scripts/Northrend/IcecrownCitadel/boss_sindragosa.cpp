@@ -134,6 +134,7 @@ enum FrostwingData
     DATA_WHELP_MARKER           = 2,
     DATA_LINKED_GAMEOBJECT      = 3,
     DATA_TRAPPED_PLAYER         = 4,
+    DATA_AIR_PHASE              = 5,
 };
 
 enum MovementPoints
@@ -298,9 +299,15 @@ class boss_sindragosa : public CreatureScript
 
             uint32 GetData(uint32 type) const OVERRIDE
             {
-                if (type == DATA_MYSTIC_BUFFET_STACK)
-                    return _mysticBuffetStack;
-                return 0xFFFFFFFF;
+                switch (type)
+                {
+                    case DATA_MYSTIC_BUFFET_STACK:
+                        return _mysticBuffetStack;
+                    case DATA_AIR_PHASE:
+                        return _isInAirPhase ? 1 : 0;
+                    default:
+                        return 0xFFFFFFFF;
+                }
             }
 
             void MovementInform(uint32 type, uint32 point) OVERRIDE
@@ -553,8 +560,14 @@ class npc_ice_tomb : public CreatureScript
                 {
                     _trappedPlayerGUID = guid;
                     _existenceCheckTimer = 1000;
-                    _asphyxiationTimer = 20000;
                     _asphyxiationTriggered = false;
+                    
+                    // Intentional initialization
+                    _asphyxiationTimer = 20000;
+                    
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        if (Creature* sindragosa = me->GetCreature(*me, instance->GetData64(DATA_SINDRAGOSA)))
+                            _asphyxiationTimer = sindragosa->AI()->GetData(DATA_AIR_PHASE) ? 30000 : 20000;
                 }
             }
 

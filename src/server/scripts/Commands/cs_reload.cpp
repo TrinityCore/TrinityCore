@@ -82,11 +82,11 @@ public:
             { "creature_text",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureText,                      "", NULL },
             { "creature_ai_scripts",          SEC_ADMINISTRATOR, true,  &HandleReloadEventAIScriptsCommand,             "", NULL },
             { "creature_ai_texts",            SEC_ADMINISTRATOR, true,  &HandleReloadEventAITextsCommand,               "", NULL },
-            { "creature_involvedrelation",    SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestInvRelationsCommand,  "", NULL },
+            { "creature_questender",          SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestEnderCommand,  "", NULL },
             { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
             { "creature_loot_template",       SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
             { "creature_onkill_reputation",   SEC_ADMINISTRATOR, true,  &HandleReloadOnKillReputationCommand,           "", NULL },
-            { "creature_questrelation",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestRelationsCommand,     "", NULL },
+            { "creature_queststarter",        SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestStarterCommand,     "", NULL },
             { "creature_summon_groups",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureSummonGroupsCommand,       "", NULL },
             { "creature_template",            SEC_ADMINISTRATOR, true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
             //{ "db_script_string",             SEC_ADMINISTRATOR, true,  &HandleReloadDbScriptStringCommand,            "", NULL },
@@ -96,9 +96,9 @@ public:
             { "fishing_loot_template",        SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesFishingCommand,       "", NULL },
             { "game_graveyard_zone",          SEC_ADMINISTRATOR, true,  &HandleReloadGameGraveyardZoneCommand,          "", NULL },
             { "game_tele",                    SEC_ADMINISTRATOR, true,  &HandleReloadGameTeleCommand,                   "", NULL },
-            { "gameobject_involvedrelation",  SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestInvRelationsCommand,        "", NULL },
+            { "gameobject_questender",        SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestEnderCommand,        "", NULL },
             { "gameobject_loot_template",     SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesGameobjectCommand,    "", NULL },
-            { "gameobject_questrelation",     SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestRelationsCommand,           "", NULL },
+            { "gameobject_queststarter",      SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestStarterCommand,           "", NULL },
             { "gm_tickets",                   SEC_ADMINISTRATOR, true,  &HandleReloadGMTicketsCommand,                  "", NULL },
             { "gossip_menu",                  SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuCommand,                 "", NULL },
             { "gossip_menu_option",           SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
@@ -249,8 +249,8 @@ public:
         HandleReloadQuestTemplateCommand(handler, "a");
 
         TC_LOG_INFO(LOG_FILTER_GENERAL, "Re-Loading Quests Relations...");
-        sObjectMgr->LoadQuestRelations();
-        handler->SendGlobalGMSysMessage("DB tables `*_questrelation` and `*_involvedrelation` reloaded.");
+        sObjectMgr->LoadQuestStartersAndEnders();
+        handler->SendGlobalGMSysMessage("DB tables `*_queststarter` and `*_questender` reloaded.");
         return true;
     }
 
@@ -532,11 +532,11 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureQuestRelationsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadCreatureQuestStarterCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_questrelation`)");
-        sObjectMgr->LoadCreatureQuestRelations();
-        handler->SendGlobalGMSysMessage("DB table `creature_questrelation` (creature quest givers) reloaded.");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_queststarter`)");
+        sObjectMgr->LoadCreatureQuestStarters();
+        handler->SendGlobalGMSysMessage("DB table `creature_queststarter` reloaded.");
         return true;
     }
 
@@ -548,11 +548,11 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureQuestInvRelationsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadCreatureQuestEnderCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_involvedrelation`)");
-        sObjectMgr->LoadCreatureInvolvedRelations();
-        handler->SendGlobalGMSysMessage("DB table `creature_involvedrelation` (creature quest takers) reloaded.");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_questender`)");
+        sObjectMgr->LoadCreatureQuestEnders();
+        handler->SendGlobalGMSysMessage("DB table `creature_questender` reloaded.");
         return true;
     }
 
@@ -574,19 +574,19 @@ public:
         return true;
     }
 
-    static bool HandleReloadGOQuestRelationsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadGOQuestStarterCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_questrelation`)");
-        sObjectMgr->LoadGameobjectQuestRelations();
-        handler->SendGlobalGMSysMessage("DB table `gameobject_questrelation` (gameobject quest givers) reloaded.");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_queststarter`)");
+        sObjectMgr->LoadGameobjectQuestStarters();
+        handler->SendGlobalGMSysMessage("DB table `gameobject_queststarter` reloaded.");
         return true;
     }
 
-    static bool HandleReloadGOQuestInvRelationsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadGOQuestEnderCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_involvedrelation`)");
-        sObjectMgr->LoadGameobjectInvolvedRelations();
-        handler->SendGlobalGMSysMessage("DB table `gameobject_involvedrelation` (gameobject quest takers) reloaded.");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_questender`)");
+        sObjectMgr->LoadGameobjectQuestEnders();
+        handler->SendGlobalGMSysMessage("DB table `gameobject_questender` reloaded.");
         return true;
     }
 

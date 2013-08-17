@@ -42,8 +42,10 @@ set(scripts_STAT_SRCS
   Outland/CoilfangReservoir/SerpentShrine/boss_leotheras_the_blind.cpp
   Outland/CoilfangReservoir/SerpentShrine/boss_lurker_below.cpp
   Outland/CoilfangReservoir/SerpentShrine/boss_morogrim_tidewalker.cpp
-  Outland/CoilfangReservoir/underbog/boss_hungarfen.cpp
-  Outland/CoilfangReservoir/underbog/boss_the_black_stalker.cpp
+  Outland/CoilfangReservoir/TheSlavePens/instance_the_slave_pens.cpp
+  Outland/CoilfangReservoir/TheUnderbog/boss_hungarfen.cpp
+  Outland/CoilfangReservoir/TheUnderbog/boss_the_black_stalker.cpp
+  Outland/CoilfangReservoir/TheUnderbog/instance_the_underbog.cpp
   Outland/zone_shattrath_city.cpp
   Outland/TempestKeep/Mechanar/boss_mechano_lord_capacitus.cpp
   Outland/TempestKeep/Mechanar/boss_pathaleon_the_calculator.cpp
@@ -76,6 +78,7 @@ set(scripts_STAT_SRCS
   Outland/Auchindoun/ManaTombs/boss_nexusprince_shaffar.cpp
   Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
   Outland/Auchindoun/SethekkHalls/boss_darkweaver_syth.cpp
+  Outland/Auchindoun/SethekkHalls/boss_anzu.cpp
   Outland/Auchindoun/SethekkHalls/instance_sethekk_halls.cpp
   Outland/Auchindoun/SethekkHalls/sethekk_halls.h
   Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp

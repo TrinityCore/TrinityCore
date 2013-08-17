@@ -1460,8 +1460,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Quests Relations...");
-    sObjectMgr->LoadQuestRelations();                            // must be after quest load
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Quests Starters and Enders...");
+    sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Objects Pooling Data...");
     sPoolMgr->LoadFromDB();
