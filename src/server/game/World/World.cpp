@@ -1269,7 +1269,7 @@ void World::LoadConfigSettings(bool reload)
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 
-    if((m_bool_configs[CONFIG_ENABLE_REDIRECTS] = sConfigMgr->GetFloatDefault("Redirect.Enable", false)))
+    if((m_bool_configs[CONFIG_ENABLE_REDIRECTS] = sConfigMgr->GetBoolDefault("Redirect.Enable", false)))
        ReloadNodes();
 }
 
