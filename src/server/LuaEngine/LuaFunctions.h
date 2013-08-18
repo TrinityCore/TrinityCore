@@ -44,6 +44,7 @@ void RegisterGlobals(lua_State* L)
     lua_register(L, "GetPlayersInRange", &LuaGlobalFunctions::GetPlayersInRange);                           // GetPlayersInRange(WorldObject[, range]) - Returns a table with players in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetCreaturesInRange", &LuaGlobalFunctions::GetCreaturesInRange);                       // GetCreaturesInRange(WorldObject[, range]) - Returns a table with creatures in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetGameObjectsInRange", &LuaGlobalFunctions::GetGameObjectsInRange);                   // GetGameObjectsInRange(WorldObject[, range]) - Returns a table with gameobjects in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
+    lua_register(L, "GetWorldObject", &LuaGlobalFunctions::GetWorldObject);                                 // GetWorldObject(WorldObject, guid) - Returns a world object (creature, player, gameobject) from the guid. The world object returned must be on the same map as the world object in the arguments.
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                                       // ReloadEluna() - Reload's Eluna engine
@@ -359,6 +360,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetLootMode", &LuaUnit::GetLootMode},                                                                 // :GetLootMode() - Returns loot mode
     {"GetLootRecipient", &LuaUnit::GetLootRecipient},                                                       // :GetLootRecipient() - Returns loot receiver
     {"GetLootRecipientGroup", &LuaUnit::GetLootRecipientGroup},                                             // :GetLootRecipientGroup() - Returns loot receiver group
+    {"GetNPCFlags", &LuaUnit::GetNPCFlags},                                                                 // :GetNPCFlags() - Returns NPC flags
 
     // Setters
     {"SetHover", &LuaUnit::SetHover},                                                                       // :SetHover([enable]) - Sets hover on or off
@@ -372,6 +374,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetInCombatWithZone", &LuaUnit::SetInCombatWithZone},                                                 // :SetInCombatWithZone() - Sets the creature in combat with everyone in zone
     {"SetDisableReputationGain", &LuaUnit::SetDisableReputationGain},                                       // :SetDisableReputationGain([disable]) - Disables or enables reputation gain from creature
     {"SetLootMode", &LuaUnit::SetLootMode},                                                                 // :SetLootMode(lootMode) - Sets the lootmode
+    {"SetNPCFlags", &LuaUnit::SetNPCFlags},                                                                 // :SetNPCFlags(flags) - Sets NPC flags
 
     // Booleans
     {"IsWorldBoss", &LuaUnit::IsWorldBoss},                                                                 // :IsWorldBoss() - Returns true if the creature is a WorldBoss, false if not
@@ -454,9 +457,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetDistance", &LuaUnit::GetDistance},                                                                 // :GetDistance(WorldObject or x, y, z)
     {"GetGUIDLow", &LuaUnit::GetGUIDLow},                                                                   // :GetGUIDLow() - Returns uint32 guid (low guid) that is used in database.
     {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},                                                       // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius.
-    {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},                                               // :GetNearestGameObject([radius, entry]) - Returns nearest gameobject with given entry in sight or given radius.
-    {"GetNearestCreature", &LuaUnit::GetNearestCreature},                                                   // :GetNearestCreatureEntry([radius, entry]) - Returns nearest creature with given entry in sight or given radius.
-    {"GetRelativePoint", &LuaUnit::GetRelativePoint},                                                       // :GetRelativePoint(dist, degrees) - Returns the X, Y and orientation of a point dist away from unit. Degrees are - 90 for right and 90 for left.
+    {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},                                               // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius entry can be 0.
+    {"GetNearestCreature", &LuaUnit::GetNearestCreature},                                                   // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius entry can be 0.
+    {"GetRelativePoint", &LuaUnit::GetRelativePoint},                                                       // :GetRelativePoint(dist, rad) - Returns the X, Y and orientation of a point dist away from unit.
     {"GetHeight", &LuaUnit::GetHeight},                                                                     // :GetHeight(X, Y) - Returns the Z coord of the given location. If no valid position found, returns unit Z coordinate.
     {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the GUID of the owner
     {"GetOwner", &LuaUnit::GetOwner},                                                                       // :GetOwner() - Returns the owner

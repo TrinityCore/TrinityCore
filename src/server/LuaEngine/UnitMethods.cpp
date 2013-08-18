@@ -5535,3 +5535,21 @@ int LuaUnit::SendQuestTemplate(lua_State* L, Unit* unit)
     player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), activeAccept);
     return 0;
 }
+
+int LuaUnit::GetNPCFlags(lua_State* L, Unit* unit)
+{
+    TO_CREATURE();
+
+    sEluna->PushUnsigned(L, creature->GetUInt32Value(UNIT_NPC_FLAGS));
+    return 1;
+}
+
+int LuaUnit::SetNPCFlags(lua_State* L, Unit* unit)
+{
+    TO_CREATURE();
+
+    uint32 flags = luaL_checkunsigned(L, 1);
+
+    creature->SetUInt32Value(UNIT_NPC_FLAGS, flags);
+    return 0;
+}

@@ -503,5 +503,7 @@ namespace LuaUnit
     int GetUnfriendlyUnitsInRange(lua_State*, Unit*);
     int SummonGuardian(lua_State*, Unit*);
     int SendQuestTemplate(lua_State*, Unit*);
+    int GetNPCFlags(lua_State*, Unit*);
+    int SetNPCFlags(lua_State*, Unit*);
 };
 #endif
