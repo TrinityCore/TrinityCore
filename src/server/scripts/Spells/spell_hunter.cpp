@@ -119,8 +119,8 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER) || 
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VIPER_ATTACK_SPEED) || 
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VIPER_ATTACK_SPEED) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VICIOUS_VIPER))
                     return false;
                 return true;
@@ -871,7 +871,7 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER) || 
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VICIOUS_VIPER))
                     return false;
                 return true;
