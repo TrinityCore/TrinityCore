@@ -50,7 +50,7 @@ void BigNumber::SetDword(uint32 val)
 
 void BigNumber::SetQword(uint64 val)
 {
-    BN_add_word(_bn, (uint32)(val >> 32));
+    BN_set_word(_bn, (uint32)(val >> 32));
     BN_lshift(_bn, _bn, 32);
     BN_add_word(_bn, (uint32)(val & 0xFFFFFFFF));
 }
