@@ -267,12 +267,12 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     uint8 mDigest[SHA_DIGEST_LENGTH];
     memset(mDigest, 0, SHA_DIGEST_LENGTH);
     if (I.GetNumBytes() <= SHA_DIGEST_LENGTH)
-        memcpy(mDigest, I.AsByteArray(), I.GetNumBytes());
+        memcpy(mDigest, I.AsByteArray().get(), I.GetNumBytes());
 
     std::reverse(mDigest, mDigest + SHA_DIGEST_LENGTH);
 
     SHA1Hash sha;
-    sha.UpdateData(s.AsByteArray(), s.GetNumBytes());
+    sha.UpdateData(s.AsByteArray().get(), s.GetNumBytes());
     sha.UpdateData(mDigest, SHA_DIGEST_LENGTH);
     sha.Finalize();
     BigNumber x;
@@ -484,13 +484,13 @@ bool AuthSocket::_HandleLogonChallenge()
                         pkt << uint8(WOW_FAIL_VERSION_INVALID);
 
                     // B may be calculated < 32B so we force minimal length to 32B
-                    pkt.append(B.AsByteArray(32), 32);      // 32 bytes
+                    pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
                     pkt << uint8(1);
-                    pkt.append(g.AsByteArray(), 1);
+                    pkt.append(g.AsByteArray().get(), 1);
                     pkt << uint8(32);
-                    pkt.append(N.AsByteArray(32), 32);
-                    pkt.append(s.AsByteArray(), s.GetNumBytes());   // 32 bytes
-                    pkt.append(unk3.AsByteArray(16), 16);
+                    pkt.append(N.AsByteArray(32).get(), 32);
+                    pkt.append(s.AsByteArray().get(), s.GetNumBytes());   // 32 bytes
+                    pkt.append(unk3.AsByteArray(16).get(), 16);
                     uint8 securityFlags = 0;
                     pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
@@ -574,7 +574,7 @@ bool AuthSocket::_HandleLogonProof()
     uint8 t[32];
     uint8 t1[16];
     uint8 vK[40];
-    memcpy(t, S.AsByteArray(32), 32);
+    memcpy(t, S.AsByteArray(32).get(), 32);
 
     for (int i = 0; i < 16; ++i)
         t1[i] = t[i * 2];
@@ -629,7 +629,7 @@ bool AuthSocket::_HandleLogonProof()
     M.SetBinary(sha.GetDigest(), 20);
 
     // Check if SRP6 results match (password is correct), else send an error
-    if (!memcmp(M.AsByteArray(), lp.M1, 20))
+    if (!memcmp(M.AsByteArray().get(), lp.M1, 20))
     {
         TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "'%s:%d' User '%s' successfully authenticated", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str());
 
@@ -800,7 +800,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     pkt << uint8(AUTH_RECONNECT_CHALLENGE);
     pkt << uint8(0x00);
     _reconnectProof.SetRand(16 * 8);
-    pkt.append(_reconnectProof.AsByteArray(16), 16);        // 16 bytes random
+    pkt.append(_reconnectProof.AsByteArray(16).get(), 16);        // 16 bytes random
     pkt << uint64(0x00) << uint64(0x00);                    // 16 bytes zeros
     socket().send((char const*)pkt.contents(), pkt.size());
     return true;

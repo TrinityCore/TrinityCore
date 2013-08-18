@@ -22,17 +22,18 @@
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
 #include <algorithm>
+#include <ace/Auto_Ptr.h>
 
 BigNumber::BigNumber()
-    : _bn(BN_new()), _array(NULL)
+    : _bn(BN_new())
 { }
 
 BigNumber::BigNumber(BigNumber const& bn)
-    : _bn(BN_dup(bn._bn)), _array(NULL)
+    : _bn(BN_dup(bn._bn))
 { }
 
 BigNumber::BigNumber(uint32 val)
-    : _bn(BN_new()), _array(NULL)
+    : _bn(BN_new())
 {
     BN_set_word(_bn, val);
 }
@@ -40,7 +41,6 @@ BigNumber::BigNumber(uint32 val)
 BigNumber::~BigNumber()
 {
     BN_free(_bn);
-    delete[] _array;
 }
 
 void BigNumber::SetDword(uint32 val)
@@ -170,29 +170,23 @@ bool BigNumber::isZero() const
     return BN_is_zero(_bn);
 }
 
-uint8* BigNumber::AsByteArray(int32 minSize, bool reverse)
+ACE_Auto_Array_Ptr<uint8> BigNumber::AsByteArray(int32 minSize, bool littleEndian)
 {
     int length = (minSize >= GetNumBytes()) ? minSize : GetNumBytes();
 
-    ACE_GUARD_RETURN(ACE_Mutex, g, _lock, 0);
-
-    if (_array)
-    {
-        delete[] _array;
-        _array = NULL;
-    }
-    _array = new uint8[length];
+    uint8* array = new uint8[length];
 
     // If we need more bytes than length of BigNumber set the rest to 0
     if (length > GetNumBytes())
-        memset((void*)_array, 0, length);
+        memset((void*)array, 0, length);
 
-    BN_bn2bin(_bn, (unsigned char *)_array);
+    BN_bn2bin(_bn, (unsigned char *)array);
 
-    if (reverse)
-        std::reverse(_array, _array + length);
+    // openssl's BN stores data internally in big endian format, reverse if little endian desired
+    if (littleEndian)
+        std::reverse(array, array + length);
 
-    return _array;
+    return ACE_Auto_Array_Ptr<uint8>(array);
 }
 
 char * BigNumber::AsHexStr() const
