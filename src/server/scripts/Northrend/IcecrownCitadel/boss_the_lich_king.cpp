@@ -2425,12 +2425,12 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetObjectScale()));
             }
 
             void ChangeDamageAndGrow()
             {
-                SetHitDamage(int32(GetHitDamage() * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                SetHitDamage(int32(GetHitDamage() * GetCaster()->GetObjectScale()));
                 // HACK: target player should cast this spell on defile
                 // however with current aura handling auras cast by different units
                 // cannot stack on the same aura object increasing the stack count

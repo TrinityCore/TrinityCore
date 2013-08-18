@@ -1488,69 +1488,87 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     return std::max<uint32>(damage * (1.0f - tmpvalue), 1);
 }
 
-void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo)
+uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const
+{
+    // Magic damage, check for resists
+    if (!(schoolMask & SPELL_SCHOOL_MASK_SPELL))
+        return 0;
+
+    // Ignore spells that can't be resisted
+    if (spellInfo && spellInfo->AttributesEx4 & SPELL_ATTR4_IGNORE_RESISTANCES)
+        return 0;
+
+    uint8 const bossLevel = 83;
+    uint32 const bossResistanceConstant = 510;
+    uint32 resistanceConstant = 0;
+    uint8 level = victim->getLevel();
+
+    if (level == bossLevel)
+        resistanceConstant = bossResistanceConstant;
+    else
+        resistanceConstant = level * 5;
+
+    int32 baseVictimResistance = victim->GetResistance(schoolMask);
+    baseVictimResistance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask);
+
+    if (Player const* player = ToPlayer())
+        baseVictimResistance -= player->GetSpellPenetrationItemMod();
+
+    // Resistance can't be lower then 0
+    int32 victimResistance = std::max<int32>(baseVictimResistance, 0);
+
+    if (victimResistance > 0)
+    {
+        int32 ignoredResistance = 0;
+
+        AuraEffectList const& ResIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
+        for (AuraEffectList::const_iterator itr = ResIgnoreAuras.begin(); itr != ResIgnoreAuras.end(); ++itr)
+            if ((*itr)->GetMiscValue() & schoolMask)
+                ignoredResistance += (*itr)->GetAmount();
+
+        ignoredResistance = std::min<int32>(ignoredResistance, 100);
+        ApplyPct(victimResistance, 100 - ignoredResistance);
+    }
+
+    if (victimResistance <= 0)
+        return 0;
+
+    float averageResist = float(victimResistance) / float(victimResistance + resistanceConstant);
+
+    float discreteResistProbability[11];
+    for (uint32 i = 0; i < 11; ++i)
+    {
+        discreteResistProbability[i] = 0.5f - 2.5f * fabs(0.1f * i - averageResist);
+        if (discreteResistProbability[i] < 0.0f)
+            discreteResistProbability[i] = 0.0f;
+    }
+
+    if (averageResist <= 0.1f)
+    {
+        discreteResistProbability[0] = 1.0f - 7.5f * averageResist;
+        discreteResistProbability[1] = 5.0f * averageResist;
+        discreteResistProbability[2] = 2.5f * averageResist;
+    }
+
+    uint32 resistance = 0;
+    float r = float(rand_norm());
+    float probabilitySum = discreteResistProbability[0];
+
+    while (r >= probabilitySum && resistance < 10)
+        probabilitySum += discreteResistProbability[++resistance];
+
+    return resistance * 10;
+}
+
+void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32* absorb, uint32* resist, SpellInfo const* spellInfo /*= NULL*/)
 {
     if (!victim || !victim->IsAlive() || !damage)
         return;
 
     DamageInfo dmgInfo = DamageInfo(this, victim, damage, spellInfo, schoolMask, damagetype);
 
-    // Magic damage, check for resists
-    // Ignore spells that cant be resisted
-    if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0 && (!spellInfo || (spellInfo->AttributesEx4 & SPELL_ATTR4_IGNORE_RESISTANCES) == 0))
-    {
-        float victimResistance = float(victim->GetResistance(schoolMask));
-        victimResistance += float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
-
-        if (Player* player = ToPlayer())
-            victimResistance -= float(player->GetSpellPenetrationItemMod());
-
-        // Resistance can't be lower then 0.
-        if (victimResistance < 0.0f)
-            victimResistance = 0.0f;
-
-        static uint32 const BOSS_LEVEL = 83;
-        static float const BOSS_RESISTANCE_CONSTANT = 510.0f;
-        uint32 level = victim->getLevel();
-        float resistanceConstant = 0.0f;
-
-        if (level == BOSS_LEVEL)
-            resistanceConstant = BOSS_RESISTANCE_CONSTANT;
-        else
-            resistanceConstant = level * 5.0f;
-
-        float averageResist = victimResistance / (victimResistance + resistanceConstant);
-        float discreteResistProbability[11];
-        for (uint32 i = 0; i < 11; ++i)
-        {
-            discreteResistProbability[i] = 0.5f - 2.5f * fabs(0.1f * i - averageResist);
-            if (discreteResistProbability[i] < 0.0f)
-                discreteResistProbability[i] = 0.0f;
-        }
-
-        if (averageResist <= 0.1f)
-        {
-            discreteResistProbability[0] = 1.0f - 7.5f * averageResist;
-            discreteResistProbability[1] = 5.0f * averageResist;
-            discreteResistProbability[2] = 2.5f * averageResist;
-        }
-
-        float r = float(rand_norm());
-        uint32 i = 0;
-        float probabilitySum = discreteResistProbability[0];
-
-        while (r >= probabilitySum && i < 10)
-            probabilitySum += discreteResistProbability[++i];
-
-        float damageResisted = float(damage * i / 10);
-
-        AuraEffectList const& ResIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
-        for (AuraEffectList::const_iterator j = ResIgnoreAuras.begin(); j != ResIgnoreAuras.end(); ++j)
-            if ((*j)->GetMiscValue() & schoolMask)
-                AddPct(damageResisted, -(*j)->GetAmount());
-
-        dmgInfo.ResistDamage(uint32(damageResisted));
-    }
+    uint32 spellResistance = CalcSpellResistance(victim, schoolMask, spellInfo);
+    dmgInfo.ResistDamage(CalculatePct(damage, spellResistance));
 
     // Ignore Absorption Auras
     float auraAbsorbMod = 0;
@@ -1734,7 +1752,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     *absorb = dmgInfo.GetAbsorb();
 }
 
-void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &healAmount, uint32 &absorb)
+void Unit::CalcHealAbsorb(Unit* victim, SpellInfo const* healSpell, uint32 &healAmount, uint32 &absorb)
 {
     if (!healAmount)
         return;
@@ -2132,24 +2150,26 @@ bool Unit::isBlockCritical()
     return false;
 }
 
-int32 Unit::GetMechanicResistChance(const SpellInfo* spell) const
+int32 Unit::GetMechanicResistChance(SpellInfo const* spellInfo) const
 {
-    if (!spell)
+    if (!spellInfo)
         return 0;
-    int32 resist_mech = 0;
+
+    int32 resistMech = 0;
     for (uint8 eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
     {
-        if (!spell->Effects[eff].IsEffect())
-           break;
-        int32 effect_mech = spell->GetEffectMechanic(eff);
-        if (effect_mech)
+        if (!spellInfo->Effects[eff].IsEffect())
+            break;
+
+        int32 effectMech = spellInfo->GetEffectMechanic(eff);
+        if (effectMech)
         {
-            int32 temp = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MECHANIC_RESISTANCE, effect_mech);
-            if (resist_mech < temp)
-                resist_mech = temp;
+            int32 temp = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MECHANIC_RESISTANCE, effectMech);
+            if (resistMech < temp)
+                resistMech = temp;
         }
     }
-    return resist_mech;
+    return resistMech;
 }
 
 bool Unit::CanUseAttackType(uint8 attacktype) const
@@ -2168,23 +2188,24 @@ bool Unit::CanUseAttackType(uint8 attacktype) const
 }
 
 // Melee based spells hit result calculations
-SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
+SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo)
 {
     // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
     // resist and deflect chances
-    if (spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
+    if (spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
         return SPELL_MISS_NONE;
 
     WeaponAttackType attType = BASE_ATTACK;
 
     // Check damage class instead of attack type to correctly handle judgements
     // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
-    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
+    if (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = RANGED_ATTACK;
 
-    uint32 roll = urand (0, 10000);
+    uint32 roll = urand(0, 10000);
 
-    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, spell->Id) * 100.0f);
+    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, spellInfo->Id) * 100.0f);
+
     // Roll miss
     uint32 tmp = missChance;
     if (roll < tmp)
@@ -2195,12 +2216,12 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Get effects mechanic and chance
     for (uint8 eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
     {
-        int32 effect_mech = spell->GetEffectMechanic(eff);
+        int32 effect_mech = spellInfo->GetEffectMechanic(eff);
         if (effect_mech)
         {
             int32 temp = victim->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MECHANIC_RESISTANCE, effect_mech);
-            if (resist_mech < temp*100)
-                resist_mech = temp*100;
+            if (resist_mech < temp * 100)
+                resist_mech = temp * 100;
         }
     }
     // Roll chance
@@ -2210,14 +2231,14 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     bool canDodge = true;
     bool canParry = true;
-    bool canBlock = spell->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL;
+    bool canBlock = spellInfo->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL;
 
     // Same spells cannot be parry/dodge
-    if (spell->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
+    if (spellInfo->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
         return SPELL_MISS_NONE;
 
     // Chance resist mechanic
-    int32 resist_chance = victim->GetMechanicResistChance(spell) * 100;
+    int32 resist_chance = victim->GetMechanicResistChance(spellInfo) * 100;
     tmp += resist_chance;
     if (roll < tmp)
         return SPELL_MISS_RESIST;
@@ -2232,7 +2253,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
             int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
-            tmp+=deflect_chance;
+            tmp += deflect_chance;
             if (roll < tmp)
                 return SPELL_MISS_DEFLECT;
         }
@@ -2253,7 +2274,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         }
         else // Only deterrence as of 3.3.5
         {
-            if (spell->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
+            if (spellInfo->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
                 canParry = false;
         }
     }
@@ -2271,13 +2292,19 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     AuraEffectList const& ignore = GetAuraEffectsByType(SPELL_AURA_IGNORE_COMBAT_RESULT);
     for (AuraEffectList::const_iterator i = ignore.begin(); i != ignore.end(); ++i)
     {
-        if (!(*i)->IsAffectingSpell(spell))
+        if (!(*i)->IsAffectingSpell(spellInfo))
             continue;
         switch ((*i)->GetMiscValue())
         {
-            case MELEE_HIT_DODGE: canDodge = false; break;
-            case MELEE_HIT_BLOCK: canBlock = false; break;
-            case MELEE_HIT_PARRY: canParry = false; break;
+            case MELEE_HIT_DODGE:
+                canDodge = false;
+                break;
+            case MELEE_HIT_BLOCK:
+                canBlock = false;
+                break;
+            case MELEE_HIT_PARRY:
+                canParry = false;
+                break;
             default:
                 TC_LOG_DEBUG(LOG_FILTER_UNITS, "Spell %u SPELL_AURA_IGNORE_COMBAT_RESULT has unhandled state %d", (*i)->GetId(), (*i)->GetMiscValue());
                 break;
@@ -2335,18 +2362,18 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 }
 
 /// @todo need use unit spell resistances in calculations
-SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
+SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo)
 {
     // Can`t miss on dead target (on skinning for example)
     if (!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER)
         return SPELL_MISS_NONE;
 
-    SpellSchoolMask schoolMask = spell->GetSchoolMask();
+    SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
     // PvP - PvE spell misschances per leveldif > 2
     int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
     int32 thisLevel = getLevelForTarget(victim);
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsTrigger())
-        thisLevel = std::max<int32>(thisLevel, spell->SpellLevel);
+        thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
     int32 leveldif = int32(victim->getLevelForTarget(this)) - thisLevel;
 
     // Base hit chance from attacker and victim levels
@@ -2358,10 +2385,10 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spell->Id, SPELLMOD_RESIST_MISS_CHANCE, modHitChance);
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RESIST_MISS_CHANCE, modHitChance);
 
     // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
-    if (!(spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT))
+    if (!(spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT))
     {
         // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
         modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
@@ -2371,10 +2398,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     HitChance += int32(m_modSpellHitChance * 100.0f);
 
-    if (HitChance < 100)
-        HitChance = 100;
-    else if (HitChance > 10000)
-        HitChance = 10000;
+    RoundToInterval(HitChance, 100, 10000);
 
     int32 tmp = 10000 - HitChance;
 
@@ -2385,11 +2409,11 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
     // resist and deflect chances
-    if (spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
+    if (spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
         return SPELL_MISS_NONE;
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    int32 resist_chance = victim->GetMechanicResistChance(spell) * 100;
+    int32 resist_chance = victim->GetMechanicResistChance(spellInfo) * 100;
     tmp += resist_chance;
 
    // Roll chance
@@ -2416,19 +2440,19 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 //   Parry
 // For spells
 //   Resist
-SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool CanReflect)
+SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool CanReflect)
 {
     // Check for immune
-    if (victim->IsImmunedToSpell(spell))
+    if (victim->IsImmunedToSpell(spellInfo))
         return SPELL_MISS_IMMUNE;
 
     // All positive spells can`t miss
     /// @todo client not show miss log for this spells - so need find info for this in dbc and use it!
-    if (spell->IsPositive()
-        &&(!IsHostileTo(victim)))  // prevent from affecting enemy by "positive" spell
+    if (spellInfo->IsPositive() && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
         return SPELL_MISS_NONE;
+
     // Check for immune
-    if (victim->IsImmunedToDamage(spell))
+    if (victim->IsImmunedToDamage(spellInfo))
         return SPELL_MISS_IMMUNE;
 
     if (this == victim)
@@ -2444,25 +2468,25 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         Unit::AuraEffectList const& mReflectSpellsSchool = victim->GetAuraEffectsByType(SPELL_AURA_REFLECT_SPELLS_SCHOOL);
         for (Unit::AuraEffectList::const_iterator i = mReflectSpellsSchool.begin(); i != mReflectSpellsSchool.end(); ++i)
-            if ((*i)->GetMiscValue() & spell->GetSchoolMask())
+            if ((*i)->GetMiscValue() & spellInfo->GetSchoolMask())
                 reflectchance += (*i)->GetAmount();
         if (reflectchance > 0 && roll_chance_i(reflectchance))
         {
             // Start triggers for remove charges if need (trigger only for victim, and mark as active spell)
-            ProcDamageAndSpell(victim, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, BASE_ATTACK, spell);
+            ProcDamageAndSpell(victim, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, BASE_ATTACK, spellInfo);
             return SPELL_MISS_REFLECT;
         }
     }
 
-    switch (spell->DmgClass)
+    switch (spellInfo->DmgClass)
     {
         case SPELL_DAMAGE_CLASS_RANGED:
         case SPELL_DAMAGE_CLASS_MELEE:
-            return MeleeSpellHitResult(victim, spell);
+            return MeleeSpellHitResult(victim, spellInfo);
         case SPELL_DAMAGE_CLASS_NONE:
             return SPELL_MISS_NONE;
         case SPELL_DAMAGE_CLASS_MAGIC:
-            return MagicSpellHitResult(victim, spell);
+            return MagicSpellHitResult(victim, spellInfo);
     }
     return SPELL_MISS_NONE;
 }
@@ -5458,8 +5482,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // if damage is more than need or target die from damage deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage) || GetHealth() <= damage)
                 {
-                    // remember guid before aura delete
-                    uint64 casterGuid = triggeredByAura->GetCasterGUID();
+                    // remember caster before aura delete
+                    Unit* caster = triggeredByAura->GetCaster();
 
                     // Remove aura (before cast for prevent infinite loop handlers)
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
@@ -5467,7 +5491,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     uint32 spell = sSpellMgr->GetSpellWithRank(27285, dummySpell->GetRank());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    if (Unit* caster = GetUnit(*this, casterGuid))
+                    if (caster)
                         caster->CastSpell(this, spell, true, castItem);
                     return true;                            // no hidden cooldown
                 }
@@ -5482,14 +5506,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // if damage is more than need deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage))
                 {
-                    // remember guid before aura delete
-                    uint64 casterGuid = triggeredByAura->GetCasterGUID();
+                    // remember caster before aura delete
+                    Unit* caster = triggeredByAura->GetCaster();
 
                     // Remove aura (before cast for prevent infinite loop handlers)
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    if (Unit* caster = GetUnit(*this, casterGuid))
+                    if (caster)
                         caster->CastSpell(this, 32865, true, castItem);
                     return true;                            // no hidden cooldown
                 }
@@ -14166,7 +14190,7 @@ void Unit::RestoreFaction()
 
 Unit* Unit::GetRedirectThreatTarget()
 {
-    return _redirectThreadInfo.GetTargetGUID() ? GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL;
+    return _redirectThreadInfo.GetTargetGUID() ? ObjectAccessor::GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL;
 }
 
 bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
