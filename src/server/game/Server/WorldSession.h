@@ -205,7 +205,8 @@ class WorldSession
     public:
         WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, SessionFlags flags = SESSION_FLAG_NONE);
         ~WorldSession();
-
+	
+	void RedirectToNode(uint32 mapid); //You should only use this function to redirect.
         bool SendRedirect(const char* ip, uint16 port);
         bool WasRedirected() const { return m_flags & SESSION_FLAG_FROM_REDIRECT; }
         bool HasRedirected() const { return m_flags & SESSION_FLAG_HAS_REDIRECTED; }

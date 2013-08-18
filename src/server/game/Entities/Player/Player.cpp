@@ -2330,8 +2330,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // move packet sent by client always after far teleport
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
             SetSemaphoreTeleportFar(true);
-	    // Here you can begin redirecting the client
-	    // GetSession()->SendRedirect(targetnode, port);
+	    if(GetMapId() != mapid)
+	      GetSession()->RedirectToNode(mapid);
         }
         //else
         //    return false;

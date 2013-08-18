@@ -154,6 +154,7 @@ enum WorldBoolConfigs
     CONFIG_EVENT_ANNOUNCE,
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
+    CONFIG_ENABLE_REDIRECTS,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -501,6 +502,20 @@ struct CliCommandHolder
     ~CliCommandHolder() { delete[] m_command; }
 };
 
+enum NodeType
+{
+  INSTANCE_NODE = -1,
+  BATTLEGROUND_NODE = -2,
+  CATCHALL_NODE = -3
+};
+
+struct RedirectInfo 
+{
+    std::string ip;
+    uint16 port;
+};
+
+typedef UNORDERED_MAP<int32, RedirectInfo>   NodesMap;
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
 
 struct CharacterNameData
@@ -737,7 +752,11 @@ class World
         void   ResetEventSeasonalQuests(uint16 event_id);
 
         void ReloadRBAC();
+	
 
+	void ReloadNodes();
+	const RedirectInfo& GetNodeForMap(uint32);
+	bool  CanRedirect() const { return m_bool_configs[CONFIG_ENABLE_REDIRECTS]; }
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -837,6 +856,8 @@ class World
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
+
+	NodesMap m_nodes;
 };
 
 extern uint32 realmID;

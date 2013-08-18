@@ -1125,6 +1125,14 @@ bool WorldSession::SendRedirect(const char* ip_str, uint16 port)
     return true;
 }
 
+void WorldSession::RedirectToNode(uint32 mapid)
+{
+    if(!sWorld->CanRedirect())
+      return;
+    const RedirectInfo& ri = sWorld->GetNodeForMap(mapid);
+    SendRedirect(ri.ip.c_str(), ri.port);
+}
+
 void WorldSession::HandleSuspendComms(WorldPacket& recv)
 {
     recv.rfinish();

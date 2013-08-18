@@ -1268,6 +1268,9 @@ void World::LoadConfigSettings(bool reload)
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
+
+    if((m_bool_configs[CONFIG_ENABLE_REDIRECTS] = sConfigMgr->GetFloatDefault("Redirect.Enable", false)))
+       ReloadNodes();
 }
 
 extern void LoadGameObjectModelList();
@@ -3207,4 +3210,49 @@ void World::ReloadRBAC()
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)
             session->InvalidateRBACData();
+}
+
+void World::ReloadNodes()
+{
+    m_nodes = NodesMap();
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NODES);
+    PreparedQueryResult res = WorldDatabase.Query(stmt);
+    if(!res)
+    {
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "No nodes defined! Redirecting disabled.");
+        m_bool_configs[CONFIG_ENABLE_REDIRECTS] = false;
+	return;
+    }
+    
+    do
+    {
+        Field* flds = res->Fetch();
+	int32 mapid_or_role = flds[0].GetInt32();
+	RedirectInfo ri  = { flds[1].GetString(), flds[2].GetUInt16()};
+	m_nodes[mapid_or_role] = ri;
+    } while (res->NextRow());
+
+    if(!m_nodes.count(CATCHALL_NODE)) //you done goofed
+    {
+      TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "No catchall node defined! Redirecting disabled.");
+      m_bool_configs[CONFIG_ENABLE_REDIRECTS] = false;
+      return;
+    }
+}
+
+const RedirectInfo& World::GetNodeForMap(uint32 mapid)
+{
+    if(m_nodes.count(mapid))
+    {
+       return m_nodes[mapid]; //Placed at the top, since this is what will most likely happen
+    }
+    
+    // We didn't find the map, let's fallback by type
+    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
+    if(mEntry->IsBattlegroundOrArena() && m_nodes.count(BATTLEGROUND_NODE))
+      return m_nodes[BATTLEGROUND_NODE];
+    else if(mEntry->IsDungeon() && m_nodes.count(INSTANCE_NODE))
+      return m_nodes[INSTANCE_NODE];
+    else
+      return m_nodes[CATCHALL_NODE]; 
 }

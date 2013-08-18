@@ -2734,6 +2734,10 @@ Logger.sql.sql=5,Console DBErrors
 
 Log.Async.Enable = 0
 
+# Enable redirecting players to other TC nodes
+# hic sunt dracones
+Redirect.Enable = 1
+
 #
 ###################################################################################################
 
