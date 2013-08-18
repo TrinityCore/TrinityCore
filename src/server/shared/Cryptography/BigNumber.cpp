@@ -57,9 +57,14 @@ void BigNumber::SetQword(uint64 val)
 
 void BigNumber::SetBinary(uint8 const* bytes, int32 len)
 {
-    uint8 t[1000];
-    for (int i = 0; i < len; i++) t[i] = bytes[len - 1 - i];
-    BN_bin2bn(t, len, _bn);
+    uint8* array = new uint8[len];
+    
+    for (int i = 0; i < len; i++)
+        array[i] = bytes[len - 1 - i];
+
+    BN_bin2bn(array, len, _bn);
+
+    delete[] array;
 }
 
 void BigNumber::SetHexStr(char const* str)
