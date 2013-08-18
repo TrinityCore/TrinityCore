@@ -504,12 +504,12 @@ struct CliCommandHolder
 
 enum NodeType
 {
-  INSTANCE_NODE = -1,
-  BATTLEGROUND_NODE = -2,
-  CATCHALL_NODE = -3
+    INSTANCE_NODE     = -1,
+    BATTLEGROUND_NODE = -2,
+    CATCHALL_NODE     = -3
 };
 
-struct RedirectInfo 
+struct RedirectInfo
 {
     std::string ip;
     uint16 port;
@@ -752,11 +752,11 @@ class World
         void   ResetEventSeasonalQuests(uint16 event_id);
 
         void ReloadRBAC();
-	
 
-	void ReloadNodes();
-	const RedirectInfo& GetNodeForMap(uint32);
-	bool  CanRedirect() const { return m_bool_configs[CONFIG_ENABLE_REDIRECTS]; }
+
+        void ReloadNodes();
+        RedirectInfo const& GetNodeForMap(uint32 mapId);
+        bool CanRedirect() const { return m_bool_configs[CONFIG_ENABLE_REDIRECTS]; }
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -857,7 +857,7 @@ class World
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
 
-	NodesMap m_nodes;
+        NodesMap m_nodes;
 };
 
 extern uint32 realmID;

@@ -241,6 +241,42 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     SendPacket(&data);
 }
 
+void WorldSession::CheckCharactersAllowedToLogin()
+{
+    _legitCharacters.clear();
+    QueryResult result = CharacterDatabase.PQuery("SELECT c.guid, c.race, c.class, c.gender, cb.guid "
+                                                  "FROM characters AS c "
+                                                  "LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 "
+                                                  "WHERE c.account = %u AND c.deleteInfos_Name IS NULL ORDER BY c.guid", GetAccountId());
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 guid = fields[0].GetUInt32();
+            uint8 plrRace = fields[1].GetUInt8();
+            uint8 plrClass = fields[2].GetUInt8();
+            uint8 gender = fields[3].GetUInt8();
+            uint32 banGuid = fields[4].GetUInt32();
+
+            PlayerInfo const* info = sObjectMgr->GetPlayerInfo(plrRace, plrClass);
+            if (!info)
+                continue;
+
+            if (!Player::IsValidGender(gender))
+                continue;
+
+            // banned, cannot login
+            if (banGuid)
+                continue;
+
+            _legitCharacters.insert(guid);
+        } while (result->NextRow());
+    }
+}
+
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 {
     AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, false);
@@ -777,7 +813,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 
     recvData >> playerGuid;
 
-    if (!WasRedirected() && !IsLegitCharacterForAccount(GUID_LOPART(playerGuid)))
+    if (!IsLegitCharacterForAccount(GUID_LOPART(playerGuid)))
     {
         TC_LOG_ERROR("network", "Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(playerGuid));
         KickPlayer();

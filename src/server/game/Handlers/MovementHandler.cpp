@@ -41,25 +41,27 @@ void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 
 void WorldSession::HandleMoveWorldportAckOpcode()
 {
-  if( WasRedirected())
+    if (WasRedirected())
     {
-      GetPlayer()->SetTeleportDest(WorldLocation(GetPlayer()->GetMapId(),
-						 GetPlayer()->GetPositionX(),
-						 GetPlayer()->GetPositionY(),
-						 GetPlayer()->GetPositionZ(),
-						 GetPlayer()->GetOrientation()));
-      GetPlayer()->SetSemaphoreTeleportFar(true);
+        GetPlayer()->SetTeleportDest(WorldLocation(GetPlayer()->GetMapId(),
+                                                   GetPlayer()->GetPositionX(),
+                                                   GetPlayer()->GetPositionY(),
+                                                   GetPlayer()->GetPositionZ(),
+                                                   GetPlayer()->GetOrientation()));
+
+        GetPlayer()->SetSemaphoreTeleportFar(true);
     }
+
     // ignore unexpected far teleports
-  if (!GetPlayer()->IsBeingTeleportedFar())
+    if (!GetPlayer()->IsBeingTeleportedFar())
         return;
 
     GetPlayer()->SetSemaphoreTeleportFar(false);
-    
+
     // get the teleport destination
-    
+
     WorldLocation const& loc = GetPlayer()->GetTeleportDest();
-    
+
     // possible errors in the coordinate validity check
     if (!MapManager::IsValidMapCoord(loc))
     {
@@ -75,42 +77,43 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (GetPlayer()->m_InstanceValid == false && !mInstance)
         GetPlayer()->m_InstanceValid = true;
 
-    Map* oldMap = GetPlayer()->GetMap();
-    Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
-
-    if (GetPlayer()->IsInWorld())
+    if (!WasRedirected())
     {
-        TC_LOG_ERROR("network", "Player %s (GUID: %u) is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
-        oldMap->RemovePlayerFromMap(GetPlayer(), false);
-    }
+        Map* oldMap = GetPlayer()->GetMap();
+        Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
 
-    // relocate the player to the teleport destination
-    // the CanEnter checks are done in TeleporTo but conditions may change
-    // while the player is in transit, for example the map may get full
-    if (!newMap || !newMap->CanEnter(GetPlayer()))
-    {
-        TC_LOG_ERROR("network", "Map %d (%s) could not be created for player %d (%s), porting player to homebind", loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
-        GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
-        return;
-    }
+        if (GetPlayer()->IsInWorld())
+        {
+            TC_LOG_ERROR("network", "Player %s (GUID: %u) is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
+            oldMap->RemovePlayerFromMap(GetPlayer(), false);
+            GetPlayer()->ResetMap();
+        }
 
-    float z = loc.GetPositionZ();
-    if (GetPlayer()->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += GetPlayer()->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-    GetPlayer()->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
+        // relocate the player to the teleport destination
+        // the CanEnter checks are done in TeleporTo but conditions may change
+        // while the player is in transit, for example the map may get full
+        if (!newMap || !newMap->CanEnter(GetPlayer()))
+        {
+            TC_LOG_ERROR("network", "Map %d (%s) could not be created for player %d (%s), porting player to homebind", loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
+            GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
+            return;
+        }
+        else
+            GetPlayer()->Relocate(&loc);
 
-    GetPlayer()->ResetMap();
-    GetPlayer()->SetMap(newMap);
-
-    GetPlayer()->SendInitialPacketsBeforeAddToMap();
-    if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
-    {
-        TC_LOG_ERROR("network", "WORLD: failed to teleport player %s (%d) to map %d (%s) because of unknown reason!",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow(), loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown");
         GetPlayer()->ResetMap();
-        GetPlayer()->SetMap(oldMap);
-        GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
-        return;
+        GetPlayer()->SetMap(newMap);
+
+        GetPlayer()->SendInitialPacketsBeforeAddToMap();
+        if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
+        {
+            TC_LOG_ERROR("network", "WORLD: failed to teleport player %s (%d) to map %d (%s) because of unknown reason!",
+                GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow(), loc.GetMapId(), newMap ? newMap->GetMapName() : "Unknown");
+            GetPlayer()->ResetMap();
+            GetPlayer()->SetMap(oldMap);
+            GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
+            return;
+        }
     }
 
     // battleground state prepare (in case join to BG), at relogin/tele player not invited
@@ -133,7 +136,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
     }
 
-    GetPlayer()->SendInitialPacketsAfterAddToMap();
+    if (!WasRedirected())
+        GetPlayer()->SendInitialPacketsAfterAddToMap();
 
     // flight fast teleport case
     if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)

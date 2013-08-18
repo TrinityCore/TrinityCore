@@ -293,6 +293,7 @@ void World::AddSession_(WorldSession* s)
     }
     else
     {
+        s->CheckCharactersAllowedToLogin();
         if (QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account = %u AND online = 1", s->GetAccountId()))
         {
             WorldPacket data(CMSG_PLAYER_LOGIN, 8);
@@ -1265,12 +1266,13 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
 
+    m_bool_configs[CONFIG_ENABLE_REDIRECTS] = sConfigMgr->GetBoolDefault("Redirect.Enable", false);
+    if (m_bool_configs[CONFIG_ENABLE_REDIRECTS])
+        ReloadNodes();
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
-
-    if((m_bool_configs[CONFIG_ENABLE_REDIRECTS] = sConfigMgr->GetBoolDefault("Redirect.Enable", false)))
-       ReloadNodes();
 }
 
 extern void LoadGameObjectModelList();
@@ -3214,45 +3216,46 @@ void World::ReloadRBAC()
 
 void World::ReloadNodes()
 {
-    m_nodes = NodesMap();
+    m_nodes.clear();
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NODES);
     PreparedQueryResult res = WorldDatabase.Query(stmt);
-    if(!res)
+    if (!res)
     {
         TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "No nodes defined! Redirecting disabled.");
         m_bool_configs[CONFIG_ENABLE_REDIRECTS] = false;
-	return;
+        return;
     }
-    
+
     do
     {
-        Field* flds = res->Fetch();
-	int32 mapid_or_role = flds[0].GetInt32();
-	RedirectInfo ri  = { flds[1].GetString(), flds[2].GetUInt16()};
-	m_nodes[mapid_or_role] = ri;
+        Field* fields = res->Fetch();
+        int32 mapid_or_role = fields[0].GetInt32();
+        RedirectInfo ri;
+        ri.ip = fields[1].GetString();
+        ri.port = fields[2].GetUInt16();
+        m_nodes[mapid_or_role] = ri;
     } while (res->NextRow());
 
-    if(!m_nodes.count(CATCHALL_NODE)) //you done goofed
+    if (!m_nodes.count(CATCHALL_NODE)) //you done goofed
     {
-      TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "No catchall node defined! Redirecting disabled.");
-      m_bool_configs[CONFIG_ENABLE_REDIRECTS] = false;
-      return;
+        m_nodes.clear();
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "No catchall node defined! Redirecting disabled.");
+        m_bool_configs[CONFIG_ENABLE_REDIRECTS] = false;
+        return;
     }
 }
 
-const RedirectInfo& World::GetNodeForMap(uint32 mapid)
+RedirectInfo const& World::GetNodeForMap(uint32 mapId)
 {
-    if(m_nodes.count(mapid))
-    {
-       return m_nodes[mapid]; //Placed at the top, since this is what will most likely happen
-    }
-    
+    if (m_nodes.count(mapId))
+        return m_nodes[mapId];  //Placed at the top, since this is what will most likely happen
+
     // We didn't find the map, let's fallback by type
-    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
-    if(mEntry->IsBattlegroundOrArena() && m_nodes.count(BATTLEGROUND_NODE))
-      return m_nodes[BATTLEGROUND_NODE];
-    else if(mEntry->IsDungeon() && m_nodes.count(INSTANCE_NODE))
-      return m_nodes[INSTANCE_NODE];
+    MapEntry const* mEntry = sMapStore.LookupEntry(mapId);
+    if (mEntry->IsBattlegroundOrArena() && m_nodes.count(BATTLEGROUND_NODE))
+        return m_nodes[BATTLEGROUND_NODE];
+    else if (mEntry->IsDungeon() && m_nodes.count(INSTANCE_NODE))
+        return m_nodes[INSTANCE_NODE];
     else
-      return m_nodes[CATCHALL_NODE]; 
+        return m_nodes[CATCHALL_NODE];
 }

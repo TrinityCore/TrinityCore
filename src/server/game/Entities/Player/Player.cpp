@@ -2325,12 +2325,16 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
                 GetSession()->SendPacket(&data);
                 SendSavedInstances();
-	    }
+        }
 
             // move packet sent by client always after far teleport
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
             SetSemaphoreTeleportFar(true);
-	    GetSession()->RedirectToNode(mapid);
+
+            // Need to clear FROM_REDIRECT flag for situations where we were redirected before
+            // but new teleport will be handled by the same node
+            GetSession()->ClearRedirectFlag(SESSION_FLAG_FROM_REDIRECT);
+            GetSession()->RedirectToNode(mapid);
         }
         //else
         //    return false;
@@ -19368,10 +19372,11 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, 2));
         stmt->setUInt32(index++, m_grantableLevels);
 
-	if( GetSession()->HasRedirected() )
-	  stmt->setUInt8(index++, 1);
-	else
-	  stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
+        if (GetSession()->HasRedirected() || (IsInWorld() && !GetSession()->PlayerLogout()))
+            stmt->setUInt8(index++, 1);
+        else
+            stmt->setUInt8(index++, 0);
+
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
     }
