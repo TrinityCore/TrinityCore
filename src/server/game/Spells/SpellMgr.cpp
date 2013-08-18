@@ -2819,10 +2819,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         switch (spellInfo->Id)
         {
-            case 60256:
-                //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
-                break;
             case 1776: // Gouge
             case 1777:
             case 8629:
@@ -2976,6 +2972,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
+            case 38729: // Rod of Purification
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_BY_CASTER;
+                break;
             default:
                 break;
         }
@@ -3101,9 +3100,22 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
+            case 53228: // Rapid Killing (Rank 1)
+            case 53232: // Rapid Killing (Rank 2)
             case 63320: // Glyph of Life Tap
-            // Entries were not updated after spell effect change, we have to do that manually :/
+                // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+                break;
+            case 5308:  // Execute (Rank 1)
+            case 20658: // Execute (Rank 2)
+            case 20660: // Execute (Rank 3)
+            case 20661: // Execute (Rank 4)
+            case 20662: // Execute (Rank 5)
+            case 25234: // Execute (Rank 6)
+            case 25236: // Execute (Rank 7)
+            case 47470: // Execute (Rank 8)
+            case 47471: // Execute (Rank 9)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 59725: // Improved Spell Reflection - aoe aura
                 // Target entry seems to be wrong for this spell :/
@@ -3735,6 +3747,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+                break;
+            case 45257: // Using Steam Tonk Controller
+            case 45440: // Steam Tonk Controller
+            case 60256: // Collect Sample
+                // Crashes client on pressing ESC
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                break;
             default:
                 break;
         }

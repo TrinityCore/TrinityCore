@@ -295,10 +295,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 return;
             }
 
-            if (spellInfo->StartRecoveryCategory > 0)
-                if (pet->GetCharmInfo() && pet->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
-                    return;
-
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
@@ -378,10 +374,10 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             }
             else
             {
-                if (pet->isPossessed() || pet->IsVehicle())
+                if (pet->isPossessed() || pet->IsVehicle()) /// @todo: confirm this check
                     Spell::SendCastResult(GetPlayer(), spellInfo, 0, result);
                 else
-                    pet->SendPetCastFail(spellid, result);
+                    spell->SendPetCastResult(result);
 
                 if (!pet->ToCreature()->HasSpellCooldown(spellid))
                     GetPlayer()->SendClearCooldown(spellid, pet);
@@ -771,13 +767,6 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (spellInfo->StartRecoveryCategory > 0) // Check if spell is affected by GCD
-        if (caster->GetTypeId() == TYPEID_UNIT && caster->GetCharmInfo() && caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
-        {
-            caster->SendPetCastFail(spellId, SPELL_FAILED_NOT_READY);
-            return;
-        }
-
     // do not cast not learned spells
     if (!caster->HasSpell(spellId) || spellInfo->IsPassive())
         return;
@@ -792,25 +781,19 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     spell->m_cast_count = castCount;                    // probably pending spell cast
     spell->m_targets = targets;
 
-    /// @todo need to check victim?
-    SpellCastResult result;
-    if (caster->m_movedPlayer)
-        result = spell->CheckPetCast(caster->m_movedPlayer->GetSelectedUnit());
-    else
-        result = spell->CheckPetCast(NULL);
+    SpellCastResult result = spell->CheckPetCast(NULL);
+
     if (result == SPELL_CAST_OK)
     {
-        if (caster->GetTypeId() == TYPEID_UNIT)
+        if (Creature* creature = caster->ToCreature())
         {
-            Creature* pet = caster->ToCreature();
-            pet->AddCreatureSpellCooldown(spellId);
-            if (pet->IsPet())
+            creature->AddCreatureSpellCooldown(spellId);
+            if (Pet* pet = creature->ToPet())
             {
-                Pet* p = (Pet*)pet;
                 // 10% chance to play special pet attack talk, else growl
                 // actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                if (p->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
-                    pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
+                if (pet->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
+                    pet->SendPetTalk(PET_TALK_SPECIAL_SPELL);
                 else
                     pet->SendPetAIReaction(guid);
             }
@@ -820,7 +803,8 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     }
     else
     {
-        caster->SendPetCastFail(spellId, result);
+        spell->SendPetCastResult(result);
+
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
             if (!caster->ToPlayer()->HasSpellCooldown(spellId))

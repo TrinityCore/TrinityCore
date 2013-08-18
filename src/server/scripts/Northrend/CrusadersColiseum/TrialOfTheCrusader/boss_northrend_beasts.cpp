@@ -352,7 +352,7 @@ class npc_snobold_vassal : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Unit* target = Unit::GetPlayer(*me, _targetGUID))
+                if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
                     if (target->IsAlive())
                         target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
                 if (_instance)
@@ -379,7 +379,7 @@ class npc_snobold_vassal : public CreatureScript
                 if (!UpdateVictim() || _targetDied)
                     return;
 
-                if (Unit* target = Unit::GetPlayer(*me, _targetGUID))
+                if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
                 {
                     if (!target->IsAlive())
                     {
@@ -907,7 +907,7 @@ class boss_icehowl : public CreatureScript
                             else
                             {
                                 // Landed from Hop backwards (start trample)
-                                if (Unit::GetPlayer(*me, _trampleTargetGUID))
+                                if (ObjectAccessor::GetPlayer(*me, _trampleTargetGUID))
                                     _stage = 4;
                                 else
                                     _stage = 6;
@@ -1046,7 +1046,7 @@ class boss_icehowl : public CreatureScript
                             {
                                 case EVENT_TRAMPLE:
                                 {
-                                    if (Unit* target = Unit::GetPlayer(*me, _trampleTargetGUID))
+                                    if (Unit* target = ObjectAccessor::GetPlayer(*me, _trampleTargetGUID))
                                     {
                                         me->StopMoving();
                                         me->AttackStop();

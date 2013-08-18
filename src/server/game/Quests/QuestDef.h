@@ -43,7 +43,7 @@ class ObjectMgr;
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_PVP_KILL_SLOT 0
 
-enum QuestFailedReasons
+enum QuestFailedReason
 {
     INVALIDREASON_DONT_HAVE_REQ                 = 0,
     INVALIDREASON_QUEST_FAILED_LOW_LEVEL        = 1,        // You are not high enough level for that quest.

@@ -44,13 +44,13 @@ public:
             SetBossNumber(EncounterCount);
         }
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             SetBossState(DATA_ANZU, NOT_STARTED);
             iIkissDoorGUID = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             if (creature->GetEntry() == NPC_ANZU)
             {
@@ -61,13 +61,13 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
              if (go->GetEntry() == GO_IKISS_DOOR)
                 iIkissDoorGUID = go->GetGUID();
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -89,7 +89,7 @@ public:
             return true;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -100,7 +100,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* str)
+        void Load(const char* str) OVERRIDE
         {
             if (!str)
             {

@@ -44,6 +44,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
+#include "OpenSSLCrypto.h"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -121,6 +122,7 @@ public:
 /// Main function
 int Master::Run()
 {
+    OpenSSLCrypto::threadsSetup();
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
@@ -368,6 +370,7 @@ int Master::Run()
     // fixes a memory leak related to detaching threads from the module
     //UnloadScriptingModule();
 
+    OpenSSLCrypto::threadsCleanup();
     // Exit the process with specified return value
     return World::GetExitCode();
 }
