@@ -23,7 +23,7 @@
 
 std::vector<ACE_Thread_Mutex*> cryptoLocks;
 
-void lockingCallback(int mode, int type, const char *file, int line)
+static void lockingCallback(int mode, int type, const char */*file*/, int /*line*/)
 {
     if (mode & CRYPTO_LOCK)
         cryptoLocks[type]->acquire();
@@ -31,7 +31,7 @@ void lockingCallback(int mode, int type, const char *file, int line)
         cryptoLocks[type]->release();
 }
 
-void threadIdCallback(CRYPTO_THREADID * id)
+static void threadIdCallback(CRYPTO_THREADID * id)
 {
     CRYPTO_THREADID_set_numeric(id, ACE_Thread::self());
 }
