@@ -820,26 +820,25 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (sWorld->CanRedirect() && !WasRedirected())
+    {
+        QueryResult res = CharacterDatabase.PQuery("SELECT map FROM characters WHERE guid = '%u'", playerGuid);
+        RedirectInfo ri = sWorld->GetNodeForMap((*res)[0].GetUInt32());
+        RedirectInfo curr = sWorld->GetCurrentNode();
+        if (curr.ip != ri.ip || curr.port != ri.port)
+        {
+           CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", playerGuid);
+           SendRedirect(ri.ip.c_str(), ri.port);
+           return;
+        }
+    }
+
     LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerGuid);
     if (!holder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries
         m_playerLoading = false;
         return;
-    }
-
-    if(sWorld->CanRedirect())
-    {
-        QueryResult res = CharacterDatabase.PQuery("SELECT map FROM characters WHERE guid = '%u'", playerGuid);
-	Field* fld = res->Fetch();
-        RedirectInfo ri = sWorld->GetNodeForMap(fld[0].GetUInt32());
-	RedirectInfo curr = sWorld->GetCurrentNode();
-	if(curr.ip != ri.ip || curr.port != ri.port)
-	{
-	   CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", playerGuid);
-	   SendRedirect(ri.ip.c_str(), ri.port);
-	   return;
-	}
     }
 
     _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
@@ -866,7 +865,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
-    
+
     WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
     data << pCurrChar->GetMapId();
     data << pCurrChar->GetPositionX();
