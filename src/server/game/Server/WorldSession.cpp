@@ -1131,7 +1131,9 @@ void WorldSession::RedirectToNode(uint32 mapid)
         return;
 
     RedirectInfo const& ri = sWorld->GetNodeForMap(mapid);
-    SendRedirect(ri.ip.c_str(), ri.port);
+    if(sWorld->GetCurrentNode().ip != ri.ip || 
+       sWorld->GetCurrentNode().port != ri.port) //dont reconnect to current node
+      SendRedirect(ri.ip.c_str(), ri.port);
 }
 
 void WorldSession::HandleSuspendComms(WorldPacket& recv)

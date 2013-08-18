@@ -1273,6 +1273,8 @@ void World::LoadConfigSettings(bool reload)
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
+    m_currNode.ip = sConfigMgr->GetStringDefault("BindIP", "127.0.0.1");
+    m_currNode.port = sConfigMgr->GetIntDefault("WorldServerPort", 8085);
 }
 
 extern void LoadGameObjectModelList();

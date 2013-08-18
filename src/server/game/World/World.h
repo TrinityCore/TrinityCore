@@ -756,6 +756,7 @@ class World
 
         void ReloadNodes();
         RedirectInfo const& GetNodeForMap(uint32 mapId);
+	RedirectInfo const& GetCurrentNode() { return m_currNode; }
         bool CanRedirect() const { return m_bool_configs[CONFIG_ENABLE_REDIRECTS]; }
     protected:
         void _UpdateGameTime();
@@ -858,6 +859,7 @@ class World
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
 
         NodesMap m_nodes;
+	RedirectInfo m_currNode;
 };
 
 extern uint32 realmID;
