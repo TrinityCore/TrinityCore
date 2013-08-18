@@ -3052,12 +3052,12 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     if (Player* player = m_caster->ToPlayer())
     {
-        if (!m_caster->ToPlayer()->GetCommandStatus(CHEAT_CASTTIME))
+        if (!player->GetCommandStatus(CHEAT_CASTTIME))
         {
-            m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
+            player->SetSpellModTakingSpell(this, true);
             // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
             m_casttime = m_spellInfo->CalcCastTime(this);
-            m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+            player->SetSpellModTakingSpell(this, false);
         }
         else
             m_casttime = 0; // Set cast time to 0 if .cheat casttime is enabled.

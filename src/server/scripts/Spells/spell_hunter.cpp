@@ -149,7 +149,6 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Hunter T7 4P Bonus
-                Unit* target = GetTarget();
                 if (GetTarget()->HasAura(SPELL_HUNTER_VIPER_ATTACK_SPEED))
                     GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_VICIOUS_VIPER);
             }
