@@ -74,9 +74,9 @@ class _SpellScript
                 EffectHook(uint8 _effIndex);
                 virtual ~EffectHook() { }
 
-                uint8 GetAffectedEffectsMask(SpellInfo const* spellEntry);
-                bool IsEffectAffected(SpellInfo const* spellEntry, uint8 effIndex);
-                virtual bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex) = 0;
+                uint8 GetAffectedEffectsMask(SpellInfo const* spellInfo);
+                bool IsEffectAffected(SpellInfo const* spellInfo, uint8 effIndex);
+                virtual bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) = 0;
                 std::string EffIndexToString();
             protected:
                 uint8 effIndex;
@@ -86,7 +86,7 @@ class _SpellScript
         {
             public:
                 EffectNameCheck(uint16 _effName) { effName = _effName; }
-                bool Check(SpellInfo const* spellEntry, uint8 effIndex);
+                bool Check(SpellInfo const* spellInfo, uint8 effIndex);
                 std::string ToString();
             private:
                 uint16 effName;
@@ -96,7 +96,7 @@ class _SpellScript
         {
             public:
                 EffectAuraNameCheck(uint16 _effAurName) { effAurName = _effAurName; }
-                bool Check(SpellInfo const* spellEntry, uint8 effIndex);
+                bool Check(SpellInfo const* spellInfo, uint8 effIndex);
                 std::string ToString();
             private:
                 uint16 effAurName;
@@ -114,7 +114,7 @@ class _SpellScript
         virtual void Register() = 0;
         // Function called on server startup, if returns false script won't be used in core
         // use for: dbc/template data presence/correctness checks
-        virtual bool Validate(SpellInfo const* /*spellEntry*/) { return true; }
+        virtual bool Validate(SpellInfo const* /*spellInfo*/) { return true; }
         // Function called when script is created, if returns false script will be unloaded afterwards
         // use for: initializing local script variables (DO NOT USE CONSTRUCTOR FOR THIS PURPOSE!)
         virtual bool Load() { return true; }
@@ -185,7 +185,7 @@ class SpellScript : public _SpellScript
             public:
                 EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
                 std::string ToString();
-                bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex);
                 void Call(SpellScript* spellScript, SpellEffIndex effIndex);
             private:
                 SpellEffectFnType pEffectHandlerScript;
@@ -204,7 +204,7 @@ class SpellScript : public _SpellScript
         {
             public:
                 TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area);
-                bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex);
                 std::string ToString();
             protected:
                 uint16 targetType;
@@ -488,7 +488,7 @@ class AuraScript : public _SpellScript
             public:
                 EffectBase(uint8 _effIndex, uint16 _effName);
                 std::string ToString();
-                bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex);
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex);
         };
         class EffectPeriodicHandler : public EffectBase
         {

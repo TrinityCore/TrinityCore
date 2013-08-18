@@ -436,9 +436,9 @@ public:
         // Emote Ardonis and Pathaleon
         void Turn_to_Pathaleons_Image()
         {
-            Creature* ardonis = Unit::GetCreature(*me, ardonisGUID);
-            Creature* pathaleon = Unit::GetCreature(*me, pathaleonGUID);
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Creature* ardonis = ObjectAccessor::GetCreature(*me, ardonisGUID);
+            Creature* pathaleon = ObjectAccessor::GetCreature(*me, pathaleonGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
             if (!ardonis || !pathaleon || !player)
                 return;
@@ -462,9 +462,9 @@ public:
         //Set them back to each other
         void Turn_to_eachother()
         {
-            if (Unit* ardonis = Unit::GetUnit(*me, ardonisGUID))
+            if (Unit* ardonis = ObjectAccessor::GetUnit(*me, ardonisGUID))
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
                 if (!player)
                     return;
@@ -519,9 +519,9 @@ public:
                 return;
             }
 
-            Creature* ardonis = Creature::GetCreature(*me, ardonisGUID);
-            Creature* pathaleon = Creature::GetCreature(*me, pathaleonGUID);
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Creature* ardonis = ObjectAccessor::GetCreature(*me, ardonisGUID);
+            Creature* pathaleon = ObjectAccessor::GetCreature(*me, pathaleonGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
             if (!ardonis || !player)
             {
@@ -821,7 +821,7 @@ public:
                     ManaBurnTimer = 3500;
             } else ManaBurnTimer -= diff;
 
-            if (Player* player = Unit::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
+            if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
             {
                 if (!Weak && HealthBelowPct(WeakPercent)
                     && player->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
