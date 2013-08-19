@@ -2025,6 +2025,15 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
     }
 }
 
+GameObject* Spell::SearchSpellFocus()
+{
+    GameObject* focus = NULL;
+    Trinity::GameObjectFocusCheck check(m_caster, m_spellInfo->RequiresSpellFocus);
+    Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> searcher(m_caster, focus, check);
+    SearchTargets<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> > (searcher, GRID_MAP_TYPE_MASK_GAMEOBJECT, m_caster, m_caster, m_caster->GetVisibilityRange());
+    return focus;
+}
+
 void Spell::prepareDataForTriggerSystem(AuraEffect const* /*triggeredByAura*/)
 {
     //==========================================================================================
@@ -3042,18 +3051,20 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // Prepare data for triggers
     prepareDataForTriggerSystem(triggeredByAura);
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
-    // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
-    m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = m_caster->ToPlayer())
     {
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
-
-        // Set casttime to 0 if .cheat casttime is enabled.
-        if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_CASTTIME))
-            m_casttime = 0;
+        if (!player->GetCommandStatus(CHEAT_CASTTIME))
+        {
+            player->SetSpellModTakingSpell(this, true);
+            // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
+            m_casttime = m_spellInfo->CalcCastTime(player->getLevel(), this);
+            player->SetSpellModTakingSpell(this, false);
+        }
+        else
+            m_casttime = 0; // Set cast time to 0 if .cheat casttime is enabled.
     }
+    else
+        m_casttime = m_spellInfo->CalcCastTime(m_caster->getLevel(), this);
 
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
@@ -3317,7 +3328,7 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
+    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->AttributesEx4 & SPELL_ATTR4_UNK4)
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -3777,13 +3788,25 @@ void Spell::SendCastResult(SpellCastResult result)
     SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError);
 }
 
+void Spell::SendPetCastResult(SpellCastResult result)
+{
+    if (result == SPELL_CAST_OK)
+        return;
+
+    Unit* owner = m_caster->GetCharmerOrOwner();
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    SendCastResult(owner->ToPlayer(), m_spellInfo, m_cast_count, result, SPELL_CUSTOM_ERROR_NONE, SMSG_PET_CAST_FAILED);
+}
+
 void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, Opcodes opcode /*= SMSG_CAST_FAILED*/)
 {
     if (result == SPELL_CAST_OK)
         return;
 
     WorldPacket data(opcode, (4+1+1));
-    data << uint8(cast_count);                              // single cast or multi 2.3 (0/1)
+    data << uint8(cast_count);
     data << uint32(spellInfo->Id);
     data << uint8(result);                                  // problem
     switch (result)
@@ -5053,9 +5076,17 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_NOT_MOUNTED;
     }
 
+    // check spell focus object
+    if (m_spellInfo->RequiresSpellFocus)
+    {
+        focusObject = SearchSpellFocus();
+        if (!focusObject)
+            return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+    }
+
     SpellCastResult castResult = SPELL_CAST_OK;
 
-    // always (except passive spells) check items (focus object can be required for any type casts)
+    // always (except passive spells) check items (only player related checks)
     if (!m_spellInfo->IsPassive())
     {
         castResult = CheckItems();
@@ -5655,6 +5686,11 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
         if (creatureCaster->HasSpellCooldown(m_spellInfo->Id))
             return SPELL_FAILED_NOT_READY;
 
+    // Check if spell is affected by GCD
+    if (m_spellInfo->StartRecoveryCategory > 0)
+        if (m_caster->GetCharmInfo() && m_caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(m_spellInfo))
+            return SPELL_FAILED_NOT_READY;
+
     return CheckCast(true);
 }
 
@@ -6047,26 +6083,6 @@ SpellCastResult Spell::CheckItems()
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT))
             if (!player->HasItemFitToSpellRequirements(m_spellInfo))
                 return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
-    }
-
-    // check spell focus object
-    if (m_spellInfo->RequiresSpellFocus)
-    {
-        CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
-        Cell cell(p);
-
-        GameObject* ok = NULL;
-        Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
-        Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
-
-        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
-        Map& map = *m_caster->GetMap();
-        cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
-
-        if (!ok)
-            return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-
-        focusObject = ok;                                   // game object found in range
     }
 
     // do not take reagents for these item casts

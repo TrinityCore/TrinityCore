@@ -628,7 +628,7 @@ public:
 
         void PatientDied(Location* point)
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (player && ((player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)))
             {
                 ++PatientDiedCount;
@@ -1679,7 +1679,7 @@ public:
 
             me->MonsterWhisper(whisp.c_str(), player->GetGUID());
             if (victimGUID)
-                if (Player* victim = Unit::GetPlayer(*me, victimGUID))
+                if (Player* victim = ObjectAccessor::GetPlayer(*me, victimGUID))
                     victim->RemoveAura(43906); // remove polymorph frog thing
             me->AddAura(43906, player); // add polymorph frog thing
             victimGUID = player->GetGUID();

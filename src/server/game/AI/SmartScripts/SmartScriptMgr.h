@@ -156,8 +156,9 @@ enum SMART_EVENT
     SMART_EVENT_GO_EVENT_INFORM          = 71,      // eventId
     SMART_EVENT_ACTION_DONE              = 72,      // eventId (SharedDefines.EventId)
     SMART_EVENT_ON_SPELLCLICK            = 73,      // clicker (unit)
+    SMART_EVENT_FRIENDLY_HEALTH_PCT      = 74,      // minHpPct, maxHpPct, repeatMin, repeatMax
 
-    SMART_EVENT_END                      = 74
+    SMART_EVENT_END                      = 75
 };
 
 struct SmartEvent
@@ -361,6 +362,14 @@ struct SmartEvent
         {
             uint32 eventId;
         } doAction;
+
+        struct
+        {
+            uint32 minHpPct;
+            uint32 maxHpPct;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendlyHealtPct;
 
         struct
         {
@@ -1002,7 +1011,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist
-    SMART_TARGET_END                            = 26
+    SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist
+
+    SMART_TARGET_END                            = 27
 };
 
 struct SmartTarget
@@ -1088,6 +1099,11 @@ struct SmartTarget
         {
             uint32 maxDist;
         } closestAttackable;
+
+        struct
+        {
+            uint32 maxDist;
+        } closestFriendly;
 
         struct
         {
@@ -1226,7 +1242,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_GO_STATE_CHANGED,          SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GO_EVENT_INFORM,           SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_ACTION_DONE,               SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE }
+    {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
 };
 
 enum SmartEventFlags

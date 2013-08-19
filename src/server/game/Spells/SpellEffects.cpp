@@ -518,16 +518,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
-            case SPELLFAMILY_HUNTER:
-            {
-                //Gore
-                if (m_spellInfo->SpellIconID == 1578)
-                {
-                    if (m_caster->HasAura(57627))           // Charge 6 sec post-affect
-                        damage *= 2;
-                }
-                break;
-            }
             case SPELLFAMILY_DEATHKNIGHT:
             {
                 // Blood Boil - bonus for diseased targets

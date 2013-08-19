@@ -974,8 +974,7 @@ bool BattlegroundSA::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
         case BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH:
             return _allVehiclesAlive[GetTeamIndexByTeamId(source->GetTeam())];
         case BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS:
-            if (source->GetTeamId() != Attackers && !gateDestroyed)
-                return true;
+            return source->GetTeamId() != Attackers && !gateDestroyed;
     }
 
     return Battleground::CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue);

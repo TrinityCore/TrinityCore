@@ -2529,7 +2529,7 @@ void Creature::SetDisplayId(uint32 modelId)
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
     {
-        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * GetFloatValue(OBJECT_FIELD_SCALE_X));
-        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * GetFloatValue(OBJECT_FIELD_SCALE_X));
+        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * GetObjectScale());
+        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * GetObjectScale());
     }
 }

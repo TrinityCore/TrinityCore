@@ -43,7 +43,8 @@ enum CreatureIds
 enum GameObjectIds
 {
     GO_ARGALOTH_DOOR        = 207619,
-    GO_OCCUTHAR_DOOR        = 208953
+    GO_OCCUTHAR_DOOR        = 208953,
+    GO_ALIZABAL_DOOR        = 209849
 };
 
 template<class AI>

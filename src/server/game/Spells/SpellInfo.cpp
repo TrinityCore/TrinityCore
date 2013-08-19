@@ -1172,8 +1172,12 @@ bool SpellInfo::NeedsExplicitUnitTarget() const
 
 bool SpellInfo::NeedsToBeTriggeredByCaster() const
 {
+    if (AttributesCu & SPELL_ATTR0_CU_TRIGGERED_BY_CASTER)
+        return true;
+
     if (NeedsExplicitUnitTarget())
         return true;
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (Effects[i].IsEffect())
@@ -1183,6 +1187,7 @@ bool SpellInfo::NeedsToBeTriggeredByCaster() const
                 return true;
         }
     }
+
     return false;
 }
 
@@ -1891,7 +1896,7 @@ uint32 SpellInfo::GetAllEffectsMechanicMask() const
     uint32 mask = 0;
     if (Mechanic)
         mask |= 1 << Mechanic;
-    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (Effects[i].IsEffect() && Effects[i].Mechanic)
             mask |= 1 << Effects[i].Mechanic;
     return mask;
@@ -1901,9 +1906,9 @@ uint32 SpellInfo::GetEffectMechanicMask(uint8 effIndex) const
 {
     uint32 mask = 0;
     if (Mechanic)
-        mask |= 1<< Mechanic;
+        mask |= 1 << Mechanic;
     if (Effects[effIndex].IsEffect() && Effects[effIndex].Mechanic)
-        mask |= 1<< Effects[effIndex].Mechanic;
+        mask |= 1 << Effects[effIndex].Mechanic;
     return mask;
 }
 
@@ -1911,10 +1916,10 @@ uint32 SpellInfo::GetSpellMechanicMaskByEffectMask(uint32 effectMask) const
 {
     uint32 mask = 0;
     if (Mechanic)
-        mask |= 1<< Mechanic;
-    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        mask |= 1 << Mechanic;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if ((effectMask & (1 << i)) && Effects[i].Mechanic)
-            mask |= 1<< Effects[i].Mechanic;
+            mask |= 1 << Effects[i].Mechanic;
     return mask;
 }
 
@@ -2233,16 +2238,18 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 
-uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
+uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= NULL*/) const
 {
     int32 castTime = 0;
+    if (!level && spell)
+        level = spell->GetCaster()->getLevel();
 
     // not all spells have cast time index and this is all is pasiive abilities
-    if (caster && CastTimeMax > 0)
+    if (level && CastTimeMax > 0)
     {
         castTime = CastTimeMax;
-        if (CastTimeMaxLevel > int32(caster->getLevel()))
-            castTime = CastTimeMin + int32(caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
+        if (CastTimeMaxLevel > level)
+            castTime = CastTimeMin + int32(level - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
     }
     else if (CastTimeEntry)
         castTime = CastTimeEntry->CastTime;
@@ -2250,8 +2257,8 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
     if (!castTime)
         return 0;
 
-    if (caster)
-        caster->ModSpellCastTime(this, castTime, spell);
+    if (spell)
+        spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
 
     if (Attributes & SPELL_ATTR0_REQ_AMMO && (!IsAutoRepeatRangedSpell()) && !(AttributesEx9 & SPELL_ATTR9_AIMED_SHOT))
         castTime += 500;

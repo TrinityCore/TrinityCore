@@ -67,6 +67,7 @@ set(scripts_STAT_SRCS
   Kalimdor/Maraudon/boss_landslide.cpp
   Kalimdor/Maraudon/boss_celebras_the_cursed.cpp
   Kalimdor/Maraudon/boss_noxxion.cpp
+  Kalimdor/Maraudon/instance_maraudon.cpp
   Kalimdor/TempleOfAhnQiraj/boss_fankriss.cpp
   Kalimdor/TempleOfAhnQiraj/boss_huhuran.cpp
   Kalimdor/TempleOfAhnQiraj/instance_temple_of_ahnqiraj.cpp
@@ -112,6 +113,8 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/boss_onyxia.cpp
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
+  Kalimdor/RagefireChasm/instance_ragefire_chasm.cpp
+  Kalimdor/DireMaul/instance_dire_maul.cpp
   Kalimdor/HallsOfOrigination/halls_of_origination.h
   Kalimdor/HallsOfOrigination/instance_halls_of_origination.cpp
   Kalimdor/HallsOfOrigination/boss_temple_guardian_anhuur.cpp

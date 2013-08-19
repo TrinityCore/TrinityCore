@@ -361,18 +361,20 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (EventInProgress) {
-                Player* pWarrior = NULL;
+            if (EventInProgress)
+            {
+                Player* warrior = NULL;
 
                 if (PlayerGUID)
-                    pWarrior = Unit::GetPlayer(*me, PlayerGUID);
+                    warrior = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
-                if (!pWarrior)
+                if (!warrior)
                     return;
 
-                if (!pWarrior->IsAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
+                if (!warrior->IsAlive() && warrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE)
+                {
                     Talk(SAY_TWIGGY_FLATHEAD_DOWN);
-                    pWarrior->FailQuest(1719);
+                    warrior->FailQuest(1719);
 
                     for (uint8 i = 0; i < 6; ++i) // unsummon challengers
                     {
@@ -396,11 +398,12 @@ public:
                 if (!EventGrate && EventInProgress)
                 {
                     float x, y, z;
-                    pWarrior->GetPosition(x, y, z);
+                    warrior->GetPosition(x, y, z);
 
-                    if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
-                        pWarrior->AreaExploredOrEventHappens(1719);
-                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, pWarrior->GetGUID());
+                    if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324)
+                    {
+                        warrior->AreaExploredOrEventHappens(1719);
+                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, warrior->GetGUID());
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
@@ -442,19 +445,20 @@ public:
                         if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
                             Talk(SAY_TWIGGY_FLATHEAD_FRAY);
-                            Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
+                            Creature* creature = ObjectAccessor::GetCreature(*me, AffrayChallenger[Wave]);
                             if (creature && (creature->IsAlive()))
                             {
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 creature->setFaction(14);
-                                creature->AI()->AttackStart(pWarrior);
+                                creature->AI()->AttackStart(warrior);
                                 ++Wave;
                                 WaveTimer = 20000;
                             }
                         }
-                        else if (Wave >= 6 && !EventBigWill) {
+                        else if (Wave >= 6 && !EventBigWill)
+                        {
                             if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                             {
                                 BigWill = creature->GetGUID();
@@ -468,7 +472,7 @@ public:
                         }
                         else if (Wave >= 6 && EventBigWill && BigWill)
                         {
-                            Creature* creature = Unit::GetCreature((*me), BigWill);
+                            Creature* creature = ObjectAccessor::GetCreature(*me, BigWill);
                             if (!creature || !creature->IsAlive())
                             {
                                 Talk(SAY_TWIGGY_FLATHEAD_OVER);

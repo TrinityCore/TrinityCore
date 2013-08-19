@@ -967,7 +967,8 @@ struct CalcDamageInfo
 };
 
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
-struct SpellNonMeleeDamage{
+struct SpellNonMeleeDamage
+{
     SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
         absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0)
@@ -1482,16 +1483,16 @@ class Unit : public WorldObject
         void ApplyResilience(Unit const* victim, int32 * damage, bool isCrit) const;
 
         float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const;
-        SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
-        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spell);
-        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
+        SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
+        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
+        SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false);
 
         float GetUnitDodgeChance() const;
         float GetUnitParryChance() const;
         float GetUnitBlockChance() const;
         float GetUnitMissChance(WeaponAttackType attType) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
-        int32 GetMechanicResistChance(const SpellInfo* spell) const;
+        int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;
 
         virtual uint32 GetBlockPercent() const { return 30; }
@@ -1851,7 +1852,6 @@ class Unit : public WorldObject
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
 
-        uint32 m_addDmgOnce;
         uint64 m_SummonSlot[MAX_SUMMON_SLOT];
         uint64 m_ObjectSlot[MAX_GAMEOBJECT_SLOT];
 
@@ -1989,30 +1989,28 @@ class Unit : public WorldObject
 
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         void ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply);
-        virtual bool IsImmunedToSpell(SpellInfo const* spellInfo) const;
-                                                            // redefined in Creature
+        virtual bool IsImmunedToSpell(SpellInfo const* spellInfo) const; // redefined in Creature
+
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask) const;
         bool IsImmunedToDamage(SpellInfo const* spellInfo) const;
-        virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
-                                                            // redefined in Creature
+        virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; // redefined in Creature
+
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = NULL, uint8 effIndex = MAX_SPELL_EFFECTS);
-        uint32 CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType=MAX_ATTACK);
-        void CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo = NULL);
-        void CalcHealAbsorb(Unit* victim, const SpellInfo* spellProto, uint32 &healAmount, uint32 &absorb);
+        uint32 CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK);
+        uint32 CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const;
+        void CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32* absorb, uint32* resist, SpellInfo const* spellInfo = NULL);
+        void CalcHealAbsorb(Unit* victim, SpellInfo const* spellInfo, uint32& healAmount, uint32& absorb);
 
         void  UpdateSpeed(UnitMoveType mtype, bool forced);
         float GetSpeed(UnitMoveType mtype) const;
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float rate, bool forced = false);
-        float m_TempSpeed;
-
-        bool isHover() const { return HasAuraType(SPELL_AURA_HOVER); }
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
         int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = NULL) const;
         int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
-        void  ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell* spell=NULL);
+        void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);
         float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
@@ -2049,7 +2047,6 @@ class Unit : public WorldObject
         void ClearComboPointHolders();
 
         ///----------Pet responses methods-----------------
-        void SendPetCastFail(uint8 castCount, SpellInfo const* spellInfo, SpellCastResult result);
         void SendPetActionFeedback (uint8 msg);
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(uint64 guid);

@@ -21,8 +21,9 @@
 
 DoorData const doorData[] =
 {
-    {GO_ARGALOTH_DOOR,  DATA_ARGALOTH, DOOR_TYPE_ROOM,  BOUNDARY_NONE},
-    {GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, DOOR_TYPE_ROOM,  BOUNDARY_NONE},
+    { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
+    { GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
+    { GO_ALIZABAL_DOOR,       DATA_ALIZABAL, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
 };
 
 class instance_baradin_hold: public InstanceMapScript
@@ -40,8 +41,6 @@ class instance_baradin_hold: public InstanceMapScript
                 ArgalothGUID = 0;
                 OccutharGUID = 0;
                 AlizabalGUID = 0;
-                ArgalothDoor = 0;
-                OccutharDoor = 0;
             }
 
             void OnCreatureCreate(Creature* creature) OVERRIDE
@@ -65,11 +64,8 @@ class instance_baradin_hold: public InstanceMapScript
                 switch(go->GetEntry())
                 {
                     case GO_ARGALOTH_DOOR:
-                        ArgalothDoor = go->GetGUID();
-                        AddDoor(go, true);
-                        break;
                     case GO_OCCUTHAR_DOOR:
-                        OccutharDoor = go->GetGUID();
+                    case GO_ALIZABAL_DOOR:
                         AddDoor(go, true);
                         break;
                 }
@@ -97,9 +93,8 @@ class instance_baradin_hold: public InstanceMapScript
                 switch(go->GetEntry())
                 {
                     case GO_ARGALOTH_DOOR:
-                        AddDoor(go, false);
-                        break;
                     case GO_OCCUTHAR_DOOR:
+                    case GO_ALIZABAL_DOOR:
                         AddDoor(go, false);
                         break;
                 }
@@ -154,8 +149,6 @@ class instance_baradin_hold: public InstanceMapScript
             uint64 ArgalothGUID;
             uint64 OccutharGUID;
             uint64 AlizabalGUID;
-            uint64 ArgalothDoor;
-            uint64 OccutharDoor;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

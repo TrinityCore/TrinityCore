@@ -1027,8 +1027,7 @@ int32 Aura::CalcDispelChance(Unit* auraTarget, bool offensive) const
     if (offensive && auraTarget)
         resistChance += auraTarget->GetTotalAuraModifier(SPELL_AURA_MOD_DISPEL_RESIST);
 
-    resistChance = resistChance < 0 ? 0 : resistChance;
-    resistChance = resistChance > 100 ? 100 : resistChance;
+    RoundToInterval(resistChance, 0, 100);
     return 100 - resistChance;
 }
 
@@ -2094,8 +2093,9 @@ bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEven
     return prepare;
 }
 
-void Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
+bool Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    bool handled = false;
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_PROC, aurApp);
@@ -2103,8 +2103,11 @@ void Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& 
         for (; hookItr != hookItrEnd; ++hookItr)
             hookItr->Call(*scritr, eventInfo);
 
+        handled |= (*scritr)->_IsDefaultActionPrevented();
         (*scritr)->_FinishScriptCall();
     }
+
+    return handled;
 }
 
 void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)

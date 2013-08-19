@@ -143,7 +143,7 @@ public:
                 wait_timer = 5000;
                 me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
-                if (Player* starter = Unit::GetPlayer(*me, playerGUID))
+                if (Player* starter = ObjectAccessor::GetPlayer(*me, playerGUID))
                     sCreatureTextMgr->SendChat(me, SAY_EVENT_ATTACK, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, starter);
 
                 phase = PHASE_TO_ATTACK;
@@ -228,8 +228,8 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         phase = PHASE_ATTACKING;
 
-                        if (Player* target = Unit::GetPlayer(*me, playerGUID))
-                            me->AI()->AttackStart(target);
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, playerGUID))
+                            AttackStart(target);
                         wait_timer = 0;
                     }
                 }

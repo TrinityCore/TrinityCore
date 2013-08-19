@@ -638,7 +638,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_STRAGGLER_1:
-                        if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                              DoCast(player, SPELL_VENTURE_STRAGGLER_CREDIT);
                          me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()+7, me->GetPositionZ());
                          _events.ScheduleEvent(EVENT_STRAGGLER_2, 2500);

@@ -18,6 +18,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/AlteracValley/boss_vanndar.cpp
   EasternKingdoms/AlteracValley/alterac_valley.cpp
   EasternKingdoms/BaradinHold/boss_alizabal.cpp
+  EasternKingdoms/BaradinHold/boss_occuthar.cpp
   EasternKingdoms/BaradinHold/boss_pit_lord_argaloth.cpp
   EasternKingdoms/BaradinHold/instance_baradin_hold.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
@@ -205,6 +206,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/boss_moroes.cpp
   EasternKingdoms/Karazhan/boss_terestian_illhoof.cpp
   EasternKingdoms/Karazhan/karazhan.h
+  EasternKingdoms/TheStockade/instance_the_stockade.cpp
 )
 
 message("  -> Prepared: Eastern Kingdoms")

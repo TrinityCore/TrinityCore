@@ -181,8 +181,8 @@ class npc_winterfin_playmate : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -280,8 +280,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -381,8 +381,8 @@ class npc_the_biggest_tree : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -468,8 +468,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -557,8 +557,8 @@ class npc_elder_kekek : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!player || !orphan)
                     {
@@ -646,8 +646,8 @@ class npc_the_etymidian : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -768,8 +768,8 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
