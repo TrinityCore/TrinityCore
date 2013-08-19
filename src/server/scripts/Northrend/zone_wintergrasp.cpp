@@ -334,13 +334,19 @@ class npc_wg_quest_giver : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-
             Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
             if (!wintergrasp)
                 return true;
 
+            if (creature->IsVendor())
+            {
+                player->ADD_GOSSIP_ITEM_DB(Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_VENDOR);
+                player->PlayerTalkClass->GetGossipMenu().AddGossipMenuItemData(0, 0, 0);
+            }
+
+            /// @todo: move this to conditions or something else
+
+            // Player::PrepareQuestMenu(guid)
             if (creature->IsQuestGiver())
             {
                 QuestRelationBounds objectQR = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
@@ -368,6 +374,9 @@ class npc_wg_quest_giver : public CreatureScript
                     if (!quest)
                         continue;
 
+                    if (!player->CanTakeQuest(quest, false))
+                        continue;
+
                     switch (questId)
                     {
                         // Horde attacker
@@ -377,15 +386,8 @@ class npc_wg_quest_giver : public CreatureScript
                         case QUEST_FUELING_THE_DEMOLISHERS_HORDE_ATT:
                         case QUEST_HEALING_WITH_ROSES_HORDE_ATT:
                         case QUEST_DEFEND_THE_SIEGE_HORDE_ATT:
-                            if (wintergrasp->GetAttackerTeam() == TEAM_HORDE)
-                            {
-                                QuestStatus status = player->GetQuestStatus(questId);
-
-                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 2);
-                            }
+                            if (wintergrasp->GetAttackerTeam() != TEAM_HORDE)
+                                continue;
                             break;
                         // Horde defender
                         case QUEST_BONES_AND_ARROWS_HORDE_DEF:
@@ -395,15 +397,8 @@ class npc_wg_quest_giver : public CreatureScript
                         case QUEST_HEALING_WITH_ROSES_HORDE_DEF:
                         case QUEST_TOPPLING_THE_TOWERS_HORDE_DEF:
                         case QUEST_STOP_THE_SIEGE_HORDE_DEF:
-                            if (wintergrasp->GetDefenderTeam() == TEAM_HORDE)
-                            {
-                                QuestStatus status = player->GetQuestStatus(questId);
-
-                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 2);
-                            }
+                            if (wintergrasp->GetDefenderTeam() != TEAM_HORDE)
+                                continue;
                             break;
                         // Alliance attacker
                         case QUEST_BONES_AND_ARROWS_ALLIANCE_ATT:
@@ -411,15 +406,8 @@ class npc_wg_quest_giver : public CreatureScript
                         case QUEST_NO_MERCY_FOR_THE_MERCILESS_ALLIANCE_ATT:
                         case QUEST_DEFEND_THE_SIEGE_ALLIANCE_ATT:
                         case QUEST_A_RARE_HERB_ALLIANCE_ATT:
-                            if (wintergrasp->GetAttackerTeam() == TEAM_ALLIANCE)
-                            {
-                                QuestStatus status = player->GetQuestStatus(questId);
-
-                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 2);
-                            }
+                            if (wintergrasp->GetAttackerTeam() != TEAM_ALLIANCE)
+                                continue;
                             break;
                         // Alliance defender
                         case QUEST_BONES_AND_ARROWS_ALLIANCE_DEF:
@@ -428,27 +416,20 @@ class npc_wg_quest_giver : public CreatureScript
                         case QUEST_SHOUTHERN_SABOTAGE_ALLIANCE_DEF:
                         case QUEST_STOP_THE_SIEGE_ALLIANCE_DEF:
                         case QUEST_A_RARE_HERB_ALLIANCE_DEF:
-                            if (wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE)
-                            {
-                                QuestStatus status = player->GetQuestStatus(questId);
-
-                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
-                                    qm.AddMenuItem(questId, 2);
-                            }
+                            if (wintergrasp->GetDefenderTeam() != TEAM_ALLIANCE)
+                                continue;
                             break;
                         default:
-                            QuestStatus status = player->GetQuestStatus(questId);
-
-                            if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
-                                qm.AddMenuItem(questId, 4);
-                            else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
-                                qm.AddMenuItem(questId, 2);
                             break;
                     }
+
+                    if (quest->IsAutoComplete())
+                        qm.AddMenuItem(questId, 4);
+                    else if (player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+                        qm.AddMenuItem(questId, 2);
                 }
             }
+
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
