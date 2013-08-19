@@ -23,7 +23,7 @@
 
 std::vector<ACE_Thread_Mutex*> cryptoLocks;
 
-static void lockingCallback(int mode, int type, const char */*file*/, int /*line*/)
+static void lockingCallback(int mode, int type, const char* /*file*/, int /*line*/)
 {
     if (mode & CRYPTO_LOCK)
         cryptoLocks[type]->acquire();
