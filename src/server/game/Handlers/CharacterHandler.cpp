@@ -823,8 +823,8 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     if (sWorld->CanRedirect() && !WasRedirected())
     {
         QueryResult res = CharacterDatabase.PQuery("SELECT map FROM characters WHERE guid = '%u'", playerGuid);
-        RedirectInfo ri = sWorld->GetNodeForMap((*res)[0].GetUInt32());
-        RedirectInfo curr = sWorld->GetCurrentNode();
+        RedirectInfo const& ri = sWorld->GetNodeForMap((*res)[0].GetUInt16());
+        RedirectInfo const& curr = sWorld->GetCurrentNode();
         if (curr.ip != ri.ip || curr.port != ri.port)
         {
            CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", playerGuid);
