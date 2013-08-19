@@ -250,11 +250,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.161 - 09/07/2013: Profesiones: corregidas las misiones de especializaciones para que no se vuelvan a aprender al reloguear por Muzashi
 1.162 - 13/03/2013: Vehiculos, funcionamiento de VEHICLE_SEAT_FLAG_CAN_CONTROL a cualquier asiento por Machiavell1
 1.163 - 12/07/2013: FleeingMovementGenerator: Ahora el fear no debera tirar al vacio por Retriman
-1.164 - 12/07/2013: Chequeo para ver si el source puede ver al target, spells como blood boil o fan of knives por Retriman
 1.165 - 12/07/2013: Chequeo de zonales para ver si el caster puede ver el lugar donde se castea el spell por Retriman
 1.166 - 12/07/2013: Core/Pet: Ahora las pet que tengan informacion en la DB de resistencias no la tomaran en cuenta, arregla el exeso de resistencia magica de la pet Devilsaur por Retriman
 1.167 - 12/07/2013: Update al movimiento astronauta ahora si realmente se notara el cambio blizlike por Retriman
-1.168 - 12/07/2013: Core/Movement: Spells de salto a distancia corregidos... ahora se veran mejor por Retriman
 1.170 - 12/07/2013: Core/Movement: Fix collision para spells como fire nova por Retriman
 1.171 - 13/07/2013: Wintergrasp: Ahora los cementerios de la base horda y alianza daran resurreccion de forma correcta.Ademas todos los cementerios estarán funcionales solo cuando se este llevando a cabo una batalla por Jar
 1.172 - 13/07/2013: Wintergrasp: Fix cementerio del Workshop  Broken temple, ahora los espíritus horda y alianza cambiaran  de fase dependiendo de quien controle  el Workshop, para que los personajes puedan ser resucitados por Jar
@@ -277,6 +275,12 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.190 - 12/08/2013: Wintergrasp: Limpiando NPCs y Gobject de la base de datos ya que estos son spawneados mediante el script del campo de batalla y provoca que hayan duplicados por Jar
 1.191 - 12/08/2013: Wintergrasp: Ahora el temporizador  de conquista de invierno será visible por los jugadores cuando ingresen a cualquier zona de rasgan norte por Jar
 1.192 - 12/08/2013: Armas s3 (vengeful) añadidas a Meminie en filospada por Angelinna
+1.193 - 13/08/2013: Debe fijarse el cast Mientras  se usa polymorph/Fear (por algún problema) al blanco se bloquea & solucionamos el problema con Automovimiento tras huir &  solucionamos el problema con Movimiento confuso por Retriman
+1.194 - 12/08/2013: Armas s2 (merciless) añadidas a Olus en queldanas por Angelinna
+1.195 - 15/08/2013: IoC: Ahora no desapareceran los spirits guides de la facción contraria al tomar todas las bases por Apa y Jar
+1.196 - 18/08/2013: Wintergrasp: Añadido el script del teleport dalaran a wintergrasp con ayuda de Jar por Ramas
+1.197 - 18/08/2013: Wintergrasp: Script del mago de batalla de conquista de invierno ubicado en dalaran, ahora se abrira unportal en dalaran unos minutos antes de comenzar la batalla. Idea y código original aportado por Apa, modificado por Jar
+1.198 - 18/09/2013: Wintergrasp: Implementamos método para contrarrestar bug en el que se desaparecen los edificios acabando con la mecánica del campo de batalla por Jar
 
 
 ########################
