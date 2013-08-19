@@ -26,7 +26,7 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + ACE ≥ 5.8.3 (included for Windows)
 + MySQL ≥ 5.1.0 (included for Windows)
 + CMake ≥ 2.8.0
-+ OpenSSL ≥ 0.9.8o
++ OpenSSL ≥ 1.0.0
 + GCC ≥ 4.3 (Linux only)
 + MS Visual Studio ≥ 9 (2008) (Windows only)
 
