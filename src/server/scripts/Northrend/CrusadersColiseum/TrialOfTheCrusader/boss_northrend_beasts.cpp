@@ -428,13 +428,13 @@ class npc_snobold_vassal : public CreatureScript
                             return;
                         case EVENT_HEAD_CRACK:
                             // commented out while SPELL_SNOBOLLED gets fixed
-                            //if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
+                            //if (Unit* target = ObjectAccessor::GetPlayer(*me, m_uiTargetGUID))
                             DoCastVictim(SPELL_HEAD_CRACK);
                             _events.ScheduleEvent(EVENT_HEAD_CRACK, 30*IN_MILLISECONDS);
                             return;
                         case EVENT_BATTER:
                             // commented out while SPELL_SNOBOLLED gets fixed
-                            //if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
+                            //if (Unit* target = ObjectAccessor::GetPlayer(*me, m_uiTargetGUID))
                             DoCastVictim(SPELL_BATTER);
                             _events.ScheduleEvent(EVENT_BATTER, 10*IN_MILLISECONDS);
                             return;

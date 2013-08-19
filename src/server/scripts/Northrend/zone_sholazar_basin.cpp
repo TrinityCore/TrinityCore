@@ -465,23 +465,18 @@ public:
 #####*/
 
 #define SAY_OFFER     "Care to try Grimbooze Thunderbrew's new jungle punch?"
-#define SAY_HEMET_1   "Aye, I'll try it."
-#define SAY_HEMET_2   "That's exactly what I needed!"
-#define SAY_HEMET_3   "It's got my vote! That'll put hair on your chest like nothing else will."
-#define SAY_HADRIUS_1 "I'm always up for something of Grimbooze's."
-#define SAY_HADRIUS_2 "Well, so far, it tastes like something my wife would drink..."
-#define SAY_HADRIUS_3 "Now, there's the kick I've come to expect from Grimbooze's drinks! I like it!"
-#define SAY_TAMARA_1  "Sure!"
-#define SAY_TAMARA_2  "Oh my..."
-#define SAY_TAMARA_3  "Tastes like I'm drinking... engine degreaser!"
 
-enum utils
+enum JunglePunch
 {
-    NPC_HEMET                           = 27986,
-    NPC_HADRIUS                         = 28047,
-    NPC_TAMARA                          = 28568,
     SPELL_OFFER                         = 51962,
-    QUEST_ENTRY                         = 12645,
+    QUEST_TASTE_TEST                    = 12645,
+
+    SAY_HEMET_HADRIUS_TAMARA_1          = 0,
+    SAY_HEMET_HADRIUS_TAMARA_2          = 1,
+    SAY_HEMET_HADRIUS_TAMARA_3          = 2,
+
+    SAY_HEMET_4                         = 3, // unused
+    SAY_HEMET_5                         = 4  // unused
 };
 
 enum NesingwaryChildrensWeek
@@ -492,12 +487,12 @@ enum NesingwaryChildrensWeek
 
     ORPHAN_WOLVAR                       = 33532,
 
+    TEXT_NESINGWARY_1                   = 5,
+
     TEXT_WOLVAR_ORPHAN_6                = 6,
     TEXT_WOLVAR_ORPHAN_7                = 7,
     TEXT_WOLVAR_ORPHAN_8                = 8,
-    TEXT_WOLVAR_ORPHAN_9                = 9,
-
-    TEXT_NESINGWARY_1                   = 1,
+    TEXT_WOLVAR_ORPHAN_9                = 9
 };
 
 class npc_jungle_punch_target : public CreatureScript
@@ -520,7 +515,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!phase && who && who->GetDistance2d(me) < 10.0f)
                 if (Player* player = who->ToPlayer())
@@ -585,99 +579,55 @@ public:
                 timer -= diff;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (phase)
-                proceedCwEvent(uiDiff);
+                proceedCwEvent(diff);
 
             if (!sayStep)
                 return;
 
-            if (sayTimer < uiDiff)
+            if (sayTimer < diff)
             {
-                switch (sayStep)
-                {
-                    case 0:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_1, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_1, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_1, LANG_UNIVERSAL, 0);  break;
-                        }
-                        sayTimer = 3000;
-                        sayStep++;
-                        break;
-                    }
-                    case 1:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_2, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_2, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_2, LANG_UNIVERSAL, 0);  break;
-                        }
-                        sayTimer = 3000;
-                        sayStep++;
-                        break;
-                    }
-                    case 2:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_3, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_3, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_3, LANG_UNIVERSAL, 0);  break;
-                        }
-                        sayTimer = 3000;
-                        sayStep = 0;
-                        break;
-                    }
-                }
+                Talk(SAY_HEMET_HADRIUS_TAMARA_1 + sayStep - 1);
+                sayTimer = 3000;
+                sayStep++;
+
+                if (sayStep > 3) // end
+                    sayStep = 0;
             }
             else
-                sayTimer -= uiDiff;
+                sayTimer -= diff;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* proto) OVERRIDE
+        void SpellHit(Unit* caster, SpellInfo const* spellInfo) OVERRIDE
         {
-            if (!proto || proto->Id != SPELL_OFFER)
+            if (spellInfo->Id != SPELL_OFFER)
                 return;
 
-            if (!caster->ToPlayer())
+            Player* player = caster->ToPlayer();
+            if (!player)
                 return;
 
-            QuestStatusMap::const_iterator itr = caster->ToPlayer()->getQuestStatusMap().find(QUEST_ENTRY);
+            Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_TASTE_TEST);
+            if (!quest)
+                return;
+
+            QuestStatusMap::const_iterator itr = player->getQuestStatusMap().find(QUEST_TASTE_TEST);
             if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
                 return;
 
-            for (uint8 i=0; i<3; i++)
+            for (uint8 i = 0; i < 3; ++i)
             {
-                switch (i)
-                {
-                   case 0:
-                       if (NPC_HEMET != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 1:
-                       if (NPC_HADRIUS != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 2:
-                       if (NPC_TAMARA != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                }
+                if (quest->RequiredNpcOrGo[i] != me->GetEntry())
+                    continue;
 
                 if (itr->second.CreatureOrGOCount[i] != 0)
                     continue;
 
-                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), 0);
-                caster->ToPlayer()->Say(SAY_OFFER, LANG_UNIVERSAL);
-                sayStep = 0;
+                player->KilledMonsterCredit(me->GetEntry(), 0);
+                player->Say(SAY_OFFER, LANG_UNIVERSAL);
+                sayStep = 1;
                 break;
             }
         }
