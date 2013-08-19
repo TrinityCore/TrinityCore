@@ -422,7 +422,6 @@ public:
             {
                 damage = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->Yell(SUFF_SAY_RECAP, LANG_UNIVERSAL, 0);
                 Talk(SUFF_SAY_RECAP);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -431,14 +430,13 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                {
+            {
                 Talk(SUFF_SAY_FREED);
                 DoZoneInCombat();
                 DoCast(me, AURA_OF_SUFFERING, true); // linked aura need core support
                 DoCast(me, ESSENCE_OF_SUFFERING_PASSIVE, true);
                 DoCast(me, ESSENCE_OF_SUFFERING_PASSIVE2, true);
-                }
-            else return;
+            }
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
