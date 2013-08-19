@@ -675,7 +675,7 @@ public:
     {
     }
 
-    void OnOpenStateChange(bool open)
+    void OnOpenStateChange(bool open) OVERRIDE
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_OPEN_STATE_CHANGE].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_OPEN_STATE_CHANGE].end(); ++itr)
@@ -686,7 +686,8 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnConfigLoad(bool reload)
+
+    void OnConfigLoad(bool reload) OVERRIDE
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_CONFIG_LOAD].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_CONFIG_LOAD].end(); ++itr)
@@ -697,7 +698,8 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnMotdChange(std::string& newMotd)
+
+    void OnMotdChange(std::string& newMotd) OVERRIDE
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_MOTD_CHANGE].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_MOTD_CHANGE].end(); ++itr)
@@ -708,7 +710,8 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
+
+    void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask) OVERRIDE
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_INIT].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_INIT].end(); ++itr)
@@ -720,7 +723,8 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnShutdownCancel()
+
+    void OnShutdownCancel() OVERRIDE
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_CANCEL].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN_CANCEL].end(); ++itr)
@@ -730,7 +734,8 @@ public:
             sEluna->ExecuteCall(1, 0);
         }
     }
-    void OnUpdate(uint32 diff)
+
+    void OnUpdate(uint32 diff) OVERRIDE
     {
         ScriptEventsUpdate(diff);
         ScriptEventsExecute();
@@ -744,7 +749,7 @@ public:
         }
     }
     // executed when a  timed event fires
-    void OnScriptEvent(int funcRef, uint32 delay, uint32 calls)
+    void OnScriptEvent(int funcRef, uint32 delay, uint32 calls) OVERRIDE
     {
         sEluna->BeginCall(funcRef);
         sEluna->PushUnsigned(sEluna->LuaState, funcRef);
@@ -752,7 +757,8 @@ public:
         sEluna->PushUnsigned(sEluna->LuaState, calls);
         sEluna->ExecuteCall(3, 0);
     }
-    void OnStartup()
+
+    void OnStartup() OVERRIDE
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_STARTUP].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_STARTUP].end(); ++itr)
@@ -762,7 +768,8 @@ public:
             sEluna->ExecuteCall(1, 0);
         }
     }
-    void OnShutdown()
+
+    void OnShutdown() OVERRIDE
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN].begin();
             itr != sEluna->ServerEventBindings[WORLD_EVENT_ON_SHUTDOWN].end(); ++itr)
@@ -793,7 +800,7 @@ public:
         }
 
         //Called at World update tick
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             ScriptedAI::UpdateAI(diff);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_AIUPDATE);
@@ -808,7 +815,7 @@ public:
 
         //Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
         //Called at creature aggro either by MoveInLOS or Attack Start
-        void EnterCombat(Unit* target)
+        void EnterCombat(Unit* target) OVERRIDE
         {
             ScriptedAI::EnterCombat(target);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_ENTER_COMBAT);
@@ -822,7 +829,7 @@ public:
         }
 
         // Called at any Damage from any attacker (before damage apply)
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage) OVERRIDE
         {
             ScriptedAI::DamageTaken(attacker, damage);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_DAMAGE_TAKEN);
@@ -837,7 +844,7 @@ public:
         }
 
         //Called at creature death
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             ScriptedAI::JustDied(killer);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_DIED);
@@ -851,7 +858,7 @@ public:
         }
 
         //Called at creature killing another unit
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             ScriptedAI::KilledUnit(victim);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_TARGET_DIED);
@@ -865,7 +872,7 @@ public:
         }
 
         // Called when the creature summon successfully other creature
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             ScriptedAI::JustSummoned(summon);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE);
@@ -879,7 +886,7 @@ public:
         }
 
         // Called when a summoned creature is despawned
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             ScriptedAI::SummonedCreatureDespawn(summon);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN);
@@ -893,7 +900,7 @@ public:
         }
 
         // Called when hit by a spell
-        void SpellHit(Unit* caster, SpellInfo const* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
         {
             ScriptedAI::SpellHit(caster, spell);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_HIT_BY_SPELL);
@@ -908,7 +915,7 @@ public:
         }
 
         // Called when spell hits a target
-        void SpellHitTarget(Unit* target, SpellInfo const* spell)
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
         {
             ScriptedAI::SpellHitTarget(target, spell);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SPELL_HIT_TARGET);
@@ -923,7 +930,7 @@ public:
         }
 
         //Called at waypoint reached or PointMovement end
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             ScriptedAI::MovementInform(type, id);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_REACH_WP);
@@ -938,7 +945,7 @@ public:
         }
 
         // Called when AI is temporarily replaced or put back when possess is applied or removed
-        void OnPossess(bool apply)
+        void OnPossess(bool apply) OVERRIDE
         {
             ScriptedAI::OnPossess(apply);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_POSSESS);
@@ -952,7 +959,7 @@ public:
         }
 
         //Called at creature reset either by death or evade
-        void Reset()
+        void Reset() OVERRIDE
         {
             ScriptedAI::Reset();
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_RESET);
@@ -965,7 +972,7 @@ public:
         }
 
         // Called before EnterCombat even before the creature is in combat.
-        void AttackStart(Unit* target)
+        void AttackStart(Unit* target) OVERRIDE
         {
             ScriptedAI::AttackStart(target);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_PRE_COMBAT);
@@ -979,7 +986,7 @@ public:
         }
 
         // Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
-        bool CanRespawn()
+        bool CanRespawn() OVERRIDE
         {
             ScriptedAI::CanRespawn();
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_CAN_RESPAWN);
@@ -993,7 +1000,7 @@ public:
         }
 
         // Called for reaction at stopping attack at no attackers or targets
-        void EnterEvadeMode()
+        void EnterEvadeMode() OVERRIDE
         {
             ScriptedAI::EnterEvadeMode();
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_LEAVE_COMBAT);
@@ -1006,7 +1013,7 @@ public:
         }
 
         // Called when the creature is summoned successfully by other creature
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* summoner) OVERRIDE
         {
             ScriptedAI::IsSummonedBy(summoner);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SUMMONED);
@@ -1019,7 +1026,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
 
-        void SummonedCreatureDies(Creature* summon, Unit* killer)
+        void SummonedCreatureDies(Creature* summon, Unit* killer) OVERRIDE
         {
             ScriptedAI::SummonedCreatureDies(summon, killer);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED);
@@ -1034,7 +1041,7 @@ public:
         }
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
-        void AttackedBy(Unit* attacker)
+        void AttackedBy(Unit* attacker) OVERRIDE
         {
             ScriptedAI::AttackedBy(attacker);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_ATTACKED_AT);
@@ -1048,7 +1055,7 @@ public:
         }
 
         // Called when creature is spawned or respawned (for reseting variables)
-        void JustRespawned()
+        void JustRespawned() OVERRIDE
         {
             ScriptedAI::JustRespawned();
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SPAWN);
@@ -1060,7 +1067,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
 
-        void OnCharmed(bool apply)
+        void OnCharmed(bool apply) OVERRIDE
         {
             ScriptedAI::OnCharmed(apply);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_CHARMED);
@@ -1074,7 +1081,7 @@ public:
         }
 
         // Called at reaching home after evade
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             ScriptedAI::JustReachedHome();
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_REACH_HOME);
@@ -1087,7 +1094,7 @@ public:
         }
 
         // Called at text emote receive from player
-        void ReceiveEmote(Player* player, uint32 emoteId)
+        void ReceiveEmote(Player* player, uint32 emoteId) OVERRIDE
         {
             ScriptedAI::ReceiveEmote(player, emoteId);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_RECEIVE_EMOTE);
@@ -1102,7 +1109,7 @@ public:
         }
 
         // Called when owner takes damage
-        void OwnerAttackedBy(Unit* attacker)
+        void OwnerAttackedBy(Unit* attacker) OVERRIDE
         {
             ScriptedAI::OwnerAttackedBy(attacker);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_OWNER_ATTACKED_AT);
@@ -1116,7 +1123,7 @@ public:
         }
 
         // Called when owner attacks something
-        void OwnerAttacked(Unit* target)
+        void OwnerAttacked(Unit* target) OVERRIDE
         {
             ScriptedAI::OwnerAttacked(target);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_OWNER_ATTACKED);
@@ -1130,7 +1137,7 @@ public:
         }
 
         // called when the corpse of this creature gets removed
-        void CorpseRemoved(uint32& respawnDelay)
+        void CorpseRemoved(uint32& respawnDelay) OVERRIDE
         {
             ScriptedAI::CorpseRemoved(respawnDelay);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_CORPSE_REMOVED);
@@ -1143,7 +1150,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
 
-        void PassengerBoarded(Unit* passenger, int8 seatId, bool apply)
+        void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) OVERRIDE
         {
             ScriptedAI::PassengerBoarded(passenger, seatId, apply);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_PASSANGER_BOARDED);
@@ -1158,7 +1165,7 @@ public:
             sEluna->ExecuteCall(5, 0);
         }
 
-        void OnSpellClick(Unit* clicker, bool& result)
+        void OnSpellClick(Unit* clicker, bool& result) OVERRIDE
         {
             ScriptedAI::OnSpellClick(clicker, result);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_SPELL_CLICK);
@@ -1172,7 +1179,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
         {
             ScriptedAI::MoveInLineOfSight(who);
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_MOVE_IN_LOS);
@@ -1200,7 +1207,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         if (!sEluna->CreatureEventBindings->GetBindMap(creature->GetEntry()))
             return NULL;
@@ -1229,7 +1236,7 @@ public:
             LuaEventMap::LuaEventMaps.erase(go->GetGUID());
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             ScriptEventsUpdate(diff);
             ScriptEventsExecute();
@@ -1244,7 +1251,7 @@ public:
         }
 
         // executed when a timed event fires
-        void OnScriptEvent(int funcRef, uint32 delay, uint32 calls)
+        void OnScriptEvent(int funcRef, uint32 delay, uint32 calls) OVERRIDE
         {
             sEluna->BeginCall(funcRef);
             sEluna->PushUnsigned(sEluna->LuaState, funcRef);
@@ -1254,7 +1261,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             sEluna->BeginCall(sEluna->GameObjectEventBindings->GetBind(go->GetEntry(), GAMEOBJECT_EVENT_ON_RESET));
             sEluna->PushInteger(sEluna->LuaState, GAMEOBJECT_EVENT_ON_RESET);
@@ -1263,7 +1270,7 @@ public:
         }
     };
 
-    GameObjectAI* GetAI(GameObject* gameObject) const
+    GameObjectAI* GetAI(GameObject* gameObject) const OVERRIDE
     {
         if (!sEluna->GameObjectEventBindings->GetBindMap(gameObject->GetEntry()))
             return NULL;
@@ -1314,6 +1321,7 @@ struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::event
         LuaEvents.clear();
         EventIDs.clear();
     }
+
     static void RemoveAll(Unit* unit)
     {
         if(!unit)
@@ -1323,6 +1331,7 @@ struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::event
             LuaEvents.erase(*it); // deletes pointers
         EventIDs.erase(unit->GetGUID());
     }
+
     static void Remove(uint64 guid, int eventID)
     {
         if(LuaEvents.find(eventID) != LuaEvents.end())
