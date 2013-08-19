@@ -86,7 +86,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         {
             TC_LOG_ERROR("network", "Player %s (GUID: %u) is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
             oldMap->RemovePlayerFromMap(GetPlayer(), false);
-            GetPlayer()->ResetMap();
         }
 
         // relocate the player to the teleport destination
