@@ -505,93 +505,89 @@ public:
 ## npc_dark_rider_of_acherus
 ######*/
 
-enum Spells_DR
+enum DarkRiderOfAcherus
 {
+    SAY_DARK_RIDER              = 0,
     SPELL_DESPAWN_HORSE         = 51918
-};
-
-enum Says_DR
-{
-    SAY_DARK_RIDER              = 0
 };
 
 class npc_dark_rider_of_acherus : public CreatureScript
 {
-public:
-    npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
+    public:
+        npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_dark_rider_of_acherusAI(creature);
-    }
-
-    struct npc_dark_rider_of_acherusAI : public ScriptedAI
-    {
-        npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 PhaseTimer;
-        uint32 Phase;
-        bool Intro;
-        uint64 TargetGUID;
-
-        void Reset() OVERRIDE
+        struct npc_dark_rider_of_acherusAI : public ScriptedAI
         {
-            PhaseTimer = 4000;
-            Phase = 0;
-            Intro = false;
-            TargetGUID = 0;
-        }
+            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!Intro || !TargetGUID)
-                return;
-
-            if (PhaseTimer <= diff)
+            void Reset() OVERRIDE
             {
-                switch (Phase)
+                PhaseTimer = 4000;
+                Phase = 0;
+                Intro = false;
+                TargetGUID = 0;
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!Intro || !TargetGUID)
+                    return;
+
+                if (PhaseTimer <= diff)
                 {
-                   case 0:
-                        me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
-                        PhaseTimer = 5000;
-                        Phase = 1;
-                        break;
-                    case 1:
-                        if (Unit* target = Unit::GetUnit(*me, TargetGUID))
-                            DoCast(target, SPELL_DESPAWN_HORSE, true);
-                        PhaseTimer = 3000;
-                        Phase = 2;
-                        break;
-                    case 2:
-                        me->SetVisible(false);
-                        PhaseTimer = 2000;
-                        Phase = 3;
-                        break;
-                    case 3:
-                        me->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
+                    switch (Phase)
+                    {
+                       case 0:
+                            Talk(SAY_DARK_RIDER);
+                            PhaseTimer = 5000;
+                            Phase = 1;
+                            break;
+                        case 1:
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
+                                DoCast(target, SPELL_DESPAWN_HORSE, true);
+                            PhaseTimer = 3000;
+                            Phase = 2;
+                            break;
+                        case 2:
+                            me->SetVisible(false);
+                            PhaseTimer = 2000;
+                            Phase = 3;
+                            break;
+                        case 3:
+                            me->DespawnOrUnsummon();
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            } else PhaseTimer -= diff;
+                else
+                    PhaseTimer -= diff;
+            }
 
-        }
+            void InitDespawnHorse(Unit* who)
+            {
+                if (!who)
+                    return;
 
-        void InitDespawnHorse(Unit* who)
+                TargetGUID = who->GetGUID();
+                me->SetWalk(true);
+                me->SetSpeed(MOVE_RUN, 0.4f);
+                me->GetMotionMaster()->MoveChase(who);
+                me->SetTarget(TargetGUID);
+                Intro = true;
+            }
+
+        private:
+            uint32 PhaseTimer;
+            uint32 Phase;
+            bool Intro;
+            uint64 TargetGUID;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!who)
-                return;
-
-            TargetGUID = who->GetGUID();
-            me->SetWalk(true);
-            me->SetSpeed(MOVE_RUN, 0.4f);
-            me->GetMotionMaster()->MoveChase(who);
-            me->SetTarget(TargetGUID);
-            Intro = true;
+            return new npc_dark_rider_of_acherusAI(creature);
         }
-
-    };
-
 };
 
 /*######
@@ -644,7 +640,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             ScriptedAI::MoveInLineOfSight(who);
 

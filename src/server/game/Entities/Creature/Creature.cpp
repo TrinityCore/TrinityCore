@@ -523,12 +523,17 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
-            // if creature is charmed, switch to charmed AI
+            // if creature is charmed, switch to charmed AI (and back)
             if (NeedChangeAI)
             {
                 UpdateCharmAI();
                 NeedChangeAI = false;
                 IsAIEnabled = true;
+                if (!IsInEvadeMode() && LastCharmerGUID)
+                    if (Unit* charmer = ObjectAccessor::GetUnit(*this, LastCharmerGUID))
+                        i_AI->AttackStart(charmer);
+
+                LastCharmerGUID = 0;
             }
 
             if (!IsInEvadeMode() && IsAIEnabled)

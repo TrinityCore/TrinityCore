@@ -162,7 +162,7 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
 #endif
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
-    IsAIEnabled(false), NeedChangeAI(false),
+    IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(0),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(NULL), i_disabledAI(NULL), m_AutoRepeatFirstCast(false), m_procDeep(0),
     m_removedAurasCount(0), i_motionMaster(this), m_ThreatManager(this),
@@ -14096,16 +14096,13 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     if (Creature* creature = ToCreature())
     {
+        // Creature will restore its old AI on next update
         if (creature->AI())
             creature->AI()->OnCharmed(false);
 
-        if (type != CHARM_TYPE_VEHICLE) // Vehicles' AI is never modified
-        {
-            creature->AIM_Initialize();
-
-            if (creature->AI() && charmer && charmer->IsAlive())
-                creature->AI()->AttackStart(charmer);
-        }
+        // Vehicle should not attack its passenger after he exists the seat
+        if (type != CHARM_TYPE_VEHICLE)
+            LastCharmerGUID = charmer->GetGUID();
     }
     else
         ToPlayer()->SetClientControl(this, 1);
