@@ -33,6 +33,7 @@ endif()
 
 add_subdirectory(g3dlite)
 add_subdirectory(recastnavigation)
+add_subdirectory(zmqpp)
 
 if(SERVERS)
   add_subdirectory(gsoap)
