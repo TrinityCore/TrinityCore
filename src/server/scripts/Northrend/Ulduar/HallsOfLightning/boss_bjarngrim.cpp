@@ -181,7 +181,7 @@ public:
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
 
             if (instance)
-                instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
+                instance->SetBossState(DATA_BJARNGRIM, NOT_STARTED);
         }
 
         void EnterEvadeMode() OVERRIDE
@@ -202,7 +202,7 @@ public:
             me->CallForHelp(30.0f);
 
             if (instance)
-                instance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
+                instance->SetBossState(DATA_BJARNGRIM, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -215,7 +215,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(TYPE_BJARNGRIM, DONE);
+                instance->SetBossState(DATA_BJARNGRIM, DONE);
         }
 
         /// @todo remove when removal is done by the core
