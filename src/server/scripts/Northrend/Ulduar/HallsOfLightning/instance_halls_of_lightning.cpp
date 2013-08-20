@@ -25,6 +25,7 @@ DoorData const doorData[] =
     { GO_VOLKHAN_DOOR,      DATA_VOLKHAN,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
     { GO_IONAR_DOOR,        DATA_IONAR,     DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
     { GO_LOKEN_DOOR,        DATA_LOKEN,     DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { 0,                    0,              DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
 };
 
 class instance_halls_of_lightning : public InstanceMapScript
