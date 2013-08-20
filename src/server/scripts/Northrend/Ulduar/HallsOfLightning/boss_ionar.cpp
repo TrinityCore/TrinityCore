@@ -116,7 +116,7 @@ public:
                 me->SetVisible(true);
 
             if (instance)
-                instance->SetData(TYPE_IONAR, NOT_STARTED);
+                instance->SetBossState(DATA_IONAR, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -124,7 +124,7 @@ public:
             Talk(SAY_AGGRO);
 
             if (instance)
-                instance->SetData(TYPE_IONAR, IN_PROGRESS);
+                instance->SetBossState(DATA_IONAR, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
@@ -134,7 +134,7 @@ public:
             lSparkList.DespawnAll();
 
             if (instance)
-                instance->SetData(TYPE_IONAR, DONE);
+                instance->SetBossState(DATA_IONAR, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -338,7 +338,7 @@ public:
         void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             // Despawn if the encounter is not running
-            if (instance && instance->GetData(TYPE_IONAR) != IN_PROGRESS)
+            if (instance && instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
             {
                 me->DespawnOrUnsummon();
                 return;
