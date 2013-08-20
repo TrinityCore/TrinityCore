@@ -97,7 +97,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(TYPE_LOKEN, NOT_STARTED);
+                instance->SetBossState(DATA_LOKEN, NOT_STARTED);
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
             }
         }
@@ -108,7 +108,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(TYPE_LOKEN, IN_PROGRESS);
+                instance->SetBossState(DATA_LOKEN, IN_PROGRESS);
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
             }
         }
@@ -119,7 +119,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(TYPE_LOKEN, DONE);
+                instance->SetBossState(DATA_LOKEN, DONE);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
             }
         }
@@ -140,6 +140,7 @@ public:
                 if (m_uiResumePulsingShockwave_Timer <= uiDiff)
                 {
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
+                    me->ClearUnitState(UNIT_STATE_CASTING); // this flag breaks movement
 
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_N, true);
                     m_uiResumePulsingShockwave_Timer = 0;

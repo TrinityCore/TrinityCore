@@ -36,7 +36,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 KingDredGUID        = 0;
                 TharonJaGUID        = 0;
 
-                memset(TrollgoreInvaderSummonerGuids, 0, 4 * sizeof(uint64));
+                memset(TrollgoreInvaderSummonerGuids, 0, 3 * sizeof(uint64));
                 memset(NovosCrystalGUIDs, 0, 4 * sizeof(uint64));
                 memset(NovosSummonerGUIDs, 0, 4 * sizeof(uint64));
             }
