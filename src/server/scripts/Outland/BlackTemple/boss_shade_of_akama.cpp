@@ -200,7 +200,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
+                instance->SetBossState(DATA_SHADE_OF_AKAMA, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE {}
@@ -343,7 +343,7 @@ public:
                     {
                         HasKilledAkamaAndReseting = true;
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        instance->SetData(DATA_SHADEOFAKAMAEVENT, NOT_STARTED);
+                        instance->SetBossState(DATA_SHADE_OF_AKAMA, NOT_STARTED);
                         me->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
                         me->DeleteThreatList();
                         me->CombatStop();
@@ -351,15 +351,15 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         combatStarted = false;
 
-                        if (Creature* Akama = Unit::GetCreature((*me), akamaGUID))
+                        if (Creature* Akama = ObjectAccessor::GetCreature(*me, akamaGUID))
                             Akama->DespawnOrUnsummon();
 
                         for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
-                            if (Creature* Channeler = (Unit::GetCreature(*me, *itr)))
+                            if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
                                 Channeler->DespawnOrUnsummon();
 
                         for (std::list<uint64>::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                            if (Creature* Spawner = (Unit::GetCreature(*me, *itr)))
+                            if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
                                 Spawner->AI()->SetData(SETDATA_DATA, SETDATA_DESPAWN_ALL_SPAWNS);
 
                         events.ScheduleEvent(EVENT_FIND_CHANNELERS_SPAWNERS, 10000);
@@ -485,8 +485,8 @@ public:
                         case EVENT_SHADE_START:
                             if (instance)
                             {
-                                ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
-                                instance->SetData(DATA_SHADEOFAKAMAEVENT, IN_PROGRESS);
+                                ShadeGUID = instance->GetData64(DATA_SHADE_OF_AKAMA);
+                                instance->SetBossState(DATA_SHADE_OF_AKAMA, IN_PROGRESS);
                                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 me->RemoveAura(SPELL_STEALTH);
                                 me->SetWalk(true);
@@ -622,7 +622,7 @@ public:
                         break;
                     case EVENT_GET_SHADE_GUID:
                         if (instance)
-                            ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+                            ShadeGUID = instance->GetData64(DATA_SHADE_OF_AKAMA);
                         break;
                     default:
                         break;
@@ -768,7 +768,7 @@ public:
             if (instance)
             {
                 akamaGUID = instance->GetData64(DATA_AKAMA_SHADE);
-                shadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+                shadeGUID = instance->GetData64(DATA_SHADE_OF_AKAMA);
             }
         }
 
