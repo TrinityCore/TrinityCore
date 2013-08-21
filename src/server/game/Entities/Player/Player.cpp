@@ -11972,8 +11972,11 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
         // If World Event is not active, prevent using event dependant items
         if (proto->HolidayId && !IsHolidayActive((HolidayIds)proto->HolidayId))
             return EQUIP_ERR_CANT_DO_RIGHT_NOW;
-
+#ifdef ELUNA
         return sHookMgr->OnCanUseItem(this, proto->ItemId);
+#else
+		return EQUIP_ERR_OK;
+#endif
     }
 
     return EQUIP_ERR_ITEM_NOT_FOUND;
@@ -12407,16 +12410,18 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         pItem2->SetState(ITEM_CHANGED, this);
 
         ApplyEquipCooldown(pItem2);
-
+#ifdef ELUNA
         sHookMgr->OnEquip(this, pItem2, bag, slot);
+#endif
         return pItem2;
     }
 
     // only for full equip instead adding to stack
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
-    
+#ifdef ELUNA
     sHookMgr->OnEquip(this, pItem, bag, slot);
+#endif
     return pItem;
 }
 
@@ -24565,8 +24570,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         // LootItem is being removed (looted) from the container, delete it from the DB.
         if (loot->containerID > 0)
             loot->DeleteLootItemFromContainerItemDB(item->itemid);
-
+#ifdef ELUNA
         sHookMgr->OnLootItem(this, newitem, item->count, this->GetLootGUID());
+#endif
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);

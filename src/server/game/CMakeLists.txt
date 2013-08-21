@@ -213,10 +213,12 @@ add_library(game STATIC
 add_dependencies(game revision.h)
 add_dependencies(game lua)
 
+if (ELUNA)
 target_link_libraries(game
  lua
  LuaEngine
 )
+endif()
 
 # Generate precompiled header
 if (USE_COREPCH)

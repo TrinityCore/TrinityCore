@@ -1249,7 +1249,9 @@ public:
 
     static bool HandleReloadElunaLuaEngine(ChatHandler* handler, const char* /*args*/)
     {
+#ifdef ELUNA
         sEluna->StartEluna(true);
+#endif
         handler->SendSysMessage("Reloaded Eluna Nova Engine");
         return true;
     }
