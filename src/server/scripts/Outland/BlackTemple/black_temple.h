@@ -88,11 +88,7 @@ enum GameObjectIds
 template<class AI>
 AI* GetBlackTempleAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(BTScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, BTScriptName);
 }
 
 #endif // BLACK_TEMPLE_H_
