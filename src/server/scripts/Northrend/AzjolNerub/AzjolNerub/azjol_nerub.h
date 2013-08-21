@@ -18,9 +18,6 @@
 #ifndef AZJOL_NERUB_H_
 #define AZJOL_NERUB_H_
 
-#include "Map.h"
-#include "Creature.h" 
-
 #define AzjolNerubScriptName "instance_azjol_nerub"
 
 uint32 const EncounterCount = 3;
@@ -60,11 +57,7 @@ enum GameObjectIds
 template<class AI>
 AI* GetAzjolNerubAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(AzjolNerubScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, AzjolNerubScriptName);
 }
 
 #endif // AZJOL_NERUB_H_
