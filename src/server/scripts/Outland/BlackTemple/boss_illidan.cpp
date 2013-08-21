@@ -1802,16 +1802,12 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     if (instance)
         instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
 
-    if (AkamaGUID)
+    if (Creature* akama = ObjectAccessor::GetCreature(*me, AkamaGUID))
     {
-        if (Creature* akama = ObjectAccessor::GetCreature(*me, AkamaGUID))
-        {
-            if (!akama->IsAlive())
-                akama->Respawn();
-            else
-                akama->AI()->EnterEvadeMode();
-        }
-        AkamaGUID = 0;
+        if (!akama->IsAlive())
+            akama->Respawn();
+        else
+            akama->AI()->EnterEvadeMode();
     }
 
     MaievGUID = 0;

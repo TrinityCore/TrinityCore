@@ -443,7 +443,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (Creature* Shade = Unit::GetCreature((*me), ShadeGUID))
+            if (Creature* Shade = ObjectAccessor::GetCreature(*me, ShadeGUID))
                 if (Shade->IsAlive())
                     CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
             me->GetMotionMaster()->Clear(true);
@@ -452,17 +452,14 @@ public:
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
         {
-            if (!StartCombat)
+            if (spell->Id == SPELL_THREAT && !StartCombat)
             {
-                if (spell->Id == SPELL_THREAT)
-                {
-                    me->ClearUnitState(UNIT_STATE_ROOT);
-                    me->RemoveAura(SPELL_AKAMA_SOUL_CHANNEL);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                    if (Creature* Shade = Unit::GetCreature((*me), ShadeGUID))
-                        Shade->RemoveAura(SPELL_AKAMA_SOUL_CHANNEL);
-                    StartCombat = true;
-                }
+                me->ClearUnitState(UNIT_STATE_ROOT);
+                me->RemoveAura(SPELL_AKAMA_SOUL_CHANNEL);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                if (Creature* Shade = ObjectAccessor::GetCreature(*me, ShadeGUID))
+                    Shade->RemoveAura(SPELL_AKAMA_SOUL_CHANNEL);
+                StartCombat = true;
             }
         }
 
