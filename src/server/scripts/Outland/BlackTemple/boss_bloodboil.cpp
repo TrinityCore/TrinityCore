@@ -96,7 +96,7 @@ public:
         void Reset() OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
+                instance->SetBossState(DATA_GURTOGG_BLOODBOIL, NOT_STARTED);
 
             TargetGUID = 0;
 
@@ -124,7 +124,7 @@ public:
             DoZoneInCombat();
             Talk(SAY_AGGRO);
             if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_GURTOGG_BLOODBOIL, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -135,7 +135,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
+                instance->SetBossState(DATA_GURTOGG_BLOODBOIL, DONE);
 
             Talk(SAY_DEATH);
         }

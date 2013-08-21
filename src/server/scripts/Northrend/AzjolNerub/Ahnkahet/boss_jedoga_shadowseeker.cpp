@@ -46,11 +46,6 @@ enum Spells
     SPELL_THUNDERSHOCK_H                          = 60029  // 30Y
 };
 
-enum Creatures
-{
-    NPC_JEDOGA_CONTROLLER                         = 30181
-};
-
 const Position JedogaPosition[2] =
 {
     {372.330994f, -705.278015f, -0.624178f,  5.427970f},
@@ -109,7 +104,7 @@ public:
             if (instance)
             {
                 if (!bFirstTime)
-                    instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, FAIL);
+                    instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, FAIL);
 
                 instance->SetData64(DATA_PL_JEDOGA_TARGET, 0);
                 instance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
@@ -127,7 +122,7 @@ public:
 
             Talk(TEXT_AGGRO);
             me->SetInCombatWithZone();
-            instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -150,7 +145,7 @@ public:
         {
             Talk(TEXT_DEATH);
             if (instance)
-                instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, DONE);
+                instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, DONE);
         }
 
         void DoAction(int32 action) OVERRIDE
@@ -168,7 +163,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!instance || !who || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                 return;
@@ -179,7 +173,7 @@ public:
                 bPreDone = true;
             }
 
-            if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS || !bOnGround)
+            if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS || !bOnGround)
                 return;
 
             if (!me->GetVictim() && me->CanCreatureAttack(who))
@@ -229,7 +223,7 @@ public:
                 {
                     AttackStart(target);
                     instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
-                    if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS)
+                    if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS)
                         EnterCombat(target);
                 }
                 else if (!me->IsInCombat())
@@ -252,7 +246,8 @@ public:
             me->GetMotionMaster()->MovePoint(0, JedogaPosition[0]);
 
             instance->SetData(DATA_JEDOGA_TRIGGER_SWITCH, 1);
-            if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) OpferRufen();
+            if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS)
+                OpferRufen();
 
             bOnGround = false;
             uiOpFerTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -289,7 +284,7 @@ public:
             if (!instance)
                 return;
 
-            if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS && instance->GetData(DATA_ALL_INITIAND_DEAD))
+            if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS && instance->GetData(DATA_ALL_INITIAND_DEAD))
                 MoveDown();
 
             if (bOpFerok && !bOnGround && !bCanDown) Opfern();
@@ -372,7 +367,7 @@ public:
             bWalking = false;
             bCheckTimer = 2*IN_MILLISECONDS;
 
-            if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS)
+            if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS)
             {
                 me->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
                 me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, false);
@@ -414,13 +409,11 @@ public:
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            if ((instance && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who)
-                return;
         }
 
         void AttackStart(Unit* victim) OVERRIDE
         {
-            if ((instance && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !victim)
+            if ((instance && instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS) || !victim)
                 return;
 
             ScriptedAI::AttackStart(victim);
@@ -429,7 +422,7 @@ public:
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
-            if ((instance && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) || !who)
+            if ((instance && instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS) || !who)
                 return;
 
             ScriptedAI::MoveInLineOfSight(who);
@@ -482,14 +475,14 @@ public:
                 }
                 if (!bWalking)
                 {
-                    if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS && me->HasAura(SPELL_SPHERE_VISUAL))
+                    if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS && me->HasAura(SPELL_SPHERE_VISUAL))
                     {
                         me->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
                         me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, false);
                         me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, false);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
                     }
-                    if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS && !me->HasAura(SPELL_SPHERE_VISUAL))
+                    if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == IN_PROGRESS && !me->HasAura(SPELL_SPHERE_VISUAL))
                     {
                         DoCast(me, SPELL_SPHERE_VISUAL, false);
                         me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
@@ -561,7 +554,7 @@ public:
 
             if (!bRemoved && me->GetPositionX() > 440.0f)
             {
-                if (instance->GetData(DATA_PRINCE_TALDARAM_EVENT) == DONE)
+                if (instance->GetBossState(DATA_PRINCE_TALDARAM) == DONE)
                 {
                     me->InterruptNonMeleeSpells(true);
                     bRemoved = true;
@@ -585,7 +578,7 @@ public:
                     me->InterruptNonMeleeSpells(true);
                     bCasted2 = false;
                 }
-                if (!bRemoved2 && instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == DONE)
+                if (!bRemoved2 && instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == DONE)
                 {
                     me->InterruptNonMeleeSpells(true);
                     bRemoved2 = true;

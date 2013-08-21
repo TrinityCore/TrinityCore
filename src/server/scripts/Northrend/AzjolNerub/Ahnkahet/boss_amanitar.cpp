@@ -35,8 +35,6 @@ enum Spells
 
 enum Creatures
 {
-    NPC_HEALTHY_MUSHROOM                            = 30391,
-    NPC_POISONOUS_MUSHROOM                          = 30435,
     NPC_TRIGGER                                     = 19656
 };
 
@@ -52,129 +50,112 @@ enum Events
 
 class boss_amanitar : public CreatureScript
 {
-public:
-    boss_amanitar() : CreatureScript("boss_amanitar") { }
+    public:
+        boss_amanitar() : CreatureScript("boss_amanitar") { }
 
-    struct boss_amanitarAI : public BossAI
-    {
-        boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
-
-        void Reset() OVERRIDE
+        struct boss_amanitarAI : public BossAI
         {
-            _Reset();
+            boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
 
-            me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
-            summons.DespawnAll();
-
-            if (instance)
+            void Reset() OVERRIDE
             {
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
-                instance->SetData(DATA_AMANITAR_EVENT, NOT_STARTED);
+                _Reset();
+                me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
-        }
 
-        void JustDied(Unit* /*Killer*/) OVERRIDE
-        {
-            if (instance)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                _EnterCombat();
+
+                events.ScheduleEvent(EVENT_ROOT, urand(5, 9) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BASH, urand(10, 14) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BOLT, urand(15, 20) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_MINI, urand(12, 18) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SPAWN, 5  * IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
-                instance->SetData(DATA_AMANITAR_EVENT, DONE);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
-                summons.DespawnAll();
             }
-        }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            _EnterCombat();
-
-            events.ScheduleEvent(EVENT_ROOT, urand(5, 9) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_BASH, urand(10, 14) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_BOLT, urand(15, 20) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MINI, urand(12, 18) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SPAWN, 5  * IN_MILLISECONDS);
-
-            me->SetInCombatWithZone();
-            if (instance)
-                instance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
-        }
-
-        void SpawnAdds()
-        {
-            uint8 u = 0;
-
-            for (uint8 i = 0; i < 30; ++i)
+            void SpawnAdds()
             {
-                Position pos;
-                me->GetPosition(&pos);
-                me->GetRandomNearPosition(pos, 30.0f);
-                pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), MAX_HEIGHT) + 2.0f;
+                uint8 u = 0;
 
-                if (Creature* trigger = me->SummonCreature(NPC_TRIGGER, pos))
+                for (uint8 i = 0; i < 30; ++i)
                 {
-                    Creature* temp1 = trigger->FindNearestCreature(NPC_HEALTHY_MUSHROOM, 4.0f, true);
-                    Creature* temp2 = trigger->FindNearestCreature(NPC_POISONOUS_MUSHROOM, 4.0f, true);
-                    if (temp1 || temp2)
+                    Position pos;
+                    me->GetPosition(&pos);
+                    me->GetRandomNearPosition(pos, 30.0f);
+                    pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), MAX_HEIGHT) + 2.0f;
+
+                    if (Creature* trigger = me->SummonCreature(NPC_TRIGGER, pos))
                     {
-                        trigger->DisappearAndDie();
-                    }
-                    else
-                    {
-                        u = 1 - u;
-                        trigger->DisappearAndDie();
-                        me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
+                        Creature* temp1 = trigger->FindNearestCreature(NPC_HEALTHY_MUSHROOM, 4.0f, true);
+                        Creature* temp2 = trigger->FindNearestCreature(NPC_POISONOUS_MUSHROOM, 4.0f, true);
+                        if (temp1 || temp2)
+                        {
+                            trigger->DisappearAndDie();
+                        }
+                        else
+                        {
+                            u = 1 - u;
+                            trigger->DisappearAndDie();
+                            me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
+                        }
                     }
                 }
             }
-        }
 
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
+            void UpdateAI(uint32 diff) OVERRIDE
             {
-                switch (eventId)
-                {
-                    case EVENT_SPAWN:
-                        SpawnAdds();
-                        events.ScheduleEvent(EVENT_SPAWN, 20 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_MINI:
-                        DoCast(SPELL_MINI);
-                        events.ScheduleEvent(EVENT_MINI, urand(25, 30) * IN_MILLISECONDS);
-                        break;
-                    case EVENT_ROOT:
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_ENTANGLING_ROOTS, true);
-                        events.ScheduleEvent(EVENT_ROOT, urand(10, 15) * IN_MILLISECONDS);
-                        break;
-                    case EVENT_BASH:
-                        DoCastVictim(SPELL_BASH);
-                        events.ScheduleEvent(EVENT_BASH, urand(7, 12) * IN_MILLISECONDS);
-                        break;
-                    case EVENT_BOLT:
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_VENOM_BOLT_VOLLEY, true);
-                        events.ScheduleEvent(EVENT_BOLT, urand(18, 22) * IN_MILLISECONDS);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
+                if (!UpdateVictim())
+                    return;
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_amanitarAI(creature);
-    }
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SPAWN:
+                            SpawnAdds();
+                            events.ScheduleEvent(EVENT_SPAWN, 20 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_MINI:
+                            DoCast(SPELL_MINI);
+                            events.ScheduleEvent(EVENT_MINI, urand(25, 30) * IN_MILLISECONDS);
+                            break;
+                        case EVENT_ROOT:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_ENTANGLING_ROOTS, true);
+                            events.ScheduleEvent(EVENT_ROOT, urand(10, 15) * IN_MILLISECONDS);
+                            break;
+                        case EVENT_BASH:
+                            DoCastVictim(SPELL_BASH);
+                            events.ScheduleEvent(EVENT_BASH, urand(7, 12) * IN_MILLISECONDS);
+                            break;
+                        case EVENT_BOLT:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_VENOM_BOLT_VOLLEY, true);
+                            events.ScheduleEvent(EVENT_BOLT, urand(18, 22) * IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetAhnKahetAI<boss_amanitarAI>(creature);
+        }
 };
 
 class npc_amanitar_mushrooms : public CreatureScript

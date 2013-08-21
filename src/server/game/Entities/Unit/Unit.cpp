@@ -162,7 +162,7 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
 #endif
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
-    IsAIEnabled(false), NeedChangeAI(false),
+    IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(0),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(NULL), i_disabledAI(NULL), m_AutoRepeatFirstCast(false), m_procDeep(0),
     m_removedAurasCount(0), i_motionMaster(this), m_ThreatManager(this),
@@ -2526,10 +2526,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     HitChance += int32(m_modSpellHitChance * 100.0f);
 
-    if (HitChance < 100)
-        HitChance = 100;
-    else if (HitChance > 10000)
-        HitChance = 10000;
+    RoundToInterval(HitChance, 100, 10000);
 
     int32 tmp = 10000 - HitChance;
 
@@ -5741,8 +5738,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // if damage is more than need or target die from damage deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage) || GetHealth() <= damage)
                 {
-                    // remember guid before aura delete
-                    uint64 casterGuid = triggeredByAura->GetCasterGUID();
+                    // remember caster before aura delete
+                    Unit* caster = triggeredByAura->GetCaster();
 
                     // Remove aura (before cast for prevent infinite loop handlers)
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
@@ -5750,7 +5747,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     uint32 spell = sSpellMgr->GetSpellWithRank(27285, dummySpell->GetRank());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    if (Unit* caster = GetUnit(*this, casterGuid))
+                    if (caster)
                         caster->CastSpell(this, spell, true, castItem);
                     return true;                            // no hidden cooldown
                 }
@@ -5765,14 +5762,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // if damage is more than need deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage))
                 {
-                    // remember guid before aura delete
-                    uint64 casterGuid = triggeredByAura->GetCasterGUID();
+                    // remember caster before aura delete
+                    Unit* caster = triggeredByAura->GetCaster();
 
                     // Remove aura (before cast for prevent infinite loop handlers)
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    if (Unit* caster = GetUnit(*this, casterGuid))
+                    if (caster)
                         caster->CastSpell(this, 32865, true, castItem);
                     return true;                            // no hidden cooldown
                 }
@@ -15839,16 +15836,13 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     if (Creature* creature = ToCreature())
     {
+        // Creature will restore its old AI on next update
         if (creature->AI())
             creature->AI()->OnCharmed(false);
 
-        if (type != CHARM_TYPE_VEHICLE) // Vehicles' AI is never modified
-        {
-            creature->AIM_Initialize();
-
-            if (creature->AI() && charmer && charmer->IsAlive())
-                creature->AI()->AttackStart(charmer);
-        }
+        // Vehicle should not attack its passenger after he exists the seat
+        if (type != CHARM_TYPE_VEHICLE)
+            LastCharmerGUID = charmer->GetGUID();
     }
     else
         ToPlayer()->SetClientControl(this, 1);
@@ -15933,7 +15927,7 @@ void Unit::RestoreFaction()
 
 Unit* Unit::GetRedirectThreatTarget()
 {
-    return _redirectThreadInfo.GetTargetGUID() ? GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL;
+    return _redirectThreadInfo.GetTargetGUID() ? ObjectAccessor::GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL;
 }
 
 bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
