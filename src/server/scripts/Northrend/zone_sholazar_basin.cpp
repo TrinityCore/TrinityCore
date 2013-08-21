@@ -619,7 +619,7 @@ public:
 
             for (uint8 i = 0; i < 3; ++i)
             {
-                if (quest->RequiredNpcOrGo[i] != me->GetEntry())
+                if (uint32(quest->RequiredNpcOrGo[i]) != me->GetEntry())
                     continue;
 
                 if (itr->second.CreatureOrGOCount[i] != 0)
