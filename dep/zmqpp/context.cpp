@@ -12,7 +12,7 @@ namespace zmqpp
 
 void context::terminate()
 {
-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
+#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
 	int result = zmq_term(_context);
 #else
 	int result = zmq_ctx_destroy(_context);
@@ -21,7 +21,7 @@ void context::terminate()
 	_context = nullptr;
 }
 
-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
+#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
 void context::set(context_option const& option, int const& value)
 {
 	if (nullptr == _context) { throw invalid_instance("context is invalid"); }

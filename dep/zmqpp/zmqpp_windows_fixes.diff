@@ -1,0 +1,575 @@
+diff --git a/dep/zmqpp/compatibility.hpp b/dep/zmqpp/compatibility.hpp
+index b428a4f..0307b7c 100644
+--- a/dep/zmqpp/compatibility.hpp
++++ b/dep/zmqpp/compatibility.hpp
+@@ -27,12 +27,12 @@
+ #define ZMQPP_REQUIRED_ZMQ_MAJOR 2
+ #define ZMQPP_REQUIRED_ZMQ_MINOR 2
+ 
+-#if (ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR) or ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) and (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
++#if (ZMQ_VERSION_MAJOR < ZMQPP_REQUIRED_ZMQ_MAJOR) || ((ZMQ_VERSION_MAJOR == ZMQPP_REQUIRED_ZMQ_MAJOR) && (ZMQ_VERSION_MINOR < ZMQPP_REQUIRED_ZMQ_MINOR))
+ #error zmqpp requires a later version of 0mq
+ #endif
+ 
+ // Experimental feature support
+-#if (ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR == 0)
++#if (ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR == 0)
+ #define ZMQ_EXPERIMENTAL_LABELS
+ #endif
+ 
+@@ -61,10 +61,20 @@
+ // Deal with older compilers not supporting C++0x nullptr
+ #if __GNUC_MINOR__ < 6
+ #define nullptr NULL
+-#define noexcept
++#define NOEXCEPT
+ #endif // if __GNUC_MINOR__ < 6
+ 
+ #endif // if __GNUC_ == 4
++#else
++#ifdef _MSC_VER
++#define ZMQPP_EXPLICITLY_DELETED
++#define NOEXCEPT
++#if _MSC_VER < 1600
++#define ZMQPP_IGNORE_LAMBDA_FUNCTION_TESTS
++#define nullptr NULL
++#define ZMQPP_COMPARABLE_ENUM enum
++#endif
++#endif // _MSC_VER
+ #endif // if __GNUC_
+ 
+ // Generic state, assume a modern compiler
+@@ -76,5 +86,9 @@
+ #define ZMQPP_EXPLICITLY_DELETED = delete
+ #endif
+ 
++#ifndef NOEXCEPT
++#define NOEXCEPT noexcept
++#endif
++
+ #endif /* ZMQPP_COMPATIBILITY_HPP_ */
+ 
+diff --git a/dep/zmqpp/context.cpp b/dep/zmqpp/context.cpp
+index d534548..fae513a 100644
+--- a/dep/zmqpp/context.cpp
++++ b/dep/zmqpp/context.cpp
+@@ -12,7 +12,7 @@ namespace zmqpp
+ 
+ void context::terminate()
+ {
+-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 	int result = zmq_term(_context);
+ #else
+ 	int result = zmq_ctx_destroy(_context);
+@@ -21,7 +21,7 @@ void context::terminate()
+ 	_context = nullptr;
+ }
+ 
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ void context::set(context_option const& option, int const& value)
+ {
+ 	if (nullptr == _context) { throw invalid_instance("context is invalid"); }
+diff --git a/dep/zmqpp/context.hpp b/dep/zmqpp/context.hpp
+index 09cf486..a04a7c6 100644
+--- a/dep/zmqpp/context.hpp
++++ b/dep/zmqpp/context.hpp
+@@ -14,7 +14,7 @@
+ 
+ #include "compatibility.hpp"
+ #include "exception.hpp"
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ #include "context_options.hpp"
+ #endif
+ 
+@@ -38,7 +38,7 @@ class context
+ {
+ public:
+ 
+-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 	/*!
+ 	 * Initialise the 0mq context.
+ 	 *
+@@ -64,7 +64,7 @@ public:
+ #endif
+ 		: _context(nullptr)
+ 	{
+-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 		_context = zmq_init(threads);
+ #else
+ 		_context = zmq_ctx_new();
+@@ -84,20 +84,20 @@ public:
+ 	 * If there are open sockets will block while zmq internal buffers are
+ 	 * processed up to a limit specified by that sockets linger option.
+ 	 */
+-	~context() noexcept
++	~context() NOEXCEPT
+ 	{
+ 		if (nullptr != _context)
+ 		{
+ 
+ #ifndef NDEBUG // unused assert variable in release
+-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 			int result = zmq_term(_context);
+ #else
+ 			int result = zmq_ctx_destroy(_context);
+ #endif
+ 			assert(0 == result);
+ #else
+-#if (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#if (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 			zmq_term(_context);
+ #else
+ 			zmq_ctx_destroy(_context);
+@@ -115,7 +115,7 @@ public:
+ 	 *
+ 	 * \param source a rvalue instance of the object who's internals we wish to steal.
+ 	 */
+-	context(context&& source) noexcept
++	context(context&& source) NOEXCEPT
+ 	{
+ 		_context = source._context;
+ 		source._context = nullptr;
+@@ -128,7 +128,7 @@ public:
+ 	 *
+ 	 * \param source an rvalue instance of the context who's internals we wish to steal.
+ 	 */
+-	context& operator=(context&& source) noexcept
++	context& operator=(context&& source) NOEXCEPT
+ 	{
+ 		_context = source._context;
+ 		source._context = nullptr;
+@@ -145,7 +145,7 @@ public:
+ 	 */
+ 	void terminate();
+ 
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	/*!
+ 	 * Set the value of an option in the underlaying zmq context.
+ 	 *
+@@ -173,7 +173,7 @@ public:
+ 	 *
+ 	 * \return boolean true if the object is valid.
+ 	 */
+-	operator bool() const noexcept
++	operator bool() const NOEXCEPT
+ 	{
+ 		return nullptr != _context;
+ 	}
+@@ -183,7 +183,7 @@ public:
+ 	 *
+ 	 * \return void pointer to the underlying 0mq context.
+ 	 */
+-	operator void*() const noexcept
++	operator void*() const NOEXCEPT
+ 	{
+ 		return _context;
+ 	}
+@@ -193,7 +193,7 @@ private:
+ 
+ 	// No copy - private and not implemented
+ 	context(context const&) ZMQPP_EXPLICITLY_DELETED;
+-	context& operator=(context const&) noexcept ZMQPP_EXPLICITLY_DELETED;
++	context& operator=(context const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+ };
+ 
+ }
+diff --git a/dep/zmqpp/inet.hpp b/dep/zmqpp/inet.hpp
+index 82e7e5e..51a6b03 100644
+--- a/dep/zmqpp/inet.hpp
++++ b/dep/zmqpp/inet.hpp
+@@ -10,7 +10,13 @@
+ 
+ /** \todo cross-platform version of including headers for htons and htonl. */
+ // We get htons and htonl from here
++#ifndef _WIN32
+ #include <netinet/in.h>
++#else
++#include <WinSock2.h>
++#endif
++
++#include <stdint.h>
+ 
+ #include "compatibility.hpp"
+ 
+@@ -73,8 +79,6 @@ inline uint64_t swap_if_needed(uint64_t const& value_to_check)
+ 	return value.integer;
+ }
+ 
+-}
+-
+ /*!
+  * 64 bit version of the htons/htonl
+  *
+@@ -101,4 +105,6 @@ inline uint64_t ntohll(uint64_t const& networklonglong)
+ 	return zmqpp::swap_if_needed(networklonglong);
+ }
+ 
++}
++
+ #endif /* INET_HPP_ */
+diff --git a/dep/zmqpp/message.cpp b/dep/zmqpp/message.cpp
+index fd12b9d..b9ee127 100644
+--- a/dep/zmqpp/message.cpp
++++ b/dep/zmqpp/message.cpp
+@@ -408,12 +408,12 @@ message& message::operator<<(std::string const& string)
+ 	return *this;
+ }
+ 
+-message::message(message&& source) noexcept
++message::message(message&& source) NOEXCEPT
+ {
+ 	std::swap(_parts, source._parts);
+ }
+ 
+-message& message::operator=(message&& source) noexcept
++message& message::operator=(message&& source) NOEXCEPT
+ {
+ 	std::swap(_parts, source._parts);
+ 	return *this;
+diff --git a/dep/zmqpp/message.hpp b/dep/zmqpp/message.hpp
+index 3311bd1..1c141e1 100644
+--- a/dep/zmqpp/message.hpp
++++ b/dep/zmqpp/message.hpp
+@@ -142,8 +142,8 @@ public:
+ 	message& operator<<(std::string const& string);
+ 
+ 	// Move supporting
+-	message(message&& source) noexcept;
+-	message& operator=(message&& source) noexcept;
++	message(message&& source) NOEXCEPT;
++	message& operator=(message&& source) NOEXCEPT;
+ 
+ 	// Copy support
+ 	message copy();
+@@ -163,8 +163,8 @@ private:
+ 	size_t _read_cursor;
+ 
+ 	// Disable implicit copy support, code must request a copy to clone
+-	message(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+-	message& operator=(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
++	message(message const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
++	message& operator=(message const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+ 
+ 	static void release_callback(void* data, void* hint);
+ 
+diff --git a/dep/zmqpp/poller.cpp b/dep/zmqpp/poller.cpp
+index 51500b6..0ae1777 100644
+--- a/dep/zmqpp/poller.cpp
++++ b/dep/zmqpp/poller.cpp
+@@ -35,7 +35,7 @@ poller::~poller()
+ 
+ void poller::add(socket& socket, short const& event /* = POLL_IN */)
+ {
+-	zmq_pollitem_t item { socket, 0, event, 0 };
++	zmq_pollitem_t item = { socket, 0, event, 0 };
+ 
+ 	size_t index = _items.size();
+ 	_items.push_back(item);
+@@ -44,7 +44,7 @@ void poller::add(socket& socket, short const& event /* = POLL_IN */)
+ 
+ void poller::add(int const& descriptor, short const& event /* = POLL_IN */)
+ {
+-	zmq_pollitem_t item { nullptr, descriptor, event, 0 };
++	zmq_pollitem_t item = { nullptr, descriptor, event, 0 };
+ 
+ 	size_t index = _items.size();
+ 	_items.push_back(item);
+diff --git a/dep/zmqpp/socket.cpp b/dep/zmqpp/socket.cpp
+index d5d013d..b52a46a 100644
+--- a/dep/zmqpp/socket.cpp
++++ b/dep/zmqpp/socket.cpp
+@@ -16,11 +16,15 @@
+ namespace zmqpp
+ {
+ 
+-const int socket::normal;
+-const int socket::dont_wait;
+-const int socket::send_more;
++const int socket::normal     = 0;
++#if (ZMQ_VERSION_MAJOR == 2)
++const int dont_wait  = ZMQ_NOBLOCK;
++#else
++const int dont_wait  = ZMQ_DONTWAIT;
++#endif
++const int send_more  = ZMQ_SNDMORE;
+ #ifdef ZMQ_EXPERIMENTAL_LABELS
+-const int socket::send_label;
++const int send_label = ZMQ_SNDLABEL;
+ #endif
+ 
+ const int max_socket_option_buffer_size = 256;
+@@ -126,7 +130,7 @@ bool socket::send(message& message, bool const& dont_block /* = false */)
+ 
+ #if (ZMQ_VERSION_MAJOR == 2)
+ 		int result = zmq_send( _socket, &message.raw_msg(i), flag );
+-#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#elif (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 		int result = zmq_sendmsg( _socket, &message.raw_msg(i), flag );
+ #else
+ 		int result = zmq_msg_send( &message.raw_msg(i), _socket, flag );
+@@ -170,7 +174,7 @@ bool socket::receive(message& message, bool const& dont_block /* = false */)
+ 	{
+ #if (ZMQ_VERSION_MAJOR == 2)
+ 		int result = zmq_recv( _socket, &_recv_buffer, flags );
+-#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#elif (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 		int result = zmq_recvmsg( _socket, &_recv_buffer, flags );
+ #else
+ 		int result = zmq_msg_recv( &_recv_buffer, _socket, flags );
+@@ -207,7 +211,7 @@ bool socket::receive(std::string& string, int const& flags /* = NORMAL */)
+ {
+ #if (ZMQ_VERSION_MAJOR == 2)
+ 		int result = zmq_recv( _socket, &_recv_buffer, flags );
+-#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#elif (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 		int result = zmq_recvmsg( _socket, &_recv_buffer, flags );
+ #else
+ 		int result = zmq_msg_recv( &_recv_buffer, _socket, flags );
+@@ -267,7 +271,7 @@ bool socket::receive_raw(char* buffer, int& length, int const& flags /* = NORMAL
+ {
+ #if (ZMQ_VERSION_MAJOR == 2)
+ 		int result = zmq_recv( _socket, &_recv_buffer, flags );
+-#elif (ZMQ_VERSION_MAJOR < 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR < 2))
++#elif (ZMQ_VERSION_MAJOR < 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR < 2))
+ 		int result = zmq_recvmsg( _socket, &_recv_buffer, flags );
+ #else
+ 		int result = zmq_msg_recv( &_recv_buffer, _socket, flags );
+@@ -336,13 +340,13 @@ void socket::set(socket_option const& option, int const& value)
+ 		break;
+ 
+ 	// Boolean
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+ 	case socket_option::ipv4_only:
+ #endif
+ #if (ZMQ_VERSION_MAJOR == 2)
+ 	case socket_option::multicast_loopback:
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::delay_attach_on_connect:
+ 	case socket_option::router_mandatory:
+ 	case socket_option::xpub_verbose:
+@@ -353,7 +357,7 @@ void socket::set(socket_option const& option, int const& value)
+ 		break;
+ 
+ 	// Default or Boolean
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::tcp_keepalive:
+ 		if (value < -1 || value > 1) { throw exception("attempting to set a default or boolean option with a non -1, 0 or 1 integer"); }
+ 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), &value, sizeof(value)))
+@@ -383,7 +387,7 @@ void socket::set(socket_option const& option, int const& value)
+ 	case socket_option::backlog:
+ 	case socket_option::receive_timeout:
+ 	case socket_option::send_timeout:
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::tcp_keepalive_idle:
+ 	case socket_option::tcp_keepalive_count:
+ 	case socket_option::tcp_keepalive_interval:
+@@ -405,10 +409,10 @@ void socket::set(socket_option const& option, bool const& value)
+ #if (ZMQ_VERSION_MAJOR == 2)
+ 	case socket_option::multicast_loopback:
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+ 	case socket_option::ipv4_only:
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::delay_attach_on_connect:
+ 	case socket_option::router_mandatory:
+ 	case socket_option::xpub_verbose:
+@@ -472,7 +476,7 @@ void socket::set(socket_option const& option, char const* value, size_t const le
+ 	case socket_option::identity:
+ 	case socket_option::subscribe:
+ 	case socket_option::unsubscribe:
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::tcp_accept_filter:
+ #endif
+ 		if (0 != zmq_setsockopt(_socket, static_cast<int>(option), value, length))
+@@ -517,10 +521,10 @@ void socket::get(socket_option const& option, int& value) const
+ 	case socket_option::receive_high_water_mark:
+ 	case socket_option::multicast_hops:
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+ 	case socket_option::ipv4_only:
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::delay_attach_on_connect:
+ 	case socket_option::tcp_keepalive:
+ 	case socket_option::tcp_keepalive_idle:
+@@ -559,10 +563,10 @@ void socket::get(socket_option const& option, bool& value) const
+ #if (ZMQ_VERSION_MAJOR == 2)
+ 	case socket_option::multicast_loopback:
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+ 	case socket_option::ipv4_only:
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::delay_attach_on_connect:
+ #endif
+ #ifdef ZMQ_EXPERIMENTAL_LABELS
+@@ -636,7 +640,7 @@ void socket::get(socket_option const& option, std::string& value) const
+ 	switch(option)
+ 	{
+ 	case socket_option::identity:
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	case socket_option::last_endpoint:
+ #endif
+ 		if(0 != zmq_getsockopt(_socket, static_cast<int>(option), buffer.data(), &size))
+@@ -651,7 +655,7 @@ void socket::get(socket_option const& option, std::string& value) const
+ 	}
+ }
+ 
+-socket::socket(socket&& source) noexcept
++socket::socket(socket&& source) NOEXCEPT
+ 	: _socket(source._socket)
+ 	, _type(source._type)
+ 	, _recv_buffer()
+@@ -665,7 +669,7 @@ socket::socket(socket&& source) noexcept
+ 	source._socket = nullptr;
+ }
+ 
+-socket& socket::operator=(socket&& source) noexcept
++socket& socket::operator=(socket&& source) NOEXCEPT
+ {
+ 	_socket = source._socket;
+ 	source._socket = nullptr;
+diff --git a/dep/zmqpp/socket.hpp b/dep/zmqpp/socket.hpp
+index 09ea71f..97beefe 100644
+--- a/dep/zmqpp/socket.hpp
++++ b/dep/zmqpp/socket.hpp
+@@ -11,6 +11,18 @@
+ #include <cstring>
+ #include <string>
+ #include <list>
++#ifdef _MSC_VER && _MSC_VER < 1700
++typedef signed char        int8_t;
++typedef short              int16_t;
++typedef int                int32_t;
++typedef long long          int64_t;
++typedef unsigned char      uint8_t;
++typedef unsigned short     uint16_t;
++typedef unsigned int       uint32_t;
++typedef unsigned long long uint64_t;
++#else
++#include <stdint.h>
++#endif
+ 
+ #include <zmq.h>
+ 
+@@ -45,15 +57,15 @@ typedef message     message_t;
+ class socket
+ {
+ public:
+-	static const int normal     = 0;            /*!< /brief default send type, no flags set */
++	static const int normal;                    /*!< /brief default send type, no flags set */
+ #if (ZMQ_VERSION_MAJOR == 2)
+-	static const int dont_wait  = ZMQ_NOBLOCK;  /*!< /brief don't block if sending is not currently possible  */
++	static const int dont_wait;                 /*!< /brief don't block if sending is not currently possible  */
+ #else
+-	static const int dont_wait  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
++	static const int dont_wait;                 /*!< /brief don't block if sending is not currently possible  */
+ #endif
+-	static const int send_more  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
++	static const int send_more;                 /*!< /brief more parts will follow this one */
+ #ifdef ZMQ_EXPERIMENTAL_LABELS
+-	static const int send_label = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
++	static const int send_label;                /*!< /brief this message part is an internal zmq label */
+ #endif
+ 
+ 	/*!
+@@ -446,11 +458,11 @@ public:
+ 	 * Moves the internals of source to this object, there is no guarantee
+ 	 * that source will be left in a valid state.
+ 	 *
+-	 * This constructor is noexcept and so will not throw exceptions
++	 * This constructor is NOEXCEPT and so will not throw exceptions
+ 	 *
+ 	 * \param source target socket to steal internals from
+ 	 */
+-	socket(socket&& source) noexcept;
++	socket(socket&& source) NOEXCEPT;
+ 
+ 	/*!
+ 	 * Move operator
+@@ -458,12 +470,12 @@ public:
+ 	 * Moves the internals of source to this object, there is no guarantee
+ 	 * that source will be left in a valid state.
+ 	 *
+-	 * This function is noexcept and so will not throw exceptions
++	 * This function is NOEXCEPT and so will not throw exceptions
+ 	 *
+ 	 * \param source target socket to steal internals from
+ 	 * \return socket reference to this
+ 	 */
+-	socket& operator=(socket&& source) noexcept;
++	socket& operator=(socket&& source) NOEXCEPT;
+ 
+ 	/*!
+ 	 * Check the socket is still valid
+@@ -489,8 +501,8 @@ private:
+ 	zmq_msg_t _recv_buffer;
+ 
+ 	// No copy
+-	socket(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+-	socket& operator=(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
++	socket(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
++	socket& operator=(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+ 
+ 	void track_message(message_t const&, uint32_t const&, bool&);
+ };
+diff --git a/dep/zmqpp/socket_options.hpp b/dep/zmqpp/socket_options.hpp
+index 3fd3dfc..b0c433f 100644
+--- a/dep/zmqpp/socket_options.hpp
++++ b/dep/zmqpp/socket_options.hpp
+@@ -51,10 +51,10 @@ enum class socket_option {
+ 	receive_high_water_mark   = ZMQ_RCVHWM,            /*!< High-water mark for inbound messages */
+ 	multicast_hops            = ZMQ_MULTICAST_HOPS,    /*!< Maximum number of multicast hops */
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 1))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 1))
+ 	ipv4_only                 = ZMQ_IPV4ONLY,
+ #endif
+-#if (ZMQ_VERSION_MAJOR > 3) or ((ZMQ_VERSION_MAJOR == 3) and (ZMQ_VERSION_MINOR >= 2))
++#if (ZMQ_VERSION_MAJOR > 3) || ((ZMQ_VERSION_MAJOR == 3) && (ZMQ_VERSION_MINOR >= 2))
+ 	delay_attach_on_connect   = ZMQ_DELAY_ATTACH_ON_CONNECT, /*!< Delay buffer attachment until connect complete */
+ 	last_endpoint             = ZMQ_LAST_ENDPOINT,           /*!< Last bound endpoint - get only */
+ 	router_mandatory          = ZMQ_ROUTER_MANDATORY,        /*!< Require routable messages - set only */
+diff --git a/dep/zmqpp/zmqpp.cpp b/dep/zmqpp/zmqpp.cpp
+index efd74fb..163df15 100644
+--- a/dep/zmqpp/zmqpp.cpp
++++ b/dep/zmqpp/zmqpp.cpp
+@@ -4,13 +4,16 @@
+  */
+ 
+ #include "zmqpp.hpp"
++#include <sstream>
+ 
+ namespace zmqpp
+ {
+ 
+ std::string version()
+ {
+-    return BUILD_VERSION "";
++    std::ostringstream str;
++    str << ZMQPP_VERSION_MAJOR << "." << ZMQPP_VERSION_MINOR << "." << ZMQPP_VERSION_REVISION;
++    return str.str();
+ }
+ 
+ void version(uint8_t& major, uint8_t& minor, uint8_t& revision)

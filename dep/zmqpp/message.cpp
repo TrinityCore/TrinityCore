@@ -408,12 +408,12 @@ message& message::operator<<(std::string const& string)
 	return *this;
 }
 
-message::message(message&& source) noexcept
+message::message(message&& source) NOEXCEPT
 {
 	std::swap(_parts, source._parts);
 }
 
-message& message::operator=(message&& source) noexcept
+message& message::operator=(message&& source) NOEXCEPT
 {
 	std::swap(_parts, source._parts);
 	return *this;

@@ -35,7 +35,7 @@ poller::~poller()
 
 void poller::add(socket& socket, short const& event /* = POLL_IN */)
 {
-	zmq_pollitem_t item { socket, 0, event, 0 };
+	zmq_pollitem_t item = { socket, 0, event, 0 };
 
 	size_t index = _items.size();
 	_items.push_back(item);
@@ -44,7 +44,7 @@ void poller::add(socket& socket, short const& event /* = POLL_IN */)
 
 void poller::add(int const& descriptor, short const& event /* = POLL_IN */)
 {
-	zmq_pollitem_t item { nullptr, descriptor, event, 0 };
+	zmq_pollitem_t item = { nullptr, descriptor, event, 0 };
 
 	size_t index = _items.size();
 	_items.push_back(item);

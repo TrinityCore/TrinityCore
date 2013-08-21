@@ -142,8 +142,8 @@ public:
 	message& operator<<(std::string const& string);
 
 	// Move supporting
-	message(message&& source) noexcept;
-	message& operator=(message&& source) noexcept;
+	message(message&& source) NOEXCEPT;
+	message& operator=(message&& source) NOEXCEPT;
 
 	// Copy support
 	message copy();
@@ -163,8 +163,8 @@ private:
 	size_t _read_cursor;
 
 	// Disable implicit copy support, code must request a copy to clone
-	message(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
-	message& operator=(message const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	message(message const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+	message& operator=(message const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 
 	static void release_callback(void* data, void* hint);
 

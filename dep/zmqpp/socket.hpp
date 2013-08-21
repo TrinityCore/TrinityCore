@@ -11,6 +11,18 @@
 #include <cstring>
 #include <string>
 #include <list>
+#ifdef _MSC_VER && _MSC_VER < 1700
+typedef signed char        int8_t;
+typedef short              int16_t;
+typedef int                int32_t;
+typedef long long          int64_t;
+typedef unsigned char      uint8_t;
+typedef unsigned short     uint16_t;
+typedef unsigned int       uint32_t;
+typedef unsigned long long uint64_t;
+#else
+#include <stdint.h>
+#endif
 
 #include <zmq.h>
 
@@ -45,15 +57,15 @@ typedef message     message_t;
 class socket
 {
 public:
-	static const int normal     = 0;            /*!< /brief default send type, no flags set */
+	static const int normal;                    /*!< /brief default send type, no flags set */
 #if (ZMQ_VERSION_MAJOR == 2)
-	static const int dont_wait  = ZMQ_NOBLOCK;  /*!< /brief don't block if sending is not currently possible  */
+	static const int dont_wait;                 /*!< /brief don't block if sending is not currently possible  */
 #else
-	static const int dont_wait  = ZMQ_DONTWAIT; /*!< /brief don't block if sending is not currently possible  */
+	static const int dont_wait;                 /*!< /brief don't block if sending is not currently possible  */
 #endif
-	static const int send_more  = ZMQ_SNDMORE;  /*!< /brief more parts will follow this one */
+	static const int send_more;                 /*!< /brief more parts will follow this one */
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-	static const int send_label = ZMQ_SNDLABEL; /*!< /brief this message part is an internal zmq label */
+	static const int send_label;                /*!< /brief this message part is an internal zmq label */
 #endif
 
 	/*!
@@ -446,11 +458,11 @@ public:
 	 * Moves the internals of source to this object, there is no guarantee
 	 * that source will be left in a valid state.
 	 *
-	 * This constructor is noexcept and so will not throw exceptions
+	 * This constructor is NOEXCEPT and so will not throw exceptions
 	 *
 	 * \param source target socket to steal internals from
 	 */
-	socket(socket&& source) noexcept;
+	socket(socket&& source) NOEXCEPT;
 
 	/*!
 	 * Move operator
@@ -458,12 +470,12 @@ public:
 	 * Moves the internals of source to this object, there is no guarantee
 	 * that source will be left in a valid state.
 	 *
-	 * This function is noexcept and so will not throw exceptions
+	 * This function is NOEXCEPT and so will not throw exceptions
 	 *
 	 * \param source target socket to steal internals from
 	 * \return socket reference to this
 	 */
-	socket& operator=(socket&& source) noexcept;
+	socket& operator=(socket&& source) NOEXCEPT;
 
 	/*!
 	 * Check the socket is still valid
@@ -489,8 +501,8 @@ private:
 	zmq_msg_t _recv_buffer;
 
 	// No copy
-	socket(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
-	socket& operator=(socket const&) noexcept ZMQPP_EXPLICITLY_DELETED;
+	socket(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
+	socket& operator=(socket const&) NOEXCEPT ZMQPP_EXPLICITLY_DELETED;
 
 	void track_message(message_t const&, uint32_t const&, bool&);
 };

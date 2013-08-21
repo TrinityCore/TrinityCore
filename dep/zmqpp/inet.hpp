@@ -10,7 +10,13 @@
 
 /** \todo cross-platform version of including headers for htons and htonl. */
 // We get htons and htonl from here
+#ifndef _WIN32
 #include <netinet/in.h>
+#else
+#include <WinSock2.h>
+#endif
+
+#include <stdint.h>
 
 #include "compatibility.hpp"
 
@@ -73,8 +79,6 @@ inline uint64_t swap_if_needed(uint64_t const& value_to_check)
 	return value.integer;
 }
 
-}
-
 /*!
  * 64 bit version of the htons/htonl
  *
@@ -99,6 +103,8 @@ inline uint64_t htonll(uint64_t const& hostlonglong)
 inline uint64_t ntohll(uint64_t const& networklonglong)
 {
 	return zmqpp::swap_if_needed(networklonglong);
+}
+
 }
 
 #endif /* INET_HPP_ */

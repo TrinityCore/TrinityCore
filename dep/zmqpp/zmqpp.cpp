@@ -4,13 +4,16 @@
  */
 
 #include "zmqpp.hpp"
+#include <sstream>
 
 namespace zmqpp
 {
 
 std::string version()
 {
-    return BUILD_VERSION "";
+    std::ostringstream str;
+    str << ZMQPP_VERSION_MAJOR << "." << ZMQPP_VERSION_MINOR << "." << ZMQPP_VERSION_REVISION;
+    return str.str();
 }
 
 void version(uint8_t& major, uint8_t& minor, uint8_t& revision)
