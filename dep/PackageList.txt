@@ -43,3 +43,7 @@ gSOAP (a portable development toolkit for C and C++ XML Web services and XML dat
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   http://code.google.com/p/recastnavigation/
   Version: 1.4
+
+zmqpp (This C++ binding is a 'high-level' library that hides most of the c-style interface core 0mq provides)
+  https://github.com/benjamg/zmqpp.git
+  Version: 3.1.0

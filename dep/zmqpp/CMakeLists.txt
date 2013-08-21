@@ -8,17 +8,18 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources_zmqpp *.cpp *.h)
+file(GLOB_RECURSE sources_zmqpp *.cpp *.hpp *.h)
 
 set(zmqpp_STAT_SRCS
   ${sources_zmqpp}
   )
 
+include_directories(${ZMQ_INCLUDE_DIR})
+
 add_library(zmqpp STATIC
   ${zmqpp_STAT_SRCS}
   )
 
-add_definitions(-DBUILD_VERSION='"3.1.0"')
 add_definitions(-DBUILD_VERSION_MAJOR=3)
 add_definitions(-DBUILD_VERSION_MINOR=1)
 add_definitions(-DBUILD_VERSION_REVISION=0)
@@ -26,7 +27,3 @@ add_definitions(-DBUILD_VERSION_REVISION=0)
 if(UNIX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
-
-target_link_libraries(zmqpp
-  zmq
-)
