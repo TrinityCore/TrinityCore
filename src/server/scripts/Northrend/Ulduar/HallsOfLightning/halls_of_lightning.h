@@ -18,9 +18,6 @@
 #ifndef HALLS_OF_LIGHTNING_H_
 #define HALLS_OF_LIGHTNING_H_
 
-#include "Map.h"
-#include "Creature.h"
-
 #define HoLScriptName "instance_halls_of_lightning"
 
 uint32 const EncounterCount = 4;
@@ -54,11 +51,7 @@ enum GameObjectIds
 template<class AI>
 AI* GetHallsOfLightningAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(HoLScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, HoLScriptName);
 }
 
 #endif // HALLS_OF_LIGHTNING_H_
