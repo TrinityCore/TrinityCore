@@ -11,7 +11,7 @@
 #include <cstring>
 #include <string>
 #include <list>
-#ifdef _MSC_VER && _MSC_VER < 1700
+#if defined(_MSC_VER) && _MSC_VER < 1700
 typedef signed char        int8_t;
 typedef short              int16_t;
 typedef int                int32_t;
