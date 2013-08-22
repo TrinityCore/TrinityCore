@@ -178,15 +178,15 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 guid) OVERRIDE
+            void SetData64(uint32 type, uint64 data) OVERRIDE
             {
                 switch (type)
                 {
                     case DATA_ADD_JEDOGA_OPFER:
-                        JedogaSacrifices = guid;
+                        JedogaSacrifices = data;
                         break;
                     case DATA_PL_JEDOGA_TARGET:
-                        JedogaTarget = guid;
+                        JedogaTarget = data;
                         break;
                     default:
                         break;
