@@ -30,5 +30,6 @@ add_executable(socialserver
 
 target_link_libraries(socialserver
   zmqpp
+  ${ZMQ_LIBRARY}
   ${ACE_LIBRARY}
 )
