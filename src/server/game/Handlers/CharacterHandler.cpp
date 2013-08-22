@@ -243,6 +243,11 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 {
+    // HandleCharEnumOpcode should NOT be allowed to run, if the character
+    // is already logged into the game.
+    if(GetPlayer() && GetPlayer()->IsInWorld())
+        return;
+
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
