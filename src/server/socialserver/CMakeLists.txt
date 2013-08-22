@@ -14,13 +14,14 @@ set(social_STAT_SRCS
   ${sources_socialsrv}
 )
 
-if(UNIX)
+if (UNIX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/
+  ${CMAKE_SOURCE_DIR}/dep/zmqpp
+  ${ZMQ_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
 )
 

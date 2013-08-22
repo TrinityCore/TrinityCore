@@ -1,5 +1,5 @@
 #include "HeartbeatBroker.h"
-#include "zmqpp/socket_types.hpp"
+#include <zmqpp/socket_types.hpp>
 
 HeartbeatBroker::HeartbeatBroker()
 {
@@ -15,19 +15,21 @@ HeartbeatBroker::~HeartbeatBroker()
     delete ctx;
 }
 
-
 int HeartbeatBroker::open(void*)
 {
     sock->bind("tcp://*:9999");
     poller->add(*sock);
     ACE_Task_Base::activate(THR_NEW_LWP|THR_JOINABLE);
+    return 0;
 }
 
 int HeartbeatBroker::svc()
 {
     while(1)
     {
-	poller->poll(1000);
-	sock->send("");
+        poller->poll(1000);
+        sock->send("");
     }
+
+    return 0;
 }
