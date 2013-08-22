@@ -3,6 +3,10 @@
 
 class HeartbeatBroker : public ACE_Task_Base
 {
+/*
+  This object's only role is to send heartbeat every second to nodes.
+  That's it, really.
+*/
 public:
     virtual int open(void*);
     virtual int svc();
