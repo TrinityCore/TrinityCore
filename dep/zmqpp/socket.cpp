@@ -18,13 +18,13 @@ namespace zmqpp
 
 const int socket::normal     = 0;
 #if (ZMQ_VERSION_MAJOR == 2)
-    const int socket::dont_wait  = ZMQ_NOBLOCK;
+const int socket::dont_wait  = ZMQ_NOBLOCK;
 #else
-    const int socket::dont_wait  = ZMQ_DONTWAIT;
+const int socket::dont_wait  = ZMQ_DONTWAIT;
 #endif
-    const int socket::send_more  = ZMQ_SNDMORE;
+const int socket::send_more  = ZMQ_SNDMORE;
 #ifdef ZMQ_EXPERIMENTAL_LABELS
-    const int socket::send_label = ZMQ_SNDLABEL;
+const int socket::send_label = ZMQ_SNDLABEL;
 #endif
 
 const int max_socket_option_buffer_size = 256;
