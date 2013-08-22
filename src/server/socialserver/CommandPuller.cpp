@@ -38,7 +38,7 @@ int CommandPuller::open(void*)
 int CommandPuller::svc()
 {
     /*
-      Polling strategy is pretty simple right now. 
+      Polling strategy is pretty simple right now.
       There are two socket pairs that need to be read and write ready for magic to happen.
       commands read -> work_queue write
       work_res read -> broadcast write
@@ -46,9 +46,9 @@ int CommandPuller::svc()
      */
     while(1)
     {
-	poller->poll();
-	pipeline(commands, work_queue);
-	pipeline(work_res, broadcast);
+        poller->poll();
+        pipeline(commands, work_queue);
+        pipeline(work_res, broadcast);
     }
 }
 
@@ -62,19 +62,18 @@ void CommandPuller::pipeline(zmqpp::socket* from, zmqpp::socket* to)
     if(poller->events(*from) == zmqpp::poller::poll_in &&
        poller->events(*to) == zmqpp::poller::poll_out)
     {
-	
-	int op1, op2;
-	do
-	{
-	    zmqpp::message msg;
-	    
-	    if(!from->receive(msg, true))
-		return; //No more messages to read from sock. This shouldn't happen.
+        int op1, op2;
+        do
+        {
+            zmqpp::message msg;
 
-	    to->send(msg);
-	    
-	    from->get(zmqpp::socket_option::events, op1);
-	    to->get(zmqpp::socket_option::events, op2);
-	}while(op1 & zmqpp::poller::poll_in && op2 & zmqpp::poller::poll_out );
+            if(!from->receive(msg, true))
+            return; //No more messages to read from sock. This shouldn't happen.
+
+            to->send(msg);
+
+            from->get(zmqpp::socket_option::events, op1);
+            to->get(zmqpp::socket_option::events, op2);
+        } while(op1 & zmqpp::poller::poll_in && op2 & zmqpp::poller::poll_out);
     }
 }
