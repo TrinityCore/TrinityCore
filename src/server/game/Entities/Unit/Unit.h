@@ -776,7 +776,7 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK7                     = 0x00000080,
     MOVEMENTFLAG2_UNK8                     = 0x00000100,
     MOVEMENTFLAG2_UNK9                     = 0x00000200,
-    MOVEMENTFLAG2_UNK10                    = 0x00000400,
+    MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS    = 0x00000400,
     MOVEMENTFLAG2_UNK11                    = 0x00000800,
     MOVEMENTFLAG2_UNK12                    = 0x00001000,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00002000,
