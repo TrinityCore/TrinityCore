@@ -3,7 +3,7 @@ SET @CGUID := 210018;
 -- Spawn the Infinite Corruptor
 DELETE FROM `creature` WHERE `guid`=@CGUID AND `id`=32273;
 INSERT INTO `creature`(`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`,`orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
-(@CGUID, 32273, 595, 1,1, 2331.642, 1273.273, 132.9524, 3.717551, 7200, 0, 0);
+(@CGUID, 32273, 595, 2, 1, 2331.642, 1273.273, 132.9524, 3.717551, 7200, 0, 0);
 
 -- Spawn the Guardian of time
 DELETE FROM `creature` WHERE `guid` = @CGUID+1;
