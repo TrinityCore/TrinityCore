@@ -33,6 +33,7 @@ endif()
 
 if( ELUNA )
   message("* Build Eluna LuaEngine   : Yes (default)")
+  add_definitions(-DELUNA)
 else()
   message("* Build Eluna LuaEngine   : No")
 endif()
