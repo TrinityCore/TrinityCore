@@ -18,6 +18,9 @@
 #ifndef DEF_BARADIN_HOLD_H_
 #define DEF_BARADIN_HOLD_H_
 
+#include "Map.h"
+#include "Creature.h"
+
 #define BHScriptName "instance_baradin_hold"
 
 uint32 const EncounterCount = 3;
