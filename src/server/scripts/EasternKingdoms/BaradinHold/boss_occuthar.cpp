@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Vehicle.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "baradin_hold.h"
 
 enum Spells
