@@ -407,7 +407,7 @@ public:
                 instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 
-        void EnterCombat(Unit* who) OVERRIDE
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
