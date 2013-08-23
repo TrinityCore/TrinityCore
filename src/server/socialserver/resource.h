@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by authserver.rc
+// Used by socialserver.rc
 //
 
 // Next default values for new objects

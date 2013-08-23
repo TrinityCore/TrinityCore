@@ -18,6 +18,18 @@ if (UNIX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
+# if( WIN32 )
+#   set(socialserver_SRCS
+#     ${socialserver_SRCS}
+#     ${sources_windows_Debugging}
+#   )
+#   if ( MSVC )
+#     set(socialserver_SRCS
+#       ${socialserver_SRCS}
+#       socialserver.rc
+#     )
+#   endif ()
+# endif()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/dep/zmqpp

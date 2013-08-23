@@ -1,0 +1,26 @@
+#################################################
+# Trinity Core Social Server configuration file #
+#################################################
+[socialserver]
+
+###################################################################################################
+# SECTION INDEX
+#
+#    EXAMPLE CONFIG
+#
+###################################################################################################
+
+###################################################################################################
+# EXAMPLE CONFIG
+#
+#    Variable
+#        Description: Brief description what the variable is doing.
+#        Important:   Annotation for important things about this variable.
+#        Example:     "Example, i.e. if the value is a string"
+#        Default:     10 - (Enabled|Comment|Variable name in case of grouped config options)
+#                     0  - (Disabled|Comment|Variable name in case of grouped config options)
+#
+# Note to developers:
+# - Copy this example to keep the formatting.
+# - Line breaks should be at column 100.
+###################################################################################################
