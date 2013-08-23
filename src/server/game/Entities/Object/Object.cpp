@@ -383,25 +383,15 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         movementFlagsExtra = self->m_movementInfo.GetExtraMovementFlags();
         hasSpline = self->IsSplineEnabled();
 
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            hasTransportTime2 = self->m_movementInfo.bits.hasTransportTime2;
-            hasTransportTime3 = self->m_movementInfo.bits.hasTransportTime3;
-            hasPitch = self->m_movementInfo.bits.hasPitch;
-            hasFallData = self->m_movementInfo.bits.hasFallData;
-            hasFallDirection = self->m_movementInfo.bits.hasFallDirection;
-            hasSplineElevation = self->m_movementInfo.bits.hasSplineElevation;
-        }
-        else
-        {
-            hasTransportTime2 = self->HasExtraUnitMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT);
-            hasPitch = ((movementFlags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) ||
-                (movementFlagsExtra & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
-            hasFallData = hasFallDirection = movementFlags & MOVEMENTFLAG_FALLING;
-            hasSplineElevation = movementFlags & MOVEMENTFLAG_SPLINE_ELEVATION;
+        hasTransportTime2 = self->m_movementInfo.transport.guid != 0 && self->m_movementInfo.transport.time2 != 0;
+        hasTransportTime3 = false;
+        hasPitch = self->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || self->HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+        hasFallDirection = self->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        hasFallData = hasFallDirection || self->m_movementInfo.jump.fallTime != 0;
+        hasSplineElevation = self->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
 
+        if (GetTypeId() == TYPEID_UNIT)
             movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
-        }
 
         data->WriteBit(!movementFlags);
         data->WriteBit(G3D::fuzzyEq(self->GetOrientation(), 0.0f));             // Has Orientation
@@ -504,9 +494,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         {
             if (hasFallDirection)
             {
-                *data << float(self->m_movementInfo.jump.cosAngle);
                 *data << float(self->m_movementInfo.jump.xyspeed);
                 *data << float(self->m_movementInfo.jump.sinAngle);
+                *data << float(self->m_movementInfo.jump.cosAngle);
             }
 
             *data << uint32(self->m_movementInfo.jump.fallTime);
@@ -1256,14 +1246,14 @@ void MovementInfo::OutDebug()
         TC_LOG_INFO(LOG_FILTER_GENERAL, "time: %u", transport.time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
             TC_LOG_INFO(LOG_FILTER_GENERAL, "time2: %u", transport.time2);
-        if (bits.hasTransportTime3)
+        if (transport.time3)
             TC_LOG_INFO(LOG_FILTER_GENERAL, "time3: %u", transport.time3);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
         TC_LOG_INFO(LOG_FILTER_GENERAL, "pitch: %f", pitch);
 
-    if (flags & MOVEMENTFLAG_FALLING || bits.hasFallData)
+    if (flags & MOVEMENTFLAG_FALLING || jump.fallTime)
     {
         TC_LOG_INFO(LOG_FILTER_GENERAL, "fallTime: %u j_zspeed: %f", jump.fallTime, jump.zspeed);
         if (flags & MOVEMENTFLAG_FALLING)
