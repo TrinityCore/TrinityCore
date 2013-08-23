@@ -20,6 +20,7 @@
 
 #include "Map.h"
 #include "Creature.h"
+#include "ObjectMgr.h"
 
 #define BHScriptName "instance_baradin_hold"
 
