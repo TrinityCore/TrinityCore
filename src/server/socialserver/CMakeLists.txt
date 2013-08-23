@@ -10,7 +10,7 @@
 
 file(GLOB_RECURSE sources_socialsrv *.cpp *.h)
 
-set(social_STAT_SRCS
+set(socialserver_SRCS
   ${sources_socialsrv}
 )
 
@@ -18,31 +18,71 @@ if (UNIX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-# if( WIN32 )
-#   set(socialserver_SRCS
-#     ${socialserver_SRCS}
-#     ${sources_windows_Debugging}
-#   )
-#   if ( MSVC )
-#     set(socialserver_SRCS
-#       ${socialserver_SRCS}
-#       socialserver.rc
-#     )
-#   endif ()
-# endif()
+ if(WIN32)
+   set(socialserver_SRCS
+     ${socialserver_SRCS}
+     ${sources_windows_Debugging}
+   )
+   if (MSVC)
+     set(socialserver_SRCS
+       ${socialserver_SRCS}
+       socialserver.rc
+     )
+   endif ()
+ endif()
 
 include_directories(
+  ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/zmqpp
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Configuration
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Database
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${ZMQ_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
 )
 
 add_executable(socialserver 
-  ${social_STAT_SRCS}
+  ${socialserver_SRCS}
 )
 
+if (NOT WIN32)
+  set_target_properties(socialserver PROPERTIES
+    COMPILE_DEFINITIONS _TRINITY_SOCIAL_CONFIG="${CONF_DIR}/socialserver.conf"
+  )
+endif()
+
+add_dependencies(socialserver revision.h)
+
 target_link_libraries(socialserver
+  shared
   zmqpp
   ${ZMQ_LIBRARY}
   ${ACE_LIBRARY}
+  ${MYSQL_LIBRARY}
 )
+
+if (WIN32)
+  if (MSVC)
+    add_custom_command(TARGET socialserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/socialserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif (MINGW)
+    add_custom_command(TARGET socialserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/socialserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
+endif()
+
+if (UNIX)
+  install(TARGETS socialserver DESTINATION bin)
+  install(FILES socialserver.conf.dist DESTINATION ${CONF_DIR})
+elseif (WIN32)
+  install(TARGETS socialserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES socialserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+endif()
