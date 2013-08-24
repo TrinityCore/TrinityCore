@@ -18,6 +18,7 @@ public:
     mpq_archive_s *mpq_a;
 
     MPQArchive(const char* filename);
+    ~MPQArchive() { close(); }
     void close();
 
     void GetFileListTo(vector<string>& filelist) {

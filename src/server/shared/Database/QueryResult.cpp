@@ -60,6 +60,9 @@ m_length(NULL)
     if (mysql_stmt_store_result(m_stmt))
     {
         TC_LOG_WARN(LOG_FILTER_SQL, "%s:mysql_stmt_store_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
+        delete[] m_rBind;
+        delete[] m_isNull;
+        delete[] m_length;
         return;
     }
 
