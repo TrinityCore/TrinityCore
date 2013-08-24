@@ -23,28 +23,29 @@
 #include <zmqpp/poller.hpp>
 #include <zmqpp/socket.hpp>
 
+/*
+  This class serves as a base for all long running tasks
+  It is set up to terminate its running task upon receiving "kill" command
+*/
 class ZMQTask : public ACE_Task_Base
 {
 public:
     ZMQTask();
     virtual ~ZMQTask();
 
-    int open(void* data);
-    int close(u_long flags = 0);
+    int open(void* data) FINAL;
+    int close(u_long flags = 0) FINAL;
     virtual int svc() = 0;
 
 protected:
-    bool process_exit();
-
     virtual int HandleOpen(zmqpp::context const* ctx) = 0;
     virtual int HandleClose(u_long flags = 0) = 0;
+
+    bool process_exit();
 
     zmqpp::poller* poller;
 
     zmqpp::socket* inproc;
-
-private:
-    static ACE_Atomic_Op<ACE_Thread_Mutex, bool> _closed;
 };
 
 #endif // __ZMQTASK_H

@@ -16,6 +16,7 @@
  */
 
 #include "CommandPuller.h"
+#include "Log.h"
 
 CommandPuller::CommandPuller() :
     commands(NULL), broadcast(NULL), work_queue(NULL), work_res(NULL)
@@ -28,37 +29,6 @@ CommandPuller::~CommandPuller()
     delete broadcast;
     delete work_queue;
     delete work_res;
-}
-
-int CommandPuller::HandleOpen(zmqpp::context const* ctx)
-{
-    commands = new zmqpp::socket(*ctx, zmqpp::socket_type::pull);
-    broadcast = new zmqpp::socket(*ctx, zmqpp::socket_type::publish);
-    work_queue = new zmqpp::socket(*ctx, zmqpp::socket_type::push);
-    work_res = new zmqpp::socket(*ctx, zmqpp::socket_type::pull);
-
-    commands->bind("tcp://*:9997");
-    broadcast->bind("tcp://*:9998");
-    work_queue->bind("ipc://work_queue");
-    work_res->bind("ipc://results");
-
-    poller->add(*commands);
-    poller->add(*work_res);
-    poller->add(*broadcast, zmqpp::poller::poll_out);
-    poller->add(*work_queue, zmqpp::poller::poll_out);
-
-    printf("CommandPuller opened\n");
-    return ACE_Task_Base::activate();
-}
-
-int CommandPuller::HandleClose(u_long /*flags  = 0 */)
-{
-    work_res->close();
-    work_queue->close();
-    broadcast->close();
-    commands->close();
-    printf("CommandPuller::commands closed\n");
-    return 0;
 }
 
 int CommandPuller::svc()
@@ -82,7 +52,37 @@ int CommandPuller::svc()
         pipeline(work_res, broadcast);
     }
 
-    printf("CommandPuller::svc() exited\n");
+    return 0;
+}
+
+int CommandPuller::HandleOpen(zmqpp::context const* ctx)
+{
+    commands = new zmqpp::socket(*ctx, zmqpp::socket_type::pull);
+    broadcast = new zmqpp::socket(*ctx, zmqpp::socket_type::publish);
+    work_queue = new zmqpp::socket(*ctx, zmqpp::socket_type::push);
+    work_res = new zmqpp::socket(*ctx, zmqpp::socket_type::pull);
+
+    commands->bind("tcp://*:9997");
+    broadcast->bind("tcp://*:9998");
+    work_queue->bind("tcp://*:9996");
+    work_res->bind("tcp://*:9995");
+
+    poller->add(*commands);
+    poller->add(*work_res);
+    poller->add(*broadcast, zmqpp::poller::poll_out);
+    poller->add(*work_queue, zmqpp::poller::poll_out);
+
+    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "CommandPuller sockets have been set up successfully");
+    return ACE_Task_Base::activate();
+}
+
+int CommandPuller::HandleClose(u_long /*flags  = 0 */)
+{
+    work_res->close();
+    work_queue->close();
+    broadcast->close();
+    commands->close();
+    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "CommandPuller sockets have been closed");
     return 0;
 }
 
@@ -93,16 +93,15 @@ void CommandPuller::pipeline(zmqpp::socket* from, zmqpp::socket* to)
       To avoid blocking, check religiously wether both sockets are readable/writable.
       If not, let's just ignore them until they can.
     */
-    if(poller->events(*from) == zmqpp::poller::poll_in &&
-       poller->events(*to) == zmqpp::poller::poll_out)
+    if (poller->events(*from) == zmqpp::poller::poll_in &&
+        poller->events(*to) == zmqpp::poller::poll_out)
     {
         int op1, op2;
         do
         {
             zmqpp::message msg;
-
             if (!from->receive(msg, true))
-                return; //No more messages to read from sock. This shouldn't happen.
+                return; //No more messages to read from socket. This shouldn't happen.
 
             to->send(msg);
 

@@ -18,8 +18,6 @@
 #include "ZMQTask.h"
 #include <zmqpp/message.hpp>
 
-ACE_Atomic_Op<ACE_Thread_Mutex, bool> ZMQTask::_closed = false;
-
 ZMQTask::ZMQTask()
 {
     poller = new zmqpp::poller();
@@ -31,11 +29,27 @@ ZMQTask::~ZMQTask()
     poller = NULL;
 }
 
+int ZMQTask::open(void* data)
+{
+    zmqpp::context const* ctx = reinterpret_cast<zmqpp::context const*>(data);
+
+    inproc = new zmqpp::socket(*ctx, zmqpp::socket_type::sub);
+    inproc->connect("inproc://workers");
+    inproc->subscribe("internalmq.");
+
+    poller->add(*inproc);
+
+    return HandleOpen(ctx);
+}
+
+int ZMQTask::close(u_long flags /*= 0 */)
+{
+    inproc->close();
+    return HandleClose(flags);
+}
+
 bool ZMQTask::process_exit()
 {
-    if (_closed.value())
-        return true;
-
     if (poller->events(*inproc) == zmqpp::poller::poll_in)
     {
         int op1;
@@ -43,41 +57,16 @@ bool ZMQTask::process_exit()
         {
             zmqpp::message msg;
             if (!inproc->receive(msg, true))
-            {
-                printf("ZMQTask::process_exit() nothing to receive\n");
                 return false; //No more messages to read from sock. This shouldn't happen.
-            }
 
-            std::string cmd = msg.get(0);
-            printf("ZMQTask::process_exit() got message %s\n", cmd.c_str());
+            // strip 'internalmq.' from message
+            std::string cmd = msg.get(0).substr(11);
             if (cmd == "kill")
-            {
-                _closed = true;
                 return true;
-            }
 
             inproc->get(zmqpp::socket_option::events, op1);
         } while (op1 & zmqpp::poller::poll_in);
     }
 
     return false;
-}
-
-int ZMQTask::open(void* data)
-{
-    zmqpp::context const* ctx = reinterpret_cast<zmqpp::context const*>(data);
-
-    inproc = new zmqpp::socket(*ctx, zmqpp::socket_type::rep);
-    inproc->connect("inproc://workers");
-
-    poller->add(*inproc);
-
-    return HandleOpen(ctx);
-}
-
-int ZMQTask::close(u_long flags /* = 0 */)
-{
-    inproc->close();
-    printf("ZMQTask::close");
-    return HandleClose(flags);
 }

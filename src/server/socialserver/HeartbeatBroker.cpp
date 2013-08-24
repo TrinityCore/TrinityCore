@@ -15,36 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Log.h"
 #include "HeartbeatBroker.h"
 #include <zmqpp/socket_types.hpp>
 
-HeartbeatBroker::HeartbeatBroker() : ZMQTask(), sock(NULL)
+HeartbeatBroker::HeartbeatBroker() : sock(NULL)
 {
 }
 
 HeartbeatBroker::~HeartbeatBroker()
 {
     delete sock;
-}
-
-int HeartbeatBroker::HandleOpen(zmqpp::context const* ctx)
-{
-    sock = new zmqpp::socket(*ctx, zmqpp::socket_type::publish);
-    sock->bind("tcp://*:9999");
-    printf("bound HeartbeatBroker socket to tcp://*:9999\n");
-
-    poller->add(*sock);
-    ACE_Task_Base::activate(THR_NEW_LWP | THR_JOINABLE);
-    printf("HeartbeatBroker opened\n");
-    return 0;
-}
-
-int HeartbeatBroker::HandleClose(u_long /*flags  = 0 */)
-{
-    printf("HeartbeatBroker::HandleClose\n");
-    sock->close();
-    printf("HeartbeatBroker sock closed\n");
-    return 0;
 }
 
 int HeartbeatBroker::svc()
@@ -58,6 +39,23 @@ int HeartbeatBroker::svc()
         sock->send("");
     }
 
-    printf("HeartbeatBroker::svc() exited\n");
+    return 0;
+}
+
+int HeartbeatBroker::HandleOpen(zmqpp::context const* ctx)
+{
+    sock = new zmqpp::socket(*ctx, zmqpp::socket_type::publish);
+    sock->bind("tcp://*:9999");
+
+    poller->add(*sock);
+
+    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "HeartbeatBroker socket has been set up successfully");
+    return ACE_Task_Base::activate(THR_NEW_LWP | THR_JOINABLE);
+}
+
+int HeartbeatBroker::HandleClose(u_long /*flags = 0 */)
+{
+    sock->close();
+    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "HeartbeatBroker socket has been closed");
     return 0;
 }

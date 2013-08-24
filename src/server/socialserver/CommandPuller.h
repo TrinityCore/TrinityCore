@@ -31,11 +31,14 @@
 class CommandPuller : public ZMQTask
 {
 public:
+    CommandPuller();
+    ~CommandPuller();
+
+    int svc();
+
+protected:
     int HandleOpen(zmqpp::context const* ctx) OVERRIDE;
     int HandleClose(u_long flags = 0) OVERRIDE;
-    int svc();
-    ~CommandPuller();
-    CommandPuller();
 
 private:
     void pipeline(zmqpp::socket* from, zmqpp::socket* to);

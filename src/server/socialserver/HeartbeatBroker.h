@@ -21,18 +21,22 @@
 #include "ZMQTask.h"
 #include <zmqpp/zmqpp.hpp>
 
-class HeartbeatBroker : public ZMQTask
-{
 /*
   This object's only role is to send heartbeat every second to nodes.
   That's it, really.
 */
+class HeartbeatBroker : public ZMQTask
+{
 public:
+    HeartbeatBroker();
+    ~HeartbeatBroker();
+
+    int svc() OVERRIDE;
+
+protected:
     int HandleOpen(zmqpp::context const* ctx) OVERRIDE;
     int HandleClose(u_long flags = 0) OVERRIDE;
-    int svc();
-    ~HeartbeatBroker();
-    HeartbeatBroker();
+
 private:
     zmqpp::socket* sock;
 };
