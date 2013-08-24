@@ -136,14 +136,12 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
     return true;
 }
 
-WMORoot::~WMORoot()
-{
-}
-
 WMOGroup::WMOGroup(const std::string &filename) :
     filename(filename), MOPY(0), MOVI(0), MoviEx(0), MOVT(0), MOBA(0), MobaEx(0),
     hlq(0), LiquEx(0), LiquBytes(0), groupName(0), descGroupName(0), mogpFlags(0),
-    mopy_size(0), moba_size(0), LiquEx_size(0), nVertices(0), nTriangles(0)
+    mopy_size(0), moba_size(0), LiquEx_size(0), nVertices(0), nTriangles(0),
+    moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), fogIdx(0), liquidType(0),
+    groupWMOID(0), liquflags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
     memset(bbcorn2, 0, sizeof(bbcorn2));
@@ -439,7 +437,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
 
         if (liquidEntry && liquidEntry < 21)
         {
-            switch (((uint8)liquidEntry - 1) & 3)
+            switch ((liquidEntry - 1) & 3)
             {
                 case 0:
                     liquidEntry = ((mogpFlags & 0x80000) != 0) + 13;
@@ -452,8 +450,6 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
                     break;
                 case 3:
                     liquidEntry = 20;
-                    break;
-                default:
                     break;
             }
         }
@@ -488,7 +484,7 @@ WMOGroup::~WMOGroup()
 }
 
 WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
-    : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), d3(0)
+    : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), id(0), d2(0), d3(0)
 {
     float ff[3];
     f.read(&id, 4);
