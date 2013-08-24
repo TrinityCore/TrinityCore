@@ -714,7 +714,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
     // AI of Part2
     struct npc_jaina_or_sylvanas_escape_horAI : public ScriptedAI
     {
-        npc_jaina_or_sylvanas_escape_horAI(Creature* creature) : ScriptedAI(creature)
+        npc_jaina_or_sylvanas_escape_horAI(Creature* creature) : ScriptedAI(creature),
+            _instance(creature->GetInstanceScript()), _lichkingGUID(0), _walltargetGUID(0),
+            _icewallGUID(0), _icewall(0), _isattackingwall(0)
         {
             _instance = me->GetInstanceScript();
         }

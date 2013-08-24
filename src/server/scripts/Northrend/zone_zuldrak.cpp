@@ -198,6 +198,9 @@ enum Gurgthock
     EMOTE_YGGDRAS_SPAWN                           = 4,
     SAY_STINKBEARD_SPAWN                          = 5,
     SAY_GURGTHOCK_ELEMENTAL_SPAWN                 = 6,
+    SAY_GURGTHOCK_7                               = 7,
+    SAY_QUEST_AMPHITHEATER_ANGUISH_YGGDRAS        = 8,
+    SAY_GURGTHOCK_9                               = 9,
 
     SAY_CALL_FOR_HELP                             = 0,
     SAY_RECRUIT                                   = 0,
@@ -319,9 +322,9 @@ public:
                             uiTimer = 2000;
                             uiPhase = 12;
                             break;
-                   }
-                        break;
-                }
+                    }
+                    break;
+            }
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -341,8 +344,6 @@ public:
 
             if (uiPhase)
             {
-                Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
                 if (uiTimer <= diff)
                 {
                     switch (uiPhase)
@@ -371,27 +372,14 @@ public:
                             uiPhase = 0;
                             break;
                         case 6:
-                            {
-                                if (!player)
-                                    return;
-
-                                std::string sText = ("The grand Amphitheater of Anguish awaits, " + std::string(player->GetName()) + ". Remember, once a battle starts you have to stay in the area. WIN OR DIE!");
-
-                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
-                                uiTimer = 5000;
-                                uiPhase = 9;
-                            }
+                            Talk(SAY_GURGTHOCK_7, _playerGUID);
+                            uiTimer = 5000;
+                            uiPhase = 9;
                             break;
                         case 7:
-                            {
-                               if (!player)
-                                   return;
-
-                                std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
-                                uiTimer = 3000;
-                                uiPhase = 8;
-                            }
+                            Talk(SAY_GURGTHOCK_9, _playerGUID);
+                            uiTimer = 3000;
+                            uiPhase = 8;
                             break;
                         case 8:
                             Talk(SAY_QUEST_ACCEPT_MAGNATAUR);
@@ -399,15 +387,9 @@ public:
                             uiPhase = 11;
                             break;
                         case 9:
-                            {
-                                if (!player)
-                                    return;
-
-                                std::string sText = ("Here we are once again, ladies and gentlemen. The epic struggle between life and death in the Amphitheater of Anguish! For this round we have " + std::string(player->GetName()) + " versus the hulking jormungar, Yg... Yggd? Yggdoze? Who comes up with these names?! " + std::string(player->GetName()) + " versus big worm!");
-                                me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
-                                uiTimer = 10000;
-                                uiPhase = 10;
-                            }
+                            Talk(SAY_QUEST_AMPHITHEATER_ANGUISH_YGGDRAS, _playerGUID);
+                            uiTimer = 10000;
+                            uiPhase = 10;
                             break;
                         case 10:
                             me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
@@ -420,16 +402,10 @@ public:
                             uiPhase = 0;
                             break;
                         case 12:
-                        {
-                            if (!player)
-                                return;
-
-                            std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                            me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
+                            Talk(SAY_GURGTHOCK_9, _playerGUID);
                             uiTimer = 5000;
                             uiPhase = 13;
-                        }
-                        break;
+                            break;
                         case 13:
                             Talk(SAY_GURGTHOCK_ELEMENTAL_SPAWN);
                             uiTimer = 3000;
@@ -443,7 +419,8 @@ public:
                             break;
                     }
                 }
-                else uiTimer -= diff;
+                else
+                    uiTimer -= diff;
             }
         }
 
