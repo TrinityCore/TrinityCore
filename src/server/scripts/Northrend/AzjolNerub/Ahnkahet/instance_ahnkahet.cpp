@@ -49,9 +49,10 @@ class instance_ahnkahet : public InstanceMapScript
                 JedogaTarget                = 0;
                 SwitchTrigger               = 0;
 
-                InitiandGUIDs.clear();
+                SpheresState[0]             = 0;
+                SpheresState[1]             = 0;
 
-                memset(SpheresState, 0, 2 * sizeof(uint64));
+                InitiandGUIDs.clear();
             }
 
             void OnCreatureCreate(Creature* creature) OVERRIDE
