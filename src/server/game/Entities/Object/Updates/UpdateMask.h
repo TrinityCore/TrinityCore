@@ -36,7 +36,7 @@ class UpdateMask
 
         UpdateMask() : _fieldCount(0), _blockCount(0), _bits(NULL) { }
 
-        UpdateMask(UpdateMask const& right)
+        UpdateMask(UpdateMask const& right) : _bits(NULL)
         {
             SetCount(right.GetCount());
             memcpy(_bits, right._bits, sizeof(uint8) * _blockCount * 32);
