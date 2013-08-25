@@ -29,6 +29,8 @@
 #define _TRINITY_SOCIAL_CONFIG "socialserver.conf"
 #endif
 
+#define PROCESS_HIGH_PRIORITY -15
+
 bool StartDB();
 void StopDB();
 

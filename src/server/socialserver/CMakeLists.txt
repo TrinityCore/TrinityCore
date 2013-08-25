@@ -40,6 +40,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${ZMQ_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
