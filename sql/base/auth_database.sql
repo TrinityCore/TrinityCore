@@ -29,6 +29,7 @@ CREATE TABLE `account` (
   `sessionkey` varchar(80) NOT NULL DEFAULT '',
   `v` varchar(64) NOT NULL DEFAULT '',
   `s` varchar(64) NOT NULL DEFAULT '',
+  `token_key` varchar(100) NOT NULL DEFAULT '',
   `email` varchar(254) NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
