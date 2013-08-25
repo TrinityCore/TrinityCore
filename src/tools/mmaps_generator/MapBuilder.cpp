@@ -202,7 +202,10 @@ namespace MMAP
         minX = INT_MIN;
         minY = INT_MIN;
 
-        float bmin[3], bmax[3], lmin[3], lmax[3];
+        float bmin[3] = { 0, 0, 0 };
+        float bmax[3] = { 0, 0, 0 };
+        float lmin[3] = { 0, 0, 0 };
+        float lmax[3] = { 0, 0, 0 };
         MeshData meshData;
 
         // make sure we process maps which don't have tiles
@@ -260,25 +263,45 @@ namespace MMAP
 
         uint32 verticesCount, indicesCount;
         if (fread(&verticesCount, sizeof(uint32), 1, file) != 1)
+        {
+            fclose(file);
             return;
+        }
+
         if (fread(&indicesCount, sizeof(uint32), 1, file) != 1)
+        {
+            fclose(file);
             return;
+        }
 
         float* verts = new float[verticesCount];
         int* inds = new int[indicesCount];
 
         if (fread(verts, sizeof(float), verticesCount, file) != verticesCount)
+        {
+            fclose(file);
+            delete[] verts;
+            delete[] inds;
             return;
+        }
+
         if (fread(inds, sizeof(int), indicesCount, file) != indicesCount)
+        {
+            fclose(file);
+            delete[] verts;
+            delete[] inds;
             return;
+        }
 
         MeshData data;
 
         for (uint32 i = 0; i < verticesCount; ++i)
             data.solidVerts.append(verts[i]);
+        delete[] verts;
 
         for (uint32 i = 0; i < indicesCount; ++i)
             data.solidTris.append(inds[i]);
+        delete[] inds;
 
         TerrainBuilder::cleanVertices(data.solidVerts, data.solidTris);
         // get bounds of current tile
@@ -659,6 +682,9 @@ namespace MMAP
         if (!iv.polyMesh)
         {
             printf("%s alloc iv.polyMesh FIALED!\n", tileString);
+            delete[] pmmerge;
+            delete[] dmmerge;
+            delete[] tiles;
             return;
         }
         rcMergePolyMeshes(m_rcContext, pmmerge, nmerge, *iv.polyMesh);
@@ -667,6 +693,9 @@ namespace MMAP
         if (!iv.polyMeshDetail)
         {
             printf("%s alloc m_dmesh FIALED!\n", tileString);
+            delete[] pmmerge;
+            delete[] dmmerge;
+            delete[] tiles;
             return;
         }
         rcMergePolyMeshDetails(m_rcContext, dmmerge, nmerge, *iv.polyMeshDetail);
@@ -674,7 +703,6 @@ namespace MMAP
         // free things up
         delete[] pmmerge;
         delete[] dmmerge;
-
         delete[] tiles;
 
         // set polygons as walkable

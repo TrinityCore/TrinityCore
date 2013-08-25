@@ -79,20 +79,27 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
             events.Reset();
+
             _falricGUID = 0;
             _marwynGUID = 0;
             _jainaOrSylvanasPart1GUID = 0;
+            _jainaOrSylvanasPart2GUID = 0;
+            _lichkingPart1GUID = 0;
             _frostwornGeneralGUID = 0;
+
             _frostmourneGUID = 0;
             _entranceDoorGUID = 0;
             _frostwornDoorGUID = 0;
             _arthasDoorGUID = 0;
+            _escapeDoorGUID = 0;
+            _caveGUID = 0;
+
             _teamInInstance = 0;
             _waveCount = 0;
-            _mobsaticewall = 0;
             _introEvent = NOT_STARTED;
             _frostwornGeneral = NOT_STARTED;
             _escapeevent = NOT_STARTED;
+            _mobsaticewall = 0;
         }
 
         void OnPlayerEnter(Player* player) OVERRIDE

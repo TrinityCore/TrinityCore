@@ -100,7 +100,7 @@ public:
             SpineTargetGUID = 0;
 
             if (instance)
-                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
+                instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -112,7 +112,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
+                instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, DONE);
 
             Talk(SAY_DEATH);
         }
@@ -130,7 +130,7 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, IN_PROGRESS);
 
             Talk(SAY_AGGRO);
             DoZoneInCombat();
@@ -228,7 +228,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         if (InstanceScript* instance = go->GetInstanceScript())
-            if (Creature* Najentus = Unit::GetCreature(*go, instance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+            if (Creature* Najentus = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_HIGH_WARLORD_NAJENTUS)))
                 if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                 {
                     player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);

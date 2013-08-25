@@ -132,7 +132,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_ANUBARAK, NOT_STARTED);
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
@@ -165,7 +165,7 @@ public:
         void DelayEventStart()
         {
             if (instance)
-                instance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_ANUBARAK, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -336,7 +336,7 @@ public:
             Talk(SAY_DEATH);
             Summons.DespawnAll();
             if (instance)
-                instance->SetData(DATA_ANUBARAK_EVENT, DONE);
+                instance->SetBossState(DATA_ANUBARAK, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

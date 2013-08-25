@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,22 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_HALLS_OF_LIGHTNING_H
-#define DEF_HALLS_OF_LIGHTNING_H
+#ifndef HALLS_OF_LIGHTNING_H_
+#define HALLS_OF_LIGHTNING_H_
 
-enum Types
+#define HoLScriptName "instance_halls_of_lightning"
+
+uint32 const EncounterCount = 4;
+
+enum DataTypes
 {
-    MAX_ENCOUNTER           = 4,
-
-    DATA_BJARNGRIM          = 1,
+    // Encounter States/Boss GUIDs
+    DATA_BJARNGRIM          = 0,
+    DATA_VOLKHAN            = 1,
     DATA_IONAR              = 2,
-    DATA_LOKEN              = 3,
-    DATA_VOLKHAN            = 4,
-
-    TYPE_BJARNGRIM          = 10,
-    TYPE_IONAR              = 11,
-    TYPE_LOKEN              = 12,
-    TYPE_VOLKHAN            = 13,
+    DATA_LOKEN              = 3
 };
 
 enum CreaturesIds
@@ -44,11 +41,17 @@ enum CreaturesIds
 
 enum GameObjectIds
 {
-    GO_BJARNGRIM_DOOR       = 191416,                       //_doors10
-    GO_VOLKHAN_DOOR         = 191325,                       //_doors07
-    GO_IONAR_DOOR           = 191326,                       //_doors05
-    GO_LOKEN_DOOR           = 191324,                       //_doors02
+    GO_BJARNGRIM_DOOR       = 191416,
+    GO_VOLKHAN_DOOR         = 191325,
+    GO_IONAR_DOOR           = 191326,
+    GO_LOKEN_DOOR           = 191324,
     GO_LOKEN_THRONE         = 192654
 };
 
-#endif
+template<class AI>
+AI* GetHallsOfLightningAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, HoLScriptName);
+}
+
+#endif // HALLS_OF_LIGHTNING_H_

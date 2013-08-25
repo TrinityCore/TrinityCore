@@ -84,8 +84,8 @@ public:
             uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
-            if (instance && (instance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
-                instance->SetData(DATA_HADRONOX_EVENT, FAIL);
+            if (instance && (instance->GetBossState(DATA_HADRONOX) != DONE && !bFirstTime))
+                instance->SetBossState(DATA_HADRONOX, FAIL);
 
             bFirstTime = false;
         }
@@ -103,13 +103,13 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_HADRONOX_EVENT, DONE);
+                instance->SetBossState(DATA_HADRONOX, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_HADRONOX, IN_PROGRESS);
             me->SetInCombatWithZone();
         }
 

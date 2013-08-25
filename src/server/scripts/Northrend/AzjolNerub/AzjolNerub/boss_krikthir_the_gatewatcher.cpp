@@ -105,7 +105,7 @@ public:
             uiCurseFatigueTimer = 12*IN_MILLISECONDS;
 
             if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -115,7 +115,7 @@ public:
             uiSummonTimer = 15*IN_MILLISECONDS;
 
             if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, IN_PROGRESS);
         }
 
         void Summon()
@@ -176,7 +176,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
+                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -537,15 +537,14 @@ class achievement_watch_him_die : public AchievementCriteriaScript
                 return false;
 
             InstanceScript* instance = target->GetInstanceScript();
-            Creature* Watcher[3];
             if (!instance)
                 return false;
 
             for (uint8 n = 0; n < 3; ++n)
             {
-                Watcher[n] = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_WATCHER_GASHRA + n));
-                if (Watcher[n] && !Watcher[n]->IsAlive())
-                    return false;
+                if (Creature* watcher = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_WATCHER_GASHRA + n)))
+                    if (!watcher->IsAlive())
+                        return false;
             }
 
             return true;
