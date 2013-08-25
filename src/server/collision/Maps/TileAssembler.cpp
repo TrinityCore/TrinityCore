@@ -105,7 +105,7 @@ namespace VMAP
             }
             catch (std::exception& e)
             {
-            	printf("Exception ""%s"" when calling pTree.build", e.what());
+                printf("Exception ""%s"" when calling pTree.build", e.what());
                 return false;
             }
 
