@@ -16,6 +16,7 @@
  */
 
 #include "TOTP.h"
+#include <cstring>
 
 int base32_decode(const char* encoded, char* result, int bufSize)
 {
@@ -29,7 +30,7 @@ int base32_decode(const char* encoded, char* result, int bufSize)
     for (const char *ptr = encoded; count < bufSize && *ptr; ++ptr)
     {
         char ch = *ptr;
-        if (ch == ' ' || ch == '    ' || ch == '\r' || ch == '\n' || ch == '-')
+        if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '-')
             continue;
         buffer <<= 5;
 
