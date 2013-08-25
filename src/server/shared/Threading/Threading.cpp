@@ -130,10 +130,13 @@ bool Thread::start()
     if (m_task == 0 || m_iThreadId != 0)
         return false;
 
+    //incRef before spawing the thread, otherwise Thread::ThreadTask() might call decRef and delete m_task
+    m_task->incReference();
+
     bool res = (ACE_Thread::spawn(&Thread::ThreadTask, (void*)m_task, THREADFLAG, &m_iThreadId, &m_hThreadHandle) == 0);
 
-    if (res)
-        m_task->incReference();
+    if (!res)
+        m_task->decReference();
 
     return res;
 }
