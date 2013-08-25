@@ -159,14 +159,13 @@ public:
         void Reset() OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
+                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, NOT_STARTED);
 
             if (EssenceGUID)
             {
-                if (Creature* Essence = Unit::GetCreature(*me, EssenceGUID))
-                {
-                    Essence->DespawnOrUnsummon();
-                }
+                if (Creature* essence = ObjectAccessor::GetCreature(*me, EssenceGUID))
+                    essence->DespawnOrUnsummon();
+
                 EssenceGUID = 0;
             }
 
@@ -178,7 +177,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!who)
                 return;
@@ -200,7 +198,7 @@ public:
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, IN_PROGRESS);
 
             Phase = 1;
             Counter = 0;
@@ -246,7 +244,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
+                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

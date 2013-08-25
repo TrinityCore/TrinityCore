@@ -2236,6 +2236,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster)
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_PET:
                         targetList.push_back(GetUnitOwner());
+                        // no break
                     case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
                     {
                         if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())
