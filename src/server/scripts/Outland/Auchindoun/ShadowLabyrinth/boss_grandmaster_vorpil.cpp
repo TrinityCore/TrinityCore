@@ -43,16 +43,23 @@ enum GrandmasterVorpil
     SPELL_BANISH                = 38791,
 
     NPC_VOID_TRAVELER           = 19226,
+    SPELL_SUMMON_VOID_TRAVELER_A = 33582,
+    SPELL_SUMMON_VOID_TRAVELER_B = 33583,
+    SPELL_SUMMON_VOID_TRAVELER_C = 33584,
+    SPELL_SUMMON_VOID_TRAVELER_D = 33585,
+    SPELL_SUMMON_VOID_TRAVELER_E = 33586,
+
     SPELL_SACRIFICE             = 33587,
     SPELL_SHADOW_NOVA           = 33846,
     SPELL_EMPOWERING_SHADOWS    = 33783,
     H_SPELL_EMPOWERING_SHADOWS  = 39364,
 
     NPC_VOID_PORTAL             = 19224,
+    SPELL_SUMMON_PORTAL         = 33566,
     SPELL_VOID_PORTAL_VISUAL    = 33569
 };
 
-float VorpilPosition[3] = {-252.8820f, -264.3030f, 17.1f};
+Position const VorpilPosition = { -252.8820f, -264.3030f, 17.1f, 0.0f };
 
 float VoidPortalCoords[5][3] =
 {
@@ -71,254 +78,202 @@ enum Events
     EVENT_SUMMON_TRAVELER       = 4
 };
 
-class npc_voidtraveler : public CreatureScript
-{
-public:
-    npc_voidtraveler() : CreatureScript("npc_voidtraveler") { }
-
-    struct npc_voidtravelerAI : public ScriptedAI
-    {
-        npc_voidtravelerAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint64 VorpilGUID;
-        uint32 move;
-        bool sacrificed;
-
-        void Reset() OVERRIDE
-        {
-            VorpilGUID = 0;
-            move = 0;
-            sacrificed = false;
-        }
-
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!VorpilGUID)
-            {
-                me->Kill(me);
-                return;
-            }
-            if (move <= diff)
-            {
-                Creature* Vorpil = Unit::GetCreature(*me, VorpilGUID);
-                if (!Vorpil)
-                {
-                    VorpilGUID = 0;
-                    return;
-                }
-
-                if (sacrificed)
-                {
-                    me->AddAura(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), Vorpil);
-                    Vorpil->ModifyHealth(int32(Vorpil->CountPctFromMaxHealth(4)));
-                    DoCast(me, SPELL_SHADOW_NOVA, true);
-                    me->Kill(me);
-                    return;
-                }
-                me->GetMotionMaster()->MoveFollow(Vorpil, 0, 0);
-                if (me->IsWithinDist(Vorpil, 3))
-                {
-                    DoCast(me, SPELL_SACRIFICE, false);
-                    sacrificed = true;
-                    move = 500;
-                    return;
-                }
-                if (!Vorpil->IsInCombat() || Vorpil->isDead())
-                {
-                    me->Kill(me);
-                    return;
-                }
-                move = 1000;
-            } else move -= diff;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_voidtravelerAI(creature);
-    }
-};
-
 class boss_grandmaster_vorpil : public CreatureScript
 {
-public:
-    boss_grandmaster_vorpil() : CreatureScript("boss_grandmaster_vorpil") { }
+    public:
+        boss_grandmaster_vorpil() : CreatureScript("boss_grandmaster_vorpil") { }
 
-    struct boss_grandmaster_vorpilAI : public BossAI
-    {
-        boss_grandmaster_vorpilAI(Creature* creature) : BossAI(creature, DATA_GRANDMASTERVORPIL)
+        struct boss_grandmaster_vorpilAI : public BossAI
         {
-            Intro = false;
-        }
+            boss_grandmaster_vorpilAI(Creature* creature) : BossAI(creature, DATA_GRANDMASTER_VORPIL)
+            {
+                _intro = false;
+            }
 
-        void Reset() OVERRIDE
-        {
-            HelpYell = false;
-            sumportals = false;
-            destroyPortals();
+            void Reset() OVERRIDE
+            {
+                _Reset();
+                _helpYell = false;
+            }
 
-            if (instance)
-                instance->SetData(DATA_GRANDMASTERVORPILEVENT, NOT_STARTED);
-        }
-
-        void summonPortals()
-        {
-            if (!sumportals)
+            void SummonPortals()
             {
                 for (uint8 i = 0; i < 5; ++i)
-                {
-                    Creature* Portal = NULL;
-                    Portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 3000000);
-                    if (Portal)
-                    {
-                        PortalsGuid[i] = Portal->GetGUID();
-                        Portal->CastSpell(Portal, SPELL_VOID_PORTAL_VISUAL, false);
-                    }
-                }
-                sumportals = true;
+                    if (Creature* portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 3000000))
+                        portal->CastSpell(portal, SPELL_VOID_PORTAL_VISUAL, true);
+
                 events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
             }
-        }
 
-        void destroyPortals()
-        {
-            if (sumportals)
+            void spawnVoidTraveler()
             {
-                for (uint8 i = 0; i < 5; ++i)
+                uint8 pos = urand(0, 4);
+                me->SummonCreature(NPC_VOID_TRAVELER, VoidPortalCoords[pos][0], VoidPortalCoords[pos][1], VoidPortalCoords[pos][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                if (!_helpYell)
                 {
-                    Unit* Portal = Unit::GetUnit(*me, PortalsGuid[i]);
-                    if (Portal && Portal->IsAlive())
-                        Portal->DealDamage(Portal, Portal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    PortalsGuid[i] = 0;
+                    Talk(SAY_HELP);
+                    _helpYell = true;
                 }
-                sumportals = false;
             }
-        }
 
-        void spawnVoidTraveler()
-        {
-            int pos = urand(0, 4);
-            me->SummonCreature(NPC_VOID_TRAVELER, VoidPortalCoords[pos][0], VoidPortalCoords[pos][1], VoidPortalCoords[pos][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
-            if (!HelpYell)
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_HELP);
-                HelpYell = true;
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
-        }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
-        {
-            if (summoned && summoned->GetEntry() == NPC_VOID_TRAVELER)
-                CAST_AI(npc_voidtraveler::npc_voidtravelerAI, summoned->AI())->VorpilGUID = me->GetGUID();
-        }
-
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
-        {
-            Talk(SAY_SLAY);
-        }
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            Talk(SAY_DEATH);
-            destroyPortals();
-
-            if (instance)
-                instance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(7000, 14000));
-            if (IsHeroic())
-                events.ScheduleEvent(EVENT_BANISH, 17000);
-            events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
-            events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90000);
-
-            Talk(SAY_AGGRO);
-            summonPortals();
-
-            if (instance)
-                instance->SetData(DATA_GRANDMASTERVORPILEVENT, IN_PROGRESS);
-            _EnterCombat();
-        }
-
-        void MoveInLineOfSight(Unit* who) OVERRIDE
-
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (!Intro && me->IsWithinLOSInMap(who)&& me->IsWithinDistInMap(who, 100) && me->IsValidAttackTarget(who))
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Talk(SAY_INTRO);
-                Intro = true;
+                _JustDied();
+                Talk(SAY_DEATH);
             }
-        }
 
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(7000, 14000));
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_BANISH, 17000);
+                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
+                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90000);
+
+                Talk(SAY_AGGRO);
+                SummonPortals();
+            }
+
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+            {
+                BossAI::MoveInLineOfSight(who);
+
+                if (!_intro && me->IsWithinLOSInMap(who) && me->IsWithinDistInMap(who, 100) && me->IsValidAttackTarget(who))
+                {
+                    Talk(SAY_INTRO);
+                    _intro = true;
+                }
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
 
                 events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_SHADOWBOLT_VOLLEY:
-                        DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
-                        events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(15000, 30000));
-                        break;
-                    case EVENT_BANISH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false))
-                             DoCast(target, SPELL_BANISH);
-                        events.ScheduleEvent(EVENT_BANISH, 16000);
-                        break;
-                    case EVENT_DRAW_SHADOWS:
-                        {
-                            Map* map = me->GetMap();
-                            Map::PlayerList const &PlayerList = map->GetPlayers();
-                            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                                if (Player* i_pl = i->GetSource())
-                                    if (i_pl->IsAlive() && !i_pl->HasAura(SPELL_BANISH))
-                                        i_pl->TeleportTo(me->GetMapId(), VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
-
-                            me->SetPosition(VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0.0f);
-                            DoCast(me, SPELL_DRAW_SHADOWS, true);
-                            DoCast(me, SPELL_RAIN_OF_FIRE);
-                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 6000);
-                            events.ScheduleEvent(EVENT_DRAW_SHADOWS, 30000);
+                    switch (eventId)
+                    {
+                        case EVENT_SHADOWBOLT_VOLLEY:
+                            DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
+                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(15000, 30000));
                             break;
-                        }
-                    case EVENT_SUMMON_TRAVELER:
-                        spawnVoidTraveler();
-                        events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 10000);
-                        //enrage at 20%
-                        if (HealthBelowPct(20))
-                            events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
-                        break;
+                        case EVENT_BANISH:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, false))
+                                 DoCast(target, SPELL_BANISH);
+                            events.ScheduleEvent(EVENT_BANISH, 16000);
+                            break;
+                        case EVENT_DRAW_SHADOWS:
+                            {
+                                Map* map = me->GetMap();
+                                Map::PlayerList const &PlayerList = map->GetPlayers();
+                                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                                    if (Player* i_pl = i->GetSource())
+                                        if (i_pl->IsAlive() && !i_pl->HasAura(SPELL_BANISH))
+                                            i_pl->TeleportTo(me->GetMapId(), VorpilPosition.GetPositionX(), VorpilPosition.GetPositionY(), VorpilPosition.GetPositionZ(), VorpilPosition.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
+
+                                me->SetPosition(VorpilPosition);
+                                DoCast(me, SPELL_DRAW_SHADOWS, true);
+                                DoCast(me, SPELL_RAIN_OF_FIRE);
+                                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 6000);
+                                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 30000);
+                                break;
+                            }
+                        case EVENT_SUMMON_TRAVELER:
+                            spawnVoidTraveler();
+                            events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 10000);
+                            // enrage at 20%
+                            if (HealthBelowPct(20))
+                                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
+                            break;
+                    }
                 }
+
+                DoMeleeAttackIfReady();
             }
-            DoMeleeAttackIfReady();
+
+            private:
+                bool _intro;
+                bool _helpYell;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetShadowLabyrinthAI<boss_grandmaster_vorpilAI>(creature);
         }
+};
+
+class npc_voidtraveler : public CreatureScript
+{
+    public:
+        npc_voidtraveler() : CreatureScript("npc_voidtraveler") { }
+
+        struct npc_voidtravelerAI : public ScriptedAI
+        {
+            npc_voidtravelerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = creature->GetInstanceScript();
+            }
+
+            void Reset() OVERRIDE
+            {
+                _moveTimer = 0;
+                _sacrificed = false;
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (_moveTimer <= diff)
+                {
+                    Creature* Vorpil = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GRANDMASTER_VORPIL));
+                    if (!Vorpil)
+                        return;
+
+                    if (_sacrificed)
+                    {
+                        DoCastAOE(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), true);
+                        DoCast(me, SPELL_SHADOW_NOVA, true);
+                        me->Kill(me);
+                        return;
+                    }
+                    me->GetMotionMaster()->MoveFollow(Vorpil, 0, 0);
+                    if (me->IsWithinDist(Vorpil, 3))
+                    {
+                        DoCast(me, SPELL_SACRIFICE, false);
+                        _sacrificed = true;
+                        _moveTimer = 500;
+                        return;
+                    }
+                    _moveTimer = 1000;
+                }
+                else
+                    _moveTimer -= diff;
+            }
 
         private:
-            bool Intro, HelpYell;
-            bool sumportals;
-            uint64 PortalsGuid[5];
+            InstanceScript* _instance;
+            uint32 _moveTimer;
+            bool _sacrificed;
+        };
 
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_grandmaster_vorpilAI(creature);
-    }
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetShadowLabyrinthAI<npc_voidtravelerAI>(creature);
+        }
 };
 
 void AddSC_boss_grandmaster_vorpil()
