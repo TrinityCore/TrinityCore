@@ -161,9 +161,9 @@ public:
     {
         if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
        {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_dalinda::npc_dalindaAI, creature->AI()))
+            if (npc_escortAI* escortAI = CAST_AI(npc_dalinda::npc_dalindaAI, creature->AI()))
             {
-                pEscortAI->Start(true, false, player->GetGUID());
+                escortAI->Start(true, false, player->GetGUID());
                 creature->setFaction(113);
             }
         }
@@ -186,7 +186,7 @@ public:
             switch (waypointId)
             {
                 case 1:
-                    me->IsStandState();
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
                     break;
                 case 15:
                     if (player)
