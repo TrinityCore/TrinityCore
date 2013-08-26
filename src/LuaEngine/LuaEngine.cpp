@@ -35,7 +35,7 @@ void Eluna::StartEluna(bool restart)
     if (restart)
     {
         sHookMgr->OnEngineRestart();
-        TC_LOG_INFO(LOG_FILTER_GENERAL, "Eluna Nova::Restarting Engine");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Eluna::Restarting Lua Engine");
 
         if (LuaState)
         {
@@ -65,7 +65,7 @@ void Eluna::StartEluna(bool restart)
         AddScriptHooks();
 
     LuaState = luaL_newstate();
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Eluna Nova Lua Engine loaded.");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Eluna Lua Engine loaded.");
 
     LoadedScripts loadedScripts;
     LoadDirectory("scripts", &loadedScripts);
@@ -91,7 +91,7 @@ void Eluna::StartEluna(bool restart)
         strcpy(filename, itr->c_str());
         if (luaL_loadfile(LuaState, filename) != 0)
         {
-            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error loading `%s`.", itr->c_str());
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna::Error loading `%s`.", itr->c_str());
             report(LuaState);
         }
         else
@@ -99,7 +99,7 @@ void Eluna::StartEluna(bool restart)
             int err = lua_pcall(LuaState, 0, 0, 0);
             if (err != 0 && err == LUA_ERRRUN)
             {
-                TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error loading `%s`.", itr->c_str());
+                TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna::Error loading `%s`.", itr->c_str());
                 report(LuaState);
             }
         }
@@ -128,7 +128,7 @@ void Eluna::StartEluna(bool restart)
         }*/
     }
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Loaded %u Lua scripts", count);
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Eluna::Loaded %u Lua scripts..", count);
 }
 
 // Loads lua scripts from given directory
@@ -148,7 +148,7 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
     // break if we don't find dir
     if (!hFile)
     {
-        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna Nova::No `scripts` directory found!");
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna::No `scripts` directory found!");
         return;
     }
 
@@ -205,7 +205,7 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
         if (stat(_path, &attributes) == -1)
         {
             error = true;
-            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error opening `%s`", _path);
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Eluna::Error opening `%s`", _path);
         }
         else
             error = false;
