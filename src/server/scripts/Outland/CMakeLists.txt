@@ -74,19 +74,23 @@ set(scripts_STAT_SRCS
   Outland/TempestKeep/arcatraz/arcatraz.cpp
   Outland/Auchindoun/AuchenaiCrypts/boss_shirrak_the_dead_watcher.cpp
   Outland/Auchindoun/AuchenaiCrypts/boss_exarch_maladaar.cpp
+  Outland/Auchindoun/AuchenaiCrypts/instance_auchenai_crypts.cpp
+  Outland/Auchindoun/AuchenaiCrypts/auchenai_crypts.h
   Outland/Auchindoun/ManaTombs/boss_pandemonius.cpp
   Outland/Auchindoun/ManaTombs/boss_nexusprince_shaffar.cpp
-  Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
+  Outland/Auchindoun/ManaTombs/instance_mana_tombs.cpp
+  Outland/Auchindoun/ManaTombs/mana_tombs.h
   Outland/Auchindoun/SethekkHalls/boss_darkweaver_syth.cpp
+  Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
   Outland/Auchindoun/SethekkHalls/boss_anzu.cpp
   Outland/Auchindoun/SethekkHalls/instance_sethekk_halls.cpp
   Outland/Auchindoun/SethekkHalls/sethekk_halls.h
-  Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp
   Outland/Auchindoun/ShadowLabyrinth/boss_ambassador_hellmaw.cpp
   Outland/Auchindoun/ShadowLabyrinth/boss_blackheart_the_inciter.cpp
+  Outland/Auchindoun/ShadowLabyrinth/boss_grandmaster_vorpil.cpp
+  Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp
   Outland/Auchindoun/ShadowLabyrinth/instance_shadow_labyrinth.cpp
   Outland/Auchindoun/ShadowLabyrinth/shadow_labyrinth.h
-  Outland/Auchindoun/ShadowLabyrinth/boss_grandmaster_vorpil.cpp
   Outland/boss_doomwalker.cpp
   Outland/zone_terokkar_forest.cpp
   Outland/zone_hellfire_peninsula.cpp
