@@ -478,6 +478,7 @@ public:
         {
             instance = creature->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
+            AkamaGUID = 0;
         }
 
         void Reset() OVERRIDE;
@@ -1081,7 +1082,7 @@ public:
                 {
                 case EVENT_SHADOW_BLAST:
                     me->GetMotionMaster()->Clear(false);
-                    if (!me->IsWithinDistInMap(me->GetVictim(), 50)||!me->IsWithinLOSInMap(me->GetVictim()))
+                    if (me->GetVictim() && (!me->IsWithinDistInMap(me->GetVictim(), 50) || !me->IsWithinLOSInMap(me->GetVictim())))
                         me->GetMotionMaster()->MoveChase(me->GetVictim(), 30);
                     else
                         me->GetMotionMaster()->MoveIdle();

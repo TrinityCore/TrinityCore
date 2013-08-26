@@ -367,21 +367,21 @@ public:
                 std::vector<InfernalPoint*>::iterator itr = positions.begin()+rand()%positions.size();
                 point = *itr;
                 positions.erase(itr);
-                pos.Relocate(point->x, point->y, INFERNAL_Z);
+                pos.Relocate(point->x, point->y, INFERNAL_Z, 0.0f);
             }
 
-            Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
+            Creature* infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
 
-            if (Infernal)
+            if (infernal)
             {
-                Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
-                Infernal->setFaction(me->getFaction());
+                infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
+                infernal->setFaction(me->getFaction());
                 if (point)
-                    CAST_AI(netherspite_infernal::netherspite_infernalAI, Infernal->AI())->point=point;
-                CAST_AI(netherspite_infernal::netherspite_infernalAI, Infernal->AI())->malchezaar=me->GetGUID();
+                    CAST_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->point=point;
+                CAST_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->malchezaar=me->GetGUID();
 
-                infernals.push_back(Infernal->GetGUID());
-                DoCast(Infernal, SPELL_INFERNAL_RELAY);
+                infernals.push_back(infernal->GetGUID());
+                DoCast(infernal, SPELL_INFERNAL_RELAY);
             }
 
             Talk(SAY_SUMMON);
