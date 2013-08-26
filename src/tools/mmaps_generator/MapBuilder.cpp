@@ -246,11 +246,20 @@ namespace MMAP
         printf("Building mesh from file\n");
         int tileX, tileY, mapId;
         if (fread(&mapId, sizeof(int), 1, file) != 1)
+        {
+            fclose(file);
             return;
+        }
         if (fread(&tileX, sizeof(int), 1, file) != 1)
+        {
+            fclose(file);
             return;
+        }
         if (fread(&tileY, sizeof(int), 1, file) != 1)
+        {
+            fclose(file);
             return;
+        }
 
         dtNavMesh* navMesh = NULL;
         buildNavMesh(mapId, navMesh);
