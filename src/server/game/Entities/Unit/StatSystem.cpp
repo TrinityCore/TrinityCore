@@ -977,7 +977,6 @@ bool Guardian::UpdateStats(Stats stat)
         {
             case STAT_STAMINA:  mod = 0.3f; break;                // Default Owner's Stamina scale
             case STAT_STRENGTH: mod = 0.7f; break;                // Default Owner's Strength scale
-            default: break;
         }
 
         // Check just if owner has Ravenous Dead since it's effect is not an aura
