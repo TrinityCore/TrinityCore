@@ -64,8 +64,8 @@ int CommandPuller::HandleOpen(zmqpp::context const* ctx)
 
     commands->bind("tcp://*:9997");
     broadcast->bind("tcp://*:9998");
-    work_queue->bind("tcp://*:9996");
-    work_res->bind("tcp://*:9995");
+    work_queue->bind("inproc://work_queue");
+    work_res->bind("inproc://work_result");
 
     poller->add(*commands);
     poller->add(*work_res);
