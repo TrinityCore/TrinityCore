@@ -15,36 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SETHEKK_HALLS_H_
-#define SETHEKK_HALLS_H_
+#ifndef MANA_TOMBS_H_
+#define MANA_TOMBS_H_
 
-#define SHScriptName "instance_sethekk_halls"
+#define MTScriptName "instance_mana_tombs"
 
-uint32 const EncounterCount             = 3;
+uint32 const EncounterCount = 4;
 
 enum DataTypes
 {
     // Encounter States/Boss GUIDs
-    DATA_DARKWEAVER_SYTH                = 0,
-    DATA_TALON_KING_IKISS               = 1,
-    DATA_ANZU                           = 2
+    DATA_PANDEMONIUS            = 0,
+    DATA_TAVAROK                = 1,
+    DATA_NEXUSPRINCE_SHAFFAR    = 2,
+    DATA_YOR                    = 3
 };
 
 enum CreatureIds
 {
-    NPC_ANZU                            = 23035,
-    NPC_BROOD_OF_ANZU                   = 23132
 };
 
 enum GameObjectIds
 {
-    GO_IKISS_DOOR                       = 177203
 };
 
 template<class AI>
-AI* GetSethekkHallsAI(Creature* creature)
+AI* GetManaTombsAI(Creature* creature)
 {
-    return GetInstanceAI<AI>(creature, SHScriptName);
+    return GetInstanceAI<AI>(creature, MTScriptName);
 }
 
-#endif // SETHEKK_HALLS_H_
+#endif // MANA_TOMBS_H_
