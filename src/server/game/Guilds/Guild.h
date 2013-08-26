@@ -292,6 +292,7 @@ private:
             m_zoneId(0),
             m_level(0),
             m_class(0),
+            m_flags(GUILDMEMBER_STATUS_NONE),
             m_logoutTime(::time(NULL)),
             m_accountId(0),
             m_rankId(rankId)
