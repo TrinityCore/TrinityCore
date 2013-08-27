@@ -1109,11 +1109,10 @@ bool Guardian::UpdateStats(Stats stat)
     float mod = 0.75f;
     if (IsPetGhoul() && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
     {
-        switch (stat)
-        {
-            case STAT_STAMINA:  mod = 0.3f; break;                // Default Owner's Stamina scale
-            case STAT_STRENGTH: mod = 0.7f; break;                // Default Owner's Strength scale
-        }
+        if (stat == STAT_STAMINA)
+            mod = 0.3f; // Default Owner's Stamina scale
+        else
+            mod = 0.7f; // Default Owner's Strength scale
 
         // Check just if owner has Ravenous Dead since it's effect is not an aura
         AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
