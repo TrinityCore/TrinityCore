@@ -16,6 +16,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 (@DETONATE,@EX4,1,'Explode Scourgewagon');
 
 -- Explosive Charges Bunny
+SET @SOURCETYPE :=0;
 UPDATE `creature_template` SET `AIName`='SmartAI',`flags_extra`=`flags_extra`|128 WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY*100 AND `source_type`=9;
