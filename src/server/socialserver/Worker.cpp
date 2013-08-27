@@ -54,11 +54,12 @@ int Worker::svc()
         if(poller->events(*task_queue) & zmqpp::poller::poll_in)
             perform_work();
     }
+    return 0;
 }
 
 void Worker::perform_work()
 {
-    int op1, op2;
+    int op1;
     do
     {
         zmqpp::message msg;
