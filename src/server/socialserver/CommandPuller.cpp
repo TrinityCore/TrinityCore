@@ -16,7 +16,6 @@
  */
 
 #include "CommandPuller.h"
-#include "Log.h"
 
 CommandPuller::CommandPuller() :
     commands(NULL), broadcast(NULL), work_queue(NULL), work_res(NULL)
@@ -72,7 +71,7 @@ int CommandPuller::HandleOpen(zmqpp::context const* ctx)
     poller->add(*broadcast, zmqpp::poller::poll_out);
     poller->add(*work_queue, zmqpp::poller::poll_out);
 
-    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "CommandPuller sockets have been set up successfully");
+    printf("CommandPuller sockets have been set up successfully\n");
     return ACE_Task_Base::activate();
 }
 
@@ -82,7 +81,7 @@ int CommandPuller::HandleClose(u_long /*flags  = 0 */)
     work_queue->close();
     broadcast->close();
     commands->close();
-    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "CommandPuller sockets have been closed");
+    printf("CommandPuller sockets have been closed\n");
     return 0;
 }
 
@@ -104,7 +103,7 @@ void CommandPuller::pipeline(zmqpp::socket* from, zmqpp::socket* to)
                 return; //No more messages to read from socket. This shouldn't happen.
 
             to->send(msg);
-
+            printf("Propagating command to workers\n");
             from->get(zmqpp::socket_option::events, op1);
             to->get(zmqpp::socket_option::events, op2);
         } while(op1 & zmqpp::poller::poll_in && op2 & zmqpp::poller::poll_out);

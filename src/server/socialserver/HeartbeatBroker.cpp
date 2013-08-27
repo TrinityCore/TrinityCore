@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
 #include "HeartbeatBroker.h"
 #include <zmqpp/socket_types.hpp>
 
@@ -49,13 +48,13 @@ int HeartbeatBroker::HandleOpen(zmqpp::context const* ctx)
 
     poller->add(*sock);
 
-    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "HeartbeatBroker socket has been set up successfully");
+    printf("HeartbeatBroker socket has been set up successfully");
     return ACE_Task_Base::activate(THR_NEW_LWP | THR_JOINABLE);
 }
 
 int HeartbeatBroker::HandleClose(u_long /*flags = 0 */)
 {
     sock->close();
-    TC_LOG_DEBUG(LOG_FILTER_SOCIALSERVER, "HeartbeatBroker socket has been closed");
+    printf("HeartbeatBroker socket has been closed");
     return 0;
 }
