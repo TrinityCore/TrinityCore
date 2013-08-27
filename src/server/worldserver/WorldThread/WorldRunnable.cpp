@@ -43,9 +43,7 @@ extern int m_ServiceStatus;
 void WorldRunnable::run()
 {
     uint32 realCurrTime = 0;
-    uint32 realPrevTime = getMSTime();
-
-    uint32 prevSleepTime = 0;                               // used for balanced full tick time length near WORLD_SLEEP_CONST
+    uint32 diff = 0;
 
     sScriptMgr->OnStartup();
 
@@ -54,23 +52,14 @@ void WorldRunnable::run()
     {
         ++World::m_worldLoopCounter;
         realCurrTime = getMSTime();
+        sWorld->Update(diff);
+        diff = getMSTimeDiff(realCurrTime, getMSTime());
 
-        uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
-
-        sWorld->Update( diff );
-        realPrevTime = realCurrTime;
-
-        // diff (D0) include time of previous sleep (d0) + tick time (t0)
-        // we want that next d1 + t1 == WORLD_SLEEP_CONST
-        // we can't know next t1 and then can use (t0 + d1) == WORLD_SLEEP_CONST requirement
-        // d1 = WORLD_SLEEP_CONST - t0 = WORLD_SLEEP_CONST - (D0 - d0) = WORLD_SLEEP_CONST + d0 - D0
-        if (diff <= WORLD_SLEEP_CONST+prevSleepTime)
+        if (diff < WORLD_SLEEP_CONST)
         {
-            prevSleepTime = WORLD_SLEEP_CONST+prevSleepTime-diff;
-            ACE_Based::Thread::Sleep(prevSleepTime);
+            ACE_Based::Thread::Sleep(WORLD_SLEEP_CONST - diff);
+            diff += WORLD_SLEEP_CONST - diff;
         }
-        else
-            prevSleepTime = 0;
 
         #ifdef _WIN32
             if (m_ServiceStatus == 0)
