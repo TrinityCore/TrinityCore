@@ -526,14 +526,14 @@ public:
 
         void HandleAnimation()
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (!player)
                 return;
 
-            Creature* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f, me);
-            Creature* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f, me);
-            Creature* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f, me);
-            Creature* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f, me);
+            Creature* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f);
+            Creature* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f);
+            Creature* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f);
+            Creature* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f);
 
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
@@ -1002,14 +1002,13 @@ public:
 
         void CheckEventFail()
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
-
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (!player)
                 return;
 
             if (Group* EventGroup = player->GetGroup())
             {
-                Player* groupMember;
+                Player* groupMember = NULL;
 
                 uint8 GroupMemberCount = 0;
                 uint8 DeadMemberCount = 0;
@@ -1019,7 +1018,7 @@ public:
 
                 for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
-                    groupMember = (Unit::GetPlayer(*me, itr->guid));
+                    groupMember = ObjectAccessor::GetPlayer(*me, itr->guid);
                     if (!groupMember)
                         continue;
                     if (!groupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && groupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)

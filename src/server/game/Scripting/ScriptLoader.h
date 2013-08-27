@@ -28,6 +28,7 @@ void AddKalimdorScripts();
 void AddOutlandScripts();
 void AddNorthrendScripts();
 void AddEventScripts();
+void AddPetScripts();
 void AddBattlegroundScripts();
 void AddOutdoorPvPScripts();
 void AddCustomScripts();

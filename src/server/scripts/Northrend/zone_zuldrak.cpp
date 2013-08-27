@@ -198,6 +198,9 @@ enum Gurgthock
     EMOTE_YGGDRAS_SPAWN                           = 4,
     SAY_STINKBEARD_SPAWN                          = 5,
     SAY_GURGTHOCK_ELEMENTAL_SPAWN                 = 6,
+    SAY_GURGTHOCK_7                               = 7,
+    SAY_QUEST_AMPHITHEATER_ANGUISH_YGGDRAS        = 8,
+    SAY_GURGTHOCK_9                               = 9,
 
     SAY_CALL_FOR_HELP                             = 0,
     SAY_RECRUIT                                   = 0,
@@ -319,9 +322,9 @@ public:
                             uiTimer = 2000;
                             uiPhase = 12;
                             break;
-                   }
-                        break;
-                }
+                    }
+                    break;
+            }
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -341,8 +344,6 @@ public:
 
             if (uiPhase)
             {
-                Player* player = me->GetPlayer(*me, _playerGUID);
-
                 if (uiTimer <= diff)
                 {
                     switch (uiPhase)
@@ -371,27 +372,14 @@ public:
                             uiPhase = 0;
                             break;
                         case 6:
-                            {
-                                if (!player)
-                                    return;
-
-                                std::string sText = ("The grand Amphitheater of Anguish awaits, " + std::string(player->GetName()) + ". Remember, once a battle starts you have to stay in the area. WIN OR DIE!");
-
-                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
-                                uiTimer = 5000;
-                                uiPhase = 9;
-                            }
+                            Talk(SAY_GURGTHOCK_7, _playerGUID);
+                            uiTimer = 5000;
+                            uiPhase = 9;
                             break;
                         case 7:
-                            {
-                               if (!player)
-                                   return;
-
-                                std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
-                                uiTimer = 3000;
-                                uiPhase = 8;
-                            }
+                            Talk(SAY_GURGTHOCK_9, _playerGUID);
+                            uiTimer = 3000;
+                            uiPhase = 8;
                             break;
                         case 8:
                             Talk(SAY_QUEST_ACCEPT_MAGNATAUR);
@@ -399,15 +387,9 @@ public:
                             uiPhase = 11;
                             break;
                         case 9:
-                            {
-                                if (!player)
-                                    return;
-
-                                std::string sText = ("Here we are once again, ladies and gentlemen. The epic struggle between life and death in the Amphitheater of Anguish! For this round we have " + std::string(player->GetName()) + " versus the hulking jormungar, Yg... Yggd? Yggdoze? Who comes up with these names?! " + std::string(player->GetName()) + " versus big worm!");
-                                me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
-                                uiTimer = 10000;
-                                uiPhase = 10;
-                            }
+                            Talk(SAY_QUEST_AMPHITHEATER_ANGUISH_YGGDRAS, _playerGUID);
+                            uiTimer = 10000;
+                            uiPhase = 10;
                             break;
                         case 10:
                             me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
@@ -420,16 +402,10 @@ public:
                             uiPhase = 0;
                             break;
                         case 12:
-                        {
-                            if (!player)
-                                return;
-
-                            std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                            me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
+                            Talk(SAY_GURGTHOCK_9, _playerGUID);
                             uiTimer = 5000;
                             uiPhase = 13;
-                        }
-                        break;
+                            break;
                         case 13:
                             Talk(SAY_GURGTHOCK_ELEMENTAL_SPAWN);
                             uiTimer = 3000;
@@ -443,7 +419,8 @@ public:
                             break;
                     }
                 }
-                else uiTimer -= diff;
+                else
+                    uiTimer -= diff;
             }
         }
 
@@ -1460,9 +1437,9 @@ public:
                 _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
             }
 
-            void SetData(uint32 Type, uint32 Data) OVERRIDE
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
-                if (Type == 1 && Data == 1)
+                if (type == 1 && data == 1)
                     switch (_getingredienttry)
                    {
                         case 2:
@@ -1502,7 +1479,7 @@ public:
                             _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(25000, 41000));
                             break;
                         case EVENT_EASY_123:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_EASY_123, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_EASY_AURA);
@@ -1510,7 +1487,7 @@ public:
                             }
                             break;
                         case EVENT_MEDIUM_4:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_MEDIUM_4, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_MEDIUM_AURA);
@@ -1518,7 +1495,7 @@ public:
                             }
                             break;
                         case EVENT_MEDIUM_5:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_MEDIUM_5, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_MEDIUM_AURA);
@@ -1526,7 +1503,7 @@ public:
                             }
                             break;
                         case EVENT_HARD_6:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_HARD_6, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_HARD_AURA);
@@ -1609,7 +1586,7 @@ class spell_random_ingredient_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_random_ingredient_aura_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_INGREDIENT_EASY) || !sSpellMgr->GetSpellInfo(SPELL_RANDOM_INGREDIENT_MEDIUM) || !sSpellMgr->GetSpellInfo(SPELL_RANDOM_INGREDIENT_HARD))
                     return false;
@@ -1656,7 +1633,7 @@ class spell_random_ingredient : public SpellScriptLoader
         {
             PrepareSpellScript(spell_random_ingredient_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FETCH_KNOTROOT) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PICKLED_EAGLE_EGG) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SPECKLED_GUANO) ||
                     !sSpellMgr->GetSpellInfo(SPELL_FETCH_WITHERED_BATWING) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SEASONED_SLIDER_CIDER) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PULVERIZED_GARGOYLE_TEETH) ||
@@ -1720,7 +1697,7 @@ class spell_pot_check : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pot_check_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FETCH_KNOTROOT) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PICKLED_EAGLE_EGG) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SPECKLED_GUANO) ||
                     !sSpellMgr->GetSpellInfo(SPELL_FETCH_WITHERED_BATWING) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_SEASONED_SLIDER_CIDER) || !sSpellMgr->GetSpellInfo(SPELL_FETCH_PULVERIZED_GARGOYLE_TEETH) ||

@@ -33,13 +33,13 @@ void TCSoapRunnable::run()
     soap.accept_timeout = 3;
     soap.recv_timeout = 5;
     soap.send_timeout = 5;
-    if (!soap_valid_socket(soap_bind(&soap, m_host.c_str(), m_port, 100)))
+    if (!soap_valid_socket(soap_bind(&soap, _host.c_str(), _port, 100)))
     {
-        TC_LOG_ERROR(LOG_FILTER_SOAP, "Couldn't bind to %s:%d", m_host.c_str(), m_port);
+        TC_LOG_ERROR(LOG_FILTER_SOAP, "Couldn't bind to %s:%d", _host.c_str(), _port);
         exit(-1);
     }
 
-    TC_LOG_INFO(LOG_FILTER_SOAP, "Bound to http://%s:%d", m_host.c_str(), m_port);
+    TC_LOG_INFO(LOG_FILTER_SOAP, "Bound to http://%s:%d", _host.c_str(), _port);
 
     while (!World::IsStopped())
     {
@@ -121,9 +121,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
 
     int acc = connection.pendingCommands.acquire();
     if (acc)
-    {
         TC_LOG_ERROR(LOG_FILTER_SOAP, "Error while acquiring lock, acc = %i, errno = %u", acc, errno);
-    }
 
     // alright, command finished
 

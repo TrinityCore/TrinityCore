@@ -150,8 +150,7 @@ class npc_zulaman_hostage : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                if (player)
+                if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     player->SendLoot(me->GetGUID(), LOOT_CORPSE);
             }
 
@@ -272,8 +271,7 @@ class npc_harrison_jones : public CreatureScript
 {
     public:
 
-        npc_harrison_jones()
-            : CreatureScript("npc_harrison_jones")
+        npc_harrison_jones() : CreatureScript("npc_harrison_jones")
         {
         }
 
@@ -412,9 +410,11 @@ class npc_harrison_jones : public CreatureScript
                                                     ptarget->AI()->SetData(0, 1);
                                                 }
                                                 else
+                                                {
                                                     ptarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                                     ptarget->SetReactState(REACT_PASSIVE);
                                                     ptarget->AI()->SetData(0, 2);
+                                                }
                                             }
                                         }
                                     }

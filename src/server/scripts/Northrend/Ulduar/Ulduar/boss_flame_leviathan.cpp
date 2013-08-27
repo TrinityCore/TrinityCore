@@ -1154,7 +1154,7 @@ class npc_lorekeeper : public CreatureScript
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
         {
-            player->PlayerTalkClass->ClearMenus();
+            player->CLOSE_GOSSIP_MENU();
             InstanceScript* instance = creature->GetInstanceScript();
             if (!instance)
                 return true;
@@ -1162,19 +1162,13 @@ class npc_lorekeeper : public CreatureScript
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    if (player)
-                    {
-                        player->PrepareGossipMenu(creature);
-                        instance->instance->LoadGrid(364, -16); //make sure leviathan is loaded
+                    player->PrepareGossipMenu(creature);
+                    instance->instance->LoadGrid(364, -16); //make sure leviathan is loaded
 
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                    }
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    if (player)
-                        player->CLOSE_GOSSIP_MENU();
-
                     if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
                     {
                         leviathan->AI()->DoAction(ACTION_START_HARD_MODE);

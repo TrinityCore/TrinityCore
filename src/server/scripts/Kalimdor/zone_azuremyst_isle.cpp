@@ -134,7 +134,7 @@ public:
                 {
                     me->RemoveAurasDueToSpell(SPELL_IRRIDATION);
 
-                    if (Player* player = Unit::GetPlayer(*me, pCaster))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, pCaster))
                     {
                         Talk(SAY_HEAL, player->GetGUID());
 

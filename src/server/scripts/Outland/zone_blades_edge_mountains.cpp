@@ -500,7 +500,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!who || (!who->IsAlive()))
                 return;
@@ -516,15 +515,16 @@ public:
 
         void MovementInform(uint32 /*type*/, uint32 id) OVERRIDE
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
             if (id == 1)
             {
-                GameObject* Keg = me->FindNearestGameObject(GO_KEG, 20);
-                if (Keg)
+                if (GameObject* Keg = me->FindNearestGameObject(GO_KEG, 20))
                     Keg->Delete();
+
                 me->HandleEmoteCommand(7);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->GetMotionMaster()->MoveTargetedHome();
+
+                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                 Creature* Credit = me->FindNearestCreature(NPC_QUEST_CREDIT, 50, true);
                 if (player && Credit)
                     player->KilledMonster(Credit->GetCreatureTemplate(), Credit->GetGUID());
@@ -1017,7 +1017,7 @@ class npc_simon_bunny : public CreatureScript
                 }
 
                 if (rewSpell)
-                    if (Player* player = me->GetPlayer(*me, playerGUID))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                         DoCast(player, rewSpell, true);
             }
 
@@ -1032,7 +1032,7 @@ class npc_simon_bunny : public CreatureScript
             {
                 if (large)
                 {
-                    if (Player* player = me->GetPlayer(*me, playerGUID))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                         if (Creature* guardian = me->SummonCreature(NPC_APEXIS_GUARDIAN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - zCoordCorrection, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000))
                             guardian->AI()->AttackStart(player);
 
@@ -1042,7 +1042,7 @@ class npc_simon_bunny : public CreatureScript
                 {
                     fails++;
 
-                    if (Player* player = me->GetPlayer(*me, playerGUID))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                         DoCast(player, SPELL_BAD_PRESS_TRIGGER, true);
 
                     if (fails >= 4)
@@ -1065,7 +1065,7 @@ class npc_simon_bunny : public CreatureScript
             // Checks if player has already die or has get too far from the current node
             bool CheckPlayer()
             {
-                if (Player* player = me->GetPlayer(*me, playerGUID))
+                if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                 {
                     if (player->isDead())
                         return false;

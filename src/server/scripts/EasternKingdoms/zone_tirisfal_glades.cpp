@@ -132,7 +132,7 @@ public:
                         ++m_uiPhase;
                         break;
                     case 2:
-                        if (Player* player = Unit::GetPlayer(*me, m_uiPlayerGUID))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID))
                             player->AreaExploredOrEventHappens(QUEST_590);
 
                         DoCast(me, SPELL_DRINK, true);

@@ -176,42 +176,6 @@ public:
 };
 
 /*######
-## npc_sputtervalve
-######*/
-
-#define GOSSIP_SPUTTERVALVE "Can you tell me about this shard?"
-
-class npc_sputtervalve : public CreatureScript
-{
-public:
-    npc_sputtervalve() : CreatureScript("npc_sputtervalve") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->SEND_GOSSIP_MENU(2013, creature->GetGUID());
-            player->AreaExploredOrEventHappens(6981);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-};
-
-/*######
 ## npc_taskmaster_fizzule
 ######*/
 
@@ -402,18 +366,20 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (EventInProgress) {
-                Player* pWarrior = NULL;
+            if (EventInProgress)
+            {
+                Player* warrior = NULL;
 
                 if (PlayerGUID)
-                    pWarrior = Unit::GetPlayer(*me, PlayerGUID);
+                    warrior = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
-                if (!pWarrior)
+                if (!warrior)
                     return;
 
-                if (!pWarrior->IsAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
+                if (!warrior->IsAlive() && warrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE)
+                {
                     Talk(SAY_TWIGGY_FLATHEAD_DOWN);
-                    pWarrior->FailQuest(1719);
+                    warrior->FailQuest(1719);
 
                     for (uint8 i = 0; i < 6; ++i) // unsummon challengers
                     {
@@ -437,11 +403,12 @@ public:
                 if (!EventGrate && EventInProgress)
                 {
                     float x, y, z;
-                    pWarrior->GetPosition(x, y, z);
+                    warrior->GetPosition(x, y, z);
 
-                    if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
-                        pWarrior->AreaExploredOrEventHappens(1719);
-                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, pWarrior->GetGUID());
+                    if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324)
+                    {
+                        warrior->AreaExploredOrEventHappens(1719);
+                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, warrior->GetGUID());
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
@@ -483,19 +450,20 @@ public:
                         if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
                             Talk(SAY_TWIGGY_FLATHEAD_FRAY);
-                            Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
+                            Creature* creature = ObjectAccessor::GetCreature(*me, AffrayChallenger[Wave]);
                             if (creature && (creature->IsAlive()))
                             {
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 creature->setFaction(14);
-                                creature->AI()->AttackStart(pWarrior);
+                                creature->AI()->AttackStart(warrior);
                                 ++Wave;
                                 WaveTimer = 20000;
                             }
                         }
-                        else if (Wave >= 6 && !EventBigWill) {
+                        else if (Wave >= 6 && !EventBigWill)
+                        {
                             if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                             {
                                 BigWill = creature->GetGUID();
@@ -509,7 +477,7 @@ public:
                         }
                         else if (Wave >= 6 && EventBigWill && BigWill)
                         {
-                            Creature* creature = Unit::GetCreature((*me), BigWill);
+                            Creature* creature = ObjectAccessor::GetCreature(*me, BigWill);
                             if (!creature || !creature->IsAlive())
                             {
                                 Talk(SAY_TWIGGY_FLATHEAD_OVER);
@@ -691,7 +659,6 @@ void AddSC_the_barrens()
 {
     new npc_beaten_corpse();
     new npc_gilthares();
-    new npc_sputtervalve();
     new npc_taskmaster_fizzule();
     new npc_twiggy_flathead();
     new npc_wizzlecrank_shredder();

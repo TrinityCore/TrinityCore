@@ -145,7 +145,7 @@ public:
                             break;
                         case 3:
                             me->setFaction(FACTION_HOSTILE);
-                            if (Player* target = Player::GetPlayer(*me, PlayerGUID))
+                            if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
                             if (instance)
@@ -400,12 +400,12 @@ public:
 ## go_shallow_grave
 ######*/
 
-enum
+enum ShallowGrave
 {
-    ZOMBIE           = 7286,
-    DEAD_HERO        = 7276,
-    ZOMBIE_CHANCE    = 65,
-    DEAD_HERO_CHANCE = 10
+    NPC_ZOMBIE          = 7286,
+    NPC_DEAD_HERO       = 7276,
+    CHANCE_ZOMBIE       = 65,
+    CHANCE_DEAD_HERO    = 10
 };
 
 class go_shallow_grave : public GameObjectScript
@@ -419,11 +419,11 @@ public:
         if (go->GetUseCount() == 0)
         {
             uint32 randomchance = urand(0, 100);
-            if (randomchance < ZOMBIE_CHANCE)
-                go->SummonCreature(ZOMBIE, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+            if (randomchance < CHANCE_ZOMBIE)
+                go->SummonCreature(NPC_ZOMBIE, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
             else
-                if ((randomchance - ZOMBIE_CHANCE) < DEAD_HERO_CHANCE)
-                    go->SummonCreature(DEAD_HERO, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                if ((randomchance - CHANCE_ZOMBIE) < CHANCE_DEAD_HERO)
+                    go->SummonCreature(NPC_DEAD_HERO, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
         }
         go->AddUse();
         return false;

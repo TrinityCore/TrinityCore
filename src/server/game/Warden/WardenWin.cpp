@@ -46,7 +46,7 @@ void WardenWin::Init(WorldSession* session, BigNumber* k)
 {
     _session = session;
     // Generate Warden Key
-    SHA1Randx WK(k->AsByteArray(), k->GetNumBytes());
+    SHA1Randx WK(k->AsByteArray().get(), k->GetNumBytes());
     WK.Generate(_inputKey, 16);
     WK.Generate(_outputKey, 16);
 
@@ -266,7 +266,7 @@ void WardenWin::RequestData()
             case PAGE_CHECK_A:
             case PAGE_CHECK_B:
             {
-                buff.append(wd->Data.AsByteArray(0, false), wd->Data.GetNumBytes());
+                buff.append(wd->Data.AsByteArray(0, false).get(), wd->Data.GetNumBytes());
                 buff << uint32(wd->Address);
                 buff << uint8(wd->Length);
                 break;
@@ -279,7 +279,7 @@ void WardenWin::RequestData()
             }
             case DRIVER_CHECK:
             {
-                buff.append(wd->Data.AsByteArray(0, false), wd->Data.GetNumBytes());
+                buff.append(wd->Data.AsByteArray(0, false).get(), wd->Data.GetNumBytes());
                 buff << uint8(index++);
                 break;
             }
@@ -295,7 +295,7 @@ void WardenWin::RequestData()
             }
             /*case PROC_CHECK:
             {
-                buff.append(wd->i.AsByteArray(0, false), wd->i.GetNumBytes());
+                buff.append(wd->i.AsByteArray(0, false).get(), wd->i.GetNumBytes());
                 buff << uint8(index++);
                 buff << uint8(index++);
                 buff << uint32(wd->Address);
@@ -395,7 +395,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     continue;
                 }
 
-                if (memcmp(buff.contents() + buff.rpos(), rs->Result.AsByteArray(0, false), rd->Length) != 0)
+                if (memcmp(buff.contents() + buff.rpos(), rs->Result.AsByteArray(0, false).get(), rd->Length) != 0)
                 {
                     TC_LOG_DEBUG(LOG_FILTER_WARDEN, "RESULT MEM_CHECK fail CheckId %u account Id %u", *itr, _session->GetAccountId());
                     checkFailed = *itr;
@@ -474,7 +474,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     continue;
                 }
 
-                if (memcmp(buff.contents() + buff.rpos(), rs->Result.AsByteArray(0, false), 20) != 0) // SHA1
+                if (memcmp(buff.contents() + buff.rpos(), rs->Result.AsByteArray(0, false).get(), 20) != 0) // SHA1
                 {
                     TC_LOG_DEBUG(LOG_FILTER_WARDEN, "RESULT MPQ_CHECK fail, CheckId %u account Id %u", *itr, _session->GetAccountId());
                     checkFailed = *itr;

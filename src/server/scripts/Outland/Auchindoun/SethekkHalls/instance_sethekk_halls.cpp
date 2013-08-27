@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,82 +15,100 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance - Sethekk Halls
-SD%Complete: 50
-SDComment: Instance Data for Sethekk Halls instance
-SDCategory: Auchindoun, Sethekk Halls
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "sethekk_halls.h"
 
-enum Creatures
+DoorData const doorData[] =
 {
-    NPC_ANZU   = 23035
-};
-
-enum GameObjects
-{
-    GO_IKISS_DOOR = 177203
+    { GO_IKISS_DOOR,    DATA_TALON_KING_IKISS,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { 0,                0,                      DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
 };
 
 class instance_sethekk_halls : public InstanceMapScript
 {
-public:
-    instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
+    public:
+        instance_sethekk_halls() : InstanceMapScript(SHScriptName, 556) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
-    {
-        return new instance_sethekk_halls_InstanceMapScript(map);
-    }
-
-    struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
-    {
-        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 AnzuEncounter;
-        uint64 m_uiIkissDoorGUID;
-
-        void Initialize()
+        struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
         {
-            AnzuEncounter = NOT_STARTED;
-            m_uiIkissDoorGUID = 0;
-        }
-
-        void OnCreatureCreate(Creature* creature)
-        {
-            if (creature->GetEntry() == NPC_ANZU)
+            instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                if (AnzuEncounter >= IN_PROGRESS)
-                    creature->DisappearAndDie();
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+            }
+
+            void OnCreatureCreate(Creature* creature) OVERRIDE
+            {
+                if (creature->GetEntry() == NPC_ANZU)
+                {
+                    if (GetBossState(DATA_ANZU) == DONE)
+                        creature->DisappearAndDie();
+                    else
+                        SetBossState(DATA_ANZU, IN_PROGRESS);
+                }
+            }
+
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            {
+                 if (go->GetEntry() == GO_IKISS_DOOR)
+                     AddDoor(go, true);
+            }
+
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            {
+                 if (go->GetEntry() == GO_IKISS_DOOR)
+                     AddDoor(go, false);
+            }
+
+            std::string GetSaveData() OVERRIDE
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "S H " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(char const* str) OVERRIDE
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'S' && dataHead2 == 'H')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
                 else
-                    AnzuEncounter = IN_PROGRESS;
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
-        }
+        };
 
-        void OnGameObjectCreate(GameObject* go)
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
-             if (go->GetEntry() == GO_IKISS_DOOR)
-                m_uiIkissDoorGUID = go->GetGUID();
+            return new instance_sethekk_halls_InstanceMapScript(map);
         }
-
-        void SetData(uint32 type, uint32 data) OVERRIDE
-        {
-            switch (type)
-            {
-                case DATA_IKISSDOOREVENT:
-                    if (data == DONE)
-                        DoUseDoorOrButton(m_uiIkissDoorGUID, DAY*IN_MILLISECONDS);
-                    break;
-                case TYPE_ANZU_ENCOUNTER:
-                    AnzuEncounter = data;
-                    break;
-            }
-        }
-    };
-
 };
 
 void AddSC_instance_sethekk_halls()

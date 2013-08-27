@@ -94,6 +94,8 @@ public:
         boss_hydross_the_unstableAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
+            beams[0] = 0;
+            beams[1] = 0;
         }
 
         InstanceScript* instance;
@@ -159,10 +161,9 @@ public:
         }
         void DeSummonBeams()
         {
-            for (uint8 i=0; i<2; ++i)
+            for (uint8 i = 0; i < 2; ++i)
             {
-                Creature* mob = Unit::GetCreature(*me, beams[i]);
-                if (mob)
+                if (Creature* mob = Unit::GetCreature(*me, beams[i]))
                 {
                     mob->setDeathState(DEAD);
                     mob->RemoveCorpse();

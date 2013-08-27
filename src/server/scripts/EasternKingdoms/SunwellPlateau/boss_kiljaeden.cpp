@@ -710,12 +710,14 @@ public:
                             {
                                 SpeechTimer = 0;
                                 if (instance)
+                                {
                                     if (Creature* speechCreature = Unit::GetCreature(*me, instance->GetData64(Speeches[speechCount].creature)))
                                         speechCreature->AI()->Talk(Speeches[speechCount].textid);
-                                if (speechCount == 12)
-                                    if (Creature* pAnveena =  Unit::GetCreature(*me, instance->GetData64(DATA_ANVEENA)))
-                                        pAnveena->CastSpell(me, SPELL_SACRIFICE_OF_ANVEENA, false);
-                                        //   ChangeTimers(true, 10000); // Kil should do an emote while screaming without attacking for 10 seconds
+                                    if (speechCount == 12)
+                                        if (Creature* pAnveena =  Unit::GetCreature(*me, instance->GetData64(DATA_ANVEENA)))
+                                            pAnveena->CastSpell(me, SPELL_SACRIFICE_OF_ANVEENA, false);
+                                    //   ChangeTimers(true, 10000); // Kil should do an emote while screaming without attacking for 10 seconds
+                                }
                                 if (speechCount == speechPhaseEnd)
                                     TimerIsDeactivated[TIMER_SPEECH]=true;
                                 speechCount++;

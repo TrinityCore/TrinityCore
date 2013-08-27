@@ -283,6 +283,18 @@ public:
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
+        void ResetPlayerScale()
+        {
+            std::map<uint64, float>::const_iterator itr;
+            for (itr = chained.begin(); itr != chained.end(); ++itr)
+            {
+                if (Player* charmed = ObjectAccessor::GetPlayer(*me, itr->first))
+                    charmed->SetObjectScale(itr->second);
+            }
+
+            chained.clear();
+        }
+
         void Reset() OVERRIDE
         {
             _Reset();
@@ -292,14 +304,8 @@ public:
 
             me->setFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            std::map<uint64, float>::const_iterator itr;
-            for (itr = chained.begin(); itr != chained.end(); ++itr)
-            {
-                if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
-                    charmed->SetObjectScale((*itr).second);
-            }
 
-            chained.clear();
+            ResetPlayerScale();
             spawns.DespawnAll();
 
             FindGameObjects();
@@ -340,13 +346,7 @@ public:
             _JustDied();
             Talk(SAY_DEATH);
 
-            std::map<uint64, float>::const_iterator itr;
-            for (itr = chained.begin(); itr != chained.end(); ++itr)
-            {
-                if (Player* player = Unit::GetPlayer(*me, (*itr).first))
-                    player->SetObjectScale((*itr).second);
-            }
-            chained.clear();
+            ResetPlayerScale();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -507,7 +507,7 @@ public:
                                 if (target && !target->IsCharmed() && (chained.find(target->GetGUID()) == chained.end()))
                                 {
                                     DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
-                                    float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                                    float scale = target->GetObjectScale();
                                     chained.insert(std::make_pair(target->GetGUID(), scale));
                                     target->SetObjectScale(scale * 2);
                                     events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm
@@ -523,11 +523,11 @@ public:
                             std::map<uint64, float>::iterator itr;
                             for (itr = chained.begin(); itr != chained.end();)
                             {
-                                if (Unit* player = Unit::GetPlayer(*me, (*itr).first))
+                                if (Unit* player = ObjectAccessor::GetPlayer(*me, itr->first))
                                 {
                                     if (!player->IsCharmed())
                                     {
-                                        player->SetObjectScale((*itr).second);
+                                        player->SetObjectScale(itr->second);
                                         std::map<uint64, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);

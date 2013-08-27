@@ -61,12 +61,7 @@ enum AzureSaboteurSpells
 
 enum CrystalSpells
 {
-    SPELL_ARCANE_LIGHTNING                          = 57912
-};
-
-enum Events
-{
-    EVENT_ACTIVATE_CRYSTAL                          = 20001
+    SPELL_ARCANE_LIGHTNING                          = 57930
 };
 
 const Position PortalLocation[] =
@@ -79,6 +74,7 @@ const Position PortalLocation[] =
     {1908.31f, 809.657f, 38.7037f, 3.08701f}      // WP 6
 };
 
+const Position ArcaneSphere    = {1887.060059f, 806.151001f, 61.321602f, 0.0f};
 const Position BossStartMove1  = {1894.684448f, 739.390503f, 47.668003f, 0.0f};
 const Position BossStartMove2  = {1875.173950f, 860.832703f, 43.333565f, 0.0f};
 const Position BossStartMove21 = {1858.854614f, 855.071411f, 43.333565f, 0.0f};
@@ -140,7 +136,7 @@ public:
         uint64 uiTeleportationPortal;
         uint64 uiSaboteurPortal;
 
-        uint64 uiActivationCrystal[3];
+        uint64 uiActivationCrystal[4];
 
         uint32 uiActivationTimer;
         uint32 uiCyanigosaEventTimer;
@@ -172,7 +168,7 @@ public:
 
         std::string str_data;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             uiMoragg = 0;
             uiErekem = 0;
@@ -222,7 +218,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const OVERRIDE
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -231,7 +227,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -276,7 +272,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -308,7 +304,7 @@ public:
                     uiMainDoor = go->GetGUID();
                     break;
                 case GO_ACTIVATION_CRYSTAL:
-                    if (uiCountActivationCrystals < 3)
+                    if (uiCountActivationCrystals < 4)
                         uiActivationCrystal[uiCountActivationCrystals++] = go->GetGUID();
                     break;
             }
@@ -397,10 +393,13 @@ public:
                     uiMainEventPhase = data;
                     if (data == IN_PROGRESS) // Start event
                     {
-                        if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
-                            pMainDoor->SetGoState(GO_STATE_READY);
+                        if (GameObject* mainDoor = instance->GetGameObject(uiMainDoor))
+                            mainDoor->SetGoState(GO_STATE_READY);
                         uiWaveCount = 1;
                         bActive = true;
+                        for (int i = 0; i < 4; ++i)
+                            if (GameObject* crystal = instance->GetGameObject(uiActivationCrystal[i]))
+                                crystal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         uiRemoveNpc = 0; // might not have been reset after a wipe on a boss.
                     }
                     break;
@@ -609,6 +608,7 @@ public:
                     if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
                         pMainDoor->SetGoState(GO_STATE_READY);
                     DoUpdateWorldState(WORLD_STATE_VH_PRISON_STATE, 100);
+                    // no break
                 }
                 default:
                     SpawnPortal();
@@ -616,7 +616,7 @@ public:
             }
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -633,7 +633,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {
@@ -682,7 +682,7 @@ public:
             return true;
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 diff) OVERRIDE
         {
             if (!instance->HavePlayers())
                 return;
@@ -700,7 +700,7 @@ public:
             }
 
             // if main event is in progress and players have wiped then reset instance
-            if ( uiMainEventPhase == IN_PROGRESS && CheckWipe())
+            if (uiMainEventPhase == IN_PROGRESS && CheckWipe())
             {
                 SetData(DATA_REMOVE_NPC, 1);
                 StartBossEncounter(uiFirstBoss, false);
@@ -709,6 +709,10 @@ public:
                 SetData(DATA_MAIN_DOOR, GO_STATE_ACTIVE);
                 SetData(DATA_WAVE_COUNT, 0);
                 uiMainEventPhase = NOT_STARTED;
+
+                for (int i = 0; i < 4; ++i)
+                    if (GameObject* crystal = instance->GetGameObject(uiActivationCrystal[i]))
+                        crystal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                 {
@@ -791,13 +795,29 @@ public:
 
         void ActivateCrystal()
         {
+            // just to make things easier we'll get the gameobject from the map
+            GameObject* invoker = instance->GetGameObject(uiActivationCrystal[0]);
+            if (!invoker)
+                return;
+
+            SpellInfo const* spellInfoLightning = sSpellMgr->GetSpellInfo(SPELL_ARCANE_LIGHTNING);
+            if (!spellInfoLightning)
+                return;
+
+            // the orb
+            TempSummon* trigger = invoker->SummonCreature(NPC_DEFENSE_SYSTEM, ArcaneSphere, TEMPSUMMON_MANUAL_DESPAWN, 0);
+            if (!trigger)
+                return;
+
+            // visuals
+            trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
+
             // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
-            /// @todo All visual, spells etc
             for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 Creature* creature = instance->GetCreature(*itr);
                 if (creature && creature->IsAlive())
-                    creature->CastSpell(creature, SPELL_ARCANE_LIGHTNING, true);  // Who should cast the spell?
+                    trigger->Kill(creature);
             }
         }
 

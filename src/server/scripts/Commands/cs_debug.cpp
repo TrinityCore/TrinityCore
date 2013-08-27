@@ -258,7 +258,7 @@ public:
         if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
             player = handler->GetSession()->GetPlayer();
         else
-            player = (Player*)unit;
+            player = unit->ToPlayer();
 
         if (!unit)
             unit = player;
@@ -505,7 +505,7 @@ public:
 
     static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, char const* args)
     {
-        uint32 msg = atol((char*)args);
+        QuestFailedReason msg = static_cast<QuestFailedReason>(atol((char*)args));
         handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg);
         return true;
     }
@@ -1309,7 +1309,35 @@ public:
             char* mask2 = strtok(NULL, " \n");
 
             uint32 moveFlags = (uint32)atoi(mask1);
-            target->SetUnitMovementFlags(moveFlags);
+
+            static uint32 const FlagsWithHandlers = MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE |
+                                                    MOVEMENTFLAG_WALKING | MOVEMENTFLAG_SWIMMING |
+                                                    MOVEMENTFLAG_SPLINE_ENABLED;
+
+            bool unhandledFlag = (moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers;
+
+            target->SetWalk(moveFlags & MOVEMENTFLAG_WALKING);
+            target->SetDisableGravity(moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY);
+            target->SetSwim(moveFlags & MOVEMENTFLAG_SWIMMING);
+            target->SetCanFly(moveFlags & MOVEMENTFLAG_CAN_FLY);
+            target->SetWaterWalking(moveFlags & MOVEMENTFLAG_WATERWALKING);
+            target->SetFeatherFall(moveFlags & MOVEMENTFLAG_FALLING_SLOW);
+            target->SetHover(moveFlags & MOVEMENTFLAG_HOVER);
+
+            if (moveFlags & (MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY))
+                moveFlags &= ~MOVEMENTFLAG_FALLING;
+
+            if (moveFlags & MOVEMENTFLAG_ROOT)
+            {
+                target->SetControlled(true, UNIT_STATE_ROOT);
+                moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
+            }
+
+            if (target->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) && !(moveFlags & MOVEMENTFLAG_SPLINE_ENABLED))
+                target->StopMoving();
+
+            if (unhandledFlag)
+                target->SetUnitMovementFlags(moveFlags);
 
             if (mask2)
             {
@@ -1317,7 +1345,9 @@ public:
                 target->SetExtraUnitMovementFlags(moveFlagsExtra);
             }
 
-            target->SendMovementFlagUpdate();
+            if (mask2 || unhandledFlag)
+                target->SendMovementFlagUpdate();
+
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
         }
 

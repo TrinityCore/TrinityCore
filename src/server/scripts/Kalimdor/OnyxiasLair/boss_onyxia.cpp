@@ -408,12 +408,13 @@ public:
                                     me->InterruptNonMeleeSpells(false);
 
                                 Talk(EMOTE_BREATH);
-                                DoCast(me, PointData->SpellId);
+                                if (PointData) /// @todo: In what cases is this null? What should we do?
+                                    DoCast(me, PointData->SpellId);
                                 events.ScheduleEvent(EVENT_DEEP_BREATH, 70000);
                             }
                             break;
                         case EVENT_MOVEMENT:         // Phase PHASE_BREATH
-                            if (!IsMoving)
+                            if (!IsMoving && !(me->HasUnitState(UNIT_STATE_CASTING)))
                             {
                                 SetNextRandomPoint();
                                 PointData = GetMoveData();

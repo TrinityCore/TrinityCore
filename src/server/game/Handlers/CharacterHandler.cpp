@@ -224,7 +224,10 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             TC_LOG_INFO(LOG_FILTER_NETWORKIO, "Loading char guid %u from account %u.", guidlow, GetAccountId());
             if (Player::BuildEnumData(result, &data))
             {
-                _legitCharacters.insert(guidlow);
+                // Do not allow banned characters to log in
+                if (!(*result)[20].GetUInt32())
+                    _legitCharacters.insert(guidlow);
+
                 if (!sWorld->HasCharacterNameData(guidlow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
                     sWorld->AddCharacterNameData(guidlow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
                 ++num;

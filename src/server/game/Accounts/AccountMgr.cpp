@@ -439,7 +439,7 @@ void AccountMgr::LoadRBAC()
 
     TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading default groups");
     // Load default groups to be added to any RBAC Object.
-    std::string defaultGroups = ConfigMgr::GetStringDefault("RBAC.DefaultGroups", "");
+    std::string defaultGroups = sConfigMgr->GetStringDefault("RBAC.DefaultGroups", "");
     Tokenizer tokens(defaultGroups, ',');
     for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         if (uint32 groupId = atoi(*itr))
@@ -448,7 +448,7 @@ void AccountMgr::LoadRBAC()
 
 void AccountMgr::UpdateAccountAccess(RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
 {
-    int32 serverRealmId = realmId != -1 ? realmId : ConfigMgr::GetIntDefault("RealmID", 0);
+    int32 serverRealmId = realmId != -1 ? realmId : sConfigMgr->GetIntDefault("RealmID", 0);
     bool needDelete = false;
     if (!rbac)
     {
@@ -549,10 +549,9 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
         return false;
     }
 
-    RBACData* rbac = new RBACData(accountId, "", realmId);
-    rbac->LoadFromDB();
-    bool hasPermission = rbac->HasPermission(permissionId);
-    delete rbac;
+    RBACData rbac(accountId, "", realmId);
+    rbac.LoadFromDB();
+    bool hasPermission = rbac.HasPermission(permissionId);
 
     TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::HasPermission [AccountId: %u, PermissionId: %u, realmId: %d]: %u",
                    accountId, permissionId, realmId, hasPermission);

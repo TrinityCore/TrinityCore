@@ -184,6 +184,12 @@ bool Player::UpdateAllStats()
     return true;
 }
 
+void Player::ApplySpellPenetrationBonus(int32 amount, bool apply)
+{
+    ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -amount, apply);
+    m_spellPenetrationItemMod += apply ? amount : -amount;
+}
+
 void Player::UpdateResistances(uint32 school)
 {
     if (school > SPELL_SCHOOL_NORMAL)
@@ -1107,7 +1113,6 @@ bool Guardian::UpdateStats(Stats stat)
         {
             case STAT_STAMINA:  mod = 0.3f; break;                // Default Owner's Stamina scale
             case STAT_STRENGTH: mod = 0.7f; break;                // Default Owner's Strength scale
-            default: break;
         }
 
         // Check just if owner has Ravenous Dead since it's effect is not an aura

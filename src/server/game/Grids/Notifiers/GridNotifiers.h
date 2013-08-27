@@ -130,10 +130,14 @@ namespace Trinity
         Player const* skipped_receiver;
         MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
-            , team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
+            , team(0)
             , skipped_receiver(skipped)
         {
+            if (own_team_only)
+                if (Player* player = src->ToPlayer())
+                    team = player->GetTeam();
         }
+
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
         void Visit(DynamicObjectMapType &m);
@@ -889,6 +893,9 @@ namespace Trinity
             AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid) : _source(obj), _refUnit(funit), _range(range), _raid(raid) {}
             bool operator()(Unit* u)
             {
+                if (G3D::fuzzyEq(_range, 0))
+                    return false;
+
                 if (_raid)
                 {
                     if (!_refUnit->IsInRaidWith(u))
