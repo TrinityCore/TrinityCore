@@ -26,14 +26,14 @@
 4 - Toravon the Ice Watcher event
 */
 
-class instance_archavon : public InstanceMapScript
+class instance_vault_of_archavon : public InstanceMapScript
 {
     public:
-        instance_archavon() : InstanceMapScript("instance_archavon", 624) { }
+        instance_vault_of_archavon() : InstanceMapScript("instance_vault_of_archavon", 624) { }
 
-        struct instance_archavon_InstanceMapScript : public InstanceScript
+        struct instance_vault_of_archavon_InstanceMapScript : public InstanceScript
         {
-            instance_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_vault_of_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
 
@@ -135,11 +135,11 @@ class instance_archavon : public InstanceMapScript
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
-            return new instance_archavon_InstanceMapScript(map);
+            return new instance_vault_of_archavon_InstanceMapScript(map);
         }
 };
 
-void AddSC_instance_archavon()
+void AddSC_instance_vault_of_archavon()
 {
-    new instance_archavon();
+    new instance_vault_of_archavon();
 }
