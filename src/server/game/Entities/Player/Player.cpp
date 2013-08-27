@@ -972,7 +972,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (!IsValidGender(createInfo->Gender))
     {
-        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid gender (%hu) - refusing to do so",
+        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid gender (%u) - refusing to do so",
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
         return false;
     }
@@ -1918,7 +1918,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     }
     else if (!IsValidGender(gender))
     {
-        TC_LOG_ERROR(LOG_FILTER_PLAYER_LOADING, "Player (%u) has incorrect gender (%hu), don't build enum.", guid, gender);
+        TC_LOG_ERROR(LOG_FILTER_PLAYER_LOADING, "Player (%u) has incorrect gender (%u), don't build enum.", guid, gender);
         return false;
     }
 
@@ -17018,10 +17018,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // overwrite possible wrong/corrupted guid
     SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
-    uint8 Gender = fields[5].GetUInt8();
-    if (!IsValidGender(Gender))
+    uint8 gender = fields[5].GetUInt8();
+    if (!IsValidGender(gender))
     {
-        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player (GUID: %u) has wrong gender (%hu), can't be loaded.", guid, Gender);
+        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player (GUID: %u) has wrong gender (%u), can't be loaded.", guid, gender);
         return false;
     }
 
@@ -17029,7 +17029,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     uint32 bytes0 = 0;
     bytes0 |= fields[3].GetUInt8();                         // race
     bytes0 |= fields[4].GetUInt8() << 8;                    // class
-    bytes0 |= Gender << 16;                                 // gender
+    bytes0 |= gender << 16;                                 // gender
     SetUInt32Value(UNIT_FIELD_BYTES_0, bytes0);
 
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());

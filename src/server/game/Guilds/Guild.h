@@ -444,7 +444,7 @@ private:
     class LogHolder
     {
     public:
-        LogHolder(uint32 guildId, uint32 maxRecords) : m_guildId(guildId), m_maxRecords(maxRecords), m_nextGUID(uint32(GUILD_EVENT_LOG_GUID_UNDEFINED)) { }
+        LogHolder(uint32 maxRecords) : m_maxRecords(maxRecords), m_nextGUID(uint32(GUILD_EVENT_LOG_GUID_UNDEFINED)) { }
         ~LogHolder();
 
         uint8 GetSize() const { return uint8(m_log.size()); }
@@ -460,7 +460,6 @@ private:
 
     private:
         GuildLog m_log;
-        uint32 m_guildId;
         uint32 m_maxRecords;
         uint32 m_nextGUID;
     };

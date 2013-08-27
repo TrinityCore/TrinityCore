@@ -186,7 +186,6 @@ class boss_nazan : public CreatureScript
                 uint32 Turn_Timer;
                 bool flight;
                 uint64 VazrudenGUID;
-                SpellInfo* liquid_fire;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
