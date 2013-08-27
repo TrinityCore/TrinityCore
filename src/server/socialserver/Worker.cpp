@@ -24,7 +24,6 @@ Worker::~Worker()
     delete task_queue;
     delete results;
     delete inproc;
-    delete poller;
 }
 
 int Worker::HandleOpen(zmqpp::context const* ctx)
@@ -65,6 +64,7 @@ void Worker::perform_work()
         zmqpp::message msg;
         task_queue->receive(msg);
         dispatch(msg);
+        task_queue->get(zmqpp::socket_option::events, op1);
     }while(op1 & zmqpp::poller::poll_in);
 }
 

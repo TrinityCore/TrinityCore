@@ -19,4 +19,5 @@ int main(int /*argc*/, char** /*argv*/)
     worker.open(&ctx);
 
     puller.wait();
+    return 0;
 }
