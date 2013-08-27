@@ -19,7 +19,7 @@
 #define __COMMANDPULLER_H
 
 #include "ZMQTask.h"
-#include "zmqpp/zmqpp.hpp"
+#include <zmqpp/zmqpp.hpp>
 
 /*
   This class serves as main message broker, and task enqueuer.
