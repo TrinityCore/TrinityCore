@@ -6622,17 +6622,20 @@ void ObjectMgr::LoadPetNumber()
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
 {
-    StringVector & list0 = _petHalfName0[entry];
-    StringVector & list1 = _petHalfName1[entry];
+    StringVector& list0 = _petHalfName0[entry];
+    StringVector& list1 = _petHalfName1[entry];
 
     if (list0.empty() || list1.empty())
     {
         CreatureTemplate const* cinfo = GetCreatureTemplate(entry);
-        const char* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
-        if (!petname)
-            return cinfo->Name;
+        if (!cinfo)
+            return std::string();
 
-        return std::string(petname);
+        char const* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        if (petname)
+            return std::string(petname);
+        else
+            return cinfo->Name;
     }
 
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));

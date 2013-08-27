@@ -112,6 +112,7 @@ public:
             Charge_Timer = 5000;
             StoneStrike_Timer = 10000;
             Dalronn_isDead = false;
+            Response_Timer = 0;
             Check_Timer = 5000;
             Enraged = false;
 
@@ -280,6 +281,7 @@ public:
             Summon_Timer = 10000;
             Check_Timer = 5000;
             Skarvald_isDead = false;
+            Response_Timer = 0;
             AggroYell_Timer = 0;
 
             ghost = me->GetEntry() == NPC_DALRONN_GHOST;

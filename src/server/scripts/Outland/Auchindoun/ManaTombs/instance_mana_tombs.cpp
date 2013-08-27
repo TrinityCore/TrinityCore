@@ -15,36 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SETHEKK_HALLS_H_
-#define SETHEKK_HALLS_H_
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "mana_tombs.h"
 
-#define SHScriptName "instance_sethekk_halls"
-
-uint32 const EncounterCount             = 3;
-
-enum DataTypes
+class instance_mana_tombs : public InstanceMapScript
 {
-    // Encounter States/Boss GUIDs
-    DATA_DARKWEAVER_SYTH                = 0,
-    DATA_TALON_KING_IKISS               = 1,
-    DATA_ANZU                           = 2
+    public:
+        instance_mana_tombs() : InstanceMapScript(MTScriptName, 557) { }
+
+        struct instance_mana_tombs_InstanceMapScript : public InstanceScript
+        {
+            instance_mana_tombs_InstanceMapScript(Map* map) : InstanceScript(map)
+            {
+                SetBossNumber(EncounterCount);
+            }
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        {
+            return new instance_mana_tombs_InstanceMapScript(map);
+        }
 };
 
-enum CreatureIds
+void AddSC_instance_mana_tombs()
 {
-    NPC_ANZU                            = 23035,
-    NPC_BROOD_OF_ANZU                   = 23132
-};
-
-enum GameObjectIds
-{
-    GO_IKISS_DOOR                       = 177203
-};
-
-template<class AI>
-AI* GetSethekkHallsAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, SHScriptName);
+    new instance_mana_tombs();
 }
-
-#endif // SETHEKK_HALLS_H_

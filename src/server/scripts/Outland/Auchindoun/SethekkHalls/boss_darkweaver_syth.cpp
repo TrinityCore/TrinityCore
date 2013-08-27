@@ -75,6 +75,7 @@ public:
 
         void Reset() OVERRIDE
         {
+            _Reset();
             summon90 = false;
             summon50 = false;
             summon10 = false;
@@ -82,6 +83,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _EnterCombat();
             events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
             events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
             events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
@@ -93,18 +95,14 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            _JustDied();
             Talk(SAY_DEATH);
-
-            if (instance)
-                instance->SetData(DATA_DARKWEAVER_SYTH, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            if (rand()%2)
-                return;
-
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE
@@ -196,7 +194,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_darkweaver_sythAI(creature);
+        return GetSethekkHallsAI<boss_darkweaver_sythAI>(creature);
     }
 };
 
