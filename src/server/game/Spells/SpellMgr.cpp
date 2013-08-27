@@ -27,7 +27,6 @@
 #include "Chat.h"
 #include "Spell.h"
 #include "BattlegroundMgr.h"
-#include "CreatureAI.h"
 #include "MapManager.h"
 #include "BattlefieldWG.h"
 #include "BattlefieldMgr.h"
@@ -3078,8 +3077,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
         spellInfo->_InitializeExplicitTargetMask();
     }
-
-    CreatureAI::FillAISpellInfo();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }

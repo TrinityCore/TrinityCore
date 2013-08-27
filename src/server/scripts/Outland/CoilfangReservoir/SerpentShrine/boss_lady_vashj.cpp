@@ -151,6 +151,8 @@ public:
             Intro = false;
             JustCreated = true;
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
+            for (uint8 i = 0; i < 4; ++i)
+                ShieldGeneratorChannel[i] = 0;
         }
 
         InstanceScript* instance;
@@ -201,17 +203,20 @@ public:
                 JustCreated = false;
             } else CanAttack = true;
 
-
             for (uint8 i = 0; i < 4; ++i)
-                if (Unit* remo = Unit::GetUnit(*me, ShieldGeneratorChannel[i]))
-                    remo->setDeathState(JUST_DIED);
+            {
+                if (ShieldGeneratorChannel[i])
+                {
+                    if (Unit* remo = Unit::GetUnit(*me, ShieldGeneratorChannel[i]))
+                    {
+                        remo->setDeathState(JUST_DIED);
+                        ShieldGeneratorChannel[i] = 0;
+                    }
+                }
+            }
 
             if (instance)
                 instance->SetData(DATA_LADYVASHJEVENT, NOT_STARTED);
-            ShieldGeneratorChannel[0] = 0;
-            ShieldGeneratorChannel[1] = 0;
-            ShieldGeneratorChannel[2] = 0;
-            ShieldGeneratorChannel[3] = 0;
 
             me->SetCorpseDelay(1000*60*60);
         }

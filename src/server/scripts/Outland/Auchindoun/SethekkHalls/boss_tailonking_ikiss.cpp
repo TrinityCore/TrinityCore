@@ -62,6 +62,7 @@ public:
 
         void Reset() OVERRIDE
         {
+            _Reset();
             ArcaneVolley_Timer = 5000;
             Sheep_Timer = 8000;
             Blink_Timer = 35000;
@@ -72,7 +73,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!me->GetVictim() && me->CanCreatureAttack(who))
             {
@@ -96,20 +96,20 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            _JustDied();
             Talk(SAY_DEATH);
-
-            if (instance)
-                instance->SetData(DATA_TALON_KING_IKISS, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -202,7 +202,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_talon_king_ikissAI(creature);
+        return GetSethekkHallsAI<boss_talon_king_ikissAI>(creature);
     }
 };
 

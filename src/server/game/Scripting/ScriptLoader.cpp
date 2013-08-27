@@ -536,20 +536,31 @@ void AddSC_zuldrak();
 void AddSC_crystalsong_forest();
 void AddSC_isle_of_conquest();
 
-//outland
-void AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
+// Outland
+
+// Auchindoun - Auchenai Crypts
 void AddSC_boss_shirrak_the_dead_watcher();
-void AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
+void AddSC_boss_exarch_maladaar();
+void AddSC_instance_auchenai_crypts();
+
+// Auchindoun - Mana Tombs
 void AddSC_boss_pandemonius();
-void AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
+void AddSC_boss_nexusprince_shaffar();
+void AddSC_instance_mana_tombs();
+
+// Auchindoun - Sekketh Halls
+void AddSC_boss_darkweaver_syth();
 void AddSC_boss_talon_king_ikiss();
 void AddSC_boss_anzu();
 void AddSC_instance_sethekk_halls();
-void AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
+
+// Auchindoun - Shadow Labyrinth
 void AddSC_boss_ambassador_hellmaw();
 void AddSC_boss_blackheart_the_inciter();
 void AddSC_boss_grandmaster_vorpil();
 void AddSC_boss_murmur();
+void AddSC_instance_shadow_labyrinth();
+
 void AddSC_black_temple();                   //Black Temple
 void AddSC_boss_illidan();
 void AddSC_boss_shade_of_akama();
@@ -1054,19 +1065,29 @@ void AddKalimdorScripts()
 void AddOutlandScripts()
 {
 #ifdef SCRIPTS
-    AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
+    // Auchindoun - Auchenai Crypts
     AddSC_boss_shirrak_the_dead_watcher();
-    AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
+    AddSC_boss_exarch_maladaar();
+    AddSC_instance_auchenai_crypts();
+
+    // Auchindoun - Mana Tombs
     AddSC_boss_pandemonius();
-    AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
+    AddSC_boss_nexusprince_shaffar();
+    AddSC_instance_mana_tombs();
+
+    // Auchindoun - Sekketh Halls
+    AddSC_boss_darkweaver_syth();
     AddSC_boss_talon_king_ikiss();
     AddSC_boss_anzu();
     AddSC_instance_sethekk_halls();
-    AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
+
+    // Auchindoun - Shadow Labyrinth
     AddSC_boss_ambassador_hellmaw();
     AddSC_boss_blackheart_the_inciter();
     AddSC_boss_grandmaster_vorpil();
     AddSC_boss_murmur();
+    AddSC_instance_shadow_labyrinth();
+
     AddSC_black_temple();                   //Black Temple
     AddSC_boss_illidan();
     AddSC_boss_shade_of_akama();

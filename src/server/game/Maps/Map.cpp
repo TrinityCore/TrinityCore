@@ -2114,6 +2114,10 @@ void Map::AddObjectToRemoveList(WorldObject* obj)
 void Map::AddObjectToSwitchList(WorldObject* obj, bool on)
 {
     ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
+    // i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
+    // the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
+    if (obj->GetTypeId() != TYPEID_UNIT)
+        return;
 
     std::map<WorldObject*, bool>::iterator itr = i_objectsToSwitch.find(obj);
     if (itr == i_objectsToSwitch.end())
