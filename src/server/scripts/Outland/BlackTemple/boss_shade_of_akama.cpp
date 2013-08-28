@@ -845,7 +845,6 @@ public:
             InstanceScript* instance;
             EventMap events;
             uint64 summonerGuid;
-            float distanceToShade;
             bool startedBanishing;
             bool switchToCombat;
     };

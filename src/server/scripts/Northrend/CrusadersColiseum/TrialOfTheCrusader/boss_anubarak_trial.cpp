@@ -419,8 +419,6 @@ class boss_anubarak_trial : public CreatureScript
                 uint64 _sphereGUID[6];
                 bool _intro;
                 bool _reachedPhase3;
-                uint32 _frostSphereTimer;
-                uint32 _berserkTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -579,7 +577,6 @@ class npc_nerubian_burrower : public CreatureScript
 
             private:
                 uint32 _submergeTimer;
-                Phases _phase;
                 EventMap _events;
                 InstanceScript* _instance;
         };

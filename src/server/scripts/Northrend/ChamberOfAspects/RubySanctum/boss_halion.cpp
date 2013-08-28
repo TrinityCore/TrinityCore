@@ -881,8 +881,6 @@ class npc_halion_controller : public CreatureScript
             InstanceScript* _instance;
             SummonList _summons;
 
-            bool _corporealityCheck;
-
             uint32 _twilightDamageTaken;
             uint32 _materialDamageTaken;
             uint8 _materialCorporealityValue;

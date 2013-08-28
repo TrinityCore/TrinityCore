@@ -26,142 +26,97 @@ enum Spells
     SPELL_UK_SECOUND_WIND_TRIGGER    = 42771
 };
 
-uint32 entry_search[3] =
+uint32 ForgeSearch[3] =
 {
-    186609,
-    186610,
-    186611
+    GO_GLOWING_ANVIL_1,
+    GO_GLOWING_ANVIL_2,
+    GO_GLOWING_ANVIL_3
 };
 
 class npc_dragonflayer_forge_master : public CreatureScript
 {
-public:
-    npc_dragonflayer_forge_master() : CreatureScript("npc_dragonflayer_forge_master") { }
+    public:
+        npc_dragonflayer_forge_master() : CreatureScript("npc_dragonflayer_forge_master") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_dragonflayer_forge_masterAI(creature);
-    }
-
-    struct npc_dragonflayer_forge_masterAI : public ScriptedAI
-    {
-        npc_dragonflayer_forge_masterAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_dragonflayer_forge_masterAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-            fm_Type = 0;
-        }
-
-        InstanceScript* instance;
-        uint8 fm_Type;
-
-        void Reset() OVERRIDE
-        {
-            if (fm_Type == 0)
-                fm_Type = GetForgeMasterType();
-
-            CheckForge();
-        }
-
-        void CheckForge()
-        {
-            if (instance)
+            npc_dragonflayer_forge_masterAI(Creature* creature) : ScriptedAI(creature)
             {
-                switch (fm_Type)
-                {
-                    case 1:
-                        instance->SetData(EVENT_FORGE_1, me->IsAlive() ? NOT_STARTED : DONE);
-                        break;
-
-                    case 2:
-                        instance->SetData(EVENT_FORGE_2, me->IsAlive() ? NOT_STARTED : DONE);
-                        break;
-
-                    case 3:
-                        instance->SetData(EVENT_FORGE_3, me->IsAlive() ? NOT_STARTED : DONE);
-                        break;
-                }
+                _instance = creature->GetInstanceScript();
+                _forgeId = 0;
             }
-        }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            if (fm_Type == 0)
-                fm_Type = GetForgeMasterType();
-
-            if (instance)
+            void Reset() OVERRIDE
             {
-                switch (fm_Type)
-                {
-                    case 1:
-                        instance->SetData(EVENT_FORGE_1, DONE);
-                        break;
+                if (!_forgeId)
+                    _forgeId = GetForgeMasterType();
 
-                    case 2:
-                        instance->SetData(EVENT_FORGE_2, DONE);
-                        break;
+                if (!me->IsAlive())
+                    return;
 
-                    case 3:
-                        instance->SetData(EVENT_FORGE_3, DONE);
-                        break;
-                }
+                if (_forgeId)
+                    _instance->SetData(DATA_FORGE_1 + _forgeId - 1, NOT_STARTED);
             }
-        }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            if (fm_Type == 0)
-                fm_Type = GetForgeMasterType();
-
-            if (instance)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                switch (fm_Type)
-                {
-                    case 1:
-                        instance->SetData(EVENT_FORGE_1, IN_PROGRESS);
-                        break;
+                if (!_forgeId)
+                    _forgeId = GetForgeMasterType();
 
-                    case 2:
-                        instance->SetData(EVENT_FORGE_2, IN_PROGRESS);
-                        break;
-
-                    case 3:
-                        instance->SetData(EVENT_FORGE_3, IN_PROGRESS);
-                        break;
-                }
+                if (_forgeId)
+                    _instance->SetData(DATA_FORGE_1 + _forgeId - 1, DONE);
             }
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-        }
 
-        uint8 GetForgeMasterType()
-        {
-            float diff = 30.0f;
-            uint8 near_f = 0;
-
-            for (uint8 i = 0; i < 3; ++i)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (GameObject* go = me->FindNearestGameObject(entry_search[i], 30))
+                if (!_forgeId)
+                    _forgeId = GetForgeMasterType();
+
+                if (_forgeId)
+                    _instance->SetData(DATA_FORGE_1 + _forgeId - 1, IN_PROGRESS);
+
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+            }
+
+            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            {
+                if (!_forgeId)
+                    _forgeId = GetForgeMasterType();
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            uint8 GetForgeMasterType()
+            {
+                float diff = 30.0f;
+                uint8 id = 0;
+
+                for (uint8 i = 0; i < 3; ++i)
                 {
-                    if (me->IsWithinDist(go, diff, false))
+                    if (GameObject* go = me->FindNearestGameObject(ForgeSearch[i], 30))
                     {
-                        near_f = i + 1;
-                        diff = me->GetDistance2d(go);
+                        if (me->IsWithinDist(go, diff, false))
+                        {
+                            id = i + 1;
+                            diff = me->GetDistance2d(go);
+                        }
                     }
                 }
+                return id > 0 && id < 4 ? id : 0;
             }
-            return near_f > 0 && near_f < 4 ? near_f : 0;
-        }
 
-        void UpdateAI(uint32 /* diff */) OVERRIDE
+            InstanceScript* _instance;
+            uint8 _forgeId;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (fm_Type == 0)
-                fm_Type = GetForgeMasterType();
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
+            return GetUtgardeKeepAI<npc_dragonflayer_forge_masterAI>(creature);
         }
-    };
 };
 
 enum TickingTimeBomb
@@ -188,9 +143,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
             void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
             {
                 if (GetCaster() == GetTarget())
-                {
                     GetTarget()->CastSpell(GetTarget(), SPELL_TICKING_TIME_BOMB_EXPLODE, true);
-                }
             }
 
             void Register() OVERRIDE
@@ -209,6 +162,7 @@ enum Fixate
 {
     SPELL_FIXATE_TRIGGER = 40415
 };
+
 class spell_fixate : public SpellScriptLoader
 {
     public:
@@ -227,8 +181,7 @@ class spell_fixate : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                // The unit has to cast the taunt on hisself, but we need the original caster for SPELL_AURA_MOD_TAUNT
-                GetCaster()->CastSpell(GetCaster(), SPELL_FIXATE_TRIGGER, true, 0, 0, GetHitUnit()->GetGUID());
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_FIXATE_TRIGGER, true);
             }
 
             void Register() OVERRIDE
@@ -265,86 +218,86 @@ const Position protodrakeCheckPos = {206.24f, -190.28f, 200.11f, 0.f};
 
 class npc_enslaved_proto_drake : public CreatureScript
 {
-public:
-    npc_enslaved_proto_drake() : CreatureScript("npc_enslaved_proto_drake") { }
+    public:
+        npc_enslaved_proto_drake() : CreatureScript("npc_enslaved_proto_drake") { }
 
-    struct npc_enslaved_proto_drakeAI : public ScriptedAI
-    {
-        npc_enslaved_proto_drakeAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_enslaved_proto_drakeAI : public ScriptedAI
         {
-            _setData = false;
-        }
-
-        void Reset() OVERRIDE
-        {
-            _events.Reset();
-            _events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
-            _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
-            _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
-        }
-
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
-        {
-            if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
+            npc_enslaved_proto_drakeAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                _setData = false;
             }
-        }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
-        {
-            if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
+            void Reset() OVERRIDE
             {
-                _setData = true;
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
+                _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
+                _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
             }
-        }
 
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventid = _events.ExecuteEvent())
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
             {
-                switch (eventid)
+                if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
                 {
-                    case EVENT_REND:
-                        DoCast(SPELL_REND);
-                        _events.ScheduleEvent(EVENT_REND, urand(15000, 20000));
-                        break;
-                    case EVENT_FLAME_BREATH:
-                        DoCast(SPELL_FLAME_BREATH);
-                        _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(11000, 12000));
-                        break;
-                    case EVENT_KNOCKAWAY:
-                        DoCast(SPELL_KNOCK_AWAY);
-                        _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(7000, 8500));
-                        break;
-                    default:
-                        break;
+                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 }
             }
 
-            DoMeleeAttackIfReady();
+            void SetData(uint32 type, uint32 data) OVERRIDE
+            {
+                if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
+                {
+                    _setData = true;
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                    me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
+                }
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                _events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventid = _events.ExecuteEvent())
+                {
+                    switch (eventid)
+                    {
+                        case EVENT_REND:
+                            DoCast(SPELL_REND);
+                            _events.ScheduleEvent(EVENT_REND, urand(15000, 20000));
+                            break;
+                        case EVENT_FLAME_BREATH:
+                            DoCast(SPELL_FLAME_BREATH);
+                            _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(11000, 12000));
+                            break;
+                        case EVENT_KNOCKAWAY:
+                            DoCast(SPELL_KNOCK_AWAY);
+                            _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(7000, 8500));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            bool _setData;
+            EventMap _events;
+
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return new npc_enslaved_proto_drakeAI(creature);
         }
-
-    private:
-        bool _setData;
-        EventMap _events;
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_enslaved_proto_drakeAI(creature);
-    }
 };
 
 class spell_uk_second_wind_proc : public SpellScriptLoader

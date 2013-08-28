@@ -158,8 +158,7 @@ public:
     DialogueHelper(DialogueEntry const* dialogueArray) :
       _dialogueArray(dialogueArray),
           _currentEntry(NULL),
-          _actionTimer(0),
-          _isFirstSide(true)
+          _actionTimer(0)
       {}
       // The array MUST be terminated by {0, 0, 0, 0, 0}
 
@@ -237,7 +236,6 @@ private:
     DialogueEntry const* _currentEntry;
 
     uint32 _actionTimer;
-    bool _isFirstSide;
 };
 
 const DialogueEntry introDialogue[] =

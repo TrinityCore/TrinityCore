@@ -37,20 +37,22 @@ class BIHWrap
 
         MDLCallback(RayCallback& callback, const T* const* objects_array, uint32 objects_size ) : objects(objects_array), _callback(callback), objects_size(objects_size) {}
 
-        bool operator() (const G3D::Ray& ray, uint32 Idx, float& MaxDist, bool /*stopAtFirst*/)
+        /// Intersect ray
+        bool operator() (const G3D::Ray& ray, uint32 idx, float& maxDist, bool /*stopAtFirst*/)
         {
-            if (Idx >= objects_size)
+            if (idx >= objects_size)
                 return false;
-            if (const T* obj = objects[Idx])
-                return _callback(ray, *obj, MaxDist/*, stopAtFirst*/);
+            if (const T* obj = objects[idx])
+                return _callback(ray, *obj, maxDist/*, stopAtFirst*/);
             return false;
         }
 
-        void operator() (const G3D::Vector3& p, uint32 Idx)
+        /// Intersect point
+        void operator() (const G3D::Vector3& p, uint32 idx)
         {
-            if (Idx >= objects_size)
-                return false;
-            if (const T* obj = objects[Idx])
+            if (idx >= objects_size)
+                return;
+            if (const T* obj = objects[idx])
                 _callback(p, *obj);
         }
     };

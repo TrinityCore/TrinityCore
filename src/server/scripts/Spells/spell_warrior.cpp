@@ -750,7 +750,7 @@ class spell_warr_second_wind_proc : public SpellScriptLoader
             {
                 if (eventInfo.GetProcTarget() == GetTarget())
                     return false;
-                if (!(eventInfo.GetDamageInfo() || eventInfo.GetDamageInfo()->GetSpellInfo()->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))))
+                if (!eventInfo.GetDamageInfo()->GetSpellInfo() || !(eventInfo.GetDamageInfo()->GetSpellInfo()->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))))
                     return false;
                 return true;
             }
