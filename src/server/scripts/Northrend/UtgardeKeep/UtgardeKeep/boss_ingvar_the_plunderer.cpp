@@ -28,21 +28,18 @@ EndScriptData */
 
 enum Yells
 {
-    YELL_AGGRO_1                                = 0,
-    YELL_KILL_1                                 = 1,
-    YELL_DEAD_1                                 = 2,
+    // Ingvar (Human)
+    SAY_AGGRO_1                                 = 0,
+    SAY_SLAY_1                                  = 1,
+    SAY_DEATH_1                                 = 2,
 
-    YELL_AGGRO_2                                = 0,
-    YELL_KILL_2                                 = 1,
-    YELL_DEAD_2                                 = 2
-};
+    // Ingvar (Undead)
+    SAY_AGGRO_2                                 = 3,
+    SAY_SLAY_2                                  = 4,
+    SAY_DEATH_2                                 = 5,
 
-enum Creatures
-{
-    NPC_INGVAR_HUMAN                            = 23954,
-    NPC_ANNHYLDE_THE_CALLER                     = 24068,
-    NPC_INGVAR_UNDEAD                           = 23980,
-    NPC_THROW_TARGET                            = 23996,
+    // Annhylde The Caller
+    YELL_RESURRECT                              = 0
 };
 
 enum Events
@@ -96,6 +93,11 @@ enum Spells
     SPELL_INGVAR_TRANSFORM                      = 42796
 };
 
+enum Misc
+{
+    ACTION_START_PHASE_2
+};
+
 class boss_ingvar_the_plunderer : public CreatureScript
 {
     public:
@@ -110,13 +112,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (_isUndead)
-                    me->UpdateEntry(NPC_INGVAR_HUMAN);
-
                 _isUndead = false;
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 _Reset();
                 events.SetPhase(PHASE_HUMAN);
@@ -129,36 +127,37 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
             {
-                if (damage >= me->GetHealth() && !_isUndead)
+                if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
                 {
-                    //DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);  // Dont work ???
-                    // visuel hack
-                    me->SetHealth(0);
-                    me->InterruptNonMeleeSpells(true);
                     me->RemoveAllAuras();
+                    DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);
+
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->GetMotionMaster()->MovementExpired(false);
-                    me->GetMotionMaster()->MoveIdle();
-                    me->SetStandState(UNIT_STAND_STATE_DEAD);
-                    // visuel hack end
 
                     events.SetPhase(PHASE_EVENT);
                     events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
-                    Talk(YELL_DEAD_1);
+                    Talk(SAY_DEATH_1);
                 }
 
                 if (events.IsInPhase(PHASE_EVENT))
                     damage = 0;
             }
 
+            void DoAction(int32 actionId)
+            {
+                if (actionId == ACTION_START_PHASE_2)
+                    StartZombiePhase();
+            }
+
             void StartZombiePhase()
             {
                 _isUndead = true;
-                me->UpdateEntry(NPC_INGVAR_UNDEAD);
+                me->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
+                DoCast(me, SPELL_INGVAR_TRANSFORM, true); /// @todo: should be death persistent
                 events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 2 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
-                Talk(YELL_AGGRO_2);
+                Talk(SAY_AGGRO_2);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -166,16 +165,13 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 _EnterCombat();
 
                 if (!_isUndead)
-                    Talk(YELL_AGGRO_1);
+                    Talk(SAY_AGGRO_1);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
-                Talk(YELL_DEAD_2);
-
-                // Ingvar has NPC_INGVAR_UNDEAD id in this moment, so we have to update encounter state for his original id
-                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_INGVAR_HUMAN, me);
+                Talk(SAY_DEATH_2);
             }
 
             void ScheduleSecondPhase()
@@ -189,7 +185,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
-                Talk(_isUndead ? YELL_KILL_1 : YELL_KILL_2);
+                Talk(_isUndead ? SAY_SLAY_1 : SAY_SLAY_2);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -225,8 +221,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                             break;
                         case EVENT_JUST_TRANSFORMED:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            me->SetInCombatWithZone();
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            DoZoneInCombat();
                             ScheduleSecondPhase();
                             return;
                         case EVENT_SUMMON_BANSHEE:
@@ -254,7 +249,8 @@ class boss_ingvar_the_plunderer : public CreatureScript
                     }
                 }
 
-                DoMeleeAttackIfReady();
+                if (!events.IsInPhase(PHASE_EVENT))
+                    DoMeleeAttackIfReady();
             }
 
         private:
@@ -288,13 +284,7 @@ class npc_annhylde_the_caller : public CreatureScript
 
                 me->GetPosition(x, y, z);
                 DoTeleportTo(x+1, y, z+30);
-
-                if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
-                {
-                    me->GetMotionMaster()->MovePoint(1, x, y, z+15);
-
-        //            Talk(YELL_RESSURECT);
-                }
+                me->GetMotionMaster()->MovePoint(1, x, y, z+15);
             }
 
             void MovementInform(uint32 type, uint32 id) OVERRIDE
@@ -302,22 +292,23 @@ class npc_annhylde_the_caller : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
     
-                if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
+                switch (id)
                 {
-                    switch (id)
-                    {
-                        case 1:
+                    case 1:
+                        Talk(YELL_RESURRECT);
+                        if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
+                        {
                             ingvar->RemoveAura(SPELL_SUMMON_BANSHEE);
                             ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_DUMMY, true);
                             DoCast(ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
-                            _events.ScheduleEvent(EVENT_RESURRECT_1, 8000);
-                            break;
-                        case 2:
-                            me->DespawnOrUnsummon();
-                            break;
-                        default:
-                            break;
-                    }
+                        }
+                        _events.ScheduleEvent(EVENT_RESURRECT_1, 8000);
+                        break;
+                    case 2:
+                        me->DespawnOrUnsummon();
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -336,7 +327,7 @@ class npc_annhylde_the_caller : public CreatureScript
                         case EVENT_RESURRECT_1:
                             if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
                             {
-                                ingvar->SetStandState(UNIT_STAND_STATE_STAND);
+                                ingvar->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                                 ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_HEAL, false);
                             }
                             _events.ScheduleEvent(EVENT_RESURRECT_2, 3000);
@@ -345,13 +336,10 @@ class npc_annhylde_the_caller : public CreatureScript
                             if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_INGVAR)))
                             {
                                 ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
-
-                                if (ingvar->GetVictim())
-                                    if (boss_ingvar_the_plunderer::boss_ingvar_the_plundererAI* ai = CAST_AI(boss_ingvar_the_plunderer::boss_ingvar_the_plundererAI, ingvar->AI()))
-                                        ai->StartZombiePhase();
-
-                                me->GetMotionMaster()->MovePoint(2, x+1, y, z+30);
+                                ingvar->AI()->DoAction(ACTION_START_PHASE_2);
                             }
+
+                            me->GetMotionMaster()->MovePoint(2, x+1, y, z+30);
                             break;
                         default:
                             break;
