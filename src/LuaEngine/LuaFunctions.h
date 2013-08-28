@@ -45,6 +45,7 @@ void RegisterGlobals(lua_State* L)
     lua_register(L, "GetCreaturesInRange", &LuaGlobalFunctions::GetCreaturesInRange);                       // GetCreaturesInRange(WorldObject[, range]) - Returns a table with creatures in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetGameObjectsInRange", &LuaGlobalFunctions::GetGameObjectsInRange);                   // GetGameObjectsInRange(WorldObject[, range]) - Returns a table with gameobjects in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetWorldObject", &LuaGlobalFunctions::GetWorldObject);                                 // GetWorldObject(WorldObject, guid) - Returns a world object (creature, player, gameobject) from the guid. The world object returned must be on the same map as the world object in the arguments.
+    lua_register(L, "GetHeight", &LuaGlobalFunctions::GetHeight);                                           // GetHeight(mapid, instanceid, x, y, phasemask) - Returns ground Z coordinate. UNDOCUMENTED
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                                       // ReloadEluna() - Reload's Eluna engine

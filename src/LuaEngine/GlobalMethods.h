@@ -372,6 +372,21 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
+    // GetHeight(map, x, y[, phase])
+    static int GetHeight(lua_State* L)
+    {
+        uint32 mapid = luaL_checkunsigned(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        uint32 phasemask = luaL_optunsigned(L, 4, 1);
+
+        float z = sMapMgr->FindBaseMap(mapid)->GetHeight(phasemask, x, y, MAX_HEIGHT);
+        if (z == INVALID_HEIGHT)
+            return 0;
+        sEluna->PushFloat(L, z);
+        return 1;
+    }
+
     // GetGuildByLeaderGUID(leaderGUID) - Gets guild object
     static int GetGuildByLeaderGUID(lua_State* L)
     {
