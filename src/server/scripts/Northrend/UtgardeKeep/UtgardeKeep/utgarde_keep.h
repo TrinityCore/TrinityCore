@@ -45,8 +45,14 @@ enum CreatureIds
     NPC_DALRONN             = 24201,
     NPC_INGVAR              = 23954,
 
+    // Skarvald - Dalronn
     NPC_DALRONN_GHOST       = 27389,
-    NPC_SKARVALD_GHOST      = 27390
+    NPC_SKARVALD_GHOST      = 27390,
+
+    // Ingvar the Plunderer
+    NPC_INGVAR_UNDEAD       = 23980,
+    NPC_THROW_TARGET        = 23996,
+    NPC_ANNHYLDE_THE_CALLER = 24068
 };
 
 enum GameObjectIds
