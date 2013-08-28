@@ -291,7 +291,7 @@ class npc_annhylde_the_caller : public CreatureScript
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
-    
+
                 switch (id)
                 {
                     case 1:

@@ -197,7 +197,7 @@ class instance_utgarde_keep : public InstanceMapScript
 
                 std::ostringstream saveStream;
                 saveStream << "U K " << GetBossSaveData();
-                
+
                 for (uint8 i = 0; i < 3; ++i)
                     saveStream << Forges[i].Event << ' ';
 
