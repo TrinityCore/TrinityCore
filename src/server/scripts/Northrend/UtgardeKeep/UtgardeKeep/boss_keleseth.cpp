@@ -75,268 +75,247 @@ float AttackLoc[3]= {197.636f, 194.046f, 40.8164f};
 
 class npc_frost_tomb : public CreatureScript
 {
-public:
-    npc_frost_tomb() : CreatureScript("npc_frost_tomb") {}
+    public:
+        npc_frost_tomb() : CreatureScript("npc_frost_tomb") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_frost_tombAI(creature);
-    }
-
-    struct npc_frost_tombAI : public ScriptedAI
-    {
-        npc_frost_tombAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_frost_tombAI : public ScriptedAI
         {
-            if (me->IsSummon())
-                if (Unit* summon = me->ToTempSummon()->GetSummoner())
-                    DoCast(summon, SPELL_FROST_TOMB, true);
+            npc_frost_tombAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = creature->GetInstanceScript();
+            }
 
-            instance = creature->GetInstanceScript();
-        }
+            void IsSummonedBy(Unit* summoner) OVERRIDE
+            {
+                DoCast(summoner, SPELL_FROST_TOMB, true);
+            }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                if (Creature* keleseth = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_PRINCE_KELESETH)))
+                    keleseth->AI()->SetData(DATA_ON_THE_ROCKS, false);
+            }
+
+        private:
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (instance)
-                if (Unit* boss = me->GetUnit(*me, instance->GetData64(DATA_PRINCEKELESETH)))
-                    if (boss->ToCreature() && boss->ToCreature()->AI())
-                        boss->ToCreature()->AI()->SetData(DATA_ON_THE_ROCKS, false);
+            return GetUtgardeKeepAI<npc_frost_tombAI>(creature);
         }
-
-    private:
-        InstanceScript* instance;
-    };
 };
 
 class boss_keleseth : public CreatureScript
 {
-public:
-    boss_keleseth() : CreatureScript("boss_keleseth") {}
+    public:
+        boss_keleseth() : CreatureScript("boss_keleseth") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_kelesethAI(creature);
-    }
-
-    struct boss_kelesethAI : public BossAI
-    {
-        boss_kelesethAI(Creature* creature) : BossAI(creature, DATA_PRINCEKELESETH_EVENT){}
-
-        void Reset() OVERRIDE
+        struct boss_kelesethAI : public BossAI
         {
-            if (instance)
-                instance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
+            boss_kelesethAI(Creature* creature) : BossAI(creature, DATA_PRINCE_KELESETH) { }
 
-            events.Reset();
-            events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 6*IN_MILLISECONDS);
-
-            summons.DespawnAll();
-
-            onTheRocks = true;
-        }
-
-        void EnterCombat(Unit* who) OVERRIDE
-        {
-            me->SetInCombatWithZone();
-            if (instance)
-                instance->SetData(DATA_PRINCEKELESETH_EVENT, IN_PROGRESS);
-            Talk(SAY_START_COMBAT);
-
-            if (!who)
-                return;
-
-            std::list<Creature*> runemages;
-            me->GetCreatureListWithEntryInGrid(runemages, NPC_RUNEMAGE, 60.0f);
-            if (!runemages.empty())
+            void Reset() OVERRIDE
             {
-                for (std::list<Creature*>::iterator itr = runemages.begin(); itr != runemages.end(); ++itr)
-                {
-                    if ((*itr)->IsAlive() && (*itr)->IsWithinLOSInMap(me))
-                        (*itr)->AI()->AttackStart(who);
-                }
+                _Reset();
+                events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3)*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19)*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 6*IN_MILLISECONDS);
+
+                onTheRocks = true;
             }
 
-            std::list<Creature*> strategists;
-            me->GetCreatureListWithEntryInGrid(strategists, NPC_STRATEGIST, 60.0f);
-            if (!strategists.empty())
+            void EnterCombat(Unit* who) OVERRIDE
             {
-                for (std::list<Creature*>::iterator itr = strategists.begin(); itr != strategists.end(); ++itr)
+                _EnterCombat();
+                Talk(SAY_START_COMBAT);
+
+                if (!who)
+                    return;
+
+                std::list<Creature*> guards;
+                me->GetCreatureListWithEntryInGrid(guards, NPC_RUNEMAGE, 60.0f);
+                me->GetCreatureListWithEntryInGrid(guards, NPC_STRATEGIST, 60.0f);
+                if (!guards.empty())
                 {
-                    if ((*itr)->IsAlive() && (*itr)->IsWithinLOSInMap(me))
-                        (*itr)->AI()->AttackStart(who);
-                }
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            if (instance)
-                instance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
-            summons.DespawnAll();
-            Talk(SAY_DEATH);
-        }
-
-        void SetData(uint32 data, uint32 value) OVERRIDE
-        {
-            if (data == DATA_ON_THE_ROCKS)
-                onTheRocks = value;
-        }
-
-        uint32 GetData(uint32 data) const OVERRIDE
-        {
-            if (data == DATA_ON_THE_ROCKS)
-                return onTheRocks;
-
-            return 0;
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_SUMMON_SKELETONS:
-                    Talk(SAY_SUMMON_SKELETONS);
-                    SummonSkeletons();
-                    break;
-                case EVENT_SHADOWBOLT:
-                    DoCastVictim(SPELL_SHADOWBOLT);
-                    events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3)*IN_MILLISECONDS);
-                    break;
-                case EVENT_FROST_TOMB:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true, -SPELL_FROST_TOMB))
+                    for (std::list<Creature*>::iterator itr = guards.begin(); itr != guards.end(); ++itr)
                     {
-                        Talk(SAY_FROST_TOMB);
-                        Talk(SAY_FROST_TOMB_EMOTE, target->GetGUID());
-
-                        DoCast(target, SPELL_FROST_TOMB_STUN, true);
-                        // checked from sniffs - the player casts the spell
-                        target->CastSpell(target, SPELL_FROST_TOMB_SUMMON, true);
+                        if ((*itr)->IsAlive() && (*itr)->IsWithinLOSInMap(me))
+                            (*itr)->AI()->AttackStart(who);
                     }
-                    events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19)*IN_MILLISECONDS);
-                    break;
                 }
             }
 
-            DoMeleeAttackIfReady();
-        }
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
 
-        void SummonSkeletons()
+            void SetData(uint32 data, uint32 value) OVERRIDE
+            {
+                if (data == DATA_ON_THE_ROCKS)
+                    onTheRocks = value;
+            }
+
+            uint32 GetData(uint32 data) const OVERRIDE
+            {
+                if (data == DATA_ON_THE_ROCKS)
+                    return onTheRocks;
+
+                return 0;
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUMMON_SKELETONS:
+                            Talk(SAY_SUMMON_SKELETONS);
+                            SummonSkeletons();
+                            break;
+                        case EVENT_SHADOWBOLT:
+                            DoCastVictim(SPELL_SHADOWBOLT);
+                            events.ScheduleEvent(EVENT_SHADOWBOLT, urand(2, 3) * IN_MILLISECONDS);
+                            break;
+                        case EVENT_FROST_TOMB:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_FROST_TOMB))
+                            {
+                                Talk(SAY_FROST_TOMB);
+                                Talk(SAY_FROST_TOMB_EMOTE, target->GetGUID());
+
+                                DoCast(target, SPELL_FROST_TOMB_STUN, true);
+                                // checked from sniffs - the player casts the spell
+                                target->CastSpell(target, SPELL_FROST_TOMB_SUMMON, true);
+                            }
+                            events.ScheduleEvent(EVENT_FROST_TOMB, urand(14, 19) * IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void SummonSkeletons()
+            {
+                // I could not found any spell casted for this
+                for (uint8 i = 0; i < 4; ++i)
+                    me->SummonCreature(NPC_SKELETON, SkeletonSpawnPoint[0][0], SkeletonSpawnPoint[0][1], SKELETONSPAWN_Z, 0);
+            }
+
+        private:
+            bool onTheRocks;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            // I could not found any spell casted for this
-            for (uint8 i = 0; i < 4; ++i)
-                me->SummonCreature(NPC_SKELETON, SkeletonSpawnPoint[0][0], SkeletonSpawnPoint[0][1], SKELETONSPAWN_Z, 0);
+            return GetUtgardeKeepAI<boss_kelesethAI>(creature);
         }
-    private:
-        bool onTheRocks;
-    };
 };
 
 class npc_vrykul_skeleton : public CreatureScript
 {
-public:
-    npc_vrykul_skeleton() : CreatureScript("npc_vrykul_skeleton") {}
+    public:
+        npc_vrykul_skeleton() : CreatureScript("npc_vrykul_skeleton") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_vrykul_skeletonAI(creature);
-    }
-
-    struct npc_vrykul_skeletonAI : public ScriptedAI
-    {
-        npc_vrykul_skeletonAI(Creature* creature) : ScriptedAI(creature) {}
-
-        void Reset() OVERRIDE
+        struct npc_vrykul_skeletonAI : public ScriptedAI
         {
-            events.Reset();
-            events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6)*IN_MILLISECONDS);
+            npc_vrykul_skeletonAI(Creature* creature) : ScriptedAI(creature) { }
 
-        }
-
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
-        {
-            if (damage >= me->GetHealth())
+            void Reset() OVERRIDE
             {
-                damage = 0;
+                events.Reset();
+                events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
+            }
 
-                // There are some issues with pets
-                // they will still attack. I would say it is a PetAI bug
+            void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
+            {
+                if (damage >= me->GetHealth())
+                {
+                    damage = 0;
+
+                    // There are some issues with pets
+                    // they will still attack. I would say it is a PetAI bug
+                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    {
+                        // from sniffs
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+
+                        events.Reset();
+                        events.ScheduleEvent(EVENT_RESURRECT, urand(18, 22) * IN_MILLISECONDS);
+
+                        me->GetMotionMaster()->MovementExpired(false);
+                        me->GetMotionMaster()->MoveIdle();
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_DECREPIFY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_DECREPIFY))
+                                DoCast(target, SPELL_DECREPIFY);
+                            events.ScheduleEvent(EVENT_DECREPIFY, urand(1, 5)*IN_MILLISECONDS);
+                            break;
+                        case EVENT_RESURRECT:
+                            events.ScheduleEvent(EVENT_FULL_HEAL, 1 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SHADOW_FISSURE, 1 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_FULL_HEAL:
+                            DoCast(me, SPELL_FULL_HEAL, true);
+                            break;
+                        case EVENT_SHADOW_FISSURE:
+                            DoCast(me, SPELL_SHADOW_FISSURE, true);
+                            DoCastAOE(SPELL_BONE_ARMOR, true);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                {
-                    // from sniffs
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
-
-                    events.Reset();
-                    events.ScheduleEvent(EVENT_RESURRECT, urand(18, 22)*IN_MILLISECONDS);
-
-                    me->GetMotionMaster()->MovementExpired(false);
-                    me->GetMotionMaster()->MoveIdle();
-                }
+                    DoMeleeAttackIfReady();
             }
-        }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        private:
+            EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_DECREPIFY:
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_DECREPIFY), SPELL_DECREPIFY);
-                        events.ScheduleEvent(EVENT_DECREPIFY, urand(1, 5)*IN_MILLISECONDS);
-                        break;
-                    case EVENT_RESURRECT:
-                        events.ScheduleEvent(EVENT_FULL_HEAL, 1*IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 1*IN_MILLISECONDS);
-                        break;
-                    case EVENT_FULL_HEAL:
-                        DoCast(me, SPELL_FULL_HEAL, true);
-                        break;
-                    case EVENT_SHADOW_FISSURE:
-                        DoCast(me, SPELL_SHADOW_FISSURE, true);
-                        if (TempSummon* temp = me->ToTempSummon())
-                        {
-                            if (Unit* summoner = temp->GetSummoner())
-                            {
-                                DoCast(summoner, SPELL_BONE_ARMOR);
-                            }
-                        }
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
-                        events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6)*IN_MILLISECONDS);
-                        break;
-                }
-            }
-
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                DoMeleeAttackIfReady();
+            return GetUtgardeKeepAI<npc_vrykul_skeletonAI>(creature);
         }
-
-    private:
-        EventMap events;
-    };
 };
 
 class spell_frost_tomb : public SpellScriptLoader
@@ -347,12 +326,14 @@ class spell_frost_tomb : public SpellScriptLoader
         class spell_frost_tomb_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_frost_tomb_AuraScript);
+
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
                     if (Unit* caster = GetCaster())
-                        if (caster->ToCreature() && caster->IsAlive())
-                            caster->ToCreature()->DespawnOrUnsummon(1000);
+                        if (caster->IsAlive())
+                            if (Creature* creature = caster->ToCreature())
+                                creature->DespawnOrUnsummon(1000);
             }
 
             void Register() OVERRIDE

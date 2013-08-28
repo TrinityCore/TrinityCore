@@ -6698,8 +6698,8 @@ void ObjectMgr::LoadReputationRewardRate()
 
     _repRewardRateStore.clear();                             // for reload case
 
-    uint32 count = 0; //                                0          1             2                  3                  4                 5             6
-    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, creature_rate, spell_rate FROM reputation_reward_rate");
+    uint32 count = 0; //                                0          1             2                  3                  4                 5                      6             7
+    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
     if (!result)
     {
         TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, ">> Loaded `reputation_reward_rate`, table is empty!");
@@ -6718,8 +6718,9 @@ void ObjectMgr::LoadReputationRewardRate()
         repRate.questDailyRate      = fields[2].GetFloat();
         repRate.questWeeklyRate     = fields[3].GetFloat();
         repRate.questMonthlyRate    = fields[4].GetFloat();
-        repRate.creatureRate        = fields[5].GetFloat();
-        repRate.spellRate           = fields[6].GetFloat();
+        repRate.questRepeatableRate = fields[5].GetFloat();
+        repRate.creatureRate        = fields[6].GetFloat();
+        repRate.spellRate           = fields[7].GetFloat();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
         if (!factionEntry)
@@ -6749,6 +6750,12 @@ void ObjectMgr::LoadReputationRewardRate()
         if (repRate.questMonthlyRate < 0.0f)
         {
             TC_LOG_ERROR(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_monthly_rate with invalid rate %f, skipping data for faction %u", repRate.questMonthlyRate, factionId);
+            continue;
+        }
+
+        if (repRate.questRepeatableRate < 0.0f)
+        {
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_repeatable_rate with invalid rate %f, skipping data for faction %u", repRate.questRepeatableRate, factionId);
             continue;
         }
 
