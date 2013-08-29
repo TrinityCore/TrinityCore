@@ -117,30 +117,27 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         RequiredItemCount[i] = questRecord[111+i].GetUInt16();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredSpellCast[i] = questRecord[117+i].GetUInt32();
-
-    // int8 Unknown0 = questRecord[121].GetUInt8();
+    // int8 Unknown0 = questRecord[117].GetUInt8();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        ObjectiveText[i] = questRecord[122+i].GetString();
+        ObjectiveText[i] = questRecord[118+i].GetString();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        DetailsEmote[i] = questRecord[126+i].GetUInt16();
+        DetailsEmote[i] = questRecord[122+i].GetUInt16();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        DetailsEmoteDelay[i] = questRecord[130+i].GetUInt32();
+        DetailsEmoteDelay[i] = questRecord[126+i].GetUInt32();
 
-    EmoteOnIncomplete = questRecord[134].GetUInt16();
-    EmoteOnComplete = questRecord[135].GetUInt16();
-
-    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        OfferRewardEmote[i] = questRecord[136+i].GetInt16();
+    EmoteOnIncomplete = questRecord[130].GetUInt16();
+    EmoteOnComplete = questRecord[131].GetUInt16();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        OfferRewardEmoteDelay[i] = questRecord[140+i].GetInt32();
+        OfferRewardEmote[i] = questRecord[132+i].GetInt16();
 
-    //int32 WDBVerified = questRecord[144].GetInt32();
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+        OfferRewardEmoteDelay[i] = questRecord[136+i].GetInt32();
+
+    //int32 WDBVerified = questRecord[140].GetInt32();
 
     Flags |= SpecialFlags << 20;
     if (Flags & QUEST_TRINITY_FLAGS_AUTO_ACCEPT)
