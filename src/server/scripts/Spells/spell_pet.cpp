@@ -536,7 +536,6 @@ public:
     }
 };
 
-
 class spell_warl_pet_scaling_04 : public SpellScriptLoader
 {
 public:
@@ -812,7 +811,6 @@ public:
         return new spell_warl_pet_passive_voidwalker_AuraScript();
     }
 };
-
 
 class spell_sha_pet_scaling_04 : public SpellScriptLoader
 {
@@ -1347,24 +1345,6 @@ public:
                 return;
             if (GetCaster()->GetOwner()->ToPlayer())
             {
-                //  Pet's base damage changes depending on happiness
-                if (GetCaster()->IsPet() && GetCaster()->ToPet()->IsHunterPet())
-                {
-                    switch (GetCaster()->ToPet()->GetHappinessState())
-                    {
-                    case HAPPY:
-                        // 125% of normal damage
-                        amount += 25.0f;
-                        break;
-                    case CONTENT:
-                        // 100% of normal damage, nothing to modify
-                        break;
-                    case UNHAPPY:
-                        // 75% of normal damage
-                        amount += -25.0f;
-                        break;
-                    }
-                }
                 // Cobra Reflexes
                 if (AuraEffect* cobraReflexes = GetCaster()->GetAuraEffectOfRankedSpell(61682, EFFECT_0))
                     amount -= cobraReflexes->GetAmount();
@@ -1423,7 +1403,6 @@ public:
         return new spell_hun_animal_handler_AuraScript();
     }
 };
-
 
 class spell_dk_avoidance_passive : public SpellScriptLoader
 {

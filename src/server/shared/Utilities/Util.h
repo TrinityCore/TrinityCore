@@ -67,7 +67,7 @@ private:
 
 void stripLineInvisibleChars(std::string &src);
 
-int32 MoneyStringToMoney(const std::string& moneyString);
+int64 MoneyStringToMoney(const std::string& moneyString);
 
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);

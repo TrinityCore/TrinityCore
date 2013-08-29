@@ -121,7 +121,7 @@ class instance_ramparts : public InstanceMapScript
                 bool spawned;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_ramparts_InstanceMapScript(map);
         }

@@ -53,6 +53,11 @@ class CreatureTextBuilder
             *data << uint32(text.length() + 1);
             *data << text;
             *data << uint8(0);                                       // ChatTag
+            if (_msgType == CHAT_MSG_RAID_BOSS_EMOTE || _msgType == CHAT_MSG_RAID_BOSS_WHISPER)
+            {
+                *data << float(0);
+                *data << uint8(0);
+            }
 
             return whisperGUIDpos;
         }
@@ -93,7 +98,11 @@ class PlayerTextBuilder
             *data << uint32(text.length() + 1);
             *data << text;
             *data << uint8(0);                                       // ChatTag
-
+            if (_msgType == CHAT_MSG_RAID_BOSS_EMOTE || _msgType == CHAT_MSG_RAID_BOSS_WHISPER)
+            {
+                *data << float(0);
+                *data << uint8(0);
+            }
             return whisperGUIDpos;
         }
 
@@ -344,6 +353,7 @@ void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType,
 
     WorldPacket data(SMSG_PLAY_SOUND, 4);
     data << uint32(sound);
+    data << uint64(source->GetGUID());
     SendNonChatPacket(source, &data, msgType, whisperGuid, range, team, gmOnly);
 }
 

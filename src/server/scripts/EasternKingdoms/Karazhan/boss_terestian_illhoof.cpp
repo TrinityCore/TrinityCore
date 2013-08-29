@@ -64,7 +64,6 @@ enum Creatures
     NPC_KILREK                  = 17229
 };
 
-
 class npc_kilrek : public CreatureScript
 {
 public:

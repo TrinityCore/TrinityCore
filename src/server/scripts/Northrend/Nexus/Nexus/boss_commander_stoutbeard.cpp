@@ -35,7 +35,6 @@ enum CommanderStoutbeard
     SPELL_WHIRLWIND_2               = 38618
 };
 
-
 class boss_commander_stoutbeard : public CreatureScript
 {
 public:

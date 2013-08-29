@@ -17,8 +17,6 @@ set(scripts_STAT_SRCS
   OutdoorPvP/OutdoorPvPNA.cpp
   OutdoorPvP/OutdoorPvPHP.cpp
   OutdoorPvP/OutdoorPvPTF.h
-  OutdoorPvP/OutdoorPvPEP.h
-  OutdoorPvP/OutdoorPvPEP.cpp
   OutdoorPvP/OutdoorPvPHP.h
   OutdoorPvP/OutdoorPvPZM.h
   OutdoorPvP/OutdoorPvPNA.h
