@@ -34,6 +34,7 @@
 #include "SmartScript.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+#include "GameEventMgr.h"
 
 class TrinityStringTextBuilder
 {
@@ -2114,6 +2115,28 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         (*itr)->ToUnit()->SetPower(Powers(e.action.power.powerType), (*itr)->ToUnit()->GetPower(Powers(e.action.power.powerType)) - e.action.power.newPower);
 
             delete targets;
+            break;
+        }
+        case SMART_ACTION_GAME_EVENT_STOP:
+        {
+            uint32 eventId = e.action.gameEventStop.id;
+            if (!sGameEventMgr->IsActiveEvent(eventId))
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript::ProcessAction: At case SMART_ACTION_GAME_EVENT_STOP, inactive event (id: %u)", eventId);
+                return;
+            }
+            sGameEventMgr->StopEvent(eventId, true);
+            break;
+        }
+        case SMART_ACTION_GAME_EVENT_START:
+        {
+            uint32 eventId = e.action.gameEventStart.id;
+            if (sGameEventMgr->IsActiveEvent(eventId))
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript::ProcessAction: At case SMART_ACTION_GAME_EVENT_START, already activated event (id: %u)", eventId);
+                return;
+            }
+            sGameEventMgr->StartEvent(eventId, true);
             break;
         }
         default:
