@@ -312,7 +312,7 @@ void SmartAI::UpdatePath(const uint32 diff)
             mWPReached = false;
         }
     }
-    if (me->IsInCombat() || HasEscortState(SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
+    if ((!me->HasReactState(REACT_PASSIVE) && me->IsInCombat()) || HasEscortState(SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
         return;
     // handle next wp
     if (mWPReached)//reached WP

@@ -470,10 +470,9 @@ enum BaseModGroup
 enum BaseModType
 {
     FLAT_MOD,
-    PCT_MOD
+    PCT_MOD,
+    MOD_END
 };
-
-#define MOD_END (PCT_MOD+1)
 
 enum DeathState
 {
@@ -871,15 +870,11 @@ public:
 class HealInfo
 {
 private:
-    Unit* const m_healer;
-    Unit* const m_target;
     uint32 m_heal;
     uint32 m_absorb;
-    SpellInfo const* const m_spellInfo;
-    SpellSchoolMask const m_schoolMask;
 public:
-    explicit HealInfo(Unit* _healer, Unit* _target, uint32 _heal, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask)
-        : m_healer(_healer), m_target(_target), m_heal(_heal), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask)
+    explicit HealInfo(uint32 heal)
+        : m_heal(heal)
     {
         m_absorb = 0;
     }

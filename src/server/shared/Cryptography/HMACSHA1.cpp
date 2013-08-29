@@ -36,6 +36,11 @@ void HmacHash::UpdateData(const std::string &str)
     HMAC_Update(&m_ctx, (uint8 const*)str.c_str(), str.length());
 }
 
+void HmacHash::UpdateData(const uint8* data, size_t len)
+{
+    HMAC_Update(&m_ctx, data, len);
+}
+
 void HmacHash::Finalize()
 {
     uint32 length = 0;

@@ -836,8 +836,6 @@ class npc_halion_controller : public CreatureScript
                         _twilightDamageTaken = 0;
                         return;
                     }
-                    default:
-                        break;
                 }
 
                 _materialDamageTaken = 0;
@@ -883,8 +881,6 @@ class npc_halion_controller : public CreatureScript
             EventMap _events;
             InstanceScript* _instance;
             SummonList _summons;
-
-            bool _corporealityCheck;
 
             uint32 _twilightDamageTaken;
             uint32 _materialDamageTaken;

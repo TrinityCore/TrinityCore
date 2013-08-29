@@ -3725,16 +3725,12 @@ void ObjectMgr::LoadQuests()
         "RequiredNpcOrGo1, RequiredNpcOrGo2, RequiredNpcOrGo3, RequiredNpcOrGo4, RequiredNpcOrGoCount1, RequiredNpcOrGoCount2, RequiredNpcOrGoCount3, RequiredNpcOrGoCount4, "
         //          97                     98                     99                   100                        101                         102                        103                        104
         "RequiredSourceItemId1, RequiredSourceItemId2, RequiredSourceItemId3, RequiredSourceItemId4, RequiredSourceItemCount1, RequiredSourceItemCount2, RequiredSourceItemCount3, RequiredSourceItemCount4, "
-        //       105               106             107             108              109             110                 111                   112                   113                  114                   115                   116
+        //       105               106             107             108              109             110                 111                  112                113                114                115                  116
         "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-        //        117                 118                 119                120             121          122            123              124            125
-        "RequiredSpellCast1, RequiredSpellCast2, RequiredSpellCast3, RequiredSpellCast4, Unknown0, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, "
-        //     126            127            128            129              130                  131                132                 133                134              135
-        "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
-        //      136                 137                 138               139                  140                     141                     142                      143
-        "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, "
-        //    144
-        "WDBVerified"
+        //  117          118             119             120             121          122            123              124            125               126                 127                 128                 129
+        "Unknown0, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, "
+        //     130                 131               132               133                 134                 135                136                      137                       138                    139                140
+        "EmoteOnIncomplete, EmoteOnComplete, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, WDBVerified"
         " FROM quest_template");
     if (!result)
     {
@@ -4059,52 +4055,6 @@ void ObjectMgr::LoadQuests()
                     TC_LOG_ERROR(LOG_FILTER_SQL, "Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
                         qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemCount[j]);
                     // no changes, quest ignore this data
-                }
-            }
-        }
-
-        for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
-        {
-            uint32 id = qinfo->RequiredSpellCast[j];
-            if (id)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
-                if (!spellInfo)
-                {
-                    TC_LOG_ERROR(LOG_FILTER_SQL, "Quest %u has `ReqSpellCast%d` = %u but spell %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, id);
-                    continue;
-                }
-
-                if (!qinfo->RequiredNpcOrGo[j])
-                {
-                    bool found = false;
-                    for (uint8 k = 0; k < MAX_SPELL_EFFECTS; ++k)
-                    {
-                        if ((spellInfo->Effects[k].Effect == SPELL_EFFECT_QUEST_COMPLETE && uint32(spellInfo->Effects[k].MiscValue) == qinfo->Id) ||
-                            spellInfo->Effects[k].Effect == SPELL_EFFECT_SEND_EVENT)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found)
-                    {
-                        if (!qinfo->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
-                        {
-                            TC_LOG_ERROR(LOG_FILTER_SQL, "Spell (id: %u) have SPELL_EFFECT_QUEST_COMPLETE or SPELL_EFFECT_SEND_EVENT for quest %u and RequiredNpcOrGo%d = 0, but quest not have flag QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT. Quest flags or RequiredNpcOrGo%d must be fixed, quest modified to enable objective.", spellInfo->Id, qinfo->Id, j+1, j+1);
-
-                            // this will prevent quest completing without objective
-                            const_cast<Quest*>(qinfo)->SetFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT);
-                        }
-                    }
-                    else
-                    {
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "Quest %u has `ReqSpellCast%d` = %u and RequiredNpcOrGo%d = 0 but spell %u does not have SPELL_EFFECT_QUEST_COMPLETE or SPELL_EFFECT_SEND_EVENT effect for this quest, quest can't be done.",
-                            qinfo->GetQuestId(), j+1, id, j+1, id);
-                        // no changes, quest can't be done for this requirement
-                    }
                 }
             }
         }
@@ -6631,17 +6581,20 @@ void ObjectMgr::LoadPetNumber()
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
 {
-    StringVector & list0 = _petHalfName0[entry];
-    StringVector & list1 = _petHalfName1[entry];
+    StringVector& list0 = _petHalfName0[entry];
+    StringVector& list1 = _petHalfName1[entry];
 
     if (list0.empty() || list1.empty())
     {
         CreatureTemplate const* cinfo = GetCreatureTemplate(entry);
-        char* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
-        if (!petname)
-            return cinfo->Name;
+        if (!cinfo)
+            return std::string();
 
-        return std::string(petname);
+        char* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        if (petname)
+            return std::string(petname);
+        else
+            return cinfo->Name;
     }
 
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));
@@ -6696,8 +6649,8 @@ void ObjectMgr::LoadReputationRewardRate()
 
     _repRewardRateStore.clear();                             // for reload case
 
-    uint32 count = 0; //                                0          1             2                  3                  4                 5             6
-    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, creature_rate, spell_rate FROM reputation_reward_rate");
+    uint32 count = 0; //                                0          1             2                  3                  4                 5                      6             7
+    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
     if (!result)
     {
         TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, ">> Loaded `reputation_reward_rate`, table is empty!");
@@ -6716,8 +6669,9 @@ void ObjectMgr::LoadReputationRewardRate()
         repRate.questDailyRate      = fields[2].GetFloat();
         repRate.questWeeklyRate     = fields[3].GetFloat();
         repRate.questMonthlyRate    = fields[4].GetFloat();
-        repRate.creatureRate        = fields[5].GetFloat();
-        repRate.spellRate           = fields[6].GetFloat();
+        repRate.questRepeatableRate = fields[5].GetFloat();
+        repRate.creatureRate        = fields[6].GetFloat();
+        repRate.spellRate           = fields[7].GetFloat();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
         if (!factionEntry)
@@ -6747,6 +6701,12 @@ void ObjectMgr::LoadReputationRewardRate()
         if (repRate.questMonthlyRate < 0.0f)
         {
             TC_LOG_ERROR(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_monthly_rate with invalid rate %f, skipping data for faction %u", repRate.questMonthlyRate, factionId);
+            continue;
+        }
+
+        if (repRate.questRepeatableRate < 0.0f)
+        {
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_repeatable_rate with invalid rate %f, skipping data for faction %u", repRate.questRepeatableRate, factionId);
             continue;
         }
 
