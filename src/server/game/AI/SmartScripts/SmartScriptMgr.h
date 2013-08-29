@@ -501,8 +501,10 @@ enum SMART_ACTION
     SMART_ACTION_SET_POWER                          = 108,    // PowerType, newPower
     SMART_ACTION_ADD_POWER                          = 109,    // PowerType, newPower
     SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
+    SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
+    SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
 
-    SMART_ACTION_END                                = 111
+    SMART_ACTION_END                                = 113
 };
 
 struct SmartAction
@@ -955,6 +957,16 @@ struct SmartAction
             uint32 powerType;
             uint32 newPower;
         } power;
+
+        struct
+        {
+            uint32 id;
+        } gameEventStop;
+
+        struct
+        {
+            uint32 id;
+        } gameEventStart;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
