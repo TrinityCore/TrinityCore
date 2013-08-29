@@ -118,7 +118,8 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
     timeLastWhoCommand(0),
-    _RBACData(NULL)
+    _RBACData(NULL),
+    AntiDOS(this)
 {
     if (sock)
     {
@@ -274,13 +275,19 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
-        if (packet->GetOpcode() >= NUM_MSG_TYPES)
+        if (!AntiDOS.EvaluateOpcode(*packet))
+        {
+            delete packet;
+            KickPlayer();
+        }
+
+        if (packet && packet->GetOpcode() >= NUM_MSG_TYPES)
         {
             TC_LOG_ERROR(LOG_FILTER_OPCODES, "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
             sScriptMgr->OnUnknownPacketReceive(m_Socket, WorldPacket(*packet));
         }
-        else
+        else if (packet)
         {
             OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
             try
@@ -547,6 +554,7 @@ void WorldSession::LogoutPlayer(bool save)
     m_playerLogout = false;
     m_playerSave = false;
     m_playerRecentlyLogout = true;
+    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
     LogoutRequest(0);
 }
 
