@@ -3552,18 +3552,16 @@ void ObjectMgr::LoadQuests()
         "RequiredSourceItemId1, RequiredSourceItemId2, RequiredSourceItemId3, RequiredSourceItemId4, RequiredSourceItemCount1, RequiredSourceItemCount2, RequiredSourceItemCount3, RequiredSourceItemCount4, "
         //       111               112             113             114              115             116                 117                   118               119               120                 121                 122
         "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-        //      123         124             125             126             127             128                 129                 130                 131             132                     133                 134                 136
+        //      123         124             125             126             127             128                 129                 130                 131             132                     133                 134                 135
         "RequiredSpell, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,  RewardCurrencyId1, RewardCurrencyId2, RewardCurrencyId3, RewardCurrencyId4, RewardCurrencyCount1, RewardCurrencyCount2, RewardCurrencyCount3, RewardCurrencyCount4, "
-        //      137                  138                 139                   140                    141                    142                     143                   144
+        //      136                  137                 138                   139                    140                    141                     142                   143
         "RequiredCurrencyId1, RequiredCurrencyId2, RequiredCurrencyId3, RequiredCurrencyId4, RequiredCurrencyCount1, RequiredCurrencyCount2, RequiredCurrencyCount3, RequiredCurrencyCount4, "
-        //      145                  146                 147                   148               149          150
+        //      144                  145                 146                   147               148          149
         "QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, SoundAccept, SoundTurnIn, "
-        //      151          152            153            154               155                156                  157                  158                159             160
+        //      150          151            152            153               154                155                  156                  157                158             159
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
-        //      161                 162               163                164                   165                       166                     167                  168
-        "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, "
-        //    169
-        "WDBVerified"
+        //      160                 161               162                163                   164                       165                     166                  167               168
+        "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, WDBVerified"
         " FROM quest_template");
     if (!result)
     {
