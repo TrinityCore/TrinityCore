@@ -30,6 +30,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
+#include "AccountMgr.h"
 
 class Creature;
 class GameObject;
@@ -910,6 +911,82 @@ class WorldSession
         QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture _charLoginCallback;
+
+    friend class World;
+    protected:
+        class DosProtection
+        {
+            friend class World;
+            public:
+                DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) {}
+
+                bool EvaluateOpcode(WorldPacket& p) const
+                {
+                    if (IsOpcodeAllowed(p.GetOpcode()))
+                        return true;
+
+                    // Opcode not allowed, let the punishment begin
+                    sLog->outInfo(LOG_FILTER_NETWORKIO, "AntiDOS: Account %u, IP: %s, sent unacceptable packet (opc: %u, size: %u)",
+                        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), p.size());
+
+                    switch (_policy)
+                    {
+                        case POLICY_LOG:
+                            return true;
+                        case POLICY_KICK:
+                            sLog->outInfo(LOG_FILTER_NETWORKIO, "AntiDOS: Player kicked!");
+                            return false;
+                        case POLICY_BAN:
+                        {
+                            BanMode bm = (BanMode)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANMODE);
+                            int64 duration = (int64)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANDURATION); // in seconds
+                            std::string nameOrIp = "";
+                            switch (bm)
+                            {
+                                case BAN_ACCOUNT: (void)sAccountMgr->GetName(Session->GetAccountId(), nameOrIp); break;
+                                case BAN_IP: nameOrIp = Session->GetRemoteAddress(); break;
+                            }
+                            sWorld->BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
+                            sLog->outInfo(LOG_FILTER_NETWORKIO, "AntiDOS: Player automatically banned for "I64FMT" seconds.", duration);
+                            
+                            return false;
+                        }
+                        default: // invalid policy
+                            return true;
+                    }
+                }
+
+                void AllowOpcode(uint16 opcode, bool allow)
+                {
+                    _isOpcodeAllowed[opcode] = allow;
+                }
+
+            protected:
+                enum Policy
+                {
+                    POLICY_LOG,
+                    POLICY_KICK,
+                    POLICY_BAN,
+                };
+
+                bool IsOpcodeAllowed(uint16 opcode) const
+                {
+                    OpcodeStatusMap::const_iterator itr = _isOpcodeAllowed.find(opcode);
+                    if (itr == _isOpcodeAllowed.end())
+                        return true;    // No presence in the map indicates this is the first time the opcode was sent this session, so allow
+
+                    return itr->second;
+                }
+
+                WorldSession* Session;
+
+            private:
+                typedef UNORDERED_MAP<uint16, bool> OpcodeStatusMap;
+                OpcodeStatusMap _isOpcodeAllowed; // could be bool array, but wouldn't be practical for game versions with non-linear opcodes
+                Policy _policy;
+
+                
+        } AntiDOS;
 
     private:
         // private trade methods
