@@ -207,12 +207,7 @@ public:
             int32 creature = quest->RequiredNpcOrGo[i];
             uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
 
-            if (uint32 spell_id = quest->RequiredSpellCast[i])
-            {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, spell_id);
-            }
-            else if (creature > 0)
+            if (creature > 0)
             {
                 if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
                     for (uint16 z = 0; z < creaturecount; ++z)
