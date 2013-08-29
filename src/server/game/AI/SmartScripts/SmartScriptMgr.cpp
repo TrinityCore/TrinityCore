@@ -866,6 +866,44 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
             break;
+        case SMART_ACTION_GAME_EVENT_STOP:
+        {
+            uint32 eventId = e.action.gameEventStop.id;
+
+            GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+            if (eventId < 1 || eventId >= events.size())
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %u SourceType %u Event %u Action %u uses non-existent event, eventId %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.gameEventStop);
+                return false;
+            }
+
+            GameEventData const& eventData = events[eventId];
+            if (!eventData.isValid())
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %u SourceType %u Event %u Action %u uses non-existent event, eventId %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.gameEventStop);
+                return false;
+            }
+            break;
+        }
+        case SMART_ACTION_GAME_EVENT_START:
+        {
+            uint32 eventId = e.action.gameEventStart.id;
+
+            GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+            if (eventId < 1 || eventId >= events.size())
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %u SourceType %u Event %u Action %u uses non-existent event, eventId %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.gameEventStart);
+                return false;
+            }
+
+            GameEventData const& eventData = events[eventId];
+            if (!eventData.isValid())
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %u SourceType %u Event %u Action %u uses non-existent event, eventId %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.gameEventStart);
+                return false;
+            }
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
