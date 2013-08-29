@@ -1878,73 +1878,76 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
 enum BurstAtTheSeams
 {
-    BURST_AT_THE_SEAMS              = 52510, //Burst at the Seams
-    BURST_AT_THE_SEAMS_DMG          = 52508, //Damage spell
-    BURST_AT_THE_SEAMS_DMG_2        = 59580, //Abomination self damage spell
-    BURST_AT_THE_SEAMS_BONE         = 52516, //Burst at the Seams:Bone
-    BURST_AT_THE_SEAMS_MEAT         = 52520, //Explode Abomination:Meat
-    BURST_AT_THE_SEAMS_BMEAT        = 52523, //Explode Abomination:Bloody Meat
-    DRAKKARI_SKULLCRUSHER_CREDIT    = 52590, //Credit for Drakkari Skullcrusher
-    SUMMON_DRAKKARI_CHIEFTAIN       = 52616, //Summon Drakkari Chieftain
-    DRAKKARI_CHIEFTAINK_KILL_CREDIT = 52620, //Drakkari Chieftain Kill Credit
+    NPC_DRAKKARI_CHIEFTAINK                 = 29099,
+
+    QUEST_BURST_AT_THE_SEAMS                = 12690,
+
+    SPELL_BURST_AT_THE_SEAMS                = 52510, // Burst at the Seams
+    SPELL_BURST_AT_THE_SEAMS_DMG            = 52508, // Damage spell
+    SPELL_BURST_AT_THE_SEAMS_DMG_2          = 59580, // Abomination self damage spell
+    SPELL_BURST_AT_THE_SEAMS_BONE           = 52516, // Burst at the Seams:Bone
+    SPELL_BURST_AT_THE_SEAMS_MEAT           = 52520, // Explode Abomination:Meat
+    SPELL_BURST_AT_THE_SEAMS_BMEAT          = 52523, // Explode Abomination:Bloody Meat
+    SPELL_DRAKKARI_SKULLCRUSHER_CREDIT      = 52590, // Credit for Drakkari Skullcrusher
+    SPELL_SUMMON_DRAKKARI_CHIEFTAIN         = 52616, // Summon Drakkari Chieftain
+    SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT   = 52620  // Drakkari Chieftain Kill Credit
 };
 
 class spell_q12690_burst_at_the_seams : public SpellScriptLoader
 {
-
     public:
         spell_q12690_burst_at_the_seams() : SpellScriptLoader("spell_q12690_burst_at_the_seams") { }
+
         class spell_q12690_burst_at_the_seams_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q12690_burst_at_the_seams_SpellScript);
-            
-            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(BURST_AT_THE_SEAMS) || !sSpellMgr->GetSpellInfo(BURST_AT_THE_SEAMS_DMG) || !sSpellMgr->GetSpellInfo(BURST_AT_THE_SEAMS_DMG_2) || !sSpellMgr->GetSpellInfo(BURST_AT_THE_SEAMS_BONE) || !sSpellMgr->GetSpellInfo(BURST_AT_THE_SEAMS_MEAT) || !sSpellMgr->GetSpellInfo(BURST_AT_THE_SEAMS_BMEAT))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG_2)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BONE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_MEAT)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BMEAT))
                     return false;
                 return true;
             }
-            
+
             bool Load() OVERRIDE
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
-           
+
             void HandleKnockBack(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* abomination = GetCaster())
+                if (Unit* creature = GetHitCreature())
                 {
-                    if (Unit* creature = GetHitCreature())
+                    if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
                     {
-                        if(Unit* charmer = abomination->GetCharmerOrOwner())
+                        if (Player* player = charmer->ToPlayer())
                         {
-                            if (Player* player = charmer->ToPlayer())
+                            if (player->GetQuestStatus(QUEST_BURST_AT_THE_SEAMS) == QUEST_STATUS_INCOMPLETE)
                             {
-                                if (player->GetQuestStatus(12690) == QUEST_STATUS_INCOMPLETE)
-                                {
-                                    player->CastSpell(player, DRAKKARI_SKULLCRUSHER_CREDIT, true);
-                                    creature->CastSpell(creature,BURST_AT_THE_SEAMS_BONE);
-                                    creature->CastSpell(creature,BURST_AT_THE_SEAMS_MEAT);
-                                    creature->CastSpell(creature,BURST_AT_THE_SEAMS_BMEAT);
-                                    creature->CastSpell(creature,BURST_AT_THE_SEAMS_DMG);
-                                    creature->CastSpell(creature,BURST_AT_THE_SEAMS_DMG_2);
-                                    player->CastSpell(player, DRAKKARI_SKULLCRUSHER_CREDIT, true);
-                                    uint16 count = player->GetReqKillOrCastCurrentCount(12690 /*questid*/, 29099 /*creditid*/);
-                                    if (count % 20 == 0)
-                                        player->CastSpell(player, SUMMON_DRAKKARI_CHIEFTAIN, true);
-                                }
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_MEAT, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BMEAT, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG_2, true);
+
+                                player->CastSpell(player, SPELL_DRAKKARI_SKULLCRUSHER_CREDIT, true);
+                                uint16 count = player->GetReqKillOrCastCurrentCount(QUEST_BURST_AT_THE_SEAMS, NPC_DRAKKARI_CHIEFTAINK);
+                                if ((count % 20) == 0)
+                                    player->CastSpell(player, SPELL_SUMMON_DRAKKARI_CHIEFTAIN, true);
                             }
                         }
                     }
                 }
             }
-            
-            
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* abomination = GetCaster())
-                    if(abomination->IsAlive())
-                        abomination->ToCreature()->DespawnOrUnsummon(2*IN_MILLISECONDS);
+                GetCaster()->ToCreature()->DespawnOrUnsummon(2 * IN_MILLISECONDS);
             }
 
             void Register() OVERRIDE
