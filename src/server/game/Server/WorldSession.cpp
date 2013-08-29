@@ -278,6 +278,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (!AntiDOS.EvaluateOpcode(*packet))
         {
             delete packet;
+            packet = NULL;
             KickPlayer();
         }
 
