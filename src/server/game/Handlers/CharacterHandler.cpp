@@ -243,6 +243,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 {
+    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, false);
+
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
