@@ -21,6 +21,7 @@
 
 #include "SharedDefines.h"
 #include "WorldSession.h"
+#include "RBAC.h"
 
 #include <vector>
 
@@ -38,7 +39,7 @@ class ChatCommand
 {
     public:
         const char *       Name;
-        uint32             SecurityLevel;                   // function pointer required correct align (use uint32)
+        uint32             Permission;                   // function pointer required correct align (use uint32)
         bool               AllowConsole;
         bool (*Handler)(ChatHandler*, const char* args);
         std::string        Help;
@@ -129,7 +130,7 @@ class ChatHandler
         bool ShowHelpForCommand(ChatCommand* table, const char* cmd);
     protected:
         explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) {}      // for CLI subclass
-        static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
+        static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
 

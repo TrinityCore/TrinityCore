@@ -59,7 +59,7 @@ enum RBACPermissions
     RBAC_PERM_GAMEMASTER_COMMANDS                            = 9,
     RBAC_PERM_ADMINISTRATOR_COMMANDS                         = 10,
     RBAC_PERM_LOG_GM_TRADE                                   = 11,
-    // Free = 12
+    RBAC_PERM_CONSOLE_COMMANDS                               = 12, // Not pressent in DB
     RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES            = 13,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK         = 14,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK        = 15,

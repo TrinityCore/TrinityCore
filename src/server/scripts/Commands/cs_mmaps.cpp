@@ -45,17 +45,17 @@ public:
     {
         static ChatCommand mmapCommandTable[] =
         {
-            { "path",           SEC_ADMINISTRATOR,     false, &HandleMmapPathCommand,            "", NULL },
-            { "loc",            SEC_ADMINISTRATOR,     false, &HandleMmapLocCommand,             "", NULL },
-            { "loadedtiles",    SEC_ADMINISTRATOR,     false, &HandleMmapLoadedTilesCommand,     "", NULL },
-            { "stats",          SEC_ADMINISTRATOR,     false, &HandleMmapStatsCommand,           "", NULL },
-            { "testarea",       SEC_ADMINISTRATOR,     false, &HandleMmapTestArea,               "", NULL },
+            { "path",           RBAC_PERM_ADMINISTRATOR_COMMANDS,     false, &HandleMmapPathCommand,            "", NULL },
+            { "loc",            RBAC_PERM_ADMINISTRATOR_COMMANDS,     false, &HandleMmapLocCommand,             "", NULL },
+            { "loadedtiles",    RBAC_PERM_ADMINISTRATOR_COMMANDS,     false, &HandleMmapLoadedTilesCommand,     "", NULL },
+            { "stats",          RBAC_PERM_ADMINISTRATOR_COMMANDS,     false, &HandleMmapStatsCommand,           "", NULL },
+            { "testarea",       RBAC_PERM_ADMINISTRATOR_COMMANDS,     false, &HandleMmapTestArea,               "", NULL },
             { NULL,             0,                     false, NULL,                              "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "mmap",           SEC_ADMINISTRATOR,     true,  NULL,                 "", mmapCommandTable  },
+            { "mmap",           RBAC_PERM_ADMINISTRATOR_COMMANDS,     true,  NULL,                 "", mmapCommandTable  },
             { NULL,             0,                     false, NULL,                              "", NULL }
         };
         return commandTable;

@@ -41,42 +41,42 @@ public:
     {
         static ChatCommand lookupPlayerCommandTable[] =
         {
-            { "ip",             SEC_GAMEMASTER,     true,  &HandleLookupPlayerIpCommand,        "", NULL },
-            { "account",        SEC_GAMEMASTER,     true,  &HandleLookupPlayerAccountCommand,   "", NULL },
-            { "email",          SEC_GAMEMASTER,     true,  &HandleLookupPlayerEmailCommand,     "", NULL },
+            { "ip",             RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupPlayerIpCommand,        "", NULL },
+            { "account",        RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupPlayerAccountCommand,   "", NULL },
+            { "email",          RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupPlayerEmailCommand,     "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand lookupSpellCommandTable[] =
         {
-            { "id",             SEC_ADMINISTRATOR,  true,  &HandleLookupSpellIdCommand,         "", NULL },
-            { "",               SEC_ADMINISTRATOR,  true,  &HandleLookupSpellCommand,           "", NULL },
+            { "id",             RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupSpellIdCommand,         "", NULL },
+            { "",               RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupSpellCommand,           "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand lookupCommandTable[] =
         {
-            { "area",           SEC_MODERATOR,      true,  &HandleLookupAreaCommand,            "", NULL },
-            { "creature",       SEC_ADMINISTRATOR,  true,  &HandleLookupCreatureCommand,        "", NULL },
-            { "event",          SEC_GAMEMASTER,     true,  &HandleLookupEventCommand,           "", NULL },
-            { "faction",        SEC_ADMINISTRATOR,  true,  &HandleLookupFactionCommand,         "", NULL },
-            { "item",           SEC_ADMINISTRATOR,  true,  &HandleLookupItemCommand,            "", NULL },
-            { "itemset",        SEC_ADMINISTRATOR,  true,  &HandleLookupItemSetCommand,         "", NULL },
-            { "object",         SEC_ADMINISTRATOR,  true,  &HandleLookupObjectCommand,          "", NULL },
-            { "quest",          SEC_ADMINISTRATOR,  true,  &HandleLookupQuestCommand,           "", NULL },
-            { "player",         SEC_GAMEMASTER,     true,  NULL,                                "", lookupPlayerCommandTable },
-            { "skill",          SEC_ADMINISTRATOR,  true,  &HandleLookupSkillCommand,           "", NULL },
-            { "spell",          SEC_ADMINISTRATOR,  true,  NULL,                                "", lookupSpellCommandTable },
-            { "taxinode",       SEC_ADMINISTRATOR,  true,  &HandleLookupTaxiNodeCommand,        "", NULL },
-            { "tele",           SEC_MODERATOR,      true,  &HandleLookupTeleCommand,            "", NULL },
-            { "title",          SEC_GAMEMASTER,     true,  &HandleLookupTitleCommand,           "", NULL },
-            { "map",            SEC_ADMINISTRATOR,  true,  &HandleLookupMapCommand,             "", NULL },
+            { "area",           RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleLookupAreaCommand,            "", NULL },
+            { "creature",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupCreatureCommand,        "", NULL },
+            { "event",          RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupEventCommand,           "", NULL },
+            { "faction",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupFactionCommand,         "", NULL },
+            { "item",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupItemCommand,            "", NULL },
+            { "itemset",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupItemSetCommand,         "", NULL },
+            { "object",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupObjectCommand,          "", NULL },
+            { "quest",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupQuestCommand,           "", NULL },
+            { "player",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  NULL,                                "", lookupPlayerCommandTable },
+            { "skill",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupSkillCommand,           "", NULL },
+            { "spell",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  NULL,                                "", lookupSpellCommandTable },
+            { "taxinode",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupTaxiNodeCommand,        "", NULL },
+            { "tele",           RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleLookupTeleCommand,            "", NULL },
+            { "title",          RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupTitleCommand,           "", NULL },
+            { "map",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupMapCommand,             "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "lookup",         SEC_ADMINISTRATOR,  true,  NULL,                                "", lookupCommandTable },
+            { "lookup",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  NULL,                                "", lookupCommandTable },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         return commandTable;
