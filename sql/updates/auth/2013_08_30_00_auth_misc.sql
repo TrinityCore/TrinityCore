@@ -34,6 +34,7 @@ INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
 (4, 209),
 (4, 210),
 (4, 211),
+(4, 212),
 (4, 213),
 (4, 214),
 (4, 215),
