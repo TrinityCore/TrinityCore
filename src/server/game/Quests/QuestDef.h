@@ -160,14 +160,15 @@ enum QuestSpecialFlags
 {
     QUEST_SPECIAL_FLAGS_NONE                 = 0x000,
     // Trinity flags for set SpecialFlags in DB if required but used only at server
-    QUEST_SPECIAL_FLAGS_REPEATABLE           = 0x001,
-    QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT = 0x002, // if required area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script)
-    QUEST_SPECIAL_FLAGS_AUTO_ACCEPT          = 0x004, // quest is to be auto-accepted.
-    QUEST_SPECIAL_FLAGS_DF_QUEST             = 0x008, // quest is used by Dungeon Finder.
-    QUEST_SPECIAL_FLAGS_MONTHLY              = 0x010, // quest is reset at the begining of the month
+    QUEST_SPECIAL_FLAGS_REPEATABLE           = 0x001,   // Set by 1 in SpecialFlags from DB
+    QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT = 0x002,   // Set by 2 in SpecialFlags from DB (if required area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `FECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script)
+    QUEST_SPECIAL_FLAGS_AUTO_ACCEPT          = 0x004,   // Set by 4 in SpecialFlags in DB if the quest is to be auto-accepted.
+    QUEST_SPECIAL_FLAGS_DF_QUEST             = 0x008,   // Set by 8 in SpecialFlags in DB if the quest is used by Dungeon Finder.
+    QUEST_SPECIAL_FLAGS_MONTHLY              = 0x010,   // Set by 16 in SpecialFlags in DB if the quest is reset at the begining of the month
+    QUEST_SPECIAL_FLAGS_CAST                 = 0x020,   // Set by 32 in SpecialFlags in DB if the quest requires RequiredOrNpcGo killcredit but NOT kill (a spell cast)
     // room for more custom flags
 
-    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
+    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY | QUEST_SPECIAL_FLAGS_CAST,
 
     QUEST_SPECIAL_FLAGS_DELIVER              = 0x080,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x100,   // Internal flag computed only
@@ -286,7 +287,7 @@ class Quest
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return Flags & QUEST_FLAGS_DAILY; }
         bool   IsWeekly() const { return Flags & QUEST_FLAGS_WEEKLY; }
-        bool   IsMonthly() const { return Flags & QUEST_SPECIAL_FLAGS_MONTHLY; }
+        bool   IsMonthly() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_MONTHLY; }
         bool   IsSeasonal() const { return (ZoneOrSort == -QUEST_SORT_SEASONAL || ZoneOrSort == -QUEST_SORT_SPECIAL || ZoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || ZoneOrSort == -QUEST_SORT_MIDSUMMER || ZoneOrSort == -QUEST_SORT_BREWFEST || ZoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || ZoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
         bool   IsDailyOrWeekly() const { return Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
         bool   IsRaidQuest(Difficulty difficulty) const;
@@ -319,12 +320,12 @@ class Quest
         uint32 RequiredCurrencyId[QUEST_REQUIRED_CURRENCY_COUNT];
         uint32 RequiredCurrencyCount[QUEST_REQUIRED_CURRENCY_COUNT];
 
-        uint32 GetReqItemsCount() const { return m_reqItemsCount; }
-        uint32 GetReqCreatureOrGOcount() const { return m_reqNpcOrGoCount; }
-        uint32 GetRewChoiceItemsCount() const { return m_rewChoiceItemsCount; }
-        uint32 GetRewItemsCount() const { return m_rewItemsCount; }
-        uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
-        uint32 GetReqCurrencyCount() const { return m_reqCurrencyCount; }
+        uint32 GetReqItemsCount() const { return _reqItemsCount; }
+        uint32 GetReqCreatureOrGOcount() const { return _reqNpcOrGoCount; }
+        uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
+        uint32 GetRewItemsCount() const { return _rewItemsCount; }
+        uint32 GetRewCurrencyCount() const { return _rewCurrencyCount; }
+        uint32 GetReqCurrencyCount() const { return _reqCurrencyCount; }
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
 
@@ -335,12 +336,12 @@ class Quest
 
         // cached data
     private:
-        uint32 m_reqItemsCount;
-        uint32 m_reqNpcOrGoCount;
-        uint32 m_rewChoiceItemsCount;
-        uint32 m_rewItemsCount;
-        uint32 m_rewCurrencyCount;
-        uint32 m_reqCurrencyCount;
+        uint32 _reqItemsCount;
+        uint32 _reqNpcOrGoCount;
+        uint32 _rewChoiceItemsCount;
+        uint32 _rewItemsCount;
+        uint32 _rewCurrencyCount;
+        uint32 _reqCurrencyCount;
 
         // table data
     protected:

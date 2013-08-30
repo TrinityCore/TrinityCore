@@ -3627,12 +3627,12 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->Flags & QUEST_SPECIAL_FLAGS_MONTHLY)
+        if (qinfo->SpecialFlags & QUEST_SPECIAL_FLAGS_MONTHLY)
         {
-            if (!(qinfo->Flags & QUEST_SPECIAL_FLAGS_REPEATABLE))
+            if (!(qinfo->SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE))
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "Monthly quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
-                qinfo->Flags |= QUEST_SPECIAL_FLAGS_REPEATABLE;
+                qinfo->SpecialFlags |= QUEST_SPECIAL_FLAGS_REPEATABLE;
             }
         }
 
@@ -3699,13 +3699,13 @@ void ObjectMgr::LoadQuests()
         }
         // RequiredRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
         if (qinfo->RequiredRaces)
-            {
+        {
             if (!(qinfo->RequiredRaces & RACEMASK_ALL_PLAYABLE))
                 {
                     TC_LOG_ERROR(LOG_FILTER_SQL, "Quest %u does not contain any playable races in `RequiredRaces` (%u), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->RequiredRaces);
                     qinfo->RequiredRaces = 0;
                 }
-            }
+        }
         // RequiredSkillId, can be 0
         if (qinfo->RequiredSkillId)
         {
@@ -3917,7 +3917,7 @@ void ObjectMgr::LoadQuests()
             {
                 // In fact SpeakTo and Kill are quite same: either you can speak to mob:SpeakTo or you can't:Kill/Cast
 
-                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_SPEAKTO);
+                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO);
 
                 if (!qinfo->RequiredNpcOrGoCount[j])
                 {
