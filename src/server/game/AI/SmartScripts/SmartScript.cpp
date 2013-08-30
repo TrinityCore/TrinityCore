@@ -766,28 +766,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
         }
-        case SMART_ACTION_CALL_CASTEDCREATUREORGO:
-        {
-            if (!GetBaseObject())
-                break;
-
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                break;
-
-            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (IsPlayer((*itr)))
-                {
-                    (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.callCastedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.callCastedCreatureOrGO.spell);
-                    TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_CASTEDCREATUREORGO: Player %u, target %u, spell %u",
-                        (*itr)->GetGUIDLow(), e.action.callCastedCreatureOrGO.creature, e.action.callCastedCreatureOrGO.spell);
-                }
-            }
-
-            delete targets;
-            break;
-        }
         case SMART_ACTION_REMOVEAURASFROMSPELL:
         {
             ObjectList* targets = GetTargets(e, unit);

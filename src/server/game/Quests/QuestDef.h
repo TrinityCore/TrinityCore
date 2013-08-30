@@ -152,13 +152,14 @@ enum QuestFlags
     QUEST_TRINITY_FLAGS_AUTO_ACCEPT          = 0x00400000,  // Set by 4 in SpecialFlags in DB if the quest is to be auto-accepted.
     QUEST_TRINITY_FLAGS_DF_QUEST             = 0x00800000,  // Set by 8 in SpecialFlags in DB if the quest is used by Dungeon Finder.
     QUEST_TRINITY_FLAGS_MONTHLY              = 0x01000000,  // Set by 16 in SpecialFlags in DB if the quest is reset at the begining of the month
-
-    QUEST_TRINITY_FLAGS_DB_ALLOWED = 0xFFFFF | QUEST_TRINITY_FLAGS_REPEATABLE | QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT | QUEST_TRINITY_FLAGS_AUTO_ACCEPT | QUEST_TRINITY_FLAGS_DF_QUEST | QUEST_TRINITY_FLAGS_MONTHLY,
+    QUEST_TRINITY_FLAGS_CAST                 = 0x02000000,  // Set by 32 in SpecialFlags in DB if the quest requires RequiredOrNpcGo killcredit but NOT kill (a spell cast)
+    
+    QUEST_TRINITY_FLAGS_DB_ALLOWED = 0xFFFFF | QUEST_TRINITY_FLAGS_REPEATABLE | QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT | QUEST_TRINITY_FLAGS_AUTO_ACCEPT | QUEST_TRINITY_FLAGS_DF_QUEST | QUEST_TRINITY_FLAGS_MONTHLY | QUEST_TRINITY_FLAGS_CAST,
 
     // Trinity flags for internal use only
     QUEST_TRINITY_FLAGS_DELIVER              = 0x04000000,   // Internal flag computed only
     QUEST_TRINITY_FLAGS_SPEAKTO              = 0x08000000,   // Internal flag computed only
-    QUEST_TRINITY_FLAGS_KILL_OR_CAST         = 0x10000000,   // Internal flag computed only
+    QUEST_TRINITY_FLAGS_KILL                 = 0x10000000,   // Internal flag computed only
     QUEST_TRINITY_FLAGS_TIMED                = 0x20000000,   // Internal flag computed only
     QUEST_TRINITY_FLAGS_PLAYER_KILL          = 0x40000000    // Internal flag computed only
 };
