@@ -2860,7 +2860,7 @@ int LuaUnit::EquipItem(lua_State* L, Unit* unit)
     Item* item = sEluna->CHECK_ITEM(L, 1);
     uint32 slot = luaL_checkunsigned(L, 2);
 
-    if (slot >= EQUIPMENT_SLOT_END)
+    if (slot >= INVENTORY_SLOT_BAG_END)
         return 0;
 
     if (!item)
