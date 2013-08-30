@@ -72,7 +72,6 @@ Quest::Quest(Field* questRecord)
     RewardReputationMask = questRecord[46].GetUInt8();
     QuestGiverPortrait = questRecord[47].GetUInt32();
     QuestTurnInPortrait = questRecord[48].GetUInt32();
-
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         RewardItemId[i] = questRecord[49+i].GetUInt32();
 
@@ -168,37 +167,36 @@ Quest::Quest(Field* questRecord)
     if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
-    m_reqItemsCount = 0;
-    m_reqNpcOrGoCount = 0;
-    m_rewItemsCount = 0;
-    m_rewChoiceItemsCount = 0;
-    m_rewCurrencyCount = 0;
-    m_reqCurrencyCount = 0;
+    _reqItemsCount = 0;
+    _reqNpcOrGoCount = 0;
+    _rewItemsCount = 0;
+    _rewChoiceItemsCount = 0;
+    _rewCurrencyCount = 0;
+    _reqCurrencyCount = 0;
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         if (RequiredItemId[i])
-            ++m_reqItemsCount;
+            ++_reqItemsCount;
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         if (RequiredNpcOrGo[i])
-            ++m_reqNpcOrGoCount;
+            ++_reqNpcOrGoCount;
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         if (RewardItemId[i])
-            ++m_rewItemsCount;
+            ++_rewItemsCount;
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         if (RewardChoiceItemId[i])
-            ++m_rewChoiceItemsCount;
+            ++_rewChoiceItemsCount;
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         if (RewardCurrencyId[i])
-            ++m_rewCurrencyCount;
+            ++_rewCurrencyCount;
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
         if (RequiredCurrencyId[i])
-            ++m_reqCurrencyCount;
-
+            ++_reqCurrencyCount;
 }
 
 uint32 Quest::XPValue(Player* player) const
