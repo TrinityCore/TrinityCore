@@ -944,8 +944,6 @@ class WorldSession
                 typedef UNORDERED_MAP<uint16, bool> OpcodeStatusMap;
                 OpcodeStatusMap _isOpcodeAllowed; // could be bool array, but wouldn't be practical for game versions with non-linear opcodes
                 Policy _policy;
-
-                
         } AntiDOS;
 
     private:

@@ -99,6 +99,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
+    AntiDOS(this),
     _player(NULL),
     m_Socket(sock),
     _security(sec),
@@ -118,8 +119,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
     timeLastWhoCommand(0),
-    _RBACData(NULL),
-    AntiDOS(this)
+    _RBACData(NULL)
 {
     if (sock)
     {
@@ -1241,7 +1241,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p) const
         case POLICY_BAN:
         {
             BanMode bm = (BanMode)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANMODE);
-            uin32 duration = sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANDURATION); // in seconds
+            uint32 duration = sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANDURATION); // in seconds
             std::string nameOrIp = "";
             switch (bm)
             {
