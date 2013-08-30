@@ -55,10 +55,8 @@ enum Spells
     SPELL_GASEOUS_BLIGHT_LARGE              = 69157,
     SPELL_GASEOUS_BLIGHT_MEDIUM             = 69162,
     SPELL_GASEOUS_BLIGHT_SMALL              = 69164,
-    SPELL_MALLABLE_GOO_H                    = 70852,
-
-    // Rotface
-    SPELL_VILE_GAS_H                        = 69240,
+    SPELL_MALLEABLE_GOO_H                   = 72296,
+    SPELL_MALLEABLE_GOO_SUMMON              = 72299,
 
     // Professor Putricide
     SPELL_SLIME_PUDDLE_TRIGGER              = 70341,
@@ -122,7 +120,6 @@ enum Events
 
     // Rotface
     EVENT_ROTFACE_DIES          = 3,
-    EVENT_ROTFACE_VILE_GAS      = 4,
     EVENT_ROTFACE_OOZE_FLOOD    = 5,
 
     // Professor Putricide
@@ -305,6 +302,9 @@ class boss_professor_putricide : public CreatureScript
                 summons.Summon(summon);
                 switch (summon->GetEntry())
                 {
+                    case NPC_MALLEABLE_OOZE_STALKER:
+                        DoCast(summon, SPELL_MALLEABLE_GOO_H);
+                        return;
                     case NPC_GROWING_OOZE_PUDDLE:
                         summon->CastSpell(summon, SPELL_GROW_STACKER, true);
                         summon->CastSpell(summon, SPELL_SLIME_PUDDLE_AURA, true);
@@ -424,7 +424,7 @@ class boss_professor_putricide : public CreatureScript
                         me->SetReactState(REACT_PASSIVE);
                         DoZoneInCombat(me);
                         if (IsHeroic())
-                            events.ScheduleEvent(EVENT_FESTERGUT_GOO, urand(15000, 20000), 0, PHASE_FESTERGUT);
+                            events.ScheduleEvent(EVENT_FESTERGUT_GOO, urand(13000, 18000), 0, PHASE_FESTERGUT);
                         break;
                     case ACTION_FESTERGUT_GAS:
                         Talk(SAY_FESTERGUT_GASEOUS_BLIGHT);
@@ -441,8 +441,6 @@ class boss_professor_putricide : public CreatureScript
                         me->SetReactState(REACT_PASSIVE);
                         _oozeFloodStage = 0;
                         DoZoneInCombat(me);
-                        if (IsHeroic())
-                            events.ScheduleEvent(EVENT_ROTFACE_VILE_GAS, urand(15000, 20000), 0, PHASE_ROTFACE);
                         // init random sequence of floods
                         if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
                         {
@@ -582,18 +580,12 @@ class boss_professor_putricide : public CreatureScript
                             EnterEvadeMode();
                             break;
                         case EVENT_FESTERGUT_GOO:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                DoCast(target, SPELL_MALLABLE_GOO_H, true); // triggered, to skip LoS check
-                            events.ScheduleEvent(EVENT_FESTERGUT_GOO, urand(15000, 20000), 0, PHASE_FESTERGUT);
+                            me->CastCustomSpell(SPELL_MALLEABLE_GOO_SUMMON, SPELLVALUE_MAX_TARGETS, 1, NULL, true);
+                            events.ScheduleEvent(EVENT_FESTERGUT_GOO, (Is25ManRaid() ? 10000 : 30000) + urand(0, 5000), 0, PHASE_FESTERGUT);
                             break;
                         case EVENT_ROTFACE_DIES:
                             Talk(SAY_ROTFACE_DEATH);
                             EnterEvadeMode();
-                            break;
-                        case EVENT_ROTFACE_VILE_GAS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                DoCast(target, SPELL_VILE_GAS_H, true); // triggered, to skip LoS check
-                            events.ScheduleEvent(EVENT_ROTFACE_VILE_GAS, urand(15000, 20000), 0, PHASE_ROTFACE);
                             break;
                         case EVENT_ROTFACE_OOZE_FLOOD:
                             DoAction(ACTION_ROTFACE_OOZE);
