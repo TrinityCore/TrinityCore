@@ -206,15 +206,27 @@ class boss_festergut : public CreatureScript
                         }
                         case EVENT_VILE_GAS:
                         {
-                            std::list<Unit*> targets;
+                            std::list<Unit*> ranged, melee;
                             uint32 minTargets = RAID_MODE<uint32>(3, 8, 3, 8);
-                            SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, -5.0f, true);
-                            float minDist = 0.0f;
-                            if (targets.size() >= minTargets)
-                                minDist = -5.0f;
+                            SelectTargetList(ranged, 25, SELECT_TARGET_RANDOM, -5.0f, true);
+                            SelectTargetList(melee, 25, SELECT_TARGET_RANDOM, 5.0f, true);
+                            while (ranged.size() < minTargets)
+                            {
+                                if (melee.empty())
+                                    break;
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, minDist, true))
-                                DoCast(target, SPELL_VILE_GAS);
+                                Unit* target = Trinity::Containers::SelectRandomContainerElement(melee);
+                                ranged.push_back(target);
+                                melee.remove(target);
+                            }
+
+                            if (!ranged.empty())
+                            {
+                                Trinity::Containers::RandomResizeList(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
+                                for (std::list<Unit*>::iterator itr = ranged.begin(); itr != ranged.end(); ++itr)
+                                    DoCast(*itr, SPELL_VILE_GAS);
+                            }
+
                             events.ScheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
                         }
