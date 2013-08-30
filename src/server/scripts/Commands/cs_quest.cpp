@@ -208,16 +208,12 @@ public:
             uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
 
             if (creature > 0)
-            {
                 if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
                     for (uint16 z = 0; z < creaturecount; ++z)
                         player->KilledMonster(cInfo, 0);
-            }
             else if (creature < 0)
-            {
                 for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, 0);
-            }
+                    player->KillCreditGO(creature, 0);
         }
 
         // If the quest requires reputation to complete
