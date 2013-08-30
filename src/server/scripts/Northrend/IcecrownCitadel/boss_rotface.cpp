@@ -46,6 +46,7 @@ enum Spells
     // Rotface
     SPELL_SLIME_SPRAY                       = 69508,    // every 20 seconds
     SPELL_MUTATED_INFECTION                 = 69674,    // hastens every 1:30
+    SPELL_VILE_GAS_TRIGGER_SUMMON           = 72287,
 
     // Oozes
     SPELL_LITTLE_OOZE_COMBINE               = 69537,    // combine 2 Small Oozes
@@ -64,6 +65,10 @@ enum Spells
     SPELL_MORTAL_WOUND                      = 71127,
     SPELL_DECIMATE                          = 71123,
     SPELL_AWAKEN_PLAGUED_ZOMBIES            = 71159,
+
+    // Professor Putricide
+    SPELL_VILE_GAS_H                        = 72272,
+    SPELL_VILE_GAS_TRIGGER                  = 72285,
 };
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
@@ -74,13 +79,14 @@ enum Events
     EVENT_SLIME_SPRAY       = 1,
     EVENT_HASTEN_INFECTIONS = 2,
     EVENT_MUTATED_INFECTION = 3,
+    EVENT_VILE_GAS          = 4,
 
     // Precious
-    EVENT_DECIMATE          = 4,
-    EVENT_MORTAL_WOUND      = 5,
-    EVENT_SUMMON_ZOMBIES    = 6,
+    EVENT_DECIMATE          = 5,
+    EVENT_MORTAL_WOUND      = 6,
+    EVENT_SUMMON_ZOMBIES    = 7,
 
-    EVENT_STICKY_OOZE       = 7,
+    EVENT_STICKY_OOZE       = 8,
 };
 
 class boss_rotface : public CreatureScript
@@ -102,6 +108,9 @@ class boss_rotface : public CreatureScript
                 events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
                 events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90000);
                 events.ScheduleEvent(EVENT_MUTATED_INFECTION, 14000);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_VILE_GAS, urand(22000, 27000));
+
                 infectionStage = 0;
                 infectionCooldown = 14000;
             }
@@ -119,7 +128,9 @@ class boss_rotface : public CreatureScript
                 Talk(SAY_AGGRO);
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_COMBAT);
+
                 DoZoneInCombat();
+                DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
@@ -158,9 +169,15 @@ class boss_rotface : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* /*who*/) OVERRIDE
-
             {
                 // don't enter combat
+            }
+
+            void JustSummoned(Creature* summon) OVERRIDE
+            {
+                if (summon->GetEntry() == NPC_VILE_GAS_STALKER)
+                    if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                        professor->CastSpell(summon, SPELL_VILE_GAS_H, true);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -197,6 +214,10 @@ class boss_rotface : public CreatureScript
                             me->CastCustomSpell(SPELL_MUTATED_INFECTION, SPELLVALUE_MAX_TARGETS, 1, NULL, false);
                             events.ScheduleEvent(EVENT_MUTATED_INFECTION, infectionCooldown);
                             break;
+                        case EVENT_VILE_GAS:
+                            DoCastAOE(SPELL_VILE_GAS_TRIGGER);
+                            events.ScheduleEvent(EVENT_VILE_GAS, urand(30000, 35000));
+                            break;
                         default:
                             break;
                     }
@@ -231,6 +252,7 @@ class npc_little_ooze : public CreatureScript
             {
                 DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
                 DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
+                DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
                 me->AddThreat(summoner, 500000.0f);
             }
@@ -775,6 +797,71 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
         }
 };
 
+class spell_rotface_vile_gas_trigger : public SpellScriptLoader
+{
+    public:
+        spell_rotface_vile_gas_trigger() : SpellScriptLoader("spell_rotface_vile_gas_trigger") { }
+
+        class spell_rotface_vile_gas_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rotface_vile_gas_trigger_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                if (targets.empty())
+                    return;
+
+                std::list<WorldObject*> ranged, melee;
+                std::list<WorldObject*>::iterator itr = targets.begin();
+                while (itr != targets.end() && (*itr)->GetDistance(GetCaster()) < 5.0f)
+                {
+                    melee.push_back((*itr)->ToUnit());
+                    ++itr;
+                }
+
+                while (itr != targets.end())
+                {
+                    ranged.push_back((*itr)->ToUnit());
+                    ++itr;
+                }
+
+                uint32 minTargets = GetCaster()->GetMap()->Is25ManRaid() ? 8 : 3;
+                while (ranged.size() < minTargets)
+                {
+                    if (melee.empty())
+                        break;
+
+                    WorldObject* target = Trinity::Containers::SelectRandomContainerElement(melee);
+                    ranged.push_back(target);
+                    melee.remove(target);
+                }
+
+                if (!ranged.empty())
+                    Trinity::Containers::RandomResizeList(ranged, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
+
+                targets.swap(ranged);
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_VILE_GAS_TRIGGER_SUMMON);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_vile_gas_trigger_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_rotface_vile_gas_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rotface_vile_gas_trigger_SpellScript();
+        }
+};
+
 void AddSC_boss_rotface()
 {
     new boss_rotface();
@@ -789,4 +876,5 @@ void AddSC_boss_rotface()
     new spell_rotface_unstable_ooze_explosion_init();
     new spell_rotface_unstable_ooze_explosion();
     new spell_rotface_unstable_ooze_explosion_suicide();
+    new spell_rotface_vile_gas_trigger();
 }

@@ -1034,6 +1034,9 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             case 52349: // Overtake
                 unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
+            case 72299: // Malleable Goo Summon Trigger
+                unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
+                return;
         }
     }
 
