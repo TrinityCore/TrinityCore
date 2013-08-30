@@ -53,58 +53,58 @@ public:
     {
         static ChatCommand rbacGroupsCommandTable[] =
         {
-            {         "add", SEC_ADMINISTRATOR,  true, &HandleRBACGroupAddCommand,    "", NULL },
-            {      "remove", SEC_ADMINISTRATOR,  true, &HandleRBACGroupRemoveCommand, "", NULL },
-            {            "", SEC_ADMINISTRATOR,  true, &HandleRBACGroupListCommand,   "", NULL },
-            {          NULL, SEC_ADMINISTRATOR, false,                          NULL, "", NULL }
+            {         "add", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACGroupAddCommand,    "", NULL },
+            {      "remove", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACGroupRemoveCommand, "", NULL },
+            {            "", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACGroupListCommand,   "", NULL },
+            {          NULL, RBAC_PERM_ADMINISTRATOR_COMMANDS, false,                          NULL, "", NULL }
         };
 
         static ChatCommand rbacRolesCommandTable[] =
         {
-            {       "grant", SEC_ADMINISTRATOR,  true, &HandleRBACRoleGrantCommand,   "", NULL },
-            {        "deny", SEC_ADMINISTRATOR,  true, &HandleRBACRoleDenyCommand,    "", NULL },
-            {      "revoke", SEC_ADMINISTRATOR,  true, &HandleRBACRoleRevokeCommand,  "", NULL },
-            {            "", SEC_ADMINISTRATOR,  true, &HandleRBACRoleListCommand,    "", NULL },
-            {          NULL, SEC_ADMINISTRATOR, false,                          NULL, "", NULL }
+            {       "grant", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACRoleGrantCommand,   "", NULL },
+            {        "deny", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACRoleDenyCommand,    "", NULL },
+            {      "revoke", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACRoleRevokeCommand,  "", NULL },
+            {            "", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACRoleListCommand,    "", NULL },
+            {          NULL, RBAC_PERM_ADMINISTRATOR_COMMANDS, false,                          NULL, "", NULL }
         };
 
         static ChatCommand rbacPermsCommandTable[] =
         {
-            {       "grant", SEC_ADMINISTRATOR,  true, &HandleRBACPermGrantCommand,   "", NULL },
-            {        "deny", SEC_ADMINISTRATOR,  true, &HandleRBACPermDenyCommand,    "", NULL },
-            {      "revoke", SEC_ADMINISTRATOR,  true, &HandleRBACPermRevokeCommand,  "", NULL },
-            {            "", SEC_ADMINISTRATOR,  true, &HandleRBACPermListCommand,    "", NULL },
-            {          NULL, SEC_ADMINISTRATOR, false,                          NULL, "", NULL }
+            {       "grant", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACPermGrantCommand,   "", NULL },
+            {        "deny", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACPermDenyCommand,    "", NULL },
+            {      "revoke", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACPermRevokeCommand,  "", NULL },
+            {            "", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACPermListCommand,    "", NULL },
+            {          NULL, RBAC_PERM_ADMINISTRATOR_COMMANDS, false,                          NULL, "", NULL }
         };
 
         static ChatCommand rbacListCommandTable[] =
         {
-            {      "groups", SEC_ADMINISTRATOR,  true, &HandleRBACListGroupsCommand,      "", NULL },
-            {       "roles", SEC_ADMINISTRATOR,  true, &HandleRBACListRolesCommand,       "", NULL },
-            { "permissions", SEC_ADMINISTRATOR,  true, &HandleRBACListPermissionsCommand, "", NULL },
-            {          NULL, SEC_ADMINISTRATOR, false,                              NULL, "", NULL }
+            {      "groups", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACListGroupsCommand,      "", NULL },
+            {       "roles", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACListRolesCommand,       "", NULL },
+            { "permissions", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACListPermissionsCommand, "", NULL },
+            {          NULL, RBAC_PERM_ADMINISTRATOR_COMMANDS, false,                              NULL, "", NULL }
         };
 
         static ChatCommand rbacAccountCommandTable[] =
         {
-            {       "group", SEC_ADMINISTRATOR,  true, NULL, "", rbacGroupsCommandTable },
-            {        "role", SEC_ADMINISTRATOR,  true, NULL, "", rbacRolesCommandTable },
-            {  "permission", SEC_ADMINISTRATOR,  true, NULL, "", rbacPermsCommandTable },
-            {            "", SEC_ADMINISTRATOR,  true, &HandleRBACAccountPermissionCommand, "", NULL },
-            {          NULL, SEC_ADMINISTRATOR, false, NULL, "", NULL }
+            {       "group", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL, "", rbacGroupsCommandTable },
+            {        "role", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL, "", rbacRolesCommandTable },
+            {  "permission", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL, "", rbacPermsCommandTable },
+            {            "", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, &HandleRBACAccountPermissionCommand, "", NULL },
+            {          NULL, RBAC_PERM_ADMINISTRATOR_COMMANDS, false, NULL, "", NULL }
         };
 
         static ChatCommand rbacCommandTable[] =
         {
-            {    "account", SEC_ADMINISTRATOR,  true, NULL, "", rbacAccountCommandTable },
-            {       "list", SEC_ADMINISTRATOR,  true, NULL, "", rbacListCommandTable },
-            {         NULL, SEC_ADMINISTRATOR, false, NULL, "", NULL }
+            {    "account", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL, "", rbacAccountCommandTable },
+            {       "list", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL, "", rbacListCommandTable },
+            {         NULL, RBAC_PERM_ADMINISTRATOR_COMMANDS, false, NULL, "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            {       "rbac", SEC_ADMINISTRATOR,  true, NULL, "", rbacCommandTable },
-            {         NULL, SEC_ADMINISTRATOR, false, NULL, "", NULL }
+            {       "rbac", RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL, "", rbacCommandTable },
+            {         NULL, RBAC_PERM_ADMINISTRATOR_COMMANDS, false, NULL, "", NULL }
         };
 
         return commandTable;

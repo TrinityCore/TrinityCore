@@ -40,35 +40,35 @@ public:
     {
         static ChatCommand learnAllMyCommandTable[] =
         {
-            { "class",          SEC_ADMINISTRATOR,  false, &HandleLearnAllMyClassCommand,       "", NULL },
-            { "pettalents",     SEC_ADMINISTRATOR,  false, &HandleLearnAllMyPetTalentsCommand,  "", NULL },
-            { "spells",         SEC_ADMINISTRATOR,  false, &HandleLearnAllMySpellsCommand,      "", NULL },
-            { "talents",        SEC_ADMINISTRATOR,  false, &HandleLearnAllMyTalentsCommand,     "", NULL },
+            { "class",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMyClassCommand,       "", NULL },
+            { "pettalents",     RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMyPetTalentsCommand,  "", NULL },
+            { "spells",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMySpellsCommand,      "", NULL },
+            { "talents",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMyTalentsCommand,     "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand learnAllCommandTable[] =
         {
-            { "my",             SEC_ADMINISTRATOR,  false, NULL,                                "",  learnAllMyCommandTable },
-            { "gm",             SEC_GAMEMASTER,     false, &HandleLearnAllGMCommand,            "", NULL },
-            { "crafts",         SEC_GAMEMASTER,     false, &HandleLearnAllCraftsCommand,        "", NULL },
-            { "default",        SEC_MODERATOR,      false, &HandleLearnAllDefaultCommand,       "", NULL },
-            { "lang",           SEC_MODERATOR,      false, &HandleLearnAllLangCommand,          "", NULL },
-            { "recipes",        SEC_GAMEMASTER,     false, &HandleLearnAllRecipesCommand,       "", NULL },
+            { "my",             RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,                                "",  learnAllMyCommandTable },
+            { "gm",             RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleLearnAllGMCommand,            "", NULL },
+            { "crafts",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleLearnAllCraftsCommand,        "", NULL },
+            { "default",        RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleLearnAllDefaultCommand,       "", NULL },
+            { "lang",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleLearnAllLangCommand,          "", NULL },
+            { "recipes",        RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleLearnAllRecipesCommand,       "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand learnCommandTable[] =
         {
-            { "all",            SEC_ADMINISTRATOR,  false, NULL,                                "",  learnAllCommandTable },
-            { "",               SEC_ADMINISTRATOR,  false, &HandleLearnCommand,                 "", NULL },
+            { "all",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,                                "",  learnAllCommandTable },
+            { "",               RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnCommand,                 "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "learn",          SEC_MODERATOR,      false, NULL,                                "", learnCommandTable },
-            { "unlearn",        SEC_ADMINISTRATOR,  false, &HandleUnLearnCommand,               "", NULL },
+            { "learn",          RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,                                "", learnCommandTable },
+            { "unlearn",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleUnLearnCommand,               "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         return commandTable;

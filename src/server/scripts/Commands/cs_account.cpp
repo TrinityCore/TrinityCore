@@ -37,33 +37,33 @@ public:
     {
         static ChatCommand accountSetCommandTable[] =
         {
-            { "addon",          SEC_ADMINISTRATOR,  true,  &HandleAccountSetAddonCommand,     "", NULL },
-            { "gmlevel",        SEC_CONSOLE,        true,  &HandleAccountSetGmLevelCommand,   "", NULL },
-            { "password",       SEC_CONSOLE,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
+            { "addon",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleAccountSetAddonCommand,     "", NULL },
+            { "gmlevel",        RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleAccountSetGmLevelCommand,   "", NULL },
+            { "password",       RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                              "", NULL }
         };
         static ChatCommand accountLockCommandTable[] =
         {
-            { "country",        SEC_PLAYER,         true,  &HandleAccountLockCountryCommand,  "", NULL },
-            { "ip",             SEC_PLAYER,         true,  &HandleAccountLockIpCommand,       "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL },
+            { "country",        RBAC_PERM_PLAYER_COMMANDS,         true,  &HandleAccountLockCountryCommand,  "", NULL },
+            { "ip",             RBAC_PERM_PLAYER_COMMANDS,         true,  &HandleAccountLockIpCommand,       "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                              "", NULL },
         };
         static ChatCommand accountCommandTable[] =
         {
-            { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
-            { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
-            { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
-            { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_PLAYER,         false, NULL,           "", accountLockCommandTable },
-            { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
-            { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
-            { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
+            { "addon",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleAccountAddonCommand,        "", NULL },
+            { "create",         RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleAccountCreateCommand,       "", NULL },
+            { "delete",         RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleAccountDeleteCommand,       "", NULL },
+            { "onlinelist",     RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleAccountOnlineListCommand,   "", NULL },
+            { "lock",           RBAC_PERM_PLAYER_COMMANDS,         false, NULL,           "", accountLockCommandTable },
+            { "set",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  NULL,            "", accountSetCommandTable },
+            { "password",       RBAC_PERM_PLAYER_COMMANDS,         false, &HandleAccountPasswordCommand,     "", NULL },
+            { "",               RBAC_PERM_PLAYER_COMMANDS,         false, &HandleAccountCommand,             "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "account",        SEC_PLAYER,         true,  NULL,     "", accountCommandTable  },
-            { NULL,             SEC_PLAYER,         false, NULL,                     "", NULL }
+            { "account",        RBAC_PERM_PLAYER_COMMANDS,         true,  NULL,     "", accountCommandTable  },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                     "", NULL }
         };
         return commandTable;
     }

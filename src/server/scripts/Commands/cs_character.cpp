@@ -39,38 +39,38 @@ public:
     {
         static ChatCommand pdumpCommandTable[] =
         {
-            { "load",           SEC_ADMINISTRATOR,  true,  &HandlePDumpLoadCommand,                 "", NULL },
-            { "write",          SEC_ADMINISTRATOR,  true,  &HandlePDumpWriteCommand,                "", NULL },
+            { "load",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandlePDumpLoadCommand,                 "", NULL },
+            { "write",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandlePDumpWriteCommand,                "", NULL },
             { NULL,             0,                  false, NULL,                                    "", NULL }
         };
         static ChatCommand characterDeletedCommandTable[] =
         {
-            { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
-            { "list",           SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedListCommand,     "", NULL },
-            { "restore",        SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedRestoreCommand,  "", NULL },
-            { "old",            SEC_CONSOLE,        true,  &HandleCharacterDeletedOldCommand,      "", NULL },
+            { "delete",         RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
+            { "list",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleCharacterDeletedListCommand,     "", NULL },
+            { "restore",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleCharacterDeletedRestoreCommand,  "", NULL },
+            { "old",            RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleCharacterDeletedOldCommand,      "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
 
         static ChatCommand characterCommandTable[] =
         {
-            { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
-            { "changefaction",  SEC_GAMEMASTER,     true,  &HandleCharacterChangeFactionCommand,   "", NULL },
-            { "changerace",     SEC_GAMEMASTER,     true,  &HandleCharacterChangeRaceCommand,      "", NULL },
-            { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                   "", characterDeletedCommandTable },
-            { "erase",          SEC_CONSOLE,        true,  &HandleCharacterEraseCommand,           "", NULL },
-            { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
-            { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
-            { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },
-            { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          "", NULL },
+            { "customize",      RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
+            { "changefaction",  RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleCharacterChangeFactionCommand,   "", NULL },
+            { "changerace",     RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleCharacterChangeRaceCommand,      "", NULL },
+            { "deleted",        RBAC_PERM_GAMEMASTER_COMMANDS,     true,  NULL,                                   "", characterDeletedCommandTable },
+            { "erase",          RBAC_PERM_CONSOLE_COMMANDS,        true,  &HandleCharacterEraseCommand,           "", NULL },
+            { "level",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleCharacterLevelCommand,           "", NULL },
+            { "rename",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleCharacterRenameCommand,          "", NULL },
+            { "reputation",     RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleCharacterReputationCommand,      "", NULL },
+            { "titles",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleCharacterTitlesCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "character",      SEC_GAMEMASTER,     true,  NULL,                                   "", characterCommandTable },
-            { "levelup",        SEC_ADMINISTRATOR,  false, &HandleLevelUpCommand,                  "", NULL },
-            { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                   "", pdumpCommandTable },
+            { "character",      RBAC_PERM_GAMEMASTER_COMMANDS,     true,  NULL,                                   "", characterCommandTable },
+            { "levelup",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLevelUpCommand,                  "", NULL },
+            { "pdump",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  NULL,                                   "", pdumpCommandTable },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
         return commandTable;

@@ -38,17 +38,17 @@ public:
     {
         static ChatCommand guildCommandTable[] =
         {
-            { "create",         SEC_GAMEMASTER,     true,  &HandleGuildCreateCommand,           "", NULL },
-            { "delete",         SEC_GAMEMASTER,     true,  &HandleGuildDeleteCommand,           "", NULL },
-            { "invite",         SEC_GAMEMASTER,     true,  &HandleGuildInviteCommand,           "", NULL },
-            { "uninvite",       SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,         "", NULL },
-            { "rank",           SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,             "", NULL },
-            { "rename",         SEC_GAMEMASTER,     true,  &HandleGuildRenameCommand,           "", NULL },
+            { "create",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGuildCreateCommand,           "", NULL },
+            { "delete",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGuildDeleteCommand,           "", NULL },
+            { "invite",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGuildInviteCommand,           "", NULL },
+            { "uninvite",       RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGuildUninviteCommand,         "", NULL },
+            { "rank",           RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGuildRankCommand,             "", NULL },
+            { "rename",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGuildRenameCommand,           "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "guild",          SEC_ADMINISTRATOR,  true, NULL,                                 "", guildCommandTable },
+            { "guild",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL,                                 "", guildCommandTable },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         return commandTable;

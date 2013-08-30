@@ -38,18 +38,18 @@ public:
     {
         static ChatCommand arenaCommandTable[] =
         {
-            { "create",         SEC_ADMINISTRATOR,  true,  &HandleArenaCreateCommand,   "", NULL },
-            { "disband",        SEC_ADMINISTRATOR,  true,  &HandleArenaDisbandCommand,  "", NULL },
-            { "rename",         SEC_ADMINISTRATOR,  true,  &HandleArenaRenameCommand,   "", NULL },
-            { "captain",        SEC_ADMINISTRATOR,  false, &HandleArenaCaptainCommand,  "", NULL },
-            { "info",           SEC_GAMEMASTER,     true,  &HandleArenaInfoCommand,     "", NULL },
-            { "lookup",         SEC_GAMEMASTER,     false, &HandleArenaLookupCommand,   "", NULL },
-            { NULL,             SEC_GAMEMASTER,     false, NULL,                        "", NULL }
+            { "create",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleArenaCreateCommand,   "", NULL },
+            { "disband",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleArenaDisbandCommand,  "", NULL },
+            { "rename",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleArenaRenameCommand,   "", NULL },
+            { "captain",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleArenaCaptainCommand,  "", NULL },
+            { "info",           RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleArenaInfoCommand,     "", NULL },
+            { "lookup",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleArenaLookupCommand,   "", NULL },
+            { NULL,             RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                        "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "arena",          SEC_GAMEMASTER,     false, NULL,                       "", arenaCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                       "", NULL }
+            { "arena",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                       "", arenaCommandTable },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                       "", NULL }
         };
         return commandTable;
     }

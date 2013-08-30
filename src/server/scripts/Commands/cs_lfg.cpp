@@ -45,18 +45,18 @@ public:
     {
         static ChatCommand lfgCommandTable[] =
         {
-            {  "player",     SEC_GAMEMASTER, false, &HandleLfgPlayerInfoCommand, "", NULL },
-            {   "group",     SEC_GAMEMASTER, false,  &HandleLfgGroupInfoCommand, "", NULL },
-            {   "queue",     SEC_GAMEMASTER, false,  &HandleLfgQueueInfoCommand, "", NULL },
-            {   "clean",  SEC_ADMINISTRATOR, false,      &HandleLfgCleanCommand, "", NULL },
-            { "options",  SEC_ADMINISTRATOR, false,    &HandleLfgOptionsCommand, "", NULL },
-            {      NULL,         SEC_PLAYER, false,                        NULL, "", NULL }
+            {  "player",     RBAC_PERM_GAMEMASTER_COMMANDS, false, &HandleLfgPlayerInfoCommand, "", NULL },
+            {   "group",     RBAC_PERM_GAMEMASTER_COMMANDS, false,  &HandleLfgGroupInfoCommand, "", NULL },
+            {   "queue",     RBAC_PERM_GAMEMASTER_COMMANDS, false,  &HandleLfgQueueInfoCommand, "", NULL },
+            {   "clean",  RBAC_PERM_ADMINISTRATOR_COMMANDS, false,      &HandleLfgCleanCommand, "", NULL },
+            { "options",  RBAC_PERM_ADMINISTRATOR_COMMANDS, false,    &HandleLfgOptionsCommand, "", NULL },
+            {      NULL,         RBAC_PERM_PLAYER_COMMANDS, false,                        NULL, "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            {       "lfg",   SEC_GAMEMASTER, false,                        NULL, "", lfgCommandTable },
-            {  NULL,             SEC_PLAYER, false,                        NULL, "", NULL }
+            {       "lfg",   RBAC_PERM_GAMEMASTER_COMMANDS, false,                        NULL, "", lfgCommandTable },
+            {  NULL,             RBAC_PERM_PLAYER_COMMANDS, false,                        NULL, "", NULL }
         };
         return commandTable;
     }
