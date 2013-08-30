@@ -1967,67 +1967,67 @@ enum EscapeFromSilverbrook
 {
     SPELL_SUMMON_WORGEN = 48681
 };
- 
+
 // 48682 - Escape from Silverbrook - Periodic Dummy
 class spell_q12308_escape_from_silverbrook : public SpellScriptLoader
 {
     public:
         spell_q12308_escape_from_silverbrook() : SpellScriptLoader("spell_q12308_escape_from_silverbrook") { }
- 
+
         class spell_q12308_escape_from_silverbrook_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q12308_escape_from_silverbrook_SpellScript);
- 
+
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_WORGEN))
                     return false;
                 return true;
             }
- 
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WORGEN, true);
             }
- 
+
             void Register() OVERRIDE
             {
                 OnEffectHit += SpellEffectFn(spell_q12308_escape_from_silverbrook_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
- 
+
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_q12308_escape_from_silverbrook_SpellScript();
         }
 };
- 
+
 // 48681 - Summon Silverbrook Worgen
 class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoader
 {
     public:
         spell_q12308_escape_from_silverbrook_summon_worgen() : SpellScriptLoader("spell_q12308_escape_from_silverbrook_summon_worgen") { }
- 
+
         class spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript);
- 
+
             void ModDest(SpellEffIndex effIndex)
             {
                 float dist = GetSpellInfo()->Effects[effIndex].CalcRadius(GetCaster());
                 float angle = (urand(0, 1) ? -1 : 1) * (frand(0.75f, 1.0f) * M_PI);
- 
+
                 Position pos;
                 GetCaster()->GetNearPosition(pos, dist, angle);
                 GetHitDest()->Relocate(&pos);
             }
- 
+
             void Register() OVERRIDE
             {
                 OnEffectHit += SpellEffectFn(spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript::ModDest, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
- 
+
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript();

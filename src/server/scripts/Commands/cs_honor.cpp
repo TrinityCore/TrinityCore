@@ -37,21 +37,21 @@ public:
     {
         static ChatCommand honorAddCommandTable[] =
         {
-            { "kill",           SEC_GAMEMASTER,     false, &HandleHonorAddKillCommand,         "", NULL },
-            { "",               SEC_GAMEMASTER,     false, &HandleHonorAddCommand,             "", NULL },
+            { "kill",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleHonorAddKillCommand,         "", NULL },
+            { "",               RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleHonorAddCommand,             "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
 
         static ChatCommand honorCommandTable[] =
         {
-            { "add",            SEC_GAMEMASTER,     false, NULL,               "", honorAddCommandTable },
-            { "update",         SEC_GAMEMASTER,     false, &HandleHonorUpdateCommand,          "", NULL },
+            { "add",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,               "", honorAddCommandTable },
+            { "update",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleHonorUpdateCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "honor",          SEC_GAMEMASTER,     false, NULL,                  "", honorCommandTable },
+            { "honor",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                  "", honorCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

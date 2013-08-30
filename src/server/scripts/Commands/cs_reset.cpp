@@ -39,18 +39,18 @@ public:
     {
         static ChatCommand resetCommandTable[] =
         {
-            { "achievements",   SEC_ADMINISTRATOR,  true,  &HandleResetAchievementsCommand,     "", NULL },
-            { "honor",          SEC_ADMINISTRATOR,  true,  &HandleResetHonorCommand,            "", NULL },
-            { "level",          SEC_ADMINISTRATOR,  true,  &HandleResetLevelCommand,            "", NULL },
-            { "spells",         SEC_ADMINISTRATOR,  true,  &HandleResetSpellsCommand,           "", NULL },
-            { "stats",          SEC_ADMINISTRATOR,  true,  &HandleResetStatsCommand,            "", NULL },
-            { "talents",        SEC_ADMINISTRATOR,  true,  &HandleResetTalentsCommand,          "", NULL },
-            { "all",            SEC_ADMINISTRATOR,  true,  &HandleResetAllCommand,              "", NULL },
+            { "achievements",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleResetAchievementsCommand,     "", NULL },
+            { "honor",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleResetHonorCommand,            "", NULL },
+            { "level",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleResetLevelCommand,            "", NULL },
+            { "spells",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleResetSpellsCommand,           "", NULL },
+            { "stats",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleResetStatsCommand,            "", NULL },
+            { "talents",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleResetTalentsCommand,          "", NULL },
+            { "all",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleResetAllCommand,              "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "reset",          SEC_ADMINISTRATOR,  true, NULL,                                 "", resetCommandTable },
+            { "reset",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true, NULL,                                 "", resetCommandTable },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         return commandTable;

@@ -268,6 +268,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
 {
+    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, false);
+
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
@@ -704,6 +706,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             data << uint8(CHAR_CREATE_SUCCESS);
             SendPacket(&data);
 
+            AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
             std::string IP_str = GetRemoteAddress();
             TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
@@ -781,6 +784,8 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_CHAR_DELETE, 1);
     data << uint8(CHAR_DELETE_SUCCESS);
     SendPacket(&data);
+
+    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
 }
 
 void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)

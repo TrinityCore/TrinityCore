@@ -95,7 +95,7 @@ ChatCommand* ChatHandler::getCommandTable()
                 Field* fields = result->Fetch();
                 std::string name = fields[0].GetString();
 
-                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt8(), fields[2].GetString(), name);
+                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
             }
             while (result->NextRow());
         }
@@ -122,28 +122,7 @@ const char *ChatHandler::GetTrinityString(int32 entry) const
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
-    uint32 permission = 0;
-
-    ///@Workaround:: Fast adaptation to RBAC system till all commands are moved to permissions
-    switch (AccountTypes(cmd.SecurityLevel))
-    {
-        case SEC_ADMINISTRATOR:
-            permission = RBAC_PERM_ADMINISTRATOR_COMMANDS;
-            break;
-        case SEC_GAMEMASTER:
-            permission = RBAC_PERM_GAMEMASTER_COMMANDS;
-            break;
-        case SEC_MODERATOR:
-            permission = RBAC_PERM_MODERATOR_COMMANDS;
-            break;
-        case SEC_PLAYER:
-            permission = RBAC_PERM_PLAYER_COMMANDS;
-            break;
-        default: // Allow custom security levels for commands
-            return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
-    }
-
-    return HasPermission(permission);
+    return HasPermission(cmd.Permission);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)
@@ -299,7 +278,7 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     SendSysMessage(str);
 }
 
-bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd)
+bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd)
 {
     char const* oldtext = text;
     std::string cmd = "";
@@ -325,9 +304,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                 if (!hasStringAbbr(table[j].Name, cmd.c_str()))
                     continue;
 
-                if (strcmp(table[j].Name, cmd.c_str()) != 0)
-                    continue;
-                else
+                if (strcmp(table[j].Name, cmd.c_str()) == 0)
                 {
                     match = true;
                     break;
@@ -361,28 +338,31 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // table[i].Name == "" is special case: send original command to handler
         if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
         {
-            // FIXME: When Command system is moved to RBAC this check must be changed
-            if (!AccountMgr::IsPlayerAccount(table[i].SecurityLevel))
-            {
-                // chat case
-                if (m_session)
-                {
-                    Player* p = m_session->GetPlayer();
-                    uint64 sel_guid = p->GetSelection();
-                    uint32 areaId = p->GetAreaId();
-                    std::string areaName = "Unknown";
-                    std::string zoneName = "Unknown";
-                    if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
-                    {
-                        areaName = area->area_name;
-                        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
-                            zoneName = zone->area_name;
-                    }
+            if (!m_session) // ignore console
+                return true;
 
-                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
-                        fullcmd.c_str(), p->GetName().c_str(), GUID_LOPART(p->GetGUID()), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(), p->GetMap() ? p->GetMap()->GetMapName() : "Unknown", areaId, areaName.c_str(), zoneName.c_str(),
-                        GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
+            Player* player = m_session->GetPlayer();
+            if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
+            {
+                uint64 guid = player->GetSelection();
+                uint32 areaId = player->GetAreaId();
+                std::string areaName = "Unknown";
+                std::string zoneName = "Unknown";
+                if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+                {
+                    areaName = area->area_name;
+                    if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
+                        zoneName = zone->area_name;
                 }
+
+                sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
+                    fullcmd.c_str(), player->GetName().c_str(), GUID_LOPART(player->GetGUID()),
+                    m_session->GetAccountId(), player->GetPositionX(), player->GetPositionY(),
+                    player->GetPositionZ(), player->GetMapId(),
+                    player->GetMap() ? player->GetMap()->GetMapName() : "Unknown",
+                    areaId, areaName.c_str(), zoneName.c_str(), GetLogNameForGuid(guid),
+                    (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
+                    GUID_LOPART(guid));
             }
         }
         // some commands have custom error messages. Don't send the default one in these cases.
@@ -400,7 +380,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
     return false;
 }
 
-bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text, uint32 security, std::string const& help, std::string const& fullcommand)
+bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text, uint32 permission, std::string const& help, std::string const& fullcommand)
 {
     std::string cmd = "";
 
@@ -421,7 +401,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
         // select subcommand from child commands list (including "")
         if (table[i].ChildCommands != NULL)
         {
-            if (SetDataForCommandInTable(table[i].ChildCommands, text, security, help, fullcommand))
+            if (SetDataForCommandInTable(table[i].ChildCommands, text, permission, help, fullcommand))
                 return true;
             else if (*text)
                 return false;
@@ -435,10 +415,10 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
             return false;
         }
 
-        if (table[i].SecurityLevel != security)
-            TC_LOG_INFO(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
+        if (table[i].Permission != permission)
+            TC_LOG_INFO(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default permission (%u) by %u", fullcommand.c_str(), table[i].Permission, permission);
 
-        table[i].SecurityLevel = security;
+        table[i].Permission = permission;
         table[i].Help          = help;
         return true;
     }
@@ -461,9 +441,6 @@ bool ChatHandler::ParseCommands(char const* text)
     ASSERT(*text);
 
     std::string fullcmd = text;
-
-    if (m_session && !m_session->HasPermission(RBAC_PERM_PLAYER_COMMANDS))
-       return false;
 
     /// chat case (.command or !command format)
     if (m_session)
