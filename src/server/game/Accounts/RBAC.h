@@ -96,6 +96,26 @@ enum RBACPermissions
     RBAC_PERM_CHANGE_CHANNEL_NOT_MODERATOR                   = 46,
     RBAC_PERM_CHECK_FOR_LOWER_SECURITY                       = 47,
     RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA             = 48,
+    // Leave some space for core permissions
+    RBAC_PERM_COMMAND_RBAC                                   = 200,
+    RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
+    RBAC_PERM_COMMAND_RBAC_ACC_GROUP                         = 202,
+    RBAC_PERM_COMMAND_RBAC_ACC_GROUP_ADD                     = 203,
+    RBAC_PERM_COMMAND_RBAC_ACC_GROUP_DEL                     = 204,
+    RBAC_PERM_COMMAND_RBAC_ACC_ROLE                          = 205,
+    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_GRANT                    = 206,
+    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_DENY                     = 207,
+    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_REVOKE                   = 208,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM                          = 209,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT                    = 210,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 211,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE                   = 212,
+    RBAC_PERM_COMMAND_RBAC_LIST                              = 213,
+    RBAC_PERM_COMMAND_RBAC_LIST_GROUPS                       = 214,
+    RBAC_PERM_COMMAND_RBAC_LIST_ROLES                        = 215,
+    RBAC_PERM_COMMAND_RBAC_LIST_PERMS                        = 216,
+
+    // custom permissions 1000+
     RBAC_PERM_MAX
 };
 
