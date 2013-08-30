@@ -2643,8 +2643,24 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_CASTING:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->GetVictim()->IsNonMeleeSpellCasted(false, false, true))
+            if (!me || !me->IsInCombat())
                 return;
+
+            Unit* victim = me->GetVictim();
+
+            if (!victim || !victim->IsNonMeleeSpellCasted(false, false, true))
+                return;
+
+            if (e.event.targetCasting.spellId)
+            {
+                if (Spell* currSpell = victim->GetCurrentSpell(CURRENT_GENERIC_SPELL))
+                {
+                    if (currSpell->m_spellInfo->Id != e.event.targetCasting.spellId)
+                        return;
+                }
+                //? Should we return if Unit::m_currentSpell[CURRENT_GENERIC_SPELL] would be NULL? It's
+                //? already checked in Unit::IsNonMeleeSpellCasted above.
+            }
 
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
             break;
@@ -2654,10 +2670,10 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!me || !me->IsInCombat())
                 return;
 
-            Unit* target = DoSelectLowestHpFriendly((float)e.event.friendlyHealt.radius, e.event.friendlyHealt.hpDeficit);
+            Unit* target = DoSelectLowestHpFriendly((float)e.event.friendlyHealth.radius, e.event.friendlyHealth.hpDeficit);
             if (!target || !target->IsInCombat())
                 return;
-            ProcessTimedAction(e, e.event.friendlyHealt.repeatMin, e.event.friendlyHealt.repeatMax, target);
+            ProcessTimedAction(e, e.event.friendlyHealth.repeatMin, e.event.friendlyHealth.repeatMax, target);
             break;
         }
         case SMART_EVENT_FRIENDLY_IS_CC:
@@ -3005,7 +3021,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 {
                     uint32 healthPct = uint32((*itr)->ToUnit()->GetHealthPct());
 
-                    if (healthPct > e.event.friendlyHealtPct.maxHpPct || healthPct < e.event.friendlyHealtPct.minHpPct)
+                    if (healthPct > e.event.friendlyHealthPct.maxHpPct || healthPct < e.event.friendlyHealthPct.minHpPct)
                         continue;
 
                     target = (*itr)->ToUnit();
@@ -3018,7 +3034,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!target)
                 return;
 
-            ProcessTimedAction(e, e.event.friendlyHealtPct.repeatMin, e.event.friendlyHealtPct.repeatMax, target);
+            ProcessTimedAction(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax, target);
             break;
         }
         default:
