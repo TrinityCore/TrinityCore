@@ -1,5 +1,4 @@
 -- Update command table with new RBAC permissions
-UPDATE `command` SET `permission` = 200 WHERE `name` = '.rbac';
 UPDATE `command` SET `permission` = 201 WHERE `name` = '.rbac account';
 UPDATE `command` SET `permission` = 202 WHERE `name` = '.rbac account group';
 UPDATE `command` SET `permission` = 203 WHERE `name` = '.rbac account group add';
