@@ -11,7 +11,7 @@ DELETE FROM `creature_ai_scripts` WHERE `action1_type`=27;
 UPDATE `smart_scripts` SET `action_type`=33, `action_param2`=0 WHERE `source_type`=0 AND `action_type`=27; -- by VM
 
 -- all quests that used RequiredSpellCastX fields
-UPDATE `quest_template` SET `SpecialFlags`=`SpecialFlags`|32 WHERE `entry` IN
+UPDATE `quest_template` SET `SpecialFlags`=`SpecialFlags`|32 WHERE `Id` IN
 (28,29,532,553,849,877,905,974,2118,2932,2994,3825,5096,5163,5165,5441,
 6124,6129,6381,6395,6661,8346,8889,9066,9169,9193,9275,9294,9391,9440,
 9444,9447,9489,9526,9600,9629,9667,9685,9720,9805,9824,9874,9910,10011,
