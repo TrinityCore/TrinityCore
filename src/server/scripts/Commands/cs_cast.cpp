@@ -37,17 +37,17 @@ public:
     {
         static ChatCommand castCommandTable[] =
         {
-            { "back",           SEC_ADMINISTRATOR,  false, &HandleCastBackCommand,              "", NULL },
-            { "dist",           SEC_ADMINISTRATOR,  false, &HandleCastDistCommand,              "", NULL },
-            { "self",           SEC_ADMINISTRATOR,  false, &HandleCastSelfCommand,              "", NULL },
-            { "target",         SEC_ADMINISTRATOR,  false, &HandleCastTargetCommad,             "", NULL },
-            { "dest",           SEC_ADMINISTRATOR,  false, &HandleCastDestCommand,              "", NULL },
-            { "",               SEC_ADMINISTRATOR,  false, &HandleCastCommand,                  "", NULL },
+            { "back",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleCastBackCommand,              "", NULL },
+            { "dist",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleCastDistCommand,              "", NULL },
+            { "self",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleCastSelfCommand,              "", NULL },
+            { "target",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleCastTargetCommad,             "", NULL },
+            { "dest",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleCastDestCommand,              "", NULL },
+            { "",               RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleCastCommand,                  "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "cast",           SEC_ADMINISTRATOR,  false, NULL,                                "", castCommandTable },
+            { "cast",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,                                "", castCommandTable },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         return commandTable;

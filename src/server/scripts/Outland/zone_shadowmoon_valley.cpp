@@ -1899,7 +1899,7 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
             {
                 if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
                     if (Creature* karynaku = GetCaster()->FindNearestCreature(NPC_KARYNAKU, 15.0f))
-                        GetCaster()->ToPlayer()->CastedCreatureOrGO(NPC_KARYNAKU, karynaku->GetGUID(), GetSpellInfo()->Id);
+                        GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_KARYNAKU, karynaku->GetGUID());
             }
 
             void Register() OVERRIDE

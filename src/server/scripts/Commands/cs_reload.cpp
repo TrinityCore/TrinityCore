@@ -52,18 +52,18 @@ public:
     {
         static ChatCommand reloadAllCommandTable[] =
         {
-            { "achievement", SEC_ADMINISTRATOR,  true,  &HandleReloadAllAchievementCommand, "", NULL },
-            { "area",       SEC_ADMINISTRATOR,  true,  &HandleReloadAllAreaCommand,       "", NULL },
-            { "eventai",    SEC_ADMINISTRATOR,  true,  &HandleReloadAllEventAICommand,    "", NULL },
-            { "gossips",    SEC_ADMINISTRATOR,  true,  &HandleReloadAllGossipsCommand,    "", NULL },
-            { "item",       SEC_ADMINISTRATOR,  true,  &HandleReloadAllItemCommand,       "", NULL },
-            { "locales",    SEC_ADMINISTRATOR,  true,  &HandleReloadAllLocalesCommand,    "", NULL },
-            { "loot",       SEC_ADMINISTRATOR,  true,  &HandleReloadAllLootCommand,       "", NULL },
-            { "npc",        SEC_ADMINISTRATOR,  true,  &HandleReloadAllNpcCommand,        "", NULL },
-            { "quest",      SEC_ADMINISTRATOR,  true,  &HandleReloadAllQuestCommand,      "", NULL },
-            { "scripts",    SEC_ADMINISTRATOR,  true,  &HandleReloadAllScriptsCommand,    "", NULL },
-            { "spell",      SEC_ADMINISTRATOR,  true,  &HandleReloadAllSpellCommand,      "", NULL },
-            { "",           SEC_ADMINISTRATOR,  true,  &HandleReloadAllCommand,           "", NULL },
+            { "achievement", RBAC_PERM_ADMINISTRATOR_COMMANDS, true,  &HandleReloadAllAchievementCommand, "", NULL },
+            { "area",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllAreaCommand,       "", NULL },
+            { "eventai",    RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllEventAICommand,    "", NULL },
+            { "gossips",    RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllGossipsCommand,    "", NULL },
+            { "item",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllItemCommand,       "", NULL },
+            { "locales",    RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllLocalesCommand,    "", NULL },
+            { "loot",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllLootCommand,       "", NULL },
+            { "npc",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllNpcCommand,        "", NULL },
+            { "quest",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllQuestCommand,      "", NULL },
+            { "scripts",    RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllScriptsCommand,    "", NULL },
+            { "spell",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllSpellCommand,      "", NULL },
+            { "",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleReloadAllCommand,           "", NULL },
             { NULL,         0,                  false, NULL,                              "", NULL }
         };
         static ChatCommand reloadCommandTable[] =
@@ -165,7 +165,7 @@ public:
         };
         static ChatCommand commandTable[] =
         {
-            { "reload",         SEC_ADMINISTRATOR,  true,  NULL,                 "", reloadCommandTable },
+            { "reload",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  NULL,                 "", reloadCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

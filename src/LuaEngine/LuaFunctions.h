@@ -289,7 +289,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GroupEventHappens", &LuaUnit::GroupEventHappens},                                                     // :GroupEventHappens(questId, worldObject) - Satisfies a group event for the questId with the world object
     {"KilledMonsterCredit", &LuaUnit::KilledMonsterCredit},                                                 // :KilledMonsterCredit(entry) - Satisfies a monsterkill for the player
     {"KilledPlayerCredit", &LuaUnit::KilledPlayerCredit},                                                   // :KilledPlayerCredit() - Satisfies a player kill for the player
-    {"CastedCreatureOrGO", &LuaUnit::CastedCreatureOrGO},                                                   // :CastedCreatureOrGO(creatureOrGOEntry, creatureOrGO, spellId) - Satisfies a spellcast on unit for the player
+    {"KillGOCredit", &LuaUnit::KillGOCredit},                                                               // :KillGOCredit(GOEntry[, GUID]) - Credits the player for destroying a GO, guid is optional
     {"TalkedToCreature", &LuaUnit::TalkedToCreature},                                                       // :TalkedToCreature(npcEntry, creature) - Satisfies creature talk objective for the player
     {"ResetPetTalents", &LuaUnit::ResetPetTalents},                                                         // :ResetPetTalents() - Resets player's pet's talents
     {"RegenerateAll", &LuaUnit::RegenerateAll},                                                             // :RegenerateAll() - Regenerates all player's powers

@@ -1001,6 +1001,8 @@ public:
 
         void Reset() OVERRIDE
         {
+            dummy_dragonAI::Reset();
+
             m_uiShadowBreathTimer = 20000;
             m_uiShadowFissureTimer = 5000;
             m_uiHatchEggTimer = 30000;
@@ -1090,6 +1092,8 @@ public:
 
         void Reset() OVERRIDE
         {
+            dummy_dragonAI::Reset();
+
             m_uiShadowBreathTimer = 20000;
             m_uiShadowFissureTimer = 5000;
             m_uiAcolyteShadronTimer = 60000;
@@ -1194,6 +1198,8 @@ public:
 
         void Reset() OVERRIDE
         {
+            dummy_dragonAI::Reset();
+
             m_uiShadowBreathTimer = 20000;
             m_uiShadowFissureTimer = 5000;
             m_uiAcolyteVesperonTimer = 60000;

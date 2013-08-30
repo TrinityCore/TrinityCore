@@ -1135,7 +1135,6 @@ class boss_icehowl : public CreatureScript
                 bool   _movementFinish;
                 bool   _trampleCasted;
                 uint8  _stage;
-                Unit*  _target;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

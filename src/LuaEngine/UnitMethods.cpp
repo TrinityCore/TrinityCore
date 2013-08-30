@@ -2169,17 +2169,13 @@ int LuaUnit::TalkedToCreature(lua_State* L, Unit* unit)
     return 0;
 }
 
-int LuaUnit::CastedCreatureOrGO(lua_State* L, Unit* unit)
+int LuaUnit::KillGOCredit(lua_State* L, Unit* unit)
 {
     TO_PLAYER();
 
     uint32 entry = luaL_checkunsigned(L, 1);
-    Unit* creaOrGo = sEluna->CHECK_UNIT(L, 2);
-    uint32 spellId = luaL_checkunsigned(L, 3);
-    if (!creaOrGo || !creaOrGo->ToGameObject() || !creaOrGo->ToCreature())
-        return 0;
-
-    player->CastedCreatureOrGO(entry, creaOrGo->GetGUID(), spellId);
+    uint64 guid = sEluna->CHECK_ULONG(L, 2);
+    player->KillCreditGO(entry, guid);
     return 0;
 }
 

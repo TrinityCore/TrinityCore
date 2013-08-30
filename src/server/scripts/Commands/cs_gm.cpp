@@ -40,17 +40,17 @@ public:
     {
         static ChatCommand gmCommandTable[] =
         {
-            { "chat",           SEC_MODERATOR,      false, &HandleGMChatCommand,              "", NULL },
-            { "fly",            SEC_ADMINISTRATOR,  false, &HandleGMFlyCommand,               "", NULL },
-            { "ingame",         SEC_PLAYER,         true,  &HandleGMListIngameCommand,        "", NULL },
-            { "list",           SEC_ADMINISTRATOR,  true,  &HandleGMListFullCommand,          "", NULL },
-            { "visible",        SEC_MODERATOR,      false, &HandleGMVisibleCommand,           "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleGMCommand,                  "", NULL },
+            { "chat",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleGMChatCommand,              "", NULL },
+            { "fly",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleGMFlyCommand,               "", NULL },
+            { "ingame",         RBAC_PERM_PLAYER_COMMANDS,         true,  &HandleGMListIngameCommand,        "", NULL },
+            { "list",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleGMListFullCommand,          "", NULL },
+            { "visible",        RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleGMVisibleCommand,           "", NULL },
+            { "",               RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleGMCommand,                  "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "gm",             SEC_MODERATOR,      false, NULL,                     "", gmCommandTable },
+            { "gm",             RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,                     "", gmCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

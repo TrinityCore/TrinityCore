@@ -521,9 +521,9 @@ class spell_sha_flame_shock : public SpellScriptLoader
                     // Lava Flows
                     if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW, EFFECT_0))
                     {
-                        SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_FLOWS_R1);
-                        if (!aurEff->GetSpellInfo()->IsRankOf(firstRankSpellInfo))
-                            return;
+                        if (SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_FLOWS_R1))
+                            if (!aurEff->GetSpellInfo()->IsRankOf(firstRankSpellInfo))
+                                return;
 
                         uint8 rank = aurEff->GetSpellInfo()->GetRank();
                         caster->CastSpell(caster, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1, rank), true);

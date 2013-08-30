@@ -220,7 +220,7 @@ namespace LuaUnit
     int CountPctFromMaxHealth(lua_State*, Unit*);
     int GetInGameTime(lua_State*, Unit*);
     int TalkedToCreature(lua_State*, Unit*);
-    int CastedCreatureOrGO(lua_State*, Unit*);
+    int KillGOCredit(lua_State*, Unit*);
     int KilledPlayerCredit(lua_State*, Unit*);
     int KilledMonsterCredit(lua_State*, Unit*);
     int GroupEventHappens(lua_State*, Unit*);

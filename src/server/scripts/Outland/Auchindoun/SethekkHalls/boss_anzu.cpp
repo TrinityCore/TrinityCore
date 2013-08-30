@@ -71,20 +71,22 @@ class boss_anzu : public CreatureScript
 
             void Reset() OVERRIDE
             {
+                //_Reset();
+                events.Reset();
                 _under33Percent = false;
                 _under66Percent = false;
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14000);
                 events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5000);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ANZU, DONE);
+                _JustDied();
             }
 
             void DamageTaken(Unit* /*killer*/, uint32 &damage) OVERRIDE
@@ -153,12 +155,11 @@ class boss_anzu : public CreatureScript
             private:
                 bool _under33Percent;
                 bool _under66Percent;
-
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_anzuAI(creature);
+            return GetSethekkHallsAI<boss_anzuAI>(creature);
         }
 };
 
