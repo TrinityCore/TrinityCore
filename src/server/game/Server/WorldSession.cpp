@@ -1221,3 +1221,40 @@ void WorldSession::InvalidateRBACData()
     delete _RBACData;
     _RBACData = NULL;
 }
+
+bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p) const
+{
+    if (IsOpcodeAllowed(p.GetOpcode()))
+        return true;
+
+    // Opcode not allowed, let the punishment begin
+    TC_LOG_INFO(LOG_FILTER_NETWORKIO, "AntiDOS: Account %u, IP: %s, sent unacceptable packet (opc: %u, size: %u)",
+        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), (uint32)p.size());
+
+    switch (_policy)
+    {
+        case POLICY_LOG:
+            return true;
+        case POLICY_KICK:
+            TC_LOG_INFO(LOG_FILTER_NETWORKIO, "AntiDOS: Player kicked!");
+            return false;
+        case POLICY_BAN:
+        {
+            BanMode bm = (BanMode)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANMODE);
+            uin32 duration = sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANDURATION); // in seconds
+            std::string nameOrIp = "";
+            switch (bm)
+            {
+                case BAN_CHARACTER: // not supported, ban account
+                case BAN_ACCOUNT: (void)sAccountMgr->GetName(Session->GetAccountId(), nameOrIp); break;
+                case BAN_IP: nameOrIp = Session->GetRemoteAddress(); break;
+            }
+            sWorld->BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "AntiDOS: Player automatically banned for %u seconds.", duration);
+
+            return false;
+        }
+        default: // invalid policy
+            return true;
+    }
+}
