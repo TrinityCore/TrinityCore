@@ -183,12 +183,14 @@ enum CreaturesIds
     // Festergut
     NPC_FESTERGUT                               = 36626,
     NPC_GAS_DUMMY                               = 36659,
+    NPC_MALLEABLE_OOZE_STALKER                  = 38556,
 
     // Rotface
     NPC_ROTFACE                                 = 36627,
     NPC_OOZE_SPRAY_STALKER                      = 37986,
     NPC_PUDDLE_STALKER                          = 37013,
     NPC_UNSTABLE_EXPLOSION_STALKER              = 38107,
+    NPC_VILE_GAS_STALKER                        = 38548,
 
     // Professor Putricide
     NPC_PROFESSOR_PUTRICIDE                     = 36678,
