@@ -44,60 +44,60 @@ public:
     {
         static ChatCommand debugPlayCommandTable[] =
         {
-            { "cinematic",      SEC_MODERATOR,      false, &HandleDebugPlayCinematicCommand,   "", NULL },
-            { "movie",          SEC_MODERATOR,      false, &HandleDebugPlayMovieCommand,       "", NULL },
-            { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
-            { NULL,             SEC_PLAYER,     false, NULL,                               "", NULL }
+            { "cinematic",      RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleDebugPlayCinematicCommand,   "", NULL },
+            { "movie",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleDebugPlayMovieCommand,       "", NULL },
+            { "sound",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleDebugPlaySoundCommand,       "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,     false, NULL,                               "", NULL }
         };
         static ChatCommand debugSendCommandTable[] =
         {
-            { "buyerror",       SEC_ADMINISTRATOR,  false, &HandleDebugSendBuyErrorCommand,       "", NULL },
-            { "channelnotify",  SEC_ADMINISTRATOR,  false, &HandleDebugSendChannelNotifyCommand,  "", NULL },
-            { "chatmmessage",   SEC_ADMINISTRATOR,  false, &HandleDebugSendChatMsgCommand,        "", NULL },
-            { "equiperror",     SEC_ADMINISTRATOR,  false, &HandleDebugSendEquipErrorCommand,     "", NULL },
-            { "largepacket",    SEC_ADMINISTRATOR,  false, &HandleDebugSendLargePacketCommand,    "", NULL },
-            { "opcode",         SEC_ADMINISTRATOR,  false, &HandleDebugSendOpcodeCommand,         "", NULL },
-            { "qpartymsg",      SEC_ADMINISTRATOR,  false, &HandleDebugSendQuestPartyMsgCommand,  "", NULL },
-            { "qinvalidmsg",    SEC_ADMINISTRATOR,  false, &HandleDebugSendQuestInvalidMsgCommand, "", NULL },
-            { "sellerror",      SEC_ADMINISTRATOR,  false, &HandleDebugSendSellErrorCommand,      "", NULL },
-            { "setphaseshift",  SEC_ADMINISTRATOR,  false, &HandleDebugSendSetPhaseShiftCommand,  "", NULL },
-            { "spellfail",      SEC_ADMINISTRATOR,  false, &HandleDebugSendSpellFailCommand,      "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                                  "", NULL }
+            { "buyerror",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendBuyErrorCommand,       "", NULL },
+            { "channelnotify",  RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendChannelNotifyCommand,  "", NULL },
+            { "chatmmessage",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendChatMsgCommand,        "", NULL },
+            { "equiperror",     RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendEquipErrorCommand,     "", NULL },
+            { "largepacket",    RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendLargePacketCommand,    "", NULL },
+            { "opcode",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendOpcodeCommand,         "", NULL },
+            { "qpartymsg",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendQuestPartyMsgCommand,  "", NULL },
+            { "qinvalidmsg",    RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendQuestInvalidMsgCommand, "", NULL },
+            { "sellerror",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendSellErrorCommand,      "", NULL },
+            { "setphaseshift",  RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendSetPhaseShiftCommand,  "", NULL },
+            { "spellfail",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSendSpellFailCommand,      "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                                  "", NULL }
         };
         static ChatCommand debugCommandTable[] =
         {
-            { "setbit",         SEC_ADMINISTRATOR,  false, &HandleDebugSet32BitCommand,        "", NULL },
-            { "threat",         SEC_ADMINISTRATOR,  false, &HandleDebugThreatListCommand,      "", NULL },
-            { "hostil",         SEC_ADMINISTRATOR,  false, &HandleDebugHostileRefListCommand,  "", NULL },
-            { "anim",           SEC_GAMEMASTER,     false, &HandleDebugAnimCommand,            "", NULL },
-            { "arena",          SEC_ADMINISTRATOR,  false, &HandleDebugArenaCommand,           "", NULL },
-            { "bg",             SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundCommand,    "", NULL },
-            { "getitemstate",   SEC_ADMINISTRATOR,  false, &HandleDebugGetItemStateCommand,    "", NULL },
-            { "lootrecipient",  SEC_GAMEMASTER,     false, &HandleDebugGetLootRecipientCommand, "", NULL },
-            { "getvalue",       SEC_ADMINISTRATOR,  false, &HandleDebugGetValueCommand,        "", NULL },
-            { "getitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugGetItemValueCommand,    "", NULL },
-            { "Mod32Value",     SEC_ADMINISTRATOR,  false, &HandleDebugMod32ValueCommand,      "", NULL },
-            { "play",           SEC_MODERATOR,      false, NULL,              "", debugPlayCommandTable },
-            { "send",           SEC_ADMINISTRATOR,  false, NULL,              "", debugSendCommandTable },
-            { "setaurastate",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAuraStateCommand,    "", NULL },
-            { "setitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugSetItemValueCommand,    "", NULL },
-            { "setvalue",       SEC_ADMINISTRATOR,  false, &HandleDebugSetValueCommand,        "", NULL },
-            { "spawnvehicle",   SEC_ADMINISTRATOR,  false, &HandleDebugSpawnVehicleCommand,    "", NULL },
-            { "setvid",         SEC_ADMINISTRATOR,  false, &HandleDebugSetVehicleIdCommand,    "", NULL },
-            { "entervehicle",   SEC_ADMINISTRATOR,  false, &HandleDebugEnterVehicleCommand,    "", NULL },
-            { "uws",            SEC_ADMINISTRATOR,  false, &HandleDebugUpdateWorldStateCommand, "", NULL },
-            { "update",         SEC_ADMINISTRATOR,  false, &HandleDebugUpdateCommand,          "", NULL },
-            { "itemexpire",     SEC_ADMINISTRATOR,  false, &HandleDebugItemExpireCommand,      "", NULL },
-            { "areatriggers",   SEC_ADMINISTRATOR,  false, &HandleDebugAreaTriggersCommand,    "", NULL },
-            { "los",            SEC_MODERATOR,      false, &HandleDebugLoSCommand,             "", NULL },
-            { "moveflags",      SEC_ADMINISTRATOR,  false, &HandleDebugMoveflagsCommand,       "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "setbit",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSet32BitCommand,        "", NULL },
+            { "threat",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugThreatListCommand,      "", NULL },
+            { "hostil",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugHostileRefListCommand,  "", NULL },
+            { "anim",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleDebugAnimCommand,            "", NULL },
+            { "arena",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugArenaCommand,           "", NULL },
+            { "bg",             RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugBattlegroundCommand,    "", NULL },
+            { "getitemstate",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugGetItemStateCommand,    "", NULL },
+            { "lootrecipient",  RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleDebugGetLootRecipientCommand, "", NULL },
+            { "getvalue",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugGetValueCommand,        "", NULL },
+            { "getitemvalue",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugGetItemValueCommand,    "", NULL },
+            { "Mod32Value",     RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugMod32ValueCommand,      "", NULL },
+            { "play",           RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,              "", debugPlayCommandTable },
+            { "send",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,              "", debugSendCommandTable },
+            { "setaurastate",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSetAuraStateCommand,    "", NULL },
+            { "setitemvalue",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSetItemValueCommand,    "", NULL },
+            { "setvalue",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSetValueCommand,        "", NULL },
+            { "spawnvehicle",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSpawnVehicleCommand,    "", NULL },
+            { "setvid",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugSetVehicleIdCommand,    "", NULL },
+            { "entervehicle",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugEnterVehicleCommand,    "", NULL },
+            { "uws",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugUpdateWorldStateCommand, "", NULL },
+            { "update",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugUpdateCommand,          "", NULL },
+            { "itemexpire",     RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugItemExpireCommand,      "", NULL },
+            { "areatriggers",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugAreaTriggersCommand,    "", NULL },
+            { "los",            RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleDebugLoSCommand,             "", NULL },
+            { "moveflags",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleDebugMoveflagsCommand,       "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "debug",          SEC_MODERATOR,      true,  NULL,                  "", debugCommandTable },
-            { "wpgps",          SEC_ADMINISTRATOR,  false, &HandleWPGPSCommand,                "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
+            { "debug",          RBAC_PERM_MODERATOR_COMMANDS,      true,  NULL,                  "", debugCommandTable },
+            { "wpgps",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleWPGPSCommand,                "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                  "",              NULL }
         };
         return commandTable;
     }

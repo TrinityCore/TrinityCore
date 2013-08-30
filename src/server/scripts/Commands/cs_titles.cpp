@@ -37,21 +37,21 @@ public:
     {
         static ChatCommand titlesSetCommandTable[] =
         {
-            { "mask",           SEC_GAMEMASTER,     false, &HandleTitlesSetMaskCommand,        "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "mask",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesSetMaskCommand,        "", NULL },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
         };
         static ChatCommand titlesCommandTable[] =
         {
-            { "add",            SEC_GAMEMASTER,     false, &HandleTitlesAddCommand,            "", NULL },
-            { "current",        SEC_GAMEMASTER,     false, &HandleTitlesCurrentCommand,        "", NULL },
-            { "remove",         SEC_GAMEMASTER,     false, &HandleTitlesRemoveCommand,         "", NULL },
-            { "set",            SEC_GAMEMASTER,     false, NULL,              "", titlesSetCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "add",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesAddCommand,            "", NULL },
+            { "current",        RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesCurrentCommand,        "", NULL },
+            { "remove",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesRemoveCommand,         "", NULL },
+            { "set",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,              "", titlesSetCommandTable },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "titles",         SEC_GAMEMASTER,     false, NULL,                 "", titlesCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "titles",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                 "", titlesCommandTable },
+            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
         };
         return commandTable;
     }
