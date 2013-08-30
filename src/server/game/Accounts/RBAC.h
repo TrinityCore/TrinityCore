@@ -114,6 +114,19 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RBAC_LIST_GROUPS                       = 214,
     RBAC_PERM_COMMAND_RBAC_LIST_ROLES                        = 215,
     RBAC_PERM_COMMAND_RBAC_LIST_PERMS                        = 216,
+    RBAC_PERM_COMMAND_ACCOUNT                                = 217,
+    RBAC_PERM_COMMAND_ACCOUNT_ADDON                          = 218,
+    RBAC_PERM_COMMAND_ACCOUNT_CREATE                         = 219,
+    RBAC_PERM_COMMAND_ACCOUNT_DELETE                         = 220,
+    RBAC_PERM_COMMAND_ACCOUNT_LOCK                           = 221,
+    RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY                   = 222,
+    RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP                        = 223,
+    RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST                    = 224,
+    RBAC_PERM_COMMAND_ACCOUNT_PASSWORD                       = 225,
+    RBAC_PERM_COMMAND_ACCOUNT_SET                            = 226,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON                      = 227,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL                    = 228,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD                   = 229,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

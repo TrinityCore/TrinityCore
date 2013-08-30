@@ -1,4 +1,4 @@
-ALTER TABLE `command` CHANGE `security` `permission` UNSIGNED SMALLINT(5) DEFAULT 0 NOT NULL;
+ALTER TABLE `command` CHANGE `security` `permission` SMALLINT(5) UNSIGNED DEFAULT 0 NOT NULL;
 
 -- Player commands
 UPDATE `command` SET `permission` = 7 WHERE `permission` = 0;
