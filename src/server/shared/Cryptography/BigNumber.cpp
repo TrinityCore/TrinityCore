@@ -58,7 +58,7 @@ void BigNumber::SetQword(uint64 val)
 void BigNumber::SetBinary(uint8 const* bytes, int32 len)
 {
     uint8* array = new uint8[len];
-    
+
     for (int i = 0; i < len; i++)
         array[i] = bytes[len - 1 - i];
 
