@@ -38,18 +38,18 @@ public:
     {
         static ChatCommand arenaCommandTable[] =
         {
-            { "create",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleArenaCreateCommand,   "", NULL },
-            { "disband",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleArenaDisbandCommand,  "", NULL },
-            { "rename",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleArenaRenameCommand,   "", NULL },
-            { "captain",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleArenaCaptainCommand,  "", NULL },
-            { "info",           RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleArenaInfoCommand,     "", NULL },
-            { "lookup",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleArenaLookupCommand,   "", NULL },
-            { NULL,             RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                        "", NULL }
+            { "create",         RBAC_PERM_COMMAND_ARENA_CREATE,   true, &HandleArenaCreateCommand,   "", NULL },
+            { "disband",        RBAC_PERM_COMMAND_ARENA_DISBAND,  true, &HandleArenaDisbandCommand,  "", NULL },
+            { "rename",         RBAC_PERM_COMMAND_ARENA_RENAME,   true, &HandleArenaRenameCommand,   "", NULL },
+            { "captain",        RBAC_PERM_COMMAND_ARENA_CAPTAIN, false, &HandleArenaCaptainCommand,  "", NULL },
+            { "info",           RBAC_PERM_COMMAND_ARENA_INFO,     true, &HandleArenaInfoCommand,     "", NULL },
+            { "lookup",         RBAC_PERM_COMMAND_ARENA_LOOKUP,  false, &HandleArenaLookupCommand,   "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "arena",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                       "", arenaCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                       "", NULL }
+            { "arena",          RBAC_PERM_COMMAND_ARENA,     false, NULL,                       "", arenaCommandTable },
+            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }
