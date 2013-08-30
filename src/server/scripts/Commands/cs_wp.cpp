@@ -38,18 +38,18 @@ public:
     {
         static ChatCommand wpCommandTable[] =
         {
-            { "add",            SEC_GAMEMASTER,     false, &HandleWpAddCommand,                "", NULL },
-            { "event",          SEC_GAMEMASTER,     false, &HandleWpEventCommand,              "", NULL },
-            { "load",           SEC_GAMEMASTER,     false, &HandleWpLoadCommand,               "", NULL },
-            { "modify",         SEC_GAMEMASTER,     false, &HandleWpModifyCommand,             "", NULL },
-            { "unload",         SEC_GAMEMASTER,     false, &HandleWpUnLoadCommand,             "", NULL },
-            { "reload",         SEC_ADMINISTRATOR,  false, &HandleWpReloadCommand,             "", NULL },
-            { "show",           SEC_GAMEMASTER,     false, &HandleWpShowCommand,               "", NULL },
+            { "add",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleWpAddCommand,                "", NULL },
+            { "event",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleWpEventCommand,              "", NULL },
+            { "load",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleWpLoadCommand,               "", NULL },
+            { "modify",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleWpModifyCommand,             "", NULL },
+            { "unload",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleWpUnLoadCommand,             "", NULL },
+            { "reload",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleWpReloadCommand,             "", NULL },
+            { "show",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleWpShowCommand,               "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "wp",             SEC_GAMEMASTER,     false, NULL,                     "", wpCommandTable },
+            { "wp",             RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                     "", wpCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

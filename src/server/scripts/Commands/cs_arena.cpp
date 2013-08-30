@@ -38,18 +38,18 @@ public:
     {
         static ChatCommand arenaCommandTable[] =
         {
-            { "create",         SEC_ADMINISTRATOR,  true,  &HandleArenaCreateCommand,   "", NULL },
-            { "disband",        SEC_ADMINISTRATOR,  true,  &HandleArenaDisbandCommand,  "", NULL },
-            { "rename",         SEC_ADMINISTRATOR,  true,  &HandleArenaRenameCommand,   "", NULL },
-            { "captain",        SEC_ADMINISTRATOR,  false, &HandleArenaCaptainCommand,  "", NULL },
-            { "info",           SEC_GAMEMASTER,     true,  &HandleArenaInfoCommand,     "", NULL },
-            { "lookup",         SEC_GAMEMASTER,     false, &HandleArenaLookupCommand,   "", NULL },
-            { NULL,             SEC_GAMEMASTER,     false, NULL,                        "", NULL }
+            { "create",         RBAC_PERM_COMMAND_ARENA_CREATE,   true, &HandleArenaCreateCommand,   "", NULL },
+            { "disband",        RBAC_PERM_COMMAND_ARENA_DISBAND,  true, &HandleArenaDisbandCommand,  "", NULL },
+            { "rename",         RBAC_PERM_COMMAND_ARENA_RENAME,   true, &HandleArenaRenameCommand,   "", NULL },
+            { "captain",        RBAC_PERM_COMMAND_ARENA_CAPTAIN, false, &HandleArenaCaptainCommand,  "", NULL },
+            { "info",           RBAC_PERM_COMMAND_ARENA_INFO,     true, &HandleArenaInfoCommand,     "", NULL },
+            { "lookup",         RBAC_PERM_COMMAND_ARENA_LOOKUP,  false, &HandleArenaLookupCommand,   "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "arena",          SEC_GAMEMASTER,     false, NULL,                       "", arenaCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                       "", NULL }
+            { "arena",          RBAC_PERM_COMMAND_ARENA,     false, NULL,                       "", arenaCommandTable },
+            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }
