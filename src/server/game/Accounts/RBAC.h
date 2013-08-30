@@ -127,6 +127,15 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON                      = 227,
     RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL                    = 228,
     RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD                   = 229,
+    RBAC_PERM_COMMAND_ACHIEVEMENT                            = 230,
+    RBAC_PERM_COMMAND_ACHIEVEMENT_ADD                        = 231,
+    RBAC_PERM_COMMAND_ARENA                                  = 232,
+    RBAC_PERM_COMMAND_ARENA_CAPTAIN                          = 233,
+    RBAC_PERM_COMMAND_ARENA_CREATE                           = 234,
+    RBAC_PERM_COMMAND_ARENA_DISBAND                          = 235,
+    RBAC_PERM_COMMAND_ARENA_INFO                             = 236,
+    RBAC_PERM_COMMAND_ARENA_LOOKUP                           = 237,
+    RBAC_PERM_COMMAND_ARENA_RENAME                           = 238,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

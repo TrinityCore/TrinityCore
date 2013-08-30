@@ -1,5 +1,5 @@
 -- Add new permissions
-DELETE FROM `rbac_permissions` WHERE `id` BETWEEN 200 AND 216;
+DELETE FROM `rbac_permissions` WHERE `id` BETWEEN 217 AND 229;
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 (217, 'Command: .account'),
 (218, 'Command: .account addon'),
