@@ -154,6 +154,12 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_UNBAN_CHARACTER                        = 254,
     RBAC_PERM_COMMAND_UNBAN_IP                               = 255,
     RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT                    = 256,
+    RBAC_PERM_COMMAND_BF                                     = 257,
+    RBAC_PERM_COMMAND_BF_START                               = 258,
+    RBAC_PERM_COMMAND_BF_STOP                                = 259,
+    RBAC_PERM_COMMAND_BF_SWITCH                              = 260,
+    RBAC_PERM_COMMAND_BF_TIMER                               = 261,
+    RBAC_PERM_COMMAND_BF_ENABLE                              = 262,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
