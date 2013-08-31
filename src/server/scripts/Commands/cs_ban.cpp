@@ -39,41 +39,41 @@ public:
     {
         static ChatCommand unbanCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleUnBanAccountCommand,          "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleUnBanCharacterCommand,        "", NULL },
-            { "playeraccount",  SEC_ADMINISTRATOR,  true,  &HandleUnBanAccountByCharCommand,    "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleUnBanIPCommand,               "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        RBAC_PERM_COMMAND_UNBAN_ACCOUNT,       true,  &HandleUnBanAccountCommand,          "", NULL },
+            { "character",      RBAC_PERM_COMMAND_UNBAN_CHARACTER,     true,  &HandleUnBanCharacterCommand,        "", NULL },
+            { "playeraccount",  RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, true,  &HandleUnBanAccountByCharCommand,    "", NULL },
+            { "ip",             RBAC_PERM_COMMAND_UNBAN_IP,            true,  &HandleUnBanIPCommand,               "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand banlistCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleBanListAccountCommand,        "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleBanListCharacterCommand,      "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleBanListIPCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        RBAC_PERM_COMMAND_BANLIST_ACCOUNT,   true,  &HandleBanListAccountCommand,        "", NULL },
+            { "character",      RBAC_PERM_COMMAND_BANLIST_CHARACTER, true,  &HandleBanListCharacterCommand,      "", NULL },
+            { "ip",             RBAC_PERM_COMMAND_BANLIST_IP,        true,  &HandleBanListIPCommand,             "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand baninfoCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleBanInfoAccountCommand,        "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleBanInfoCharacterCommand,      "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleBanInfoIPCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        RBAC_PERM_COMMAND_BANINFO_ACCOUNT,   true,  &HandleBanInfoAccountCommand,        "", NULL },
+            { "character",      RBAC_PERM_COMMAND_BANINFO_CHARACTER, true,  &HandleBanInfoCharacterCommand,      "", NULL },
+            { "ip",             RBAC_PERM_COMMAND_BANINFO_IP,        true,  &HandleBanInfoIPCommand,             "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand banCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleBanAccountCommand,            "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleBanCharacterCommand,          "", NULL },
-            { "playeraccount",  SEC_ADMINISTRATOR,  true,  &HandleBanAccountByCharCommand,      "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleBanIPCommand,                 "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        RBAC_PERM_COMMAND_BAN_ACCOUNT,       true,  &HandleBanAccountCommand,            "", NULL },
+            { "character",      RBAC_PERM_COMMAND_BAN_CHARACTER,     true,  &HandleBanCharacterCommand,          "", NULL },
+            { "playeraccount",  RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT, true,  &HandleBanAccountByCharCommand,      "", NULL },
+            { "ip",             RBAC_PERM_COMMAND_BAN_IP,            true,  &HandleBanIPCommand,                 "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "ban",            SEC_ADMINISTRATOR,  true,  NULL,                                "", banCommandTable },
-            { "baninfo",        SEC_ADMINISTRATOR,  true,  NULL,                                "", baninfoCommandTable },
-            { "banlist",        SEC_ADMINISTRATOR,  true,  NULL,                                "", banlistCommandTable },
-            { "unban",          SEC_ADMINISTRATOR,  true,  NULL,                                "", unbanCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "ban",            RBAC_PERM_COMMAND_BAN,     true,  NULL,                                "", banCommandTable },
+            { "baninfo",        RBAC_PERM_COMMAND_BANINFO, true,  NULL,                                "", baninfoCommandTable },
+            { "banlist",        RBAC_PERM_COMMAND_BANLIST, true,  NULL,                                "", banlistCommandTable },
+            { "unban",          RBAC_PERM_COMMAND_UNBAN,   true,  NULL,                                "", unbanCommandTable },
+            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }

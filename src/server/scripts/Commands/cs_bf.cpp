@@ -35,17 +35,17 @@ public:
     {
         static ChatCommand battlefieldcommandTable[] =
         {
-            { "start",          SEC_ADMINISTRATOR,  false, &HandleBattlefieldStart,            "", NULL },
-            { "stop",           SEC_ADMINISTRATOR,  false, &HandleBattlefieldEnd,              "", NULL },
-            { "switch",         SEC_ADMINISTRATOR,  false, &HandleBattlefieldSwitch,           "", NULL },
-            { "timer",          SEC_ADMINISTRATOR,  false, &HandleBattlefieldTimer,            "", NULL },
-            { "enable",         SEC_ADMINISTRATOR,  false, &HandleBattlefieldEnable,           "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "start",          RBAC_PERM_COMMAND_BF_START,  false, &HandleBattlefieldStart,  "", NULL },
+            { "stop",           RBAC_PERM_COMMAND_BF_STOP,   false, &HandleBattlefieldEnd,    "", NULL },
+            { "switch",         RBAC_PERM_COMMAND_BF_SWITCH, false, &HandleBattlefieldSwitch, "", NULL },
+            { "timer",          RBAC_PERM_COMMAND_BF_TIMER,  false, &HandleBattlefieldTimer,  "", NULL },
+            { "enable",         RBAC_PERM_COMMAND_BF_ENABLE, false, &HandleBattlefieldEnable, "", NULL },
+            { NULL,             0,                           false, NULL,                     "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "bf",             SEC_ADMINISTRATOR,  false, NULL,            "", battlefieldcommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "bf",             RBAC_PERM_COMMAND_BF,        false, NULL,                     "", battlefieldcommandTable },
+            { NULL,             0,                           false, NULL,                     "", NULL }
         };
         return commandTable;
     }
