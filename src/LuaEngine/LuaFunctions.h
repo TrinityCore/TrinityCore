@@ -632,6 +632,8 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetNearestCreature", &LuaGameObject::GetNearestCreature},                                             // :GetNearestCreatureEntry([radius, entry]) - Returns nearest creature with given entry in sight or given radius.
     {"GetRelativePoint", &LuaGameObject::GetRelativePoint},                                                 // :GetRelativePoint(dist, radians) - Returns the X, Y and orientation of a point dist away from gob. Radian 0 point is the direction the unit is facing.
     {"GetHeight", &LuaGameObject::GetHeight},                                                               // :GetHeight(X, Y) - Returns returns the Z coord of the given location. If no valid position found, returns gob Z coordinate.
+    {"GetGoState", &LuaGameObject::GetGoState},
+    {"GetLootState", &LuaGameObject::GetLootState},
 
     // Setters
     {"SetScale", &LuaGameObject::SetScale},                                                                 // :SetScale(scale)
@@ -642,6 +644,9 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"SetByteValue", &LuaGameObject::SetByteValue},                                                         // :SetByteValue(index, offset, value) - Sets a byte value for the object
     {"SetUInt16Value", &LuaGameObject::SetUInt16Value},                                                     // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the object
     {"SetInt16Value", &LuaGameObject::SetInt16Value},                                                       // :SetInt16Value(index, offset, value) - Sets an int16 value for the object
+    {"SetGoState", &LuaGameObject::SetGoState},
+    {"SetLootState", &LuaGameObject::SetLootState},
+    {"SetFlag", &LuaGameObject::SetFlag},
 
     // Boolean
     {"IsInWorld", &LuaGameObject::IsInWorld},                                                               // :IsInWorld()
@@ -660,6 +665,8 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"RemoveEvents", &LuaGameObject::RemoveEvents},                                                         // :RemoveEvents()
     {"Despawn", &LuaGameObject::Despawn},                                                                   // :Despawn() - Object despawns
     {"SummonGameObject", &LuaGameObject::SummonGameObject},                                                 // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil
+    {"RemoveFlag", &LuaGameObject::RemoveFlag},
+    {"UseDoorOrButton", &LuaGameObject::UseDoorOrButton},                                                   // :UseDoorOrButton(delay) - Activates/closes/opens after X delay UNDOCUMENTED
 
     { NULL, NULL },
 };

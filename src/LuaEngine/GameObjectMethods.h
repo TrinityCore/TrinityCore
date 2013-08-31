@@ -50,5 +50,12 @@ namespace LuaGameObject
     int GetNearestPlayer(lua_State*, GameObject*);
     int GetNearestGameObject(lua_State*, GameObject*);
     int GetNearestCreature(lua_State*, GameObject*);
+    int UseDoorOrButton(lua_State*, GameObject*);
+    int SetGoState(lua_State*, GameObject*);
+    int GetGoState(lua_State*, GameObject*);
+    int GetLootState(lua_State*, GameObject*);
+    int SetLootState(lua_State*, GameObject*);
+    int SetFlag(lua_State*, GameObject*);
+    int RemoveFlag(lua_State*, GameObject*);
 };
 #endif
