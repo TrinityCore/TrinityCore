@@ -2034,6 +2034,79 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
         }
 };
 
+
+enum DeathComesFromOnHigh
+{
+    SPELL_FORGE_CREDIT                  = 51974,
+    SPELL_TOWN_HALL_CREDIT              = 51977,
+    SPELL_SCARLET_HOLD_CREDIT           = 51980,
+    SPELL_CHAPEL_CREDIT                 = 51982,
+
+    NPC_NEW_AVALON_FORGE                = 28525,
+    NPC_NEW_AVALON_TOWN_HALL            = 28543,
+    NPC_SCARLET_HOLD                    = 28542,
+    NPC_CHAPEL_OF_THE_CRIMSON_FLAME     = 28544
+};
+
+// 51858 - Siphon of Acherus
+class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
+{
+    public:
+        spell_q12641_death_comes_from_on_high() : SpellScriptLoader("spell_q12641_death_comes_from_on_high") { }
+
+        class spell_q12641_death_comes_from_on_high_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12641_death_comes_from_on_high_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FORGE_CREDIT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_TOWN_HALL_CREDIT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_SCARLET_HOLD_CREDIT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CHAPEL_CREDIT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = 0;
+
+                TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "spell_q12641_death_comes_from_on_high:: Caster: %s (GUID: %u) On Hit Target: Creature: %s (Entry: %u GUID: %u)",
+                    GetOriginalCaster()->GetName().c_str(), GetOriginalCaster()->GetGUIDLow(), GetHitCreature()->GetName().c_str(), GetHitCreature()->GetEntry(), GetHitCreature()->GetGUIDLow());
+                switch (GetHitCreature()->GetEntry())
+                {
+                    case NPC_NEW_AVALON_FORGE:
+                        spellId = SPELL_FORGE_CREDIT;
+                        break;
+                    case NPC_NEW_AVALON_TOWN_HALL:
+                        spellId = SPELL_TOWN_HALL_CREDIT;
+                        break;
+                    case NPC_SCARLET_HOLD:
+                        spellId = SPELL_SCARLET_HOLD_CREDIT;
+                        break;
+                    case NPC_CHAPEL_OF_THE_CRIMSON_FLAME:
+                        spellId = SPELL_CHAPEL_CREDIT;
+                        break;
+                    default:
+                        return;
+                }
+
+                GetOriginalCaster()->CastSpell((Unit*)NULL, spellId, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12641_death_comes_from_on_high_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_q12641_death_comes_from_on_high_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2083,4 +2156,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12690_burst_at_the_seams();
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
+    new spell_q12641_death_comes_from_on_high();
 }
