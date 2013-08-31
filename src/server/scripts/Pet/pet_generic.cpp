@@ -87,4 +87,5 @@ class npc_pet_gen_mojo : public CreatureScript
 
 void AddSC_shaman_pet_scripts()
 {
+    new npc_pet_gen_mojo();
 }
