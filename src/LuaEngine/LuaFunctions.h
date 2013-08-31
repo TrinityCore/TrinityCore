@@ -46,6 +46,7 @@ void RegisterGlobals(lua_State* L)
     lua_register(L, "GetGameObjectsInRange", &LuaGlobalFunctions::GetGameObjectsInRange);                   // GetGameObjectsInRange(WorldObject[, range]) - Returns a table with gameobjects in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetWorldObject", &LuaGlobalFunctions::GetWorldObject);                                 // GetWorldObject(WorldObject, guid) - Returns a world object (creature, player, gameobject) from the guid. The world object returned must be on the same map as the world object in the arguments.
     lua_register(L, "GetHeight", &LuaGlobalFunctions::GetHeight);                                           // GetHeight(mapid, instanceid, x, y, phasemask) - Returns ground Z coordinate. UNDOCUMENTED
+    lua_register(L, "GetMapById", &LuaGlobalFunctions::GetMapById);                                         // GetMapById(mapId) - Returns map object of id specified. UNDOCUMENTED
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                                       // ReloadEluna() - Reload's Eluna engine
@@ -741,7 +742,7 @@ ElunaRegister<Aura> AuraMethods[] =
     {"GetCaster", &LuaAura::GetCaster},                                                                     // :GetCaster() - Returns caster as object
     {"GetCasterGUID", &LuaAura::GetCasterGUID},                                                             // :GetCasterGUID() - Returns caster as GUID
     {"GetCasterLevel", &LuaAura::GetCasterLevel},                                                           // :GetCasterLevel() - Returns casters level
-    // {"GetDuration", &LuaAura::GetDuration},                                                                 // :GetDuration() - Returns remaining duration
+    // {"GetDuration", &LuaAura::GetDuration},                                                              // :GetDuration() - Returns remaining duration
     {"GetMaxDuration", &LuaAura::GetMaxDuration},                                                           // :GetMaxDuration() - Returns maximum duration
     {"GetCharges", &LuaAura::GetCharges},                                                                   // :GetCharges() - Returns remaining charges
     {"GetAuraId", &LuaAura::GetAuraId},                                                                     // :GetAuraId() - Returns aura ID
@@ -930,6 +931,26 @@ ElunaRegister<WorldPacket> PacketMethods[] =
     {NULL, NULL},
 };
 
+ElunaRegister<Map> MapMethods[] =
+{
+    // Getters
+    {"GetName", &LuaMap::GetName},                                                                          // :GetName() - Returns the map's name UNDOCUMENTED
+    {"GetDifficulty", &LuaMap::GetDifficulty},                                                              // :GetDifficulty() - Returns the map's difficulty UNDOCUMENTED
+    {"GetInstanceId", &LuaMap::GetInstanceId},                                                              // :GetInstanceId() - Returns the map's instance ID UNDOCUMENTED
+    {"GetPlayerCount", &LuaMap::GetPlayerCount},                                                            // :GetPlayerCount() - Returns the amount of players on map except GM's UNDOCUMENTED
+    {"GetMapId", &LuaMap::GetMapId},                                                                        // :GetMapId() - Returns the map's ID UNDOCUMENTED
+    {"GetAreaId", &LuaMap::GetAreaId},                                                                      // :GetAreaId(x, y, z) - Returns the map's area ID based on coords UNDOCUMENTED
+
+    // Booleans
+    {"IsArena", &LuaMap::IsArena},                                                                          // :IsArena() - Returns the true if the map is an arena, else false UNDOCUMENTED
+    {"IsBattleground", &LuaMap::IsBattleground},                                                            // :IsBattleground() - Returns the true if the map is a battleground, else false UNDOCUMENTED
+    {"IsDungeon", &LuaMap::IsDungeon},                                                                      // :IsDungeon() - Returns the true if the map is a dungeon , else false UNDOCUMENTED
+    {"IsEmpty", &LuaMap::IsEmpty},                                                                          // :IsEmpty() - Returns the true if the map is empty, else false UNDOCUMENTED
+    {"IsHeroic", &LuaMap::IsHeroic},                                                                        // :IsHeroic() - Returns the true if the map is a heroic dungeon, else false UNDOCUMENTED
+    {"IsRaid", &LuaMap::IsRaid},                                                                            // :IsRaid() - Returns the true if the map is a raid map, else false UNDOCUMENTED
+    {NULL, NULL},
+};
+
 template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
 template<> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
 template<> ElunaRegister<GameObject>* GetMethodTable<GameObject>() { return GameObjectMethods; }
@@ -941,4 +962,5 @@ template<> ElunaRegister<Item>* GetMethodTable<Item>() { return ItemMethods; }
 template<> ElunaRegister<WorldPacket>* GetMethodTable<WorldPacket>() { return PacketMethods; }
 template<> ElunaRegister<Spell>* GetMethodTable<Spell>() { return SpellMethods; }
 template<> ElunaRegister<Quest>* GetMethodTable<Quest>() { return QuestMethods; }
+template<> ElunaRegister<Map>* GetMethodTable<Map>() { return MapMethods; }
 #endif

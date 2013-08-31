@@ -11,6 +11,7 @@
 #include "WorldPacketMethods.h"
 #include "SpellMethods.h"
 #include "QuestMethods.h"
+#include "MapMethods.h"
 #include "LuaFunctions.h"
 
 #if PLATFORM == PLATFORM_UNIX
@@ -29,6 +30,7 @@ template<> const char* GetTName<WorldPacket>() { return "WorldPacket"; }
 template<> const char* GetTName<Item>() { return "Item"; }
 template<> const char* GetTName<Spell>() { return "Spell"; }
 template<> const char* GetTName<Quest>() { return "Quest"; }
+template<> const char* GetTName<Map>() { return "Map"; }
 
 void Eluna::StartEluna(bool restart)
 {
@@ -83,6 +85,7 @@ void Eluna::StartEluna(bool restart)
     ElunaTemplate<Item>::Register(LuaState);
     ElunaTemplate<Spell>::Register(LuaState);
     ElunaTemplate<Quest>::Register(LuaState);
+    ElunaTemplate<Map>::Register(LuaState);
 
     uint32 count = 0;
     char filename[200];
@@ -360,6 +363,15 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
     if (!L) L = LuaState;
     if (unit)
         ElunaTemplate<Unit>::push(L, unit);
+    else
+        lua_pushnil(L);
+}
+
+void Eluna::PushMap(lua_State* L, Map* map)
+{
+    if (!L) L = LuaState;
+    if (map)
+        ElunaTemplate<Map>::push(L, map);
     else
         lua_pushnil(L);
 }

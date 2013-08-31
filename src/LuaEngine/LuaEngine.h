@@ -290,6 +290,7 @@ public:
     void PushGroup(lua_State*, Group*);
     void PushGuild(lua_State*, Guild*);
     void PushUnit(lua_State*, Unit*);
+    void PushMap(lua_State*, Map*);
     void PushGO(lua_State*, GameObject*);
     void PushQueryResult(lua_State*, QueryResult*);
     void PushAura(lua_State*, Aura*);

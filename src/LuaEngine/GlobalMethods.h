@@ -387,6 +387,20 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
+    // GetMapById()
+    static int GetMapById(lua_State* L)
+    {
+        uint32 mapid = luaL_checkunsigned(L, 1);
+        
+        Map* map = sMapMgr->FindBaseMap(mapid);
+
+        if (!map)
+            return 0;
+
+        sEluna->PushMap(L, map);
+        return 1;
+    }
+
     // GetGuildByLeaderGUID(leaderGUID) - Gets guild object
     static int GetGuildByLeaderGUID(lua_State* L)
     {
