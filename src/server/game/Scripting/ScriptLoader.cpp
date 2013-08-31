@@ -654,6 +654,7 @@ void AddSC_event_childrens_week();
 
 // Pets
 void AddSC_deathknight_pet_scripts();
+void AddSC_generic_pet_scripts();
 void AddSC_hunter_pet_scripts();
 void AddSC_mage_pet_scripts();
 void AddSC_priest_pet_scripts();
@@ -1359,6 +1360,7 @@ void AddPetScripts()
 {
 #ifdef SCRIPTS
     AddSC_deathknight_pet_scripts();
+    AddSC_generic_pet_scripts();
     AddSC_hunter_pet_scripts();
     AddSC_mage_pet_scripts();
     AddSC_priest_pet_scripts();
