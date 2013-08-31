@@ -544,7 +544,7 @@ int LuaGameObject::UseDoorOrButton(lua_State* L, GameObject* go)
     uint32 delay = luaL_optunsigned(L, 1, 0);
 
     go->UseDoorOrButton(delay);
-    return 1;
+    return 0;
 }
 
 int LuaGameObject::SetGoState(lua_State* L, GameObject* go)
@@ -561,7 +561,7 @@ int LuaGameObject::SetGoState(lua_State* L, GameObject* go)
     else if(state == 2)
         go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
 
-    return 1;
+    return 0;
 }
 
 int LuaGameObject::GetGoState(lua_State* L, GameObject* go)
@@ -589,7 +589,7 @@ int LuaGameObject::SetLootState(lua_State* L, GameObject* go)
     else if(state == 3)
         go->SetLootState(GO_JUST_DEACTIVATED);
 
-    return 1;
+    return 0;
 }
 
 int LuaGameObject::GetLootState(lua_State* L, GameObject* go)
@@ -609,7 +609,7 @@ int LuaGameObject::SetFlag(lua_State* L, GameObject* go)
     uint32 flag = luaL_optunsigned(L, 1, 0);
 
     go->SetFlag(GAMEOBJECT_FLAGS, flag);
-    return 1;
+    return 0;
 }
 
 int LuaGameObject::RemoveFlag(lua_State* L, GameObject* go)
@@ -620,5 +620,5 @@ int LuaGameObject::RemoveFlag(lua_State* L, GameObject* go)
     uint32 flag = luaL_optunsigned(L, 1, 0);
 
     go->RemoveFlag(GAMEOBJECT_FLAGS, flag);
-    return 1;
+    return 0;
 }
