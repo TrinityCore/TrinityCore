@@ -11,6 +11,7 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Pet/pet_dk.cpp
+  Pet/pet_generic.cpp
   Pet/pet_hunter.cpp
   Pet/pet_mage.cpp
   Pet/pet_priest.cpp
