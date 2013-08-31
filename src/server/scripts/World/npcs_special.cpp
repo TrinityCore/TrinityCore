@@ -1605,67 +1605,6 @@ class npc_brewfest_reveler : public CreatureScript
         }
 };
 
-enum Mojo
-{
-    SAY_MOJO                = 0,
-
-    SPELL_FEELING_FROGGY    = 43906,
-    SPELL_SEDUCTION_VISUAL  = 43919
-};
-
-class npc_mojo : public CreatureScript
-{
-    public:
-        npc_mojo() : CreatureScript("npc_mojo") { }
-
-        struct npc_mojoAI : public ScriptedAI
-        {
-            npc_mojoAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset() OVERRIDE
-            {
-                _victimGUID = 0;
-
-                if (Unit* owner = me->GetOwner())
-                    me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
-            }
-
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
-            void UpdateAI(uint32 diff) OVERRIDE { }
-
-            void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
-            {
-                me->HandleEmoteCommand(emote);
-                Unit* owner = me->GetOwner();
-                if (emote != TEXT_EMOTE_KISS || !owner || owner->GetTypeId() != TYPEID_PLAYER ||
-                    owner->ToPlayer()->GetTeam() != player->GetTeam())
-                {
-                    return;
-                }
-
-                Talk(SAY_MOJO, player->GetGUID());
-
-                if (_victimGUID)
-                    if (Player* victim = ObjectAccessor::GetPlayer(*me, _victimGUID))
-                        victim->RemoveAura(SPELL_FEELING_FROGGY);
-
-                _victimGUID = player->GetGUID();
-
-                DoCast(player, SPELL_FEELING_FROGGY, true);
-                DoCast(me, SPELL_SEDUCTION_VISUAL, true);
-                me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
-            }
-
-        private:
-            uint64 _victimGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
-        {
-            return new npc_mojoAI(creature);
-        }
-};
-
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
@@ -2519,7 +2458,6 @@ void AddSC_npcs_special()
     new npc_steam_tonk();
     new npc_tonk_mine();
     new npc_brewfest_reveler();
-    new npc_mojo();
     new npc_training_dummy();
     new npc_wormhole();
     new npc_pet_trainer();
