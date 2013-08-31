@@ -507,7 +507,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_QUEST_EVENT:
                     if (Quest const* qid = sObjectMgr->GetQuestTemplate(action.quest_event.questId))
                     {
-                        if (!qid->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
+                        if (!qid->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
                             TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u. SpecialFlags for quest entry %u does not include |2, Action will not have any effect.", i, j+1, action.quest_event.questId);
                     }
                     else
@@ -516,14 +516,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     if (action.quest_event.target >= TARGET_T_END)
                         TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
 
-                    break;
-                case ACTION_T_CAST_EVENT:
-                    if (!sObjectMgr->GetCreatureTemplate(action.cast_event.creatureId))
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.cast_event.creatureId);
-                    if (!sSpellMgr->GetSpellInfo(action.cast_event.spellId))
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast_event.spellId);
-                    if (action.cast_event.target >= TARGET_T_END)
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
                     break;
                 case ACTION_T_SET_UNIT_FIELD:
                     if (action.set_unit_field.field < OBJECT_END || action.set_unit_field.field >= UNIT_END)
@@ -549,17 +541,11 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_QUEST_EVENT_ALL:
                     if (Quest const* qid = sObjectMgr->GetQuestTemplate(action.quest_event_all.questId))
                     {
-                        if (!qid->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
+                        if (!qid->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
                             TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u. SpecialFlags for quest entry %u does not include |2, Action will not have any effect.", i, j+1, action.quest_event_all.questId);
                     }
                     else
                         TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses non-existent Quest entry %u.", i, j+1, action.quest_event_all.questId);
-                    break;
-                case ACTION_T_CAST_EVENT_ALL:
-                    if (!sObjectMgr->GetCreatureTemplate(action.cast_event_all.creatureId))
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.cast_event_all.creatureId);
-                    if (!sSpellMgr->GetSpellInfo(action.cast_event_all.spellId))
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast_event_all.spellId);
                     break;
                 case ACTION_T_REMOVEAURASFROMSPELL:
                     if (!sSpellMgr->GetSpellInfo(action.remove_aura.spellId))

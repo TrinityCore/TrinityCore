@@ -35,7 +35,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
-#include "WorldSession.h"
 
 /*######
 ## npc_spitelashes
@@ -371,7 +370,7 @@ public:
                     DoTeleportTo(3706.39f, -3969.15f, 35.9118f);
 
                     //begin swimming and summon depth charges
-                    Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                     if (!player)
                         return;
 
@@ -396,8 +395,7 @@ public:
 
             if (GrenadeTimer <= diff)
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                if (player)
+                if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                 {
                    Talk(SAY_RIZZLE_GRENADE, player->GetGUID());
                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
@@ -407,7 +405,7 @@ public:
 
             if (CheckTimer <= diff)
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                 if (!player)
                 {
                     me->DespawnOrUnsummon();
@@ -427,13 +425,6 @@ public:
                 CheckTimer = 1000;
             } else CheckTimer -= diff;
 
-        }
-
-        void SendText(int32 iTextEntry, Player* player)
-        {
-            LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-            const char* text = sObjectMgr->GetTrinityString(iTextEntry, loc_idx);
-            sWorld->SendServerMessage(SERVER_MSG_STRING, text, player);
         }
 
         void AttackStart(Unit* who) OVERRIDE

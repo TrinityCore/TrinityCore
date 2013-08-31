@@ -104,7 +104,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 instance = creature->GetInstanceScript();
 
                 defaultarmor = creature->GetArmor();
-                defaultsize = creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                defaultsize = creature->GetObjectScale();
             }
 
             InstanceScript* instance;

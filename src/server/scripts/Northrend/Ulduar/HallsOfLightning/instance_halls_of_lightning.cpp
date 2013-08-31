@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,240 +15,186 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Halls_of_Lightning
-SD%Complete: 90%
-SDComment: All ready.
-SDCategory: Halls of Lightning
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "halls_of_lightning.h"
 
-/* Halls of Lightning encounters:
-0 - General Bjarngrim
-1 - Volkhan
-2 - Ionar
-3 - Loken
-*/
+DoorData const doorData[] =
+{
+    { GO_BJARNGRIM_DOOR,    DATA_BJARNGRIM, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_VOLKHAN_DOOR,      DATA_VOLKHAN,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_IONAR_DOOR,        DATA_IONAR,     DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_LOKEN_DOOR,        DATA_LOKEN,     DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { 0,                    0,              DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
+};
 
 class instance_halls_of_lightning : public InstanceMapScript
 {
-public:
-    instance_halls_of_lightning() : InstanceMapScript("instance_halls_of_lightning", 602) { }
+    public:
+        instance_halls_of_lightning() : InstanceMapScript(HoLScriptName, 602) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
-    {
-        return new instance_halls_of_lightning_InstanceMapScript(map);
-    }
-
-    struct instance_halls_of_lightning_InstanceMapScript : public InstanceScript
-    {
-        instance_halls_of_lightning_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-        uint64 m_uiGeneralBjarngrimGUID;
-        uint64 m_uiIonarGUID;
-        uint64 m_uiLokenGUID;
-        uint64 m_uiVolkhanGUID;
-
-        uint64 m_uiBjarngrimDoorGUID;
-        uint64 m_uiVolkhanDoorGUID;
-        uint64 m_uiIonarDoorGUID;
-        uint64 m_uiLokenDoorGUID;
-        uint64 m_uiLokenGlobeGUID;
-
-        void Initialize() OVERRIDE
+        struct instance_halls_of_lightning_InstanceMapScript : public InstanceScript
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            m_uiGeneralBjarngrimGUID = 0;
-            m_uiVolkhanGUID          = 0;
-            m_uiIonarGUID            = 0;
-            m_uiLokenGUID            = 0;
-
-            m_uiBjarngrimDoorGUID    = 0;
-            m_uiVolkhanDoorGUID      = 0;
-            m_uiIonarDoorGUID        = 0;
-            m_uiLokenDoorGUID        = 0;
-            m_uiLokenGlobeGUID       = 0;
-        }
-
-        void OnCreatureCreate(Creature* creature) OVERRIDE
-        {
-            switch (creature->GetEntry())
+            instance_halls_of_lightning_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                case NPC_BJARNGRIM:
-                    m_uiGeneralBjarngrimGUID = creature->GetGUID();
-                    break;
-                case NPC_VOLKHAN:
-                    m_uiVolkhanGUID = creature->GetGUID();
-                    break;
-                case NPC_IONAR:
-                    m_uiIonarGUID = creature->GetGUID();
-                    break;
-                case NPC_LOKEN:
-                    m_uiLokenGUID = creature->GetGUID();
-                    break;
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+
+                GeneralBjarngrimGUID = 0;
+                VolkhanGUID          = 0;
+                IonarGUID            = 0;
+                LokenGUID            = 0;
+
+                LokenGlobeGUID       = 0;
             }
-        }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
-        {
-            switch (go->GetEntry())
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
-                case GO_BJARNGRIM_DOOR:
-                    m_uiBjarngrimDoorGUID = go->GetGUID();
-                    if (m_auiEncounter[0] == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
-                    else
-                        go->SetGoState(GO_STATE_READY);
-                    break;
-                case GO_VOLKHAN_DOOR:
-                    m_uiVolkhanDoorGUID = go->GetGUID();
-                    if (m_auiEncounter[1] == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
-                    else
-                        go->SetGoState(GO_STATE_READY);
-                    break;
-                case GO_IONAR_DOOR:
-                    m_uiIonarDoorGUID = go->GetGUID();
-                    if (m_auiEncounter[2] == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
-                    else
-                        go->SetGoState(GO_STATE_READY);
-                    break;
-                case GO_LOKEN_DOOR:
-                    m_uiLokenDoorGUID = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
-                    else
-                        go->SetGoState(GO_STATE_READY);
-                    break;
-                case GO_LOKEN_THRONE:
-                    m_uiLokenGlobeGUID = go->GetGUID();
-                    break;
+                switch (creature->GetEntry())
+                {
+                    case NPC_BJARNGRIM:
+                        GeneralBjarngrimGUID = creature->GetGUID();
+                        break;
+                    case NPC_VOLKHAN:
+                        VolkhanGUID = creature->GetGUID();
+                        break;
+                    case NPC_IONAR:
+                        IonarGUID = creature->GetGUID();
+                        break;
+                    case NPC_LOKEN:
+                        LokenGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
 
-        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
-        {
-            switch (uiType)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
-                case TYPE_BJARNGRIM:
-                    if (uiData == DONE)
-                        if (GameObject* pDoor = instance->GetGameObject(m_uiBjarngrimDoorGUID))
-                            pDoor->SetGoState(GO_STATE_ACTIVE);
-                    m_auiEncounter[0] = uiData;
-                    break;
-                case TYPE_VOLKHAN:
-                    if (uiData == DONE)
-                        if (GameObject* pDoor = instance->GetGameObject(m_uiVolkhanDoorGUID))
-                            pDoor->SetGoState(GO_STATE_ACTIVE);
-                    m_auiEncounter[1] = uiData;
-                    break;
-                case TYPE_IONAR:
-                    if (uiData == DONE)
-                        if (GameObject* pDoor = instance->GetGameObject(m_uiIonarDoorGUID))
-                            pDoor->SetGoState(GO_STATE_ACTIVE);
-                    m_auiEncounter[2] = uiData;
-                    break;
-                case TYPE_LOKEN:
-                    if (uiData == DONE)
+                switch (go->GetEntry())
+                {
+                    case GO_BJARNGRIM_DOOR:
+                    case GO_VOLKHAN_DOOR:
+                    case GO_IONAR_DOOR:
+                    case GO_LOKEN_DOOR:
+                        AddDoor(go, true);
+                        break;
+                    case GO_LOKEN_THRONE:
+                        LokenGlobeGUID = go->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_BJARNGRIM_DOOR:
+                    case GO_VOLKHAN_DOOR:
+                    case GO_IONAR_DOOR:
+                    case GO_LOKEN_DOOR:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_LOKEN:
+                        if (state == DONE)
+                            if (GameObject* globe = instance->GetGameObject(LokenGlobeGUID))
+                                globe->SendCustomAnim(0);
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            uint64 GetData64(uint32 type) const OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_BJARNGRIM:
+                        return GeneralBjarngrimGUID;
+                    case DATA_VOLKHAN:
+                        return VolkhanGUID;
+                    case DATA_IONAR:
+                        return IonarGUID;
+                    case DATA_LOKEN:
+                        return LokenGUID;
+                    default:
+                        break;
+                }
+                return 0;
+            }
+
+            std::string GetSaveData() OVERRIDE
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "H L " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(const char* str) OVERRIDE
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'H' && dataHead2 == 'L')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
                     {
-                        if (GameObject* pDoor = instance->GetGameObject(m_uiLokenDoorGUID))
-                            pDoor->SetGoState(GO_STATE_ACTIVE);
-
-                        // Appears to be type 5 GO with animation. Need to figure out how this work, code below only placeholder
-                        if (GameObject* pGlobe = instance->GetGameObject(m_uiLokenGlobeGUID))
-                            pGlobe->SetGoState(GO_STATE_ACTIVE);
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
                     }
-                    m_auiEncounter[3] = uiData;
-                    break;
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            if (uiData == DONE)
-                SaveToDB();
-        }
+        protected:
+            uint64 GeneralBjarngrimGUID;
+            uint64 VolkhanGUID;
+            uint64 IonarGUID;
+            uint64 LokenGUID;
 
-        uint32 GetData(uint32 uiType) const OVERRIDE
+            uint64 LokenGlobeGUID;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
-            switch (uiType)
-            {
-                case TYPE_BJARNGRIM:
-                    return m_auiEncounter[0];
-                case TYPE_VOLKHAN:
-                    return m_auiEncounter[1];
-                case TYPE_IONAR:
-                    return m_auiEncounter[2];
-                case TYPE_LOKEN:
-                    return m_auiEncounter[3];
-            }
-            return 0;
+            return new instance_halls_of_lightning_InstanceMapScript(map);
         }
-
-        uint64 GetData64(uint32 uiData) const OVERRIDE
-        {
-            switch (uiData)
-            {
-                case DATA_BJARNGRIM:
-                    return m_uiGeneralBjarngrimGUID;
-                case DATA_VOLKHAN:
-                    return m_uiVolkhanGUID;
-                case DATA_IONAR:
-                    return m_uiIonarGUID;
-                case DATA_LOKEN:
-                    return m_uiLokenGUID;
-            }
-            return 0;
-        }
-
-        std::string GetSaveData() OVERRIDE
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "H L " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
-            << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* in) OVERRIDE
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
-
-            if (dataHead1 == 'H' && dataHead2 == 'L')
-            {
-                m_auiEncounter[0] = data0;
-                m_auiEncounter[1] = data1;
-                m_auiEncounter[2] = data2;
-                m_auiEncounter[3] = data3;
-
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        m_auiEncounter[i] = NOT_STARTED;
-            } else OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-    };
-
 };
 
 void AddSC_instance_halls_of_lightning()

@@ -260,7 +260,8 @@ namespace MMAP
                 meshData.solidVerts.append(coord[1]);
             }
 
-            int indices[3], loopStart = 0, loopEnd = 0, loopInc = 0;
+            int indices[] = { 0, 0, 0 };
+            int loopStart = 0, loopEnd = 0, loopInc = 0;
             getLoopVars(portion, loopStart, loopEnd, loopInc);
             for (int i = loopStart; i < loopEnd; i+=loopInc)
                 for (int j = TOP; j <= BOTTOM; j+=1)
@@ -340,7 +341,8 @@ namespace MMAP
 
                 delete [] liquid_map;
 
-                int indices[3], loopStart = 0, loopEnd = 0, loopInc = 0, triInc = BOTTOM-TOP;
+                int indices[] = { 0, 0, 0 };
+                int loopStart = 0, loopEnd = 0, loopInc = 0, triInc = BOTTOM-TOP;
                 getLoopVars(portion, loopStart, loopEnd, loopInc);
 
                 // generate triangles

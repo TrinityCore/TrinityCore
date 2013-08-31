@@ -15,300 +15,244 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Utgarde_Keep
-SD%Complete: 90
-SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Utgarde Keep Scripts
-SDCategory: Utgarde Keep
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
-#include "Player.h"
 
-#define MAX_ENCOUNTER     3
+DoorData const doorData[] =
+{
+    { GO_GIANT_PORTCULLIS_1,    DATA_INGVAR,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_GIANT_PORTCULLIS_2,    DATA_INGVAR,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { 0,                        0,              DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
+};
 
-#define ENTRY_BELLOW_1          186688
-#define ENTRY_BELLOW_2          186689
-#define ENTRY_BELLOW_3          186690
-
-#define ENTRY_FORGEFIRE_1       186692
-#define ENTRY_FORGEFIRE_2       186693
-#define ENTRY_FORGEFIRE_3       186691
-
-#define ENTRY_GLOWING_ANVIL_1   186609
-#define ENTRY_GLOWING_ANVIL_2   186610
-#define ENTRY_GLOWING_ANVIL_3   186611
-
-#define ENTRY_GIANT_PORTCULLIS_1    186756
-#define ENTRY_GIANT_PORTCULLIS_2    186694
-
-/* Utgarde Keep encounters:
-0 - Prince Keleseth
-1 - Skarvald Dalronn
-2 - Ingvar the Plunderer
-*/
+MinionData const minionData[] =
+{
+    { NPC_SKARVALD,     DATA_SKARVALD_DALRONN },
+    { NPC_DALRONN,      DATA_SKARVALD_DALRONN }
+};
 
 class instance_utgarde_keep : public InstanceMapScript
 {
-public:
-    instance_utgarde_keep() : InstanceMapScript("instance_utgarde_keep", 574) { }
+    public:
+        instance_utgarde_keep() : InstanceMapScript(UKScriptName, 574) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
-    {
-       return new instance_utgarde_keep_InstanceMapScript(map);
-    }
-
-    struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
-    {
-        instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint64 Keleseth;
-        uint64 Skarvald;
-        uint64 Dalronn;
-        uint64 Ingvar;
-
-        uint64 forge_bellow[3];
-        uint64 forge_fire[3];
-        uint64 forge_anvil[3];
-        uint64 portcullis[2];
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-        uint32 forge_event[3];
-        std::string str_data;
-
-       void Initialize() OVERRIDE
-       {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            Keleseth = 0;
-            Skarvald = 0;
-            Dalronn = 0;
-            Ingvar = 0;
-
-            for (uint8 i = 0; i < 3; ++i)
+        struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
+        {
+            instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                forge_bellow[i] = 0;
-                forge_fire[i] = 0;
-                forge_anvil[i] = 0;
-                forge_event[i] = NOT_STARTED;
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+                LoadMinionData(minionData);
+
+                PrinceKelesethGUID  = 0;
+                SkarvaldGUID        = 0;
+                DalronnGUID         = 0;
+                IngvarGUID          = 0;
             }
 
-            portcullis[0] = 0;
-            portcullis[1] = 0;
-        }
-
-        bool IsEncounterInProgress() const OVERRIDE
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-
-            return false;
-        }
-
-        Player* GetPlayerInMap()
-        {
-            Map::PlayerList const& players = instance->GetPlayers();
-
-            if (!players.isEmpty())
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                switch (creature->GetEntry())
                 {
-                    if (Player* player = itr->GetSource())
-                    return player;
+                    case NPC_PRINCE_KELESETH:
+                        PrinceKelesethGUID = creature->GetGUID();
+                        break;
+                    case NPC_SKARVALD:
+                        SkarvaldGUID = creature->GetGUID();
+                        AddMinion(creature, true);
+                        break;
+                    case NPC_DALRONN:
+                        DalronnGUID = creature->GetGUID();
+                        AddMinion(creature, true);
+                        break;
+                    case NPC_INGVAR:
+                        IngvarGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
                 }
             }
 
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
-            return NULL;
-        }
-
-        void OnCreatureCreate(Creature* creature) OVERRIDE
-        {
-            switch (creature->GetEntry())
+            void OnCreatureRemove(Creature* creature) OVERRIDE
             {
-                case 23953:    Keleseth = creature->GetGUID();             break;
-                case 24201:    Dalronn = creature->GetGUID();              break;
-                case 24200:    Skarvald = creature->GetGUID();             break;
-                case 23954:    Ingvar = creature->GetGUID();               break;
-            }
-        }
-
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
-        {
-            switch (go->GetEntry())
-            {
-            //door and object id
-            case ENTRY_BELLOW_1: forge_bellow[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_BELLOW_2: forge_bellow[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_BELLOW_3: forge_bellow[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_FORGEFIRE_1: forge_fire[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_FORGEFIRE_2: forge_fire[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_FORGEFIRE_3: forge_fire[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GLOWING_ANVIL_1: forge_anvil[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GLOWING_ANVIL_2: forge_anvil[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GLOWING_ANVIL_3: forge_anvil[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
-            case ENTRY_GIANT_PORTCULLIS_1: portcullis[0] = go->GetGUID();
-            if (m_auiEncounter[2] == DONE)HandleGameObject(0, true, go);break;
-            case ENTRY_GIANT_PORTCULLIS_2: portcullis[1] = go->GetGUID();
-            if (m_auiEncounter[2] == DONE)HandleGameObject(0, true, go);break;
-            }
-        }
-
-        uint64 GetData64(uint32 identifier) const OVERRIDE
-        {
-            switch (identifier)
-            {
-                case DATA_PRINCEKELESETH:         return Keleseth;
-                case DATA_DALRONN:                return Dalronn;
-                case DATA_SKARVALD:               return Skarvald;
-                case DATA_INGVAR:                 return Ingvar;
-            }
-
-            return 0;
-        }
-
-        void SetData(uint32 type, uint32 data) OVERRIDE
-        {
-            switch (type)
-            {
-            case DATA_PRINCEKELESETH_EVENT:
-                m_auiEncounter[0] = data;
-                break;
-            case DATA_SKARVALD_DALRONN_EVENT:
-                m_auiEncounter[1] = data;
-                break;
-            case DATA_INGVAR_EVENT:
-                if (data == DONE)
+                switch (creature->GetEntry())
                 {
-                    HandleGameObject(portcullis[0], true);
-                    HandleGameObject(portcullis[1], true);
+                    case NPC_SKARVALD:
+                    case NPC_DALRONN:
+                        AddMinion(creature, false);
+                        break;
+                    default:
+                        break;
                 }
-                m_auiEncounter[2] = data;
-                break;
-            case EVENT_FORGE_1:
-                if (data == NOT_STARTED)
+            }
+
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
                 {
-                    HandleGameObject(forge_bellow[0], false);
-                    HandleGameObject(forge_fire[0], false);
-                    HandleGameObject(forge_anvil[0], false);
-                }else
-                {
-                    HandleGameObject(forge_bellow[0], true);
-                    HandleGameObject(forge_fire[0], true);
-                    HandleGameObject(forge_anvil[0], true);
+                    case GO_BELLOW_1:
+                        Forges[0].BellowGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        break;
+                    case GO_BELLOW_2:
+                        Forges[1].BellowGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        break;
+                    case GO_BELLOW_3:
+                        Forges[2].BellowGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        break;
+                    case GO_FORGEFIRE_1:
+                        Forges[0].FireGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        break;
+                    case GO_FORGEFIRE_2:
+                        Forges[1].FireGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        break;
+                    case GO_FORGEFIRE_3:
+                        Forges[2].FireGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        break;
+                    case GO_GLOWING_ANVIL_1:
+                        Forges[0].AnvilGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[0].Event != NOT_STARTED, go);
+                        break;
+                    case GO_GLOWING_ANVIL_2:
+                        Forges[1].AnvilGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[1].Event != NOT_STARTED, go);
+                        break;
+                    case GO_GLOWING_ANVIL_3:
+                        Forges[2].AnvilGUID = go->GetGUID();
+                        HandleGameObject(0, Forges[2].Event != NOT_STARTED, go);
+                        break;
+                    case GO_GIANT_PORTCULLIS_1:
+                    case GO_GIANT_PORTCULLIS_2:
+                        AddDoor(go, true);
+                        break;
+                    default:
+                        break;
                 }
-                forge_event[0] = data;
-                break;
-            case EVENT_FORGE_2:
-                if (data == NOT_STARTED)
+            }
+
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
                 {
-                    HandleGameObject(forge_bellow[1], false);
-                    HandleGameObject(forge_fire[1], false);
-                    HandleGameObject(forge_anvil[1], false);
-                }else
-                {
-                    HandleGameObject(forge_bellow[1], true);
-                    HandleGameObject(forge_fire[1], true);
-                    HandleGameObject(forge_anvil[1], true);
+                    case GO_GIANT_PORTCULLIS_1:
+                    case GO_GIANT_PORTCULLIS_2:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
                 }
-                forge_event[1] = data;
-                break;
-            case EVENT_FORGE_3:
-                if (data == NOT_STARTED)
+            }
+
+            uint64 GetData64(uint32 type) const OVERRIDE
+            {
+                switch (type)
                 {
-                    HandleGameObject(forge_bellow[2], false);
-                    HandleGameObject(forge_fire[2], false);
-                    HandleGameObject(forge_anvil[2], false);
-                }else
-                {
-                    HandleGameObject(forge_bellow[2], true);
-                    HandleGameObject(forge_fire[2], true);
-                    HandleGameObject(forge_anvil[2], true);
+                    case DATA_PRINCE_KELESETH:
+                        return PrinceKelesethGUID;
+                    case DATA_SKARVALD:
+                        return SkarvaldGUID;
+                    case DATA_DALRONN:
+                        return DalronnGUID;
+                    case DATA_INGVAR:
+                        return IngvarGUID;
+                    default:
+                        break;
                 }
-                forge_event[2] = data;
-                break;
+
+                return 0;
             }
 
-            if (data == DONE)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
-                SaveToDB();
-            }
-        }
+                switch (type)
+                {
+                    case DATA_FORGE_1:
+                    case DATA_FORGE_2:
+                    case DATA_FORGE_3:
+                    {
+                        uint8 i = type - DATA_FORGE_1;
+                        HandleGameObject(Forges[i].AnvilGUID, data != NOT_STARTED);
+                        HandleGameObject(Forges[i].BellowGUID, data != NOT_STARTED);
+                        HandleGameObject(Forges[i].FireGUID, data != NOT_STARTED);
+                        Forges[i].Event = data;
 
-        uint32 GetData(uint32 type) const OVERRIDE
+                        if (data == DONE)
+                            SaveToDB();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            std::string GetSaveData() OVERRIDE
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "U K " << GetBossSaveData();
+
+                for (uint8 i = 0; i < 3; ++i)
+                    saveStream << Forges[i].Event << ' ';
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(char const* str) OVERRIDE
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'U' && dataHead2 == 'K')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+
+                    for (uint8 i = 0; i < 3; ++i)
+                         loadStream >> Forges[i].Event;
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+        protected:
+            ForgeInfo Forges[3];
+
+            uint64 PrinceKelesethGUID;
+            uint64 SkarvaldGUID;
+            uint64 DalronnGUID;
+            uint64 IngvarGUID;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
-            switch (type)
-            {
-                case DATA_PRINCEKELESETH_EVENT:     return m_auiEncounter[0];
-                case DATA_SKARVALD_DALRONN_EVENT:   return m_auiEncounter[1];
-                case DATA_INGVAR_EVENT:             return m_auiEncounter[2];
-            }
-
-            return 0;
+           return new instance_utgarde_keep_InstanceMapScript(map);
         }
-
-        std::string GetSaveData() OVERRIDE
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "U K " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
-                << m_auiEncounter[2] << ' ' << forge_event[0] << ' ' << forge_event[1] << ' ' << forge_event[2];
-
-            str_data = saveStream.str();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return str_data;
-        }
-
-        void Load(const char* in) OVERRIDE
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3, data4, data5;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5;
-
-            if (dataHead1 == 'U' && dataHead2 == 'K')
-            {
-                m_auiEncounter[0] = data0;
-                m_auiEncounter[1] = data1;
-                m_auiEncounter[2] = data2;
-
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        m_auiEncounter[i] = NOT_STARTED;
-
-                forge_event[0] = data3;
-                forge_event[1] = data4;
-                forge_event[2] = data5;
-
-            } else OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-    };
-
 };
 
 void AddSC_instance_utgarde_keep()

@@ -34,6 +34,7 @@ class HmacHash
         HmacHash(uint32 len, uint8 *seed);
         ~HmacHash();
         void UpdateData(const std::string &str);
+        void UpdateData(const uint8* data, size_t len);
         void Finalize();
         uint8 *ComputeHash(BigNumber* bn);
         uint8 *GetDigest() { return (uint8*)m_digest; }

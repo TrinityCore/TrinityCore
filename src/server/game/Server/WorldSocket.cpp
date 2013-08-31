@@ -730,11 +730,11 @@ int WorldSocket::HandleSendAuthSession()
 
     BigNumber seed1;
     seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16), 16);               // new encryption seeds
+    packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
 
     BigNumber seed2;
     seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16), 16);               // new encryption seeds
+    packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
     return SendPacket(packet);
 }
 

@@ -473,6 +473,7 @@ public:
             {
             case SPELL_BLAZE:
                 target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
+                break;
             case SPELL_CONFLAGRATION:
             case SPELL_FLAME_SEAR:
                 HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);

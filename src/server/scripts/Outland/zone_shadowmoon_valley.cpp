@@ -154,11 +154,11 @@ public:
                         DoCast(me, SPELL_JUST_EATEN);
                         Talk(SAY_JUST_EATEN);
 
-                        if (Player* pPlr = Unit::GetPlayer(*me, uiPlayerGUID))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                         {
-                            pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, 0);
+                            player->KilledMonsterCredit(NPC_EVENT_PINGER, 0);
 
-                            if (GameObject* go = pPlr->FindNearestGameObject(GO_CARCASS, 10))
+                            if (GameObject* go = player->FindNearestGameObject(GO_CARCASS, 10))
                                 go->Delete();
                         }
 
@@ -298,7 +298,7 @@ public:
                         Tapped = false;
                         if (PlayerGUID)
                         {
-                            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                             if (player && player->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                             {
                                 DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
@@ -400,7 +400,7 @@ public:
                 {
                     if (PlayerGUID)
                     {
-                        Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                        Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                         if (player && player->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
                             player->KilledMonsterCredit(23209, 0);
                     }
@@ -760,7 +760,7 @@ public:
             }
             if (PlayerGUID)
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                 if (player)
                     Talk(OVERLORD_SAY_1, player->GetGUID());
             }
@@ -771,8 +771,8 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
-            Creature* Illi = Creature::GetCreature(*me, IllidanGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
+            Creature* Illi = ObjectAccessor::GetCreature(*me, IllidanGUID);
 
             if (!player)
             {
@@ -1311,7 +1311,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_BYTES_1, 8);
                 break;
             case 5:
-                if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
+                if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
                 {
                     me->SetTarget(AggroTarget->GetGUID());
                     me->AddThreat(AggroTarget, 1);
@@ -1319,7 +1319,7 @@ public:
                 }
                 break;
             case 6:
-                if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
+                if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->ClearUnitState(UNIT_STATE_ROOT);
@@ -1456,15 +1456,13 @@ public:
 
         void CheckEventFail()
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
             if (!player)
                 return;
 
             if (Group* EventGroup = player->GetGroup())
             {
-                Player* GroupMember;
-
                 uint8 GroupMemberCount = 0;
                 uint8 DeadMemberCount = 0;
                 uint8 FailedMemberCount = 0;
@@ -1473,7 +1471,7 @@ public:
 
                 for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
-                    GroupMember = (Unit::GetPlayer(*me, itr->guid));
+                    Player* GroupMember = ObjectAccessor::GetPlayer(*me, itr->guid);
                     if (!GroupMember)
                         continue;
                     if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
@@ -1484,9 +1482,7 @@ public:
                     ++GroupMemberCount;
 
                     if (GroupMember->isDead())
-                    {
                         ++DeadMemberCount;
-                    }
                 }
 
                 if (GroupMemberCount == FailedMemberCount)
@@ -1498,12 +1494,9 @@ public:
                 {
                     for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                     {
-                        GroupMember = Unit::GetPlayer(*me, itr->guid);
-
-                        if (GroupMember && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            GroupMember->FailQuest(QUEST_BATTLE_OF_THE_CRIMSON_WATCH);
-                        }
+                        if (Player* groupMember = ObjectAccessor::GetPlayer(*me, itr->guid))
+                            if (groupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
+                                groupMember->FailQuest(QUEST_BATTLE_OF_THE_CRIMSON_WATCH);
                     }
                     Failed = true;
                 }
@@ -1713,7 +1706,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
             {
                 if (PlayerGUID)
                 {
-                    if (Player* target = Unit::GetPlayer(*me, PlayerGUID))
+                    if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     {
                         float x, y, z;
                         target->GetPosition(x, y, z);
@@ -1906,7 +1899,7 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
             {
                 if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
                     if (Creature* karynaku = GetCaster()->FindNearestCreature(NPC_KARYNAKU, 15.0f))
-                        GetCaster()->ToPlayer()->CastedCreatureOrGO(NPC_KARYNAKU, karynaku->GetGUID(), GetSpellInfo()->Id);
+                        GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_KARYNAKU, karynaku->GetGUID());
             }
 
             void Register() OVERRIDE

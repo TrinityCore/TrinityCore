@@ -90,7 +90,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE {}
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -119,7 +119,8 @@ public:
                     case 3:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         phaseTimer = 2000;
-                        phase = 4;
+                        phase = 5; // @fixme: phase 4 is missing...
+                        break;
                     case 5:
                         DoCast(me, SPELL_SUMMON_WORM, true);
                         if (Unit* worm = me->FindNearestCreature(26250, 3))
@@ -142,7 +143,7 @@ public:
                         break;
                     case 7:
                         DoCast(me, SPELL_EXPLODE_CART, true);
-                        if (Player* caster = Unit::GetPlayer(*me, casterGuid))
+                        if (Player* caster = ObjectAccessor::GetPlayer(*me, casterGuid))
                             caster->KilledMonster(me->GetCreatureTemplate(), me->GetGUID());
                         phaseTimer = 5000;
                         phase = 8;
@@ -857,7 +858,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {
-                    if (Player* pHarpooner = Unit::GetPlayer(*me, HarpoonerGUID))
+                    if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
                     {
                         pHarpooner->KilledMonsterCredit(26175, 0);
                         pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
@@ -873,7 +874,7 @@ public:
         {
             if (WithRedDragonBlood && HarpoonerGUID && !me->HasAura(SPELL_RED_DRAGONBLOOD))
             {
-                if (Player* pHarpooner = Unit::GetPlayer(*me, HarpoonerGUID))
+                if (Player* pHarpooner = ObjectAccessor::GetPlayer(*me, HarpoonerGUID))
                 {
                     EnterEvadeMode();
                     StartFollow(pHarpooner, 35, NULL);
@@ -1718,7 +1719,7 @@ public:
 
         void GotStinged(uint64 casterGUID)
         {
-            if (Player* caster = Player::GetPlayer(*me, casterGUID))
+            if (Player* caster = ObjectAccessor::GetPlayer(*me, casterGUID))
             {
                 uint32 step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE) + 1;
                 switch (step)
@@ -2378,7 +2379,7 @@ public:
         {
             me->StopMoving();
             me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-            if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
+            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 me->SetFacingToObject(player);
             uiEventTimer = 3000;
             uiEventPhase = 1;
@@ -2392,7 +2393,7 @@ public:
         void AttackPlayer()
         {
             me->setFaction(14);
-            if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
+            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 me->AI()->AttackStart(player);
         }
 
@@ -2428,7 +2429,7 @@ public:
                         {
                             case NPC_SALTY_JOHN_THORPE:
                                 Talk(SAY_HIDDEN_CULTIST_4);
-                                if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
+                                if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                                     me->SetFacingToObject(player);
                                 uiEventTimer = 3000;
                                 uiEventPhase = 3;
