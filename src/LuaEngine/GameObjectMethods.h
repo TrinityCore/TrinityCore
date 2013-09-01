@@ -3,7 +3,7 @@
 
 namespace LuaGameObject
 {
-    int GetHeight(lua_State*, GameObject*);
+    int GetMap(lua_State*, GameObject*);
     int GetRelativePoint(lua_State*, GameObject*);
     int GetUnitType(lua_State*, GameObject*);
     int GetGUID(lua_State*, GameObject*);

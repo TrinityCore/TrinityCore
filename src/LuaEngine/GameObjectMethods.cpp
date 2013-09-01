@@ -1,18 +1,12 @@
 #include "LuaEngine.h"
 #include "GameObjectMethods.h"
 
-int LuaGameObject::GetHeight(lua_State* L, GameObject* go)
+int LuaGameObject::GetMap(lua_State* L, GameObject* go)
 {
     if (!go || !go->IsInWorld())
         return 0;
 
-    float x = luaL_checknumber(L, 1);
-    float y = luaL_checknumber(L, 2);
-
-    float z = go->GetMap()->GetHeight(go->GetPhaseMask(), x, y, MAX_HEIGHT);
-    if (z == INVALID_HEIGHT)
-        z = go->GetPositionZ();
-    sEluna->PushFloat(L, z);
+    sEluna->PushMap(L, go->GetMap());
     return 1;
 }
 
