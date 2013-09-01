@@ -41,12 +41,6 @@ enum Spells
     SPELL_GUARDIAN_AURA         = 56151
 };
 
-enum Creatures
-{
-    NPC_AHNKAHAR_SWARMER        = 30178,
-    NPC_AHNKAHAR_GUARDIAN       = 30176
-};
-
 enum Events
 {
     EVENT_PLAGUE = 1,
@@ -62,37 +56,21 @@ class boss_elder_nadox : public CreatureScript
     public:
         boss_elder_nadox() : CreatureScript("boss_elder_nadox") { }
 
-        struct boss_elder_nadoxAI : public ScriptedAI
+        struct boss_elder_nadoxAI : public BossAI
         {
-            boss_elder_nadoxAI(Creature* creature) : ScriptedAI(creature), summons(me)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            bool GuardianDied;
-            uint8 AmountHealthModifier;
-            InstanceScript* instance;
-            SummonList summons;
-            EventMap events;
+            boss_elder_nadoxAI(Creature* creature) : BossAI(creature, DATA_ELDER_NADOX) { }
 
             void Reset() OVERRIDE
             {
-                events.Reset();
-                summons.DespawnAll();
-
+                _Reset();
                 AmountHealthModifier = 1;
                 GuardianDied = false;
-
-                if (instance)
-                    instance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
-
-                if (instance)
-                    instance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
 
                 events.ScheduleEvent(EVENT_PLAGUE, 13 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10 * IN_MILLISECONDS);
@@ -102,12 +80,6 @@ class boss_elder_nadox : public CreatureScript
                     events.ScheduleEvent(EVENT_RAGE, 12 * IN_MILLISECONDS);
                     events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5 * IN_MILLISECONDS);
                 }
-            }
-
-            void JustSummoned(Creature* summon) OVERRIDE
-            {
-                summons.Summon(summon);
-                summon->AI()->DoZoneInCombat();
             }
 
             void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) OVERRIDE
@@ -124,19 +96,16 @@ class boss_elder_nadox : public CreatureScript
                 return 0;
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_SLAY);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-
-                summons.DespawnAll();
-
-                if (instance)
-                    instance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -185,11 +154,15 @@ class boss_elder_nadox : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            bool GuardianDied;
+            uint8 AmountHealthModifier;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_elder_nadoxAI(creature);
+            return GetAhnKahetAI<boss_elder_nadoxAI>(creature);
         }
 };
 

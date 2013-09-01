@@ -41,12 +41,6 @@ enum Spells
     SPELL_INSANITY_PHASING_5                      = 57512
 };
 
-enum Creatures
-{
-    NPC_TWISTED_VISAGE                            = 30625
-};
-
-
 enum Yells
 {
     SAY_AGGRO   = 0,
@@ -157,7 +151,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
+                instance->SetBossState(DATA_HERALD_VOLAZJ, NOT_STARTED);
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
             }
 
@@ -180,7 +174,7 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
+                instance->SetBossState(DATA_HERALD_VOLAZJ, IN_PROGRESS);
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
             }
         }
@@ -302,7 +296,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_HERALD_VOLAZJ, DONE);
+                instance->SetBossState(DATA_HERALD_VOLAZJ, DONE);
 
             Summons.DespawnAll();
             ResetPlayersPhaseMask();

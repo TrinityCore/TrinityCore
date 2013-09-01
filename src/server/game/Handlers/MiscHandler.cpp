@@ -1680,8 +1680,12 @@ void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SET_TAXI_BENCHMARK_MODE");
+
     uint8 mode;
     recvData >> mode;
+
+    mode ? _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK) : _player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
 
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Client used \"/timetest %d\" command", mode);
 }

@@ -38,24 +38,24 @@ public:
     {
         static ChatCommand channelSetCommandTable[] =
         {
-            { "ownership",      SEC_ADMINISTRATOR,  false,  &HandleChannelSetOwnership,         "", NULL },
+            { "ownership",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false,  &HandleChannelSetOwnership,         "", NULL },
             { NULL,             0,                  false,  NULL,                               "", NULL }
         };
         static ChatCommand channelCommandTable[] =
         {
-            { "set",            SEC_ADMINISTRATOR,  true,   NULL,                               "", channelSetCommandTable },
+            { "set",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,   NULL,                               "", channelSetCommandTable },
             { NULL,             0,                  false,  NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
-            { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
-            { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
-            { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             "", NULL },
-            { "gmannounce",     SEC_MODERATOR,      true,   &HandleGMAnnounceCommand,           "", NULL },
-            { "notify",         SEC_MODERATOR,      true,   &HandleNotifyCommand,               "", NULL },
-            { "gmnotify",       SEC_MODERATOR,      true,   &HandleGMNotifyCommand,             "", NULL },
-            { "whispers",       SEC_MODERATOR,      false,  &HandleWhispersCommand,             "", NULL },
+            { "channel",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,   NULL,                               "", channelCommandTable  },
+            { "nameannounce",   RBAC_PERM_MODERATOR_COMMANDS,      true,   &HandleNameAnnounceCommand,         "", NULL },
+            { "gmnameannounce", RBAC_PERM_MODERATOR_COMMANDS,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
+            { "announce",       RBAC_PERM_MODERATOR_COMMANDS,      true,   &HandleAnnounceCommand,             "", NULL },
+            { "gmannounce",     RBAC_PERM_MODERATOR_COMMANDS,      true,   &HandleGMAnnounceCommand,           "", NULL },
+            { "notify",         RBAC_PERM_MODERATOR_COMMANDS,      true,   &HandleNotifyCommand,               "", NULL },
+            { "gmnotify",       RBAC_PERM_MODERATOR_COMMANDS,      true,   &HandleGMNotifyCommand,             "", NULL },
+            { "whispers",       RBAC_PERM_MODERATOR_COMMANDS,      false,  &HandleWhispersCommand,             "", NULL },
             { NULL,             0,                  false,  NULL,                               "", NULL }
         };
         return commandTable;

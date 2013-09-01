@@ -493,7 +493,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
         struct npc_green_dragon_combat_triggerAI : public BossAI
         {
-            npc_green_dragon_combat_triggerAI(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER)
+            npc_green_dragon_combat_triggerAI(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER), _evadeCheck(false)
             {
             }
 

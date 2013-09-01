@@ -121,7 +121,7 @@ public:
             m_lGolemGUIDList.clear();
 
             if (instance)
-                instance->SetData(TYPE_VOLKHAN, NOT_STARTED);
+                instance->SetBossState(DATA_VOLKHAN, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -129,7 +129,7 @@ public:
             Talk(SAY_AGGRO);
 
             if (instance)
-                instance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
+                instance->SetBossState(DATA_VOLKHAN, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -151,7 +151,7 @@ public:
             DespawnGolem();
 
             if (instance)
-                instance->SetData(TYPE_VOLKHAN, DONE);
+                instance->SetBossState(DATA_VOLKHAN, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE

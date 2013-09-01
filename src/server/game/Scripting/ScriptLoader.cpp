@@ -375,23 +375,36 @@ void AddSC_thunder_bluff();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
 
-//northrend
+// Northrend
+
 void AddSC_boss_slad_ran();
 void AddSC_boss_moorabi();
 void AddSC_boss_drakkari_colossus();
 void AddSC_boss_gal_darah();
 void AddSC_boss_eck();
 void AddSC_instance_gundrak();
-void AddSC_boss_krik_thir();             //Azjol-Nerub
+
+// Azjol-Nerub - Azjol-Nerub
+void AddSC_boss_krik_thir();
 void AddSC_boss_hadronox();
 void AddSC_boss_anub_arak();
 void AddSC_instance_azjol_nerub();
-void AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
-void AddSC_boss_amanitar();
-void AddSC_boss_taldaram();
-void AddSC_boss_jedoga_shadowseeker();
+
+// Azjol-Nerub - Ahn'kahet
 void AddSC_boss_elder_nadox();
+void AddSC_boss_taldaram();
+void AddSC_boss_amanitar();
+void AddSC_boss_jedoga_shadowseeker();
 void AddSC_boss_volazj();
+void AddSC_instance_ahnkahet();
+
+// Drak'Tharon Keep
+void AddSC_boss_trollgore();
+void AddSC_boss_novos();
+void AddSC_boss_king_dred();
+void AddSC_boss_tharon_ja();
+void AddSC_instance_drak_tharon_keep();
+
 void AddSC_boss_argent_challenge();      //Trial of the Champion
 void AddSC_boss_black_knight();
 void AddSC_boss_grand_champions();
@@ -460,26 +473,28 @@ void AddSC_boss_freya();
 void AddSC_boss_yogg_saron();
 void AddSC_boss_algalon_the_observer();
 void AddSC_instance_ulduar();
-void AddSC_boss_keleseth();              //Utgarde Keep
+
+// Utgarde Keep - Utgarde Keep
+void AddSC_boss_keleseth();
 void AddSC_boss_skarvald_dalronn();
 void AddSC_boss_ingvar_the_plunderer();
 void AddSC_instance_utgarde_keep();
-void AddSC_boss_svala();                 //Utgarde pinnacle
+void AddSC_utgarde_keep();
+
+// Utgarde Keep - Utgarde Pinnacle
+void AddSC_boss_svala();
 void AddSC_boss_palehoof();
 void AddSC_boss_skadi();
 void AddSC_boss_ymiron();
 void AddSC_instance_utgarde_pinnacle();
-void AddSC_utgarde_keep();
-void AddSC_boss_archavon();              //Vault of Archavon
+
+// Vault of Archavon
+void AddSC_boss_archavon();
 void AddSC_boss_emalon();
 void AddSC_boss_koralon();
 void AddSC_boss_toravon();
-void AddSC_instance_archavon();
-void AddSC_boss_trollgore();             //Drak'Tharon Keep
-void AddSC_boss_novos();
-void AddSC_boss_king_dred();
-void AddSC_boss_tharon_ja();
-void AddSC_instance_drak_tharon_keep();
+void AddSC_instance_vault_of_archavon();
+
 void AddSC_boss_cyanigosa();             //Violet Hold
 void AddSC_boss_erekem();
 void AddSC_boss_ichoron();
@@ -536,20 +551,31 @@ void AddSC_zuldrak();
 void AddSC_crystalsong_forest();
 void AddSC_isle_of_conquest();
 
-//outland
-void AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
+// Outland
+
+// Auchindoun - Auchenai Crypts
 void AddSC_boss_shirrak_the_dead_watcher();
-void AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
+void AddSC_boss_exarch_maladaar();
+void AddSC_instance_auchenai_crypts();
+
+// Auchindoun - Mana Tombs
 void AddSC_boss_pandemonius();
-void AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
+void AddSC_boss_nexusprince_shaffar();
+void AddSC_instance_mana_tombs();
+
+// Auchindoun - Sekketh Halls
+void AddSC_boss_darkweaver_syth();
 void AddSC_boss_talon_king_ikiss();
 void AddSC_boss_anzu();
 void AddSC_instance_sethekk_halls();
-void AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
+
+// Auchindoun - Shadow Labyrinth
 void AddSC_boss_ambassador_hellmaw();
 void AddSC_boss_blackheart_the_inciter();
 void AddSC_boss_grandmaster_vorpil();
 void AddSC_boss_murmur();
+void AddSC_instance_shadow_labyrinth();
+
 void AddSC_black_temple();                   //Black Temple
 void AddSC_boss_illidan();
 void AddSC_boss_shade_of_akama();
@@ -634,6 +660,7 @@ void AddSC_event_childrens_week();
 
 // Pets
 void AddSC_deathknight_pet_scripts();
+void AddSC_generic_pet_scripts();
 void AddSC_hunter_pet_scripts();
 void AddSC_mage_pet_scripts();
 void AddSC_priest_pet_scripts();
@@ -1054,19 +1081,29 @@ void AddKalimdorScripts()
 void AddOutlandScripts()
 {
 #ifdef SCRIPTS
-    AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
+    // Auchindoun - Auchenai Crypts
     AddSC_boss_shirrak_the_dead_watcher();
-    AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
+    AddSC_boss_exarch_maladaar();
+    AddSC_instance_auchenai_crypts();
+
+    // Auchindoun - Mana Tombs
     AddSC_boss_pandemonius();
-    AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
+    AddSC_boss_nexusprince_shaffar();
+    AddSC_instance_mana_tombs();
+
+    // Auchindoun - Sekketh Halls
+    AddSC_boss_darkweaver_syth();
     AddSC_boss_talon_king_ikiss();
     AddSC_boss_anzu();
     AddSC_instance_sethekk_halls();
-    AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
+
+    // Auchindoun - Shadow Labyrinth
     AddSC_boss_ambassador_hellmaw();
     AddSC_boss_blackheart_the_inciter();
     AddSC_boss_grandmaster_vorpil();
     AddSC_boss_murmur();
+    AddSC_instance_shadow_labyrinth();
+
     AddSC_black_temple();                   //Black Temple
     AddSC_boss_illidan();
     AddSC_boss_shade_of_akama();
@@ -1154,12 +1191,28 @@ void AddNorthrendScripts()
     AddSC_boss_gal_darah();
     AddSC_boss_eck();
     AddSC_instance_gundrak();
-    AddSC_boss_amanitar();
-    AddSC_boss_taldaram();              //Azjol-Nerub Ahn'kahet
+
+    // Azjol-Nerub - Ahn'kahet
     AddSC_boss_elder_nadox();
+    AddSC_boss_taldaram();
+    AddSC_boss_amanitar();
     AddSC_boss_jedoga_shadowseeker();
     AddSC_boss_volazj();
     AddSC_instance_ahnkahet();
+
+    // Azjol-Nerub - Azjol-Nerub
+    AddSC_boss_krik_thir();
+    AddSC_boss_hadronox();
+    AddSC_boss_anub_arak();
+    AddSC_instance_azjol_nerub();
+
+    // Drak'Tharon Keep
+    AddSC_boss_trollgore();
+    AddSC_boss_novos();
+    AddSC_boss_king_dred();
+    AddSC_boss_tharon_ja();
+    AddSC_instance_drak_tharon_keep();
+
     AddSC_boss_argent_challenge();      //Trial of the Champion
     AddSC_boss_black_knight();
     AddSC_boss_grand_champions();
@@ -1172,10 +1225,6 @@ void AddNorthrendScripts()
     AddSC_boss_twin_valkyr();
     AddSC_boss_northrend_beasts();
     AddSC_instance_trial_of_the_crusader();
-    AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub
-    AddSC_boss_hadronox();
-    AddSC_boss_anub_arak();
-    AddSC_instance_azjol_nerub();
     AddSC_boss_anubrekhan();            //Naxxramas
     AddSC_boss_maexxna();
     AddSC_boss_patchwerk();
@@ -1232,26 +1281,28 @@ void AddNorthrendScripts()
     AddSC_boss_yogg_saron();
     AddSC_boss_algalon_the_observer();
     AddSC_instance_ulduar();
-    AddSC_boss_keleseth();              //Utgarde Keep
+
+    // Utgarde Keep - Utgarde Keep
+    AddSC_boss_keleseth();
     AddSC_boss_skarvald_dalronn();
     AddSC_boss_ingvar_the_plunderer();
     AddSC_instance_utgarde_keep();
-    AddSC_boss_svala();                 //Utgarde pinnacle
+    AddSC_utgarde_keep();
+
+    // Utgarde Keep - Utgarde Pinnacle
+    AddSC_boss_svala();
     AddSC_boss_palehoof();
     AddSC_boss_skadi();
     AddSC_boss_ymiron();
     AddSC_instance_utgarde_pinnacle();
-    AddSC_utgarde_keep();
-    AddSC_boss_archavon();              //Vault of Archavon
+
+    // Vault of Archavon
+    AddSC_boss_archavon();
     AddSC_boss_emalon();
     AddSC_boss_koralon();
     AddSC_boss_toravon();
-    AddSC_instance_archavon();
-    AddSC_boss_trollgore();             //Drak'Tharon Keep
-    AddSC_boss_novos();
-    AddSC_boss_king_dred();
-    AddSC_boss_tharon_ja();
-    AddSC_instance_drak_tharon_keep();
+    AddSC_instance_vault_of_archavon();
+
     AddSC_boss_cyanigosa();             //Violet Hold
     AddSC_boss_erekem();
     AddSC_boss_ichoron();
@@ -1329,6 +1380,7 @@ void AddPetScripts()
 {
 #ifdef SCRIPTS
     AddSC_deathknight_pet_scripts();
+    AddSC_generic_pet_scripts();
     AddSC_hunter_pet_scripts();
     AddSC_mage_pet_scripts();
     AddSC_priest_pet_scripts();

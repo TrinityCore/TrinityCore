@@ -3552,20 +3552,16 @@ void ObjectMgr::LoadQuests()
         "RequiredSourceItemId1, RequiredSourceItemId2, RequiredSourceItemId3, RequiredSourceItemId4, RequiredSourceItemCount1, RequiredSourceItemCount2, RequiredSourceItemCount3, RequiredSourceItemCount4, "
         //       111               112             113             114              115             116                 117                   118               119               120                 121                 122
         "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-        //      123             124                 125                126                  127              128              129             130           131
-        "RequiredSpell, RequiredSpellCast1, RequiredSpellCast2, RequiredSpellCast3, RequiredSpellCast4, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, "
-        //     132                  133               134               135                  136                  137                     138                   139
-        "RewardCurrencyId1, RewardCurrencyId2, RewardCurrencyId3, RewardCurrencyId4, RewardCurrencyCount1, RewardCurrencyCount2, RewardCurrencyCount3, RewardCurrencyCount4, "
-        //      140                  141                 142                   143                    144                    145                     146                   147
+        //      123         124             125             126             127             128                 129                 130                 131             132                     133                 134                 135
+        "RequiredSpell, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,  RewardCurrencyId1, RewardCurrencyId2, RewardCurrencyId3, RewardCurrencyId4, RewardCurrencyCount1, RewardCurrencyCount2, RewardCurrencyCount3, RewardCurrencyCount4, "
+        //      136                  137                 138                   139                    140                    141                     142                   143
         "RequiredCurrencyId1, RequiredCurrencyId2, RequiredCurrencyId3, RequiredCurrencyId4, RequiredCurrencyCount1, RequiredCurrencyCount2, RequiredCurrencyCount3, RequiredCurrencyCount4, "
-        //      148                  149                 150                   151               152          153
+        //      144                  145                 146                   147               148          149
         "QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, SoundAccept, SoundTurnIn, "
-        //      154          155            156            157               158                159                  160                  161                162             163
+        //      150          151            152            153               154                155                  156                  157                158             159
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
-        //      164                 165               166                167                   168                       169                     170                  171
-        "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, "
-        //    173
-        "WDBVerified"
+        //      160                 161               162                163                   164                       165                     166                  167               168
+        "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, WDBVerified"
         " FROM quest_template");
     if (!result)
     {
@@ -3593,7 +3589,7 @@ void ObjectMgr::LoadQuests()
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, iter->first, NULL))
             continue;
 
-        Quest * qinfo = iter->second;
+        Quest* qinfo = iter->second;
 
         // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
 
@@ -3631,12 +3627,12 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->Flags & QUEST_SPECIAL_FLAGS_MONTHLY)
+        if (qinfo->SpecialFlags & QUEST_SPECIAL_FLAGS_MONTHLY)
         {
-            if (!(qinfo->Flags & QUEST_SPECIAL_FLAGS_REPEATABLE))
+            if (!(qinfo->SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE))
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "Monthly quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
-                qinfo->Flags |= QUEST_SPECIAL_FLAGS_REPEATABLE;
+                qinfo->SpecialFlags |= QUEST_SPECIAL_FLAGS_REPEATABLE;
             }
         }
 
@@ -3703,13 +3699,13 @@ void ObjectMgr::LoadQuests()
         }
         // RequiredRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
         if (qinfo->RequiredRaces)
-            {
+        {
             if (!(qinfo->RequiredRaces & RACEMASK_ALL_PLAYABLE))
                 {
                     TC_LOG_ERROR(LOG_FILTER_SQL, "Quest %u does not contain any playable races in `RequiredRaces` (%u), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->RequiredRaces);
                     qinfo->RequiredRaces = 0;
                 }
-            }
+        }
         // RequiredSkillId, can be 0
         if (qinfo->RequiredSkillId)
         {
@@ -3902,52 +3898,6 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
         {
-            uint32 id = qinfo->RequiredSpellCast[j];
-            if (id)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
-                if (!spellInfo)
-                {
-                    TC_LOG_ERROR(LOG_FILTER_SQL, "Quest %u has `ReqSpellCast%d` = %u but spell %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, id);
-                    continue;
-                }
-
-                if (!qinfo->RequiredNpcOrGo[j])
-                {
-                    bool found = false;
-                    for (uint8 k = 0; k < MAX_SPELL_EFFECTS; ++k)
-                    {
-                        if ((spellInfo->Effects[k].Effect == SPELL_EFFECT_QUEST_COMPLETE && uint32(spellInfo->Effects[k].MiscValue) == qinfo->Id) ||
-                            spellInfo->Effects[k].Effect == SPELL_EFFECT_SEND_EVENT)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found)
-                    {
-                        if (!qinfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
-                        {
-                            TC_LOG_ERROR(LOG_FILTER_SQL, "Spell (id: %u) have SPELL_EFFECT_QUEST_COMPLETE or SPELL_EFFECT_SEND_EVENT for quest %u and RequiredNpcOrGo%d = 0, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. Quest flags or RequiredNpcOrGo%d must be fixed, quest modified to enable objective.", spellInfo->Id, qinfo->Id, j+1, j+1);
-
-                            // this will prevent quest completing without objective
-                            const_cast<Quest*>(qinfo)->SetSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT);
-                        }
-                    }
-                    else
-                    {
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "Quest %u has `ReqSpellCast%d` = %u and RequiredNpcOrGo%d = 0 but spell %u does not have SPELL_EFFECT_QUEST_COMPLETE or SPELL_EFFECT_SEND_EVENT effect for this quest, quest can't be done.",
-                            qinfo->GetQuestId(), j+1, id, j+1, id);
-                        // no changes, quest can't be done for this requirement
-                    }
-                }
-            }
-        }
-
-        for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
-        {
             int32 id = qinfo->RequiredNpcOrGo[j];
             if (id < 0 && !sObjectMgr->GetGameObjectTemplate(-id))
             {
@@ -3967,7 +3917,7 @@ void ObjectMgr::LoadQuests()
             {
                 // In fact SpeakTo and Kill are quite same: either you can speak to mob:SpeakTo or you can't:Kill/Cast
 
-                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL_OR_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO);
+                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO);
 
                 if (!qinfo->RequiredNpcOrGoCount[j])
                 {
@@ -6622,17 +6572,20 @@ void ObjectMgr::LoadPetNumber()
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
 {
-    StringVector & list0 = _petHalfName0[entry];
-    StringVector & list1 = _petHalfName1[entry];
+    StringVector& list0 = _petHalfName0[entry];
+    StringVector& list1 = _petHalfName1[entry];
 
     if (list0.empty() || list1.empty())
     {
         CreatureTemplate const* cinfo = GetCreatureTemplate(entry);
-        const char* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
-        if (!petname)
-            return cinfo->Name;
+        if (!cinfo)
+            return std::string();
 
-        return std::string(petname);
+        char const* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        if (petname)
+            return std::string(petname);
+        else
+            return cinfo->Name;
     }
 
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));
@@ -6695,8 +6648,8 @@ void ObjectMgr::LoadReputationRewardRate()
 
     _repRewardRateStore.clear();                             // for reload case
 
-    uint32 count = 0; //                                0          1             2                  3                  4                 5             6
-    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, creature_rate, spell_rate FROM reputation_reward_rate");
+    uint32 count = 0; //                                0          1             2                  3                  4                 5                      6             7
+    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
     if (!result)
     {
         TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, ">> Loaded `reputation_reward_rate`, table is empty!");
@@ -6715,8 +6668,9 @@ void ObjectMgr::LoadReputationRewardRate()
         repRate.questDailyRate      = fields[2].GetFloat();
         repRate.questWeeklyRate     = fields[3].GetFloat();
         repRate.questMonthlyRate    = fields[4].GetFloat();
-        repRate.creatureRate        = fields[5].GetFloat();
-        repRate.spellRate           = fields[6].GetFloat();
+        repRate.questRepeatableRate = fields[5].GetFloat();
+        repRate.creatureRate        = fields[6].GetFloat();
+        repRate.spellRate           = fields[7].GetFloat();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
         if (!factionEntry)
@@ -6746,6 +6700,12 @@ void ObjectMgr::LoadReputationRewardRate()
         if (repRate.questMonthlyRate < 0.0f)
         {
             TC_LOG_ERROR(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_monthly_rate with invalid rate %f, skipping data for faction %u", repRate.questMonthlyRate, factionId);
+            continue;
+        }
+
+        if (repRate.questRepeatableRate < 0.0f)
+        {
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_repeatable_rate with invalid rate %f, skipping data for faction %u", repRate.questRepeatableRate, factionId);
             continue;
         }
 
@@ -8211,10 +8171,8 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
-        //      0        1   2            3            4          5
-        "SELECT menu_id, id, option_icon, option_text, option_id, npc_option_npcflag, "
-        // 6             7              8          9          10
-        "action_menu_id, action_poi_id, box_coded, box_money, box_text "
+        //      0        1   2            3            4          5                     6               7              8          9          10
+        "SELECT menu_id, id, option_icon, option_text, option_id, npc_option_npcflag, action_menu_id, action_poi_id, box_coded, box_money, box_text "
         "FROM gossip_menu_option ORDER BY menu_id, id");
 
     if (!result)

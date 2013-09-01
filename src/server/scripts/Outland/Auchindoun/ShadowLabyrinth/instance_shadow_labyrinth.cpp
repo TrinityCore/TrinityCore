@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,210 +15,178 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Shadow_Labyrinth
-SD%Complete: 85
-SDComment: Some cleanup left along with save
-SDCategory: Auchindoun, Shadow Labyrinth
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
-/* Shadow Labyrinth encounters:
-1 - Ambassador Hellmaw event
-2 - Blackheart the Inciter event
-3 - Grandmaster Vorpil event
-4 - Murmur event
-*/
+DoorData const doorData[] =
+{
+    { GO_REFECTORY_DOOR,        DATA_BLACKHEART_THE_INCITER,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_SCREAMING_HALL_DOOR,   DATA_GRANDMASTER_VORPIL,        DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { 0,                        0,                              DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
+};
 
 class instance_shadow_labyrinth : public InstanceMapScript
 {
-public:
-    instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth", 555) { }
+    public:
+        instance_shadow_labyrinth() : InstanceMapScript(SLScriptName, 555) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
-    {
-        return new instance_shadow_labyrinth_InstanceMapScript(map);
-    }
-
-    struct instance_shadow_labyrinth_InstanceMapScript : public InstanceScript
-    {
-        instance_shadow_labyrinth_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 m_auiEncounter[EncounterCount];
-        std::string str_data;
-
-        uint64 m_uiRefectoryDoorGUID;
-        uint64 m_uiScreamingHallDoorGUID;
-
-        uint64 m_uiGrandmasterVorpil;
-        uint32 m_uiFelOverseerCount;
-
-        void Initialize() OVERRIDE
+        struct instance_shadow_labyrinth_InstanceMapScript : public InstanceScript
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            m_uiRefectoryDoorGUID = 0;
-            m_uiScreamingHallDoorGUID = 0;
-
-            m_uiGrandmasterVorpil = 0;
-            m_uiFelOverseerCount = 0;
-        }
-
-        bool IsEncounterInProgress() const OVERRIDE
-        {
-            for (uint8 i = 0; i < EncounterCount; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-
-            return false;
-        }
-
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
-        {
-            switch (go->GetEntry())
+            instance_shadow_labyrinth_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                case REFECTORY_DOOR:
-                    m_uiRefectoryDoorGUID = go->GetGUID();
-                    if (m_auiEncounter[2] == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
-                    break;
-                case SCREAMING_HALL_DOOR:
-                    m_uiScreamingHallDoorGUID = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
-                    break;
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+
+                AmbassadorHellmawGUID = 0;
+                GrandmasterVorpilGUID = 0;
+                FelOverseerCount      = 0;
             }
-        }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
-        {
-            switch (creature->GetEntry())
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
-                case 18732:
-                    m_uiGrandmasterVorpil = creature->GetGUID();
-                    break;
-                case 18796:
-                    if (creature->IsAlive())
-                    {
-                        ++m_uiFelOverseerCount;
-                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "Shadow Labyrinth: counting %u Fel Overseers.", m_uiFelOverseerCount);
-                    }
-                    break;
-            }
-        }
-
-        void SetData(uint32 type, uint32 uiData) OVERRIDE
-        {
-            switch (type)
-            {
-                case TYPE_HELLMAW:
-                    m_auiEncounter[0] = uiData;
-                    break;
-
-                case TYPE_OVERSEER:
-                    if (uiData != DONE)
-                    {
-                        TC_LOG_ERROR(LOG_FILTER_TSCR, "Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
-                        return;
-                    }
-                    if (m_uiFelOverseerCount)
-                    {
-                        --m_uiFelOverseerCount;
-
-                        if (m_uiFelOverseerCount)
-                            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Shadow Labyrinth: %u Fel Overseers left to kill.", m_uiFelOverseerCount);
-                        else
+                switch (creature->GetEntry())
+                {
+                    case NPC_AMBASSADOR_HELLMAW:
+                        AmbassadorHellmawGUID = creature->GetGUID();
+                        break;
+                    case NPC_GRANDMASTER_VORPIL:
+                        GrandmasterVorpilGUID = creature->GetGUID();
+                        break;
+                    case NPC_FEL_OVERSEER:
+                        if (creature->IsAlive())
                         {
-                            m_auiEncounter[1] = DONE;
-                            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Shadow Labyrinth: TYPE_OVERSEER == DONE");
+                            ++FelOverseerCount;
+                            if (Creature* hellmaw = instance->GetCreature(AmbassadorHellmawGUID))
+                                hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
                         }
-                    }
-                    break;
-
-                case DATA_BLACKHEARTTHEINCITEREVENT:
-                    if (uiData == DONE)
-                        DoUseDoorOrButton(m_uiRefectoryDoorGUID);
-                    m_auiEncounter[2] = uiData;
-                    break;
-
-                case DATA_GRANDMASTERVORPILEVENT:
-                    if (uiData == DONE)
-                        DoUseDoorOrButton(m_uiScreamingHallDoorGUID);
-                    m_auiEncounter[3] = uiData;
-                    break;
-
-                case DATA_MURMUREVENT:
-                    m_auiEncounter[4] = uiData;
-                    break;
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            if (uiData == DONE)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
-                if (type == TYPE_OVERSEER && m_uiFelOverseerCount != 0)
+                switch (go->GetEntry())
+                {
+                    case GO_REFECTORY_DOOR:
+                    case GO_SCREAMING_HALL_DOOR:
+                        AddDoor(go, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_REFECTORY_DOOR:
+                    case GO_SCREAMING_HALL_DOOR:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnUnitDeath(Unit* unit)
+            {
+                Creature* creature = unit->ToCreature();
+                if (!creature)
                     return;
 
+                if (creature->GetEntry() == NPC_FEL_OVERSEER)
+                {
+                    if (FelOverseerCount)
+                        --FelOverseerCount;
+
+                    if (!FelOverseerCount)
+                        if (Creature* hellmaw = instance->GetCreature(AmbassadorHellmawGUID))
+                            hellmaw->AI()->DoAction(ACTION_AMBASSADOR_HELLMAW_INTRO);
+                }
+            }
+
+            uint32 GetData(uint32 type) const OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_FEL_OVERSEER:
+                        return !FelOverseerCount ? 1 : 0;
+                    default:
+                        break;
+                }
+                return 0;
+            }
+
+            uint64 GetData64(uint32 type) const OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_GRANDMASTER_VORPIL:
+                        return GrandmasterVorpilGUID;
+                    default:
+                        break;
+                }
+                return 0;
+            }
+
+            std::string GetSaveData() OVERRIDE
+            {
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
-                    << m_auiEncounter[2] << ' ' << m_auiEncounter[3] << ' ' << m_auiEncounter[4];
+                saveStream << "S L " << GetBossSaveData();
 
-                str_data = saveStream.str();
-
-                SaveToDB();
                 OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
             }
-        }
 
-        uint32 GetData(uint32 type) const OVERRIDE
-        {
-            switch (type)
+            void Load(char const* str) OVERRIDE
             {
-                case TYPE_HELLMAW: return m_auiEncounter[0];
-                case TYPE_OVERSEER: return m_auiEncounter[1];
-                case DATA_GRANDMASTERVORPILEVENT: return m_auiEncounter[3];
-                case DATA_MURMUREVENT: return m_auiEncounter[4];
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'S' && dataHead2 == 'L')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
-            return false;
-        }
 
-        uint64 GetData64(uint32 identifier) const OVERRIDE
+        protected:
+            uint64 AmbassadorHellmawGUID;
+            uint64 GrandmasterVorpilGUID;
+            uint32 FelOverseerCount;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
-            if (identifier == DATA_GRANDMASTERVORPIL)
-                return m_uiGrandmasterVorpil;
-
-            return 0;
+            return new instance_shadow_labyrinth_InstanceMapScript(map);
         }
-
-        std::string GetSaveData() OVERRIDE
-        {
-            return str_data;
-        }
-
-        void Load(const char* in) OVERRIDE
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            std::istringstream loadStream(in);
-            loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3] >> m_auiEncounter[4];
-
-            for (uint8 i = 0; i < EncounterCount; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-    };
-
 };
 
 void AddSC_instance_shadow_labyrinth()

@@ -58,7 +58,7 @@ void BigNumber::SetQword(uint64 val)
 void BigNumber::SetBinary(uint8 const* bytes, int32 len)
 {
     uint8* array = new uint8[len];
-    
+
     for (int i = 0; i < len; i++)
         array[i] = bytes[len - 1 - i];
 
@@ -186,7 +186,8 @@ ACE_Auto_Array_Ptr<uint8> BigNumber::AsByteArray(int32 minSize, bool littleEndia
     if (littleEndian)
         std::reverse(array, array + length);
 
-    return ACE_Auto_Array_Ptr<uint8>(array);
+    ACE_Auto_Array_Ptr<uint8> ret(array);
+    return ret;
 }
 
 char * BigNumber::AsHexStr() const

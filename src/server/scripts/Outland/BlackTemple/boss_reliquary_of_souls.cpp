@@ -159,14 +159,13 @@ public:
         void Reset() OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
+                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, NOT_STARTED);
 
             if (EssenceGUID)
             {
-                if (Creature* Essence = Unit::GetCreature(*me, EssenceGUID))
-                {
-                    Essence->DespawnOrUnsummon();
-                }
+                if (Creature* essence = ObjectAccessor::GetCreature(*me, EssenceGUID))
+                    essence->DespawnOrUnsummon();
+
                 EssenceGUID = 0;
             }
 
@@ -178,7 +177,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!who)
                 return;
@@ -200,7 +198,7 @@ public:
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, IN_PROGRESS);
 
             Phase = 1;
             Counter = 0;
@@ -246,7 +244,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
+                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -422,7 +420,6 @@ public:
             {
                 damage = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->Yell(SUFF_SAY_RECAP, LANG_UNIVERSAL, 0);
                 Talk(SUFF_SAY_RECAP);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -431,14 +428,13 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                {
+            {
                 Talk(SUFF_SAY_FREED);
                 DoZoneInCombat();
                 DoCast(me, AURA_OF_SUFFERING, true); // linked aura need core support
                 DoCast(me, ESSENCE_OF_SUFFERING_PASSIVE, true);
                 DoCast(me, ESSENCE_OF_SUFFERING_PASSIVE2, true);
-                }
-            else return;
+            }
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE

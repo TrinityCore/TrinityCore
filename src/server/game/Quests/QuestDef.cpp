@@ -72,7 +72,6 @@ Quest::Quest(Field* questRecord)
     RewardReputationMask = questRecord[46].GetUInt8();
     QuestGiverPortrait = questRecord[47].GetUInt32();
     QuestTurnInPortrait = questRecord[48].GetUInt32();
-
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         RewardItemId[i] = questRecord[49+i].GetUInt32();
 
@@ -126,82 +125,78 @@ Quest::Quest(Field* questRecord)
 
     RequiredSpell = questRecord[123].GetUInt32();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i) // To be removed
-        RequiredSpellCast[i] = questRecord[124+i].GetUInt32();
-
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        ObjectiveText[i] = questRecord[128+i].GetString();
+        ObjectiveText[i] = questRecord[124+i].GetString();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyId[i] = questRecord[132+i].GetUInt16();
+        RewardCurrencyId[i] = questRecord[128+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyCount[i] = questRecord[136+i].GetUInt8();
+        RewardCurrencyCount[i] = questRecord[132+i].GetUInt8();
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyId[i] = questRecord[140+i].GetUInt16();
+        RequiredCurrencyId[i] = questRecord[136+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyCount[i] = questRecord[144+i].GetUInt8();
+        RequiredCurrencyCount[i] = questRecord[140+i].GetUInt8();
 
-    QuestGiverTextWindow = questRecord[148].GetString();
-    QuestGiverTargetName = questRecord[149].GetString();
-    QuestTurnTextWindow = questRecord[150].GetString();
-    QuestTurnTargetName = questRecord[151].GetString();
-    SoundAccept = questRecord[152].GetUInt16();
-    SoundTurnIn = questRecord[153].GetUInt16();
-
-    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        DetailsEmote[i] = questRecord[154+i].GetUInt16();
+    QuestGiverTextWindow = questRecord[144].GetString();
+    QuestGiverTargetName = questRecord[145].GetString();
+    QuestTurnTextWindow = questRecord[146].GetString();
+    QuestTurnTargetName = questRecord[147].GetString();
+    SoundAccept = questRecord[148].GetUInt16();
+    SoundTurnIn = questRecord[149].GetUInt16();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        DetailsEmoteDelay[i] = questRecord[158+i].GetUInt32();
-
-    EmoteOnIncomplete = questRecord[162].GetUInt16();
-    EmoteOnComplete = questRecord[163].GetUInt16();
+        DetailsEmote[i] = questRecord[150+i].GetUInt16();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        OfferRewardEmote[i] = questRecord[164+i].GetInt16();
+        DetailsEmoteDelay[i] = questRecord[154+i].GetUInt32();
+
+    EmoteOnIncomplete = questRecord[158].GetUInt16();
+    EmoteOnComplete = questRecord[159].GetUInt16();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
-        OfferRewardEmoteDelay[i] = questRecord[168+i].GetInt32();
+        OfferRewardEmote[i] = questRecord[160+i].GetInt16();
 
-    // int32 WDBVerified = questRecord[172].GetInt32();
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+        OfferRewardEmoteDelay[i] = questRecord[164+i].GetInt32();
+
+    // int32 WDBVerified = questRecord[168].GetInt32();
 
     if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
-    m_reqItemsCount = 0;
-    m_reqNpcOrGoCount = 0;
-    m_rewItemsCount = 0;
-    m_rewChoiceItemsCount = 0;
-    m_rewCurrencyCount = 0;
-    m_reqCurrencyCount = 0;
+    _reqItemsCount = 0;
+    _reqNpcOrGoCount = 0;
+    _rewItemsCount = 0;
+    _rewChoiceItemsCount = 0;
+    _rewCurrencyCount = 0;
+    _reqCurrencyCount = 0;
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         if (RequiredItemId[i])
-            ++m_reqItemsCount;
+            ++_reqItemsCount;
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         if (RequiredNpcOrGo[i])
-            ++m_reqNpcOrGoCount;
+            ++_reqNpcOrGoCount;
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         if (RewardItemId[i])
-            ++m_rewItemsCount;
+            ++_rewItemsCount;
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         if (RewardChoiceItemId[i])
-            ++m_rewChoiceItemsCount;
+            ++_rewChoiceItemsCount;
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         if (RewardCurrencyId[i])
-            ++m_rewCurrencyCount;
+            ++_rewCurrencyCount;
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
         if (RequiredCurrencyId[i])
-            ++m_reqCurrencyCount;
-
+            ++_reqCurrencyCount;
 }
 
 uint32 Quest::XPValue(Player* player) const
