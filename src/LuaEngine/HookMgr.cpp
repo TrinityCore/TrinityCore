@@ -1,5 +1,5 @@
 #include "HookMgr.h"
-#include "LuaEngine.h"
+#include "Includes.h"
 
 // misc
 void HookMgr::OnLootItem(Player* player, Item* item, uint32 count, uint64 guid)

@@ -8,27 +8,7 @@ extern "C"
 #include "lauxlib.h"
 };
 
-#include <string>
-#include <map>
-#include "AccountMgr.h"
-#include "Chat.h"
-#include "Channel.h"
-#include "Creature.h"
-#include "GameObjectAI.h"
-#include "Group.h"
-#include "Guild.h"
-#include "GuildMgr.h"
-#include "QuestDef.h"
-#include "ScriptPCH.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ArenaTeam.h"
-#include "Vehicle.h"
-#include "SystemConfig.h"
-#include "MapManager.h"
-#include "Language.h"
-#include "Pet.h"
-#include "AuctionHouseMgr.h"
+#include "Includes.h"
 
 enum RegisterTypes
 {

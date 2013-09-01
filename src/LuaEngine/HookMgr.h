@@ -1,6 +1,5 @@
 #include "ScriptMgr.h"
 #include "ScriptPCH.h"
-#include "LuaEngine.h"
 
 #ifndef LUAHOOKS_H
 #define LUAHOOKS_H

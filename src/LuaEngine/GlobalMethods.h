@@ -1,8 +1,4 @@
-#include "MapManager.h"
-#include "SharedDefines.h"
-#include "Guild.h"
-#include "GuildMgr.h"
-#include "AccountMgr.h"
+#include "Includes.h"
 
 #ifndef GLOBALMETHODS_H
 #define GLOBALMETHODS_H

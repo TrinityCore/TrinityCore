@@ -1,18 +1,5 @@
 #include "LuaEngine.h"
 #include "HookMgr.h"
-#include "GlobalMethods.h"
-#include "UnitMethods.h"
-#include "GroupMethods.h"
-#include "GuildMethods.h"
-#include "GameObjectMethods.h"
-#include "QueryMethods.h"
-#include "AuraMethods.h"
-#include "ItemMethods.h"
-#include "WorldPacketMethods.h"
-#include "SpellMethods.h"
-#include "QuestMethods.h"
-#include "MapMethods.h"
-#include "LuaFunctions.h"
 
 #if PLATFORM == PLATFORM_UNIX
 #include <dirent.h>
@@ -31,6 +18,8 @@ template<> const char* GetTName<Item>() { return "Item"; }
 template<> const char* GetTName<Spell>() { return "Spell"; }
 template<> const char* GetTName<Quest>() { return "Quest"; }
 template<> const char* GetTName<Map>() { return "Map"; }
+
+extern void RegisterGlobals(lua_State* L);
 
 void Eluna::StartEluna(bool restart)
 {
