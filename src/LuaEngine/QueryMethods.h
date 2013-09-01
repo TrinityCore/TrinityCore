@@ -1,5 +1,3 @@
-#include "LuaEngine.h"
-
 #ifndef QUERYMETHODS_H
 #define QUERYMETHODS_H
 

@@ -1,5 +1,3 @@
-#include "LuaEngine.h"
-
 #ifndef GUILDMETHODS_H
 #define GUILDMETHODS_H
 

@@ -1,5 +1,3 @@
-#include "LuaEngine.h"
-
 #ifndef GROUPMETHODS_H
 #define GROUPMETHODS_H
 

@@ -1,5 +1,3 @@
-#include "LuaEngine.h"
-
 #ifndef GLOBALMETHODS_H
 #define GLOBALMETHODS_H
 

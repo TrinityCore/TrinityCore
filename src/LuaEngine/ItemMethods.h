@@ -1,5 +1,3 @@
-#include "LuaEngine.h"
-
 #ifndef ITEMMETHODS_H
 #define ITEMMETHODS_H
 
