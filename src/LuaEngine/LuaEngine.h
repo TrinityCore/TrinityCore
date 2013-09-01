@@ -146,6 +146,8 @@ enum ServerEvents
     PLAYER_EVENT_ON_LOOT_ITEM               =     77,           // (event, player, item, count)
     PLAYER_EVENT_ON_ENTER_COMBAT            =     78,           // (event, player, enemy)
     PLAYER_EVENT_ON_LEAVE_COMBAT            =     79,           // (event, player)
+    PLAYER_EVENT_ON_REPOP                   =     80,           // (event, player)
+    PLAYER_EVENT_ON_RESURRECT               =     81,           // (event, player)
 
     SERVER_EVENT_COUNT
 };

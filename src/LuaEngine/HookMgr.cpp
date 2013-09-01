@@ -17,6 +17,16 @@ void HookMgr::OnEquip(Player* player, Item* item, uint8 bag, uint8 slot)
     for (HookPointerSet::const_iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
         (*it)->OnEquip(player, item, bag, slot);
 }
+void HookMgr::OnRepop(Player* player)
+{
+    for (HookPointerSet::const_iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
+        (*it)->OnRepop(player);
+}
+void HookMgr::OnResurrect(Player* player)
+{
+    for (HookPointerSet::const_iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
+        (*it)->OnResurrect(player);
+}
 InventoryResult HookMgr::OnCanUseItem(const Player* player, uint32 itemEntry)
 {
     Player* player2 = const_cast<Player*>(player);

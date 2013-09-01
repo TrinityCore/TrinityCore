@@ -32,6 +32,28 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
+    void OnRepop(Player* player)
+    {
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_REPOP].begin();
+            itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_REPOP].end(); ++itr)
+        {
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_REPOP);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->ExecuteCall(2, 0);
+        }
+    }
+    void OnResurrect(Player* player)
+    {
+        for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_RESURRECT].begin();
+            itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_RESURRECT].end(); ++itr)
+        {
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_RESURRECT);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->ExecuteCall(2, 0);
+        }
+    }
     void OnEquip(Player* player, Item* item, uint8 bag, uint8 slot)
     {
         for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_EQUIP].begin();
