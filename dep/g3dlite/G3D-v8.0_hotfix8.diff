@@ -1,0 +1,13 @@
+diff --git a/dep/g3dlite/include/G3D/Vector3int32.h b/dep/g3dlite/include/G3D/Vector3int32.h
+index 2f256ea..c1a6b21 100644
+--- a/dep/g3dlite/include/G3D/Vector3int32.h
++++ b/dep/g3dlite/include/G3D/Vector3int32.h
+@@ -74,7 +74,7 @@ public:
+     inline Vector3int32& operator+=(const Vector3int32& other) {
+         x += other.x;
+         y += other.y;
+-        z += other.y;
++        z += other.z;
+         return *this;
+     }
+ 
