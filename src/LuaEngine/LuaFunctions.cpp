@@ -56,7 +56,6 @@ void RegisterGlobals(lua_State* L)
     lua_register(L, "GetCreaturesInRange", &LuaGlobalFunctions::GetCreaturesInRange);                       // GetCreaturesInRange(WorldObject[, range]) - Returns a table with creatures in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetGameObjectsInRange", &LuaGlobalFunctions::GetGameObjectsInRange);                   // GetGameObjectsInRange(WorldObject[, range]) - Returns a table with gameobjects in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetWorldObject", &LuaGlobalFunctions::GetWorldObject);                                 // GetWorldObject(WorldObject, guid) - Returns a world object (creature, player, gameobject) from the guid. The world object returned must be on the same map as the world object in the arguments.
-    lua_register(L, "GetHeight", &LuaGlobalFunctions::GetHeight);                                           // GetHeight(mapid, x, y, phasemask) - Returns ground Z coordinate. UNDOCUMENTED
     lua_register(L, "GetMapById", &LuaGlobalFunctions::GetMapById);                                         // GetMapById(mapId) - Returns map object of id specified. UNDOCUMENTED
 
     // Other
@@ -155,16 +154,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetRecruiterId", &LuaUnit::GetRecruiterId},                                                           // :GetRecruiterId() - Returns player's recruiter's ID
     {"GetSelectedPlayer", &LuaUnit::GetSelectedPlayer},                                                     // :GetSelectedPlayer() - Returns player's selected player.
     {"GetSelectedUnit", &LuaUnit::GetSelectedUnit},                                                         // :GetSelectedUnit() - Returns player's selected unit.
-    {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the UNIT_FIELD_SUMMONEDBY owner
-    {"GetCreatorGUID", &LuaUnit::GetCreatorGUID},                                                           // :GetCreatorGUID() - Returns the UNIT_FIELD_CREATEDBY creator
-    {"GetMinionGUID", &LuaUnit::GetMinionGUID},                                                             // :GetMinionGUID() - Returns the UNIT_FIELD_SUMMON unit's minion GUID
-    {"GetCharmerGUID", &LuaUnit::GetCharmerGUID},                                                           // :GetCharmerGUID() - Returns the UNIT_FIELD_CHARMEDBY charmer
-    {"GetCharmGUID", &LuaUnit::GetCharmGUID},                                                               // :GetCharmGUID() - Returns the unit's UNIT_FIELD_CHARM guid
-    {"GetPetGUID", &LuaUnit::GetPetGUID},                                                                   // :GetPetGUID() - Returns the unit's pet GUID
-    {"GetCritterGUID", &LuaUnit::GetCritterGUID},                                                           // :GetCritterGUID() - Returns the critter's GUID
-    {"GetControllerGUID", &LuaUnit::GetControllerGUID},                                                     // :GetControllerGUID() - Returns the Charmer or Owner GUID
-    {"GetControllerGUIDS", &LuaUnit::GetControllerGUIDS},                                                   // :GetControllerGUIDS() - Returns the charmer, owner or unit's own GUID
-    {"GetMap", &LuaUnit::GetMap},                                                                           // :GetMap() - Returns the unit's current map object UNDOCUMENTED
+    {"GetDbLocaleIndex", &LuaUnit::GetDbLocaleIndex},                                                       // :GetDbLocaleIndex() - Returns locale index
+    {"GetDbcLocale", &LuaUnit::GetDbcLocale},                                                               // :GetDbcLocale() - Returns DBC locale
 
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},                                                   // :AdvanceSkillsToMax() - Advances all currently known skills to the currently known max level
@@ -258,6 +249,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"InArena", &LuaUnit::InArena},                                                                         // :InArena() - Returns true if the player is in an arena
     {"IsOutdoorPvPActive", &LuaUnit::IsOutdoorPvPActive},                                                   // :IsOutdoorPvPActive() - Returns true if the player is outdoor pvp active
     {"IsARecruiter", &LuaUnit::IsARecruiter},                                                               // :IsARecruiter() - Returns true if the player is a recruiter
+    {"CanUseItem", &LuaUnit::CanUseItem},                                                                   // :CanUseItem(item/entry) - Returns true if the player can use the item or item entry
 
     // Gossip
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},                                                     // :GossipMenuAddItem(icon, msg, sender, intid[, code, popup, money])
@@ -480,7 +472,17 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetOwner", &LuaUnit::GetOwner},                                                                       // :GetOwner() - Returns the owner
     {"GetFriendlyUnitsInRange", &LuaUnit::GetFriendlyUnitsInRange},                                         // :GetFriendlyUnitsInRange([range]) - Returns a list of friendly units in range, can return nil
     {"GetUnfriendlyUnitsInRange", &LuaUnit::GetUnfriendlyUnitsInRange},                                     // :GetUnfriendlyUnitsInRange([range]) - Returns a list of unfriendly units in range, can return nil
-
+    {"GetMap", &LuaUnit::GetMap},                                                                           // :GetMap() - Returns the unit's current map object
+    {"GetOwnerGUID", &LuaUnit::GetOwnerGUID},                                                               // :GetOwnerGUID() - Returns the UNIT_FIELD_SUMMONEDBY owner
+    {"GetCreatorGUID", &LuaUnit::GetCreatorGUID},                                                           // :GetCreatorGUID() - Returns the UNIT_FIELD_CREATEDBY creator
+    {"GetMinionGUID", &LuaUnit::GetMinionGUID},                                                             // :GetMinionGUID() - Returns the UNIT_FIELD_SUMMON unit's minion GUID
+    {"GetCharmerGUID", &LuaUnit::GetCharmerGUID},                                                           // :GetCharmerGUID() - Returns the UNIT_FIELD_CHARMEDBY charmer
+    {"GetCharmGUID", &LuaUnit::GetCharmGUID},                                                               // :GetCharmGUID() - Returns the unit's UNIT_FIELD_CHARM guid
+    {"GetPetGUID", &LuaUnit::GetPetGUID},                                                                   // :GetPetGUID() - Returns the unit's pet GUID
+    {"GetCritterGUID", &LuaUnit::GetCritterGUID},                                                           // :GetCritterGUID() - Returns the critter's GUID
+    {"GetControllerGUID", &LuaUnit::GetControllerGUID},                                                     // :GetControllerGUID() - Returns the Charmer or Owner GUID
+    {"GetControllerGUIDS", &LuaUnit::GetControllerGUIDS},                                                   // :GetControllerGUIDS() - Returns the charmer, owner or unit's own GUID
+    
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                                                                   // :SetFaction(factionId) - Sets the unit's faction
     {"SetLevel", &LuaUnit::SetLevel},                                                                       // :SetLevel(amount)
@@ -723,6 +725,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetRandomProperty", &LuaItem::GetRandomProperty},                                                     // :GetRandomProperty()
     {"GetRandomSuffix", &LuaItem::GetRandomSuffix},                                                         // :GetRandomSuffix()
     {"GetItemSet", &LuaItem::GetItemSet},                                                                   // :GetItemSet()
+    {"GetBagSize", &LuaItem::GetBagSize},                                                                   // :GetBagSize()
 
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                                                       // :SetOwner(player) - Sets the owner of the item

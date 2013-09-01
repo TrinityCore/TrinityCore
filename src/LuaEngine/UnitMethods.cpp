@@ -5574,3 +5574,22 @@ int LuaUnit::GetDbcLocale(lua_State* L, Unit* unit)
     sEluna->PushInteger(L, player->GetSession()->GetSessionDbcLocale());
     return 1;
 }
+
+int LuaUnit::CanUseItem(lua_State* L, Unit* unit)
+{
+    TO_PLAYER();
+    
+    Item* item = sEluna->CHECK_ITEM(L, 1);
+    if (item)
+        sEluna->PushInteger(L, player->CanUseItem(item));
+    else
+    {
+        uint32 entry = luaL_checkunsigned(L, 1);
+        const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
+        if(temp)
+            sEluna->PushInteger(L, player->CanUseItem(temp));
+        else
+            sEluna->PushInteger(L, EQUIP_ERR_ITEM_NOT_FOUND);
+    }
+    return 1;
+}

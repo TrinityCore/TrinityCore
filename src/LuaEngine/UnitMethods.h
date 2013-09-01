@@ -508,5 +508,6 @@ namespace LuaUnit
     int SetNPCFlags(lua_State*, Unit*);
     int GetDbLocaleIndex(lua_State*, Unit*);
     int GetDbcLocale(lua_State*, Unit*);
+    int CanUseItem(lua_State*, Unit*);
 };
 #endif

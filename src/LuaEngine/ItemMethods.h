@@ -783,5 +783,17 @@ public:
         sEluna->PushUnsigned(L, item->GetTemplate()->ItemSet);
         return 1;
     }
+
+    static int GetBagSize(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        if (Bag* bag = item->ToBag())
+            sEluna->PushUnsigned(L, bag->GetBagSize());
+        else
+            sEluna->PushUnsigned(L, 0);
+        return 1;
+    }
 };
 #endif
