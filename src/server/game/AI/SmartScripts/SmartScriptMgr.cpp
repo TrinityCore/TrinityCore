@@ -407,10 +407,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
                 break;
             case SMART_EVENT_FRIENDLY_HEALTH:
-                if (!NotNULL(e, e.event.friendlyHealt.radius))
+                if (!NotNULL(e, e.event.friendlyHealth.radius))
                     return false;
 
-                if (!IsMinMaxValid(e, e.event.friendlyHealt.repeatMin, e.event.friendlyHealt.repeatMax))
+                if (!IsMinMaxValid(e, e.event.friendlyHealth.repeatMin, e.event.friendlyHealth.repeatMax))
                     return false;
                 break;
             case SMART_EVENT_FRIENDLY_IS_CC:
@@ -437,6 +437,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 break;
             case SMART_EVENT_TARGET_CASTING:
+                if (e.event.targetCasting.spellId > 0 && !sSpellMgr->GetSpellInfo(e.event.targetCasting.spellId))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Spell entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.spellHit.spell);
+                    return false;
+                }
+
+                if (!IsMinMaxValid(e, e.event.targetCasting.repeatMin, e.event.targetCasting.repeatMax))
+                    return false;
+                break;
             case SMART_EVENT_PASSENGER_BOARDED:
             case SMART_EVENT_PASSENGER_REMOVED:
                 if (!IsMinMaxValid(e, e.event.minMax.repeatMin, e.event.minMax.repeatMax))
@@ -546,10 +555,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             }
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
-                if (!IsMinMaxValid(e, e.event.friendlyHealtPct.repeatMin, e.event.friendlyHealtPct.repeatMax))
+                if (!IsMinMaxValid(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax))
                     return false;
 
-                if (e.event.friendlyHealtPct.maxHpPct > 100 || e.event.friendlyHealtPct.minHpPct > 100)
+                if (e.event.friendlyHealthPct.maxHpPct > 100 || e.event.friendlyHealthPct.minHpPct > 100)
                 {
                     TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has pct value above 100, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;
