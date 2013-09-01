@@ -1,3 +1,5 @@
+#include "LuaEngine.h"
+
 #ifndef GAMEOBJECTMETHODS_H
 #define GAMEOBJECTMETHODS_H
 

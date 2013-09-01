@@ -1,3 +1,5 @@
+#include "LuaEngine.h"
+
 #ifndef SPELLMETHODS_H
 #define SPELLMETHODS_H
 

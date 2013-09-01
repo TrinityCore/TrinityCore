@@ -1,3 +1,5 @@
+#include "LuaEngine.h"
+
 #ifndef MAPMETHODS_H
 #define MAPMETHODS_H
 

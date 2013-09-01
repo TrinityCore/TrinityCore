@@ -1,3 +1,5 @@
+#include "LuaEngine.h"
+
 #ifndef QUESTMETHODS_H
 #define QUESTMETHODS_H
 

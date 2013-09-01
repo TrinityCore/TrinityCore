@@ -1,3 +1,5 @@
+#include "LuaEngine.h"
+
 #ifndef AURAMETHODS_H
 #define AURAMETHODS_H
 

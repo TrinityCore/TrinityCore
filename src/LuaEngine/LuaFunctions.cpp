@@ -1,4 +1,3 @@
-#include "LuaEngine.h"
 #include "GlobalMethods.h"
 #include "UnitMethods.h"
 #include "GroupMethods.h"

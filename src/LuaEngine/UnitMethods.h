@@ -1,3 +1,5 @@
+#include "LuaEngine.h"
+
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
 
