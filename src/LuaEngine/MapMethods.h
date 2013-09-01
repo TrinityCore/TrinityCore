@@ -1,7 +1,3 @@
-#include "MapManager.h"
-#include "SharedDefines.h"
-#include "Map.h"
-
 #ifndef MAPMETHODS_H
 #define MAPMETHODS_H
 

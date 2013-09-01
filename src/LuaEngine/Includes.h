@@ -12,6 +12,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Language.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "Pet.h"
 #include "QuestDef.h"
