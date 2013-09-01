@@ -96,6 +96,8 @@ enum RBACPermissions
     RBAC_PERM_CHANGE_CHANNEL_NOT_MODERATOR                   = 46,
     RBAC_PERM_CHECK_FOR_LOWER_SECURITY                       = 47,
     RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA             = 48,
+    RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE                  = 49,
+    RBAC_PERM_MAY_CHECK_OWN_EMAIL                            = 50,
     // Leave some space for core permissions
     RBAC_PERM_COMMAND_RBAC                                   = 200,
     RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
@@ -160,6 +162,10 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_BF_SWITCH                              = 260,
     RBAC_PERM_COMMAND_BF_TIMER                               = 261,
     RBAC_PERM_COMMAND_BF_ENABLE                              = 262,
+    RBAC_PERM_COMMAND_ACCOUNT_EMAIL                          = 263,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_SEC                        = 264,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL                  = 265,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL                = 266,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
