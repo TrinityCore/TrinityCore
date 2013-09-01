@@ -731,7 +731,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             me->AI()->EnterEvadeMode();
             TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature %u EnterEvadeMode", me->GetGUIDLow());
-            return;
+            break;
         }
         case SMART_ACTION_FLEE_FOR_ASSIST:
         {
