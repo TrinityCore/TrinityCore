@@ -731,7 +731,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             me->AI()->EnterEvadeMode();
             TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature %u EnterEvadeMode", me->GetGUIDLow());
-            return;
+            break;
         }
         case SMART_ACTION_FLEE_FOR_ASSIST:
         {
@@ -1445,7 +1445,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature %u", equipId, npc->GetEntry());
                             delete targets;
-                            return;
+                            break;
                         }
 
                         npc->SetCurrentEquipmentId(equipId);
@@ -1913,7 +1913,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!storedTargets)
             {
                 delete targets;
-                return;
+                break;
             }
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
@@ -2101,7 +2101,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!sGameEventMgr->IsActiveEvent(eventId))
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript::ProcessAction: At case SMART_ACTION_GAME_EVENT_STOP, inactive event (id: %u)", eventId);
-                return;
+                break;
             }
             sGameEventMgr->StopEvent(eventId, true);
             break;
@@ -2112,7 +2112,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (sGameEventMgr->IsActiveEvent(eventId))
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript::ProcessAction: At case SMART_ACTION_GAME_EVENT_START, already activated event (id: %u)", eventId);
-                return;
+                break;
             }
             sGameEventMgr->StartEvent(eventId, true);
             break;
