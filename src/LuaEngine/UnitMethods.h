@@ -505,5 +505,7 @@ namespace LuaUnit
     int SendQuestTemplate(lua_State*, Unit*);
     int GetNPCFlags(lua_State*, Unit*);
     int SetNPCFlags(lua_State*, Unit*);
+    int GetDbLocaleIndex(lua_State*, Unit*);
+    int GetDbcLocale(lua_State*, Unit*);
 };
 #endif

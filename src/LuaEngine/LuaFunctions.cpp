@@ -693,7 +693,6 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetMaxStackCount", &LuaItem::GetMaxStackCount},                                                       // :GetMaxStackCount() - Returns item max stack count
     {"GetSlot", &LuaItem::GetSlot},                                                                         // :GetSlot() - returns the slot the item is in
     {"GetBagSlot", &LuaItem::GetBagSlot},                                                                   // :GetBagSlot() - returns the bagslot of the bag the item is in
-    {"GetEntry", &LuaItem::GetEntry},                                                                       // :GetEntry() - returns the item entry
     {"GetInt32Value", &LuaItem::GetInt32Value},                                                             // :GetInt32Value(index) - returns an int value from item fields
     {"GetUInt32Value", &LuaItem::GetUInt32Value},                                                           // :GetUInt32Value(index) - returns an uint value from item fields
     {"GetFloatValue", &LuaItem::GetFloatValue},                                                             // :GetFloatValue(index) - returns a float value from item fields
@@ -701,18 +700,27 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetUInt16Value", &LuaItem::GetUInt16Value},                                                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields
     {"GetGUIDLow", &LuaItem::GetGUIDLow},                                                                   // :GetGUIDLow() - Returns uint32 guid (low guid) that is used in database.
     {"GetEnchantmentId", &LuaItem::GetEnchantmentId},                                                       // :GetEnchantmentId(enchant_slot) - Returns the enchantment in given slot. (permanent = 0)
-    {"GetName", &LuaItem::GetName},                                                                         // :GetName() - Returns item name
-    {"GetClass", &LuaItem::GetClass},                                                                       // :GetClass() - Returns item class
-    {"GetSubClass", &LuaItem::GetSubClass},                                                                 // :GetSubClass() - Returns item subclass
-    {"GetInventoryType", &LuaItem::GetInventoryType},                                                       // :GetInventoryType() - Returns item inventorytype
     {"GetSpellId", &LuaItem::GetSpellId},                                                                   // :GetSpellId(index) - Returns spellID at given index (0 - 4)
     {"GetSpellTrigger", &LuaItem::GetSpellTrigger},                                                         // :GetSpellTrigger(index) - Returns spell trigger at given index (0 - 4)
-    {"GetItemLevel", &LuaItem::GetItemLevel},                                                               // :GetItemLevel() - Returns the itemlevel
-    {"GetRequiredLevel", &LuaItem::GetRequiredLevel},                                                       // :GetRequiredLevel() - Returns the required level
-    {"GetBuyPrice", &LuaItem::GetBuyPrice},                                                                 // :GetBuyPrice() - Returns the buy price
-    {"GetSellPrice", &LuaItem::GetSellPrice},                                                               // :GetSellPrice() - Returns the sell price
     {"GetItemLink", &LuaItem::GetItemLink},                                                                 // :GetItemLink([localeID]) - Returns the shift clickable link of the item. Name translated if locale given and exists
-    {"GetQuality", &LuaItem::GetQuality},                                                                   // :GetQuality() - Returns item quality
+    {"GetEntry", &LuaItem::GetEntry},                                                                       // :GetEntry()
+    {"GetClass", &LuaItem::GetClass},                                                                       // :GetClass()
+    {"GetSubClass", &LuaItem::GetSubClass},                                                                 // :GetSubClass()
+    {"GetName", &LuaItem::GetName},                                                                         // :GetName()
+    {"GetDisplayId", &LuaItem::GetDisplayId},                                                               // :GetDisplayId()
+    {"GetQuality", &LuaItem::GetQuality},                                                                   // :GetQuality()
+    {"GetBuyCount", &LuaItem::GetBuyCount},                                                                 // :GetBuyCount()
+    {"GetBuyPrice", &LuaItem::GetBuyPrice},                                                                 // :GetBuyPrice()
+    {"GetSellPrice", &LuaItem::GetSellPrice},                                                               // :GetSellPrice()
+    {"GetInventoryType", &LuaItem::GetInventoryType},                                                       // :GetInventoryType()
+    {"GetAllowableClass", &LuaItem::GetAllowableClass},                                                     // :GetAllowableClass()
+    {"GetAllowableRace", &LuaItem::GetAllowableRace},                                                       // :GetAllowableRace()
+    {"GetItemLevel", &LuaItem::GetItemLevel},                                                               // :GetItemLevel()
+    {"GetRequiredLevel", &LuaItem::GetRequiredLevel},                                                       // :GetRequiredLevel()
+    {"GetStatsCount", &LuaItem::GetStatsCount},                                                             // :GetStatsCount()
+    {"GetRandomProperty", &LuaItem::GetRandomProperty},                                                     // :GetRandomProperty()
+    {"GetRandomSuffix", &LuaItem::GetRandomSuffix},                                                         // :GetRandomSuffix()
+    {"GetItemSet", &LuaItem::GetItemSet},                                                                   // :GetItemSet()
 
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                                                       // :SetOwner(player) - Sets the owner of the item

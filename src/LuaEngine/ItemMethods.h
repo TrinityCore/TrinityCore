@@ -4,15 +4,6 @@
 class LuaItem
 {
 public:
-    static int GetQuality(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->Quality);
-        return 1;
-    }
-
     static int GetItemLink(lua_State* L, Item* item)
     {
         if (!item || !item->IsInWorld())
@@ -371,15 +362,6 @@ public:
         return 1;
     }
 
-    static int GetEntry(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetEntry());
-        return 1;
-    }
-
     static int GetInt32Value(lua_State* L, Item* item)
     {
         if (!item || !item->IsInWorld())
@@ -599,48 +581,12 @@ public:
             return 0;
 
         uint32 enchant_slot = luaL_checkunsigned(L, 1);
-        
+
         EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 2));
         if(slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
             sEluna->PushUnsigned(L, 0);
         else
             sEluna->PushUnsigned(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
-        return 1;
-    }
-
-    static int GetName(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushString(L, item->GetTemplate()->Name1.c_str());
-        return 1;
-    }
-
-    static int GetClass(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->Class);
-        return 1;
-    }
-
-    static int GetSubClass(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->SubClass);
-        return 1;
-    }
-
-    static int GetInventoryType(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->InventoryType);
         return 1;
     }
 
@@ -676,6 +622,114 @@ public:
         return 1;
     }
 
+    static int GetEntry(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetEntry());
+        return 1;
+    }
+
+    static int GetClass(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->Class);
+        return 1;
+    }
+
+    static int GetSubClass(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->SubClass);
+        return 1;
+    }
+
+    static int GetName(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushString(L, item->GetTemplate()->Name1.c_str());
+        return 1;
+    }
+
+    static int GetDisplayId(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->DisplayInfoID);
+        return 1;
+    }
+
+    static int GetQuality(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->Quality);
+        return 1;
+    }
+
+    static int GetBuyCount(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->BuyCount);
+        return 1;
+    }
+
+    static int GetBuyPrice(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushInteger(L, item->GetTemplate()->BuyPrice);
+        return 1;
+    }
+
+    static int GetSellPrice(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->SellPrice);
+        return 1;
+    }
+
+    static int GetInventoryType(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->InventoryType);
+        return 1;
+    }
+
+    static int GetAllowableClass(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->AllowableClass);
+        return 1;
+    }
+
+    static int GetAllowableRace(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->AllowableRace);
+        return 1;
+    }
+
     static int GetItemLevel(lua_State* L, Item* item)
     {
         if (!item || !item->IsInWorld())
@@ -694,21 +748,39 @@ public:
         return 1;
     }
 
-    static int GetBuyPrice(lua_State* L, Item* item)
+    static int GetStatsCount(lua_State* L, Item* item)
     {
         if (!item || !item->IsInWorld())
             return 0;
 
-        sEluna->PushUnsigned(L, item->GetTemplate()->BuyPrice);
+        sEluna->PushUnsigned(L, item->GetTemplate()->StatsCount);
         return 1;
     }
 
-    static int GetSellPrice(lua_State* L, Item* item)
+    static int GetRandomProperty(lua_State* L, Item* item)
     {
         if (!item || !item->IsInWorld())
             return 0;
 
-        sEluna->PushUnsigned(L, item->GetTemplate()->SellPrice);
+        sEluna->PushInteger(L, item->GetTemplate()->RandomProperty);
+        return 1;
+    }
+
+    static int GetRandomSuffix(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushInteger(L, item->GetTemplate()->RandomSuffix);
+        return 1;
+    }
+
+    static int GetItemSet(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->ItemSet);
         return 1;
     }
 };

@@ -5549,3 +5549,19 @@ int LuaUnit::SetNPCFlags(lua_State* L, Unit* unit)
     creature->SetUInt32Value(UNIT_NPC_FLAGS, flags);
     return 0;
 }
+
+int LuaUnit::GetDbLocaleIndex(lua_State* L, Unit* unit)
+{
+    TO_PLAYER();
+
+    sEluna->PushInteger(L, player->GetSession()->GetSessionDbLocaleIndex());
+    return 1;
+}
+
+int LuaUnit::GetDbcLocale(lua_State* L, Unit* unit)
+{
+    TO_PLAYER();
+
+    sEluna->PushInteger(L, player->GetSession()->GetSessionDbcLocale());
+    return 1;
+}
