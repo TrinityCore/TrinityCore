@@ -151,10 +151,6 @@ int LuaUnit::GetMap(lua_State* L, Unit* unit)
     TO_UNIT();
 
     Map* map = unit->GetMap();
-
-    if(!map)
-        return 0;
-
     sEluna->PushMap(L, map);
     return 1;
 }
