@@ -403,21 +403,19 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                _procTarget = NULL;
                 return true;
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
-                _procTarget = GetCaster();
-                return _procTarget && _procTarget->IsAlive();
+                return GetCaster() && GetCaster()->IsAlive();
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 45));
-                GetTarget()->CastCustomSpell(SPELL_MIRRORED_SOUL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, _procTarget, true);
+                GetTarget()->CastCustomSpell(SPELL_MIRRORED_SOUL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetCaster(), true);
             }
 
             void Register() OVERRIDE
@@ -425,9 +423,6 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
                 DoCheckProc += AuraCheckProcFn(spell_devourer_of_souls_mirrored_soul_proc_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_devourer_of_souls_mirrored_soul_proc_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
-
-        private:
-            Unit* _procTarget;
         };
 
         AuraScript* GetAuraScript() const OVERRIDE

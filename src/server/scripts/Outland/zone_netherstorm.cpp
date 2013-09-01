@@ -753,7 +753,6 @@ public:
         bool Drained;
         uint8 WeakPercent;
 
-        Player* player;
         uint64 PlayerGUID;
 
         uint32 ManaBurnTimer;
