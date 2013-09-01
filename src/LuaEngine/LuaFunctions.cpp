@@ -56,7 +56,7 @@ void RegisterGlobals(lua_State* L)
     lua_register(L, "GetCreaturesInRange", &LuaGlobalFunctions::GetCreaturesInRange);                       // GetCreaturesInRange(WorldObject[, range]) - Returns a table with creatures in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetGameObjectsInRange", &LuaGlobalFunctions::GetGameObjectsInRange);                   // GetGameObjectsInRange(WorldObject[, range]) - Returns a table with gameobjects in range of the object inserted (player, npc, gameobject..), range defaults to max. Can return nil
     lua_register(L, "GetWorldObject", &LuaGlobalFunctions::GetWorldObject);                                 // GetWorldObject(WorldObject, guid) - Returns a world object (creature, player, gameobject) from the guid. The world object returned must be on the same map as the world object in the arguments.
-    lua_register(L, "GetHeight", &LuaGlobalFunctions::GetHeight);                                           // GetHeight(mapid, instanceid, x, y, phasemask) - Returns ground Z coordinate. UNDOCUMENTED
+    lua_register(L, "GetHeight", &LuaGlobalFunctions::GetHeight);                                           // GetHeight(mapid, x, y, phasemask) - Returns ground Z coordinate. UNDOCUMENTED
     lua_register(L, "GetMapById", &LuaGlobalFunctions::GetMapById);                                         // GetMapById(mapId) - Returns map object of id specified. UNDOCUMENTED
 
     // Other
@@ -164,6 +164,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetCritterGUID", &LuaUnit::GetCritterGUID},                                                           // :GetCritterGUID() - Returns the critter's GUID
     {"GetControllerGUID", &LuaUnit::GetControllerGUID},                                                     // :GetControllerGUID() - Returns the Charmer or Owner GUID
     {"GetControllerGUIDS", &LuaUnit::GetControllerGUIDS},                                                   // :GetControllerGUIDS() - Returns the charmer, owner or unit's own GUID
+    {"GetMap", &LuaUnit::GetMap},                                                                           // :GetMap() - Returns the unit's current map object UNDOCUMENTED
+
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},                                                   // :AdvanceSkillsToMax() - Advances all currently known skills to the currently known max level
     {"AdvanceSkill", &LuaUnit::AdvanceSkill},                                                               // :AdvanceSkill(skill_id, step) - Advances skill by ID and the amount(step)
@@ -966,6 +968,7 @@ ElunaRegister<Map> MapMethods[] =
     {"GetPlayerCount", &LuaMap::GetPlayerCount},                                                            // :GetPlayerCount() - Returns the amount of players on map except GM's UNDOCUMENTED
     {"GetMapId", &LuaMap::GetMapId},                                                                        // :GetMapId() - Returns the map's ID UNDOCUMENTED
     {"GetAreaId", &LuaMap::GetAreaId},                                                                      // :GetAreaId(x, y, z) - Returns the map's area ID based on coords UNDOCUMENTED
+    {"GetHeight", &LuaMap::GetHeight},                                                                      // :GetHeight(x, y[, phasemask]) - Returns ground Z coordinate. UNDOCUMENTED
 
     // Booleans
     {"IsArena", &LuaMap::IsArena},                                                                          // :IsArena() - Returns the true if the map is an arena, else false UNDOCUMENTED

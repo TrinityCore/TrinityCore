@@ -15,6 +15,7 @@ namespace LuaUnit
     int SummonPlayer(lua_State*, Unit*);
     int Mute(lua_State*, Unit*);
     int GetHeight(lua_State*, Unit*);
+    int GetMap(lua_State*, Unit*);
     int GetRelativePoint(lua_State*, Unit*);
     int Mount(lua_State*, Unit*);
     int Dismount(lua_State*, Unit*);
