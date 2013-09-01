@@ -18,6 +18,20 @@ public:
         return 1;
     }
 
+    // GetHeight(x, y[, phase])
+    static int GetHeight(lua_State* L, Map* map)
+    {
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        uint32 phasemask = luaL_optunsigned(L, 3, 1);
+
+        float z = map->GetHeight(phasemask, x, y, MAX_HEIGHT);
+        if (z == INVALID_HEIGHT)
+            return 0;
+        sEluna->PushFloat(L, z);
+        return 1;
+    }
+
     // :GetDifficulty()
     static int GetDifficulty(lua_State* L, Map* map)
     {
