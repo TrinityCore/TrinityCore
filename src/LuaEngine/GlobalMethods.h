@@ -366,32 +366,14 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // GetHeight(map, x, y[, phase])
-    static int GetHeight(lua_State* L)
-    {
-        uint32 mapid = luaL_checkunsigned(L, 1);
-        float x = luaL_checknumber(L, 2);
-        float y = luaL_checknumber(L, 3);
-        uint32 phasemask = luaL_optunsigned(L, 4, 1);
-
-        float z = sMapMgr->FindBaseMap(mapid)->GetHeight(phasemask, x, y, MAX_HEIGHT);
-        if (z == INVALID_HEIGHT)
-            return 0;
-        sEluna->PushFloat(L, z);
-        return 1;
-    }
-
     // GetMapById()
     static int GetMapById(lua_State* L)
     {
         uint32 mapid = luaL_checkunsigned(L, 1);
-        
-        Map* map = sMapMgr->FindBaseMap(mapid);
-
-        if (!map)
+        if (!sMapStore.LookupEntry(mapid))
             return 0;
 
-        sEluna->PushMap(L, map);
+        sEluna->PushMap(L, sMapMgr->CreateBaseMap(mapid));
         return 1;
     }
 
