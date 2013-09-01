@@ -132,20 +132,6 @@ int LuaUnit::Mute(lua_State* L, Unit* unit)
     return 0;
 }
 
-int LuaUnit::GetHeight(lua_State* L, Unit* unit)
-{
-    TO_UNIT();
-
-    float x = luaL_checknumber(L, 1);
-    float y = luaL_checknumber(L, 2);
-
-    float z = unit->GetMap()->GetHeight(unit->GetPhaseMask(), x, y, MAX_HEIGHT);
-    if (z == INVALID_HEIGHT)
-        z = unit->GetPositionZ();
-    sEluna->PushFloat(L, z);
-    return 1;
-}
-
 int LuaUnit::GetMap(lua_State* L, Unit* unit)
 {
     TO_UNIT();
