@@ -1519,20 +1519,21 @@ public:
          * ** Muted: (Time, Reason, By)              - IV.   LANG_PINFO_MUTED (if muted)
          * * Account: %s (id: %u), GM Level: %u      - V.    LANG_PINFO_ACC_ACCOUNT
          * * Last Login: %u (Failed Logins: %u)      - VI.   LANG_PINFO_ACC_LASTLOGIN
-         * * Uses OS: %s - Latency: %u ms - Email %s - VII.  LANG_PINFO_ACC_OS
-         * * Last IP: %u (Locked: %s)                - VIII. LANG_PINFO_ACC_IP
-         * * Level: %u (%u/%u XP (%u XP left)        - IX.   LANG_PINFO_CHR_LEVEL
-         * * Race: %s %s, Class %s                   - X.    LANG_PINFO_CHR_RACE
-         * * Alive ?: %s                             - XI.   LANG_PINFO_CHR_ALIVE
-         * * Phase: %s                               - XII.  LANG_PINFO_CHR_PHASE (if not GM)
-         * * Money: %ug%us%uc                        - XIII. LANG_PINFO_CHR_MONEY
-         * * Map: %s, Area: %s                       - XIV.  LANG_PINFO_CHR_MAP
-         * * Guild: %s (Id: %u)                      - XV.   LANG_PINFO_CHR_GUILD (if in guild)
-         * ** Rank: %s                               - XVI.  LANG_PINFO_CHR_GUILD_RANK (if in guild)
-         * ** Note: %s                               - XVII. LANG_PINFO_CHR_GUILD_NOTE (if in guild and has note)
-         * ** O. Note: %s                            - XVIII.LANG_PINFO_CHR_GUILD_ONOTE (if in guild and has officer note)
-         * * Played time: %s                         - XIX.  LANG_PINFO_CHR_PLAYEDTIME
-         * * Mails: %u Read/%u Total                 - XX.   LANG_PINFO_CHR_MAILS (if has mails)
+         * * Uses OS: %s - Latency: %u ms            - VII.  LANG_PINFO_ACC_OS
+         * * Registration Email: %s - Email: %s      - VIII. LANG_PINFO_ACC_REGMAILS
+         * * Last IP: %u (Locked: %s)                - IX.   LANG_PINFO_ACC_IP
+         * * Level: %u (%u/%u XP (%u XP left)        - X.    LANG_PINFO_CHR_LEVEL
+         * * Race: %s %s, Class %s                   - XI.   LANG_PINFO_CHR_RACE
+         * * Alive ?: %s                             - XII.  LANG_PINFO_CHR_ALIVE
+         * * Phase: %s                               - XIII. LANG_PINFO_CHR_PHASE (if not GM)
+         * * Money: %ug%us%uc                        - XIV.  LANG_PINFO_CHR_MONEY
+         * * Map: %s, Area: %s                       - XV.   LANG_PINFO_CHR_MAP
+         * * Guild: %s (Id: %u)                      - XVI.  LANG_PINFO_CHR_GUILD (if in guild)
+         * ** Rank: %s                               - XVII. LANG_PINFO_CHR_GUILD_RANK (if in guild)
+         * ** Note: %s                               - XVIII.LANG_PINFO_CHR_GUILD_NOTE (if in guild and has note)
+         * ** O. Note: %s                            - XVIX. LANG_PINFO_CHR_GUILD_ONOTE (if in guild and has officer note)
+         * * Played time: %s                         - XX.   LANG_PINFO_CHR_PLAYEDTIME
+         * * Mails: %u Read/%u Total                 - XXI.  LANG_PINFO_CHR_MAILS (if has mails)
          *
          * Not all of them can be moved to the top. These should
          * place the most important ones to the head, though.
@@ -1545,6 +1546,7 @@ public:
         uint32 accId                  = 0;
         uint32 lowguid                = GUID_LOPART(targetGuid);
         std::string eMail             = handler->GetTrinityString(LANG_ERROR);
+        std::string regMail           = handler->GetTrinityString(LANG_ERROR);
         uint32 security               = 0;
         std::string lastIp            = handler->GetTrinityString(LANG_ERROR);
         uint8 locked                  = 0;
@@ -1665,8 +1667,9 @@ public:
                (!handler->GetSession() || handler->GetSession()->GetSecurity() >= AccountTypes(security)))
             {
                 eMail     = fields[2].GetString();
-                lastIp    = fields[3].GetString();
-                lastLogin = fields[4].GetString();
+                regMail   = fields[3].GetString();
+                lastIp    = fields[4].GetString();
+                lastLogin = fields[5].GetString();
 
                 uint32 ip = inet_addr(lastIp.c_str());
                 EndianConvertReverse(ip);
@@ -1688,12 +1691,12 @@ public:
                 lastIp    = "Unauthorized";
                 lastLogin = "Unauthorized";
             }
-            muteTime      = fields[5].GetUInt64();
-            muteReason    = fields[6].GetString();
-            muteBy        = fields[7].GetString();
-            failedLogins  = fields[8].GetUInt32();
-            locked        = fields[9].GetUInt8();
-            OS            = fields[10].GetString();
+            muteTime      = fields[6].GetUInt64();
+            muteReason    = fields[7].GetString();
+            muteBy        = fields[8].GetString();
+            failedLogins  = fields[9].GetUInt32();
+            locked        = fields[10].GetUInt8();
+            OS            = fields[11].GetString();
         }
 
         // Creates a chat link to the character. Returns nameLink
@@ -1782,8 +1785,11 @@ public:
         // Output VI. LANG_PINFO_ACC_LASTLOGIN
         handler->PSendSysMessage(LANG_PINFO_ACC_LASTLOGIN, lastLogin.c_str(), failedLogins);
 
-        // Output VIII. LANG_PINFO_ACC_OS
-        handler->PSendSysMessage(LANG_PINFO_ACC_OS, OS.c_str(), latency, eMail.c_str());
+        // Output VII. LANG_PINFO_ACC_OS
+        handler->PSendSysMessage(LANG_PINFO_ACC_OS, OS.c_str(), latency);
+
+        // Output VIII. LANG_PINFO_ACC_REGMAILS
+        handler->PSendSysMessage(LANG_PINFO_ACC_REGMAILS, regMail.c_str(), eMail.c_str());
 
         // Output IX. LANG_PINFO_ACC_IP
         handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp.c_str(), locked ? "Yes" : "No");
@@ -1827,7 +1833,7 @@ public:
         if (target)
             handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name, (!zoneName.empty() ? zoneName.c_str() : "<Unknown>"), (!areaName.empty() ? areaName.c_str() : "<Unknown>"));
 
-        // Output XVII. - XX. if they are not empty
+        // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
         {
             handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName.c_str(), guildId);
@@ -1838,7 +1844,7 @@ public:
                 handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_ONOTE, officeNote.c_str());
         }
 
-        // Output XXI. LANG_PINFO_CHR_PLAYEDTIME
+        // Output XX. LANG_PINFO_CHR_PLAYEDTIME
         handler->PSendSysMessage(LANG_PINFO_CHR_PLAYEDTIME, (secsToTimeString(totalPlayerTime, true, true)).c_str());
 
         // Mail Data - an own query, because it may or may not be useful.
@@ -1860,7 +1866,7 @@ public:
             // ... we have to convert it from Char to int. We can use totalmail as it is
             rmailint = atol(readmail.c_str());
 
-            // Output XXII. LANG_INFO_CHR_MAILS if at least one mail is given
+            // Output XXI. LANG_INFO_CHR_MAILS if at least one mail is given
             if (totalmail >= 1)
                handler->PSendSysMessage(LANG_PINFO_CHR_MAILS, rmailint, totalmail);
         }
