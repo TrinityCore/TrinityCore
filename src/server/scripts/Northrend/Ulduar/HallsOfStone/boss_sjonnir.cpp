@@ -84,11 +84,6 @@ class boss_sjonnir : public CreatureScript
 public:
     boss_sjonnir() : CreatureScript("boss_sjonnir") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_sjonnirAI(creature);
-    }
-
     struct boss_sjonnirAI : public ScriptedAI
     {
         boss_sjonnirAI(Creature* creature) : ScriptedAI(creature), lSummons(me)
@@ -127,7 +122,7 @@ public:
             lSummons.DespawnAll();
 
             if (instance)
-                instance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_SJONNIR, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -138,14 +133,15 @@ public:
 
             if (instance)
             {
+                /*
                 if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_SJONNIR_DOOR)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
                         return;
                     }
-
-                instance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
+                */
+                instance->SetBossState(DATA_SJONNIR, IN_PROGRESS);
             }
         }
 
@@ -221,7 +217,7 @@ public:
             lSummons.DespawnAll();
 
             if (instance)
-                instance->SetData(DATA_SJONNIR_EVENT, DONE);
+                instance->SetBossState(DATA_SJONNIR, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -247,17 +243,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetHallsOfStoneAI<boss_sjonnirAI>(creature);
+    }
 };
 
 class npc_malformed_ooze : public CreatureScript
 {
 public:
     npc_malformed_ooze() : CreatureScript("npc_malformed_ooze") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_malformed_oozeAI(creature);
-    }
 
     struct npc_malformed_oozeAI : public ScriptedAI
     {
@@ -290,35 +285,37 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetHallsOfStoneAI<npc_malformed_oozeAI>(creature);
+    }
 };
 
 class npc_iron_sludge : public CreatureScript
 {
-public:
-    npc_iron_sludge() : CreatureScript("npc_iron_sludge") { }
+    public:
+        npc_iron_sludge() : CreatureScript("npc_iron_sludge") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_iron_sludgeAI(creature);
-    }
-
-    struct npc_iron_sludgeAI : public ScriptedAI
-    {
-        npc_iron_sludgeAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_iron_sludgeAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            npc_iron_sludgeAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
 
-        InstanceScript* instance;
+            InstanceScript* instance;
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            if (instance)
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
                 if (Creature* Sjonnir = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SJONNIR)))
                     Sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
-        }
-    };
+            }
+        };
 
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return GetHallsOfStoneAI<npc_iron_sludgeAI>(creature);
+        }
 };
 
 class achievement_abuse_the_ooze : public AchievementCriteriaScript
