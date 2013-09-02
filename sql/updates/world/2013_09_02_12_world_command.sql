@@ -15,4 +15,4 @@ UPDATE `command` SET `permission` = @id+8 WHERE `name` = 'learn all crafts';
 UPDATE `command` SET `permission` = @id+9 WHERE `name` = 'learn all default';
 UPDATE `command` SET `permission` = @id+10 WHERE `name` = 'learn all lang';
 UPDATE `command` SET `permission` = @id+11 WHERE `name` = 'learn all recipes';
-UPDATE `command` SET `permission` = @id+12 WHERE `name` = 'unlearn');
+UPDATE `command` SET `permission` = @id+12 WHERE `name` = 'unlearn';
