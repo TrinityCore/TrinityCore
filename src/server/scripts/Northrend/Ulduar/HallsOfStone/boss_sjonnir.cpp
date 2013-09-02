@@ -22,15 +22,10 @@
 enum Spells
 {
     SPELL_LIGHTING_RING                               = 51849, // Periodic Trigger (interval 2s) spell = 50841
-    H_SPELL_LIGHTING_RING                             = 59861, // Periodic Trigger (interval 2s) spell = 59849
     SPELL_LIGHTING_RING_1                             = 50840, // Periodic Trigger (interval 2s) spell = 50841
-    H_SPELL_LIGHTING_RING_1                           = 59848, // Periodic Trigger (interval 2s) spell = 59849
     SPELL_STATIC_CHARGE                               = 50834, // Periodic Trigger 2s interval, spell =50835
-    H_SPELL_STATIC_CHARGE                             = 59846, // Periodic Trigger 2s interval, spell =50847
     SPELL_CHAIN_LIGHTING                              = 50830,
-    H_SPELL_CHAIN_LIGHTING                            = 59844,
     SPELL_LIGHTING_SHIELD                             = 50831,
-    H_SPELL_LIGHTING_SHIELD                           = 59845,
     SPELL_FRENZY                                      = 28747
 };
 
@@ -93,7 +88,6 @@ class boss_sjonnir : public CreatureScript
             void Reset() OVERRIDE
             {
                 _Reset();
-                bIsFrenzy = false;
                 abuseTheOoze = 0;
             }
 
@@ -158,11 +152,11 @@ class boss_sjonnir : public CreatureScript
                             {
                                 me->SummonCreature(NPC_FORGED_IRON_DWARF, PipeLocations[uiSummonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                             }
-                            else if (HealthAbovePct(50) && HealthBelowPct(75))
+                            else if (HealthAbovePct(50))
                             {
                                 me->SummonCreature(NPC_FORGED_IRON_TROGG, PipeLocations[uiSummonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                             }
-                            else if (HealthAbovePct(25) && HealthBelowPct(50))
+                            else if (HealthAbovePct(25))
                             {
                                 me->SummonCreature(NPC_MALFORMED_OOZE, PipeLocations[uiSummonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                             }
@@ -173,11 +167,7 @@ class boss_sjonnir : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON, 20000);
                             return;
                         case EVENT_FRENZY:
-                            if (!bIsFrenzy)
-                            {
-                                DoCast(me, SPELL_FRENZY);
-                                bIsFrenzy = true;
-                            }
+                            DoCast(me, SPELL_FRENZY);
                             break;
                         default:
                             break;
@@ -224,7 +214,6 @@ class boss_sjonnir : public CreatureScript
             }
 
             private:
-                bool bIsFrenzy;
                 uint8 abuseTheOoze;
         };
 };
