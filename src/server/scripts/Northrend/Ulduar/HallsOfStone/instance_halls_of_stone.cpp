@@ -19,6 +19,7 @@
 #include "InstanceScript.h"
 #include "WorldSession.h"
 #include "halls_of_stone.h"
+#include <Player.h>
 
 DoorData const doorData[] =
 {

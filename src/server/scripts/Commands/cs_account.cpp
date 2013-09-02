@@ -114,18 +114,19 @@ public:
         if (!*args)
             return false;
 
-        char* email;
+        std::string email;
 
         ///- %Parse the command line arguments
         char* accountName = strtok((char*)args, " ");
         char* password = strtok(NULL, " ");
-        if (!(email = strtok(NULL, " '")))
-            email = "";
+        char* possibleEmail = strtok(NULL, " ' ");
+        if (possibleEmail)
+            email = possibleEmail;
 
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password), std::string(email));
+        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email);
         switch (result)
         {
             case AOR_OK:
@@ -135,7 +136,7 @@ public:
                     TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (GUID: %u) created Account %s (Email: '%s')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
-                        accountName, email);
+                        accountName, email.c_str());
                 }
                 break;
             case AOR_NAME_TOO_LONG:
@@ -546,7 +547,7 @@ public:
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_EMAIL_BY_ID);
             stmt->setUInt32(0, accountId);
             PreparedQueryResult result = LoginDatabase.Query(stmt);
-            
+
             if (result)
             {
                 emailoutput = (*result)[0].GetString();
@@ -797,19 +798,19 @@ public:
     {
         if (!*args)
             return false;
-        
+
         ///- Get the command line arguments
         char* account = strtok((char*)args, " ");
         char* email = strtok(NULL, " ");
         char* emailConfirmation = strtok(NULL, " ");
-        
+
         if (!account || !email || !emailConfirmation)
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
+
         std::string accountName = account;
         if (!AccountMgr::normalizeString(accountName))
         {
@@ -817,7 +818,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
+
         uint32 targetAccountId = AccountMgr::GetId(accountName);
         if (!targetAccountId)
         {
@@ -825,12 +826,12 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
+
         /// can set email only for target with less security
         /// This also restricts setting handler's own email.
         if (handler->HasLowerSecurityAccount(NULL, targetAccountId, true))
             return false;
-        
+
         if (strcmp(email, emailConfirmation) != 0)
         {
             handler->SendSysMessage(LANG_NEW_EMAILS_NOT_MATCH);
