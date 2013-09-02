@@ -334,6 +334,16 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LOOKUP_TELE                            = 455,
     RBAC_PERM_COMMAND_LOOKUP_TITLE                           = 456,
     RBAC_PERM_COMMAND_LOOKUP_MAP                             = 457,
+    RBAC_PERM_COMMAND_ANNOUNCE                               = 458,
+    RBAC_PERM_COMMAND_CHANNEL                                = 459,
+    RBAC_PERM_COMMAND_CHANNEL_SET                            = 460,
+    RBAC_PERM_COMMAND_CHANNEL_SET_OWNERSHIP                  = 461,
+    RBAC_PERM_COMMAND_GMANNOUNCE                             = 462,
+    RBAC_PERM_COMMAND_GMNAMEANNOUNCE                         = 463,
+    RBAC_PERM_COMMAND_GMNOTIFY                               = 464,
+    RBAC_PERM_COMMAND_NAMEANNOUNCE                           = 465,
+    RBAC_PERM_COMMAND_NOTIFY                                 = 466,
+    RBAC_PERM_COMMAND_WHISPERS                               = 467,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
