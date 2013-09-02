@@ -264,6 +264,20 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GO_TRIGGER                             = 384,
     RBAC_PERM_COMMAND_GO_XYZ                                 = 385,
     RBAC_PERM_COMMAND_GO_ZONEXY                              = 386,
+    RBAC_PERM_COMMAND_GOBJECT                                = 387,
+    RBAC_PERM_COMMAND_GOBJECT_ACTIVATE                       = 388,
+    RBAC_PERM_COMMAND_GOBJECT_ADD                            = 389,
+    RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP                       = 390,
+    RBAC_PERM_COMMAND_GOBJECT_DELETE                         = 391,
+    RBAC_PERM_COMMAND_GOBJECT_INFO                           = 392,
+    RBAC_PERM_COMMAND_GOBJECT_MOVE                           = 393,
+    RBAC_PERM_COMMAND_GOBJECT_NEAR                           = 394,
+    RBAC_PERM_COMMAND_GOBJECT_SET                            = 395,
+    RBAC_PERM_COMMAND_GOBJECT_SET_PHASE                      = 396,
+    RBAC_PERM_COMMAND_GOBJECT_SET_STATE                      = 397,
+    RBAC_PERM_COMMAND_GOBJECT_TARGET                         = 398,
+    RBAC_PERM_COMMAND_GOBJECT_TURN                           = 399,
+
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
