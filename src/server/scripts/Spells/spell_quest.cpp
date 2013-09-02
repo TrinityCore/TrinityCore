@@ -2072,7 +2072,7 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
             {
                 uint32 spellId = 0;
 
-                TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "spell_q12641_death_comes_from_on_high:: Caster: %s (GUID: %u) On Hit Target: Creature: %s (Entry: %u GUID: %u)",
+                TC_LOG_DEBUG(LOG_FILTER_SPELLS_AURAS, "spell_q12641_death_comes_from_on_high:: Caster: %s (GUID: %u) On Hit Target: Creature: %s (Entry: %u GUID: %u)",
                     GetOriginalCaster()->GetName().c_str(), GetOriginalCaster()->GetGUIDLow(), GetHitCreature()->GetName().c_str(), GetHitCreature()->GetEntry(), GetHitCreature()->GetGUIDLow());
                 switch (GetHitCreature()->GetEntry())
                 {
