@@ -244,6 +244,10 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DISABLE_REMOVE_QUEST                   = 364,
     RBAC_PERM_COMMAND_DISABLE_REMOVE_SPELL                   = 365,
     RBAC_PERM_COMMAND_DISABLE_REMOVE_VMAP                    = 366,
+    RBAC_PERM_COMMAND_EVENT                                  = 367,
+    RBAC_PERM_COMMAND_EVENT_ACTIVELIST                       = 368,
+    RBAC_PERM_COMMAND_EVENT_START                            = 369,
+    RBAC_PERM_COMMAND_EVENT_STOP                             = 370,
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
