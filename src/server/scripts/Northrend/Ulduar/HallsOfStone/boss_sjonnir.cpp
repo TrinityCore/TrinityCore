@@ -36,8 +36,6 @@ enum Yells
     SAY_DEATH                                         = 2
 };
 
-#define EMOTE_GENERIC_FRENZY                          -1000002
-
 enum SjonnirCreatures
 {
     NPC_FORGED_IRON_TROGG                             = 27979,
@@ -78,7 +76,7 @@ class boss_sjonnir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_sjonnirAI(creature);
+            return new GetHallsOfStoneAI<boss_sjonnirAI>(creature);
         }
 
         struct boss_sjonnirAI : public BossAI
@@ -96,13 +94,10 @@ class boss_sjonnir : public CreatureScript
                 Talk(SAY_AGGRO);
                 _EnterCombat();
 
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_SJONNIR_DOOR)))
+                if (!instance->CheckRequiredBosses(DATA_SJONNIR, who->ToPlayer()))
                 {
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
+                    EnterEvadeMode();
+                    return;
                 }
 
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(3000, 8000));
@@ -225,7 +220,7 @@ class npc_malformed_ooze : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_malformed_oozeAI(creature);
+            return new GetHallsOfStoneAI<npc_malformed_oozeAI>(creature);
         }
 
         struct npc_malformed_oozeAI : public ScriptedAI
@@ -267,7 +262,7 @@ class npc_iron_sludge : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_iron_sludgeAI(creature);
+            return new GetHallsOfStoneAI<npc_iron_sludgeAI>(creature);
         }
 
         struct npc_iron_sludgeAI : public ScriptedAI
