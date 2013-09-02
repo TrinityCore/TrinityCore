@@ -166,6 +166,17 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ACCOUNT_SET_SEC                        = 264,
     RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL                  = 265,
     RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL                = 266,
+    //  6 reserved for cast (267-272)
+    // 18 reserved for character (273-290)
+    RBAC_PERM_COMMAND_CHEAT                                  = 291,
+    RBAC_PERM_COMMAND_CHEAT_CASTTIME                         = 292,
+    RBAC_PERM_COMMAND_CHEAT_COOLDOWN                         = 293,
+    RBAC_PERM_COMMAND_CHEAT_EXPLORE                          = 294,
+    RBAC_PERM_COMMAND_CHEAT_GOD                              = 295,
+    RBAC_PERM_COMMAND_CHEAT_POWER                            = 296,
+    RBAC_PERM_COMMAND_CHEAT_STATUS                           = 297,
+    RBAC_PERM_COMMAND_CHEAT_TAXI                             = 298,
+    RBAC_PERM_COMMAND_CHEAT_WATERWALK                        = 299,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
