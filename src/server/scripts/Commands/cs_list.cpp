@@ -40,17 +40,17 @@ public:
     {
         static ChatCommand listCommandTable[] =
         {
-            { "creature",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleListCreatureCommand,          "", NULL },
-            { "item",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleListItemCommand,              "", NULL },
-            { "object",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleListObjectCommand,            "", NULL },
-            { "auras",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleListAurasCommand,             "", NULL },
-            { "mail",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleListMailCommand,              "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "creature", RBAC_PERM_COMMAND_LIST_CREATURE, true, &HandleListCreatureCommand, "", NULL },
+            { "item",     RBAC_PERM_COMMAND_LIST_ITEM,     true, &HandleListItemCommand,     "", NULL },
+            { "object",   RBAC_PERM_COMMAND_LIST_OBJECT,   true, &HandleListObjectCommand,   "", NULL },
+            { "auras",    RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "", NULL },
+            { "mail",     RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "", NULL },
+            { NULL,       0,                              false, NULL,                       "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "list",          RBAC_PERM_ADMINISTRATOR_COMMANDS,   true, NULL,                                 "", listCommandTable },
-            { NULL,            0,                   false, NULL,                                "", NULL }
+            { "list", RBAC_PERM_COMMAND_LIST,true, NULL, "", listCommandTable },
+            { NULL,   0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }

@@ -41,38 +41,38 @@ public:
     {
         static ChatCommand removeDisableCommandTable[] =
         {
-            { "spell",                  RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableSpellCommand,               "", NULL },
-            { "quest",                  RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableQuestCommand,               "", NULL },
-            { "map",                    RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableMapCommand,                 "", NULL },
-            { "battleground",           RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableBattlegroundCommand,        "", NULL },
-            { "achievement_criteria",   RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableAchievementCriteriaCommand, "", NULL },
-            { "outdoorpvp",             RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableOutdoorPvPCommand,          "", NULL },
-            { "vmap",                   RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableVmapCommand,                "", NULL },
-            { "mmap",                   RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleRemoveDisableMMapCommand,                "", NULL },
-            { NULL,                     0,                      false,  NULL,                                           "", NULL }
+            { "spell",                RBAC_PERM_COMMAND_DISABLE_REMOVE_SPELL,                true, &HandleRemoveDisableSpellCommand,               "", NULL },
+            { "quest",                RBAC_PERM_COMMAND_DISABLE_REMOVE_QUEST,                true, &HandleRemoveDisableQuestCommand,               "", NULL },
+            { "map",                  RBAC_PERM_COMMAND_DISABLE_REMOVE_MAP,                  true, &HandleRemoveDisableMapCommand,                 "", NULL },
+            { "battleground",         RBAC_PERM_COMMAND_DISABLE_REMOVE_BATTLEGROUND,         true, &HandleRemoveDisableBattlegroundCommand,        "", NULL },
+            { "achievement_criteria", RBAC_PERM_COMMAND_DISABLE_REMOVE_ACHIEVEMENT_CRITERIA, true, &HandleRemoveDisableAchievementCriteriaCommand, "", NULL },
+            { "outdoorpvp",           RBAC_PERM_COMMAND_DISABLE_REMOVE_OUTDOORPVP,           true, &HandleRemoveDisableOutdoorPvPCommand,          "", NULL },
+            { "vmap",                 RBAC_PERM_COMMAND_DISABLE_REMOVE_VMAP,                 true, &HandleRemoveDisableVmapCommand,                "", NULL },
+            { "mmap",                 RBAC_PERM_COMMAND_DISABLE_REMOVE_MMAP,                 true, &HandleRemoveDisableMMapCommand,                "", NULL },
+            { NULL,                   0,                                                 false, NULL,                                           "", NULL }
         };
         static ChatCommand addDisableCommandTable[] =
         {
-            { "spell",                  RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableSpellCommand,                  "", NULL },
-            { "quest",                  RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableQuestCommand,                  "", NULL },
-            { "map",                    RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableMapCommand,                    "", NULL },
-            { "battleground",           RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableBattlegroundCommand,           "", NULL },
-            { "achievement_criteria",   RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableAchievementCriteriaCommand,    "", NULL },
-            { "outdoorpvp",             RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableOutdoorPvPCommand,             "", NULL },
-            { "vmap",                   RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableVmapCommand,                   "", NULL },
-            { "mmap",                   RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   &HandleAddDisableMMapCommand,                   "", NULL },
-            { NULL,                     0,                      false,  NULL,                                           "", NULL }
+            { "spell",                RBAC_PERM_COMMAND_DISABLE_ADD_SPELL,                true, &HandleAddDisableSpellCommand,                  "", NULL },
+            { "quest",                RBAC_PERM_COMMAND_DISABLE_ADD_QUEST,                true, &HandleAddDisableQuestCommand,                  "", NULL },
+            { "map",                  RBAC_PERM_COMMAND_DISABLE_ADD_MAP,                  true, &HandleAddDisableMapCommand,                    "", NULL },
+            { "battleground",         RBAC_PERM_COMMAND_DISABLE_ADD_BATTLEGROUND,         true, &HandleAddDisableBattlegroundCommand,           "", NULL },
+            { "achievement_criteria", RBAC_PERM_COMMAND_DISABLE_ADD_ACHIEVEMENT_CRITERIA, true, &HandleAddDisableAchievementCriteriaCommand,    "", NULL },
+            { "outdoorpvp",           RBAC_PERM_COMMAND_DISABLE_ADD_OUTDOORPVP,           true, &HandleAddDisableOutdoorPvPCommand,             "", NULL },
+            { "vmap",                 RBAC_PERM_COMMAND_DISABLE_ADD_VMAP,                 true, &HandleAddDisableVmapCommand,                   "", NULL },
+            { "mmap",                 RBAC_PERM_COMMAND_DISABLE_ADD_MMAP,                 true, &HandleAddDisableMMapCommand,                   "", NULL },
+            { NULL,                   0,                                                 false,  NULL,                                           "", NULL }
         };
         static ChatCommand disableCommandTable[] =
         {
-            { "add",                    RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   NULL,                                           "", addDisableCommandTable },
-            { "remove",                 RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,   NULL,                                           "", removeDisableCommandTable },
-            { NULL,                     0,                      false,  NULL,                                           "", NULL }
+            { "add",    RBAC_PERM_COMMAND_DISABLE_ADD,    true, NULL, "", addDisableCommandTable },
+            { "remove", RBAC_PERM_COMMAND_DISABLE_REMOVE, true, NULL, "", removeDisableCommandTable },
+            { NULL,     0,                               false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "disable",                RBAC_PERM_ADMINISTRATOR_COMMANDS,     false,   NULL,                                           "", disableCommandTable },
-            { NULL,                     0,                     false,   NULL,                                           "", NULL }
+            { "disable", RBAC_PERM_COMMAND_DISABLE, false, NULL, "", disableCommandTable },
+            { NULL,      0,                         false, NULL, "", NULL }
         };
         return commandTable;
     }

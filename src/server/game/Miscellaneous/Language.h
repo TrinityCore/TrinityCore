@@ -819,6 +819,7 @@ enum TrinityStrings
     LANG_PINFO_ACC_ACCOUNT              = 714,
     LANG_PINFO_ACC_LASTLOGIN            = 716,
     LANG_PINFO_ACC_OS                   = 749,
+    LANG_PINFO_ACC_REGMAILS             = 879,
     LANG_PINFO_ACC_IP                   = 752,
     LANG_PINFO_CHR_LEVEL_LOW            = 843,
     LANG_PINFO_CHR_RACE                 = 844,
@@ -852,7 +853,17 @@ enum TrinityStrings
     LANG_ARENA_INFO_MEMBERS             = 869,
     LANG_ARENA_LOOKUP                   = 870,
     //                                  = 871, see LANG_PINFO_CHR_LEVEL_HIGH
-    // Room for in-game strings           872-999 not used
+    LANG_COMMAND_WRONGEMAIL             = 872,
+    LANG_NEW_EMAILS_NOT_MATCH           = 873,
+    LANG_COMMAND_EMAIL                  = 874,
+    LANG_EMAIL_TOO_LONG                 = 875,
+    LANG_COMMAND_NOTCHANGEEMAIL         = 876,
+    LANG_OLD_EMAIL_IS_NEW_EMAIL         = 877,
+    LANG_COMMAND_EMAIL_OUTPUT           = 878,
+    //                                  = 879, see LANG_PINFO_CHR_REGMAILS
+    LANG_ACCOUNT_SEC_TYPE               = 880,
+    LANG_RBAC_EMAIL_REQUIRED            = 881,
+    // Room for in-game strings           882-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
