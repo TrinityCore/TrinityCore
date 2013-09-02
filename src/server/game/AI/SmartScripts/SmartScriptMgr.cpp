@@ -28,6 +28,8 @@
 #include "ScriptedCreature.h"
 #include "GameEventMgr.h"
 #include "CreatureTextMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
 
 #include "SmartScriptMgr.h"
 
@@ -778,6 +780,25 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_CALL_KILLEDMONSTER:
             if (!IsCreatureValid(e, e.action.killedMonster.creature))
                 return false;
+
+            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
+                if (!spellInfo)
+                    continue;
+
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                {
+                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_KILL_CREDIT || spellInfo->Effects[j].Effect == SPELL_EFFECT_KILL_CREDIT2)
+                    {
+                        uint32 killCredit = spellInfo->Effects[j].MiscValue;
+
+                        if (e.action.killedMonster.creature == killCredit)
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u Kill Credit: %u has already spell kill credit (SpellId: %u effect: %u)", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, spellInfo->Id, j);
+                    }
+                }
+            }
+
             if (e.GetTargetType() == SMART_TARGET_POSITION)
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses incorrect TargetType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
