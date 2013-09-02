@@ -1,4 +1,4 @@
-/* cs_learn.cpp */
+/* cs_lfg.cpp */
 
 SET @id = 430;
 
