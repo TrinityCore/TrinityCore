@@ -306,6 +306,12 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LEARN_ALL_LANG                         = 427,
     RBAC_PERM_COMMAND_LEARN_ALL_RECIPES                      = 428,
     RBAC_PERM_COMMAND_UNLEARN                                = 429,
+    RBAC_PERM_COMMAND_LFG                                    = 430,
+    RBAC_PERM_COMMAND_LFG_PLAYER                             = 431,
+    RBAC_PERM_COMMAND_LFG_GROUP                              = 432,
+    RBAC_PERM_COMMAND_LFG_QUEUE                              = 433,
+    RBAC_PERM_COMMAND_LFG_CLEAN                              = 434,
+    RBAC_PERM_COMMAND_LFG_OPTIONS                            = 435,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
