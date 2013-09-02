@@ -218,6 +218,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_UPDATE                           = 338,
     RBAC_PERM_COMMAND_DEBUG_UWS                              = 339,
     RBAC_PERM_COMMAND_WPGPS                                  = 340,
+    RBAC_PERM_COMMAND_DESERTER                               = 341,
+    RBAC_PERM_COMMAND_DESERTER_BG                            = 342,
+    RBAC_PERM_COMMAND_DESERTER_BG_ADD                        = 343,
+    RBAC_PERM_COMMAND_DESERTER_BG_REMOVE                     = 344,
+    RBAC_PERM_COMMAND_DESERTER_INSTANCE                      = 345,
+    RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD                  = 346,
+    RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE               = 347,
     // custom permissions 1000+
     RBAC_PERM_MAX
 };

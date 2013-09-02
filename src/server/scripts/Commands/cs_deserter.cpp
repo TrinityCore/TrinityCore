@@ -47,27 +47,27 @@ public:
     {
         static ChatCommand deserterInstanceCommandTable[] =
         {
-            { "add",            RBAC_PERM_ADMINISTRATOR_COMMANDS, false, &HandleDeserterInstanceAdd,          "", NULL },
-            { "remove",         RBAC_PERM_ADMINISTRATOR_COMMANDS, false, &HandleDeserterInstanceRemove,       "", NULL },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,        false, NULL,                                "", NULL }
+            { "add",      RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    false, &HandleDeserterInstanceAdd,    "", NULL },
+            { "remove",   RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, false, &HandleDeserterInstanceRemove, "", NULL },
+            { NULL,       0,                                          false, NULL,                          "", NULL }
         };
         static ChatCommand deserterBGCommandTable[] =
         {
-            { "add",            RBAC_PERM_ADMINISTRATOR_COMMANDS, false, &HandleDeserterBGAdd,                "", NULL },
-            { "remove",         RBAC_PERM_ADMINISTRATOR_COMMANDS, false, &HandleDeserterBGRemove,             "", NULL },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,        false, NULL,                                "", NULL }
+            { "add",      RBAC_PERM_COMMAND_DESERTER_BG_ADD,    false, &HandleDeserterBGAdd,    "", NULL },
+            { "remove",   RBAC_PERM_COMMAND_DESERTER_BG_REMOVE, false, &HandleDeserterBGRemove, "", NULL },
+            { NULL,       0,                                    false, NULL,                    "", NULL }
         };
 
         static ChatCommand deserterCommandTable[] =
         {
-            { "instance",       RBAC_PERM_ADMINISTRATOR_COMMANDS, false, NULL,        "", deserterInstanceCommandTable },
-            { "bg",             RBAC_PERM_ADMINISTRATOR_COMMANDS, false, NULL,              "", deserterBGCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,        false, NULL,                                "", NULL }
+            { "instance", RBAC_PERM_COMMAND_DESERTER_INSTANCE, false, NULL, "", deserterInstanceCommandTable },
+            { "bg",       RBAC_PERM_COMMAND_DESERTER_BG,       false, NULL, "", deserterBGCommandTable },
+            { NULL,       0,                                   false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "deserter",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,               "", deserterCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "deserter", RBAC_PERM_COMMAND_DESERTER, false, NULL, "", deserterCommandTable },
+            { NULL,       0,                          false, NULL, "", NULL }
         };
         return commandTable;
     }
