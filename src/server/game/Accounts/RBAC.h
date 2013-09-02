@@ -293,6 +293,19 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_INSTANCE_UNBIND                        = 414,
     RBAC_PERM_COMMAND_INSTANCE_STATS                         = 415,
     RBAC_PERM_COMMAND_INSTANCE_SAVEDATA                      = 416,
+    RBAC_PERM_COMMAND_LEARN                                  = 417,
+    RBAC_PERM_COMMAND_LEARN_ALL                              = 418,
+    RBAC_PERM_COMMAND_LEARN_ALL_MY                           = 419,
+    RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS                     = 420,
+    RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS                = 421,
+    RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS                    = 422,
+    RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS                   = 423,
+    RBAC_PERM_COMMAND_LEARN_ALL_GM                           = 424,
+    RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS                       = 425,
+    RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT                      = 426,
+    RBAC_PERM_COMMAND_LEARN_ALL_LANG                         = 427,
+    RBAC_PERM_COMMAND_LEARN_ALL_RECIPES                      = 428,
+    RBAC_PERM_COMMAND_UNLEARN                                = 429,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
