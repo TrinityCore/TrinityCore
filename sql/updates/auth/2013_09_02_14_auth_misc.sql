@@ -3,7 +3,7 @@
 SET @id = 442;
 
 -- Add new permissions
-DELETE FROM `rbac_permissions` WHERE `id` BETWEEN @id AND @id+15;
+DELETE FROM `rbac_permissions` WHERE `id` BETWEEN @id AND @id+19;
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 (@id+0, 'lookup'),
 (@id+1, 'lookup area'),
@@ -15,15 +15,19 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 (@id+7, 'lookup object'),
 (@id+8, 'lookup quest'),
 (@id+9, 'lookup player'),
-(@id+10, 'lookup skill'),
-(@id+11, 'lookup spell'),
-(@id+12, 'lookup taxinode'),
-(@id+13, 'lookup tele'),
-(@id+14, 'lookup title'),
-(@id+15, 'lookup map');
+(@id+10, 'lookup player ip'),
+(@id+11, 'lookup player account'),
+(@id+12, 'lookup player email'),
+(@id+13, 'lookup skill'),
+(@id+14, 'lookup spell'),
+(@id+15, 'lookup spell id'),
+(@id+16, 'lookup taxinode'),
+(@id+17, 'lookup tele'),
+(@id+18, 'lookup title'),
+(@id+19, 'lookup map');
 
 -- Add permissions to "corresponding Commands Role"
-DELETE FROM `rbac_role_permissions` WHERE `permissionId` BETWEEN @id AND @id+15;
+DELETE FROM `rbac_role_permissions` WHERE `permissionId` BETWEEN @id AND @id+19;
 INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
 (4, @id+0),
 (4, @id+1),
@@ -40,4 +44,7 @@ INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
 (4, @id+12),
 (4, @id+13),
 (4, @id+14),
-(4, @id+15);
+(4, @id+15),
+(4, @id+16),
+(4, @id+17),
+(4, @id+19);
