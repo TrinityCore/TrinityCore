@@ -318,6 +318,22 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LIST_OBJECT                            = 439,
     RBAC_PERM_COMMAND_LIST_AURAS                             = 440,
     RBAC_PERM_COMMAND_LIST_MAIL                              = 441,
+    RBAC_PERM_COMMAND_LOOKUP                                 = 442,
+    RBAC_PERM_COMMAND_LOOKUP_AREA                            = 443,
+    RBAC_PERM_COMMAND_LOOKUP_CREATURE                        = 444,
+    RBAC_PERM_COMMAND_LOOKUP_EVENT                           = 445,
+    RBAC_PERM_COMMAND_LOOKUP_FACTION                         = 446,
+    RBAC_PERM_COMMAND_LOOKUP_ITEM                            = 447,
+    RBAC_PERM_COMMAND_LOOKUP_ITEMSET                         = 448,
+    RBAC_PERM_COMMAND_LOOKUP_OBJECT                          = 449,
+    RBAC_PERM_COMMAND_LOOKUP_QUEST                           = 450,
+    RBAC_PERM_COMMAND_LOOKUP_PLAYER                          = 451,
+    RBAC_PERM_COMMAND_LOOKUP_SKILL                           = 452,
+    RBAC_PERM_COMMAND_LOOKUP_SPELL                           = 453,
+    RBAC_PERM_COMMAND_LOOKUP_TAXINODE                        = 454,
+    RBAC_PERM_COMMAND_LOOKUP_TELE                            = 455,
+    RBAC_PERM_COMMAND_LOOKUP_TITLE                           = 456,
+    RBAC_PERM_COMMAND_LOOKUP_MAP                             = 457,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
