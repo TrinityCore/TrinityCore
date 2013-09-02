@@ -166,8 +166,30 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ACCOUNT_SET_SEC                        = 264,
     RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL                  = 265,
     RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL                = 266,
-    //  6 reserved for cast (267-272)
-    // 18 reserved for character (273-290)
+    RBAC_PERM_COMMAND_CAST                                   = 267,
+    RBAC_PERM_COMMAND_CAST_BACK                              = 268,
+    RBAC_PERM_COMMAND_CAST_DIST                              = 269,
+    RBAC_PERM_COMMAND_CAST_SELF                              = 270,
+    RBAC_PERM_COMMAND_CAST_TARGET                            = 271,
+    RBAC_PERM_COMMAND_CAST_DEST                              = 272,
+    RBAC_PERM_COMMAND_CHARACTER                              = 273,
+    RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE                    = 274,
+    RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION                = 275,
+    RBAC_PERM_COMMAND_CHARACTER_CHANGERACE                   = 276,
+    RBAC_PERM_COMMAND_CHARACTER_DELETED                      = 277,
+    RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE               = 278, // Not in DB - console
+    RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST                 = 279,
+    RBAC_PERM_COMMAND_CHARACTER_DELETED_RESTORE              = 280,
+    RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD                  = 281, // Not in DB - console
+    RBAC_PERM_COMMAND_CHARACTER_ERASE                        = 282, // Not in DB - console
+    RBAC_PERM_COMMAND_CHARACTER_LEVEL                        = 283,
+    RBAC_PERM_COMMAND_CHARACTER_RENAME                       = 284,
+    RBAC_PERM_COMMAND_CHARACTER_REPUTATION                   = 285,
+    RBAC_PERM_COMMAND_CHARACTER_TITLES                       = 286,
+    RBAC_PERM_COMMAND_LEVELUP                                = 287,
+    RBAC_PERM_COMMAND_PDUMP                                  = 288,
+    RBAC_PERM_COMMAND_PDUMP_LOAD                             = 289,
+    RBAC_PERM_COMMAND_PDUMP_WRITE                            = 290,
     RBAC_PERM_COMMAND_CHEAT                                  = 291,
     RBAC_PERM_COMMAND_CHEAT_CASTTIME                         = 292,
     RBAC_PERM_COMMAND_CHEAT_COOLDOWN                         = 293,
