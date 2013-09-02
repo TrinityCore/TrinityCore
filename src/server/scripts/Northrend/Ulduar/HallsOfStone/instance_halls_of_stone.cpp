@@ -23,8 +23,6 @@
 
 DoorData const doorData[] =
 {
-    { GO_MAIDEN_DOOR,   DATA_KRYSTALLUS,        DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-    { GO_BRANN_DOOR,    DATA_MAIDEN_OF_GRIEF,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
     { GO_SJONNIR_DOOR,  DATA_BRANN_EVENT,       DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
     { 0,                0,                      DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
 };
@@ -113,8 +111,6 @@ class instance_halls_of_stone : public InstanceMapScript
                     case GO_TRIBUNAL_SKY_FLOOR:
                         TribunalSkyFloorGUID = go->GetGUID();
                         break;
-                    case GO_MAIDEN_DOOR:
-                    case GO_BRANN_DOOR:
                     case GO_SJONNIR_DOOR:
                         AddDoor(go, true);
                         break;
@@ -127,8 +123,6 @@ class instance_halls_of_stone : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
-                    case GO_MAIDEN_DOOR:
-                    case GO_BRANN_DOOR:
                     case GO_SJONNIR_DOOR:
                         AddDoor(go, false);
                         break;
@@ -198,10 +192,6 @@ class instance_halls_of_stone : public InstanceMapScript
 
                 switch (bossId)
                 {
-                    case DATA_MAIDEN_OF_GRIEF:
-                        if (GetBossState(DATA_KRYSTALLUS) != DONE)
-                            return false;
-                        break;
                     case DATA_SJONNIR:
                         if (GetBossState(DATA_BRANN_EVENT) != DONE)
                             return false;
