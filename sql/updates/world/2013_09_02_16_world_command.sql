@@ -1,6 +1,6 @@
 /* cs_message.cpp */
 
-SET @id = 458;
+SET @id = 462;
 
 -- Update command table with new RBAC permissions
 UPDATE `command` SET `permission` = @id+0 WHERE `name` = 'announce';

@@ -1,6 +1,6 @@
 /* cs_message.cpp */
 
-SET @id = 458;
+SET @id = 462;
 
 -- Add new permissions
 DELETE FROM `rbac_permissions` WHERE `id` BETWEEN @id AND @id+9;
