@@ -40,18 +40,18 @@ public:
     {
         static ChatCommand gmCommandTable[] =
         {
-            { "chat",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleGMChatCommand,              "", NULL },
-            { "fly",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleGMFlyCommand,               "", NULL },
-            { "ingame",         RBAC_PERM_PLAYER_COMMANDS,         true,  &HandleGMListIngameCommand,        "", NULL },
-            { "list",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleGMListFullCommand,          "", NULL },
-            { "visible",        RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleGMVisibleCommand,           "", NULL },
-            { "",               RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleGMCommand,                  "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "chat",    RBAC_PERM_COMMAND_GM_CHAT,    false, &HandleGMChatCommand,       "", NULL },
+            { "fly",     RBAC_PERM_COMMAND_GM_FLY,     false, &HandleGMFlyCommand,        "", NULL },
+            { "ingame",  RBAC_PERM_COMMAND_GM_INGAME,   true, &HandleGMListIngameCommand, "", NULL },
+            { "list",    RBAC_PERM_COMMAND_GM_LIST,     true, &HandleGMListFullCommand,   "", NULL },
+            { "visible", RBAC_PERM_COMMAND_GM_VISIBLE, false, &HandleGMVisibleCommand,    "", NULL },
+            { "",        RBAC_PERM_COMMAND_GM,         false, &HandleGMCommand,           "", NULL },
+            { NULL,      0,                            false, NULL,                       "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "gm",             RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,                     "", gmCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "gm", RBAC_PERM_COMMAND_GM, false, NULL, "", gmCommandTable },
+            { NULL, 0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }

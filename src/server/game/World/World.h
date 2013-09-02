@@ -329,6 +329,7 @@ enum WorldIntConfigs
     CONFIG_PACKET_SPOOF_POLICY,
     CONFIG_PACKET_SPOOF_BANMODE,
     CONFIG_PACKET_SPOOF_BANDURATION,
+    CONFIG_ACC_PASSCHANGESEC,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -514,7 +515,7 @@ struct CharacterNameData
 class World
 {
     public:
-        static volatile uint32 m_worldLoopCounter;
+        static ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_worldLoopCounter;
 
         World();
         ~World();

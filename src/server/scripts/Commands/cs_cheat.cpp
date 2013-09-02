@@ -38,22 +38,22 @@ public:
 
         static ChatCommand cheatCommandTable[] =
         {
-            { "god",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleGodModeCheatCommand,         "", NULL },
-            { "casttime",       RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleCasttimeCheatCommand,        "", NULL },
-            { "cooldown",       RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleCoolDownCheatCommand,        "", NULL },
-            { "power",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandlePowerCheatCommand,           "", NULL },
-            { "waterwalk",      RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleWaterWalkCheatCommand,       "", NULL },
-            { "status",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleCheatStatusCommand,          "", NULL },
-            { "taxi",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTaxiCheatCommand,            "", NULL },
-            { "explore",        RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleExploreCheatCommand,         "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "god",            RBAC_PERM_COMMAND_CHEAT_GOD,       false, &HandleGodModeCheatCommand,   "", NULL },
+            { "casttime",       RBAC_PERM_COMMAND_CHEAT_CASTTIME,  false, &HandleCasttimeCheatCommand,  "", NULL },
+            { "cooldown",       RBAC_PERM_COMMAND_CHEAT_COOLDOWN,  false, &HandleCoolDownCheatCommand,  "", NULL },
+            { "power",          RBAC_PERM_COMMAND_CHEAT_POWER,     false, &HandlePowerCheatCommand,     "", NULL },
+            { "waterwalk",      RBAC_PERM_COMMAND_CHEAT_WATERWALK, false, &HandleWaterWalkCheatCommand, "", NULL },
+            { "status",         RBAC_PERM_COMMAND_CHEAT_STATUS,    false, &HandleCheatStatusCommand,    "", NULL },
+            { "taxi",           RBAC_PERM_COMMAND_CHEAT_TAXI,      false, &HandleTaxiCheatCommand,      "", NULL },
+            { "explore",        RBAC_PERM_COMMAND_CHEAT_EXPLORE,   false, &HandleExploreCheatCommand,   "", NULL },
+            { NULL,             0,                                 false, NULL,                         "", NULL }
 
         };
 
         static ChatCommand commandTable[] =
         {
-            { "cheat",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                  "", cheatCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "cheat",          RBAC_PERM_COMMAND_CHEAT, false, NULL, "", cheatCommandTable },
+            { NULL,             0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }

@@ -37,22 +37,22 @@ public:
     {
         static ChatCommand honorAddCommandTable[] =
         {
-            { "kill",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleHonorAddKillCommand,         "", NULL },
-            { "",               RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleHonorAddCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "kill", RBAC_PERM_COMMAND_HONOR_ADD_KILL, false, &HandleHonorAddKillCommand,         "", NULL },
+            { "",     RBAC_PERM_COMMAND_HONOR_ADD,      false, &HandleHonorAddCommand,             "", NULL },
+            { NULL,   0,                                false, NULL,                               "", NULL }
         };
 
         static ChatCommand honorCommandTable[] =
         {
-            { "add",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,               "", honorAddCommandTable },
-            { "update",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleHonorUpdateCommand,          "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "add",    RBAC_PERM_COMMAND_HONOR_ADD,    false, NULL,               "", honorAddCommandTable },
+            { "update", RBAC_PERM_COMMAND_HONOR_UPDATE, false, &HandleHonorUpdateCommand,          "", NULL },
+            { NULL,     0,                              false, NULL,                               "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "honor",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                  "", honorCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "honor", RBAC_PERM_COMMAND_HONOR, false, NULL, "", honorCommandTable },
+            { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }

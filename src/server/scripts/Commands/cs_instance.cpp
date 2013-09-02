@@ -39,17 +39,17 @@ public:
     {
         static ChatCommand instanceCommandTable[] =
         {
-            { "listbinds",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false,  &HandleInstanceListBindsCommand,    "", NULL },
-            { "unbind",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false,  &HandleInstanceUnbindCommand,       "", NULL },
-            { "stats",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,   &HandleInstanceStatsCommand,        "", NULL },
-            { "savedata",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  false,  &HandleInstanceSaveDataCommand,     "", NULL },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "listbinds", RBAC_PERM_COMMAND_INSTANCE_LISTBINDS, false, &HandleInstanceListBindsCommand,    "", NULL },
+            { "unbind",    RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
+            { "stats",     RBAC_PERM_COMMAND_INSTANCE_STATS,      true, &HandleInstanceStatsCommand,        "", NULL },
+            { "savedata",  RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
+            { NULL,        0,                                    false, NULL,                               "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "instance",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,   NULL,                               "", instanceCommandTable },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "instance", RBAC_PERM_COMMAND_INSTANCE,  true, NULL, "", instanceCommandTable },
+            { NULL,       0,                          false, NULL, "", NULL }
         };
 
         return commandTable;
