@@ -312,6 +312,12 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LFG_QUEUE                              = 433,
     RBAC_PERM_COMMAND_LFG_CLEAN                              = 434,
     RBAC_PERM_COMMAND_LFG_OPTIONS                            = 435,
+    RBAC_PERM_COMMAND_LIST                                   = 436,
+    RBAC_PERM_COMMAND_LIST_CREATURE                          = 437,
+    RBAC_PERM_COMMAND_LIST_ITEM                              = 438,
+    RBAC_PERM_COMMAND_LIST_OBJECT                            = 439,
+    RBAC_PERM_COMMAND_LIST_AURAS                             = 440,
+    RBAC_PERM_COMMAND_LIST_MAIL                              = 441,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
