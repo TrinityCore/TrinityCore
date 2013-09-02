@@ -248,6 +248,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_EVENT_ACTIVELIST                       = 368,
     RBAC_PERM_COMMAND_EVENT_START                            = 369,
     RBAC_PERM_COMMAND_EVENT_STOP                             = 370,
+    RBAC_PERM_COMMAND_GM                                     = 371,
+    RBAC_PERM_COMMAND_GM_CHAT                                = 372,
+    RBAC_PERM_COMMAND_GM_FLY                                 = 373,
+    RBAC_PERM_COMMAND_GM_INGAME                              = 374,
+    RBAC_PERM_COMMAND_GM_LIST                                = 375,
+    RBAC_PERM_COMMAND_GM_VISIBLE                             = 376,
+
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
