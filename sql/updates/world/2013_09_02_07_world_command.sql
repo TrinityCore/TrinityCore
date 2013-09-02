@@ -12,4 +12,4 @@ UPDATE `command` SET `permission` = @id+5 WHERE `name` = 'go taxinode';
 UPDATE `command` SET `permission` = @id+6 WHERE `name` = 'go ticket';
 UPDATE `command` SET `permission` = @id+7 WHERE `name` = 'go trigger';
 UPDATE `command` SET `permission` = @id+8 WHERE `name` = 'go xyz';
-UPDATE `command` SET `permission` = @id+9 WHERE `name` = 'go zonexy');
+UPDATE `command` SET `permission` = @id+9 WHERE `name` = 'go zonexy';

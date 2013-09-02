@@ -1,4 +1,4 @@
-/* cs_disable.cpp */
+/* cs_event.cpp */
 
 SET @id = 367;
 

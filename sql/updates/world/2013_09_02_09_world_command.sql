@@ -1,4 +1,4 @@
-/* cs_gobject.cpp */
+/* cs_guild.cpp */
 
 SET @id = 401;
 

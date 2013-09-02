@@ -22,4 +22,4 @@ UPDATE `command` SET `permission` = @id+15 WHERE `name` = 'lookup spell id';
 UPDATE `command` SET `permission` = @id+16 WHERE `name` = 'lookup taxinode';
 UPDATE `command` SET `permission` = @id+17 WHERE `name` = 'lookup tele';
 UPDATE `command` SET `permission` = @id+18 WHERE `name` = 'lookup title';
-UPDATE `command` SET `permission` = @id+19 WHERE `name` = 'lookup map');
+UPDATE `command` SET `permission` = @id+19 WHERE `name` = 'lookup map';

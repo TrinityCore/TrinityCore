@@ -15,4 +15,4 @@ UPDATE `command` SET `permission` = @id+8 WHERE `name` = 'gobject set';
 UPDATE `command` SET `permission` = @id+9 WHERE `name` = 'gobject set phase';
 UPDATE `command` SET `permission` = @id+10 WHERE `name` = 'gobject set state';
 UPDATE `command` SET `permission` = @id+11 WHERE `name` = 'gobject target';
-UPDATE `command` SET `permission` = @id+12 WHERE `name` = 'gobject turn');
+UPDATE `command` SET `permission` = @id+12 WHERE `name` = 'gobject turn';

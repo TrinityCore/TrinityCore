@@ -21,4 +21,4 @@ UPDATE `command` SET `permission` = @id+14 WHERE `name` = 'disable remove mmap';
 UPDATE `command` SET `permission` = @id+15 WHERE `name` = 'disable remove outdoorpvp';
 UPDATE `command` SET `permission` = @id+16 WHERE `name` = 'disable remove quest';
 UPDATE `command` SET `permission` = @id+17 WHERE `name` = 'disable remove spell';
-UPDATE `command` SET `permission` = @id+18 WHERE `name` = 'disable remove vmap');
+UPDATE `command` SET `permission` = @id+18 WHERE `name` = 'disable remove vmap';

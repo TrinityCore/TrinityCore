@@ -12,4 +12,4 @@ UPDATE `command` SET `permission` = @id+5 WHERE `name` = 'gmnameannounce';
 UPDATE `command` SET `permission` = @id+6 WHERE `name` = 'gmnotify';
 UPDATE `command` SET `permission` = @id+7 WHERE `name` = 'nameannounce';
 UPDATE `command` SET `permission` = @id+8 WHERE `name` = 'notify';
-UPDATE `command` SET `permission` = @id+9 WHERE `name` = 'whispers');
+UPDATE `command` SET `permission` = @id+9 WHERE `name` = 'whispers';
