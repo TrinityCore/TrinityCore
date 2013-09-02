@@ -137,11 +137,6 @@ class npc_tribuna_controller : public CreatureScript
 public:
     npc_tribuna_controller() : CreatureScript("npc_tribuna_controller") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_tribuna_controllerAI(creature);
-    }
-
     struct npc_tribuna_controllerAI : public ScriptedAI
     {
         npc_tribuna_controllerAI(Creature* creature) : ScriptedAI(creature)
@@ -263,6 +258,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetHallsOfStoneAI<npc_tribuna_controllerAI>(creature);
+    }
 };
 
 class npc_brann_hos : public CreatureScript
@@ -291,11 +290,6 @@ public:
         player->SEND_GOSSIP_MENU(TEXT_ID_START, creature->GetGUID());
 
         return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_brann_hosAI(creature);
     }
 
     struct npc_brann_hosAI : public npc_escortAI
@@ -331,7 +325,7 @@ public:
                 DespawnDwarf();
 
                 if (instance)
-                    instance->SetData(DATA_BRANN_EVENT, NOT_STARTED);
+                    instance->SetBossState(DATA_BRANN_EVENT, NOT_STARTED);
             }
         }
 
@@ -446,9 +440,9 @@ public:
                     case 1:
                         if (instance)
                         {
-                            if (instance->GetData(DATA_BRANN_EVENT) != NOT_STARTED)
+                            if (instance->GetBossState(DATA_BRANN_EVENT) != NOT_STARTED)
                                 return;
-                            instance->SetData(DATA_BRANN_EVENT, IN_PROGRESS);
+                            instance->SetBossState(DATA_BRANN_EVENT, IN_PROGRESS);
                         }
                         bIsBattle = false;
                         Talk(SAY_ESCORT_START);
@@ -598,7 +592,7 @@ public:
                     case 29:
                         Talk(SAY_EVENT_END_02);
                         if (instance)
-                            instance->SetData(DATA_BRANN_EVENT, DONE);
+                            instance->SetBossState(DATA_BRANN_EVENT, DONE);
                         me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
                         JumpToNextStep(5500);
                         break;
@@ -735,6 +729,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetHallsOfStoneAI<npc_brann_hosAI>(creature);
+    }
 };
 
 class achievement_brann_spankin_new : public AchievementCriteriaScript
