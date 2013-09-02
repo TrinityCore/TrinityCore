@@ -284,6 +284,10 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GUILD_UNINVITE                         = 405,
     RBAC_PERM_COMMAND_GUILD_RANK                             = 406,
     RBAC_PERM_COMMAND_GUILD_RENAME                           = 407,
+    RBAC_PERM_COMMAND_HONOR                                  = 408,
+    RBAC_PERM_COMMAND_HONOR_ADD                              = 409,
+    RBAC_PERM_COMMAND_HONOR_ADD_KILL                         = 410,
+    RBAC_PERM_COMMAND_HONOR_UPDATE                           = 411,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
