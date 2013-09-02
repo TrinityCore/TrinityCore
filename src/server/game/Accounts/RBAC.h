@@ -277,6 +277,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GOBJECT_SET_STATE                      = 397,
     RBAC_PERM_COMMAND_GOBJECT_TARGET                         = 398,
     RBAC_PERM_COMMAND_GOBJECT_TURN                           = 399,
+    RBAC_PERM_COMMAND_GUILD                                  = 401,
+    RBAC_PERM_COMMAND_GUILD_CREATE                           = 402,
+    RBAC_PERM_COMMAND_GUILD_DELETE                           = 403,
+    RBAC_PERM_COMMAND_GUILD_INVITE                           = 404,
+    RBAC_PERM_COMMAND_GUILD_UNINVITE                         = 405,
+    RBAC_PERM_COMMAND_GUILD_RANK                             = 406,
+    RBAC_PERM_COMMAND_GUILD_RENAME                           = 407,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
