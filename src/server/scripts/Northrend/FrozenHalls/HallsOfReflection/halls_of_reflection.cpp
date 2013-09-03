@@ -1016,7 +1016,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                     else if (_icewall == 3)
                                         me->AI()->Talk(SAY_JAINA_ESCAPE_5);
                                 }
-                                else if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                                else if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                                 {
                                     if (_icewall == 1)
                                         me->AI()->Talk(SAY_SYLVANAS_ESCAPE_3);
