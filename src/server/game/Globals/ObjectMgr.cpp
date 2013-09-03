@@ -1732,7 +1732,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     return guid;
 }
 
-bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
+bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, const Position& pos)
 {
     CreatureData& data = NewOrExistCreatureData(guid);
     if (!data.id)
@@ -7323,7 +7323,7 @@ static LanguageType GetRealmLanguageType(bool create)
     }
 }
 
-bool isValidString(std::wstring wstr, uint32 strictMask, bool numericOrSpace, bool create = false)
+bool isValidString(const std::wstring& wstr, uint32 strictMask, bool numericOrSpace, bool create = false)
 {
     if (strictMask == 0)                                       // any language, ignore realm
     {
@@ -7627,7 +7627,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u areas for fishing base skill level in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool ObjectMgr::CheckDeclinedNames(std::wstring w_ownname, DeclinedName const& names)
+bool ObjectMgr::CheckDeclinedNames(const std::wstring& w_ownname, DeclinedName const& names)
 {
     // get main part of the name
     std::wstring mainpart = GetMainPartOfName(w_ownname, 0);

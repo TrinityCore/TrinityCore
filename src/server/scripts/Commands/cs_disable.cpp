@@ -357,7 +357,7 @@ public:
         if (!*args)
             return false;
 
-        return HandleAddDisables(handler, args, DISABLE_TYPE_MAP);
+        return HandleRemoveDisables(handler, args, DISABLE_TYPE_MAP);
     }
 
     static bool HandleRemoveDisableBattlegroundCommand(ChatHandler* handler, char const* args)
