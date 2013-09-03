@@ -235,7 +235,7 @@ bool handleArgs(int argc, char** argv,
 int finish(const char* message, int returnValue)
 {
     printf("%s", message);
-    getchar();
+    getchar(); // Wait for user input
     return returnValue;
 }
 
