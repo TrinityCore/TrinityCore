@@ -304,7 +304,7 @@ class instance_blood_furnace : public InstanceMapScript
                 HandleGameObject(PrisonCell8GUID, false);
             }
 
-            void ResetPrisoners(std::set<uint64> prisoners)
+            void ResetPrisoners(const std::set<uint64>& prisoners)
             {
                 for (std::set<uint64>::iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
@@ -398,7 +398,7 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            void ActivatePrisoners(std::set<uint64> prisoners)
+            void ActivatePrisoners(const std::set<uint64>& prisoners)
             {
                 for (std::set<uint64>::iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))

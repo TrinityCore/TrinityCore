@@ -1259,7 +1259,7 @@ void Item::ItemContainerSaveLootToDB()
         trans->Append(stmt_items);
 
         // Now insert the items
-        for (LootItemList::const_iterator _li = loot.items.begin(); _li != loot.items.end(); _li++)
+        for (LootItemList::const_iterator _li = loot.items.begin(); _li != loot.items.end(); ++_li)
         {
             // When an item is looted, it doesn't get removed from the items collection
             //  but we don't want to resave it.
