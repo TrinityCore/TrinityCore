@@ -771,6 +771,26 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SUMMON_CREATURE:
             if (!IsCreatureValid(e, e.action.summonCreature.creature))
                 return false;
+
+            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
+                if (!spellInfo)
+                    continue;
+
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                {
+                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_SUMMON)
+                    {
+                        uint32 creatureSummonEntry = spellInfo->Effects[j].MiscValue;
+
+                        if (e.action.killedMonster.creature == creatureSummonEntry)
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u summon: %u has already summon spell (SpellId: %u effect: %u)",
+                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, spellInfo->Id, j);
+                    }
+                }
+            }
+
             if (e.action.summonCreature.type < TEMPSUMMON_TIMED_OR_DEAD_DESPAWN || e.action.summonCreature.type > TEMPSUMMON_MANUAL_DESPAWN)
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses incorrect TempSummonType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.type);
