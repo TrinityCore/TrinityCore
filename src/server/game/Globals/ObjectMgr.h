@@ -1147,7 +1147,7 @@ class ObjectMgr
         static PetNameInvalidReason CheckPetName(std::string const& name);
         static bool IsValidCharterName(std::string const& name);
 
-        static bool CheckDeclinedNames(std::wstring w_ownname, DeclinedName const& names);
+        static bool CheckDeclinedNames(const std::wstring& w_ownname, DeclinedName const& names);
 
         GameTele const* GetGameTele(uint32 id) const
         {
