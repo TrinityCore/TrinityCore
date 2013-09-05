@@ -459,7 +459,7 @@ public:
             return false;
         }
 
-        if ((pwConfig == PW_EMAIL || pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE)) && !emailConfirmation)
+        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) && !emailConfirmation)
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
             handler->SetSentErrorMessage(true);
@@ -479,7 +479,7 @@ public:
             return false;
         }
 
-        if ((pwConfig == PW_EMAIL || pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE)) // Either PW_EMAIL or PW_RBAC with the Permission
+        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // Either PW_EMAIL or PW_RBAC with the Permission
             && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);

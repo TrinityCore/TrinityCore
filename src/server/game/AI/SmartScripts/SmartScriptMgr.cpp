@@ -785,8 +785,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         uint32 creatureSummonEntry = spellInfo->Effects[j].MiscValue;
 
                         if (e.action.killedMonster.creature == creatureSummonEntry)
-                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u summon: %u has already summon spell (SpellId: %u effect: %u)",
-                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, spellInfo->Id, j);
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u creature summon: %u has already summon spell (SpellId: %u effect: %u)",
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, spellInfo->Id, j);
                     }
                 }
             }
@@ -848,6 +848,25 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SUMMON_GO:
             if (!IsGameObjectValid(e, e.action.summonGO.entry))
                 return false;
+
+            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
+                if (!spellInfo)
+                    continue;
+
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                {
+                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                    {
+                        uint32 goSummonEntry = spellInfo->Effects[j].MiscValue;
+
+                        if (e.action.summonGO.entry == goSummonEntry)
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u gameobject summon: %u has already summon spell (SpellId: %u effect: %u)",
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonGO.entry, spellInfo->Id, j);
+                    }
+                }
+            }
             break;
         case SMART_ACTION_ADD_ITEM:
         case SMART_ACTION_REMOVE_ITEM:

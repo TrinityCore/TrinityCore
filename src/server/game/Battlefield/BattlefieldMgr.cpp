@@ -74,11 +74,12 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
     if (itr == m_BattlefieldMap.end())
         return;
 
-    if (itr->second->HasPlayer(player) || !itr->second->IsEnabled())
+    Battlefield* bf = itr->second;
+    if (bf->HasPlayer(player) || !bf->IsEnabled())
         return;
 
-    itr->second->HandlePlayerEnterZone(player, zoneid);
-    TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
+    bf->HandlePlayerEnterZone(player, zoneid);
+    TC_LOG_DEBUG(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), bf->GetTypeId());
 }
 
 void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
