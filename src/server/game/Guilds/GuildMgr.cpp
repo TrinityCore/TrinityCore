@@ -378,20 +378,13 @@ void GuildMgr::LoadGuilds()
     TC_LOG_INFO(LOG_FILTER_GUILD, "Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();
-        std::set<Guild*> rm; // temporary storage to avoid modifying GuildStore with RemoveGuild() while iterating
 
-        for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end();)
         {
             Guild* guild = itr->second;
+            ++itr;
             if (guild && !guild->Validate())
-                rm.insert(guild);
-        }
-
-        for (std::set<Guild*>::iterator itr = rm.begin(); itr != rm.end(); ++itr)
-        {
-            Guild* guild = *itr;
-            RemoveGuild(guild->GetId());
-            delete guild;
+                delete guild;
         }
 
         TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
