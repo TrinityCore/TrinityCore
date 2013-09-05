@@ -1172,7 +1172,7 @@ public:
 
         int32 amount = 0;
         char *rankTxt = strtok(NULL, " ");
-        if (!factionTxt || !rankTxt)
+        if (!factionId || !rankTxt)
             return false;
 
         amount = atoi(rankTxt);

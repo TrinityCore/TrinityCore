@@ -45,8 +45,7 @@ RealmSocket::~RealmSocket(void)
     // delete RealmSocketObject must never be called from our code.
     closing_ = true;
 
-    if (session_)
-        delete session_;
+    delete session_;
 
     peer().close();
 }
@@ -286,8 +285,7 @@ int RealmSocket::handle_input(ACE_HANDLE)
 
 void RealmSocket::set_session(Session* session)
 {
-    if (session_ != NULL)
-        delete session_;
+    delete session_;
 
     session_ = session;
 }
