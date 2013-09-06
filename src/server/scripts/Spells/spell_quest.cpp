@@ -25,7 +25,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAurasEffects.h"
+#include "SpellAuraEffects.h"
 #include "Vehicle.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
