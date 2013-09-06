@@ -793,7 +793,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
                         if (!target->HasAura(spellId))
                         {
                             SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(spellId);
-                            Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target;
+                            Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(GetSpellInfo()) ? caster : target;
                             triggerCaster->CastSpell(target, triggeredSpellInfo, true, 0, aurEff);
                         }
                 }

@@ -784,9 +784,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     {
                         uint32 creatureSummonEntry = spellInfo->Effects[j].MiscValue;
 
-                        if (e.action.killedMonster.creature == creatureSummonEntry)
+                        if (e.action.summonCreature.creature == creatureSummonEntry)
                             TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u creature summon: %u has already summon spell (SpellId: %u effect: %u)",
-                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, spellInfo->Id, j);
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.creature, spellInfo->Id, j);
                     }
                 }
             }

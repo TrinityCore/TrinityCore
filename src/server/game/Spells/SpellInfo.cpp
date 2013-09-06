@@ -1170,14 +1170,12 @@ bool SpellInfo::NeedsExplicitUnitTarget() const
     return GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK;
 }
 
-bool SpellInfo::NeedsToBeTriggeredByCaster() const
+bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const
 {
-    if (AttributesCu & SPELL_ATTR0_CU_TRIGGERED_BY_CASTER)
-        return true;
-
     if (NeedsExplicitUnitTarget())
         return true;
 
+    /*
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (Effects[i].IsEffect())
@@ -1186,6 +1184,20 @@ bool SpellInfo::NeedsToBeTriggeredByCaster() const
                 || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL)
                 return true;
         }
+    }
+    */
+
+    if (triggeringSpell->IsChanneled())
+    {
+        uint32 mask = 0;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER && Effects[i].TargetA.GetTarget() != TARGET_DEST_CASTER)
+                mask |= Effects[i].GetProvidedTargetMask();
+        }
+
+        if (mask & TARGET_FLAG_UNIT_MASK)
+            return true;
     }
 
     return false;
