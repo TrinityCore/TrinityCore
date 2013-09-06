@@ -2105,6 +2105,61 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
         }
 };
 
+// 51769 - Emblazon Runeblade
+class spell_q12619_emblazon_runeblade : public SpellScriptLoader
+{
+    public:
+        spell_q12619_emblazon_runeblade() : SpellScriptLoader("spell_q12619_emblazon_runeblade") { }
+
+        class spell_q12619_emblazon_runeblade_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q12619_emblazon_runeblade_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12619_emblazon_runeblade_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_q12619_emblazon_runeblade_AuraScript();
+        }
+};
+
+// 51770 - Emblazon Runeblade
+class spell_q12619_emblazon_runeblade_effect : public SpellScriptLoader
+{
+    public:
+        spell_q12619_emblazon_runeblade_effect() : SpellScriptLoader("spell_q12619_emblazon_runeblade_effect") { }
+
+        class spell_q12619_emblazon_runeblade_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12619_emblazon_runeblade_effect_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHit += SpellEffectFn(spell_q12619_emblazon_runeblade_effect_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_q12619_emblazon_runeblade_effect_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2155,4 +2210,6 @@ void AddSC_quest_spell_scripts()
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
     new spell_q12641_death_comes_from_on_high();
+    new spell_q12619_emblazon_runeblade();
+    new spell_q12619_emblazon_runeblade_effect();
 }
