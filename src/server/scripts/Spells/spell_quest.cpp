@@ -2118,12 +2118,13 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, NULL, aurEff);
             }
 
             void Register() OVERRIDE
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12619_emblazon_runeblade_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12619_emblazon_runeblade_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -2145,7 +2146,7 @@ class spell_q12619_emblazon_runeblade_effect : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), false);
             }
 
             void Register() OVERRIDE
