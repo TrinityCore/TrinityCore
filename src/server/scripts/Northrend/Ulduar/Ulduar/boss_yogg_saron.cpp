@@ -989,6 +989,7 @@ class boss_yogg_saron : public CreatureScript
                         Talk(SAY_YOGG_SARON_PHASE_3);
                         DoCast(me, SPELL_PHASE_3_TRANSFORM);
                         me->RemoveAurasDueToSpell(SPELL_SHADOWY_BARRIER_YOGG);
+                        me->ResetPlayerDamageReq();
                         break;
                     default:
                         break;
