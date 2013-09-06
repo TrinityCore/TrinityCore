@@ -544,102 +544,49 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 {
     if (!m_completedAchievements.empty())
     {
-        bool need_execute = false;
-        std::ostringstream ssdel;
-        std::ostringstream ssins;
         for (CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
         {
             if (!iter->second.changed)
                 continue;
 
-            /// first new/changed record prefix
-            if (!need_execute)
-            {
-                ssdel << "DELETE FROM character_achievement WHERE guid = " << GetOwner()->GetGUIDLow() << " AND achievement IN (";
-                ssins << "INSERT INTO character_achievement (guid, achievement, date) VALUES ";
-                need_execute = true;
-            }
-            /// next new/changed record prefix
-            else
-            {
-                ssdel << ',';
-                ssins << ',';
-            }
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+            stmt->setUInt16(0, iter->first);
+            stmt->setUInt32(1, GetOwner()->GetGUID());
+            trans->Append(stmt);
 
-            // new/changed record data
-            ssdel << iter->first;
-            ssins << '(' << GetOwner()->GetGUIDLow() << ',' << iter->first << ',' << uint64(iter->second.date) << ')';
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
+            stmt->setUInt32(0, GetOwner()->GetGUID());
+            stmt->setUInt16(1, iter->first);
+            stmt->setUInt32(2, uint32(iter->second.date));
+            trans->Append(stmt);
 
-            /// mark as saved in db
             iter->second.changed = false;
-        }
-
-        if (need_execute)
-        {
-            ssdel << ')';
-            trans->Append(ssdel.str().c_str());
-            trans->Append(ssins.str().c_str());
         }
     }
 
     if (!m_criteriaProgress.empty())
     {
-        /// prepare deleting and insert
-        bool need_execute_del = false;
-        bool need_execute_ins = false;
-        std::ostringstream ssdel;
-        std::ostringstream ssins;
         for (CriteriaProgressMap::iterator iter = m_criteriaProgress.begin(); iter != m_criteriaProgress.end(); ++iter)
         {
             if (!iter->second.changed)
                 continue;
 
-            // deleted data (including 0 progress state)
-            {
-                /// first new/changed record prefix (for any counter value)
-                if (!need_execute_del)
-                {
-                    ssdel << "DELETE FROM character_achievement_progress WHERE guid = " << GetOwner()->GetGUIDLow() << " AND criteria IN (";
-                    need_execute_del = true;
-                }
-                /// next new/changed record prefix
-                else
-                    ssdel << ',';
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
+            stmt->setUInt32(0, GetOwner()->GetGUID());
+            stmt->setUInt16(1, iter->first);
+            trans->Append(stmt);
 
-                // new/changed record data
-                ssdel << iter->first;
+            if (iter->second.counter)
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT_PROGRESS);
+                stmt->setUInt32(0, GetOwner()->GetGUID());
+                stmt->setUInt16(1, iter->first);
+                stmt->setUInt32(2, iter->second.counter);
+                stmt->setUInt32(3, uint32(iter->second.date));
+                trans->Append(stmt);
             }
 
-            // store data only for real progress
-            if (iter->second.counter != 0)
-            {
-                /// first new/changed record prefix
-                if (!need_execute_ins)
-                {
-                    ssins << "INSERT INTO character_achievement_progress (guid, criteria, counter, date) VALUES ";
-                    need_execute_ins = true;
-                }
-                /// next new/changed record prefix
-                else
-                    ssins << ',';
-
-                // new/changed record data
-                ssins << '(' << GetOwner()->GetGUIDLow() << ',' << iter->first << ',' << iter->second.counter << ',' << iter->second.date << ')';
-            }
-
-            /// mark as updated in db
             iter->second.changed = false;
-        }
-
-        if (need_execute_del)                                // DELETE ... IN (.... _)_
-            ssdel << ')';
-
-        if (need_execute_del || need_execute_ins)
-        {
-            if (need_execute_del)
-                trans->Append(ssdel.str().c_str());
-            if (need_execute_ins)
-                trans->Append(ssins.str().c_str());
         }
     }
 }
