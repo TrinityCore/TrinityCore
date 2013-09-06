@@ -3879,15 +3879,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     npc->LoadEquipment();
                     return;
                 }
-                // Emblazon Runeblade
-                case 51770:
-                {
-                    if (!m_originalCaster)
-                        return;
-
-                    m_originalCaster->CastSpell(m_originalCaster, damage, false);
-                    break;
-                }
                 // Deathbolt from Thalgran Blightbringer
                 // reflected by Freya's Ward
                 // Retribution by Sevenfold Retribution
