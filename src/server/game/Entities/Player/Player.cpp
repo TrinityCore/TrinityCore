@@ -4713,7 +4713,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
     if (uint32 guildId = GetGuildIdFromDB(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-            guild->DeleteMember(guid);
+            guild->DeleteMember(guid, false, false, true);
 
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
