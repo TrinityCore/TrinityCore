@@ -699,8 +699,12 @@ public:
         return true;
     }
 
-    static bool HandleNpcInfoCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleNpcInfoCommand(ChatHandler* handler, char const* args)
     {
+        char* countargs;
+        if (!(countargs = strtok((char*)args, " ")))
+            countargs = "";
+
         Creature* target = handler->getSelectedCreature();
 
         if (!target)
@@ -753,6 +757,27 @@ public:
             if ((mechanicImmuneMask << 1) & mechanicImmunes[i].Value)
                 handler->PSendSysMessage("%s (0x%X)", mechanicImmunes[i].Name, mechanicImmunes[i].Value);
 
+        if (strcmp(countargs, "count") == 0)
+        {
+            uint32 count = 0;
+
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_COUNT);
+            stmt->setUInt32(0, Entry);
+            PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+            if (result)
+            {
+                do
+                {
+                    uint32 guid = (*result)[0].GetUInt32();
+                    handler->PSendSysMessage(LANG_NPCINFO_CREATURE_COUNT, count, guid);
+
+                    ++count;
+                } while (result->NextRow());
+            }
+
+            handler->PSendSysMessage(LANG_NPCINFO_CREATURE_COUNTER, count);
+        }
         return true;
     }
 
