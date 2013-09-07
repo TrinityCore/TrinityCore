@@ -1578,6 +1578,8 @@ void Guild::HandleAcceptMember(WorldSession* session)
 void Guild::HandleLeaveMember(WorldSession* session)
 {
     Player* player = session->GetPlayer();
+    bool disband = false;
+
     // If leader is leaving
     if (_IsLeader(player))
     {
@@ -1585,8 +1587,11 @@ void Guild::HandleLeaveMember(WorldSession* session)
             // Leader cannot leave if he is not the last member
             SendCommandResult(session, GUILD_COMMAND_QUIT, ERR_GUILD_LEADER_LEAVE);
         else
+        {
             // Guild is disbanded if leader leaves.
             Disband();
+            disband = true;
+        }
     }
     else
     {
@@ -1599,6 +1604,9 @@ void Guild::HandleLeaveMember(WorldSession* session)
     }
 
     sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
+
+    if (disband)
+        delete this;
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, std::string const& name)
@@ -1812,6 +1820,7 @@ void Guild::HandleDisband(WorldSession* session)
     {
         Disband();
         TC_LOG_DEBUG(LOG_FILTER_GUILD, "Guild Successfully Disbanded");
+        delete this;
     }
 }
 
@@ -2272,7 +2281,7 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
     return true;
 }
 
-void Guild::DeleteMember(uint64 guid, bool isDisbanding, bool isKicked)
+void Guild::DeleteMember(uint64 guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
 {
     uint32 lowguid = GUID_LOPART(guid);
     Player* player = ObjectAccessor::FindPlayer(guid);
@@ -2294,6 +2303,8 @@ void Guild::DeleteMember(uint64 guid, bool isDisbanding, bool isKicked)
         if (!newLeader)
         {
             Disband();
+            if (canDeleteGuild)
+                delete this;
             return;
         }
 
