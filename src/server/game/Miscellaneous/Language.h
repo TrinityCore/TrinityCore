@@ -802,6 +802,8 @@ enum TrinityStrings
     LANG_NPCINFO_SPELLCLICK             = 840,
     LANG_NPCINFO_MAILBOX                = 841,
     LANG_NPCINFO_PLAYER_VEHICLE         = 842,
+    LANG_NPCINFO_CREATURE_COUNT         = 882,
+    LANG_NPCINFO_CREATURE_COUNTER       = 883,
 
     // Pinfo commands
     LANG_PINFO_PLAYER                   = 453,
@@ -855,7 +857,9 @@ enum TrinityStrings
     //                                  = 879, see LANG_PINFO_CHR_REGMAILS
     LANG_ACCOUNT_SEC_TYPE               = 880,
     LANG_RBAC_EMAIL_REQUIRED            = 881,
-    // Room for in-game strings           882-999 not used
+    //                                  = 882, see LANG_NPCINFO_CREATURE_COUNT
+    //                                  = 883, see LANG_NPCINFO_CREATURE_COUNTER
+    // Room for in-game strings           884-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
