@@ -22,7 +22,8 @@
 #include "Creature.h"
 
 #define PoSScriptName "instance_pit_of_saron"
-#define MAX_ENCOUNTER 3
+
+uint32 const EncounterCount = 3;
 
 enum DataTypes
 {
@@ -98,13 +99,11 @@ enum GameObjectIds
 };
 
 template<class AI>
-AI* GetPitOfSaronAI(Creature* creature)
+AI* GetPitOfSaronKeepAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(PoSScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, PoSScriptName);
 }
+
+
 
 #endif
