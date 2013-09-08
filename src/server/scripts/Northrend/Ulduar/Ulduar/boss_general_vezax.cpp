@@ -39,7 +39,7 @@ enum VezaxEmotes
     EMOTE_SURGE_OF_DARKNESS                      = 8,
 
     // Saronite Vapor
-    EMOTE_VAPORS                                 = 9
+    EMOTE_VAPORS                                 = 0
 };
 
 enum VezaxSpells
@@ -443,14 +443,21 @@ class npc_saronite_vapors : public CreatureScript
         }
 };
 
-class spell_mark_of_the_faceless : public SpellScriptLoader
+class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
 {
     public:
-        spell_mark_of_the_faceless() : SpellScriptLoader("spell_mark_of_the_faceless") { }
+        spell_general_vezax_mark_of_the_faceless() : SpellScriptLoader("spell_general_vezax_mark_of_the_faceless") { }
 
-        class spell_mark_of_the_faceless_AuraScript : public AuraScript
+        class spell_general_vezax_mark_of_the_faceless_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mark_of_the_faceless_AuraScript);
+            PrepareAuraScript(spell_general_vezax_mark_of_the_faceless_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FACELESS_DAMAGE))
+                    return false;
+                return true;
+            }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
@@ -460,13 +467,42 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_the_faceless_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_general_vezax_mark_of_the_faceless_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const OVERRIDE
         {
-            return new spell_mark_of_the_faceless_AuraScript();
+            return new spell_general_vezax_mark_of_the_faceless_AuraScript();
+        }
+};
+
+class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
+{
+    public:
+        spell_general_vezax_mark_of_the_faceless_leech() : SpellScriptLoader("spell_general_vezax_mark_of_the_faceless_leech") { }
+
+        class spell_general_vezax_mark_of_the_faceless_leech_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_general_vezax_mark_of_the_faceless_leech_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove(GetExplTargetWorldObject());
+
+                if (targets.empty())
+                    FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_general_vezax_mark_of_the_faceless_leech_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_general_vezax_mark_of_the_faceless_leech_SpellScript();
         }
 };
 
@@ -554,7 +590,8 @@ void AddSC_boss_general_vezax()
     new boss_general_vezax();
     new boss_saronite_animus();
     new npc_saronite_vapors();
-    new spell_mark_of_the_faceless();
+    new spell_general_vezax_mark_of_the_faceless();
+    new spell_general_vezax_mark_of_the_faceless_leech();
     new spell_general_vezax_saronite_vapors();
     new achievement_shadowdodger();
     new achievement_smell_saronite();

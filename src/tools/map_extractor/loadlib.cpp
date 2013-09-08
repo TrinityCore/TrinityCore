@@ -34,13 +34,11 @@ bool FileLoader::loadFile(char *filename, bool log)
     data_size = mf.getSize();
 
     data = new uint8 [data_size];
-    if (data)
-    {
-        mf.read(data, data_size);
-        mf.close();
-        if (prepareLoadedData())
-            return true;
-    }
+    mf.read(data, data_size);
+    mf.close();
+    if (prepareLoadedData())
+        return true;
+
     printf("Error loading %s", filename);
     mf.close();
     free();

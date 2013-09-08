@@ -256,8 +256,6 @@ public:
                 }
             } else uiGripOfSladRanTimer -= diff;
         }
-
-        InstanceScript* instance;
     };
 
 };
@@ -277,8 +275,6 @@ public:
         npc_slad_ran_viperAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiVenomousBiteTimer;
-
-        InstanceScript* instance;
 
         void Reset() OVERRIDE
         {
