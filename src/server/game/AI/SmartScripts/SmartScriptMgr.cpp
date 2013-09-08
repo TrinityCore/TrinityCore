@@ -28,6 +28,8 @@
 #include "ScriptedCreature.h"
 #include "GameEventMgr.h"
 #include "CreatureTextMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
 
 #include "SmartScriptMgr.h"
 
@@ -407,10 +409,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
                 break;
             case SMART_EVENT_FRIENDLY_HEALTH:
-                if (!NotNULL(e, e.event.friendlyHealt.radius))
+                if (!NotNULL(e, e.event.friendlyHealth.radius))
                     return false;
 
-                if (!IsMinMaxValid(e, e.event.friendlyHealt.repeatMin, e.event.friendlyHealt.repeatMax))
+                if (!IsMinMaxValid(e, e.event.friendlyHealth.repeatMin, e.event.friendlyHealth.repeatMax))
                     return false;
                 break;
             case SMART_EVENT_FRIENDLY_IS_CC:
@@ -437,6 +439,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 break;
             case SMART_EVENT_TARGET_CASTING:
+                if (e.event.targetCasting.spellId > 0 && !sSpellMgr->GetSpellInfo(e.event.targetCasting.spellId))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Spell entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.spellHit.spell);
+                    return false;
+                }
+
+                if (!IsMinMaxValid(e, e.event.targetCasting.repeatMin, e.event.targetCasting.repeatMax))
+                    return false;
+                break;
             case SMART_EVENT_PASSENGER_BOARDED:
             case SMART_EVENT_PASSENGER_REMOVED:
                 if (!IsMinMaxValid(e, e.event.minMax.repeatMin, e.event.minMax.repeatMax))
@@ -546,10 +557,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             }
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
-                if (!IsMinMaxValid(e, e.event.friendlyHealtPct.repeatMin, e.event.friendlyHealtPct.repeatMax))
+                if (!IsMinMaxValid(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax))
                     return false;
 
-                if (e.event.friendlyHealtPct.maxHpPct > 100 || e.event.friendlyHealtPct.minHpPct > 100)
+                if (e.event.friendlyHealthPct.maxHpPct > 100 || e.event.friendlyHealthPct.minHpPct > 100)
                 {
                     TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has pct value above 100, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;
@@ -760,6 +771,26 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SUMMON_CREATURE:
             if (!IsCreatureValid(e, e.action.summonCreature.creature))
                 return false;
+
+            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
+                if (!spellInfo)
+                    continue;
+
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                {
+                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_SUMMON)
+                    {
+                        uint32 creatureSummonEntry = spellInfo->Effects[j].MiscValue;
+
+                        if (e.action.summonCreature.creature == creatureSummonEntry)
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u creature summon: %u has already summon spell (SpellId: %u effect: %u)",
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.creature, spellInfo->Id, j);
+                    }
+                }
+            }
+
             if (e.action.summonCreature.type < TEMPSUMMON_TIMED_OR_DEAD_DESPAWN || e.action.summonCreature.type > TEMPSUMMON_MANUAL_DESPAWN)
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses incorrect TempSummonType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.type);
@@ -769,6 +800,25 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_CALL_KILLEDMONSTER:
             if (!IsCreatureValid(e, e.action.killedMonster.creature))
                 return false;
+
+            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
+                if (!spellInfo)
+                    continue;
+
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                {
+                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_KILL_CREDIT || spellInfo->Effects[j].Effect == SPELL_EFFECT_KILL_CREDIT2)
+                    {
+                        uint32 killCredit = spellInfo->Effects[j].MiscValue;
+
+                        if (e.action.killedMonster.creature == killCredit)
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u Kill Credit: %u has already spell kill credit (SpellId: %u effect: %u)", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, spellInfo->Id, j);
+                    }
+                }
+            }
+
             if (e.GetTargetType() == SMART_TARGET_POSITION)
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses incorrect TargetType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
@@ -798,6 +848,25 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SUMMON_GO:
             if (!IsGameObjectValid(e, e.action.summonGO.entry))
                 return false;
+
+            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
+                if (!spellInfo)
+                    continue;
+
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                {
+                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                    {
+                        uint32 goSummonEntry = spellInfo->Effects[j].MiscValue;
+
+                        if (e.action.summonGO.entry == goSummonEntry)
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u gameobject summon: %u has already summon spell (SpellId: %u effect: %u)",
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonGO.entry, spellInfo->Id, j);
+                    }
+                }
+            }
             break;
         case SMART_ACTION_ADD_ITEM:
         case SMART_ACTION_REMOVE_ITEM:

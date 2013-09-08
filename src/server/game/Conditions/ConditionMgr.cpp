@@ -1500,6 +1500,11 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_PHASE_DEFINITION:
+        {
+            TC_LOG_ERROR(LOG_FILTER_SQL, "CONDITION_SOURCE_TYPE_PHASE_DEFINITION:: is only for 4.3.4 branch, skipped");
+            return false;
+        }
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:

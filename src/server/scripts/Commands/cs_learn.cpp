@@ -40,36 +40,36 @@ public:
     {
         static ChatCommand learnAllMyCommandTable[] =
         {
-            { "class",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMyClassCommand,       "", NULL },
-            { "pettalents",     RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMyPetTalentsCommand,  "", NULL },
-            { "spells",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMySpellsCommand,      "", NULL },
-            { "talents",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnAllMyTalentsCommand,     "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "class",      RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,      false, &HandleLearnAllMyClassCommand,      "", NULL },
+            { "pettalents", RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS, false, &HandleLearnAllMyPetTalentsCommand, "", NULL },
+            { "spells",     RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,     false, &HandleLearnAllMySpellsCommand,     "", NULL },
+            { "talents",    RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS,    false, &HandleLearnAllMyTalentsCommand,    "", NULL },
+            { NULL,         0,                                         false, NULL,                               "", NULL }
         };
 
         static ChatCommand learnAllCommandTable[] =
         {
-            { "my",             RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,                                "",  learnAllMyCommandTable },
-            { "gm",             RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleLearnAllGMCommand,            "", NULL },
-            { "crafts",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleLearnAllCraftsCommand,        "", NULL },
-            { "default",        RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleLearnAllDefaultCommand,       "", NULL },
-            { "lang",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleLearnAllLangCommand,          "", NULL },
-            { "recipes",        RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleLearnAllRecipesCommand,       "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "my",      RBAC_PERM_COMMAND_LEARN_ALL_MY,      false, NULL,                          "", learnAllMyCommandTable },
+            { "gm",      RBAC_PERM_COMMAND_LEARN_ALL_GM,      false, &HandleLearnAllGMCommand,      "", NULL },
+            { "crafts",  RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS,  false, &HandleLearnAllCraftsCommand,  "", NULL },
+            { "default", RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT, false, &HandleLearnAllDefaultCommand, "", NULL },
+            { "lang",    RBAC_PERM_COMMAND_LEARN_ALL_LANG,    false, &HandleLearnAllLangCommand,    "", NULL },
+            { "recipes", RBAC_PERM_COMMAND_LEARN_ALL_RECIPES, false, &HandleLearnAllRecipesCommand, "", NULL },
+            { NULL,      0,                                   false, NULL,                          "", NULL }
         };
 
         static ChatCommand learnCommandTable[] =
         {
-            { "all",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,                                "",  learnAllCommandTable },
-            { "",               RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleLearnCommand,                 "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "all", RBAC_PERM_COMMAND_LEARN_ALL, false, NULL,                "", learnAllCommandTable },
+            { "",    RBAC_PERM_COMMAND_LEARN,     false, &HandleLearnCommand, "", NULL },
+            { NULL,  0,                           false, NULL,                "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "learn",          RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,                                "", learnCommandTable },
-            { "unlearn",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleUnLearnCommand,               "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "learn",   RBAC_PERM_COMMAND_LEARN,   false, NULL,                  "", learnCommandTable },
+            { "unlearn", RBAC_PERM_COMMAND_UNLEARN, false, &HandleUnLearnCommand, "", NULL },
+            { NULL,      0,                         false, NULL,                  "", NULL }
         };
         return commandTable;
     }
@@ -339,8 +339,12 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllCraftsCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleLearnAllCraftsCommand(ChatHandler* handler, char const* args)
     {
+        Player* target;
+        if (!handler->extractPlayerTarget((char*)args, &target))
+            return false;
+
         for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
         {
             SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(i);
@@ -350,7 +354,7 @@ public:
             if ((skillInfo->categoryId == SKILL_CATEGORY_PROFESSION || skillInfo->categoryId == SKILL_CATEGORY_SECONDARY) &&
                 skillInfo->canLink)                             // only prof. with recipes have
             {
-                HandleLearnSkillRecipesHelper(handler->GetSession()->GetPlayer(), skillInfo->id);
+                HandleLearnSkillRecipesHelper(target, skillInfo->id);
             }
         }
 

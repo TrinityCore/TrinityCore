@@ -56,11 +56,6 @@ class boss_krystallus : public CreatureScript
 public:
     boss_krystallus() : CreatureScript("boss_krystallus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_krystallusAI(creature);
-    }
-
     struct boss_krystallusAI : public ScriptedAI
     {
         boss_krystallusAI(Creature* creature) : ScriptedAI(creature)
@@ -89,14 +84,14 @@ public:
             uiShatterTimer = 0;
 
             if (instance)
-                instance->SetData(DATA_KRYSTALLUS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_KRYSTALLUS, NOT_STARTED);
         }
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
             if (instance)
-                instance->SetData(DATA_KRYSTALLUS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_KRYSTALLUS, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -149,7 +144,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_KRYSTALLUS_EVENT, DONE);
+                instance->SetBossState(DATA_KRYSTALLUS, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -182,6 +177,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetHallsOfStoneAI<boss_krystallusAI>(creature);
+    }
 };
 
 class spell_krystallus_shatter : public SpellScriptLoader

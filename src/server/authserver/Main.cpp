@@ -298,7 +298,7 @@ bool StartDB()
     }
 
     // NOTE: While authserver is singlethreaded you should keep synch_threads == 1. Increasing it is just silly since only 1 will be used ever.
-    if (!LoginDatabase.Open(dbstring.c_str(), uint8(worker_threads), uint8(synch_threads)))
+    if (!LoginDatabase.Open(dbstring, uint8(worker_threads), uint8(synch_threads)))
     {
         TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Cannot connect to database");
         return false;
