@@ -99,7 +99,7 @@ enum GameObjectIds
 };
 
 template<class AI>
-AI* GetPitOfSaronKeepAI(Creature* creature)
+AI* GetPitOfSaronAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, PoSScriptName);
 }
