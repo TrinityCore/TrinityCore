@@ -42,7 +42,7 @@ enum Spells
     SPELL_STRANGULATING                         = 69413, //krick's selfcast in intro
     SPELL_SUICIDE                               = 7,
     SPELL_KRICK_KILL_CREDIT                     = 71308,
-    SPELL_NECROMANTIC_POWER                     = 69753,
+    SPELL_NECROMANTIC_POWER                     = 69753
 };
 
 enum Yells
@@ -71,7 +71,7 @@ enum Yells
     SAY_SYLVANAS_OUTRO_4                        = 1,
     SAY_SYLVANAS_OUTRO_10                       = 2,
     SAY_TYRANNUS_OUTRO_7                        = 1,
-    SAY_TYRANNUS_OUTRO_9                        = 2,
+    SAY_TYRANNUS_OUTRO_9                        = 2
 };
 
 enum Events
@@ -98,24 +98,24 @@ enum Events
     EVENT_OUTRO_11              = 18,
     EVENT_OUTRO_12              = 19,
     EVENT_OUTRO_13              = 20,
-    EVENT_OUTRO_END             = 21,
+    EVENT_OUTRO_END             = 21
 };
 
 enum KrickPhase
 {
     PHASE_COMBAT    = 1,
-    PHASE_OUTRO     = 2,
+    PHASE_OUTRO     = 2
 };
 
 enum Actions
 {
-    ACTION_OUTRO    = 1,
+    ACTION_OUTRO    = 1
 };
 
 enum Points
 {
     POINT_KRICK_INTRO       = 364770,
-    POINT_KRICK_DEATH       = 364771,
+    POINT_KRICK_DEATH       = 364771
 };
 
 static const Position outroPos[8] =
@@ -127,7 +127,7 @@ static const Position outroPos[8] =
     {835.5887f, 139.4345f, 530.9526f, 0.0000000f},  // Tyrannus fly down Position (not sniffed)
     {828.9342f, 118.6247f, 514.5190f, 0.0000000f},  // Krick's Choke Position
     {828.9342f, 118.6247f, 509.4958f, 0.0000000f},  // Kirck's Death Position
-    {914.4820f, 143.1602f, 633.3624f, 0.0000000f},  // Tyrannus fly up (not sniffed)
+    {914.4820f, 143.1602f, 633.3624f, 0.0000000f}  // Tyrannus fly up (not sniffed)
 };
 
 class boss_ick : public CreatureScript
@@ -153,7 +153,7 @@ class boss_ick : public CreatureScript
             void Reset() OVERRIDE
             {
                 events.Reset();
-                instance->SetBossState(DATA_ICK, NOT_STARTED);
+                _Reset();
             }
 
             Creature* GetKrick()
@@ -171,7 +171,7 @@ class boss_ick : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 10000);
                 events.ScheduleEvent(EVENT_SPECIAL, urand(30000, 35000));
 
-                instance->SetBossState(DATA_ICK, IN_PROGRESS);
+                _EnterCombat();
             }
 
             void EnterEvadeMode() OVERRIDE
@@ -189,7 +189,7 @@ class boss_ick : public CreatureScript
                         krick->AI()->DoAction(ACTION_OUTRO);
                 }
 
-                instance->SetBossState(DATA_ICK, DONE);
+                _JustDied();
             }
 
             void SetTempThreat(float threat)
