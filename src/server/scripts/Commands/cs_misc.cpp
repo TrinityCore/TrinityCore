@@ -111,7 +111,6 @@ public:
             { "cometome",           RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, &HandleComeToMeCommand,              "", NULL },
             { "damage",             RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, &HandleDamageCommand,                "", NULL },
             { "combatstop",         RBAC_PERM_GAMEMASTER_COMMANDS,         true,  &HandleCombatStopCommand,            "", NULL },
-            { "flusharenapoints",   RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, &HandleFlushArenaPointsCommand,      "", NULL },
             { "repairitems",        RBAC_PERM_GAMEMASTER_COMMANDS,         true,  &HandleRepairitemsCommand,           "", NULL },
             { "freeze",             RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleFreezeCommand,                "", NULL },
             { "unfreeze",           RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleUnFreezeCommand,              "", NULL },
@@ -228,9 +227,9 @@ public:
             handler->PSendSysMessage("no VMAP available for area info");
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
+            mapId, (mapEntry ? mapEntry->name : "<unknown>"),
+            zoneId, (zoneEntry ? zoneEntry->area_name : "<unknown>"),
+            areaId, (areaEntry ? areaEntry->area_name : "<unknown>"),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -1456,7 +1455,7 @@ public:
 
         if (!target->GetSkillValue(skill))
         {
-            handler->PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, skillLine->name[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, skillLine->name);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1467,7 +1466,7 @@ public:
             return false;
 
         target->SetSkill(skill, target->GetSkillStep(skill), level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name[handler->GetSessionDbcLocale()], tNameLink.c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name, tNameLink.c_str(), level, max);
 
         return true;
     }
@@ -1824,15 +1823,15 @@ public:
         AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
         if (area)
         {
-            areaName = area->area_name[locale];
+            areaName = area->area_name;
 
             AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
             if (zone)
-                zoneName = zone->area_name[locale];
+                zoneName = zone->area_name;
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale], (!zoneName.empty() ? zoneName.c_str() : "<Unknown>"), (!areaName.empty() ? areaName.c_str() : "<Unknown>"));
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name, (!zoneName.empty() ? zoneName.c_str() : "<Unknown>"), (!areaName.empty() ? areaName.c_str() : "<Unknown>"));
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
@@ -2329,12 +2328,6 @@ public:
 
         target->CombatStop();
         target->getHostileRefManager().deleteReferences();
-        return true;
-    }
-
-    static bool HandleFlushArenaPointsCommand(ChatHandler* /*handler*/, char const* /*args*/)
-    {
-        sArenaTeamMgr->DistributeArenaPoints();
         return true;
     }
 

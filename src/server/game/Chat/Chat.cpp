@@ -350,10 +350,9 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                 std::string zoneName = "Unknown";
                 if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
                 {
-                    int locale = GetSessionDbcLocale();
-                    areaName = area->area_name[locale];
+                    areaName = area->area_name;
                     if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
-                        zoneName = zone->area_name[locale];
+                        zoneName = zone->area_name;
                 }
 
                 sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
@@ -629,7 +628,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
 }
 
 //Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
-void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker)
+void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker, const char* addonPrefix /*= NULL*/)
 {
     uint32 messageLength = (message ? strlen(message) : 0) + 1;
 
@@ -682,6 +681,13 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
             *data << uint32(messageLength);
             *data << message;
             *data << uint8(0);
+
+            if (type == CHAT_MSG_RAID_BOSS_WHISPER || type == CHAT_MSG_RAID_BOSS_EMOTE)
+            {
+                *data << float(0.0f);                       // Added in 4.2.0, unk
+                *data << uint8(0);                          // Added in 4.2.0, unk
+            }
+
             return;
         }
         default:
@@ -697,9 +703,16 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     {
         ASSERT(channelName);
         *data << channelName;
+        *data << uint64(target_guid);
     }
+    else if (type == uint8(CHAT_MSG_ADDON))
+    {
+        ASSERT(addonPrefix);
+        *data << addonPrefix;
+    }
+    else
+        *data << uint64(target_guid);
 
-    *data << uint64(target_guid);
     *data << uint32(messageLength);
     *data << message;
     if (session != 0 && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)

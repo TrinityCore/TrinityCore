@@ -28,7 +28,8 @@
 
 enum BattlefieldTypes
 {
-    BATTLEFIELD_WG                                          // Wintergrasp
+    BATTLEFIELD_WG,                                         // Wintergrasp
+    BATTLEFIELD_TB                                          // Tol Barad (cataclysm)
 };
 
 enum BattlefieldIDs
@@ -227,6 +228,7 @@ class Battlefield : public ZoneScript
 
         uint32 GetTypeId() { return m_TypeId; }
         uint32 GetZoneId() { return m_ZoneId; }
+        uint64 GetGUID()   { return m_Guid;   }
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
@@ -349,6 +351,8 @@ class Battlefield : public ZoneScript
         void InitStalker(uint32 entry, float x, float y, float z, float o);
 
     protected:
+        uint64 m_Guid;
+
         uint64 StalkerGuid;
         uint32 m_Timer;                                         // Global timer for event
         bool m_IsEnabled;

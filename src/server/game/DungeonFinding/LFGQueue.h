@@ -100,7 +100,7 @@ class LFGQueue
         void UpdateWaitTimeDps(int32 waitTime, uint32 dungeonId);
 
         // Update Queue timers
-        void UpdateQueueTimers(time_t currTime);
+        void UpdateQueueTimers(uint8 queueId, time_t currTime);
         time_t GetJoinTime(uint64 guid);
 
         // Find new group

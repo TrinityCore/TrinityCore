@@ -58,7 +58,8 @@ enum CalendarEventType
     CALENDAR_TYPE_DUNGEON           = 1,
     CALENDAR_TYPE_PVP               = 2,
     CALENDAR_TYPE_MEETING           = 3,
-    CALENDAR_TYPE_OTHER             = 4
+    CALENDAR_TYPE_OTHER             = 4,
+    CALENDAR_TYPE_HEROIC            = 5
 };
 
 enum CalendarRepeatType
