@@ -95,17 +95,15 @@ class boss_garfrost : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                events.Reset();
+                _Reset();
                 events.SetPhase(PHASE_ONE);
                 SetEquipmentSlots(true);
                 _permafrostStack = 0;
-                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
-                events.SetPhase(PHASE_ONE);
                 DoCast(me, SPELL_PERMAFROST);
                 me->CallForHelp(70.0f);
                 events.ScheduleEvent(EVENT_THROW_SARONITE, 7000);
