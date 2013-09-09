@@ -2032,7 +2032,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 PreparedQueryResult result = CharacterDatabase.Query(stmt);
                 if (result)
                     if (Guild* guild = sGuildMgr->GetGuildById((result->Fetch()[0]).GetUInt32()))
-                        guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER));
+                        guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER), false, false, true);
             }
 
             if (!HasPermission(RBAC_PERM_TWO_SIDE_ADD_FRIEND))
