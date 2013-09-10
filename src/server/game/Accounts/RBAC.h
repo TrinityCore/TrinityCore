@@ -501,6 +501,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NPC_WHISPER                            = 599,
     RBAC_PERM_COMMAND_NPC_YELL                               = 600,
     RBAC_PERM_COMMAND_NPC_TAME                               = 601,
+    RBAC_PERM_COMMAND_QUEST                                  = 602,
+    RBAC_PERM_COMMAND_QUEST_ADD                              = 603,
+    RBAC_PERM_COMMAND_QUEST_COMPLETE                         = 604,
+    RBAC_PERM_COMMAND_QUEST_REMOVE                           = 605,
+    RBAC_PERM_COMMAND_QUEST_REWARD                           = 606,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
