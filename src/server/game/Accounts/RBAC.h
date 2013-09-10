@@ -609,6 +609,14 @@ enum RBACPermissions
     RBAC_PERM_COMMANDS_RELOAD_WARDEN_ACTION                  = 707,
     RBAC_PERM_COMMANDS_RELOAD_WAYPOINT_DATA                  = 708,
     RBAC_PERM_COMMANDS_RELOAD_WAYPOINT_SCRIPTS               = 709,
+    RBAC_PERM_COMMAND_RESET                                  = 710,
+    RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS                     = 711,
+    RBAC_PERM_COMMAND_RESET_HONOR                            = 712,
+    RBAC_PERM_COMMAND_RESET_LEVEL                            = 713,
+    RBAC_PERM_COMMAND_RESET_SPELLS                           = 714,
+    RBAC_PERM_COMMAND_RESET_STATS                            = 715,
+    RBAC_PERM_COMMAND_RESET_TALENTS                          = 716,
+    RBAC_PERM_COMMAND_RESET_ALL                              = 717,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
