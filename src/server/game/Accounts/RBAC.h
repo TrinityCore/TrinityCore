@@ -54,12 +54,12 @@ enum RBACPermissions
     RBAC_PERM_JOIN_RANDOM_BG                                 = 4,
     RBAC_PERM_JOIN_ARENAS                                    = 5,
     RBAC_PERM_JOIN_DUNGEON_FINDER                            = 6,
-    RBAC_PERM_PLAYER_COMMANDS                                = 7,
-    RBAC_PERM_MODERATOR_COMMANDS                             = 8,
-    RBAC_PERM_GAMEMASTER_COMMANDS                            = 9,
-    RBAC_PERM_ADMINISTRATOR_COMMANDS                         = 10,
+    //  7 - reuse
+    //  8 - reuse
+    //  9 - reuse
+    // 10 - reuse
     RBAC_PERM_LOG_GM_TRADE                                   = 11,
-    RBAC_PERM_CONSOLE_COMMANDS                               = 12, // Not pressent in DB
+    // 12 - reuse
     RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES            = 13,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK         = 14,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK        = 15,
@@ -99,6 +99,7 @@ enum RBACPermissions
     RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE                  = 49,
     RBAC_PERM_MAY_CHECK_OWN_EMAIL                            = 50,
     // Leave some space for core permissions
+
     RBAC_PERM_COMMAND_RBAC                                   = 200,
     RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
     RBAC_PERM_COMMAND_RBAC_ACC_GROUP                         = 202,
