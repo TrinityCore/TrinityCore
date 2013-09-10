@@ -14,7 +14,8 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 -- Add permissions to "corresponding Commands Role"
 DELETE FROM `rbac_role_permissions` WHERE `permissionId` BETWEEN @id AND @id+4;
 INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
-(4, @id+0),
+(2, @id+0),
 (4, @id+1),
-(4, @id+3),
-(4, @id+4);
+(4, @id+2),
+(2, @id+3),
+(2, @id+4);
