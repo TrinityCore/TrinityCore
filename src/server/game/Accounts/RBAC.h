@@ -636,6 +636,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_SHUTDOWN                        = 734,
     RBAC_PERM_COMMAND_SERVER_SHUTDOWN_CANCEL                 = 735,
     RBAC_PERM_COMMAND_SERVER_MOTD                            = 736,
+    RBAC_PERM_COMMAND_TELE                                   = 737,
+    RBAC_PERM_COMMAND_TELE_ADD                               = 738,
+    RBAC_PERM_COMMAND_TELE_DEL                               = 739,
+    RBAC_PERM_COMMAND_TELE_NAME                              = 740,
+    RBAC_PERM_COMMAND_TELE_GROUP                             = 741,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
