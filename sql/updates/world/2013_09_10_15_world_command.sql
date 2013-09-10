@@ -3,7 +3,6 @@
 SET @id = 761;
 
 -- Update command table with new RBAC permissions
-UPDATE `command` SET `permission` = @id+0 WHERE `name` = 'tele';
 UPDATE `command` SET `permission` = @id+0 WHERE `name` = 'ticket';
 UPDATE `command` SET `permission` = @id+1 WHERE `name` = 'ticket assign';
 UPDATE `command` SET `permission` = @id+2 WHERE `name` = 'ticket close';
