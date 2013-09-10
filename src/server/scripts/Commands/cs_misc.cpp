@@ -44,15 +44,6 @@ public:
 
     ChatCommand* GetCommands() const OVERRIDE
     {
-        static ChatCommand groupCommandTable[] =
-        {
-            { "leader",         RBAC_PERM_ADMINISTRATOR_COMMANDS,          false,  &HandleGroupLeaderCommand,          "", NULL },
-            { "disband",        RBAC_PERM_ADMINISTRATOR_COMMANDS,          false,  &HandleGroupDisbandCommand,         "", NULL },
-            { "remove",         RBAC_PERM_ADMINISTRATOR_COMMANDS,          false,  &HandleGroupRemoveCommand,          "", NULL },
-            { "join",           RBAC_PERM_ADMINISTRATOR_COMMANDS,          false,  &HandleGroupJoinCommand,            "", NULL },
-            { "list",           RBAC_PERM_ADMINISTRATOR_COMMANDS,          false,  &HandleGroupListCommand,            "", NULL },
-            { NULL,             0,                          false,  NULL,                               "", NULL }
-        };
         static ChatCommand petCommandTable[] =
         {
             { "create",             RBAC_PERM_GAMEMASTER_COMMANDS,         false, &HandleCreatePetCommand,             "", NULL },
@@ -76,7 +67,6 @@ public:
             { "unaura",             RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, &HandleUnAuraCommand,                "", NULL },
             { "appear",             RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleAppearCommand,                "", NULL },
             { "summon",             RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleSummonCommand,                "", NULL },
-            { "groupsummon",        RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleGroupSummonCommand,           "", NULL },
             { "commands",           RBAC_PERM_PLAYER_COMMANDS,             true,  &HandleCommandsCommand,              "", NULL },
             { "die",                RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, &HandleDieCommand,                   "", NULL },
             { "revive",             RBAC_PERM_ADMINISTRATOR_COMMANDS,      true,  &HandleReviveCommand,                "", NULL },
@@ -116,7 +106,6 @@ public:
             { "freeze",             RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleFreezeCommand,                "", NULL },
             { "unfreeze",           RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleUnFreezeCommand,              "", NULL },
             { "listfreeze",         RBAC_PERM_MODERATOR_COMMANDS,          false, &HandleListFreezeCommand,            "", NULL },
-            { "group",              RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, NULL,                                "", groupCommandTable },
             { "possess",            RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, HandlePossessCommand,                "", NULL },
             { "unpossess",          RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, HandleUnPossessCommand,              "", NULL },
             { "bindsight",          RBAC_PERM_ADMINISTRATOR_COMMANDS,      false, HandleBindSightCommand,              "", NULL },
@@ -542,97 +531,6 @@ public:
                 handler->GetSession()->GetPlayer()->GetOrientation(),
                 handler->GetSession()->GetPlayer()->GetZoneId(),
                 targetGuid);
-        }
-
-        return true;
-    }
-    // Summon group of player
-    static bool HandleGroupSummonCommand(ChatHandler* handler, char const* args)
-    {
-        Player* target;
-        if (!handler->extractPlayerTarget((char*)args, &target))
-            return false;
-
-        // check online security
-        if (handler->HasLowerSecurity(target, 0))
-            return false;
-
-        Group* group = target->GetGroup();
-
-        std::string nameLink = handler->GetNameLink(target);
-
-        if (!group)
-        {
-            handler->PSendSysMessage(LANG_NOT_IN_GROUP, nameLink.c_str());
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        Map* gmMap = handler->GetSession()->GetPlayer()->GetMap();
-        bool toInstance = gmMap->Instanceable();
-
-        // we are in instance, and can summon only player in our group with us as lead
-        if (toInstance && (
-            !handler->GetSession()->GetPlayer()->GetGroup() || (group->GetLeaderGUID() != handler->GetSession()->GetPlayer()->GetGUID()) ||
-            (handler->GetSession()->GetPlayer()->GetGroup()->GetLeaderGUID() != handler->GetSession()->GetPlayer()->GetGUID())))
-            // the last check is a bit excessive, but let it be, just in case
-        {
-            handler->SendSysMessage(LANG_CANNOT_SUMMON_TO_INST);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-        {
-            Player* player = itr->GetSource();
-
-            if (!player || player == handler->GetSession()->GetPlayer() || !player->GetSession())
-                continue;
-
-            // check online security
-            if (handler->HasLowerSecurity(player, 0))
-                return false;
-
-            std::string plNameLink = handler->GetNameLink(player);
-
-            if (player->IsBeingTeleported() == true)
-            {
-                handler->PSendSysMessage(LANG_IS_TELEPORTED, plNameLink.c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            if (toInstance)
-            {
-                Map* playerMap = player->GetMap();
-
-                if (playerMap->Instanceable() && playerMap->GetInstanceId() != gmMap->GetInstanceId())
-                {
-                    // cannot summon from instance to instance
-                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, plNameLink.c_str());
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-            }
-
-            handler->PSendSysMessage(LANG_SUMMONING, plNameLink.c_str(), "");
-            if (handler->needReportToTarget(player))
-                ChatHandler(player->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->GetNameLink().c_str());
-
-            // stop flight if need
-            if (player->IsInFlight())
-            {
-                player->GetMotionMaster()->MovementExpired();
-                player->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
-            else
-                player->SaveRecallPosition();
-
-            // before GM
-            float x, y, z;
-            handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, player->GetObjectSize());
-            player->TeleportTo(handler->GetSession()->GetPlayer()->GetMapId(), x, y, z, player->GetOrientation());
         }
 
         return true;
@@ -2890,177 +2788,6 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player.c_str());
         }
         while (result->NextRow());
-
-        return true;
-    }
-
-    static bool HandleGroupLeaderCommand(ChatHandler* handler, char const* args)
-    {
-        Player* player = NULL;
-        Group* group = NULL;
-        uint64 guid = 0;
-        char* nameStr = strtok((char*)args, " ");
-
-        if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
-            if (group && group->GetLeaderGUID() != guid)
-            {
-                group->ChangeLeader(guid);
-                group->SendUpdate();
-            }
-
-            return true;
-    }
-
-    static bool HandleGroupDisbandCommand(ChatHandler* handler, char const* args)
-    {
-        Player* player = NULL;
-        Group* group = NULL;
-        uint64 guid = 0;
-        char* nameStr = strtok((char*)args, " ");
-
-        if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
-            if (group)
-                group->Disband();
-
-        return true;
-    }
-
-    static bool HandleGroupRemoveCommand(ChatHandler* handler, char const* args)
-    {
-        Player* player = NULL;
-        Group* group = NULL;
-        uint64 guid = 0;
-        char* nameStr = strtok((char*)args, " ");
-
-        if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid, true))
-            if (group)
-                group->RemoveMember(guid);
-
-        return true;
-    }
-
-    static bool HandleGroupJoinCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* playerSource = NULL;
-        Player* playerTarget = NULL;
-        Group* groupSource = NULL;
-        Group* groupTarget = NULL;
-        uint64 guidSource = 0;
-        uint64 guidTarget = 0;
-        char* nameplgrStr = strtok((char*)args, " ");
-        char* nameplStr = strtok(NULL, " ");
-
-        if (handler->GetPlayerGroupAndGUIDByName(nameplgrStr, playerSource, groupSource, guidSource, true))
-        {
-            if (groupSource)
-            {
-                if (handler->GetPlayerGroupAndGUIDByName(nameplStr, playerTarget, groupTarget, guidTarget, true))
-                {
-                    if (!groupTarget && playerTarget->GetGroup() != groupSource)
-                    {
-                        if (!groupSource->IsFull())
-                        {
-                            groupSource->AddMember(playerTarget);
-                            groupSource->BroadcastGroupUpdate();
-                            handler->PSendSysMessage(LANG_GROUP_PLAYER_JOINED, playerTarget->GetName().c_str(), playerSource->GetName().c_str());
-                            return true;
-                        }
-                        else
-                        {
-                            // group is full
-                            handler->PSendSysMessage(LANG_GROUP_FULL);
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        // group is full or target player already in a group
-                        handler->PSendSysMessage(LANG_GROUP_ALREADY_IN_GROUP, playerTarget->GetName().c_str());
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                // specified source player is not in a group
-                handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, playerSource->GetName().c_str());
-                return true;
-            }
-        }
-
-        return true;
-    }
-
-    static bool HandleGroupListCommand(ChatHandler* handler, char const* args)
-    {
-        Player* playerTarget;
-        uint64 guidTarget;
-        std::string nameTarget;
-
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
-
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
-        {
-            playerTarget = sObjectMgr->GetPlayerByLowGUID(parseGUID);
-            guidTarget = parseGUID;
-        }
-        else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
-            return false;
-
-        Group* groupTarget = NULL;
-        if (playerTarget)
-            groupTarget = playerTarget->GetGroup();
-
-        if (!groupTarget)
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt32(0, guidTarget);
-            PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
-            if (resultGroup)
-                groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
-        }
-
-        if (groupTarget)
-        {
-            handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"));
-            Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
-            for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
-            {
-                Group::MemberSlot const& slot = *itr;
-
-                std::string flags;
-                if (slot.flags & MEMBER_FLAG_ASSISTANT)
-                    flags = "Assistant";
-
-                if (slot.flags & MEMBER_FLAG_MAINTANK)
-                {
-                    if (!flags.empty())
-                        flags.append(", ");
-                    flags.append("MainTank");
-                }
-
-                if (slot.flags & MEMBER_FLAG_MAINASSIST)
-                {
-                    if (!flags.empty())
-                        flags.append(", ");
-                    flags.append("MainAssist");
-                }
-
-                if (flags.empty())
-                    flags = "None";
-
-                Player* p = ObjectAccessor::FindPlayer((*itr).guid);
-                const char* onlineState = (p && p->IsInWorld()) ? "online" : "offline";
-
-                handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                    GUID_LOPART(slot.guid), flags.c_str(), lfg::GetRolesString(slot.roles).c_str());
-            }
-        }
-        else
-            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
 
         return true;
     }
