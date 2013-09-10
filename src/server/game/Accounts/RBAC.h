@@ -435,6 +435,12 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_UNPOSSESS                              = 533,
     RBAC_PERM_COMMAND_UNSTUCK                                = 534,
     RBAC_PERM_COMMAND_WCHANGE                                = 535,
+    RBAC_PERM_COMMAND_MMAP                                   = 536,
+    RBAC_PERM_COMMAND_MMAP_LOADEDTILES                       = 537,
+    RBAC_PERM_COMMAND_MMAP_LOC                               = 538,
+    RBAC_PERM_COMMAND_MMAP_PATH                              = 539,
+    RBAC_PERM_COMMAND_MMAP_STATS                             = 540,
+    RBAC_PERM_COMMAND_MMAP_TESTAREA                          = 541,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
