@@ -1,4 +1,4 @@
-/* cs_npc.cpp */
+/* cs_quest.cpp */
 
 SET @id = 602;
 
