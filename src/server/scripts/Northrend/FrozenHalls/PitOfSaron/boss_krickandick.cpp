@@ -142,18 +142,10 @@ class boss_ick : public CreatureScript
                 ASSERT(_vehicle);
             }
 
-            void InitializeAI() OVERRIDE
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset() OVERRIDE
             {
                 events.Reset();
-                _Reset();
+                instance->SetBossState(DATA_ICK, NOT_STARTED);
             }
 
             Creature* GetKrick()
@@ -281,7 +273,7 @@ class boss_ick : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_ickAI(creature);
+            return GetPitOfSaronAI<boss_ickAI>(creature);
         }
 };
 
@@ -294,14 +286,6 @@ class boss_krick : public CreatureScript
         {
             boss_krickAI(Creature* creature) : ScriptedAI(creature), _instanceScript(creature->GetInstanceScript()), _summons(creature)
             {
-            }
-
-            void InitializeAI() OVERRIDE
-            {
-                if (!_instanceScript || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset() OVERRIDE
@@ -509,7 +493,7 @@ class boss_krick : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_krickAI(creature);
+            return GetPitOfSaronAI<boss_krickAI>(creature);
         }
 };
 

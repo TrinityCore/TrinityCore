@@ -85,14 +85,6 @@ class boss_garfrost : public CreatureScript
         {
             boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST) { }
 
-            void InitializeAI() OVERRIDE
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset() OVERRIDE
             {
                 _Reset();
@@ -245,7 +237,7 @@ class boss_garfrost : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_garfrostAI(creature);
+            return GetPitOfSaronAI<boss_garfrostAI>(creature);
         }
 };
 
