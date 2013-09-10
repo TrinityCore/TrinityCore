@@ -37,21 +37,21 @@ public:
     {
         static ChatCommand titlesSetCommandTable[] =
         {
-            { "mask",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesSetMaskCommand,        "", NULL },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "mask", RBAC_PERM_COMMAND_TITLES_SET_MASK, false, &HandleTitlesSetMaskCommand, "", NULL },
+            { NULL,   0,                                 false, NULL,                        "", NULL }
         };
         static ChatCommand titlesCommandTable[] =
         {
-            { "add",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesAddCommand,            "", NULL },
-            { "current",        RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesCurrentCommand,        "", NULL },
-            { "remove",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleTitlesRemoveCommand,         "", NULL },
-            { "set",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,              "", titlesSetCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "add",     RBAC_PERM_COMMAND_TITLES_ADD,     false, &HandleTitlesAddCommand,     "", NULL },
+            { "current", RBAC_PERM_COMMAND_TITLES_CURRENT, false, &HandleTitlesCurrentCommand, "", NULL },
+            { "remove",  RBAC_PERM_COMMAND_TITLES_REMOVE,  false, &HandleTitlesRemoveCommand,  "", NULL },
+            { "set",     RBAC_PERM_COMMAND_TITLES_SET,     false, NULL,       "", titlesSetCommandTable },
+            { NULL,      0,                                false, NULL,                        "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "titles",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                 "", titlesCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "titles", RBAC_PERM_COMMAND_TITLES, false, NULL, "", titlesCommandTable },
+            { NULL,     0,                        false, NULL, "", NULL }
         };
         return commandTable;
     }
