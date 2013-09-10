@@ -64,7 +64,7 @@ public:
             {       "grant", RBAC_PERM_COMMAND_RBAC_ACC_ROLE_GRANT,  true, &HandleRBACRoleGrantCommand,   "", NULL },
             {        "deny", RBAC_PERM_COMMAND_RBAC_ACC_ROLE_DENY,   true, &HandleRBACRoleDenyCommand,    "", NULL },
             {      "revoke", RBAC_PERM_COMMAND_RBAC_ACC_ROLE_REVOKE, true, &HandleRBACRoleRevokeCommand,  "", NULL },
-            {            "", RBAC_PERM_COMMAND_RBAC_ACC_ROLE,   true, &HandleRBACRoleListCommand,    "", NULL },
+            {            "", RBAC_PERM_COMMAND_RBAC_ACC_ROLE,        true, &HandleRBACRoleListCommand,    "", NULL },
             {          NULL, 0, false, NULL, "", NULL }
         };
 
@@ -73,7 +73,7 @@ public:
             {       "grant", RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT,  true, &HandleRBACPermGrantCommand,   "", NULL },
             {        "deny", RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY,   true, &HandleRBACPermDenyCommand,    "", NULL },
             {      "revoke", RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE, true, &HandleRBACPermRevokeCommand,  "", NULL },
-            {            "", RBAC_PERM_COMMAND_RBAC_ACC_PERM,   true, &HandleRBACPermListCommand,    "", NULL },
+            {            "", RBAC_PERM_COMMAND_RBAC_ACC_PERM,        true, &HandleRBACPermListCommand,    "", NULL },
             {          NULL, 0, false, NULL, "", NULL }
         };
 
