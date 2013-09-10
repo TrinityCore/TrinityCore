@@ -177,11 +177,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION                = 275,
     RBAC_PERM_COMMAND_CHARACTER_CHANGERACE                   = 276,
     RBAC_PERM_COMMAND_CHARACTER_DELETED                      = 277,
-    RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE               = 278, // Not in DB - console
+    RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE               = 278,
     RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST                 = 279,
     RBAC_PERM_COMMAND_CHARACTER_DELETED_RESTORE              = 280,
-    RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD                  = 281, // Not in DB - console
-    RBAC_PERM_COMMAND_CHARACTER_ERASE                        = 282, // Not in DB - console
+    RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD                  = 281,
+    RBAC_PERM_COMMAND_CHARACTER_ERASE                        = 282,
     RBAC_PERM_COMMAND_CHARACTER_LEVEL                        = 283,
     RBAC_PERM_COMMAND_CHARACTER_RENAME                       = 284,
     RBAC_PERM_COMMAND_CHARACTER_REPUTATION                   = 285,
@@ -299,6 +299,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GOBJECT_SET_STATE                      = 397,
     RBAC_PERM_COMMAND_GOBJECT_TARGET                         = 398,
     RBAC_PERM_COMMAND_GOBJECT_TURN                           = 399,
+    // 400 - reuse
     RBAC_PERM_COMMAND_GUILD                                  = 401,
     RBAC_PERM_COMMAND_GUILD_CREATE                           = 402,
     RBAC_PERM_COMMAND_GUILD_DELETE                           = 403,
@@ -370,6 +371,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NAMEANNOUNCE                           = 469,
     RBAC_PERM_COMMAND_NOTIFY                                 = 470,
     RBAC_PERM_COMMAND_WHISPERS                               = 471,
+    RBAC_PERM_COMMAND_GROUP                                  = 472,
+    RBAC_PERM_COMMAND_GROUP_LEADER                           = 473,
+    RBAC_PERM_COMMAND_GROUP_DISBAND                          = 474,
+    RBAC_PERM_COMMAND_GROUP_REMOVE                           = 475,
+    RBAC_PERM_COMMAND_GROUP_JOIN                             = 476,
+    RBAC_PERM_COMMAND_GROUP_LIST                             = 477,
+    RBAC_PERM_COMMAND_GROUP_SUMMON                           = 478,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

@@ -59,6 +59,7 @@ void AddSC_event_commandscript();
 void AddSC_gm_commandscript();
 void AddSC_go_commandscript();
 void AddSC_gobject_commandscript();
+void AddSC_group_commandscript();
 void AddSC_guild_commandscript();
 void AddSC_honor_commandscript();
 void AddSC_instance_commandscript();
@@ -740,6 +741,7 @@ void AddCommandScripts()
     AddSC_gm_commandscript();
     AddSC_go_commandscript();
     AddSC_gobject_commandscript();
+    AddSC_group_commandscript();
     AddSC_guild_commandscript();
     AddSC_honor_commandscript();
     AddSC_instance_commandscript();
