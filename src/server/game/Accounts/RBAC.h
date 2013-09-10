@@ -382,6 +382,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_PET_CREATE                             = 480,
     RBAC_PERM_COMMAND_PET_LEARN                              = 481,
     RBAC_PERM_COMMAND_PET_UNLEARN                            = 482,
+    RBAC_PERM_COMMAND_SEND                                   = 483,
+    RBAC_PERM_COMMAND_SEND_ITEMS                             = 484,
+    RBAC_PERM_COMMAND_SEND_MAIL                              = 485,
+    RBAC_PERM_COMMAND_SEND_MESSAGE                           = 486,
+    RBAC_PERM_COMMAND_SEND_MONEY                             = 487,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

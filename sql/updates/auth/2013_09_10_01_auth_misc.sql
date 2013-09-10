@@ -1,6 +1,6 @@
 /* cs_pet.cpp */
 
-SET @id = 472;
+SET @id = 479;
 
 -- Add new permissions
 DELETE FROM `rbac_permissions` WHERE `id` BETWEEN @id AND @id+3;
@@ -13,7 +13,7 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 -- Add permissions to "corresponding Commands Role"
 DELETE FROM `rbac_role_permissions` WHERE `permissionId` BETWEEN @id AND @id+3;
 INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
-(2, @id+0),
-(2, @id+1),
-(2, @id+2),
-(2, @id+3);
+(3, @id+0),
+(3, @id+1),
+(3, @id+2),
+(3, @id+3);
