@@ -137,6 +137,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.96 - 28/07/2013: Implementamos el metodo RemoveNegativeAuras por Retriman
 0.97 - 12/08/2013: Implementacion de prioridad y multiprocesamiento en linux del authserver por Nay adaptacion por Eilo
 0.98 - 12/08/2013: Implementacion de prioridad y multiprocesamiento en linux del worldserver por Nay adaptacion por Eilo
+0.99 - 27/08/2013: Implementación de sistema de anti flood de opcodes base por Lilecarl implementacion y mejoras por Eilo
+0.100 - 09/09/2013: Sistema de xprates implementado por Eilo
 
 
 ###############
@@ -250,10 +252,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.161 - 09/07/2013: Profesiones: corregidas las misiones de especializaciones para que no se vuelvan a aprender al reloguear por Muzashi
 1.162 - 13/03/2013: Vehiculos, funcionamiento de VEHICLE_SEAT_FLAG_CAN_CONTROL a cualquier asiento por Machiavell1
 1.163 - 12/07/2013: FleeingMovementGenerator: Ahora el fear no debera tirar al vacio por Retriman
-1.165 - 12/07/2013: Chequeo de zonales para ver si el caster puede ver el lugar donde se castea el spell por Retriman
 1.166 - 12/07/2013: Core/Pet: Ahora las pet que tengan informacion en la DB de resistencias no la tomaran en cuenta, arregla el exeso de resistencia magica de la pet Devilsaur por Retriman
-1.167 - 12/07/2013: Update al movimiento astronauta ahora si realmente se notara el cambio blizlike por Retriman
-1.170 - 12/07/2013: Core/Movement: Fix collision para spells como fire nova por Retriman
 1.171 - 13/07/2013: Wintergrasp: Ahora los cementerios de la base horda y alianza daran resurreccion de forma correcta.Ademas todos los cementerios estarán funcionales solo cuando se este llevando a cabo una batalla por Jar
 1.172 - 13/07/2013: Wintergrasp: Fix cementerio del Workshop  Broken temple, ahora los espíritus horda y alianza cambiaran  de fase dependiendo de quien controle  el Workshop, para que los personajes puedan ser resucitados por Jar
 1.173 - 22/07/2013: Wintergrasp: Ahora tenacity se actualizara cuando los jugadores summonen vehículos por Jar
@@ -268,7 +267,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.183 - 07/08/2013: PerformanceLog Configs por Eilo
 1.184 - 08/08/2013: BgPlayerBroadcast: Implementado un pequeño sistema de broadcast a los que estan apuntados que actualiza el estado en tiempo real sin necesidad de anotar nuevamente por Eilo
 1.185 - 08/08/2013: SoTA: La spell Rocket Blast utilizada por los Antipersonnel Cannon, ahora hara el daño esperado cuando impacta en los jugadores Jar
-1.186 - 09/08/2013: Fix logico en  "Ignore LOS for gameobjects casts (wrongly casted by a trigger)" por Retriman
 1.187 - 12/08/2013: Wintergrasp: Algunos ajustes en el sistema del campo de batalla,ligamos cada WorkShop con sus GameObjects y NPCs, ahora las torres del atacante se mostraran neutrales entre batallas, los npc de la fortaleza serán teleportados a su correspondiente lugar según corresponda y dependiendo de quién este controlando, ahora cuando se gana una batalla haciendo click en la Reliquia, se actualizarán los Worldstates para mostrar correctamente quien está controlando la fortaleza por Jar
 1.188 - 12/08/2013: Wintergrasp: Ahora actualizamos Tenacity cuando los player se retiran de la batalla o cuando salen de la zona de combate por jar
 1.189 - 12/08/2013: Wintergrasp: Ahora los NPC Maestro de hudú Fu'jin horda y Sorceress Kaylana mostraran la opcion para ver sus productos por Jar
@@ -281,6 +279,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.196 - 18/08/2013: Wintergrasp: Añadido el script del teleport dalaran a wintergrasp con ayuda de Jar por Ramas
 1.197 - 18/08/2013: Wintergrasp: Script del mago de batalla de conquista de invierno ubicado en dalaran, ahora se abrira unportal en dalaran unos minutos antes de comenzar la batalla. Idea y código original aportado por Apa, modificado por Jar
 1.198 - 18/09/2013: Wintergrasp: Implementamos método para contrarrestar bug en el que se desaparecen los edificios acabando con la mecánica del campo de batalla por Jar
+1.199 - 21/08/2013: Core/Auras: Fix CharmInfo y EvadeMode SAI por Shauren adaptado por Eilo
+1.200 - 22/08/2013: Wintergrasp: Ahora se mostraran correctamente las alertas durante la batalla por Jar
+1.201 - 26/08/2013: Ahora las spells utilizadas por Tower Cannon-Wintergrasp, Antipersonnel Cannon SoTA y Keep Cannon-IoC, harán su efecto de daño al recorrer la distancia correcta por jar
+1.202 - 08/09/2013: Ahora al hacer dismount de un vehículo eliminamos la flag UNIT_FLAG_PLAYER_CONTROLLED que provocaba que algunos vehículos quedaran iunutiles sin poder volver a controlarlos por Jar
+1.203 - 08/09/2013: Wintergrasp: Quedan funcionales los portales para tele-trasportar los vehículos del equipo defensor fuera de la fortaleza por Jar
 
 
 ########################
@@ -320,7 +323,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.40 - 13/01/2012: LichKing inmune a taunt en cambio de fase por Odyssey
 2.2.43 - 09/11/2011: Trashmob Valkyr lower spire añadida AI por Macavity
 2.2.44 - 06/02/2012: LadyDeathwhisper añadiendo dificultades de la spell Death&Decay por AliveShiro
-2.2.47 - 04/05/2012: Marrowgar añadido resistencia al fuego para players por Xanvial
 2.2.48 - 04/05/2012: Putricidio añadiendo inmunidades a la ooze y gas cloud por Xanvial
 2.2.49 - 04/05/2012: Rotface añadiendo el visual correcto a slime spray por Xanvial
 2.2.51 - 04/05/2012: Lanathel arreglando el requisito para blood quickening por Xanvial
@@ -401,7 +403,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.153 - 12/02/2013: Sindragosa arreglo del asfixiar individualmente para la fase 3 por Eilo
 2.2.154 - 23/03/2013: LadyDeathwhisper implementado nueva AI para las vengeful shade y multiple spawn en 25man por Eilo
 2.2.155 - 23/03/2013: LadyDeathwhisper ajuste de velocidad de las vengeful shade por Eilo
-2.2.156 - 23/03/2013: Saurfang corregido el rate de curación del Blood Link por Eilo
 2.2.157 - 25/03/2013: Buffs las pets tambien ganan el buff de ICC por Eilo
 2.2.158 - 26/03/2013: Eventos de recompensa de la Agonía y Filo de las Sombras por Muzashi
 2.2.159 - 06/12/2012: Sindragosa evitando que alguien de las tumbas se quede fuera de combate y de res por Hexa
@@ -415,6 +416,19 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.167 - 14/04/2013: Rotface ajustes de estabilidad en la spell Large Ooze Combine por Eilo
 2.2.168 - 18/04/2013: Putricide la spell Expunged Gas ahora no es inmune a hand of protection ni otras por Eilo
 2.2.169 - 23/04/2013: Putricide las babosas ahora no se quedaran despues de un wipe por Eilo
+2.2.171 - 22/08/2013: Sindragosa Inmunidades adicionales en db para las Frost Bomb por Eilo
+2.2.172 - 22/08/2013: Sindragosa Inmunidades adicionales en script para las Ice Tomb por Eilo
+2.2.173 - 22/08/2013: Sindragosa Inmunidades adicionales en db para las Ice Tomb por Eilo
+2.2.174 - 22/08/2013: Rotface Inmunidades adicionales en db para las Big Ooze por Eilo
+2.2.175 - 22/08/2013: Putricidio arrglo del exploit que skipea el Tear Gas mientras castea Unstable Experiment por Eilo
+2.2.176 - 22/08/2013: Sindragosa ajustado el tiempo en la fase aerea para que alcance a lanzar 4 Frost Bombs en total, blizzlike por Eilo
+2.2.177 - 22/08/2013: TheLichKing el efecto de la spell Mass Resurrection tambien podra targetear a 50000y por Eilo
+2.2.178 - 23/08/2013: Putricidio puliendo una logica interna de las babosas Gas Cloud por Eilo
+2.2.179 - 23/08/2013: Putricidio añadido propiedades para el channeled spell_putricide_ooze_channel en Volatile Ooze Adhesive y Gaseous Bloat por Eilo
+2.2.180 - 23/08/2013: Putricidio las auras como Hand of Protection, Deterrence, Divine Shield no evitaran el impacto de la spell por Eilo
+2.2.181 - 24/08/2013: Rotface Ajuste de velocidades de las big oozes por Eilo
+2.2.182 - 24/08/2013: Putricidio las babosas ya no tomarán al tanke de putricidio como objetivo por Eilo
+2.2.183 - 06/09/2013: Putricidio arreglo del visual del malleable goo hero para festergut por Shauren
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -681,6 +695,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.186 - 11/08/2013: Mago: Fix spell Avoidance (Pets), ahora el Elemental de Agua (temporal y permanente) y Mirror Image obtendran Avoidance de forma pasiva por Gildor
 3.187 - 11/08/2013: Priest: Fix spell Avoidance (Pets), ahora Shadowfiend obtendra Avoidance de forma pasiva por Gildor
 3.188 - 11/08/2013: Druida: Fix spell Avoidance (Pets), ahora el Antárbol obtendra Avoidance de forma pasiva por Gildor
+3.189 - 19/08/2013: Sacer: Fix del levitar despues de usar un teleport o entrar a instance por Eilo
+3.190 - 07/09/2013: Stacks: Fix Leader of the Pack (Druida) and Rampage (Warrior), ahora no se acumularán por Gildor
 
 
 #################
@@ -732,6 +748,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.1.7 - 08/11/2012: Kalu'ak: corregida la reputacion de misiones diarias por Muzashi
 4.1.8 - 16/12/2012: Profesion(Pesca): Receta encharcada por Mizhael y Rincewind
 4.1.9 - 13/06/2013: Profesion(Alquimia): Serie Componentes de Tierras Inhóspitas por Rincewind
+4.1.10 - 28/08/2013: Campos de batalla: Llamada a las armas por Rincewind
+4.1.11 - 28/08/2013: Campos de batalla: Llamada a las armas, ahora se completarán las misiones al ganar en el campo de batalla correspondiente por Gildor
 - Las Cumbres Tormentosas -
 4.2.0 - 25/03/2012: Hijos de Hodir: Correcciones generales en fases y quests por Muzashi
 4.2.1 - 25/03/2012: Hijos de Hodir: Disciplina y Seguir con la Disciplina por Muzashi
@@ -1110,6 +1128,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.10.32 - 12/04/2013: Bosque de Terokkar: Velo Skith: Rocanegra de Terokk por Rincewind
 4.10.33 - 10/06/2013: Bosque de Terokkar: Y ahora, el momento de la verdad por Rincewind
 4.10.34 - 10/06/2013: Bosque de Terokkar: El Código Final por Rincewind
+4.10.35 - 07/09/2013: Valle sombraluna: Perder la cabeza ... por unos cardos por Kirkhammett y Rincewind
+4.10.36 - 07/09/2013: Bosque de Terokkar: Descubriendo tus raíces y Redescubriendo tus raíces por Rincewind
+4.10.37 - 07/09/2013: Nagrand: Más abalorios de guerra por Rincewind
 - Kalimdor y Reinos del Este -
 4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
 4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
@@ -1195,6 +1216,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.56 - 03/07/2013: Festival del solsticio de verano: Honrar y apagar los fuegos por Rincewind
 6.57 - 04/07/2013: Desactivando eventos del sol devastado que no se usan ni sirven desde hace 2 años por Eilo
 6.58 - 07/07/2013: Las misiones de eventos del mundo ya no apareceran dos veces en los questgivers por Rincewind y Muzashi
+6.59 - 21/08/2013: Magisters' Terrace: Agregado un check al gameobject scrying orb para evitar el spam de kalecgos lo que provocaba caídas en el servidor, codigo inicial de Mangos, modificado por Apa y Jar
 
 
 ##########
