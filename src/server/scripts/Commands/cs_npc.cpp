@@ -153,69 +153,65 @@ public:
     {
         static ChatCommand npcAddCommandTable[] =
         {
-            { "formation",      RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleNpcAddFormationCommand,      "", NULL },
-            { "item",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcAddVendorItemCommand,     "", NULL },
-            { "move",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcAddMoveCommand,           "", NULL },
-            { "temp",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcAddTempSpawnCommand,      "", NULL },
-            //{@todo fix or remove this command
-            { "weapon",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleNpcAddWeaponCommand,         "", NULL },
-            //}
-            { "",               RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcAddCommand,               "", NULL },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "formation", RBAC_PERM_COMMAND_NPC_ADD_FORMATION, false, &HandleNpcAddFormationCommand,      "", NULL },
+            { "item",      RBAC_PERM_COMMAND_NPC_ADD_ITEM,      false, &HandleNpcAddVendorItemCommand,     "", NULL },
+            { "move",      RBAC_PERM_COMMAND_NPC_ADD_MOVE,      false, &HandleNpcAddMoveCommand,           "", NULL },
+            { "temp",      RBAC_PERM_COMMAND_NPC_ADD_TEMP,      false, &HandleNpcAddTempSpawnCommand,      "", NULL },
+            //{ "weapon",    RBAC_PERM_COMMAND_NPC_ADD_WEAPON,    false, &HandleNpcAddWeaponCommand,         "", NULL },
+            { "",          RBAC_PERM_COMMAND_NPC_ADD,           false, &HandleNpcAddCommand,               "", NULL },
+            { NULL,        0,                                   false, NULL,                               "", NULL }
         };
         static ChatCommand npcDeleteCommandTable[] =
         {
-            { "item",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcDeleteVendorItemCommand,  "", NULL },
-            { "",               RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcDeleteCommand,            "", NULL },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "item", RBAC_PERM_COMMAND_NPC_DELETE_ITEM, false, &HandleNpcDeleteVendorItemCommand,  "", NULL },
+            { "",     RBAC_PERM_COMMAND_NPC_DELETE,      false, &HandleNpcDeleteCommand,            "", NULL },
+            { NULL,   0,                                 false, NULL,                               "", NULL }
         };
         static ChatCommand npcFollowCommandTable[] =
         {
-            { "stop",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcUnFollowCommand,          "", NULL },
-            { "",               RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcFollowCommand,            "", NULL },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "stop", RBAC_PERM_COMMAND_NPC_FOLLOW_STOP, false, &HandleNpcUnFollowCommand,          "", NULL },
+            { "",     RBAC_PERM_COMMAND_NPC_FOLLOW,      false, &HandleNpcFollowCommand,            "", NULL },
+            { NULL,   0,                                 false, NULL,                               "", NULL }
         };
         static ChatCommand npcSetCommandTable[] =
         {
-            { "allowmove",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleNpcSetAllowMovementCommand,  "", NULL },
-            { "entry",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleNpcSetEntryCommand,          "", NULL },
-            { "factionid",      RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetFactionIdCommand,      "", NULL },
-            { "flag",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetFlagCommand,           "", NULL },
-            { "level",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetLevelCommand,          "", NULL },
-            { "link",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetLinkCommand,           "", NULL },
-            { "model",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetModelCommand,          "", NULL },
-            { "movetype",       RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetMoveTypeCommand,       "", NULL },
-            { "phase",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetPhaseCommand,          "", NULL },
-            { "spawndist",      RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetSpawnDistCommand,      "", NULL },
-            { "spawntime",      RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetSpawnTimeCommand,      "", NULL },
-            { "data",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleNpcSetDataCommand,           "", NULL },
-            //{ @todo fix or remove these commands
-            { "name",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetNameCommand,           "", NULL },
-            { "subname",        RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcSetSubNameCommand,        "", NULL },
-            //}
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "allowmove",  RBAC_PERM_COMMAND_NPC_SET_ALLOWMOVE, false, &HandleNpcSetAllowMovementCommand, "", NULL },
+            { "entry",      RBAC_PERM_COMMAND_NPC_SET_ENTRY,     false, &HandleNpcSetEntryCommand,         "", NULL },
+            { "factionid",  RBAC_PERM_COMMAND_NPC_SET_FACTIONID, false, &HandleNpcSetFactionIdCommand,     "", NULL },
+            { "flag",       RBAC_PERM_COMMAND_NPC_SET_FLAG,      false, &HandleNpcSetFlagCommand,          "", NULL },
+            { "level",      RBAC_PERM_COMMAND_NPC_SET_LEVEL,     false, &HandleNpcSetLevelCommand,         "", NULL },
+            { "link",       RBAC_PERM_COMMAND_NPC_SET_LINK,      false, &HandleNpcSetLinkCommand,          "", NULL },
+            { "model",      RBAC_PERM_COMMAND_NPC_SET_MODEL,     false, &HandleNpcSetModelCommand,         "", NULL },
+            { "movetype",   RBAC_PERM_COMMAND_NPC_SET_MOVETYPE,  false, &HandleNpcSetMoveTypeCommand,      "", NULL },
+            { "phase",      RBAC_PERM_COMMAND_NPC_SET_PHASE,     false, &HandleNpcSetPhaseCommand,         "", NULL },
+            { "spawndist",  RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "", NULL },
+            { "spawntime",  RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "", NULL },
+            { "data",       RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "", NULL },
+            //{ "name",       RBAC_PERM_COMMAND_NPC_SET_NAME,    false, &HandleNpcSetNameCommand,          "", NULL },
+            //{ "subname",    RBAC_PERM_COMMAND_NPC_SET_SUBNAME, false, &HandleNpcSetSubNameCommand,       "", NULL },
+            { NULL,         0,                                   false, NULL,                              "", NULL }
         };
         static ChatCommand npcCommandTable[] =
         {
-            { "info",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleNpcInfoCommand,              "", NULL },
-            { "near",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcNearCommand,              "", NULL },
-            { "move",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcMoveCommand,              "", NULL },
-            { "playemote",      RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleNpcPlayEmoteCommand,         "", NULL },
-            { "say",            RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleNpcSayCommand,               "", NULL },
-            { "textemote",      RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleNpcTextEmoteCommand,         "", NULL },
-            { "whisper",        RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleNpcWhisperCommand,           "", NULL },
-            { "yell",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleNpcYellCommand,              "", NULL },
-            { "tame",           RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleNpcTameCommand,              "", NULL },
-            { "add",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                 "", npcAddCommandTable },
-            { "delete",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,              "", npcDeleteCommandTable },
-            { "follow",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,              "", npcFollowCommandTable },
-            { "set",            RBAC_PERM_GAMEMASTER_COMMANDS,     false, NULL,                 "", npcSetCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "info",      RBAC_PERM_COMMAND_NPC_INFO,      false, &HandleNpcInfoCommand,              "", NULL },
+            { "near",      RBAC_PERM_COMMAND_NPC_NEAR,      false, &HandleNpcNearCommand,              "", NULL },
+            { "move",      RBAC_PERM_COMMAND_NPC_MOVE,      false, &HandleNpcMoveCommand,              "", NULL },
+            { "playemote", RBAC_PERM_COMMAND_NPC_PLAYEMOTE, false, &HandleNpcPlayEmoteCommand,         "", NULL },
+            { "say",       RBAC_PERM_COMMAND_NPC_SAY,       false, &HandleNpcSayCommand,               "", NULL },
+            { "textemote", RBAC_PERM_COMMAND_NPC_TEXTEMOTE, false, &HandleNpcTextEmoteCommand,         "", NULL },
+            { "whisper",   RBAC_PERM_COMMAND_NPC_WHISPER,   false, &HandleNpcWhisperCommand,           "", NULL },
+            { "yell",      RBAC_PERM_COMMAND_NPC_YELL,      false, &HandleNpcYellCommand,              "", NULL },
+            { "tame",      RBAC_PERM_COMMAND_NPC_TAME,      false, &HandleNpcTameCommand,              "", NULL },
+            { "add",       RBAC_PERM_COMMAND_NPC_ADD,       false, NULL,                 "", npcAddCommandTable },
+            { "delete",    RBAC_PERM_COMMAND_NPC_DELETE,    false, NULL,              "", npcDeleteCommandTable },
+            { "follow",    RBAC_PERM_COMMAND_NPC_FOLLOW,    false, NULL,              "", npcFollowCommandTable },
+            { "set",       RBAC_PERM_COMMAND_NPC_SET,       false, NULL,                 "", npcSetCommandTable },
+            { NULL,        0,                               false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "npc",            RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,                    "", npcCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "npc", RBAC_PERM_COMMAND_NPC, false, NULL, "", npcCommandTable },
+            { NULL,  0,                     false, NULL, "", NULL }
         };
         return commandTable;
     }
