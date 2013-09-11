@@ -127,7 +127,11 @@ static const Position outroPos[8] =
     {835.5887f, 139.4345f, 530.9526f, 0.0000000f},  // Tyrannus fly down Position (not sniffed)
     {828.9342f, 118.6247f, 514.5190f, 0.0000000f},  // Krick's Choke Position
     {828.9342f, 118.6247f, 509.4958f, 0.0000000f},  // Kirck's Death Position
+<<<<<<< HEAD
     {914.4820f, 143.1602f, 633.3624f, 0.0000000f}  // Tyrannus fly up (not sniffed)
+=======
+    {914.4820f, 143.1602f, 633.3624f, 0.0000000f}   // Tyrannus fly up (not sniffed)
+>>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
 };
 
 class boss_ick : public CreatureScript
@@ -140,14 +144,6 @@ class boss_ick : public CreatureScript
             boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK), _vehicle(creature->GetVehicleKit())
             {
                 ASSERT(_vehicle);
-            }
-
-            void InitializeAI() OVERRIDE
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset() OVERRIDE
@@ -163,6 +159,8 @@ class boss_ick : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
+
                 if (Creature* krick = GetKrick())
                     krick->AI()->Talk(SAY_KRICK_AGGRO);
 
@@ -170,8 +168,11 @@ class boss_ick : public CreatureScript
                 events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 10000);
                 events.ScheduleEvent(EVENT_SPECIAL, urand(30000, 35000));
+<<<<<<< HEAD
 
                 _EnterCombat();
+=======
+>>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
             }
 
             void EnterEvadeMode() OVERRIDE
@@ -281,7 +282,7 @@ class boss_ick : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_ickAI(creature);
+            return GetPitOfSaronAI<boss_ickAI>(creature);
         }
 };
 
@@ -294,14 +295,6 @@ class boss_krick : public CreatureScript
         {
             boss_krickAI(Creature* creature) : ScriptedAI(creature), _instanceScript(creature->GetInstanceScript()), _summons(creature)
             {
-            }
-
-            void InitializeAI() OVERRIDE
-            {
-                if (!_instanceScript || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset() OVERRIDE
@@ -509,7 +502,7 @@ class boss_krick : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_krickAI(creature);
+            return GetPitOfSaronAI<boss_krickAI>(creature);
         }
 };
 

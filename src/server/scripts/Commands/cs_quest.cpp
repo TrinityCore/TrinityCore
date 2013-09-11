@@ -37,16 +37,16 @@ public:
     {
         static ChatCommand questCommandTable[] =
         {
-            { "add",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleQuestAdd,                    "", NULL },
-            { "complete",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleQuestComplete,               "", NULL },
-            { "remove",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleQuestRemove,                 "", NULL },
-            { "reward",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleQuestReward,                 "", NULL },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "add",      RBAC_PERM_COMMAND_QUEST_ADD,      false, &HandleQuestAdd,      "", NULL },
+            { "complete", RBAC_PERM_COMMAND_QUEST_COMPLETE, false, &HandleQuestComplete, "", NULL },
+            { "remove",   RBAC_PERM_COMMAND_QUEST_REMOVE,   false, &HandleQuestRemove,   "", NULL },
+            { "reward",   RBAC_PERM_COMMAND_QUEST_REWARD,   false, &HandleQuestReward,   "", NULL },
+            { NULL,       0,                                false, NULL,                 "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "quest",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, NULL,                  "", questCommandTable },
-            { NULL,             RBAC_PERM_PLAYER_COMMANDS,         false, NULL,                               "", NULL }
+            { "quest", RBAC_PERM_COMMAND_QUEST,  false, NULL, "", questCommandTable },
+            { NULL,    0,                        false, NULL,              "", NULL }
         };
         return commandTable;
     }

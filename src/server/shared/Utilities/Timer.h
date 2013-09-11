@@ -66,7 +66,7 @@ struct IntervalTimer
         void Reset()
         {
             if (_current >= _interval)
-                _current -= _interval;
+                _current %= _interval;
         }
 
         void SetCurrent(time_t current)

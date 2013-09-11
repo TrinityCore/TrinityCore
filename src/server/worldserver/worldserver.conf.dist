@@ -2138,6 +2138,29 @@ Battleground.GiveXPForKills = 0
 Battleground.Random.ResetHour = 6
 
 #
+#     Battleground.RewardWinnerHonorFirst
+#     Battleground.RewardWinnerArenaFirst
+#     Battleground.RewardWinnerHonorLast
+#     Battleground.RewardWinnerArenaLast
+#     Battleground.RewardLoserHonorFirst
+#     Battleground.RewardLoserHonorLast
+#        Description: Random Battlegrounds / call to the arms rewards
+#        Default:     30 - Battleground.RewardWinnerHonorFirst
+#                     25 - Battleground.RewardWinnerArenaFirst
+#                     15 - Battleground.RewardWinnerHonorLast
+#                     0  - Battleground.RewardWinnerArenaLast
+#                     5  - Battleground.RewardLoserHonorFirst
+#                     5  - Battleground.RewardLoserHonorLast
+#
+
+Battleground.RewardWinnerHonorFirst = 30
+Battleground.RewardWinnerArenaFirst = 25
+Battleground.RewardWinnerHonorLast  = 15
+Battleground.RewardWinnerArenaLast  = 0
+Battleground.RewardLoserHonorFirst  = 5
+Battleground.RewardLoserHonorLast   = 5
+
+#
 ###################################################################################################
 
 ###################################################################################################

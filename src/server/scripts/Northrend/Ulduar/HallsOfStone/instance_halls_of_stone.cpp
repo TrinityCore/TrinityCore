@@ -23,8 +23,8 @@
 
 DoorData const doorData[] =
 {
-    { GO_SJONNIR_DOOR,  DATA_BRANN_EVENT,       DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-    { 0,                0,                      DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
+    { GO_SJONNIR_DOOR, DATA_BRANN_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { 0,               0,                DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
 };
 
 class instance_halls_of_stone : public InstanceMapScript

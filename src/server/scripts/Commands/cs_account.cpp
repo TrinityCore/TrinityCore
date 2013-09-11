@@ -362,9 +362,9 @@ public:
             return false;
         }
 
-        char* oldEmail = strtok(NULL, " ");
+        char* oldEmail = strtok((char*)args, " ");
         char* password = strtok(NULL, " ");
-        char* email = strtok((char*)args, " ");
+        char* email = strtok(NULL, " ");
         char* emailConfirmation = strtok(NULL, " ");
 
         if (!oldEmail || !password || !email || !emailConfirmation)
@@ -459,7 +459,7 @@ public:
             return false;
         }
 
-        if ((pwConfig == PW_EMAIL || pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE)) && !emailConfirmation)
+        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) && !emailConfirmation)
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
             handler->SetSentErrorMessage(true);
@@ -467,6 +467,7 @@ public:
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
                 handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? "Yes" : "No");
+            return false;
         }
 
         if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
@@ -479,7 +480,7 @@ public:
             return false;
         }
 
-        if ((pwConfig == PW_EMAIL || pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE)) // Either PW_EMAIL or PW_RBAC with the Permission
+        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // Either PW_EMAIL or PW_RBAC with the Permission
             && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
@@ -488,6 +489,7 @@ public:
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
                 emailConfirmation);
+            return false;
         }
 
         if (strcmp(newPassword, passwordConfirmation) != 0)
