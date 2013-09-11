@@ -1192,8 +1192,11 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) con
         uint32 mask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER && Effects[i].TargetA.GetTarget() != TARGET_DEST_CASTER)
+            if (Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER && Effects[i].TargetA.GetTarget() != TARGET_DEST_CASTER
+                && Effects[i].TargetB.GetTarget() != TARGET_UNIT_CASTER && Effects[i].TargetB.GetTarget() != TARGET_DEST_CASTER)
+            {
                 mask |= Effects[i].GetProvidedTargetMask();
+            }
         }
 
         if (mask & TARGET_FLAG_UNIT_MASK)
