@@ -5215,9 +5215,10 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     uint32 oldMSTime = getMSTime();
 
     time_t curTime = time(NULL);
-    tm* lt = localtime(&curTime);
+    tm lt;
+    ACE_OS::localtime_r(&curTime, &lt);
     uint64 basetime(curTime);
-    TC_LOG_INFO(LOG_FILTER_GENERAL, "Returning mails current time: hour: %d, minute: %d, second: %d ", lt->tm_hour, lt->tm_min, lt->tm_sec);
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Returning mails current time: hour: %d, minute: %d, second: %d ", lt.tm_hour, lt.tm_min, lt.tm_sec);
 
     // Delete all old mails without item and without body immediately, if starting server
     if (!serverUp)
