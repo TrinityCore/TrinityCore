@@ -23,6 +23,7 @@
 #include "Errors.h"
 #include "ByteConverter.h"
 
+#include <ace/OS_NS_time.h>
 #include <exception>
 #include <list>
 #include <map>
