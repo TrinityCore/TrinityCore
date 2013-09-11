@@ -15,11 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_PIT_OF_SARON_H
-#define DEF_PIT_OF_SARON_H
-
-#include "Map.h"
-#include "Creature.h"
+#ifndef PIT_OF_SARON_H_
+#define PIT_OF_SARON_H_
 
 #define PoSScriptName "instance_pit_of_saron"
 
@@ -104,4 +101,4 @@ AI* GetPitOfSaronAI(Creature* creature)
     return GetInstanceAI<AI>(creature, PoSScriptName);
 }
 
-#endif
+#endif // PIT_OF_SARON_H_

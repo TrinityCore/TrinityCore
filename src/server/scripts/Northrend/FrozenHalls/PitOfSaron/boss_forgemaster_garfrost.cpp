@@ -69,8 +69,7 @@ enum Events
     EVENT_CHILLING_WAVE         = 2,
     EVENT_DEEP_FREEZE           = 3,
     EVENT_FORGE_JUMP            = 4,
-    EVENT_FORGING               = 5,
-    EVENT_RESUME_ATTACK         = 6
+    EVENT_RESUME_ATTACK         = 5
 };
 
 Position const northForgePos = { 722.5643f, -234.1615f, 527.182f, 2.16421f };
@@ -210,9 +209,9 @@ class boss_garfrost : public CreatureScript
                         case EVENT_FORGE_JUMP:
                             me->AttackStop();
                             if (events.IsInPhase(PHASE_TWO))
-                                me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f);
+                                me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f, POINT_FORGE);
                             else if (events.IsInPhase(PHASE_THREE))
-                                me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f);
+                                me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f, POINT_FORGE);
                             break;
                         case EVENT_RESUME_ATTACK:
                             if (events.IsInPhase(PHASE_TWO))
