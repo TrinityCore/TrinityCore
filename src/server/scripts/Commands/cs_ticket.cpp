@@ -40,34 +40,34 @@ public:
     {
         static ChatCommand ticketResponseCommandTable[] =
         {
-            { "append",         RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketResponseAppendCommand,    "", NULL },
-            { "appendln",       RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketResponseAppendLnCommand,  "", NULL },
-            { NULL,             0,                  false, NULL,                                    "", NULL }
+            { "append",   RBAC_PERM_COMMAND_TICKET_RESPONSE_APPEND,   true,  &HandleGMTicketResponseAppendCommand,   "", NULL },
+            { "appendln", RBAC_PERM_COMMAND_TICKET_RESPONSE_APPENDLN, true,  &HandleGMTicketResponseAppendLnCommand, "", NULL },
+            { NULL,       0,                                         false, NULL,                                    "", NULL }
         };
         static ChatCommand ticketCommandTable[] =
         {
-            { "assign",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGMTicketAssignToCommand,          "", NULL },
-            { "close",          RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketCloseByIdCommand,         "", NULL },
-            { "closedlist",     RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketListClosedCommand,        "", NULL },
-            { "comment",        RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketCommentCommand,           "", NULL },
-            { "complete",       RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketCompleteCommand,          "", NULL },
-            { "delete",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleGMTicketDeleteByIdCommand,        "", NULL },
-            { "escalate",       RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketEscalateCommand,          "", NULL },
-            { "escalatedlist",  RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGMTicketListEscalatedCommand,     "", NULL },
-            { "list",           RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketListCommand,              "", NULL },
-            { "onlinelist",     RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketListOnlineCommand,        "", NULL },
-            { "reset",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleGMTicketResetCommand,             "", NULL },
-            { "response",       RBAC_PERM_MODERATOR_COMMANDS,      true,  NULL,                                    "", ticketResponseCommandTable },
-            { "togglesystem",   RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleToggleGMTicketSystem,             "", NULL },
-            { "unassign",       RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleGMTicketUnAssignCommand,          "", NULL },
-            { "viewid",         RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketGetByIdCommand,           "", NULL },
-            { "viewname",       RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleGMTicketGetByNameCommand,         "", NULL },
-            { NULL,             0,                  false, NULL,                                    "", NULL }
+            { "assign",        RBAC_PERM_COMMAND_TICKET_ASSIGN,        true, &HandleGMTicketAssignToCommand,          "", NULL },
+            { "close",         RBAC_PERM_COMMAND_TICKET_CLOSE,         true, &HandleGMTicketCloseByIdCommand,         "", NULL },
+            { "closedlist",    RBAC_PERM_COMMAND_TICKET_CLOSEDLIST,    true, &HandleGMTicketListClosedCommand,        "", NULL },
+            { "comment",       RBAC_PERM_COMMAND_TICKET_COMMENT,       true, &HandleGMTicketCommentCommand,           "", NULL },
+            { "complete",      RBAC_PERM_COMMAND_TICKET_COMPLETE,      true, &HandleGMTicketCompleteCommand,          "", NULL },
+            { "delete",        RBAC_PERM_COMMAND_TICKET_DELETE,        true, &HandleGMTicketDeleteByIdCommand,        "", NULL },
+            { "escalate",      RBAC_PERM_COMMAND_TICKET_ESCALATE,      true, &HandleGMTicketEscalateCommand,          "", NULL },
+            { "escalatedlist", RBAC_PERM_COMMAND_TICKET_ESCALATEDLIST, true, &HandleGMTicketListEscalatedCommand,     "", NULL },
+            { "list",          RBAC_PERM_COMMAND_TICKET_LIST,          true, &HandleGMTicketListCommand,              "", NULL },
+            { "onlinelist",    RBAC_PERM_COMMAND_TICKET_ONLINELIST,    true, &HandleGMTicketListOnlineCommand,        "", NULL },
+            { "reset",         RBAC_PERM_COMMAND_TICKET_RESET,         true, &HandleGMTicketResetCommand,             "", NULL },
+            { "response",      RBAC_PERM_COMMAND_TICKET_RESPONSE,      true, NULL,              "", ticketResponseCommandTable },
+            { "togglesystem",  RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,  true, &HandleToggleGMTicketSystem,             "", NULL },
+            { "unassign",      RBAC_PERM_COMMAND_TICKET_UNASSIGN,      true, &HandleGMTicketUnAssignCommand,          "", NULL },
+            { "viewid",        RBAC_PERM_COMMAND_TICKET_VIEWID,        true, &HandleGMTicketGetByIdCommand,           "", NULL },
+            { "viewname",      RBAC_PERM_COMMAND_TICKET_VIEWNAME,      true, &HandleGMTicketGetByNameCommand,         "", NULL },
+            { NULL,            0,                                     false, NULL,                                    "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "ticket",         RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,                                    "", ticketCommandTable },
-            { NULL,             0,                  false, NULL,                                    "", NULL }
+            { "ticket", RBAC_PERM_COMMAND_TICKET, false, NULL, "", ticketCommandTable },
+            { NULL,     0,                        false, NULL, "", NULL }
         };
         return commandTable;
     }
