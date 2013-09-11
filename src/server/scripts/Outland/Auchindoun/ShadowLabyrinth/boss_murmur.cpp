@@ -248,7 +248,6 @@ class ThunderingStormCheck
 
     private:
         WorldObject const* _source;
-        float _dist;
 };
 
 // 39365 - Thundering Storm
