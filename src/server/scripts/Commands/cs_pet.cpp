@@ -56,7 +56,7 @@ public:
             return false;
         }
 
-        CreatureTemplate const* creatrueTemplate = sObjectMgr->GetCreatureTemplate(creatureTarget->GetEntry());
+        CreatureTemplate const* creatrueTemplate = creatureTarget->GetCreatureTemplate();
         // Creatures with family 0 crashes the server
         if (!creatrueTemplate->family)
         {
