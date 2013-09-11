@@ -23,26 +23,26 @@
 
 enum Yells
 {
-    SAY_AGGRO               = 0,
-    SAY_PHASE2              = 1,
-    SAY_PHASE3              = 2,
-    SAY_DEATH               = 3,
-    SAY_SLAY                = 4,
-    SAY_THROW_SARONITE      = 5,
-    SAY_CAST_DEEP_FREEZE    = 6,
+    SAY_AGGRO                   = 0,
+    SAY_PHASE2                  = 1,
+    SAY_PHASE3                  = 2,
+    SAY_DEATH                   = 3,
+    SAY_SLAY                    = 4,
+    SAY_THROW_SARONITE          = 5,
+    SAY_CAST_DEEP_FREEZE        = 6,
 
-    SAY_TYRANNUS_DEATH      = 0
+    SAY_TYRANNUS_DEATH          = 0
 };
 
 enum Spells
 {
-    SPELL_PERMAFROST        = 70326,
-    SPELL_THROW_SARONITE    = 68788,
-    SPELL_THUNDERING_STOMP  = 68771,
-    SPELL_CHILLING_WAVE     = 68778,
-    SPELL_DEEP_FREEZE       = 70381,
-    SPELL_FORGE_MACE        = 68785,
-    SPELL_FORGE_BLADE       = 68774,
+    SPELL_PERMAFROST            = 70326,
+    SPELL_THROW_SARONITE        = 68788,
+    SPELL_THUNDERING_STOMP      = 68771,
+    SPELL_CHILLING_WAVE         = 68778,
+    SPELL_DEEP_FREEZE           = 70381,
+    SPELL_FORGE_MACE            = 68785,
+    SPELL_FORGE_BLADE           = 68774
 };
 
 #define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(68786, 70336)
@@ -50,9 +50,9 @@ enum Spells
 
 enum Phases
 {
-    PHASE_ONE           = 1,
-    PHASE_TWO           = 2,
-    PHASE_THREE         = 3
+    PHASE_ONE                   = 1,
+    PHASE_TWO                   = 2,
+    PHASE_THREE                 = 3
 };
 
 enum MiscData
@@ -60,58 +60,46 @@ enum MiscData
     EQUIP_ID_SWORD              = 49345,
     EQUIP_ID_MACE               = 49344,
     ACHIEV_DOESNT_GO_TO_ELEVEN  = 0,
-    POINT_FORGE                 = 0,
+    POINT_FORGE                 = 0
 };
 
-Position const northForgePos = {722.5643f, -234.1615f, 527.182f, 2.16421f};
-Position const southForgePos = {639.257f, -210.1198f, 529.015f, 0.523599f};
+enum Events
+{
+    EVENT_THROW_SARONITE        = 1,
+    EVENT_CHILLING_WAVE         = 2,
+    EVENT_DEEP_FREEZE           = 3,
+    EVENT_FORGE_JUMP            = 4,
+    EVENT_FORGING               = 5,
+    EVENT_RESUME_ATTACK         = 6
+};
+
+Position const northForgePos = { 722.5643f, -234.1615f, 527.182f, 2.16421f };
+Position const southForgePos = { 639.257f, -210.1198f, 529.015f, 0.523599f };
 
 class boss_garfrost : public CreatureScript
 {
-enum Events
-{
-    EVENT_THROW_SARONITE    = 1,
-    EVENT_CHILLING_WAVE     = 2,
-    EVENT_DEEP_FREEZE       = 3,
-    EVENT_JUMP              = 4,
-    EVENT_FORGING           = 5,
-    EVENT_RESUME_ATTACK     = 6,
-};
     public:
         boss_garfrost() : CreatureScript("boss_garfrost") { }
 
         struct boss_garfrostAI : public BossAI
         {
-            boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST)
-            {
-            }
-
-            void InitializeAI() OVERRIDE
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
+            boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST) { }
 
             void Reset() OVERRIDE
             {
-                events.Reset();
+                _Reset();
                 events.SetPhase(PHASE_ONE);
                 SetEquipmentSlots(true);
                 _permafrostStack = 0;
-
-                instance->SetBossState(DATA_GARFROST, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_PERMAFROST);
                 me->CallForHelp(70.0f);
                 events.ScheduleEvent(EVENT_THROW_SARONITE, 7000);
-
-                instance->SetBossState(DATA_GARFROST, IN_PROGRESS);
             }
 
             void KilledUnit(Unit* victim) OVERRIDE
@@ -122,12 +110,11 @@ enum Events
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
+                _JustDied();
                 Talk(SAY_DEATH);
 
                 if (Creature* tyrannus = me->GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
                     tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
-
-                instance->SetBossState(DATA_GARFROST, DONE);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*uiDamage*/) OVERRIDE
@@ -138,7 +125,7 @@ enum Events
                     Talk(SAY_PHASE2);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_JUMP, 1500);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
                     return;
                 }
 
@@ -148,7 +135,7 @@ enum Events
                     Talk(SAY_PHASE3);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_JUMP, 1500);
+                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
                     return;
                 }
             }
@@ -220,15 +207,15 @@ enum Events
                             }
                             events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
                             break;
-                        case EVENT_JUMP:
+                        case EVENT_FORGE_JUMP:
                             me->AttackStop();
                             if (events.IsInPhase(PHASE_TWO))
-                                me->GetMotionMaster()->MoveJump(northForgePos.GetPositionX(), northForgePos.GetPositionY(), northForgePos.GetPositionZ(), 25.0f, 15.0f);
+                                me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f);
                             else if (events.IsInPhase(PHASE_THREE))
-                                me->GetMotionMaster()->MoveJump(southForgePos.GetPositionX(), southForgePos.GetPositionY(), southForgePos.GetPositionZ(), 25.0f, 15.0f);
+                                me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f);
                             break;
                         case EVENT_RESUME_ATTACK:
-                            if (events.IsInPhase(PHASE_THREE))
+                            if (events.IsInPhase(PHASE_TWO))
                                 events.ScheduleEvent(EVENT_CHILLING_WAVE, 5000, 0, PHASE_TWO);
                             else if (events.IsInPhase(PHASE_THREE))
                                 events.ScheduleEvent(EVENT_DEEP_FREEZE, 10000, 0, PHASE_THREE);
@@ -248,7 +235,7 @@ enum Events
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_garfrostAI(creature);
+            return GetPitOfSaronAI<boss_garfrostAI>(creature);
         }
 };
 
