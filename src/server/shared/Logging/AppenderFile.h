@@ -19,6 +19,7 @@
 #define APPENDERFILE_H
 
 #include "Appender.h"
+#include "ace/Atomic_Op.h"
 
 class AppenderFile: public Appender
 {
@@ -37,7 +38,7 @@ class AppenderFile: public Appender
         bool dynamicName;
         bool backup;
         uint64 maxFileSize;
-        uint64 fileSize;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> fileSize;
 };
 
 #endif
