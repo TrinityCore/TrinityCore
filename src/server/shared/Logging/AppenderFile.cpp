@@ -40,7 +40,7 @@ AppenderFile::~AppenderFile()
 
 void AppenderFile::_write(LogMessage const& message)
 {
-    bool exceedMaxSize = maxFileSize > 0 && (fileSize + message.Size()) > maxFileSize;
+    bool exceedMaxSize = maxFileSize > 0 && (fileSize.value() + message.Size()) > maxFileSize;
 
     if (dynamicName)
     {
@@ -56,7 +56,7 @@ void AppenderFile::_write(LogMessage const& message)
 
     fprintf(logfile, "%s%s", message.prefix.c_str(), message.text.c_str());
     fflush(logfile);
-    fileSize += message.Size();
+    fileSize += uint64(message.Size());
 
     if (dynamicName)
         CloseFile();
