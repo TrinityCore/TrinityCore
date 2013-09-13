@@ -453,9 +453,9 @@ public:
         char* oldPassword = strtok((char*)args, " ");    // This extracts [$oldpassword]
         char* newPassword = strtok(NULL, " ");           // This extracts [$newpassword]
         char* passwordConfirmation = strtok(NULL, " ");  // This extracts [$newpasswordconfirmation]
-        char* emailConfirmation = NULL;                  // This defines the emailConfirmation variable, which is optional depending on sec type.
+        const char* emailConfirmation;                   // This defines the emailConfirmation variable, which is optional depending on sec type.
         if (!(emailConfirmation = strtok(NULL, " ")))    // This extracts [$emailconfirmation]. If it doesn't exist, however...
-            emailConfirmation = '\0';                    // ... it's simply "" for emailConfirmation.
+            emailConfirmation = "";                      // ... it's simply "" for emailConfirmation.
 
         //Is any of those variables missing for any reason ? We return false.
         if (!oldPassword || !newPassword || !passwordConfirmation)
