@@ -168,6 +168,7 @@ enum WorldBoolConfigs
     CONFIG_UI_QUESTLEVELS_IN_DIALOGS,     // Should we add quest levels to the title in the NPC dialogs?
     CONFIG_EVENT_ANNOUNCE,
     CONFIG_STATS_LIMITS_ENABLE,
+    CONFIG_INSTANCES_RESET_ANNOUNCE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
