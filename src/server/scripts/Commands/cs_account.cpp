@@ -438,6 +438,7 @@ public:
 
     static bool HandleAccountPasswordCommand(ChatHandler* handler, char const* args)
     {
+        // If no args are given at all, we can return false right away.
         if (!*args)
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
@@ -445,13 +446,18 @@ public:
             return false;
         }
 
+        // First, we check config. What security type (sec type) is it ? Depending on it, the command branches out
         uint32 pwConfig = sWorld->getIntConfig(CONFIG_ACC_PASSCHANGESEC); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
-        char* oldPassword = strtok((char*)args, " ");
-        char* newPassword = strtok(NULL, " ");
-        char* passwordConfirmation = strtok(NULL, " ");
-        char* emailConfirmation = strtok(NULL, " ");
+        // Command is supposed to be: .account password [$oldpassword] [$newpassword] [$newpasswordconfirmation] [$emailconfirmation]
+        char* oldPassword = strtok((char*)args, " ");    // This extracts [$oldpassword]
+        char* newPassword = strtok(NULL, " ");           // This extracts [$newpassword]
+        char* passwordConfirmation = strtok(NULL, " ");  // This extracts [$newpasswordconfirmation]
+        const char* emailConfirmation;                   // This defines the emailConfirmation variable, which is optional depending on sec type.
+        if (!(emailConfirmation = strtok(NULL, " ")))    // This extracts [$emailconfirmation]. If it doesn't exist, however...
+            emailConfirmation = "";                      // ... it's simply "" for emailConfirmation.
 
+        //Is any of those variables missing for any reason ? We return false.
         if (!oldPassword || !newPassword || !passwordConfirmation)
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
@@ -459,17 +465,7 @@ public:
             return false;
         }
 
-        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) && !emailConfirmation)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but entered no email at all. Has Perm: [%s]",
-                handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
-                handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? "Yes" : "No");
-            return false;
-        }
-
+        // We compare the old, saved password to the entered old password - no chance for the unauthorized.
         if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
@@ -480,8 +476,9 @@ public:
             return false;
         }
 
-        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // Either PW_EMAIL or PW_RBAC with the Permission
-            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation)))
+        // This compares the old, current email to the entered email - however, only...
+        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
+            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation))) // ... and returns false if the comparison fails.
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             handler->SetSentErrorMessage(true);
@@ -492,6 +489,7 @@ public:
             return false;
         }
 
+        // Making sure that newly entered password is correctly entered.
         if (strcmp(newPassword, passwordConfirmation) != 0)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
@@ -499,6 +497,7 @@ public:
             return false;
         }
 
+        // Changes password and prints result.
         AccountOpResult result = AccountMgr::ChangePassword(handler->GetSession()->GetAccountId(), std::string(newPassword));
         switch (result)
         {
