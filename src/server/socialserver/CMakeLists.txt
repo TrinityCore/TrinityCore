@@ -15,7 +15,7 @@ set(socialserver_SRCS
 )
 
 if (UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Werror -pedantic -Wall")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Werror -pedantic -Wall -Wextra")
 endif()
 
  if(WIN32)
