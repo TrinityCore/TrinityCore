@@ -37,7 +37,7 @@ public:
     int svc();
 
 protected:
-    int HandleOpen(zmqpp::context const* ctx) OVERRIDE;
+    int HandleOpen() OVERRIDE;
     int HandleClose(u_long flags = 0) OVERRIDE;
 
 private:

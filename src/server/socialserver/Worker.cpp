@@ -16,6 +16,7 @@
  */
 
 #include "Worker.h"
+#include "ZmqContext.h"
 
 Worker::Worker(){ }
 
@@ -26,10 +27,10 @@ Worker::~Worker()
     delete inproc;
 }
 
-int Worker::HandleOpen(zmqpp::context const* ctx)
+int Worker::HandleOpen()
 {
-    task_queue = new zmqpp::socket(*ctx, zmqpp::socket_type::pull);
-    results = new zmqpp::socket(*ctx, zmqpp::socket_type::push);
+    task_queue =  sContext->newSocket(zmqpp::socket_type::pull);
+    results = sContext->newSocket(zmqpp::socket_type::push);
 
     task_queue->connect("inproc://work_queue");
     results->connect("inproc://work_result");
@@ -39,7 +40,7 @@ int Worker::HandleOpen(zmqpp::context const* ctx)
     return ACE_Task_Base::activate();
 }
 
-int Worker::HandleClose(u_long flags)
+int Worker::HandleClose(u_long)
 {
     task_queue->close();
     results->close();

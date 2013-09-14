@@ -38,7 +38,7 @@ public:
     virtual int svc() = 0;
 
 protected:
-    virtual int HandleOpen(zmqpp::context const* ctx) = 0;
+    virtual int HandleOpen() = 0;
     virtual int HandleClose(u_long flags = 0) = 0;
 
     bool process_exit();

@@ -15,39 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WORKER_H
-#define __WORKER_H
+#ifndef __ZMQCONTEX_H
+#define __ZMQCONTEX_H
 
-#include "ZMQTask.h"
 #include <zmqpp/zmqpp.hpp>
+#include <ace/Singleton.h>
+#include <ace/Recursive_Thread_Mutex.h>
 
-class Worker;
-
-enum Operations
-{
-    TEST,
-    OPCODES_MAX
-};
-
-typedef void (Worker::*opcode_handler)(const zmqpp::message&);
-
-extern const opcode_handler handlers[OPCODES_MAX];
-
-class Worker : public ZMQTask
-{
+/*
+ * We need to serialize access to zmq context otherwise stuff blows up.
+ */
+class ZmqContext {
+    friend class ACE_Singleton<ZmqContext, ACE_Null_Mutex>;
 public:
-    Worker();
-    ~Worker();
-    int svc();
-    void test_handler(const zmqpp::message&);
-protected:
-    int HandleOpen() OVERRIDE;
-    int HandleClose(u_long flags = 0) OVERRIDE;
+    zmqpp::socket* newSocket(zmqpp::socket_type);
+
 private:
-    void perform_work();
-    void dispatch(const zmqpp::message&);
-    zmqpp::socket* task_queue;
-    zmqpp::socket* results;
+    ZmqContext(ZmqContext&){}
+    ZmqContext() {}
+    zmqpp::context ctx;
+    ACE_Recursive_Thread_Mutex mtx;
 };
+
+#define sContext ACE_Singleton<ZmqContext, ACE_Null_Mutex>::instance()
 
 #endif

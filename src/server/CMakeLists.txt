@@ -22,6 +22,7 @@ if( SERVERS )
     ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging/WheatyExceptionReport.h
   )
   add_subdirectory(shared)
+  add_subdirectory(ha)
   add_subdirectory(game)
   add_subdirectory(collision)
   add_subdirectory(authserver)

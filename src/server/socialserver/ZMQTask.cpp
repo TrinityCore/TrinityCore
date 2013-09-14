@@ -17,6 +17,7 @@
 
 #include "ZMQTask.h"
 #include <zmqpp/message.hpp>
+#include "ZmqContext.h"
 
 ZMQTask::ZMQTask()
 {
@@ -29,17 +30,16 @@ ZMQTask::~ZMQTask()
     poller = NULL;
 }
 
-int ZMQTask::open(void* data)
+int ZMQTask::open(void*)
 {
-    zmqpp::context const* ctx = reinterpret_cast<zmqpp::context const*>(data);
 
-    inproc = new zmqpp::socket(*ctx, zmqpp::socket_type::sub);
+    inproc = sContext->newSocket(zmqpp::socket_type::sub);
     inproc->connect("inproc://workers");
     inproc->subscribe("internalmq.");
 
     poller->add(*inproc);
 
-    return HandleOpen(ctx);
+    return HandleOpen();
 }
 
 int ZMQTask::close(u_long flags /*= 0 */)

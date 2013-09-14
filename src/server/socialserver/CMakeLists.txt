@@ -41,6 +41,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
+  ${CMAKE_SOURCE_DIR}/src/server/ha
   ${ZMQ_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
@@ -59,6 +60,7 @@ endif()
 add_dependencies(socialserver revision.h)
 
 target_link_libraries(socialserver
+  ha
   shared
   zmqpp
   ${ZMQ_LIBRARY}

@@ -16,6 +16,7 @@
  */
 
 #include "CommandPuller.h"
+#include "ZmqContext.h"
 
 CommandPuller::CommandPuller() :
     commands(NULL), broadcast(NULL), work_queue(NULL), work_res(NULL)
@@ -54,12 +55,12 @@ int CommandPuller::svc()
     return 0;
 }
 
-int CommandPuller::HandleOpen(zmqpp::context const* ctx)
+int CommandPuller::HandleOpen()
 {
-    commands = new zmqpp::socket(*ctx, zmqpp::socket_type::pull);
-    broadcast = new zmqpp::socket(*ctx, zmqpp::socket_type::publish);
-    work_queue = new zmqpp::socket(*ctx, zmqpp::socket_type::push);
-    work_res = new zmqpp::socket(*ctx, zmqpp::socket_type::pull);
+    commands = sContext->newSocket(zmqpp::socket_type::pull);
+    broadcast = sContext->newSocket(zmqpp::socket_type::publish);
+    work_queue = sContext->newSocket(zmqpp::socket_type::push);
+    work_res = sContext->newSocket(zmqpp::socket_type::pull);
 
     commands->bind("tcp://*:9997");
     broadcast->bind("tcp://*:9998");

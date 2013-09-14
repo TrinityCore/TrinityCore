@@ -17,6 +17,7 @@
 
 #include "HeartbeatBroker.h"
 #include <zmqpp/socket_types.hpp>
+#include "ZmqContext.h"
 
 HeartbeatBroker::HeartbeatBroker() : sock(NULL)
 {
@@ -41,9 +42,9 @@ int HeartbeatBroker::svc()
     return 0;
 }
 
-int HeartbeatBroker::HandleOpen(zmqpp::context const* ctx)
+int HeartbeatBroker::HandleOpen()
 {
-    sock = new zmqpp::socket(*ctx, zmqpp::socket_type::publish);
+    sock = sContext->newSocket(zmqpp::socket_type::publish);
     sock->bind("tcp://*:9999");
 
     poller->add(*sock);
