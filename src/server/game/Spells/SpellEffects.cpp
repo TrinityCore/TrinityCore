@@ -63,6 +63,7 @@
 #include "InstanceScript.h"
 #include "PathGenerator.h"
 #include "ReputationMgr.h"
+#include "HookMgr.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {

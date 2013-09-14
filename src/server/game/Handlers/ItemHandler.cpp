@@ -27,6 +27,7 @@
 #include "UpdateData.h"
 #include "ObjectAccessor.h"
 #include "SpellInfo.h"
+#include "HookMgr.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {

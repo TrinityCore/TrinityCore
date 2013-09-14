@@ -41,6 +41,7 @@ EndScriptData */
 #include "TicketMgr.h"
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
+#include "LuaEngine.h"
 
 class reload_commandscript : public CommandScript
 {
@@ -65,6 +66,7 @@ public:
             { "",            RBAC_PERM_COMMANDS_RELOAD_ALL,             true,  &HandleReloadAllCommand,           "", NULL },
             { NULL,          0,                  false, NULL,                              "", NULL }
         };
+
         static ChatCommand reloadCommandTable[] =
         {
             { "auctions",                      RBAC_PERM_COMMANDS_RELOAD_AUCTIONS, true,  &HandleReloadAuctionsCommand,                   "", NULL },
@@ -1242,6 +1244,15 @@ public:
         TC_LOG_INFO(LOG_FILTER_GENERAL, "Reloading vehicle_template_accessory table...");
         sObjectMgr->LoadVehicleTemplateAccessories();
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadElunaLuaEngine(ChatHandler* handler, const char* /*args*/)
+    {
+#ifdef ELUNA
+        sEluna->StartEluna(true);
+#endif
+        handler->SendSysMessage("Reloaded Eluna Lua Engine");
         return true;
     }
 
