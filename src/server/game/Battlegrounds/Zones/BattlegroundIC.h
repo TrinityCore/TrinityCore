@@ -818,7 +818,7 @@ const Position allianceGunshipPassengers[5] =
 struct ICNodePoint
 {
     uint32 gameobject_type; // with this we will get the GameObject of that point
-    uint32 gameobject_entry; // what gamoebject entry is active here.
+    uint32 gameobject_entry; // what gameobject entry is active here.
     uint8 faction; // who has this node
     ICNodePointType nodeType; // here we can specify if it is graveyards, hangar etc...
     uint32 banners[4]; // the banners that have this point
