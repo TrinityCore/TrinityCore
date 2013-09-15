@@ -1280,7 +1280,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         victim->HandleEmoteCommand(EMOTE_ONESHOT_PARRY_SHIELD);
 
 	// [Niebla30] Parry now awoid 50% damage and gives 100% chance of parry next hit
-    if (damageInfo->TargetState == VICTIMSTATE_PARRY)
+	// Removed while it's achieved it works fine
+    /*if (damageInfo->TargetState == VICTIMSTATE_PARRY)
     {
         bool HasAuraParry = false;
 
@@ -1297,7 +1298,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
 		if (!HasAuraParry)
 			victim->CastSpell(victim, 23547, false);
-    }
+    }*/
 
     // Call default DealDamage
     CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, damageInfo->attackType, damageInfo->hitOutCome);
