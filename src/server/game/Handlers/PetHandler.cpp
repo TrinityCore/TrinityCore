@@ -630,7 +630,9 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         }
 
         std::wstring wname;
-        Utf8toWStr(name, wname);
+        if (!Utf8toWStr(name, wname))
+            return;
+
         if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
         {
             SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, name, &declinedname);

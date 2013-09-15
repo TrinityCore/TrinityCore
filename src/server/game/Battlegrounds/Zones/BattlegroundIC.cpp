@@ -544,7 +544,11 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
             float cords[4] = {banner->GetPositionX(), banner->GetPositionY(), banner->GetPositionZ(), banner->GetOrientation() };
 
             DelObject(nodePoint[i].gameobject_type);
-            AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY);
+            if (!AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
+            {
+                TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Isle of Conquest: There was an error spawning a banner. Isle of Conquest BG canceled", nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry);
+                Battleground::EndBattleground(WINNER_NONE);
+            }
 
             GetBGObject(nodePoint[i].gameobject_type)->SetUInt32Value(GAMEOBJECT_FACTION, nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_Factions[1] : BG_IC_Factions[0]);
 
@@ -641,10 +645,13 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; ++u)
             {
                 uint8 type = BG_IC_GO_HANGAR_TELEPORTER_1+u;
-                AddObject(type, (nodePoint->faction == TEAM_ALLIANCE ? GO_ALLIANCE_GUNSHIP_PORTAL : GO_HORDE_GUNSHIP_PORTAL),
+                if (!AddObject(type, (nodePoint->faction == TEAM_ALLIANCE ? GO_ALLIANCE_GUNSHIP_PORTAL : GO_HORDE_GUNSHIP_PORTAL),
                     BG_IC_HangarTeleporters[u].GetPositionX(), BG_IC_HangarTeleporters[u].GetPositionY(),
                     BG_IC_HangarTeleporters[u].GetPositionZ(), BG_IC_HangarTeleporters[u].GetOrientation(),
-                    0, 0, 0, 0, RESPAWN_ONE_DAY);
+                    0, 0, 0, 0, RESPAWN_ONE_DAY))
+                {
+                    TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Isle of Conquest: There was an error spawning a gunship portal. Type: %u", BG_IC_GO_HANGAR_TELEPORTER_1+u);
+                }
             }
 
             //TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "BG_IC_GO_HANGAR_BANNER CAPTURED Faction: %u", nodePoint->faction);
