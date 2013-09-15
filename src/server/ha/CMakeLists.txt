@@ -28,6 +28,7 @@ endif()
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/zmqpp
+  ${CMAKE_SOURCE_DIR}/src/server/shared/
   ${ZMQ_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
 )

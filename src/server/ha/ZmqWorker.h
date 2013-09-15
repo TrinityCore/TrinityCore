@@ -15,28 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Worker.h"
-#include "ZmqContext.h"
+#ifndef __ZMQWORKER_H
+#define __ZMQWORKER_H
 
+#include "ZMQTask.h"
+#include <zmqpp/zmqpp.hpp>
 
-void Worker::dispatch(const zmqpp::message& msg)
+class ZmqWorker : public ZMQTask
 {
-    uint32 opcode;
-    msg.get(opcode, 0);
-    printf("worker recv opcode %u\n", opcode);
-    if(opcode >= OPCODES_MAX)
-        return;
-
-    (this->*handlers[opcode])(msg);
-}
-
-void Worker::test_handler(const zmqpp::message& msg)
-{
-    std::string s;
-    msg.get(s, 1);
-    printf("Debug message recvd: %s\n", s.c_str());
-}
-
-const opcode_handler handlers[OPCODES_MAX] = {
-    &Worker::test_handler,
+public:
+    ZmqWorker(std::string task_uri, std::string res_uri);
+    virtual ~ZmqWorker();
+    int svc();
+protected:
+    int HandleOpen() OVERRIDE;
+    int HandleClose(u_long flags = 0) OVERRIDE;
+private:
+    void perform_work();
+    virtual void dispatch(const zmqpp::message&) = 0;
+    zmqpp::socket* task_queue;
+    zmqpp::socket* results;
+    std::string task_uri;
+    std::string res_uri;
 };
+
+#endif

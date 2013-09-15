@@ -18,8 +18,7 @@
 #ifndef __WORKER_H
 #define __WORKER_H
 
-#include "ZMQTask.h"
-#include <zmqpp/zmqpp.hpp>
+#include "ZmqWorker.h"
 
 class Worker;
 
@@ -33,21 +32,15 @@ typedef void (Worker::*opcode_handler)(const zmqpp::message&);
 
 extern const opcode_handler handlers[OPCODES_MAX];
 
-class Worker : public ZMQTask
+class Worker : public ZmqWorker
 {
 public:
-    Worker();
-    ~Worker();
-    int svc();
     void test_handler(const zmqpp::message&);
-protected:
-    int HandleOpen() OVERRIDE;
-    int HandleClose(u_long flags = 0) OVERRIDE;
+    Worker(std::string t_u, std::string r_u): ZmqWorker::ZmqWorker(t_u, r_u) {}
+
 private:
-    void perform_work();
-    void dispatch(const zmqpp::message&);
-    zmqpp::socket* task_queue;
-    zmqpp::socket* results;
+    Worker() : ZmqWorker::ZmqWorker("","") {}
+    void dispatch(const zmqpp::message&) OVERRIDE;
 };
 
 #endif

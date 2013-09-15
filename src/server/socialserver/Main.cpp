@@ -12,7 +12,7 @@ int main(int /*argc*/, char** /*argv*/)
     inproc->bind("inproc://workers");
 
     CommandPuller puller;
-    Worker worker;
+    Worker worker("inproc://work_queue", "inproc://work_result");
 
     puller.open(&ctx);
     worker.open(&ctx);
