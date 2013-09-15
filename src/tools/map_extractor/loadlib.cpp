@@ -30,19 +30,17 @@ bool FileLoader::loadFile(HANDLE mpq, char* filename, bool log)
 
     data_size = SFileGetFileSize(file, NULL);
     data = new uint8[data_size];
-    if (data)
+    SFileReadFile(file, data, data_size, NULL/*bytesRead*/, NULL);
+    if (prepareLoadedData())
     {
-        SFileReadFile(file, data, data_size, NULL/*bytesRead*/, NULL);
-        if (prepareLoadedData())
-        {
-            SFileCloseFile(file);
-            return true;
-        }
+        SFileCloseFile(file);
+        return true;
     }
 
     printf("Error loading %s\n", filename);
     SFileCloseFile(file);
     free();
+
     return false;
 }
 

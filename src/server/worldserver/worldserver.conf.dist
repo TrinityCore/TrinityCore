@@ -29,6 +29,7 @@
 #    CUSTOM SERVER OPTIONS
 #    LOGGING SYSTEM SETTINGS
 #    CURRENCIES SETTINGS
+#    PACKET SPOOF PROTECTION SETTINGS
 #
 ###################################################################################################
 
@@ -870,6 +871,13 @@ Instance.ResetTimeHour = 4
 Instance.UnloadDelay = 1800000
 
 #
+#    InstancesResetAnnounce
+#        Description: Announce the reset of one instance to whole party.
+#        Default:     false - (Disabled, don't show, blizzlike)
+#                     true  - (Enabled, show)
+
+InstancesResetAnnounce = false
+#
 #    Quests.LowLevelHideDiff
 #        Description: Level difference between player and quest level at which quests are
 #                     considered low-level and are not shown via exclamation mark (!) at quest
@@ -1080,7 +1088,6 @@ AllowTickets = 1
 
 DungeonFinder.OptionsMask = 1
 
-
 #
 #   DBC.EnforceItemAttributes
 #        Description: Disallow overriding item attributes stored in DBC files with values from the
@@ -1104,6 +1111,15 @@ AccountInstancesPerHour = 5
 #        Default:     "" (No group)
 
 RBAC.DefaultGroups = ""
+
+#
+#   Account.PasswordChangeSecurity
+#        Description: Controls how secure the password changes are.
+#        Default:     0 - None (Old and new password)
+#                     1 - Email (Email confirmation necessary)
+#                     2 - RBAC (RBAC enable or disables email confirmation per group)
+
+Account.PasswordChangeSecurity = 0
 
 #
 ###################################################################################################
@@ -1177,7 +1193,6 @@ Warden.BanDuration = 86400
 
 ###################################################################################################
 # PLAYER INTERACTION
-#
 #
 #    AllowTwoSide.Interaction.Calendar
 #        Description: Allow calendar invites between factions.
@@ -2097,6 +2112,29 @@ Battleground.GiveXPForKills = 0
 Battleground.Random.ResetHour = 6
 
 #
+#     Battleground.RewardWinnerHonorFirst
+#     Battleground.RewardWinnerConquestFirst
+#     Battleground.RewardWinnerHonorLast
+#     Battleground.RewardWinnerConquestLast
+#     Battleground.RewardLoserHonorFirst
+#     Battleground.RewardLoserHonorLast
+#        Description: Random Battlegrounds / call to the arms rewards
+#        Default:     30 - Battleground.RewardWinnerHonorFirst
+#                     25 - Battleground.RewardWinnerArenaFirst
+#                     15 - Battleground.RewardWinnerHonorLast
+#                     0  - Battleground.RewardWinnerArenaLast
+#                     5  - Battleground.RewardLoserHonorFirst
+#                     5  - Battleground.RewardLoserHonorLast
+#
+
+Battleground.RewardWinnerHonorFirst     = 27000
+Battleground.RewardWinnerConquestFirst  = 10000
+Battleground.RewardWinnerHonorLast      = 13500
+Battleground.RewardWinnerConquestLast   = 5000
+Battleground.RewardLoserHonorFirst      = 4500
+Battleground.RewardLoserHonorLast       = 3500
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -2575,7 +2613,6 @@ UI.ShowQuestLevelsInDialogs = 0
 ###################################################################################################
 
 ###################################################################################################
-#
 #  LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
@@ -2764,7 +2801,6 @@ Log.Async.Enable = 0
 ###################################################################################################
 
 ###################################################################################################
-#
 #  GUILD LEVELING SETTINGS
 #
 #    Guild.LevelingEnabled
@@ -2826,7 +2862,6 @@ Guild.WeeklyReputationCap = 4375
 ###################################################################################################
 
 ###################################################################################################
-#
 # CURRENCIES SETTINGS
 #
 #    Currency.ResetInterval
@@ -2910,15 +2945,14 @@ Currency.ConquestPointsArenaReward = 180
 
 #
 ###################################################################################################
-#
-# Packet Spoof Protection Settings
+# PACKET SPOOF PROTECTION SETTINGS
 #
 # These settings determine which action to take when harmful packet spoofing is detected.
 #
 #    PacketSpoof.Policy
 #        Description: Determines the course of action when packet spoofing is detected.
-#        Values:     0 - Log only (LOG_FILTER_NETWORKIO)
-#                    1 - Log + kick
+#        Default:    1 - Log + kick
+#                    0 - Log only (LOG_FILTER_NETWORKIO)
 #                    2 - Log + kick + ban
 
 PacketSpoof.Policy = 1
@@ -2926,9 +2960,9 @@ PacketSpoof.Policy = 1
 #
 #    PacketSpoof.BanMode
 #        Description: If PacketSpoof.Policy equals 2, this will determine the ban mode.
-#        Values:     0 - Ban Account
-#                    2 - Ban IP
 #        Note: Banning by character not supported for logical reasons.
+#        Default:    0 - Ban Account
+#                    2 - Ban IP
 #
 
 PacketSpoof.BanMode = 0

@@ -350,13 +350,12 @@ void WheatyExceptionReport::PrintSystemInfo()
 //===========================================================================
 void WheatyExceptionReport::printTracesForAllThreads()
 {
-  HANDLE hThreadSnap = INVALID_HANDLE_VALUE;
   THREADENTRY32 te32;
 
   DWORD dwOwnerPID = GetCurrentProcessId();
   m_hProcess = GetCurrentProcess();
   // Take a snapshot of all running threads
-  hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+  HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
   if (hThreadSnap == INVALID_HANDLE_VALUE)
     return;
 

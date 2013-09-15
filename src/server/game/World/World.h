@@ -168,6 +168,7 @@ enum WorldBoolConfigs
     CONFIG_UI_QUESTLEVELS_IN_DIALOGS,     // Should we add quest levels to the title in the NPC dialogs?
     CONFIG_EVENT_ANNOUNCE,
     CONFIG_STATS_LIMITS_ENABLE,
+    CONFIG_INSTANCES_RESET_ANNOUNCE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -346,6 +347,13 @@ enum WorldIntConfigs
     CONFIG_PACKET_SPOOF_POLICY,
     CONFIG_PACKET_SPOOF_BANMODE,
     CONFIG_PACKET_SPOOF_BANDURATION,
+    CONFIG_ACC_PASSCHANGESEC,
+    CONFIG_BG_REWARD_WINNER_HONOR_FIRST,
+    CONFIG_BG_REWARD_WINNER_HONOR_LAST,
+    CONFIG_BG_REWARD_LOSER_HONOR_FIRST,
+    CONFIG_BG_REWARD_LOSER_HONOR_LAST,
+    CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST,
+    CONFIG_BG_REWARD_WINNER_CONQUEST_LAST,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -534,7 +542,7 @@ struct CharacterNameData
 class World
 {
     public:
-        static volatile uint32 m_worldLoopCounter;
+        static ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_worldLoopCounter;
 
         World();
         ~World();

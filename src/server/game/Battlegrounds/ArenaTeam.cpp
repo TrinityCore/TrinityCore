@@ -84,7 +84,7 @@ bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string const& arenaT
     // Add captain as member
     AddMember(CaptainGuid);
 
-    TC_LOG_DEBUG(LOG_FILTER_ARENAS, "New ArenaTeam created [Id: %u] [Type: %u] [Captain low GUID: %u]", GetId(), GetType(), captainLowGuid);
+    TC_LOG_DEBUG(LOG_FILTER_ARENAS, "New ArenaTeam created [Id: %u, Name: %s] [Type: %u] [Captain low GUID: %u]", GetId(), GetName().c_str(), GetType(), captainLowGuid);
     return true;
 }
 
@@ -306,9 +306,9 @@ void ArenaTeam::SetCaptain(uint64 guid)
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         if (oldCaptain)
         {
-            TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
+            TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u, Name: %s] [Type: %u].",
                 oldCaptain->GetName().c_str(), oldCaptain->GetGUIDLow(), newCaptain->GetName().c_str(),
-                newCaptain->GetGUIDLow(), GetId(), GetType());
+                newCaptain->GetGUIDLow(), GetId(), GetName().c_str(), GetType());
         }
     }
 }
@@ -329,7 +329,7 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
         // delete all info regarding this team
         for (uint32 i = 0; i < ARENA_TEAM_END; ++i)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
-        TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
+        TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] left arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId(), GetName().c_str());
     }
 
     // Only used for single member deletion, for arena team disband we use a single query for more efficiency
@@ -349,7 +349,7 @@ void ArenaTeam::Disband(WorldSession* session)
     {
         BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName(), GetName(), "");
         if (Player* player = session->GetPlayer())
-            TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
+            TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId(), GetName().c_str());
     }
 
     // Remove all members from arena team

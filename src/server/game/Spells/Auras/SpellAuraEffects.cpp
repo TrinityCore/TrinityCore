@@ -2283,14 +2283,15 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
     // Handle damage modification, shapeshifted druids are not affected
     if (target->GetTypeId() == TYPEID_PLAYER && !target->IsInFeralForm())
     {
-        if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+        Player* player = target->ToPlayer();
+        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         {
             uint8 attacktype = Player::GetAttackBySlot(slot);
 
             if (attacktype < MAX_ATTACK)
             {
-                target->ToPlayer()->_ApplyWeaponDamage(slot, pItem->GetTemplate(), NULL, !apply);
-                target->ToPlayer()->_ApplyWeaponDependentAuraMods(pItem, WeaponAttackType(attacktype), !apply);
+                player->_ApplyWeaponDamage(slot, item->GetTemplate(), NULL, !apply);
+                player->_ApplyWeaponDependentAuraMods(item, WeaponAttackType(attacktype), !apply);
             }
         }
     }
@@ -5079,7 +5080,7 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
     {
         if (apply)
         {
-            Unit* caster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCaster() : target;
+            Unit* caster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? GetCaster() : target;
 
             if (!caster)
                 return;
@@ -5091,13 +5092,13 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
         }
         else
         {
-            uint64 casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
+            uint64 casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? GetCasterGUID() : target->GetGUID();
             target->RemoveAura(triggeredSpellId, casterGUID, 0, aurApp->GetRemoveMode());
         }
     }
     else if (mode & AURA_EFFECT_HANDLE_REAPPLY && apply)
     {
-        uint64 casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
+        uint64 casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? GetCasterGUID() : target->GetGUID();
         // change the stack amount to be equal to stack amount of our aura
         if (Aura* triggeredAura = target->GetAura(triggeredSpellId, casterGUID))
             triggeredAura->ModStackAmount(GetBase()->GetStackAmount() - triggeredAura->GetStackAmount());
@@ -5697,7 +5698,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
 
     if (triggeredSpellInfo)
     {
-        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target)
+        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
             triggerCaster->CastSpell(target, triggeredSpellInfo, true, NULL, this);
             TC_LOG_DEBUG(LOG_FILTER_SPELLS_AURAS, "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell %u Trigger %u", GetId(), triggeredSpellInfo->Id);
@@ -5717,7 +5718,7 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
     uint32 triggerSpellId = GetSpellInfo()->Effects[m_effIndex].TriggerSpell;
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
-        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target)
+        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
         {
             int32 basepoints = GetAmount();
             triggerCaster->CastCustomSpell(target, triggerSpellId, &basepoints, &basepoints, &basepoints, true, 0, this);

@@ -41,43 +41,43 @@ public:
     {
         static ChatCommand lookupPlayerCommandTable[] =
         {
-            { "ip",             RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupPlayerIpCommand,        "", NULL },
-            { "account",        RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupPlayerAccountCommand,   "", NULL },
-            { "email",          RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupPlayerEmailCommand,     "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "ip",      RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,      true, &HandleLookupPlayerIpCommand,        "", NULL },
+            { "account", RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT, true, &HandleLookupPlayerAccountCommand,   "", NULL },
+            { "email",   RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,   true, &HandleLookupPlayerEmailCommand,     "", NULL },
+            { NULL,      0,                                      false, NULL,                                "", NULL }
         };
 
         static ChatCommand lookupSpellCommandTable[] =
         {
-            { "id",             RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupSpellIdCommand,         "", NULL },
-            { "",               RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupSpellCommand,           "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "id", RBAC_PERM_COMMAND_LOOKUP_SPELL_ID, true, &HandleLookupSpellIdCommand,         "", NULL },
+            { "",   RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, &HandleLookupSpellCommand,           "", NULL },
+            { NULL, 0,                                false, NULL,                                "", NULL }
         };
 
         static ChatCommand lookupCommandTable[] =
         {
-            { "area",           RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleLookupAreaCommand,            "", NULL },
-            { "creature",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupCreatureCommand,        "", NULL },
-            { "event",          RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupEventCommand,           "", NULL },
-            { "faction",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupFactionCommand,         "", NULL },
-            { "item",           RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupItemCommand,            "", NULL },
-            { "itemset",        RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupItemSetCommand,         "", NULL },
-            { "object",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupObjectCommand,          "", NULL },
-            { "quest",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupQuestCommand,           "", NULL },
-            { "player",         RBAC_PERM_GAMEMASTER_COMMANDS,     true,  NULL,                                "", lookupPlayerCommandTable },
-            { "skill",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupSkillCommand,           "", NULL },
-            { "spell",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  NULL,                                "", lookupSpellCommandTable },
-            { "taxinode",       RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupTaxiNodeCommand,        "", NULL },
-            { "tele",           RBAC_PERM_MODERATOR_COMMANDS,      true,  &HandleLookupTeleCommand,            "", NULL },
-            { "title",          RBAC_PERM_GAMEMASTER_COMMANDS,     true,  &HandleLookupTitleCommand,           "", NULL },
-            { "map",            RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  &HandleLookupMapCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "area",     RBAC_PERM_COMMAND_LOOKUP_AREA,     true, &HandleLookupAreaCommand,     "", NULL },
+            { "creature", RBAC_PERM_COMMAND_LOOKUP_CREATURE, true, &HandleLookupCreatureCommand, "", NULL },
+            { "event",    RBAC_PERM_COMMAND_LOOKUP_EVENT,    true, &HandleLookupEventCommand,    "", NULL },
+            { "faction",  RBAC_PERM_COMMAND_LOOKUP_FACTION,  true, &HandleLookupFactionCommand,  "", NULL },
+            { "item",     RBAC_PERM_COMMAND_LOOKUP_ITEM,     true, &HandleLookupItemCommand,     "", NULL },
+            { "itemset",  RBAC_PERM_COMMAND_LOOKUP_ITEMSET,  true, &HandleLookupItemSetCommand,  "", NULL },
+            { "object",   RBAC_PERM_COMMAND_LOOKUP_OBJECT,   true, &HandleLookupObjectCommand,   "", NULL },
+            { "quest",    RBAC_PERM_COMMAND_LOOKUP_QUEST,    true, &HandleLookupQuestCommand,    "", NULL },
+            { "player",   RBAC_PERM_COMMAND_LOOKUP_PLAYER,   true, NULL,                         "", lookupPlayerCommandTable },
+            { "skill",    RBAC_PERM_COMMAND_LOOKUP_SKILL,    true, &HandleLookupSkillCommand,    "", NULL },
+            { "spell",    RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, NULL,                         "", lookupSpellCommandTable },
+            { "taxinode", RBAC_PERM_COMMAND_LOOKUP_TAXINODE, true, &HandleLookupTaxiNodeCommand, "", NULL },
+            { "tele",     RBAC_PERM_COMMAND_LOOKUP_TELE,     true, &HandleLookupTeleCommand,     "", NULL },
+            { "title",    RBAC_PERM_COMMAND_LOOKUP_TITLE,    true, &HandleLookupTitleCommand,    "", NULL },
+            { "map",      RBAC_PERM_COMMAND_LOOKUP_MAP,      true, &HandleLookupMapCommand,      "", NULL },
+            { NULL,       0,                                false, NULL,                         "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "lookup",         RBAC_PERM_ADMINISTRATOR_COMMANDS,  true,  NULL,                                "", lookupCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "lookup", RBAC_PERM_COMMAND_LOOKUP,  true, NULL, "", lookupCommandTable },
+            { NULL,     0,                        false, NULL, "", NULL }
         };
         return commandTable;
     }

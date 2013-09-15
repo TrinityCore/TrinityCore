@@ -55,7 +55,7 @@ enum TypeMask
     TYPEMASK_DYNAMICOBJECT  = 0x0040,
     TYPEMASK_CORPSE         = 0x0080,
     TYPEMASK_AREATRIGGER    = 0x0100,
-    TYPEMASK_SEER           = TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
+    TYPEMASK_SEER           = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 
 enum TypeID
@@ -512,7 +512,7 @@ struct MovementInfo
     float splineElevation;
 
     MovementInfo() :
-        guid(0), flags(0), flags2(0), time(0), pitch(0.0f)
+        guid(0), flags(0), flags2(0), time(0), pitch(0.0f), splineElevation(0.0f)
     {
         pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         transport.Reset();
