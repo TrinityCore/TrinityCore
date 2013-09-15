@@ -232,7 +232,7 @@ public:
             {
                 Unit* target = NULL;
                 if (PlayerGUID)
-                    if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                         if (player->IsAlive() && RAND(0, 1))
                             target = player;
 
@@ -248,7 +248,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (PlayerGUID)
-                if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     if (player->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
                         player->FailQuest(QUEST_PYREWOOD_AMBUSH);
         }
@@ -301,7 +301,7 @@ public:
                 case 5: //end
                     if (PlayerGUID)
                     {
-                        if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                         {
                             me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
                             player->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);

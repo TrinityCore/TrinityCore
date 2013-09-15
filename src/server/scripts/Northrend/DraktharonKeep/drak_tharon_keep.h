@@ -18,9 +18,6 @@
 #ifndef DRAK_THARON_KEEP_H_
 #define DRAK_THARON_KEEP_H_
 
-#include "Map.h"
-#include "Creature.h"
-
 #define DrakTharonKeepScriptName "instance_drak_tharon_keep"
 
 uint32 const EncounterCount = 4;
@@ -89,11 +86,7 @@ enum GameObjectIds
 template<class AI>
 AI* GetDrakTharonKeepAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(DrakTharonKeepScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, DrakTharonKeepScriptName);
 }
 
 #endif // DRAK_THARON_KEEP_H_

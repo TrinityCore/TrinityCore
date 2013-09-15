@@ -81,7 +81,7 @@ enum EventAI_ActionType
     ACTION_T_THREAT_SINGLE_PCT          = 13,               // Threat%, Target
     ACTION_T_THREAT_ALL_PCT             = 14,               // Threat%
     ACTION_T_QUEST_EVENT                = 15,               // QuestID, Target
-    ACTION_T_CAST_EVENT                 = 16,               // CreatureId, SpellId, Target - must be removed as hack?
+    // none                             = 16,
     ACTION_T_SET_UNIT_FIELD             = 17,               // Field_Number, Value, Target
     ACTION_T_SET_UNIT_FLAG              = 18,               // Flags (may be more than one field OR'd together), Target
     ACTION_T_REMOVE_UNIT_FLAG           = 19,               // Flags (may be more than one field OR'd together), Target
@@ -92,7 +92,7 @@ enum EventAI_ActionType
     ACTION_T_EVADE                      = 24,               // No Params
     ACTION_T_FLEE_FOR_ASSIST            = 25,               // No Params
     ACTION_T_QUEST_EVENT_ALL            = 26,               // QuestID
-    ACTION_T_CAST_EVENT_ALL             = 27,               // CreatureId, SpellId
+    // none                             = 27,
     ACTION_T_REMOVEAURASFROMSPELL       = 28,               // Target, Spellid
     ACTION_T_RANGED_MOVEMENT            = 29,               // Distance, Angle
     ACTION_T_RANDOM_PHASE               = 30,               // PhaseId1, PhaseId2, PhaseId3
@@ -269,13 +269,6 @@ struct CreatureEventAI_Action
             uint32 questId;
             uint32 target;
         } quest_event;
-        // ACTION_T_CAST_EVENT                              = 16
-        struct
-        {
-            uint32 creatureId;
-            uint32 spellId;
-            uint32 target;
-        } cast_event;
         // ACTION_T_SET_UNIT_FIELD                          = 17
         struct
         {
@@ -316,12 +309,6 @@ struct CreatureEventAI_Action
         {
             uint32 questId;
         } quest_event_all;
-        // ACTION_T_CAST_EVENT_ALL                          = 27
-        struct
-        {
-            uint32 creatureId;
-            uint32 spellId;
-        } cast_event_all;
         // ACTION_T_REMOVEAURASFROMSPELL                    = 28
         struct
         {

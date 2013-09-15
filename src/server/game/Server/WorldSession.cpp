@@ -99,6 +99,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
+    AntiDOS(this),
     _player(NULL),
     m_Socket(sock),
     _security(sec),
@@ -274,7 +275,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
-        if (packet->GetOpcode() >= NUM_MSG_TYPES)
+        if (!AntiDOS.EvaluateOpcode(*packet))
+        {
+            KickPlayer();
+        }
+        else if (packet->GetOpcode() >= NUM_MSG_TYPES)
         {
             TC_LOG_ERROR(LOG_FILTER_OPCODES, "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
@@ -365,7 +370,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         break;
                 }
             }
-            catch(ByteBufferException &)
+            catch (ByteBufferException const&)
             {
                 TC_LOG_ERROR(LOG_FILTER_GENERAL, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
                         packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
@@ -375,6 +380,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
         if (deletePacket)
             delete packet;
+
+        deletePacket = true;
     }
 
     if (m_Socket && !m_Socket->IsClosed() && _warden)
@@ -547,6 +554,7 @@ void WorldSession::LogoutPlayer(bool save)
     m_playerLogout = false;
     m_playerSave = false;
     m_playerRecentlyLogout = true;
+    AntiDOS.AllowOpcode(CMSG_CHAR_ENUM, true);
     LogoutRequest(0);
 }
 
@@ -1211,4 +1219,41 @@ void WorldSession::InvalidateRBACData()
                    _RBACData->GetId(), _RBACData->GetName().c_str(), realmID);
     delete _RBACData;
     _RBACData = NULL;
+}
+
+bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p) const
+{
+    if (IsOpcodeAllowed(p.GetOpcode()))
+        return true;
+
+    // Opcode not allowed, let the punishment begin
+    TC_LOG_INFO(LOG_FILTER_NETWORKIO, "AntiDOS: Account %u, IP: %s, sent unacceptable packet (opc: %u, size: %u)",
+        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), (uint32)p.size());
+
+    switch (_policy)
+    {
+        case POLICY_LOG:
+            return true;
+        case POLICY_KICK:
+            TC_LOG_INFO(LOG_FILTER_NETWORKIO, "AntiDOS: Player kicked!");
+            return false;
+        case POLICY_BAN:
+        {
+            BanMode bm = (BanMode)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANMODE);
+            uint32 duration = sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANDURATION); // in seconds
+            std::string nameOrIp = "";
+            switch (bm)
+            {
+                case BAN_CHARACTER: // not supported, ban account
+                case BAN_ACCOUNT: (void)sAccountMgr->GetName(Session->GetAccountId(), nameOrIp); break;
+                case BAN_IP: nameOrIp = Session->GetRemoteAddress(); break;
+            }
+            sWorld->BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
+            TC_LOG_INFO(LOG_FILTER_NETWORKIO, "AntiDOS: Player automatically banned for %u seconds.", duration);
+
+            return false;
+        }
+        default: // invalid policy
+            return true;
+    }
 }

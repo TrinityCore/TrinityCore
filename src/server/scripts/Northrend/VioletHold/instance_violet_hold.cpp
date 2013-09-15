@@ -608,6 +608,7 @@ public:
                     if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
                         pMainDoor->SetGoState(GO_STATE_READY);
                     DoUpdateWorldState(WORLD_STATE_VH_PRISON_STATE, 100);
+                    // no break
                 }
                 default:
                     SpawnPortal();

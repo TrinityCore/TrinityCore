@@ -139,10 +139,12 @@ public:
                             Talk(SAY_CORPORAL_4);
                             uiTimer = 2500;
                             uiPhase = 5;
+                            break;
                         case 5:
                             Talk(SAY_CORPORAL_5);
                             uiTimer = 0;
                             uiPhase = 0;
+                            break;
                     }
                 } else uiTimer -= uiDiff;
             }

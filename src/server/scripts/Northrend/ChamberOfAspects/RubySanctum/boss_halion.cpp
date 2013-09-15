@@ -836,8 +836,6 @@ class npc_halion_controller : public CreatureScript
                         _twilightDamageTaken = 0;
                         return;
                     }
-                    default:
-                        break;
                 }
 
                 _materialDamageTaken = 0;
@@ -883,8 +881,6 @@ class npc_halion_controller : public CreatureScript
             EventMap _events;
             InstanceScript* _instance;
             SummonList _summons;
-
-            bool _corporealityCheck;
 
             uint32 _twilightDamageTaken;
             uint32 _materialDamageTaken;
@@ -1624,16 +1620,16 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 class TwilightCutterSelector
 {
     public:
-        TwilightCutterSelector(Unit* caster, Unit* cutterCaster) : _caster(caster), _cutterCaster(cutterCaster) {}
+        TwilightCutterSelector(Unit* caster, Unit* target) : _caster(caster), _channelTarget(target) {}
 
         bool operator()(WorldObject* unit)
         {
-            return !unit->IsInBetween(_caster, _cutterCaster, 4.0f);
+            return !unit->IsInBetween(_caster, _channelTarget, 4.0f);
         }
 
     private:
         Unit* _caster;
-        Unit* _cutterCaster;
+        Unit* _channelTarget;
 };
 
 class spell_halion_twilight_cutter : public SpellScriptLoader
@@ -1651,13 +1647,10 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
                     return;
 
                 Unit* caster = GetCaster();
-                if (Aura* cutter = caster->GetAura(SPELL_TWILIGHT_CUTTER))
+                if (Unit* channelTarget = ObjectAccessor::GetUnit(*caster, caster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
                 {
-                    if (Unit* cutterCaster = cutter->GetCaster())
-                    {
-                        unitList.remove_if(TwilightCutterSelector(caster, cutterCaster));
-                        return;
-                    }
+                    unitList.remove_if(TwilightCutterSelector(caster, channelTarget));
+                    return;
                 }
 
                 // In case cutter caster werent found for some reason

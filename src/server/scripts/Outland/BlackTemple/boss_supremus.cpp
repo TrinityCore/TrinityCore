@@ -31,7 +31,7 @@ EndScriptData */
 enum Supremus
 {
     EMOTE_NEW_TARGET            = 0,
-    EMOTE_PUNCH_GROUND          = 1,                //Talk(EMOTE_PUNCH_GROUND);
+    EMOTE_PUNCH_GROUND          = 1,
     EMOTE_GROUND_CRACK          = 2,
 
     //Spells
@@ -110,11 +110,7 @@ public:
             if (instance)
             {
                 if (me->IsAlive())
-                {
-                    instance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
-                    //ToggleDoors(true);
-                }
-                //else ToggleDoors(false);
+                    instance->SetBossState(DATA_SUPREMUS, NOT_STARTED);
             }
 
             phase = 0;
@@ -126,7 +122,7 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
-                instance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_SUPREMUS, IN_PROGRESS);
 
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
@@ -163,10 +159,8 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
-            {
-                instance->SetData(DATA_SUPREMUSEVENT, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
-            }
+                instance->SetBossState(DATA_SUPREMUS, DONE);
+
             summons.DespawnAll();
         }
 

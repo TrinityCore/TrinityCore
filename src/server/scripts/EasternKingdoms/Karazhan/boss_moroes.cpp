@@ -73,14 +73,12 @@ enum Spells
     SPELL_SHIELDWALL            = 29390
 };
 
-#define POS_Z               81.73f
-
-float Locations[4][3]=
+Position const Locations[4] =
 {
-    {-10991.0f, -1884.33f, 0.614315f},
-    {-10989.4f, -1885.88f, 0.904913f},
-    {-10978.1f, -1887.07f, 2.035550f},
-    {-10975.9f, -1885.81f, 2.253890f},
+    {-10991.0f, -1884.33f, 81.73f, 0.614315f},
+    {-10989.4f, -1885.88f, 81.73f, 0.904913f},
+    {-10978.1f, -1887.07f, 81.73f, 2.035550f},
+    {-10975.9f, -1885.81f, 81.73f, 2.253890f},
 };
 
 const uint32 Adds[6]=
@@ -137,7 +135,7 @@ public:
 
             Enrage = false;
             InVanish = false;
-            if (me->GetHealth())
+            if (me->IsAlive())
                 SpawnAdds();
 
             if (instance)
@@ -183,39 +181,34 @@ public:
         void SpawnAdds()
         {
             DeSpawnAdds();
+
             if (isAddlistEmpty())
             {
-                Creature* creature = NULL;
-                std::vector<uint32> AddList;
+                std::list<uint32> AddList;
 
                 for (uint8 i = 0; i < 6; ++i)
                     AddList.push_back(Adds[i]);
 
-                while (AddList.size() > 4)
-                    AddList.erase((AddList.begin())+(rand()%AddList.size()));
+                Trinity::Containers::RandomResizeList(AddList, 4);
 
                 uint8 i = 0;
-                for (std::vector<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
+                for (std::list<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end() && i < 4; ++itr, ++i)
                 {
                     uint32 entry = *itr;
 
-                    creature = me->SummonCreature(entry, Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    if (creature)
+                    if (Creature* creature = me->SummonCreature(entry, Locations[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                     {
                         AddGUID[i] = creature->GetGUID();
                         AddId[i] = entry;
                     }
-                    ++i;
                 }
-            }else
+            }
+            else
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Creature* creature = me->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    if (creature)
-                    {
+                    if (Creature* creature = me->SummonCreature(AddId[i], Locations[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                         AddGUID[i] = creature->GetGUID();
-                    }
                 }
             }
         }
@@ -235,9 +228,8 @@ public:
             {
                 if (AddGUID[i])
                 {
-                    Creature* temp = Creature::GetCreature((*me), AddGUID[i]);
-                    if (temp && temp->IsAlive())
-                        temp->DisappearAndDie();
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, AddGUID[i]))
+                        temp->DespawnOrUnsummon();
                 }
             }
         }

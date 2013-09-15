@@ -445,8 +445,14 @@ int WorldSocket::Update (void)
     if (closing_)
         return -1;
 
-    if (m_OutActive || (m_OutBuffer->length() == 0 && msg_queue()->is_empty()))
+    if (m_OutActive)
         return 0;
+
+    {
+        ACE_GUARD_RETURN (LockType, Guard, m_OutBufferLock, 0);
+        if (m_OutBuffer->length() == 0 && msg_queue()->is_empty())
+            return 0;
+    }
 
     int ret;
     do
@@ -730,11 +736,11 @@ int WorldSocket::HandleSendAuthSession()
 
     BigNumber seed1;
     seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16), 16);               // new encryption seeds
+    packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
 
     BigNumber seed2;
     seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16), 16);               // new encryption seeds
+    packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
     return SendPacket(packet);
 }
 

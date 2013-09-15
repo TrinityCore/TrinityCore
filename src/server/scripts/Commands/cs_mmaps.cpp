@@ -45,18 +45,18 @@ public:
     {
         static ChatCommand mmapCommandTable[] =
         {
-            { "path",           SEC_ADMINISTRATOR,     false, &HandleMmapPathCommand,            "", NULL },
-            { "loc",            SEC_ADMINISTRATOR,     false, &HandleMmapLocCommand,             "", NULL },
-            { "loadedtiles",    SEC_ADMINISTRATOR,     false, &HandleMmapLoadedTilesCommand,     "", NULL },
-            { "stats",          SEC_ADMINISTRATOR,     false, &HandleMmapStatsCommand,           "", NULL },
-            { "testarea",       SEC_ADMINISTRATOR,     false, &HandleMmapTestArea,               "", NULL },
-            { NULL,             0,                     false, NULL,                              "", NULL }
+            { "loadedtiles", RBAC_PERM_COMMAND_MMAP_LOADEDTILES, false, &HandleMmapLoadedTilesCommand, "", NULL },
+            { "loc",         RBAC_PERM_COMMAND_MMAP_LOC,         false, &HandleMmapLocCommand,         "", NULL },
+            { "path",        RBAC_PERM_COMMAND_MMAP_PATH,        false, &HandleMmapPathCommand,        "", NULL },
+            { "stats",       RBAC_PERM_COMMAND_MMAP_STATS,       false, &HandleMmapStatsCommand,       "", NULL },
+            { "testarea",    RBAC_PERM_COMMAND_MMAP_TESTAREA,    false, &HandleMmapTestArea,           "", NULL },
+            { NULL,          0,                                  false, NULL,                          "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "mmap",           SEC_ADMINISTRATOR,     true,  NULL,                 "", mmapCommandTable  },
-            { NULL,             0,                     false, NULL,                              "", NULL }
+            { "mmap", RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable  },
+            { NULL,   0,                     false, NULL, "", NULL }
         };
         return commandTable;
     }

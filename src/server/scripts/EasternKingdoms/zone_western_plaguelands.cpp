@@ -361,12 +361,11 @@ public:
                     break;
                 case 15:
                     Talk(SAY_WP_2);
+                    break;
                 case 21:
                     Theldanis = GetClosestCreatureWithEntry(me, NPC_THEL_DANIS, 150);
                     if (Theldanis)
                         Theldanis->AI()->Talk(SAY_WP_3);
-                    break;
-                case 22:
                     break;
                 case 23:
                     Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86f, -1825.42f, 81.99f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);

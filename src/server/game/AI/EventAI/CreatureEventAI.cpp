@@ -511,11 +511,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 if (target->GetTypeId() == TYPEID_PLAYER)
                     target->ToPlayer()->AreaExploredOrEventHappens(action.quest_event.questId);
             break;
-        case ACTION_T_CAST_EVENT:
-            if (Unit* target = GetTargetByType(action.cast_event.target, actionInvoker))
-                if (target->GetTypeId() == TYPEID_PLAYER)
-                    target->ToPlayer()->CastedCreatureOrGO(action.cast_event.creatureId, me->GetGUID(), action.cast_event.spellId);
-            break;
         case ACTION_T_SET_UNIT_FIELD:
         {
             Unit* target = GetTargetByType(action.set_unit_field.target, actionInvoker);
@@ -612,15 +607,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                         Temp->ToPlayer()->GroupEventHappens(action.quest_event_all.questId, me);
             }
             break;
-        case ACTION_T_CAST_EVENT_ALL:
-        {
-            ThreatContainer::StorageType const& threatList = me->getThreatManager().getThreatList();
-            for (ThreatContainer::StorageType::const_iterator i = threatList.begin(); i != threatList.end(); ++i)
-                if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
-                    if (unit->GetTypeId() == TYPEID_PLAYER)
-                        unit->ToPlayer()->CastedCreatureOrGO(action.cast_event_all.creatureId, me->GetGUID(), action.cast_event_all.spellId);
-            break;
-        }
         case ACTION_T_REMOVEAURASFROMSPELL:
             if (Unit* target = GetTargetByType(action.remove_aura.target, actionInvoker))
                 target->RemoveAurasDueToSpell(action.remove_aura.spellId);
@@ -1083,9 +1069,10 @@ inline uint32 CreatureEventAI::GetRandActionParam(uint32 rnd, uint32 param1, uin
     {
         case 0: return param1;
         case 1: return param2;
-        case 2: return param3;
+        case 2: break;
     }
-    return 0;
+
+    return param3;
 }
 
 inline int32 CreatureEventAI::GetRandActionParam(uint32 rnd, int32 param1, int32 param2, int32 param3)
@@ -1094,9 +1081,10 @@ inline int32 CreatureEventAI::GetRandActionParam(uint32 rnd, int32 param1, int32
     {
         case 0: return param1;
         case 1: return param2;
-        case 2: return param3;
+        case 2: break;
     }
-    return 0;
+
+    return param3;
 }
 
 inline Unit* CreatureEventAI::GetTargetByType(uint32 target, Unit* actionInvoker)

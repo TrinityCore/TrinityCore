@@ -44,6 +44,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
+#include "OpenSSLCrypto.h"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -102,10 +103,11 @@ public:
             ACE_Based::Thread::Sleep(1000);
             uint32 curtime = getMSTime();
             // normal work
-            if (_loops != World::m_worldLoopCounter)
+            uint32 worldLoopCounter = World::m_worldLoopCounter.value();
+            if (_loops != worldLoopCounter)
             {
                 _lastChange = curtime;
-                _loops = World::m_worldLoopCounter;
+                _loops = worldLoopCounter;
             }
             // possible freeze
             else if (getMSTimeDiff(_lastChange, curtime) > _delaytime)
@@ -121,6 +123,7 @@ public:
 /// Main function
 int Master::Run()
 {
+    OpenSSLCrypto::threadsSetup();
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
@@ -368,6 +371,7 @@ int Master::Run()
     // fixes a memory leak related to detaching threads from the module
     //UnloadScriptingModule();
 
+    OpenSSLCrypto::threadsCleanup();
     // Exit the process with specified return value
     return World::GetExitCode();
 }

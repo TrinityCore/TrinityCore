@@ -338,7 +338,7 @@ public:
 
         void JustSummoned(Creature* summon) OVERRIDE
         {
-            if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
+            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
             {
                 if (player->IsAlive())
                 {

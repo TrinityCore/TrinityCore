@@ -166,29 +166,46 @@ enum UlduarNPCs
 
 enum UlduarGameObjects
 {
-    GO_KOLOGARN_CHEST_HERO                  = 195047,
-    GO_KOLOGARN_CHEST                       = 195046,
-    GO_KOLOGARN_BRIDGE                      = 194232,
-    GO_KOLOGARN_DOOR                        = 194553,
-    GO_THORIM_CHEST_HERO                    = 194315,
-    GO_THORIM_CHEST                         = 194314,
-    GO_HODIR_RARE_CACHE_OF_WINTER           = 194200,
-    GO_HODIR_RARE_CACHE_OF_WINTER_HERO      = 194201,
-    GO_HODIR_CHEST_HERO                     = 194308,
-    GO_HODIR_CHEST                          = 194307,
+    // Leviathan
     GO_LEVIATHAN_DOOR                       = 194905,
     GO_LEVIATHAN_GATE                       = 194630,
-    GO_XT_002_DOOR                          = 194631,
-    GO_VEZAX_DOOR                           = 194750,
+
+    // Razorscale
     GO_MOLE_MACHINE                         = 194316,
     GO_RAZOR_HARPOON_1                      = 194542,
     GO_RAZOR_HARPOON_2                      = 194541,
     GO_RAZOR_HARPOON_3                      = 194543,
     GO_RAZOR_HARPOON_4                      = 194519,
     GO_RAZOR_BROKEN_HARPOON                 = 194565,
+
+    // XT-002
+    GO_XT_002_DOOR                          = 194631,
+
+    // Assembly of Iron
+    GO_IRON_COUNCIL_DOOR                    = 194554,
+    GO_ARCHIVUM_DOOR                        = 194556,
+
+    // Kologarn
+    GO_KOLOGARN_CHEST_HERO                  = 195047,
+    GO_KOLOGARN_CHEST                       = 195046,
+    GO_KOLOGARN_BRIDGE                      = 194232,
+    GO_KOLOGARN_DOOR                        = 194553,
+
+    // Hodir
+    GO_HODIR_ENTRANCE                       = 194442,
     GO_HODIR_DOOR                           = 194634,
     GO_HODIR_ICE_DOOR                       = 194441,
-    GO_ARCHIVUM_DOOR                        = 194556,
+    GO_HODIR_RARE_CACHE_OF_WINTER           = 194200,
+    GO_HODIR_RARE_CACHE_OF_WINTER_HERO      = 194201,
+    GO_HODIR_CHEST_HERO                     = 194308,
+    GO_HODIR_CHEST                          = 194307,
+
+    // Thorim
+    GO_THORIM_CHEST_HERO                    = 194315,
+    GO_THORIM_CHEST                         = 194314,
+
+    // Vezax
+    GO_VEZAX_DOOR                           = 194750,
 
     // Yogg-Saron
     GO_YOGG_SARON_DOOR                      = 194773,
@@ -327,26 +344,10 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-template<class AI>
-CreatureAI* GetUlduarAI(Creature* creature)
+template<class AI, class T>
+AI* GetUlduarAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(UlduarScriptName))
-                return new AI(creature);
-
-    return NULL;
-}
-
-template<class AI>
-GameObjectAI* GetUlduarAI(GameObject* go)
-{
-    if (InstanceMap* instance = go->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(UlduarScriptName))
-                return new AI(go);
-
-    return NULL;
+    return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
 
 class PlayerOrPetCheck
