@@ -36,10 +36,10 @@ class Worker : public ZmqWorker
 {
 public:
     void test_handler(const zmqpp::message&);
-    Worker(std::string t_u, std::string r_u): ZmqWorker::ZmqWorker(t_u, r_u) {}
+    Worker(std::string t_u, std::string r_u): ZmqWorker(t_u, r_u) {}
 
 private:
-    Worker() : ZmqWorker::ZmqWorker("","") {}
+    Worker() : ZmqWorker("","") {}
     void dispatch(const zmqpp::message&) OVERRIDE;
 };
 
