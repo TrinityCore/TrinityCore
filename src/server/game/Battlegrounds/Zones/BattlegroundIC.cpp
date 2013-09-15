@@ -546,7 +546,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
             DelObject(nodePoint[i].gameobject_type);
             if (!AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             {
-                TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Isle of Conquest: There was an error spawning a banner. Isle of Conquest BG canceled", nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry);
+                TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Isle of Conquest: There was an error spawning a banner (type: %u, entry: %u). Isle of Conquest BG cancelled.", nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry);
                 Battleground::EndBattleground(WINNER_NONE);
             }
 
