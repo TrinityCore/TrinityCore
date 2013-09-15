@@ -40,7 +40,7 @@ public:
 protected:
     virtual int HandleOpen() = 0;
     virtual int HandleClose(u_long flags = 0) = 0;
-
+    void pipeline(zmqpp::socket* from, zmqpp::socket* to);
     bool process_exit();
 
     zmqpp::poller* poller;

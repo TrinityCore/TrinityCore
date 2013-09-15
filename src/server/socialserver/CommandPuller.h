@@ -41,8 +41,6 @@ protected:
     int HandleClose(u_long flags = 0) OVERRIDE;
 
 private:
-    void pipeline(zmqpp::socket* from, zmqpp::socket* to);
-
     //PULL socket for nodes to announce events
     zmqpp::socket* commands;
 
