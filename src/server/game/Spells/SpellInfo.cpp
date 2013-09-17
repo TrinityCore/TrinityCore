@@ -452,7 +452,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 float preciseBasePoints = ScalingMultiplier * multiplier;
                 if (DeltaScalingMultiplier)
                 {
-                    float delta = DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f;
+                    float delta = fabs(DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f);
                     preciseBasePoints += frand(-delta, delta);
                 }
 
