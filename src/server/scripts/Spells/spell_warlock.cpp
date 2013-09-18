@@ -112,7 +112,7 @@ class spell_warl_aftermath : public SpellScriptLoader
                 {
                     PreventDefaultAction();
 
-                    if (roll_chance_i(aurEff->GetAmount()))
+                    if (eventInfo.GetProcTarget() && roll_chance_i(aurEff->GetAmount()))
                         GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, NULL, aurEff);
                 }
             }
