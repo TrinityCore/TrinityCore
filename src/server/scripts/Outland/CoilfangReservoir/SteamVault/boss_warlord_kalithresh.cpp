@@ -71,7 +71,7 @@ public:
             //hack, due to really weird spell behaviour :(
             if (instance)
             {
-                if (instance->GetData(TYPE_DISTILLER) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_DISTILLER) == IN_PROGRESS)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -89,14 +89,14 @@ public:
             DoCast(me, SPELL_WARLORDS_RAGE_NAGA, true);
 
             if (instance)
-                instance->SetData(TYPE_DISTILLER, IN_PROGRESS);
+                instance->SetBossState(DATA_DISTILLER, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             if (me->GetHealth() <= damage)
                 if (instance)
-                    instance->SetData(TYPE_DISTILLER, DONE);
+                    instance->SetBossState(DATA_DISTILLER, DONE);
         }
     };
 
@@ -134,7 +134,7 @@ public:
             CanRage = false;
 
             if (instance)
-                instance->SetData(TYPE_WARLORD_KALITHRESH, NOT_STARTED);
+                instance->SetBossState(DATA_WARLORD_KALITHRESH, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -142,7 +142,7 @@ public:
             Talk(SAY_AGGRO);
 
             if (instance)
-                instance->SetData(TYPE_WARLORD_KALITHRESH, IN_PROGRESS);
+                instance->SetBossState(DATA_WARLORD_KALITHRESH, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -155,7 +155,7 @@ public:
             //hack :(
             if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
                 if (instance)
-                    if (instance->GetData(TYPE_DISTILLER) == DONE)
+                    if (instance->GetBossState(DATA_DISTILLER) == DONE)
                         me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
         }
 
@@ -164,7 +164,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(TYPE_WARLORD_KALITHRESH, DONE);
+                instance->SetData(DATA_WARLORD_KALITHRESH, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -202,7 +202,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_warlord_kalithresh()
