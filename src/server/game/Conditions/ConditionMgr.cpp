@@ -1768,7 +1768,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         {
             if (cond->ConditionValue2 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Level condition has invalid option (%u), skipped", cond->ConditionValue2);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Level condition has invalid ComparisionType (%u), skipped", cond->ConditionValue2);
                 return false;
             }
             if (cond->ConditionValue3)
