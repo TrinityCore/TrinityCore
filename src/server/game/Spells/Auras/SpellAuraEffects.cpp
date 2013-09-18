@@ -1254,9 +1254,9 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
     else
     {
         if (spellId)
-            target->RemoveAurasDueToSpell(spellId);
+            target->RemoveOwnedAura(spellId, target->GetGUID());
         if (spellId2)
-            target->RemoveAurasDueToSpell(spellId2);
+            target->RemoveOwnedAura(spellId2, target->GetGUID());
 
         // Improved Barkskin - apply/remove armor bonus due to shapeshift
         if (Player* player=target->ToPlayer())
