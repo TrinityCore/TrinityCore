@@ -279,6 +279,17 @@ class achievement_flirt_with_disaster_perf_check : public AchievementCriteriaScr
         }
 };
 
+class achievement_killed_exp_or_honor_target : public AchievementCriteriaScript
+{
+    public:
+        achievement_killed_exp_or_honor_target() : AchievementCriteriaScript("achievement_killed_exp_or_honor_target") { }
+
+        bool OnCheck(Player* player, Unit* target) OVERRIDE
+        {
+            return target && player->isHonorOrXPTarget(target);
+        }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -298,4 +309,5 @@ void AddSC_achievement_scripts()
     new achievement_tilted();
     new achievement_not_even_a_scratch();
     new achievement_flirt_with_disaster_perf_check();
+    new achievement_killed_exp_or_honor_target();
 }
