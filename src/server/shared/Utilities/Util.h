@@ -20,6 +20,7 @@
 #define _UTIL_H
 
 #include "Define.h"
+#include "Errors.h"
 
 #include <algorithm>
 #include <string>
