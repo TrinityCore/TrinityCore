@@ -6662,6 +6662,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
         case ACTION_BUTTON_CMACRO:
         case ACTION_BUTTON_MACRO:
         case ACTION_BUTTON_EQSET:
+        case ACTION_BUTTON_DROPDOWN:
             break;
         default:
             TC_LOG_ERROR(LOG_FILTER_PLAYER, "Unknown action type %u", type);
