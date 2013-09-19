@@ -62,4 +62,4 @@ UPDATE `smart_scripts` SET `action_type`=11,`action_param1`=61314 WHERE `entryor
 UPDATE `quest_template` SET `PrevQuestId`=9812 WHERE  `Id`=9813;
 
 -- Report to Orgnil prevquest
-UPDATE `quest_template` SET `PrevQuestId`=805 WHERE `Id`=82
+UPDATE `quest_template` SET `PrevQuestId`=805 WHERE `Id`=823;
