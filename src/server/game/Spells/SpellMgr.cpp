@@ -127,6 +127,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Seduction
             else if (spellproto->SpellFamilyFlags[1] & 0x10000000)
                 return DIMINISHING_FEAR;
+            // Sin and Punishment (Priest spell, don't ask)
+            else if (spellproto->SpellIconID == 1869)
+                return DIMINISHING_NONE;
             break;
         }
         case SPELLFAMILY_DRUID:
