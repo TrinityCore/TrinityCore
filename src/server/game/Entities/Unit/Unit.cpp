@@ -14597,20 +14597,26 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 
 float Unit::GetCombatRatingReduction(CombatRating cr) const
 {
-    if (Player const* player = ToPlayer())
-        return player->GetRatingBonusValue(cr);
-    // Player's pet get resilience from owner
-    else if (IsPet() && GetOwner())
-        if (Player* owner = GetOwner()->ToPlayer())
-            return owner->GetRatingBonusValue(cr);
+    if (GetTypeId() == TYPEID_PLAYER)
+        return ((Player const*)this)->GetRatingBonusValue(cr);
+    else if (((Creature const*)this)->IsPet())
+    {
+        // Player's pet get resilience from owner
+        if (Unit* owner = GetOwner())
+            if (owner->GetTypeId() == TYPEID_PLAYER)
+                return ((Player*)owner)->GetRatingBonusValue(cr);
+    }
 
     return 0.0f;
 }
 
 uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const
 {
-    float percent = std::min(GetCombatRatingReduction(cr) * rate, cap);
-    return CalculatePct(damage, percent);
+    float percent = GetCombatRatingReduction(cr) * rate;
+    if (percent > cap)
+        percent = cap;
+
+    return uint32 (percent * damage / 100.0f);
 }
 
 uint32 Unit::GetModelForForm(ShapeshiftForm form) const
