@@ -286,7 +286,7 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
                 return 6 * IN_MILLISECONDS;
             // Hunter's Mark
             if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 120 * IN_MILLISECONDS;
+                return 30 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_PALADIN:
