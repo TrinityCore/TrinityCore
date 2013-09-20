@@ -1396,13 +1396,13 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-void AddSC_TW_boss_faction_champions();
+void AddSC_custom();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-	AddSC_TW_boss_faction_champions();
+	AddSC_custom();
 #endif
 }
