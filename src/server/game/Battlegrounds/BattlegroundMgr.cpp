@@ -376,7 +376,9 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
     }
 
-    data->WriteBits(bg->GetPlayerScoresSize(), 21);
+    size_t count_pos = data->bitwpos();
+    data->WriteBits(0, 21);
+    uint32 count = 0;
     for (Battleground::BattlegroundScoreMap::const_iterator itr = bg->GetPlayerScoresBegin(); itr != bg->GetPlayerScoresEnd(); ++itr)
     {
         if (!bg->IsPlayerInBattleground(itr->first))
@@ -386,6 +388,12 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
 
         Player* player = ObjectAccessor::FindPlayer(itr->first);
+        if (!player)
+        {
+            TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Player " UI64FMTD " has scoreboard entry for battleground %u but is not in world!", itr->first, bg->GetTypeID(true));
+            continue;
+        }
+
         ObjectGuid playerGUID = itr->first;
         BattlegroundScore* score = itr->second;
 
@@ -539,8 +547,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         // if (unk 4) << uint32() unk
         buff.WriteByteSeq(playerGUID[7]);
         buff.WriteByteSeq(playerGUID[2]);
+        ++count;
     }
 
+    data->PutBits(count_pos, count, 21);
     data->WriteBit(bg->GetStatus() == STATUS_WAIT_LEAVE);    // If Ended
 
     if (isRated)                                             // arena
