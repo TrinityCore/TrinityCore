@@ -284,6 +284,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.201 - 26/08/2013: Ahora las spells utilizadas por Tower Cannon-Wintergrasp, Antipersonnel Cannon SoTA y Keep Cannon-IoC, harán su efecto de daño al recorrer la distancia correcta por jar
 1.202 - 08/09/2013: Ahora al hacer dismount de un vehículo eliminamos la flag UNIT_FLAG_PLAYER_CONTROLLED que provocaba que algunos vehículos quedaran iunutiles sin poder volver a controlarlos por Jar
 1.203 - 08/09/2013: Wintergrasp: Quedan funcionales los portales para tele-trasportar los vehículos del equipo defensor fuera de la fortaleza por Jar
+1.204 - 18/09/2013: Ring of Valor: Solucionados los problemas de LoS con Spell AoE en los elevadores por Behind
+1.205 - 18/09/2013: Ring of Valor: Agregado check Z para evitar exploit con spells AoE antes de que la arena inicie por Behind
 
 
 ########################
@@ -300,6 +302,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.1.10 - 24/03/2013: TrialOfTheCrusader: AnubArak spike (dummy) añadidas las inmunidades por Eilo
 2.1.11 - 05/08/2013: TrialOfTheCrusader: El paralytic spray de Acidmaw dejara el aura paralytic toxin al golpear a un jugador por Dolanpls.
 2.1.12 - 05/08/2013: TrialOfTheCrusader: El burning spray de Dreadscale dejara el aura burning bile al golpear a un jugador por Dolanpls.
+2.1.13 - 11/09/2013: TrialOfTheCrusader: Icehowl será inmune a stuns, ralentizaciones, etc por Apa
+2.1.14 - 16/09/2013: TrialOfTheCrusader: Gormok recibirá los stacks de Rising Anger por Apa
+2.1.15 - 20/09/2013: TrialOfTheCrusader: AnubArak durante la fase de tierra, las permafrost protegerán correctamente de las puas por Evef.
 - IcecrownCitadel - 
 2.2.4  - 26/11/2011: Inmunidades en script para todos los bosses y mini bosses por Eilo
 2.2.6  - 24/10/2011: Trash mob Deathbound Ward disminuido rango de aggro por Plangcoder
@@ -429,6 +434,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.181 - 24/08/2013: Rotface Ajuste de velocidades de las big oozes por Eilo
 2.2.182 - 24/08/2013: Putricidio las babosas ya no tomarán al tanke de putricidio como objetivo por Eilo
 2.2.183 - 06/09/2013: Putricidio arreglo del visual del malleable goo hero para festergut por Shauren
+2.2.184 - 20/09/2013: Rotface ahora al combinarse dos Big Ooze y alcanzar 5 o más stacks de Unstable Ooze desencadenarán Unstable Ooze Explotion por Sussanou
+2.2.185 - 20/09/2013: Festergut arrego de los stacks de gas spore blizzlike por Eilo
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -458,7 +465,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.17 - 28/06/2013: Ulduar: Las trampas que hay antes del boss Thorim ya no perseguiran al jugador ni seran seleccionables y atacables por Dolanpls
 2.6.18 - 15/07/2013: Ulduar: La puerta antes del General Vezax ya no se quedara cerrada al morir los 4 titanes por Dolanpls
 2.6.19 - 28/07/2013: Ulduar: Traduccion de los textos del teleport por Apa 
-2.6.20 - 30/07/2013: Ulduar: Freya ahora finalizara su encuentro correctamente, evitando que deje de funcionar el portal por Apa
+2.6.21 - 14/09/2013: Ulduar: Actualizado el loot para los boss  Freya , General Vezax y Thorim en su modalidad normal y Hard mode. También corregido los cofres de Freya y Thorim, ahora cuando acabe el evento, solo saldrá un cofre y será looteable solo una vez por Jar
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -696,7 +703,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.187 - 11/08/2013: Priest: Fix spell Avoidance (Pets), ahora Shadowfiend obtendra Avoidance de forma pasiva por Gildor
 3.188 - 11/08/2013: Druida: Fix spell Avoidance (Pets), ahora el Antárbol obtendra Avoidance de forma pasiva por Gildor
 3.189 - 19/08/2013: Sacer: Fix del levitar despues de usar un teleport o entrar a instance por Eilo
-3.190 - 07/09/2013: Stacks: Fix Leader of the Pack (Druida) and Rampage (Warrior), ahora no se acumularán por Gildor
+3.190 - 12/09/2013: Stacks: Fix Leader of the Pack (Druida) and Rampage (Warrior), ahora no se acumularán por Gildor
+3.191 - 12/09/2013: Stacks: Fix Sanctified Retribution (Paladin) vs Ferocious Inspiration (Hunter) vs Arcane Empowerment (Mage), ahora no se acumularán por Gildor
 
 
 #################
@@ -716,6 +724,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.170 - 16/06/2013: Mago: Fix t10 2p bonus, ahora Hot Streak tambien dará el bonus (causado por 3.168) por Gildor
 3.177 - 26/07/2013: Mago: Fix t7 2p bonus, ahora al usar la gema de maná recibirás el poder con hechizos correspondiente por bazgrim
 3.178 - 26/07/2013: Items: Fix item Serpent-Coil Braid (30720), ahora al usar la gema de maná recibirás el poder con hechizos correspondiente por bazgrim
+3.192 - 12/09/2013: Items: Fix item Solace of the Fallen (47271,47432) / Solace of the Defeated (47041,47059), ahora el proc se activará al usar spell instantaneos/buffs/hots y dots por Behind
 
 
 ############
@@ -1131,6 +1140,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.10.35 - 07/09/2013: Valle sombraluna: Perder la cabeza ... por unos cardos por Kirkhammett y Rincewind
 4.10.36 - 07/09/2013: Bosque de Terokkar: Descubriendo tus raíces y Redescubriendo tus raíces por Rincewind
 4.10.37 - 07/09/2013: Nagrand: Más abalorios de guerra por Rincewind
+4.10.38 - 15/05/2013: Montañas Filospada: Reinar en los cielos por Rincewind
 - Kalimdor y Reinos del Este -
 4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
 4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
@@ -1147,6 +1157,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.11.12 - 18/02/2013: Una compensación justa por Rincewind
 4.11.13 - 24/05/2013: Armonización con el Núcleo por Rincewind
 4.11.14 - 13/06/2013: Costa Oscura: SE BUSCA: ¡Viscoso! por Rincewind
+4.11.15 - 13/09/2013: Profundidades de Roca Negra: El reto por Rincewind
+4.11.16 - 17/09/2013: Forjaz/Orgrimmar: La despedida de Anthion por Rincewind
 
 
 ################
@@ -1217,6 +1229,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.57 - 04/07/2013: Desactivando eventos del sol devastado que no se usan ni sirven desde hace 2 años por Eilo
 6.58 - 07/07/2013: Las misiones de eventos del mundo ya no apareceran dos veces en los questgivers por Rincewind y Muzashi
 6.59 - 21/08/2013: Magisters' Terrace: Agregado un check al gameobject scrying orb para evitar el spam de kalecgos lo que provocaba caídas en el servidor, codigo inicial de Mangos, modificado por Apa y Jar
+6.60 - 10/09/2013: Blackrock Depths: Agregado check en Ring of the law para quest "The Challenge" por Evef
 
 
 ##########
