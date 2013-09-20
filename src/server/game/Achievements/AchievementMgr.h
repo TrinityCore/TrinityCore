@@ -116,7 +116,8 @@ struct AchievementCriteriaData
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE             = 8
         struct
         {
-            uint32 minvalue;
+            uint32 value;
+            uint32 compType;
         } value;
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL           = 9
         struct
