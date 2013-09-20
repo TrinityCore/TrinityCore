@@ -173,7 +173,8 @@ class npc_coren_direbrew : public CreatureScript
                 {
                     Map::PlayerList const& players = map->GetPlayers();
                     if (!players.isEmpty())
-                        sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 287);
+                        if (Group* group = players.begin()->GetSource()->GetGroup())
+                            sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 287);
                 }
             }
 
