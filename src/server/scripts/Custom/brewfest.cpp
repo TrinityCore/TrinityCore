@@ -1,5 +1,7 @@
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "LFGMgr.h"
+#include "Group.h"
+#include "Player.h"
 
 /*######
 ## BrewFest Event
@@ -171,9 +173,7 @@ class npc_coren_direbrew : public CreatureScript
                 {
                     Map::PlayerList const& players = map->GetPlayers();
                     if (!players.isEmpty())
-                        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                            if (Player* player = i->GetSource())
-                                sLFGMgr->FinishDungeon(player->GetGUID(), 287);
+                        sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 287);
                 }
             }
 
