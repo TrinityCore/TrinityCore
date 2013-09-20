@@ -9,7 +9,10 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 set(scripts_STAT_SRCS
-Custom/TrialOfTheCrusader/TW_boss_faction_champions.cpp
+  Custom/custom.cpp
+  Custom/TrialOfTheCrusader/TW_boss_faction_champions.cpp
+  Custom/custom_scripts.cpp
+  Custom/brewfest.cpp
   ${scripts_STAT_SRCS}
 )
 
