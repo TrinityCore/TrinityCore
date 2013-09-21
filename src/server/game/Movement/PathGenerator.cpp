@@ -548,7 +548,9 @@ void PathGenerator::UpdateFilter()
 NavTerrain PathGenerator::GetNavTerrain(float x, float y, float z)
 {
     LiquidData data;
-    _sourceUnit->GetBaseMap()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &data);
+    ZLiquidStatus liquidStatus = _sourceUnit->GetBaseMap()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &data);
+    if (liquidStatus == LIQUID_MAP_NO_WATER)
+        return NAV_GROUND;
 
     switch (data.type_flags)
     {
