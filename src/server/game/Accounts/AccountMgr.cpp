@@ -54,6 +54,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     stmt->setString(3, email);
 
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
+    delete stmt;
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
 
