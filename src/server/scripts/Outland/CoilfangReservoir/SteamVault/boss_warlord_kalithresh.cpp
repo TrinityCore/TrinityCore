@@ -70,7 +70,7 @@ public:
             //hack, due to really weird spell behaviour :(
             if (instance)
             {
-                if (instance->GetData64(DATA_DISTILLER) == IN_PROGRESS)
+                if (instance->GetData(DATA_DISTILLER) == IN_PROGRESS)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -88,14 +88,14 @@ public:
             DoCast(me, SPELL_WARLORDS_RAGE_NAGA, true);
 
             if (instance)
-                instance->SetData64(DATA_DISTILLER, IN_PROGRESS);
+                instance->SetData(DATA_DISTILLER, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             if (me->GetHealth() <= damage)
                 if (instance)
-                    instance->SetData64(DATA_DISTILLER, DONE);
+                    instance->SetData(DATA_DISTILLER, DONE);
         }
     };
 
@@ -154,7 +154,7 @@ public:
             //hack :(
             if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
                 if (instance)
-                    if (instance->GetData64(DATA_DISTILLER) == DONE)
+                    if (instance->GetData(DATA_DISTILLER) == DONE)
                         me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
         }
 

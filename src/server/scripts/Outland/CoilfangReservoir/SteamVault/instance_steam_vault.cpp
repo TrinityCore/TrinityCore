@@ -61,11 +61,11 @@ class instance_steam_vault : public InstanceMapScript
                 ThespiaGUID          = 0;
                 MekgineerGUID        = 0;
                 KalithreshGUID       = 0;
-                DistillerGUID        = 0;
 
                 MainChambersDoorGUID = 0;
                 AccessPanelHydroGUID = 0;
                 AccessPanelMekGUID   = 0;
+                DistillerState       = 0;
             }
 
             void OnCreatureCreate(Creature* creature) OVERRIDE
@@ -80,9 +80,6 @@ class instance_steam_vault : public InstanceMapScript
                         break;
                     case NPC_WARLORD_KALITHRESH:
                         KalithreshGUID = creature->GetGUID();
-                        break;
-                    case NPC_NAGA_DISTILLER:
-                        DistillerGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -120,6 +117,19 @@ class instance_steam_vault : public InstanceMapScript
                     default:
                         break;
                 }
+                return 0;
+            }
+
+            void SetData(uint32 type, uint32 data) OVERRIDE
+            {
+                if (type == DATA_DISTILLER)
+                    DistillerState = data;
+            }
+
+            uint32 GetData(uint32 type) const OVERRIDE
+            {
+                if (type == DATA_DISTILLER)
+                    return DistillerState;
                 return 0;
             }
 
@@ -197,11 +207,11 @@ class instance_steam_vault : public InstanceMapScript
                 uint64 ThespiaGUID;
                 uint64 MekgineerGUID;
                 uint64 KalithreshGUID;
-                uint64 DistillerGUID;
 
                 uint64 MainChambersDoorGUID;
                 uint64 AccessPanelHydroGUID;
                 uint64 AccessPanelMekGUID;
+                uint8 DistillerState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

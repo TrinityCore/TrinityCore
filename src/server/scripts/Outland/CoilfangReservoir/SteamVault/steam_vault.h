@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,18 +24,17 @@ uint32 const EncounterCount = 3;
 
 enum DataTypes
 {
-    DATA_HYDROMANCER_THESPIA        = 1,
-    DATA_MEKGINEER_STEAMRIGGER      = 2,
-    DATA_WARLORD_KALITHRESH         = 3,
-    DATA_DISTILLER                  = 4
+    DATA_HYDROMANCER_THESPIA        = 0,
+    DATA_MEKGINEER_STEAMRIGGER      = 1,
+    DATA_WARLORD_KALITHRESH         = 2,
+    DATA_DISTILLER                  = 3
 };
 
 enum CreatureIds
 {
     NPC_HYDROMANCER_THESPIA         = 17797,
     NPC_MEKGINEER_STEAMRIGGER       = 17796,
-    NPC_WARLORD_KALITHRESH          = 17798,
-    NPC_NAGA_DISTILLER              = 17954
+    NPC_WARLORD_KALITHRESH          = 17798
 };
 
 enum GameObjectIds
