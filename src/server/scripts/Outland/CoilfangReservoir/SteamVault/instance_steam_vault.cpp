@@ -25,164 +25,193 @@
 3 - Warlord Kalithresh Event
 */
 
-class instance_steam_vault : public InstanceMapScript
+class go_main_chambers_access_panel : public GameObjectScript
 {
-public:
-    instance_steam_vault() : InstanceMapScript(SteamVaultScriptName, 545) { }
+    public:
+        go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
-    struct instance_steam_vault_InstanceMapScript : public InstanceScript
-    {
-        instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map)
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
-            SetBossNumber(EncounterCount);
+            InstanceScript* instance = go->GetInstanceScript();
 
-            ThespiaGUID          = 0;
-            MekgineerGUID        = 0;
-            KalithreshGUID       = 0;
-            DistillerGUID        = 0;
-
-            MainChambersDoorGUID = 0;
-            AccessPanelHydroGUID = 0;
-            AccessPanelMekGUID   = 0;
-        }
-
-        void OnCreatureCreate(Creature* creature) OVERRIDE
-        {
-            switch (creature->GetEntry())
-            {
-                case NPC_HYDROMANCER_THESPIA:
-                    ThespiaGUID = creature->GetGUID();
-                    break;
-                case NPC_MEKGINEER_STEAMRIGGER:
-                    MekgineerGUID = creature->GetGUID();
-                    break;
-                case NPC_WARLORD_KALITHRESH:
-                    KalithreshGUID = creature->GetGUID();
-                    break;
-                case NPC_NAGA_DISTILLER:
-                    DistillerGUID = creature->GetGUID();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
-        {
-            switch (go->GetEntry())
-            {
-                case GO_MAIN_CHAMBERS_DOOR:
-                    MainChambersDoorGUID = go->GetGUID();
-                    break;
-                case GO_ACCESS_PANEL_HYDRO:
-                    AccessPanelHydroGUID = go->GetGUID();
-                    break;
-                case GO_ACCESS_PANEL_MEK:
-                    AccessPanelMekGUID = go->GetGUID();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        uint64 GetData64(uint32 type) const OVERRIDE
-        {
-            switch (type)
-            {
-                case DATA_HYDROMANCER_THESPIA:
-                    return ThespiaGUID;
-                case DATA_MEKGINEER_STEAMRIGGER:
-                    return MekgineerGUID;
-                case DATA_WARLORD_KALITHRESH:
-                    return KalithreshGUID;
-                default:
-                    break;
-            }
-            return 0;
-        }
-
-        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
-        {
-            if (!InstanceScript::SetBossState(type, state))
+            if (!instance)
                 return false;
 
-            switch (type)
-            {
-                case DATA_HYDROMANCER_THESPIA:
-                    if (state == DONE)
-                    {
-                        if (GameObject* go = instance->GetGameObject(AccessPanelHydroGUID))
-                            HandleGameObject(AccessPanelHydroGUID, true);
-                        if (GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE)
-                            HandleGameObject(MainChambersDoorGUID, true);
-                    }
-                    break;
-                case DATA_MEKGINEER_STEAMRIGGER:
-                    if (state == DONE)
-                        if (GameObject* go = instance->GetGameObject(AccessPanelMekGUID))
-                            HandleGameObject(AccessPanelMekGUID, true);
-                        if (GetBossState(DATA_HYDROMANCER_THESPIA) == DONE)
-                            HandleGameObject(MainChambersDoorGUID, true);
-                    break;
-                default:
-                    break;
-            }
+            if (go->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
+                instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
+
+            if (go->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
+                instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
 
             return true;
         }
+};
 
-        std::string GetSaveData() OVERRIDE
+class instance_steam_vault : public InstanceMapScript
+{
+    public:
+        instance_steam_vault() : InstanceMapScript(SteamVaultScriptName, 545) { }
+
+        struct instance_steam_vault_InstanceMapScript : public InstanceScript
         {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << GetBossSaveData();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(char const* str) OVERRIDE
-        {
-            if (!str)
+            instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
+                SetBossNumber(EncounterCount);
+
+                ThespiaGUID          = 0;
+                MekgineerGUID        = 0;
+                KalithreshGUID       = 0;
+                DistillerGUID        = 0;
+
+                MainChambersDoorGUID = 0;
+                AccessPanelHydroGUID = 0;
+                AccessPanelMekGUID   = 0;
             }
 
-            OUT_LOAD_INST_DATA(str);
-
-            std::istringstream loadStream(str);
-            for (uint32 i = 0; i < EncounterCount; ++i)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
-                uint32 tmpState;
-                loadStream >> tmpState;
-                if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                    tmpState = NOT_STARTED;
-                SetBossState(i, EncounterState(tmpState));
+                switch (creature->GetEntry())
+                {
+                    case NPC_HYDROMANCER_THESPIA:
+                        ThespiaGUID = creature->GetGUID();
+                        break;
+                    case NPC_MEKGINEER_STEAMRIGGER:
+                        MekgineerGUID = creature->GetGUID();
+                        break;
+                    case NPC_WARLORD_KALITHRESH:
+                        KalithreshGUID = creature->GetGUID();
+                        break;
+                    case NPC_NAGA_DISTILLER:
+                        DistillerGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            OUT_LOAD_INST_DATA_COMPLETE;
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_MAIN_CHAMBERS_DOOR:
+                        MainChambersDoorGUID = go->GetGUID();
+                        break;
+                    case GO_ACCESS_PANEL_HYDRO:
+                        AccessPanelHydroGUID = go->GetGUID();
+                        break;
+                    case GO_ACCESS_PANEL_MEK:
+                        AccessPanelMekGUID = go->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            uint64 GetData64(uint32 type) const OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_HYDROMANCER_THESPIA:
+                        return ThespiaGUID;
+                    case DATA_MEKGINEER_STEAMRIGGER:
+                        return MekgineerGUID;
+                    case DATA_WARLORD_KALITHRESH:
+                        return KalithreshGUID;
+                    default:
+                        break;
+                }
+                return 0;
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_HYDROMANCER_THESPIA:
+                        if (state == SPECIAL)
+                        {
+                            HandleGameObject(AccessPanelHydroGUID, true);
+
+                            if (GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL)
+                                HandleGameObject(MainChambersDoorGUID, true);
+
+                            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Steamvault: Access panel used.");
+                        }
+                        break;
+                    case DATA_MEKGINEER_STEAMRIGGER:
+                        if (state == SPECIAL)
+                        {
+                            HandleGameObject(AccessPanelMekGUID, true);
+
+                            if (GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL)
+                                HandleGameObject(MainChambersDoorGUID, true);
+
+                            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Steamvault: Access panel used.");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            std::string GetSaveData() OVERRIDE
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(char const* str) OVERRIDE
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                std::istringstream loadStream(str);
+                for (uint32 i = 0; i < EncounterCount; ++i)
+                {
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+                    SetBossState(i, EncounterState(tmpState));
+                }
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+            protected:
+                uint64 ThespiaGUID;
+                uint64 MekgineerGUID;
+                uint64 KalithreshGUID;
+                uint64 DistillerGUID;
+
+                uint64 MainChambersDoorGUID;
+                uint64 AccessPanelHydroGUID;
+                uint64 AccessPanelMekGUID;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        {
+            return new instance_steam_vault_InstanceMapScript(map);
         }
-
-        protected:
-            uint64 ThespiaGUID;
-            uint64 MekgineerGUID;
-            uint64 KalithreshGUID;
-            uint64 DistillerGUID;
-
-            uint64 MainChambersDoorGUID;
-            uint64 AccessPanelHydroGUID;
-            uint64 AccessPanelMekGUID;
-    };
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
-    {
-        return new instance_steam_vault_InstanceMapScript(map);
-    }
 };
 
 void AddSC_instance_steam_vault()
 {
+    new go_main_chambers_access_panel();
     new instance_steam_vault();
 }
