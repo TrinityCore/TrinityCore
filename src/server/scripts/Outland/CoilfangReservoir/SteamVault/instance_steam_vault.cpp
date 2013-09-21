@@ -38,10 +38,16 @@ class go_main_chambers_access_panel : public GameObjectScript
                 return false;
 
             if (go->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
+            {
                 instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
+                go->SetGoState(GO_STATE_ACTIVE);
+            }
 
             if (go->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
+            {
                 instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
+                go->SetGoState(GO_STATE_ACTIVE);
+            }
 
             return true;
         }
@@ -63,8 +69,6 @@ class instance_steam_vault : public InstanceMapScript
                 KalithreshGUID       = 0;
 
                 MainChambersDoorGUID = 0;
-                AccessPanelHydroGUID = 0;
-                AccessPanelMekGUID   = 0;
                 DistillerState       = 0;
             }
 
@@ -92,12 +96,6 @@ class instance_steam_vault : public InstanceMapScript
                 {
                     case GO_MAIN_CHAMBERS_DOOR:
                         MainChambersDoorGUID = go->GetGUID();
-                        break;
-                    case GO_ACCESS_PANEL_HYDRO:
-                        AccessPanelHydroGUID = go->GetGUID();
-                        break;
-                    case GO_ACCESS_PANEL_MEK:
-                        AccessPanelMekGUID = go->GetGUID();
                         break;
                     default:
                         break;
@@ -143,8 +141,6 @@ class instance_steam_vault : public InstanceMapScript
                     case DATA_HYDROMANCER_THESPIA:
                         if (state == SPECIAL)
                         {
-                            HandleGameObject(AccessPanelHydroGUID, true);
-
                             if (GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL)
                                 HandleGameObject(MainChambersDoorGUID, true);
 
@@ -154,8 +150,6 @@ class instance_steam_vault : public InstanceMapScript
                     case DATA_MEKGINEER_STEAMRIGGER:
                         if (state == SPECIAL)
                         {
-                            HandleGameObject(AccessPanelMekGUID, true);
-
                             if (GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL)
                                 HandleGameObject(MainChambersDoorGUID, true);
 
@@ -209,8 +203,6 @@ class instance_steam_vault : public InstanceMapScript
                 uint64 KalithreshGUID;
 
                 uint64 MainChambersDoorGUID;
-                uint64 AccessPanelHydroGUID;
-                uint64 AccessPanelMekGUID;
                 uint8 DistillerState;
         };
 
