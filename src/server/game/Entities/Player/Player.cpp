@@ -551,8 +551,11 @@ inline void KillRewarder::_RewardKillCredit(Player* player)
 {
     // 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
     if (!_group || player->IsAlive() || !player->GetCorpse())
-        if (_victim->GetTypeId() == TYPEID_UNIT)
-            player->KilledMonster(_victim->ToCreature()->GetCreatureTemplate(), _victim->GetGUID());
+        if (Creature* target = _victim->ToCreature())
+        {
+            player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID());
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, target->GetCreatureType(), 1, 0, target);
+        }
 }
 
 void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
@@ -4113,7 +4116,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             itr->second->state = PLAYERSPELL_REMOVED;
     }
 
-    RemoveAurasDueToSpell(spell_id);
+    RemoveOwnedAura(spell_id, GetGUID());
 
     // remove pet auras
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
