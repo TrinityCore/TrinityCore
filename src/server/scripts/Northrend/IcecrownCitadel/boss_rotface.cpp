@@ -89,6 +89,14 @@ enum Events
     EVENT_STICKY_OOZE       = 8,
 };
 
+static const uint32 OozeEntries[4] =
+{ 
+    36897, 
+    38138, 
+    36899, 
+    38123
+};
+
 class boss_rotface : public CreatureScript
 {
     public:
@@ -113,6 +121,13 @@ class boss_rotface : public CreatureScript
 
                 infectionStage = 0;
                 infectionCooldown = 14000;
+                
+                std::list<Creature*> Type[4];
+                for (int i = 0; i < 4; ++i)
+                    GetCreatureListWithEntryInGrid(Type[i], me, OozeEntries[i], 200);
+                for (int x = 0; x < 4; ++x)
+                    for (std::list<Creature*>::const_iterator itr = Type[x].begin(); itr != Type[x].end(); ++itr)
+                        (*itr)->DespawnOrUnsummon();
             }
 
             void EnterCombat(Unit* who) OVERRIDE
