@@ -83,6 +83,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     switch (criteria->type)
     {
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
         case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:          // only hardcoded list
@@ -117,7 +118,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     switch (dataType)
     {
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
         case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
@@ -180,6 +180,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             }
             return true;
         }
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
+            if (value.compType >= COMP_TYPE_MAX)
+            {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE (%u) has wrong ComparisionType in value2 (%u), ignored.",
+                    criteria->ID, criteria->type, dataType, value.compType);
+                return false;
+            }
+            return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
             if (level.minlevel > STRONG_MAX_LEVEL)
             {
@@ -307,7 +315,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA:
             return target && target->HasAuraEffect(aura.spell_id, aura.effect_idx);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
-            return miscValue1 >= value.minvalue;
+            return CompareValues(ComparisionType(value.compType), miscValue1, value.value);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
             if (!target)
                 return false;
@@ -1140,6 +1148,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
@@ -1352,7 +1361,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                         }
                     }
                 }
-
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL:
@@ -1363,7 +1371,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
             case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
             case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
@@ -1539,6 +1546,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
         case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS:
         case ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:

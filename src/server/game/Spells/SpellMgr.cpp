@@ -127,6 +127,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Seduction
             else if (spellproto->SpellFamilyFlags[1] & 0x10000000)
                 return DIMINISHING_FEAR;
+            // Sin and Punishment (Priest spell, don't ask)
+            else if (spellproto->SpellIconID == 1869)
+                return DIMINISHING_NONE;
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -286,7 +289,7 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
                 return 6 * IN_MILLISECONDS;
             // Hunter's Mark
             if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 120 * IN_MILLISECONDS;
+                return 30 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_PALADIN:

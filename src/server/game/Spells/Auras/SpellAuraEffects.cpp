@@ -1339,9 +1339,9 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
     else
     {
         if (spellId)
-            target->RemoveAurasDueToSpell(spellId);
+            target->RemoveOwnedAura(spellId, target->GetGUID());
         if (spellId2)
-            target->RemoveAurasDueToSpell(spellId2);
+            target->RemoveOwnedAura(spellId2, target->GetGUID());
 
         Unit::AuraEffectList const& shapeshifts = target->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
         AuraEffect* newAura = NULL;
