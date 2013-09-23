@@ -907,6 +907,13 @@ Instance.ResetTimeHour = 4
 Instance.UnloadDelay = 1800000
 
 #
+#    InstancesResetAnnounce
+#        Description: Announce the reset of one instance to whole party.
+#        Default:     false - (Disabled, don't show, blizzlike)
+#                     true  - (Enabled, show)
+
+InstancesResetAnnounce = false
+#
 #    Quests.LowLevelHideDiff
 #        Description: Level difference between player and quest level at which quests are
 #                     considered low-level and are not shown via exclamation mark (!) at quest
@@ -1212,7 +1219,6 @@ Warden.BanDuration = 86400
 
 ###################################################################################################
 # PLAYER INTERACTION
-#
 #
 #    AllowTwoSide.Interaction.Calendar
 #        Description: Allow calendar invites between factions.
@@ -2138,6 +2144,29 @@ Battleground.GiveXPForKills = 0
 Battleground.Random.ResetHour = 6
 
 #
+#     Battleground.RewardWinnerHonorFirst
+#     Battleground.RewardWinnerArenaFirst
+#     Battleground.RewardWinnerHonorLast
+#     Battleground.RewardWinnerArenaLast
+#     Battleground.RewardLoserHonorFirst
+#     Battleground.RewardLoserHonorLast
+#        Description: Random Battlegrounds / call to the arms rewards
+#        Default:     30 - Battleground.RewardWinnerHonorFirst
+#                     25 - Battleground.RewardWinnerArenaFirst
+#                     15 - Battleground.RewardWinnerHonorLast
+#                     0  - Battleground.RewardWinnerArenaLast
+#                     5  - Battleground.RewardLoserHonorFirst
+#                     5  - Battleground.RewardLoserHonorLast
+#
+
+Battleground.RewardWinnerHonorFirst = 30
+Battleground.RewardWinnerArenaFirst = 25
+Battleground.RewardWinnerHonorLast  = 15
+Battleground.RewardWinnerArenaLast  = 0
+Battleground.RewardLoserHonorFirst  = 5
+Battleground.RewardLoserHonorLast   = 5
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -2616,7 +2645,6 @@ UI.ShowQuestLevelsInDialogs = 0
 ###################################################################################################
 
 ###################################################################################################
-#
 #  LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
@@ -2805,7 +2833,6 @@ Log.Async.Enable = 0
 ###################################################################################################
 
 ###################################################################################################
-#
 # PACKET SPOOF PROTECTION SETTINGS
 #
 # These settings determine which action to take when harmful packet spoofing is detected.

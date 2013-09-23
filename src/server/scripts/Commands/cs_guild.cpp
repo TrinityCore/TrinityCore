@@ -118,6 +118,7 @@ public:
             return false;
 
         targetGuild->Disband();
+        delete targetGuild;
 
         return true;
     }
@@ -164,7 +165,7 @@ public:
         if (!targetGuild)
             return false;
 
-        targetGuild->DeleteMember(targetGuid, false, true);
+        targetGuild->DeleteMember(targetGuid, false, true, true);
         return true;
     }
 

@@ -311,6 +311,23 @@ public:
     {
         npc_highlord_darion_mograineAI(Creature* creature) : npc_escortAI(creature)
         {
+            uiTirionGUID = 0;
+            uiKorfaxGUID = 0;
+            uiMaxwellGUID = 0;
+            uiEligorGUID = 0;
+            uiRayneGUID = 0;
+            uiKoltiraGUID = 0;
+            uiOrbazGUID = 0;
+            uiThassarianGUID = 0;
+            uiLichKingGUID = 0;
+
+            memset(uiDefenderGUID, 0, sizeof(uiDefenderGUID));
+            memset(uiEarthshatterGUID, 0, sizeof(uiEarthshatterGUID));
+            memset(uiAbominationGUID, 0, sizeof(uiAbominationGUID));
+            memset(uiBehemothGUID, 0, sizeof(uiBehemothGUID));
+            memset(uiGhoulGUID, 0, sizeof(uiGhoulGUID));
+            memset(uiWarriorGUID, 0, sizeof(uiWarriorGUID));
+
             Reset();
         }
 

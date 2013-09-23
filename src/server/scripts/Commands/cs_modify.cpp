@@ -40,44 +40,44 @@ public:
     {
         static ChatCommand modifyspeedCommandTable[] =
         {
-            { "fly",            RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyFlyCommand,           "", NULL },
-            { "all",            RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyASpeedCommand,        "", NULL },
-            { "walk",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifySpeedCommand,         "", NULL },
-            { "backwalk",       RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyBWalkCommand,         "", NULL },
-            { "swim",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifySwimCommand,          "", NULL },
-            { "",               RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyASpeedCommand,        "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "all",      RBAC_PERM_COMMAND_MODIFY_SPEED_ALL,      false, &HandleModifyASpeedCommand, "", NULL },
+            { "backwalk", RBAC_PERM_COMMAND_MODIFY_SPEED_BACKWALK, false, &HandleModifyBWalkCommand,  "", NULL },
+            { "fly",      RBAC_PERM_COMMAND_MODIFY_SPEED_FLY,      false, &HandleModifyFlyCommand,    "", NULL },
+            { "walk",     RBAC_PERM_COMMAND_MODIFY_SPEED_WALK,     false, &HandleModifySpeedCommand,  "", NULL },
+            { "swim",     RBAC_PERM_COMMAND_MODIFY_SPEED_SWIM,     false, &HandleModifySwimCommand,   "", NULL },
+            { "",         RBAC_PERM_COMMAND_MODIFY_SPEED,          false, &HandleModifyASpeedCommand, "", NULL },
+            { NULL,       0,                                       false, NULL,                       "", NULL }
         };
         static ChatCommand modifyCommandTable[] =
         {
-            { "hp",             RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyHPCommand,            "", NULL },
-            { "mana",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyManaCommand,          "", NULL },
-            { "rage",           RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyRageCommand,          "", NULL },
-            { "runicpower",     RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyRunicPowerCommand,    "", NULL },
-            { "energy",         RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyEnergyCommand,        "", NULL },
-            { "money",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyMoneyCommand,         "", NULL },
-            { "scale",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyScaleCommand,         "", NULL },
-            { "bit",            RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyBitCommand,           "", NULL },
-            { "faction",        RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyFactionCommand,       "", NULL },
-            { "spell",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifySpellCommand,         "", NULL },
-            { "talentpoints",   RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyTalentCommand,        "", NULL },
-            { "mount",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyMountCommand,         "", NULL },
-            { "honor",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyHonorCommand,         "", NULL },
-            { "reputation",     RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleModifyRepCommand,           "", NULL },
-            { "arenapoints",    RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyArenaCommand,         "", NULL },
-            { "drunk",          RBAC_PERM_MODERATOR_COMMANDS,      false, &HandleModifyDrunkCommand,         "", NULL },
-            { "standstate",     RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleModifyStandStateCommand,    "", NULL },
-            { "phase",          RBAC_PERM_ADMINISTRATOR_COMMANDS,  false, &HandleModifyPhaseCommand,         "", NULL },
-            { "gender",         RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleModifyGenderCommand,        "", NULL },
-            { "speed",          RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,           "", modifyspeedCommandTable },
-            { NULL,             0,                  false, NULL,                                           "", NULL }
+            { "arenapoints",  RBAC_PERM_COMMAND_MODIFY_ARENAPOINTS,  false, &HandleModifyArenaCommand,         "", NULL },
+            { "bit",          RBAC_PERM_COMMAND_MODIFY_BIT,          false, &HandleModifyBitCommand,           "", NULL },
+            { "drunk",        RBAC_PERM_COMMAND_MODIFY_DRUNK,        false, &HandleModifyDrunkCommand,         "", NULL },
+            { "energy",       RBAC_PERM_COMMAND_MODIFY_ENERGY,       false, &HandleModifyEnergyCommand,        "", NULL },
+            { "faction",      RBAC_PERM_COMMAND_MODIFY_FACTION,      false, &HandleModifyFactionCommand,       "", NULL },
+            { "gender",       RBAC_PERM_COMMAND_MODIFY_GENDER,       false, &HandleModifyGenderCommand,        "", NULL },
+            { "honor",        RBAC_PERM_COMMAND_MODIFY_HONOR,        false, &HandleModifyHonorCommand,         "", NULL },
+            { "hp",           RBAC_PERM_COMMAND_MODIFY_HP,           false, &HandleModifyHPCommand,            "", NULL },
+            { "mana",         RBAC_PERM_COMMAND_MODIFY_MANA,         false, &HandleModifyManaCommand,          "", NULL },
+            { "money",        RBAC_PERM_COMMAND_MODIFY_MONEY,        false, &HandleModifyMoneyCommand,         "", NULL },
+            { "mount",        RBAC_PERM_COMMAND_MODIFY_MOUNT,        false, &HandleModifyMountCommand,         "", NULL },
+            { "phase",        RBAC_PERM_COMMAND_MODIFY_PHASE,        false, &HandleModifyPhaseCommand,         "", NULL },
+            { "rage",         RBAC_PERM_COMMAND_MODIFY_RAGE,         false, &HandleModifyRageCommand,          "", NULL },
+            { "reputation",   RBAC_PERM_COMMAND_MODIFY_REPUTATION,   false, &HandleModifyRepCommand,           "", NULL },
+            { "runicpower",   RBAC_PERM_COMMAND_MODIFY_RUNICPOWER,   false, &HandleModifyRunicPowerCommand,    "", NULL },
+            { "scale",        RBAC_PERM_COMMAND_MODIFY_SCALE,        false, &HandleModifyScaleCommand,         "", NULL },
+            { "speed",        RBAC_PERM_COMMAND_MODIFY_SPEED,        false, NULL,           "", modifyspeedCommandTable },
+            { "spell",        RBAC_PERM_COMMAND_MODIFY_SPELL,        false, &HandleModifySpellCommand,         "", NULL },
+            { "standstate",   RBAC_PERM_COMMAND_MODIFY_STANDSTATE,   false, &HandleModifyStandStateCommand,    "", NULL },
+            { "talentpoints", RBAC_PERM_COMMAND_MODIFY_TALENTPOINTS, false, &HandleModifyTalentCommand,        "", NULL },
+            { NULL,           0,                                     false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "morph",          RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleModifyMorphCommand,          "", NULL },
-            { "demorph",        RBAC_PERM_GAMEMASTER_COMMANDS,     false, &HandleDeMorphCommand,              "", NULL },
-            { "modify",         RBAC_PERM_MODERATOR_COMMANDS,      false, NULL,                 "", modifyCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "morph",   RBAC_PERM_COMMAND_MORPH,   false, &HandleModifyMorphCommand,          "", NULL },
+            { "demorph", RBAC_PERM_COMMAND_DEMORPH, false, &HandleDeMorphCommand,              "", NULL },
+            { "modify",  RBAC_PERM_COMMAND_MODIFY,  false, NULL,                 "", modifyCommandTable },
+            { NULL,      0,                         false, NULL,                               "", NULL }
         };
         return commandTable;
     }

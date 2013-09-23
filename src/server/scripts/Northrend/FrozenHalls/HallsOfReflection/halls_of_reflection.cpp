@@ -990,12 +990,15 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             lichking->SetReactState(REACT_PASSIVE);
                             lichking->Attack(me,true);
                         }
-                        if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL, IceWalls[_icewall].GetPositionX(), IceWalls[_icewall].GetPositionY(), IceWalls[_icewall].GetPositionZ(), IceWalls[_icewall].GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
+                        if (_icewall < 4)
                         {
-                            _walltargetGUID = walltarget->GetGUID();
-                            walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);
-                            walltarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                            me->Attack(walltarget,false);
+                            if (Creature* walltarget = me->SummonCreature(NPC_ICE_WALL, IceWalls[_icewall].GetPositionX(), IceWalls[_icewall].GetPositionY(), IceWalls[_icewall].GetPositionZ(), IceWalls[_icewall].GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
+                            {
+                                _walltargetGUID = walltarget->GetGUID();
+                                walltarget->AI()->DoCast(walltarget, SPELL_SUMMON_ICE_WALL);
+                                walltarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                me->Attack(walltarget,false);
+                            }
                         }
                         _events.ScheduleEvent(EVENT_ESCAPE_20, 3000);
                         break;

@@ -176,7 +176,6 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
     SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
-    SPELL_ATTR0_CU_TRIGGERED_BY_CASTER           = 0x00000020, // @todo: need generic solution, some triggered spells will be casted by target instead of caster
     SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
@@ -386,7 +385,7 @@ public:
     bool IsAffectingArea() const;
     bool IsTargetingArea() const;
     bool NeedsExplicitUnitTarget() const;
-    bool NeedsToBeTriggeredByCaster() const;
+    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
 
     bool IsPassive() const;
     bool IsAutocastable() const;
