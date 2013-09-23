@@ -1943,10 +1943,22 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
 
         if (SendMsgTo)
         {
-            if (isEmpty)
-                SendMsgTo->SendResetInstanceSuccess(instanceSave->GetMapId());
-            else
+            if (!isEmpty)
                 SendMsgTo->SendResetInstanceFailed(0, instanceSave->GetMapId());
+            else if (sWorld->getBoolConfig(CONFIG_INSTANCES_RESET_ANNOUNCE))
+            {
+                if (Group* group = SendMsgTo->GetGroup())
+                {
+                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        if (Player* player = itr->GetSource())
+                            player->SendResetInstanceSuccess(instanceSave->GetMapId());
+                }
+
+                else
+                    SendMsgTo->SendResetInstanceSuccess(instanceSave->GetMapId());
+            }
+            else
+                SendMsgTo->SendResetInstanceSuccess(instanceSave->GetMapId());
         }
 
         if (isEmpty || method == INSTANCE_RESET_GROUP_DISBAND || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
