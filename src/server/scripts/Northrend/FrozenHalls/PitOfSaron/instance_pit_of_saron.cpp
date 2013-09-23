@@ -41,7 +41,7 @@ class instance_pit_of_saron : public InstanceMapScript
         {
             instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(EncounterCount);
                 LoadDoorData(Doors);
                 _garfrostGUID = 0;
                 _krickGUID = 0;
@@ -292,7 +292,7 @@ class instance_pit_of_saron : public InstanceMapScript
 
                 if (dataHead1 == 'P' && dataHead2 == 'S')
                 {
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    for (uint8 i = 0; i < EncounterCount; ++i)
                     {
                         uint32 tmpState;
                         loadStream >> tmpState;
