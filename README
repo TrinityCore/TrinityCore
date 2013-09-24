@@ -19,14 +19,14 @@ Gracias a quienes hacen este proyecto posible y su respectivo crédito a:
  Copyright (C) Muzashi (https://github.com/Muzashi)
  Copyright (C) Jildor (https://github.com/Jildor)
  Copyright (C) Rinsewind (https://github.com/Rinsewind)
- Copyright (C) Phantons (https://github.com/Phantons)
  Copyright (C) Dolanpls (https://github.com/Dolanpls)
  Copyright (C) Evef (https://github.com/Evef)
  Copyright (C) Apa (https://github.com/ApaxD)
  Copyright (C) Jar (https://github.com/JarDv)
  Copyright (C) Komix (https://github.com/kalkrux)
  Copyright (C) Ramas (https://github.com/ramasdev)
- Copyright (C) Retriman (https://github.com/Retriman)
+ Copyright (C) Saitama (https://github.com/cagoncevatt)
+ Copyright (C) Soneh (https://github.com/mauvas)
  Copyright (C) Eilo-Patches (https://github.com/eilo/Eilo-Patches)
  Copyright (C) ReanEmu (https://github.com/ComunidadRean/ReanEmu)
  Copyright (C) WoWReAn Emu (https://github.com/eilo/wowrean-emu)
@@ -286,6 +286,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.203 - 08/09/2013: Wintergrasp: Quedan funcionales los portales para tele-trasportar los vehículos del equipo defensor fuera de la fortaleza por Jar
 1.204 - 18/09/2013: Ring of Valor: Solucionados los problemas de LoS con Spell AoE en los elevadores por Behind
 1.205 - 18/09/2013: Ring of Valor: Agregado check Z para evitar exploit con spells AoE antes de que la arena inicie por Behind
+1.206 - 23/09/2013: UpdateAllowedPositionZ desactivada por Eilo
+1.207 - 23/09/2013: Permitiendo actualizar las posiciones de los npcs sobre transports como gunship por Eilo
+1.208 - 23/09/2013: Mejorando el sistema de movimientos para evectos de charge y leap con GetFirstCollisionPosition por Eilo
 
 
 ########################
@@ -305,6 +308,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.1.13 - 11/09/2013: TrialOfTheCrusader: Icehowl será inmune a stuns, ralentizaciones, etc por Apa
 2.1.14 - 16/09/2013: TrialOfTheCrusader: Gormok recibirá los stacks de Rising Anger por Apa
 2.1.15 - 20/09/2013: TrialOfTheCrusader: AnubArak durante la fase de tierra, las permafrost protegerán correctamente de las puas por Evef.
+2.1.16 - 21/09/2013: TrialOfTheCrusader: Twin Val'kyrs retocadas las inmunidades de Fjola Lightbane y Eydis Darkbane por Saitama
 - IcecrownCitadel - 
 2.2.4  - 26/11/2011: Inmunidades en script para todos los bosses y mini bosses por Eilo
 2.2.6  - 24/10/2011: Trash mob Deathbound Ward disminuido rango de aggro por Plangcoder
@@ -377,7 +381,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.120 - 17/12/2012: LichKing: Valkyr Shadowguard ajuste de velocidades en db para la ralentizacion apropiada por Eilo
 2.2.121 - 17/12/2012: LichKing: Vile Spirit ajuste de velocidades en db para el RandomMovement por Eilo
 2.2.123 - 17/12/2012: Sindragosa arreglada la tumba de la tercera fase por Eilo
-2.2.124 - 17/12/2012: TheLichKing Valkyrs ajuste de comportamiento de altura por Eilo
 2.2.125 - 19/12/2012: TheLichKing Wicked Spirit ajuste de velocidades en la db por Eilo
 2.2.126 - 19/12/2012: TheLichKing Spirit Bomb ajuste de velocidades en la db por Eilo
 2.2.127 - 23/12/2012: Saurfang retoque de contenedores para targets por Shauren
@@ -433,9 +436,14 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.180 - 23/08/2013: Putricidio las auras como Hand of Protection, Deterrence, Divine Shield no evitaran el impacto de la spell por Eilo
 2.2.181 - 24/08/2013: Rotface Ajuste de velocidades de las big oozes por Eilo
 2.2.182 - 24/08/2013: Putricidio las babosas ya no tomarán al tanke de putricidio como objetivo por Eilo
-2.2.183 - 06/09/2013: Putricidio arreglo del visual del malleable goo hero para festergut por Shauren
 2.2.184 - 20/09/2013: Rotface ahora al combinarse dos Big Ooze y alcanzar 5 o más stacks de Unstable Ooze desencadenarán Unstable Ooze Explotion por Sussanou
 2.2.185 - 20/09/2013: Festergut arrego de los stacks de gas spore blizzlike por Eilo
+2.2.186 - 23/09/2013: Rotface ahora los dos Little Ooze que se fusionen en un Big Ooze desaparecerán correctamente
+2.2.187 - 23/09/2013: Professor Putricide ahora utilizará el Malleable Goo correcto para el encuentro de Festergut Heroico por Saitama.
+2.2.188 - 24/09/2013: Rotface ajustado el daño de los Big Ooze para acercarse a un valor Blizzlike por Saitama
+2.2.189 - 24/09/2013: TheLichKing despawn de las shadow traps en las interfases por Eilo
+2.2.190 - 24/09/2013: TheLichKing haciendo que traiga a los pjs de la Frostmourne para la fase final por Eilo
+2.2.191 - 24/09/2013: TheLichKing la spell Harvest Soul channeled no debe ser resistida por Eilo
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -533,6 +541,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.18.1 - 16/08/2012: ForgeOfSouls: Bronjahm ajuste de inmunidades por Eilo
 2.18.2 - 16/08/2012: ForgeOfSouls: Adding some texts by Eilo
 2.18.3 - 23/10/2012: ForgeOfSouls: Correcciones a las Unleashed Souls por tibbi
+2.18.4 - 22/09/2013: ForgeOfSouls: Modificada la velocidad de los Corrupted Soul Fragment de Bronjahm por Evef
+2.18.5 - 22/09/2013: ForgeOfSouls: Bronjahm absroberá correctamente el Corrupted Soul Fragment por Evef.
 - TheNexus -
 2.19.1 - 05/12/2011: TheNexus: Correccion de trash mob y varias flags por Treak
 2.19.2 - 21/07/2012: TheNexus: Fixed quest "Buying Time" and the white dragons falling to the ground by Muzashi
@@ -725,6 +735,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.177 - 26/07/2013: Mago: Fix t7 2p bonus, ahora al usar la gema de maná recibirás el poder con hechizos correspondiente por bazgrim
 3.178 - 26/07/2013: Items: Fix item Serpent-Coil Braid (30720), ahora al usar la gema de maná recibirás el poder con hechizos correspondiente por bazgrim
 3.192 - 12/09/2013: Items: Fix item Solace of the Fallen (47271,47432) / Solace of the Defeated (47041,47059), ahora el proc se activará al usar spell instantaneos/buffs/hots y dots por Behind
+3.193 - 22/09/2013: Mago: Fix T9 2P Bonus, previniendo exploit de mantener el efecto sin el tier por Gildor
 
 
 ############
@@ -1159,6 +1170,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.11.14 - 13/06/2013: Costa Oscura: SE BUSCA: ¡Viscoso! por Rincewind
 4.11.15 - 13/09/2013: Profundidades de Roca Negra: El reto por Rincewind
 4.11.16 - 17/09/2013: Forjaz/Orgrimmar: La despedida de Anthion por Rincewind
+4.11.17 - 23/09/2013: Profundidades Rocanegra: Ribbly Llavenrosca por Rincewind
 
 
 ################
@@ -1230,12 +1242,16 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.58 - 07/07/2013: Las misiones de eventos del mundo ya no apareceran dos veces en los questgivers por Rincewind y Muzashi
 6.59 - 21/08/2013: Magisters' Terrace: Agregado un check al gameobject scrying orb para evitar el spam de kalecgos lo que provocaba caídas en el servidor, codigo inicial de Mangos, modificado por Apa y Jar
 6.60 - 10/09/2013: Blackrock Depths: Agregado check en Ring of the law para quest "The Challenge" por Evef
+6.61 - 24/09/2013: Cumbre Rocanegra Superior: Evento de Piroguardia Brasadivino pasado a SAI por Rincewind
 
 
 ##########
 # Custom #
 ##########
+7.2  - 08/05/2012: Subastador Dalaran por Hispano
+7.3  - 12/07/2012: Vendedor de Loteria base por KarlosHyD cambios por Eilo
 7.4  - 15/05/2012: Comandos staff wowrean por Winnie
+7.8  - 21/07/2012: Npc broma, dia de inocentes por Eilo
 7.9  - 08/07/2012: Misiones autocompletables por Winnie y Muzashi
 7.10 - 03/09/2012: Pancho el Loco y los Cofres Misteriosos por Muzashi
 7.11 - 08/07/2012: Zonas pvp y santuario custom por Oceanor
