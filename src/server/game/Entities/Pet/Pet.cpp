@@ -1732,22 +1732,22 @@ bool Pet::resetTalents()
     return true;
 }
 
-void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
+void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* onlinePet /*= NULL*/)
 {
     // not need after this call
-    if (owner->ToPlayer()->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        owner->ToPlayer()->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS, true);
+    if (owner->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+        owner->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS, true);
 
     // reset for online
-    if (online_pet)
-        online_pet->resetTalents();
+    if (onlinePet)
+        onlinePet->resetTalents();
 
     // now need only reset for offline pets (all pets except online case)
-    uint32 except_petnumber = online_pet ? online_pet->GetCharmInfo()->GetPetNumber() : 0;
+    uint32 exceptPetNumber = onlinePet ? onlinePet->GetCharmInfo()->GetPetNumber() : 0;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET);
     stmt->setUInt32(0, owner->GetGUIDLow());
-    stmt->setUInt32(1, except_petnumber);
+    stmt->setUInt32(1, exceptPetNumber);
     PreparedQueryResult resultPets = CharacterDatabase.Query(stmt);
 
     // no offline pets
@@ -1756,7 +1756,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL_LIST);
     stmt->setUInt32(0, owner->GetGUIDLow());
-    stmt->setUInt32(1, except_petnumber);
+    stmt->setUInt32(1, exceptPetNumber);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)

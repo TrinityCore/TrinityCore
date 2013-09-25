@@ -19,21 +19,14 @@
 #include "InstanceScript.h"
 #include "steam_vault.h"
 
-/* Steam Vaults encounters:
-1 - Hydromancer Thespia Event
-2 - Mekgineer Steamrigger Event
-3 - Warlord Kalithresh Event
-*/
-
 class go_main_chambers_access_panel : public GameObjectScript
 {
     public:
         go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {
             InstanceScript* instance = go->GetInstanceScript();
-
             if (!instance)
                 return false;
 
@@ -168,7 +161,7 @@ class instance_steam_vault : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << GetBossSaveData();
+                saveStream << "S V " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -184,15 +177,24 @@ class instance_steam_vault : public InstanceMapScript
 
                 OUT_LOAD_INST_DATA(str);
 
+                char dataHead1, dataHead2;
+
                 std::istringstream loadStream(str);
-                for (uint32 i = 0; i < EncounterCount; ++i)
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'S' && dataHead2 == 'V')
                 {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-                    SetBossState(i, EncounterState(tmpState));
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
                 }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
@@ -206,7 +208,7 @@ class instance_steam_vault : public InstanceMapScript
                 uint8 DistillerState;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_steam_vault_InstanceMapScript(map);
         }
