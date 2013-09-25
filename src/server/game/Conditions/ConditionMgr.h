@@ -131,6 +131,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
     CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 25, // only 4.3.4
     CONDITION_SOURCE_TYPE_MAX                            = 26  // MAX
+<<<<<<< HEAD
 };
 
 enum ComparisionType
@@ -141,6 +142,8 @@ enum ComparisionType
     COMP_TYPE_HIGH_EQ,
     COMP_TYPE_LOW_EQ,
     COMP_TYPE_MAX
+=======
+>>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
 };
 
 enum RelationType
@@ -273,27 +276,6 @@ class ConditionMgr
         NpcVendorConditionContainer       NpcVendorConditionContainerStore;
         SmartEventConditionContainer      SmartEventConditionStore;
 };
-
-template <class T> bool CompareValues(ComparisionType type,  T val1, T val2)
-{
-    switch (type)
-    {
-        case COMP_TYPE_EQ:
-            return val1 == val2;
-        case COMP_TYPE_HIGH:
-            return val1 > val2;
-        case COMP_TYPE_LOW:
-            return val1 < val2;
-        case COMP_TYPE_HIGH_EQ:
-            return val1 >= val2;
-        case COMP_TYPE_LOW_EQ:
-            return val1 <= val2;
-        default:
-            // incorrect parameter
-            ASSERT(false);
-            return false;
-    }
-}
 
 #define sConditionMgr ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance()
 

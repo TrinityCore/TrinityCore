@@ -102,9 +102,13 @@ AI* GetPitOfSaronKeepAI(Creature* creature)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 #endif
 =======
 #endif // PIT_OF_SARON_H_
 >>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
+=======
+#endif // PIT_OF_SARON_H_
+>>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611

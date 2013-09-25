@@ -409,7 +409,7 @@ enum SMART_ACTION
     SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      //
     SMART_ACTION_RANDOM_EMOTE                       = 10,     // EmoteId1, EmoteId2, EmoteId3...
     SMART_ACTION_CAST                               = 11,     // SpellId, CastFlags
-    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, storageID, attackInvoker,
+    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
     SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
@@ -583,7 +583,6 @@ struct SmartAction
             uint32 creature;
             uint32 type;
             uint32 duration;
-            uint32 storageID;
             uint32 attackInvoker;
         } summonCreature;
 
@@ -1288,7 +1287,7 @@ enum SmartCastFlags
 struct SmartScriptHolder
 {
     SmartScriptHolder() : entryOrGuid(0), source_type(SMART_SCRIPT_TYPE_CREATURE)
-        , event_id(0), link(0), timer(0), active(false), runOnce(false)
+        , event_id(0), link(0), event(), action(), target(), timer(0), active(false), runOnce(false)
         , enableTimed(false) {}
 
     int32 entryOrGuid;

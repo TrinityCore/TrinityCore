@@ -128,10 +128,14 @@ static const Position outroPos[8] =
     {828.9342f, 118.6247f, 514.5190f, 0.0000000f},  // Krick's Choke Position
     {828.9342f, 118.6247f, 509.4958f, 0.0000000f},  // Kirck's Death Position
 <<<<<<< HEAD
+<<<<<<< HEAD
     {914.4820f, 143.1602f, 633.3624f, 0.0000000f}  // Tyrannus fly up (not sniffed)
 =======
     {914.4820f, 143.1602f, 633.3624f, 0.0000000f}   // Tyrannus fly up (not sniffed)
 >>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
+=======
+    {914.4820f, 143.1602f, 633.3624f, 0.0000000f}   // Tyrannus fly up (not sniffed)
+>>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
 };
 
 class boss_ick : public CreatureScript
@@ -169,10 +173,13 @@ class boss_ick : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 10000);
                 events.ScheduleEvent(EVENT_SPECIAL, urand(30000, 35000));
 <<<<<<< HEAD
+<<<<<<< HEAD
 
                 _EnterCombat();
 =======
 >>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
+=======
+>>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
             }
 
             void EnterEvadeMode() OVERRIDE
