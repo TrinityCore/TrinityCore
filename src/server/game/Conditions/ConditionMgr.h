@@ -131,19 +131,6 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
     CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 25, // only 4.3.4
     CONDITION_SOURCE_TYPE_MAX                            = 26  // MAX
-<<<<<<< HEAD
-};
-
-enum ComparisionType
-{
-    COMP_TYPE_EQ = 0,
-    COMP_TYPE_HIGH,
-    COMP_TYPE_LOW,
-    COMP_TYPE_HIGH_EQ,
-    COMP_TYPE_LOW_EQ,
-    COMP_TYPE_MAX
-=======
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
 };
 
 enum RelationType

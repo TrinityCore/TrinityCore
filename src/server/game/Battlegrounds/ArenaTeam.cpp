@@ -82,11 +82,7 @@ bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string const& teamNa
     // Add captain as member
     AddMember(CaptainGuid);
 
-<<<<<<< HEAD
-    TC_LOG_INFO(LOG_FILTER_ARENAS, "New ArenaTeam created [Id: %u, Name: %s] [Type: %u] [Captain low GUID: %u]", GetId(), GetName().c_str(), GetType(), captainLowGuid);
-=======
     TC_LOG_DEBUG(LOG_FILTER_ARENAS, "New ArenaTeam created [Id: %u, Name: %s] [Type: %u] [Captain low GUID: %u]", GetId(), GetName().c_str(), GetType(), captainLowGuid);
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
     return true;
 }
 
@@ -308,11 +304,7 @@ void ArenaTeam::SetCaptain(uint64 guid)
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         if (oldCaptain)
         {
-<<<<<<< HEAD
-            TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u, Name: %s] [Type: %u].",
-=======
             TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u, Name: %s] [Type: %u].",
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
                 oldCaptain->GetName().c_str(), oldCaptain->GetGUIDLow(), newCaptain->GetName().c_str(),
                 newCaptain->GetGUIDLow(), GetId(), GetName().c_str(), GetType());
         }

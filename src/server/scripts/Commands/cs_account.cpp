@@ -465,21 +465,7 @@ public:
             return false;
         }
 
-<<<<<<< HEAD
-        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) && !emailConfirmation)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but entered no email at all. Has Perm: [%s]",
-                handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
-                handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? "Yes" : "No");
-            return false;
-        }
-
-=======
         // We compare the old, saved password to the entered old password - no chance for the unauthorized.
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
         if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
@@ -490,14 +476,9 @@ public:
             return false;
         }
 
-<<<<<<< HEAD
-        if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // Either PW_EMAIL or PW_RBAC with the Permission
-            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation)))
-=======
         // This compares the old, current email to the entered email - however, only...
         if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
             && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), std::string(emailConfirmation))) // ... and returns false if the comparison fails.
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             handler->SetSentErrorMessage(true);

@@ -68,19 +68,8 @@ enum Events
     EVENT_THROW_SARONITE        = 1,
     EVENT_CHILLING_WAVE         = 2,
     EVENT_DEEP_FREEZE           = 3,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    EVENT_MOVE_JUMP             = 4,
-    EVENT_FORGING               = 5,
-    EVENT_RESUME_ATTACK         = 6
-=======
     EVENT_FORGE_JUMP            = 4,
     EVENT_RESUME_ATTACK         = 5
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
-    EVENT_FORGE_JUMP            = 4,
-    EVENT_RESUME_ATTACK         = 5
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
 };
 
 Position const northForgePos = { 722.5643f, -234.1615f, 527.182f, 2.16421f };
@@ -94,20 +83,6 @@ class boss_garfrost : public CreatureScript
         struct boss_garfrostAI : public BossAI
         {
             boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST) { }
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-            void InitializeAI() OVERRIDE
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-=======
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
 
             void Reset() OVERRIDE
             {
@@ -115,30 +90,15 @@ class boss_garfrost : public CreatureScript
                 events.SetPhase(PHASE_ONE);
                 SetEquipmentSlots(true);
                 _permafrostStack = 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-                _Reset();
-=======
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-                events.SetPhase(PHASE_ONE);
                 DoCast(me, SPELL_PERMAFROST);
                 me->CallForHelp(70.0f);
                 events.ScheduleEvent(EVENT_THROW_SARONITE, 7000);
-<<<<<<< HEAD
-<<<<<<< HEAD
-                _EnterCombat();
-=======
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
             }
 
             void KilledUnit(Unit* victim) OVERRIDE
@@ -154,14 +114,6 @@ class boss_garfrost : public CreatureScript
 
                 if (Creature* tyrannus = me->GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
                     tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-                _JustDied();
-=======
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*uiDamage*/) OVERRIDE
@@ -172,16 +124,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE2);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    events.ScheduleEvent(EVENT_MOVE_JUMP, 1500);
-                    events.ScheduleEvent(EVENT_RESUME_ATTACK, 6500);
-=======
                     events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
                     return;
                 }
 
@@ -191,16 +134,7 @@ class boss_garfrost : public CreatureScript
                     Talk(SAY_PHASE3);
                     events.DelayEvents(8000);
                     DoCast(me, SPELL_THUNDERING_STOMP);
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    events.ScheduleEvent(EVENT_MOVE_JUMP, 1500);
-                    events.ScheduleEvent(EVENT_RESUME_ATTACK, 6500);
-=======
                     events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500);
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
                     return;
                 }
             }
@@ -221,6 +155,7 @@ class boss_garfrost : public CreatureScript
                     DoCast(me, SPELL_FORGE_MACE);
                     SetEquipmentSlots(false, EQUIP_ID_MACE);
                 }
+                events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
 
             void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
@@ -271,30 +206,12 @@ class boss_garfrost : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
                             break;
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        case EVENT_MOVE_JUMP:
-                            me->AttackStop();
-                            if (events.IsInPhase(PHASE_TWO))
-                                me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f);
-                            else if (events.IsInPhase(PHASE_THREE))
-                                me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f);
-=======
                         case EVENT_FORGE_JUMP:
                             me->AttackStop();
                             if (events.IsInPhase(PHASE_TWO))
                                 me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f, POINT_FORGE);
                             else if (events.IsInPhase(PHASE_THREE))
                                 me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f, POINT_FORGE);
->>>>>>> 0e2129289226b317f7c3dd01409adc81f934af01
-=======
-                        case EVENT_FORGE_JUMP:
-                            me->AttackStop();
-                            if (events.IsInPhase(PHASE_TWO))
-                                me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f, POINT_FORGE);
-                            else if (events.IsInPhase(PHASE_THREE))
-                                me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f, POINT_FORGE);
->>>>>>> a0c637f52a6a0413bc2c70cec949bd5660f39611
                             break;
                         case EVENT_RESUME_ATTACK:
                             if (events.IsInPhase(PHASE_TWO))
