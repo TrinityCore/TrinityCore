@@ -152,7 +152,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             {
                 // logging
                 TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "partner storing: %u", myItems[i]->GetGUIDLow());
-                if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
+                if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
                     sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
@@ -170,7 +170,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             {
                 // logging
                 TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUIDLow());
-                if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
+                if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
@@ -473,7 +473,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         moveItems(myItems, hisItems);
 
         // logging money
-        if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
+        if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
             if (my_trade->GetMoney() > 0)
             {
