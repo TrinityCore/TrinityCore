@@ -56,18 +56,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
-
     LoginDatabase.Execute(stmt);
-
-    // Add default rbac groups for that security level
-    rbac::RBACData* rbac = new rbac::RBACData(GetId(username), username, -1);
-    // No need to Load From DB, as it's new data
-
-    rbac::RBACGroupContainer const& groupsToAdd = _defaultSecGroups[0]; // 0: Default sec level
-    for (rbac::RBACGroupContainer::const_iterator it = groupsToAdd.begin(); it != groupsToAdd.end(); ++it)
-        rbac->AddGroup(*it, -1);
-
-    delete rbac;
 
     return AOR_OK;                                          // everything's fine
 }
@@ -403,7 +392,7 @@ void AccountMgr::LoadRBAC()
 {
     ClearRBAC();
 
-    TC_LOG_INFO(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "AccountMgr::LoadRBAC");
     uint32 oldMSTime = getMSTime();
     uint32 count1 = 0;
     uint32 count2 = 0;
@@ -413,7 +402,7 @@ void AccountMgr::LoadRBAC()
     QueryResult result = LoginDatabase.Query("SELECT id, name FROM rbac_permissions");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SQL, ">> Loaded 0 account permission definitions. DB table `rbac_permissions` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account permission definitions. DB table `rbac_permissions` is empty.");
         return;
     }
 
@@ -430,7 +419,7 @@ void AccountMgr::LoadRBAC()
     result = LoginDatabase.Query("SELECT id, name FROM rbac_roles");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SQL, ">> Loaded 0 account role definitions. DB table `rbac_roles` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account role definitions. DB table `rbac_roles` is empty.");
         return;
     }
 
@@ -447,7 +436,7 @@ void AccountMgr::LoadRBAC()
     result = LoginDatabase.Query("SELECT roleId, permissionId FROM rbac_role_permissions");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SQL, ">> Loaded 0 account role-permission definitions. DB table `rbac_role_permissions` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account role-permission definitions. DB table `rbac_role_permissions` is empty.");
         return;
     }
 
@@ -464,7 +453,7 @@ void AccountMgr::LoadRBAC()
     result = LoginDatabase.Query("SELECT id, name FROM rbac_groups");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SQL, ">> Loaded 0 account group definitions. DB table `rbac_groups` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account group definitions. DB table `rbac_groups` is empty.");
         return;
     }
 
@@ -481,7 +470,7 @@ void AccountMgr::LoadRBAC()
     result = LoginDatabase.Query("SELECT groupId, roleId FROM rbac_group_roles");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SQL, ">> Loaded 0 account group-role definitions. DB table `rbac_group_roles` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account group-role definitions. DB table `rbac_group_roles` is empty.");
         return;
     }
 
@@ -498,7 +487,7 @@ void AccountMgr::LoadRBAC()
     result = LoginDatabase.Query("SELECT secId, groupId FROM rbac_security_level_groups ORDER by secId ASC");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SQL, ">> Loaded 0 account default groups for security levels definitions. DB table `rbac_security_level_groups` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account default groups for security levels definitions. DB table `rbac_security_level_groups` is empty.");
         return;
     }
 
@@ -517,54 +506,12 @@ void AccountMgr::LoadRBAC()
     while (result->NextRow());
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u permission definitions, %u role definitions and %u group definitions in %u ms", count1, count2, count3, GetMSTimeDiffToNow(oldMSTime));
-
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading default groups");
-    // Load default groups to be added to any RBAC Object.
-    std::string defaultGroups = sConfigMgr->GetStringDefault("RBAC.DefaultGroups", "");
-    Tokenizer tokens(defaultGroups, ',');
-    for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-        if (uint32 groupId = atoi(*itr))
-            _defaultGroups.insert(groupId);
 }
 
 void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
 {
-    int32 serverRealmId = realmId != -1 ? realmId : sConfigMgr->GetIntDefault("RealmID", 0);
-    bool needDelete = false;
-    if (!rbac)
-    {
-        needDelete = true;
-        rbac = new rbac::RBACData(accountId, "", serverRealmId);
-        rbac->LoadFromDB();
-    }
-
-    // Get max security level and realm (checking current realm and -1)
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_BY_ID);
-    stmt->setUInt32(0, accountId);
-    stmt->setInt32(1, serverRealmId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-    if (result)
-    {
-        do
-        {
-            Field* field = result->Fetch();
-            uint8 secLevel = field[0].GetUInt8();
-            int32 realmId = field[1].GetUInt32();
-
-            rbac::RBACGroupContainer const& groupsToRemove = _defaultSecGroups[secLevel];
-            for (rbac::RBACGroupContainer::const_iterator it = groupsToRemove.begin(); it != groupsToRemove.end(); ++it)
-                rbac->RemoveGroup(*it, realmId);
-        }
-        while (result->NextRow());
-    }
-
-    // Add new groups depending on the new security Level
-    rbac::RBACGroupContainer const& groupsToAdd = _defaultSecGroups[securityLevel];
-    for (rbac::RBACGroupContainer::const_iterator it = groupsToAdd.begin(); it != groupsToAdd.end(); ++it)
-        rbac->AddGroup(*it, realmId);
-
-    if (needDelete)
-        delete rbac;
+    if (rbac)
+        rbac->SetSecurityLevel(securityLevel);
 
     // Delete old security level from DB
     if (realmId == -1)
@@ -653,6 +600,5 @@ void AccountMgr::ClearRBAC()
     _permissions.clear();
     _roles.clear();
     _groups.clear();
-    _defaultGroups.clear();
     _defaultSecGroups.clear();
 }

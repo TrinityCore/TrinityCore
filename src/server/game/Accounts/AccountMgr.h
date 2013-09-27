@@ -93,7 +93,7 @@ class AccountMgr
         rbac::RBACGroupsContainer const& GetRBACGroupList() const { return _groups; }
         rbac::RBACRolesContainer const& GetRBACRoleList() const { return _roles; }
         rbac::RBACPermissionsContainer const& GetRBACPermissionList() const { return _permissions; }
-        rbac::RBACGroupContainer const& GetRBACDefaultGroups() const { return _defaultGroups; }
+        rbac::RBACGroupContainer const& GetRBACDefaultGroups(uint8 secLevel) { return _defaultSecGroups[secLevel]; }
 
     private:
         void ClearRBAC();
@@ -101,7 +101,6 @@ class AccountMgr
         rbac::RBACRolesContainer _roles;
         rbac::RBACGroupsContainer _groups;
         rbac::RBACDefaultSecurityGroupContainer _defaultSecGroups;
-        rbac::RBACGroupContainer _defaultGroups;
 };
 
 #define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()
