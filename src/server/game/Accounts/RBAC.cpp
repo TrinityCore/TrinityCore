@@ -390,6 +390,8 @@ RBACCommandResult RBACData::RevokePermission(uint32 permissionId, int32 realmId 
 
 void RBACData::LoadFromDB()
 {
+    ClearData();
+
     TC_LOG_INFO(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]", GetId(), GetName().c_str());
     TC_LOG_DEBUG(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Loading groups", GetId(), GetName().c_str());
 
@@ -451,7 +453,7 @@ void RBACData::LoadFromDB()
 
     TC_LOG_DEBUG(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Adding default groups", GetId(), GetName().c_str());
     // Add default groups
-    RBACGroupContainer const& groups = sAccountMgr->GetRBACDefaultGroups();
+    RBACGroupContainer const& groups = sAccountMgr->GetRBACDefaultGroups(GetSecurityLevel());
     for (RBACGroupContainer::const_iterator itr = groups.begin(); itr != groups.end(); ++itr)
         AddGroup(*itr);
 
@@ -494,6 +496,16 @@ void RBACData::CalculateNewPermissions()
     for (RBACRoleContainer::const_iterator it = _deniedRoles.begin(); it != _deniedRoles.end(); ++it)
         if (RBACRole const* role = sAccountMgr->GetRBACRole(*it))
            _globalPerms &= ~role->GetPermissions();
+}
+
+void RBACData::ClearData()
+{
+    _groups.clear();
+    _grantedRoles.clear();
+    _deniedRoles.clear();
+    _grantedPerms.reset();
+    _deniedPerms.reset();
+    _globalPerms.reset();
 }
 
 }
