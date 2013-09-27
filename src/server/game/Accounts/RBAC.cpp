@@ -20,6 +20,9 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 
+namespace rbac
+{
+
 void RBACRole::GrantPermission(uint32 permissionId)
 {
     if (permissionId < RBAC_PERM_MAX)
@@ -491,4 +494,6 @@ void RBACData::CalculateNewPermissions()
     for (RBACRoleContainer::const_iterator it = _deniedRoles.begin(); it != _deniedRoles.end(); ++it)
         if (RBACRole const* role = sAccountMgr->GetRBACRole(*it))
            _globalPerms &= ~role->GetPermissions();
+}
+
 }

@@ -43,10 +43,13 @@ enum PasswordChangeSecurity
 #define MAX_ACCOUNT_STR 16
 #define MAX_EMAIL_STR 64
 
-typedef std::map<uint32, RBACPermission*> RBACPermissionsContainer;
-typedef std::map<uint32, RBACRole*> RBACRolesContainer;
-typedef std::map<uint32, RBACGroup*> RBACGroupsContainer;
-typedef std::map<uint32, RBACGroupContainer> RBACDefaultSecurityGroupContainer;
+namespace rbac
+{
+typedef std::map<uint32, rbac::RBACPermission*> RBACPermissionsContainer;
+typedef std::map<uint32, rbac::RBACRole*> RBACRolesContainer;
+typedef std::map<uint32, rbac::RBACGroup*> RBACGroupsContainer;
+typedef std::map<uint32, rbac::RBACGroupContainer> RBACDefaultSecurityGroupContainer;
+}
 
 class AccountMgr
 {
@@ -80,25 +83,25 @@ class AccountMgr
         static bool IsConsoleAccount(uint32 gmlevel);
         static bool HasPermission(uint32 accountId, uint32 permission, uint32 realmId);
 
-        void UpdateAccountAccess(RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId);
+        void UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId);
 
         void LoadRBAC();
-        RBACGroup const* GetRBACGroup(uint32 group) const;
-        RBACRole const* GetRBACRole(uint32 role) const;
-        RBACPermission const* GetRBACPermission(uint32 permission) const;
+        rbac::RBACGroup const* GetRBACGroup(uint32 group) const;
+        rbac::RBACRole const* GetRBACRole(uint32 role) const;
+        rbac::RBACPermission const* GetRBACPermission(uint32 permission) const;
 
-        RBACGroupsContainer const& GetRBACGroupList() const { return _groups; }
-        RBACRolesContainer const& GetRBACRoleList() const { return _roles; }
-        RBACPermissionsContainer const& GetRBACPermissionList() const { return _permissions; }
-        RBACGroupContainer const& GetRBACDefaultGroups() const { return _defaultGroups; }
+        rbac::RBACGroupsContainer const& GetRBACGroupList() const { return _groups; }
+        rbac::RBACRolesContainer const& GetRBACRoleList() const { return _roles; }
+        rbac::RBACPermissionsContainer const& GetRBACPermissionList() const { return _permissions; }
+        rbac::RBACGroupContainer const& GetRBACDefaultGroups() const { return _defaultGroups; }
 
     private:
         void ClearRBAC();
-        RBACPermissionsContainer _permissions;
-        RBACRolesContainer _roles;
-        RBACGroupsContainer _groups;
-        RBACDefaultSecurityGroupContainer _defaultSecGroups;
-        RBACGroupContainer _defaultGroups;
+        rbac::RBACPermissionsContainer _permissions;
+        rbac::RBACRolesContainer _roles;
+        rbac::RBACGroupsContainer _groups;
+        rbac::RBACDefaultSecurityGroupContainer _defaultSecGroups;
+        rbac::RBACGroupContainer _defaultGroups;
 };
 
 #define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()
