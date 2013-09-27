@@ -266,7 +266,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
     // Offmesh-connection settings
     params.offMeshConCount = 0; // none for now
 
-    params.tileSize = Constants::VertexPerMap;
+    //params.tileSize = Constants::VertexPerMap;
 
     if (!params.polyCount || !params.polys || Constants::TilesPerMap * Constants::TilesPerMap == params.polyCount)
     {
