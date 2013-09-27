@@ -39,16 +39,16 @@ public:
     {
         static ChatCommand teleCommandTable[] =
         {
-            { "add",   RBAC_PERM_COMMAND_TELE_ADD,   false, &HandleTeleAddCommand,   "", NULL },
-            { "del",   RBAC_PERM_COMMAND_TELE_DEL,    true, &HandleTeleDelCommand,   "", NULL },
-            { "name",  RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTeleNameCommand,  "", NULL },
-            { "group", RBAC_PERM_COMMAND_TELE_GROUP, false, &HandleTeleGroupCommand, "", NULL },
-            { "",      RBAC_PERM_COMMAND_TELE,       false, &HandleTeleCommand,      "", NULL },
+            { "add",   rbac::RBAC_PERM_COMMAND_TELE_ADD,   false, &HandleTeleAddCommand,   "", NULL },
+            { "del",   rbac::RBAC_PERM_COMMAND_TELE_DEL,    true, &HandleTeleDelCommand,   "", NULL },
+            { "name",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTeleNameCommand,  "", NULL },
+            { "group", rbac::RBAC_PERM_COMMAND_TELE_GROUP, false, &HandleTeleGroupCommand, "", NULL },
+            { "",      rbac::RBAC_PERM_COMMAND_TELE,       false, &HandleTeleCommand,      "", NULL },
             { NULL,    0,                            false, NULL,                    "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "tele", RBAC_PERM_COMMAND_TELE, false, NULL, "", teleCommandTable },
+            { "tele", rbac::RBAC_PERM_COMMAND_TELE, false, NULL, "", teleCommandTable },
             { NULL,   0,                      false, NULL, "", NULL }
         };
         return commandTable;

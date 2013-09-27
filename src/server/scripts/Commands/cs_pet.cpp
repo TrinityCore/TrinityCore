@@ -31,15 +31,15 @@ public:
     {
         static ChatCommand petCommandTable[] =
         {
-            { "create",  RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "", NULL },
-            { "learn",   RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "", NULL },
-            { "unlearn", RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "", NULL },
+            { "create",  rbac::RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "", NULL },
+            { "learn",   rbac::RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "", NULL },
+            { "unlearn", rbac::RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "", NULL },
             { NULL,      0,                             false, NULL,                     "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "pet", RBAC_PERM_COMMAND_PET, false, NULL, "", petCommandTable },
+            { "pet", rbac::RBAC_PERM_COMMAND_PET, false, NULL, "", petCommandTable },
             { NULL,  0,                     false, NULL, "", NULL }
         };
         return commandTable;
