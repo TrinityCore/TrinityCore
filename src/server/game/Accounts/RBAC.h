@@ -679,6 +679,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // Only 4.3.4
 
     // custom permissions 1000+
+    RBAC_PERM_COMMAND_EXAMPLE_HELLO                          = 1000,
     RBAC_PERM_MAX
 };
 
