@@ -326,12 +326,6 @@ void LoadTile(dtNavMesh*& navMesh, const char* tile)
 
 int main(int argc, char* argv[])
 {
-    if (!system("pause"))
-    {
-        printf("main: Error in system call to pause\n");
-        return -1;
-    }
-
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
     bool debug = false;
