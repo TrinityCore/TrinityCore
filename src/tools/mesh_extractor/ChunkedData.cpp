@@ -12,7 +12,7 @@ Stream(stream)
     Load(maxLength, chunksHint);
 }
 
-ChunkedData::ChunkedData( std::string file, uint32 chunksHint /*= 300*/ )
+ChunkedData::ChunkedData( const std::string& file, uint32 chunksHint /*= 300*/ )
 {
     Stream = MPQHandler->GetFile(file);
     if (!Stream)
@@ -47,7 +47,7 @@ void ChunkedData::Load( uint32 maxLength, uint32 chunksHint )
     }
 }
 
-int ChunkedData::GetFirstIndex( std::string name )
+int ChunkedData::GetFirstIndex( const std::string& name )
 {
     for (uint32 i = 0; i < Chunks.size(); ++i)
         if (Chunks[i]->Name == name)
@@ -55,7 +55,7 @@ int ChunkedData::GetFirstIndex( std::string name )
     return -1;
 }
 
-Chunk* ChunkedData::GetChunkByName( std::string name )
+Chunk* ChunkedData::GetChunkByName( const std::string& name )
 {
     for (uint32 i = 0; i < Chunks.size(); ++i)
         if (Chunks[i]->Name == name)
