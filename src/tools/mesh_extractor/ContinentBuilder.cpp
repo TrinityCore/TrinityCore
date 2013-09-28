@@ -25,6 +25,7 @@ public:
         printf("[%02i,%02i] Building tile\n", X, Y);
         TileBuilder builder(cBuilder, Continent, X, Y, MapId);
         char buff[100];
+		printf("a");
         sprintf(buff, "mmaps/%03u%02u%02u.mmtile", MapId, Y, X);
         FILE* f = fopen(buff, "r");
         if (f) // Check if file already exists.
@@ -34,7 +35,9 @@ public:
             Free = true;
             return 0;
         }
+		printf("B");
         uint8* nav = builder.Build(debug, Params);
+		printf("c");
         if (nav)
         {
             f = fopen(buff, "wb");

@@ -75,16 +75,18 @@ void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshPara
 
 uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
 {
+	printf("bad");
     _Geometry = new Geometry();
     _Geometry->Transform = true;
     ADT* adt = new ADT(Utils::GetAdtPath(World, X, Y));
     adt->Read();
+	printf("bad2");
     _Geometry->AddAdt(adt);
     delete adt;
-
+	printf("ba3");
     if (_Geometry->Vertices.empty() && _Geometry->Triangles.empty())
         return NULL;
-
+	printf("bad4");
     // again, we load everything - wasteful but who cares
     for (int ty = Y - 2; ty <= Y + 2; ty++)
     {
