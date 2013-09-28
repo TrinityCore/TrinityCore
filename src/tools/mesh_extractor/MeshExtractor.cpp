@@ -53,10 +53,12 @@ void ExtractDBCs()
 
     // Populate list of DBC files
     std::set<std::string> DBCFiles;
+    const size_t extLen = strlen(".dbc");
     for (std::vector<std::string>::iterator itr = MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.begin(); itr != MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.end(); ++itr)
-        if (itr->rfind(".dbc") == itr->length() - strlen(".dbc"))
+        if (itr->rfind(".dbc") == itr->length() - extLen)
             DBCFiles.insert(*itr);
 
+    const size_t folderLen = strlen("DBFilesClient\\");
     // Iterate over all available locales
     for (std::set<uint32>::iterator itr = MPQHandler->AvailableLocales.begin(); itr != MPQHandler->AvailableLocales.end(); ++itr)
     {
@@ -73,7 +75,7 @@ void ExtractDBCs()
         Utils::SaveToDisk(MPQHandler->GetFile(component), path + component);
         // Extract the DBC files for the given locale
         for (std::set<std::string>::iterator itr2 = DBCFiles.begin(); itr2 != DBCFiles.end(); ++itr2)
-            Utils::SaveToDisk(MPQHandler->GetFileFrom(*itr2, MPQHandler->LocaleFiles[*itr]), path + (itr2->c_str() + strlen("DBFilesClient\\")));
+            Utils::SaveToDisk(MPQHandler->GetFileFrom(*itr2, MPQHandler->LocaleFiles[*itr]), path + (itr2->c_str() + folderLen));
     }
     printf("DBC extraction finished!\n");
 }
@@ -201,16 +203,18 @@ void ExtractGameobjectModels()
             fwrite(&model.Header.CountGroups, sizeof(uint32), 1, output);
             fwrite(&model.Header.WmoId, sizeof(uint32), 1, output);
 
+            const char grp[] = { 'G' , 'R' , 'P', ' ' };
             for (std::vector<WorldModelGroup>::iterator itr2 = model.Groups.begin(); itr2 != model.Groups.end(); ++itr2)
             {
-                fwrite(&itr2->Header.Flags, sizeof(uint32), 1, output);
-                fwrite(&itr2->Header.WmoId, sizeof(uint32), 1, output);
-                fwrite(&itr2->Header.BoundingBox[0], sizeof(uint32), 1, output);
-                fwrite(&itr2->Header.BoundingBox[1], sizeof(uint32), 1, output);
+                const WMOGroupHeader& header = itr2->Header;
+                fwrite(&header.Flags, sizeof(uint32), 1, output);
+                fwrite(&header.WmoId, sizeof(uint32), 1, output);
+                fwrite(&header.BoundingBox[0], sizeof(uint32), 1, output);
+                fwrite(&header.BoundingBox[1], sizeof(uint32), 1, output);
                 uint32 LiquidFlags = itr2->HasLiquidData ? 1 : 0;
                 fwrite(&LiquidFlags, sizeof(uint32), 1, output);
 
-                fwrite("GRP ", sizeof(char), 4, output);
+                fwrite(grp, sizeof(char), sizeof(grp), output);
                 uint32 k = 0;
                 uint32 mobaBatch = itr2->MOBALength / 12;
                 uint32* MobaEx = new uint32[mobaBatch*4];
@@ -250,7 +254,7 @@ bool HandleArgs(int argc, char** argv, uint32& threads, std::set<uint32>& mapLis
                 return false;
 
             threads = atoi(param);
-            printf("Using %i threads\n", threads);
+            printf("Using %u threads\n", threads);
         }
         else if (strcmp(argv[i], "--maps") == 0)
         {
