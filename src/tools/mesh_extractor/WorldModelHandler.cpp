@@ -133,22 +133,26 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
             if (!group->HasLiquidData)
                 continue;
 
-            for (uint32 y = 0; y < group->LiquidDataHeader.Height; y++)
+            const LiquidHeader& liquidHeader = group->LiquidDataHeader;
+            LiquidData& liquidDataGeometry = group->LiquidDataGeometry;
+
+            for (uint32 y = 0; y < liquidHeader.Height; y++)
             {
-                for (uint32 x = 0; x < group->LiquidDataHeader.Width; x++)
+                for (uint32 x = 0; x < liquidHeader.Width; x++)
                 {
-                    if (!group->LiquidDataGeometry.ShouldRender(x, y))
+
+                    if (!liquidDataGeometry.ShouldRender(x, y))
                         continue;
 
                     uint32 vertOffset = verts.size();
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x][y], x, y));
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x + 1][y], x + 1, y));
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x][y + 1], x, y + 1));
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x + 1][y + 1], x + 1, y + 1));
+                    verts.push_back(Utils::GetLiquidVert(transformation, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x][y], x, y));
+                    verts.push_back(Utils::GetLiquidVert(transformation, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x + 1][y], x + 1, y));
+                    verts.push_back(Utils::GetLiquidVert(transformation, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x][y + 1], x, y + 1));
+                    verts.push_back(Utils::GetLiquidVert(transformation, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x + 1][y + 1], x + 1, y + 1));
 
                     tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset, vertOffset + 2, vertOffset + 1));
                     tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));
