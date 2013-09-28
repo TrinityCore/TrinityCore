@@ -342,10 +342,10 @@ public:
     static void Reverse(char word[]);
     static std::string ReadString(FILE* file);
     static uint32 Size(FILE* file);
-    static Vector3 ToRecast( Vector3 val );
-    static std::string GetAdtPath(std::string world, int x, int y);
-    static std::string FixModelPath(std::string path);
-    static G3D::Matrix4 GetTransformation(IDefinition def);
+    static Vector3 ToRecast(const Vector3& val );
+    static std::string GetAdtPath(const std::string& world, int x, int y);
+    static std::string FixModelPath(const std::string& path);
+    static G3D::Matrix4 GetTransformation(const IDefinition& def);
     /// They say its better to declare template functions in the header files.
     template <typename T>
     static std::string ToString(T val)
@@ -358,9 +358,9 @@ public:
     static G3D::Matrix4 RotationY(float angle);
     static G3D::Matrix4 RotationZ(float angle);
     static float ToRadians(float degrees);
-    static Vector3 VectorTransform(Vector3 vec, G3D::Matrix4 matrix);
-    static std::string GetPathBase(std::string path);
-    static Vector3 GetLiquidVert(G3D::Matrix4 transformation, Vector3 basePosition, float height, int x, int y);
+    static Vector3 VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix);
+    static std::string GetPathBase(const std::string& path);
+    static Vector3 GetLiquidVert(const G3D::Matrix4& transformation, Vector3 basePosition, float height, int x, int y);
     static float Distance(float x, float y);
     template<typename T>
     static bool IsAllZero(T* arr, uint32 size)
@@ -371,10 +371,10 @@ public:
         return true;
     }
     static std::string Replace( std::string str, const std::string& oldStr, const std::string& newStr );
-    static G3D::Matrix4 GetWmoDoodadTransformation( DoodadInstance inst, WorldModelDefinition root );
+    static G3D::Matrix4 GetWmoDoodadTransformation(const DoodadInstance& inst, const WorldModelDefinition& root );
     static void CreateDir( const std::string& Path );
-    static void SaveToDisk(FILE* stream, std::string path);
-    static Vector3 ToWoWCoords( Vector3 vec );
+    static void SaveToDisk(FILE* stream, const std::string& path);
+    static Vector3 ToWoWCoords(const Vector3& vec );
     static std::string GetExtension( std::string path );
     static char* GetPlainName(const char* FileName);
 };

@@ -30,7 +30,8 @@ void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
     for (uint32 i = 0; i < refCount; i++)
     {
         int32 index;
-        if (int count = fread(&index, sizeof(int32), 1, stream) != 1)
+        int32 count;
+        if ((count = fread(&index, sizeof(int32), 1, stream)) != 1)
             printf("DoodadHandler::ProcessInternal: Failed to read some data expected 1, read %d\n", count);
         if (index < 0 || uint32(index) >= _definitions->size())
             continue;

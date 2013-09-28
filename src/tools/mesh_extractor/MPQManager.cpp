@@ -64,7 +64,7 @@ void MPQManager::InitializeDBC()
         printf("Using default locale: %s\n", Languages[BaseLocale]);
 }
 
-FILE* MPQManager::GetFile( std::string path )
+FILE* MPQManager::GetFile(const std::string& path )
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     MPQFile file(path.c_str());
@@ -73,13 +73,13 @@ FILE* MPQManager::GetFile( std::string path )
     return file.GetFileStream();
 }
 
-DBC* MPQManager::GetDBC( std::string name )
+DBC* MPQManager::GetDBC(const std::string& name )
 {
     std::string path = "DBFilesClient\\" + name + ".dbc";
     return new DBC(GetFile(path));
 }
 
-FILE* MPQManager::GetFileFrom( std::string path, MPQArchive* file )
+FILE* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     mpq_archive* mpq_a = file->mpq_a;
