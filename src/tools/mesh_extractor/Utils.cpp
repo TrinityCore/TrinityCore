@@ -86,18 +86,6 @@ std::string Utils::FixModelPath(const std::string& path )
     return Utils::GetPathBase(path) + ".M2";
 }
 
-G3D::Matrix4 Utils::RotationX(float angle)
-{
-    float _cos = cos(angle);
-    float _sin = sin(angle);
-    G3D::Matrix4 ret = G3D::Matrix4::identity();
-    ret[1][1] = _cos;
-    ret[2][1] = _sin;
-    ret[1][2] = -_sin;
-    ret[2][2] = _cos;
-    return ret;
-}
-
 G3D::Matrix4 Utils::GetTransformation(const IDefinition& def)
 {
     G3D::Matrix4 translation;
@@ -107,7 +95,8 @@ G3D::Matrix4 Utils::GetTransformation(const IDefinition& def)
         translation = G3D::Matrix4::translation(-(def.Position.z - Constants::MaxXY),
             -(def.Position.x - Constants::MaxXY), def.Position.y);
 
-    G3D::Matrix4 rotation = RotationX(ToRadians(def.Rotation.z)) * RotationY(ToRadians(def.Rotation.x)) * RotationZ(ToRadians(def.Rotation.y + 180));
+    //G3D::Matrix4 rotation = RotationX(ToRadians(def.Rotation.z)) * RotationY(ToRadians(def.Rotation.x)) * RotationZ(ToRadians(def.Rotation.y + 180));
+    G3D::Matrix4 rotation = G3D::Matrix4::identity().rollDegrees(def.Rotation.z).pitchDegrees(def.Rotation.x).yawDegrees(def.Rotation.y + 180);
     if (def.Scale() < 1.0f || def.Scale() > 1.0f)
         return G3D::Matrix4::scale(def.Scale()) * rotation * translation;
     return rotation * translation;
@@ -137,6 +126,18 @@ G3D::Matrix4 Utils::RotationZ( float angle )
     return ret;
 }
 
+G3D::Matrix4 Utils::RotationX(float angle)
+{
+    float _cos = cos(angle);
+    float _sin = sin(angle);
+    G3D::Matrix4 ret = G3D::Matrix4::identity();
+    ret[1][1] = _cos;
+    ret[2][1] = _sin;
+    ret[1][2] = -_sin;
+    ret[2][2] = _cos;
+    return ret;
+}
+
 float Utils::ToRadians( float degrees )
 {
     return Constants::PI * degrees / 180.0f;
@@ -144,11 +145,12 @@ float Utils::ToRadians( float degrees )
 
 Vector3 Utils::VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix )
 {
-    Vector3 ret;
-    ret.x = vec.x * matrix[0][0] + vec.y * matrix[1][0] + vec.z * matrix[2][0] + matrix[3][0];
+    G3D::Vector3 ret(vec.x, vec.y, vec.z);
+    ret = matrix.homoMul(ret, 1);
+    /*ret.x = vec.x * matrix[0][0] + vec.y * matrix[1][0] + vec.z * matrix[2][0] + matrix[3][0];
     ret.y = vec.x * matrix[0][1] + vec.y * matrix[1][1] + vec.z * matrix[2][1] + matrix[3][1];
-    ret.z = vec.x * matrix[0][2] + vec.y * matrix[1][2] + vec.z * matrix[2][2] + matrix[3][2];
-    return ret;
+    ret.z = vec.x * matrix[0][2] + vec.y * matrix[1][2] + vec.z * matrix[2][2] + matrix[3][2];*/
+    return Vector3(ret.x, ret.y, ret.z);
 }
 
 std::string Utils::GetPathBase(const std::string& path )
@@ -230,7 +232,7 @@ void Utils::SaveToDisk( FILE* stream, const std::string& path )
 
 Vector3 Utils::ToWoWCoords(const Vector3& vec )
 {
-    return Vector3(vec.x, -vec.z, vec.y);
+    return Vector3(-vec.z, vec.x, vec.y);
 }
 
 std::string Utils::GetExtension( std::string path )

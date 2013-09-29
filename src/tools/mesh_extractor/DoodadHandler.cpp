@@ -94,21 +94,15 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
 
 Vector3 TransformDoodadVertex(const DoodadDefinition& def, Vector3& vec)
 {
-    float mapOffset = 17066.0f + (2 / 3.0f);
-    Vector3 MapPos = Vector3(mapOffset, 0, mapOffset);
-    G3D::Matrix4 rot = G3D::Matrix4::identity();
-    rot = rot.pitchDegrees(def.Rotation.y - 90);
-    rot = rot.yawDegrees(-def.Rotation.x);
-    rot = rot.rollDegrees(def.Rotation.z - 90);
-    
-    Vector3 offset = def.Position - MapPos;
+    // Rotate our Doodad vertex
+    G3D::Matrix4 rot = G3D::Matrix3::fromEulerAnglesXZY(Utils::ToRadians(-def.Rotation.z), Utils::ToRadians(def.Rotation.x), Utils::ToRadians(-def.Rotation.y + 180));
+    Vector3 ret = Utils::VectorTransform(vec, rot);
 
-    // Because homoMul wants a G3D::Vector3
-    G3D::Vector3 g3dvec(vec.x, vec.y, vec.z);
-    G3D::Vector3 g3dOffset(offset.x, offset.y, offset.z);
-    G3D::Vector3 ret = (rot.homoMul(g3dvec, 1)  * def.Scale()) + g3dOffset;
-    Vector3 ret2 = (Utils::VectorTransform(vec, rot) * def.Scale()) + def.Position - MapPos;
-    return ret2; //Vector3(ret.x, ret.y, ret.z);
+    // Convert the rotated Doodad vector to our current coordinate system
+    ret = Vector3(ret.x, ret.z, -ret.y);
+
+    // And finally translate it to our origin
+    return ret + Vector3(Constants::MaxXY - def.Position.z, Constants::MaxXY - def.Position.x, def.Position.y);
 }
 
 void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* model)
@@ -117,7 +111,7 @@ void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* mode
     uint32 vertOffset = Vertices.size();
     
     for (std::vector<Vector3>::iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
-        Vertices.push_back(TransformDoodadVertex(def, *itr)/*Utils::VectorTransform(*itr, transformation)*/);
+        Vertices.push_back(TransformDoodadVertex(def, *itr));
 
     for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));

@@ -17,13 +17,18 @@ public:
 
     virtual float Scale() const { return DecimalScale / 1024.0f; }
 
+    Vector3 FixCoords(Vector3& vec)
+    {
+        return Vector3(vec.z, vec.x, vec.y);
+    }
+
     void Read(FILE* stream)
     {
         int count = 0;
 
         count += fread(&MmidIndex, sizeof(uint32), 1, stream);
         count += fread(&UniqueId, sizeof(uint32), 1, stream);
-        Position = Vector3::Read(stream);
+        Position = (Vector3::Read(stream));
         Rotation = Vector3::Read(stream);
         count += fread(&DecimalScale, sizeof(uint16), 1, stream);
         count += fread(&Flags, sizeof(uint16), 1, stream);

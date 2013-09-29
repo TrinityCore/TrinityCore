@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "Define.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Quat.h"
 #include <cstdio>
 
 WorldModelDefinition WorldModelDefinition::Read( FILE* file )
@@ -82,21 +83,25 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
 
 Vector3 TransformDoodadVertex(const IDefinition& def, Vector3& vec)
 {
-    float mapOffset = 17066.0f + (2 / 3.0f);
-    Vector3 MapPos = Vector3(mapOffset, 0, mapOffset);
-    G3D::Matrix4 rot = G3D::Matrix4::identity();
-    rot = rot.pitchDegrees(def.Rotation.y - 90);
-    rot = rot.yawDegrees(-def.Rotation.x);
-    rot = rot.rollDegrees(def.Rotation.z - 90);
+    // Rotate our Doodad vertex
+    G3D::Matrix4 rot = G3D::Matrix3::fromEulerAnglesXZY(Utils::ToRadians(-def.Rotation.z), Utils::ToRadians(def.Rotation.x), Utils::ToRadians(-def.Rotation.y + 180));
+    Vector3 ret = Utils::VectorTransform(vec, rot);
 
-    Vector3 offset = def.Position - MapPos;
+    // Convert the rotated Doodad vector to our current coordinate system
+    ret = Vector3(ret.x, ret.z, -ret.y);
 
-    // Because homoMul wants a G3D::Vector3
-    G3D::Vector3 g3dvec(vec.x, vec.y, vec.z);
-    G3D::Vector3 g3dOffset(offset.x, offset.y, offset.z);
-    G3D::Vector3 ret = (rot.homoMul(g3dvec, 1)  * def.Scale()) + g3dOffset;
-    Vector3 ret2 = (Utils::VectorTransform(vec, rot) + def.Position - MapPos) * def.Scale();
-    return ret2; //Vector3(ret.x, ret.y, ret.z);
+    // And finally translate it to our origin
+    return ret + Vector3(Constants::MaxXY - def.Position.z, Constants::MaxXY - def.Position.x, def.Position.y);
+}
+
+Vector3 TransformDoodadToWMO(Vector3& vec, const DoodadInstance& inst, const WorldModelRoot& rootDef)
+{
+    Vector3 translation = Vector3(inst.Position.x, inst.Position.z, -inst.Position.y);
+    G3D::Quat quat = G3D::Quat(inst.QuatX, inst.QuatZ, -inst.QuatY, inst.QuatW);
+    G3D::Matrix3 rotM;
+    quat.toRotationMatrix(rotM);
+
+    return (Utils::VectorTransform(vec, G3D::Matrix4(rotM)) + translation) * (1.0f / inst.Scale);
 }
 
 void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, WorldModelDefinition& def, WorldModelRoot* root )
@@ -144,7 +149,7 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
             G3D::Matrix4 doodadTransformation = Utils::GetWmoDoodadTransformation(*instance, def);
             int vertOffset = verts.size();
             for (std::vector<Vector3>::iterator itr2 = model->Vertices.begin(); itr2 != model->Vertices.end(); ++itr2)
-                verts.push_back(TransformDoodadVertex(def, *itr2)/*Utils::VectorTransform(*itr2, doodadTransformation)*/);
+                verts.push_back(TransformDoodadToWMO(*itr2, *instance, *root)/*TransformDoodadVertex(instance, *itr2)*//*Utils::VectorTransform(*itr2, doodadTransformation)*/);
             for (std::vector<Triangle<uint16> >::iterator itr2 = model->Triangles.begin(); itr2 != model->Triangles.end(); ++itr2)
                 tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WMO, itr2->V0 + vertOffset, itr2->V1 + vertOffset, itr2->V2 + vertOffset));
         }
