@@ -77,7 +77,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
-    ADT* adt = new ADT(Utils::GetAdtPath(World, X, Y));
+    ADT* adt = new ADT(Utils::GetAdtPath(World, X, Y), X, Y);
     adt->Read();
     _Geometry->AddAdt(adt);
     delete adt;
@@ -94,7 +94,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
             if (tx == X && ty == Y)
                 continue;
 
-            ADT* _adt = new ADT(Utils::GetAdtPath(World, tx, ty));
+            ADT* _adt = new ADT(Utils::GetAdtPath(World, tx, ty), tx, ty);
             // If this condition is met, it means that this wdt does not contain the ADT
             if (!_adt->Data->Stream)
             {
@@ -124,7 +124,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
         }
         fclose(debug);
     }
-
+    return NULL;
     uint32 numVerts = _Geometry->Vertices.size();
     uint32 numTris = _Geometry->Triangles.size();
     float* vertices;

@@ -25,9 +25,20 @@ struct Vector3
     float y;
     float z;
 
-    Vector3 operator +(Vector3 const& other)
+    Vector3 operator +(Vector3 const& other) const
     {
         return Vector3(x + other.x, y + other.y, z + other.z);
+    }
+
+    Vector3 operator -(Vector3 const& other) const
+    {
+        return Vector3(x - other.x, y - other.y, z - other.z);
+    }
+
+    template<typename T>
+    Vector3 operator *(T s) const
+    {
+        return Vector3(x * s, y * s, z * s);
     }
 
     static Vector3 Read(FILE* file);

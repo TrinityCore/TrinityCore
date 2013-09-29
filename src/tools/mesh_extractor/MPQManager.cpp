@@ -57,7 +57,7 @@ void MPQManager::InitializeDBC()
     Archives.push_front(_baseLocale);
     if (BaseLocale == -1)
     {
-        printf("No locale data detected\n");
+        printf("No locale data detected. Please make sure that the executable is in the same folder as your WoW installation.\n");
         ASSERT(false);
     }
     else
@@ -103,6 +103,11 @@ FILE* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
 
     // Pack the return into a FILE stream
     FILE* ret = tmpfile();
+    if (!ret)
+    {
+        printf("Could not create temporary file. Please run as Administrator or root\n");
+        exit(1);
+    }
     fwrite(buffer, sizeof(uint8), size, ret);
     return ret;
 }

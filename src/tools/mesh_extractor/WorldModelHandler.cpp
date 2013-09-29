@@ -30,22 +30,22 @@ WorldModelDefinition WorldModelDefinition::Read( FILE* file )
 
 WorldModelHandler::WorldModelHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
 {
-    if (!adt->HasObjectData)
-        return;
+    /*if (!adt->HasObjectData)
+        return;*/
     ReadModelPaths();
     ReadDefinitions();
 }
 
-void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
+void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
 {
     if (!IsSane())
         return;
-    Chunk* wmoReferencesChunk = subChunks->GetChunkByName("MCRW");
-    if (!wmoReferencesChunk)
-        return;
-    FILE* stream = wmoReferencesChunk->GetStream();
-    uint32 refCount = wmoReferencesChunk->Length / 4;
-    for (uint32 i = 0; i < refCount; i++)
+    
+    uint32 refCount = mcnk->Header.MapObjectRefs;
+    FILE* stream = mcnk->Source->GetStream();
+    fseek(stream, mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
+    // Start looping at the last Doodad Ref index
+    for (uint32 i = mcnk->Header.DoodadRefs; i < refCount; i++)
     {
         int32 index;
         if (fread(&index, sizeof(int32), 1, stream) != 1)
@@ -76,6 +76,27 @@ void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
 
         InsertModelGeometry(Vertices, Triangles, wmo, model);
     }
+    // Restore the stream position
+    fseek(stream, mcnk->Source->Offset, SEEK_SET);
+}
+
+Vector3 TransformDoodadVertex(const IDefinition& def, Vector3& vec)
+{
+    float mapOffset = 17066.0f + (2 / 3.0f);
+    Vector3 MapPos = Vector3(mapOffset, 0, mapOffset);
+    G3D::Matrix4 rot = G3D::Matrix4::identity();
+    rot = rot.pitchDegrees(def.Rotation.y - 90);
+    rot = rot.yawDegrees(-def.Rotation.x);
+    rot = rot.rollDegrees(def.Rotation.z - 90);
+
+    Vector3 offset = def.Position - MapPos;
+
+    // Because homoMul wants a G3D::Vector3
+    G3D::Vector3 g3dvec(vec.x, vec.y, vec.z);
+    G3D::Vector3 g3dOffset(offset.x, offset.y, offset.z);
+    G3D::Vector3 ret = (rot.homoMul(g3dvec, 1)  * def.Scale()) + g3dOffset;
+    Vector3 ret2 = (Utils::VectorTransform(vec, rot) + def.Position - MapPos) * def.Scale();
+    return ret2; //Vector3(ret.x, ret.y, ret.z);
 }
 
 void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, WorldModelDefinition& def, WorldModelRoot* root )
@@ -85,7 +106,7 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
     {
         uint32 vertOffset = verts.size();
         for (std::vector<Vector3>::iterator itr2 = group->Vertices.begin(); itr2 != group->Vertices.end(); ++itr2)
-            verts.push_back(Utils::VectorTransform(*itr2, transformation));
+            verts.push_back(TransformDoodadVertex(def, *itr2)/*Utils::VectorTransform(*itr2, transformation)*/);
 
         for (uint32 i = 0; i < group->Triangles.size(); ++i)
         {
@@ -123,7 +144,7 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
             G3D::Matrix4 doodadTransformation = Utils::GetWmoDoodadTransformation(*instance, def);
             int vertOffset = verts.size();
             for (std::vector<Vector3>::iterator itr2 = model->Vertices.begin(); itr2 != model->Vertices.end(); ++itr2)
-                verts.push_back(Utils::VectorTransform(*itr2, doodadTransformation));
+                verts.push_back(TransformDoodadVertex(def, *itr2)/*Utils::VectorTransform(*itr2, doodadTransformation)*/);
             for (std::vector<Triangle<uint16> >::iterator itr2 = model->Triangles.begin(); itr2 != model->Triangles.end(); ++itr2)
                 tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WMO, itr2->V0 + vertOffset, itr2->V1 + vertOffset, itr2->V2 + vertOffset));
         }
