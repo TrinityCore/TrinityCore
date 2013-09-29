@@ -111,7 +111,13 @@ void MPQFile::close()
 
 FILE* MPQFile::GetFileStream()
 {
-    FILE* file = tmpfile();
+    FILE* file = NULL;
+    tmpfile_s(&file);
+    if (!file)
+    {
+        printf("Could not create temporary file. Please run as Administrator or root\n");
+        exit(1);
+    }
     fwrite(buffer, sizeof(char), size, file);
     fseek(file, 0, SEEK_SET);
     return file;

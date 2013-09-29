@@ -51,11 +51,13 @@ void ExtractDBCs()
     std::string baseDBCPath = "dbc/";
     Utils::CreateDir(baseDBCPath);
 
-    // Populate list of DBC files
     std::set<std::string> DBCFiles;
     const size_t extLen = strlen(".dbc");
+    // Populate list of DBC files
+    // We get the DBC names by going over the (guaranteed to exist) default locale files
+    // Then we look in other locale files in case that they are available.
     for (std::vector<std::string>::iterator itr = MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.begin(); itr != MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.end(); ++itr)
-        if (itr->rfind(".dbc") == itr->length() - extLen)
+        if (itr->rfind(".dbc") == itr->length() - extLen) // Check if the extension is ".dbc"
             DBCFiles.insert(*itr);
 
     const size_t folderLen = strlen("DBFilesClient\\");
@@ -228,7 +230,7 @@ void ExtractGameobjectModels()
                 fwrite(MobaEx, 4, k, output);
                 delete[] MobaEx;
 
-                // Note: still not finished
+                //@TODO: Finish this.
             }
 
             fclose(output);
@@ -338,12 +340,21 @@ void LoadTile(dtNavMesh*& navMesh, const char* tile)
 
 int main(int argc, char* argv[])
 {
+    system("pause");
+    _setmaxstdio(2048);
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
     bool debug = false;
 
     if (!HandleArgs(argc, argv, threads, mapIds, debug, extractFlags))
     {
+        PrintUsage();
+        return -1;
+    }
+
+    if (extractFlags == 0)
+    {
+        printf("You must provide a valid extractflag.\n");
         PrintUsage();
         return -1;
     }

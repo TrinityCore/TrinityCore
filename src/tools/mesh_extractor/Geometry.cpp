@@ -117,7 +117,7 @@ void Geometry::AddAdt( ADT* adt )
     if (!adt->_DoodadHandler->Triangles.empty())
         AddData(adt->_DoodadHandler->Vertices, adt->_DoodadHandler->Triangles);
 
-    if (!adt->_WorldModelHandler->Triangles.empty())
-        AddData(adt->_WorldModelHandler->Vertices, adt->_WorldModelHandler->Triangles);
+    /*if (!adt->_WorldModelHandler->Triangles.empty())
+        AddData(adt->_WorldModelHandler->Vertices, adt->_WorldModelHandler->Triangles);*/
 }
 

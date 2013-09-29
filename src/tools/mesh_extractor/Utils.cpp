@@ -49,13 +49,12 @@ void Utils::Reverse(char word[])
 std::string Utils::ReadString( FILE* file )
 {
     std::string ret;
-    int i = 0;
     while (true)
     {
         char b;
         if (fread(&b, sizeof(char), 1, file) != 1 || b == 0)
             break;
-        ret[i++] = b;
+        ret.push_back(b);
     }
     return ret;
 }
@@ -92,10 +91,10 @@ G3D::Matrix4 Utils::RotationX(float angle)
     float _cos = cos(angle);
     float _sin = sin(angle);
     G3D::Matrix4 ret = G3D::Matrix4::identity();
+    ret[1][1] = _cos;
+    ret[2][1] = _sin;
+    ret[1][2] = -_sin;
     ret[2][2] = _cos;
-    ret[2][3] = _sin;
-    ret[3][2] = -_sin;
-    ret[3][3] = _cos;
     return ret;
 }
 
@@ -119,10 +118,10 @@ G3D::Matrix4 Utils::RotationY( float angle )
     float _cos = cos(angle);
     float _sin = sin(angle);
     G3D::Matrix4 ret = G3D::Matrix4::identity();
-    ret[1][1] = _cos;
-    ret[1][3] = -_sin;
-    ret[3][1] = _sin;
-    ret[3][3] = _cos;
+    ret[0][0] = _cos;
+    ret[3][0] = -_sin;
+    ret[0][3] = _sin;
+    ret[2][2] = _cos;
     return ret;
 }
 
@@ -131,10 +130,10 @@ G3D::Matrix4 Utils::RotationZ( float angle )
     float _cos = cos(angle);
     float _sin = sin(angle);
     G3D::Matrix4 ret = G3D::Matrix4::identity();
+    ret[0][0] = _cos;
+    ret[1][0] = _sin;
+    ret[0][1] = -_sin;
     ret[1][1] = _cos;
-    ret[1][2] = _sin;
-    ret[2][1] = -_sin;
-    ret[2][2] = _cos;
     return ret;
 }
 
@@ -146,9 +145,9 @@ float Utils::ToRadians( float degrees )
 Vector3 Utils::VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix )
 {
     Vector3 ret;
-    ret.x = vec.x * matrix[1][1] + vec.y * matrix[2][1] + vec.z * matrix[3][1] + matrix[4][1];
-    ret.y = vec.x * matrix[1][2] + vec.y * matrix[2][2] + vec.z * matrix[3][2] + matrix[4][2];
-    ret.z = vec.x * matrix[1][3] + vec.y * matrix[2][3] + vec.z * matrix[3][3] + matrix[4][3];
+    ret.x = vec.x * matrix[0][0] + vec.y * matrix[1][0] + vec.z * matrix[2][0] + matrix[3][0];
+    ret.y = vec.x * matrix[0][1] + vec.y * matrix[1][1] + vec.z * matrix[2][1] + matrix[3][1];
+    ret.z = vec.x * matrix[0][2] + vec.y * matrix[1][2] + vec.z * matrix[2][2] + matrix[3][2];
     return ret;
 }
 
