@@ -123,7 +123,7 @@ void ContinentBuilder::Build(bool debug)
             {
                 if ((*_th)->Free)
                 {
-                    (*_th)->SetData(40/*itr->X*/, 29/*itr->Y*/, MapId, Continent);
+                    (*_th)->SetData(29/*itr->X*/, 40/*itr->Y*/, MapId, Continent);
                     (*_th)->activate();
                     next = true;
                     break;
