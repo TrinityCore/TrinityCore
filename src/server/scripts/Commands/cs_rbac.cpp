@@ -51,53 +51,19 @@ public:
 
     ChatCommand* GetCommands() const
     {
-        static ChatCommand rbacGroupsCommandTable[] =
+        static ChatCommand rbacAccountCommandTable[] =
         {
-            {         "add", rbac::RBAC_PERM_COMMAND_RBAC_ACC_GROUP_ADD,  true, &HandleRBACGroupAddCommand,    "", NULL },
-            {      "remove", rbac::RBAC_PERM_COMMAND_RBAC_ACC_GROUP_DEL,  true, &HandleRBACGroupRemoveCommand, "", NULL },
-            {            "", rbac::RBAC_PERM_COMMAND_RBAC_ACC_GROUP, true, &HandleRBACGroupListCommand,   "", NULL },
-            {          NULL, 0, false, NULL, "", NULL }
-        };
-
-        static ChatCommand rbacRolesCommandTable[] =
-        {
-            {       "grant", rbac::RBAC_PERM_COMMAND_RBAC_ACC_ROLE_GRANT,  true, &HandleRBACRoleGrantCommand,   "", NULL },
-            {        "deny", rbac::RBAC_PERM_COMMAND_RBAC_ACC_ROLE_DENY,   true, &HandleRBACRoleDenyCommand,    "", NULL },
-            {      "revoke", rbac::RBAC_PERM_COMMAND_RBAC_ACC_ROLE_REVOKE, true, &HandleRBACRoleRevokeCommand,  "", NULL },
-            {            "", rbac::RBAC_PERM_COMMAND_RBAC_ACC_ROLE,        true, &HandleRBACRoleListCommand,    "", NULL },
-            {          NULL, 0, false, NULL, "", NULL }
-        };
-
-        static ChatCommand rbacPermsCommandTable[] =
-        {
+            {        "list", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST,   true, &HandleRBACPermListCommand,    "", NULL },
             {       "grant", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT,  true, &HandleRBACPermGrantCommand,   "", NULL },
             {        "deny", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY,   true, &HandleRBACPermDenyCommand,    "", NULL },
             {      "revoke", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE, true, &HandleRBACPermRevokeCommand,  "", NULL },
-            {            "", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM,        true, &HandleRBACPermListCommand,    "", NULL },
-            {          NULL, 0, false, NULL, "", NULL }
-        };
-
-        static ChatCommand rbacListCommandTable[] =
-        {
-            {      "groups", rbac::RBAC_PERM_COMMAND_RBAC_LIST_GROUPS, true, &HandleRBACListGroupsCommand,      "", NULL },
-            {       "roles", rbac::RBAC_PERM_COMMAND_RBAC_LIST_ROLES,  true, &HandleRBACListRolesCommand,       "", NULL },
-            { "permissions", rbac::RBAC_PERM_COMMAND_RBAC_LIST_PERMS,  true, &HandleRBACListPermissionsCommand, "", NULL },
-            {          NULL, 0, false, NULL, "", NULL }
-        };
-
-        static ChatCommand rbacAccountCommandTable[] =
-        {
-            {       "group", rbac::RBAC_PERM_COMMAND_RBAC_ACC_GROUP, true, NULL, "", rbacGroupsCommandTable },
-            {        "role", rbac::RBAC_PERM_COMMAND_RBAC_ACC_ROLE,  true, NULL, "", rbacRolesCommandTable },
-            {  "permission", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM,  true, NULL, "", rbacPermsCommandTable },
-            {            "", rbac::RBAC_PERM_COMMAND_RBAC_ACC,       true, &HandleRBACAccountPermissionCommand, "", NULL },
             {          NULL, 0, false, NULL, "", NULL }
         };
 
         static ChatCommand rbacCommandTable[] =
         {
             {    "account", rbac::RBAC_PERM_COMMAND_RBAC_ACC,  true, NULL, "", rbacAccountCommandTable },
-            {       "list", rbac::RBAC_PERM_COMMAND_RBAC_LIST, true, NULL, "", rbacListCommandTable },
+            {       "list", rbac::RBAC_PERM_COMMAND_RBAC_LIST, true, &HandleRBACListPermissionsCommand, "", NULL },
             {         NULL, 0, false, NULL, "", NULL }
         };
 
@@ -194,7 +160,7 @@ public:
 
         if (!rdata)
         {
-            data->rbac = new rbac::RBACData(accountId, accountName, realmID);
+            data->rbac = new rbac::RBACData(accountId, accountName, realmID, AccountMgr::GetSecurity(accountId, realmID));
             data->rbac->LoadFromDB();
             data->needDelete = true;
         }
@@ -204,258 +170,6 @@ public:
         data->id = id;
         data->realmId = realmId;
         return data;
-    }
-
-    static bool HandleRBACGroupAddCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        rbac::RBACCommandResult result = command->rbac->AddGroup(command->id, command->realmId);
-        rbac::RBACGroup const* group = sAccountMgr->GetRBACGroup(command->id);
-
-        switch (result)
-        {
-            case rbac::RBAC_CANT_ADD_ALREADY_ADDED:
-                handler->PSendSysMessage(LANG_RBAC_GROUP_IN_LIST, command->id, group->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_GROUP_ADDED, command->id, group->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
-                break;
-            default:
-                break;
-        }
-
-        delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACGroupRemoveCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        rbac::RBACCommandResult result = command->rbac->RemoveGroup(command->id, command->realmId);
-        rbac::RBACGroup const* group = sAccountMgr->GetRBACGroup(command->id);
-
-        switch (result)
-        {
-            case rbac::RBAC_CANT_REVOKE_NOT_IN_LIST:
-                handler->PSendSysMessage(LANG_RBAC_GROUP_NOT_IN_LIST, command->id, group->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_GROUP_REMOVED, command->id, group->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
-                break;
-            default:
-                break;
-        }
-
-        delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACGroupListCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args, false);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        handler->PSendSysMessage(LANG_RBAC_GROUP_LIST_HEADER, command->rbac->GetId(), command->rbac->GetName().c_str());
-        rbac::RBACGroupContainer const& groups = command->rbac->GetGroups();
-        if (groups.empty())
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
-        else
-        {
-            for (rbac::RBACGroupContainer::const_iterator it = groups.begin(); it != groups.end(); ++it)
-            {
-                rbac::RBACGroup const* group = sAccountMgr->GetRBACGroup(*it);
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, group->GetId(), group->GetName().c_str());
-            }
-        }
-
-        delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACRoleGrantCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        rbac::RBACCommandResult result = command->rbac->GrantRole(command->id, command->realmId);
-        rbac::RBACRole const* role = sAccountMgr->GetRBACRole(command->id);
-
-        switch (result)
-        {
-            case rbac::RBAC_CANT_ADD_ALREADY_ADDED:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_GRANTED_IN_LIST, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_IN_DENIED_LIST:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_GRANTED_IN_DENIED_LIST, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_GRANTED, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
-                break;
-            default:
-                break;
-        }
-
-        delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACRoleDenyCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        rbac::RBACCommandResult result = command->rbac->DenyRole(command->id, command->realmId);
-        rbac::RBACRole const* role = sAccountMgr->GetRBACRole(command->id);
-
-        switch (result)
-        {
-            case rbac::RBAC_CANT_ADD_ALREADY_ADDED:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_DENIED_IN_LIST, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_IN_GRANTED_LIST:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_DENIED_IN_GRANTED_LIST, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_DENIED, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
-                break;
-            default:
-                break;
-        }
-
-        delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACRoleRevokeCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        rbac::RBACCommandResult result = command->rbac->RevokeRole(command->id, command->realmId);
-        rbac::RBACRole const* role = sAccountMgr->GetRBACRole(command->id);
-
-        switch (result)
-        {
-            case rbac::RBAC_CANT_REVOKE_NOT_IN_LIST:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_REVOKED_NOT_IN_LIST, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_OK:
-                handler->PSendSysMessage(LANG_RBAC_ROLE_REVOKED, command->id, role->GetName().c_str(),
-                    command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
-                break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
-                break;
-            default:
-                break;
-        }
-
-        delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACRoleListCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args, false);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        handler->PSendSysMessage(LANG_RBAC_ROLE_LIST_HEADER_GRANTED, command->rbac->GetId(), command->rbac->GetName().c_str());
-        rbac::RBACGroupContainer const& granted = command->rbac->GetGrantedRoles();
-        if (granted.empty())
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
-        else
-        {
-            for (rbac::RBACRoleContainer::const_iterator it = granted.begin(); it != granted.end(); ++it)
-            {
-                rbac::RBACRole const* role = sAccountMgr->GetRBACRole(*it);
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, role->GetId(), role->GetName().c_str());
-            }
-        }
-
-        handler->PSendSysMessage(LANG_RBAC_ROLE_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
-        rbac::RBACGroupContainer const& denied = command->rbac->GetDeniedRoles();
-        if (denied.empty())
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
-        else
-        {
-            for (rbac::RBACRoleContainer::const_iterator it = denied.begin(); it != denied.end(); ++it)
-            {
-                rbac::RBACRole const* role = sAccountMgr->GetRBACRole(*it);
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, role->GetId(), role->GetName().c_str());
-            }
-        }
-
-        delete command;
-
-        return true;
     }
 
     static bool HandleRBACPermGrantCommand(ChatHandler* handler, char const* args)
@@ -581,155 +295,45 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_RBAC_PERM_LIST_HEADER_GRANTED, command->rbac->GetId(), command->rbac->GetName().c_str());
+        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_GRANTED, command->rbac->GetId(), command->rbac->GetName().c_str());
         rbac::RBACPermissionContainer const& granted = command->rbac->GetGrantedPermissions();
-        if (!granted.any())
+        if (granted.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (uint32 i = 0; i < rbac::RBAC_PERM_MAX; ++i)
-                if (granted.test(i))
-                {
-                    rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(i);
-                    handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
-                }
+            for (rbac::RBACPermissionContainer::const_iterator itr = granted.begin(); itr != granted.end(); ++itr)
+            {
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
+                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+            }
         }
 
-        handler->PSendSysMessage(LANG_RBAC_PERM_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
+        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
         rbac::RBACPermissionContainer const& denied = command->rbac->GetDeniedPermissions();
-        if (!denied.any())
+        if (denied.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (uint32 i = 0; i < rbac::RBAC_PERM_MAX; ++i)
-                if (denied.test(i))
-                {
-                    rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(i);
-                    handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
-                }
+            for (rbac::RBACPermissionContainer::const_iterator itr = denied.begin(); itr != denied.end(); ++itr)
+            {
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
+                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+            }
         }
-
-        delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACAccountPermissionCommand(ChatHandler* handler, char const* args)
-    {
-        RBACCommandData* command = ReadParams(handler, args, false);
-
-        if (!command)
-        {
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        handler->PSendSysMessage(LANG_RBAC_PERM_LIST_GLOBAL, command->rbac->GetId(), command->rbac->GetName().c_str());
-        rbac::RBACPermissionContainer const& permissions = command->rbac->GetPermissions();
-        if (!permissions.any())
+        handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
+        rbac::RBACPermissionContainer const& default = sAccountMgr->GetRBACDefaultPermissions(command->rbac->GetSecurityLevel());
+        if (default.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (uint32 i = 0; i < rbac::RBAC_PERM_MAX; ++i)
-                if (permissions.test(i))
-                {
-                    rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(i);
-                    handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
-                }
+            for (rbac::RBACPermissionContainer::const_iterator itr = default.begin(); itr != default.end(); ++itr)
+            {
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
+                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+            }
         }
 
         delete command;
-
-        return true;
-    }
-
-    static bool HandleRBACListGroupsCommand(ChatHandler* handler, char const* args)
-    {
-        uint32 id = 0;
-        if (char* param1 = strtok((char*)args, " "))
-          id = atoi(param1);
-
-        if (!id)
-        {
-            rbac::RBACGroupsContainer const& groups = sAccountMgr->GetRBACGroupList();
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_GROUPS_HEADER));
-            for (rbac::RBACGroupsContainer::const_iterator it = groups.begin(); it != groups.end(); ++it)
-            {
-                rbac::RBACGroup const* group = it->second;
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, group->GetId(), group->GetName().c_str());
-            }
-        }
-        else
-        {
-            rbac::RBACGroup const* group = sAccountMgr->GetRBACGroup(id);
-            if (!group)
-            {
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, id);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_GROUPS_HEADER));
-            handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, group->GetId(), group->GetName().c_str());
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_ROLES_HEADER));
-            rbac::RBACRoleContainer const& roles = group->GetRoles();
-            if (roles.empty())
-                handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
-            else
-            {
-                for (rbac::RBACRoleContainer::const_iterator it = roles.begin(); it != roles.end(); ++it)
-                {
-                    rbac::RBACRole const* role = sAccountMgr->GetRBACRole(*it);
-                    handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, role->GetId(), role->GetName().c_str());
-                }
-            }
-        }
-
-        return true;
-    }
-
-    static bool HandleRBACListRolesCommand(ChatHandler* handler, char const* args)
-    {
-        uint32 id = 0;
-        if (char* param1 = strtok((char*)args, " "))
-          id = atoi(param1);
-
-        if (!id)
-        {
-            rbac::RBACRolesContainer const& roles = sAccountMgr->GetRBACRoleList();
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_ROLES_HEADER));
-            for (rbac::RBACRolesContainer::const_iterator it = roles.begin(); it != roles.end(); ++it)
-            {
-                rbac::RBACRole const* role = it->second;
-                handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, role->GetId(), role->GetName().c_str());
-            }
-        }
-        else
-        {
-            rbac::RBACRole const* role = sAccountMgr->GetRBACRole(id);
-            if (!role)
-            {
-                handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, id);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_ROLES_HEADER));
-            handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, role->GetId(), role->GetName().c_str());
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
-            rbac::RBACPermissionContainer const& permissions = role->GetPermissions();
-            if (!permissions.any())
-                handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
-            else
-            {
-                for (uint32 i = 0; i < rbac::RBAC_PERM_MAX; ++i)
-                    if (permissions.test(i))
-                    {
-                        rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(i);
-                        handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
-                    }
-            }
-        }
 
         return true;
     }
@@ -762,6 +366,11 @@ public:
 
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
             handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
+            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMS_LINKED_HEADER));
+            rbac::RBACPermissionContainer const& permissions = permission->GetLinkedPermissions();
+            for (rbac::RBACPermissionContainer::const_iterator it = permissions.begin(); it != permissions.end(); ++it)
+                if (rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*it))
+                    handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
         }
 
         return true;

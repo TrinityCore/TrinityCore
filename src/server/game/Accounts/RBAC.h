@@ -42,7 +42,6 @@
 
 #include "Define.h"
 #include <string>
-#include <bitset>
 #include <set>
 #include <map>
 
@@ -101,25 +100,26 @@ enum RBACPermissions
     RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA             = 48,
     RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE                  = 49,
     RBAC_PERM_MAY_CHECK_OWN_EMAIL                            = 50,
-    // Leave some space for core permissions
 
+    // Free space for core permissions (till 149)
+    // Roles (Permissions with delegated permissions) use 199 and descending
     RBAC_PERM_COMMAND_RBAC                                   = 200,
     RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
-    RBAC_PERM_COMMAND_RBAC_ACC_GROUP                         = 202,
-    RBAC_PERM_COMMAND_RBAC_ACC_GROUP_ADD                     = 203,
-    RBAC_PERM_COMMAND_RBAC_ACC_GROUP_DEL                     = 204,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE                          = 205,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_GRANT                    = 206,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_DENY                     = 207,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_REVOKE                   = 208,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM                          = 209,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT                    = 210,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 211,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE                   = 212,
-    RBAC_PERM_COMMAND_RBAC_LIST                              = 213,
-    RBAC_PERM_COMMAND_RBAC_LIST_GROUPS                       = 214,
-    RBAC_PERM_COMMAND_RBAC_LIST_ROLES                        = 215,
-    RBAC_PERM_COMMAND_RBAC_LIST_PERMS                        = 216,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST                     = 202,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT                    = 203,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 204,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE                   = 205,
+    RBAC_PERM_COMMAND_RBAC_LIST                              = 206,
+    // 207 - reuse
+    // 208 - reuse
+    // 209 - reuse
+    // 210 - reuse
+    // 211 - reuse
+    // 212 - reuse
+    // 213 - reuse
+    // 214 - reuse
+    // 215 - reuse
+    // 216 - reuse
     RBAC_PERM_COMMAND_ACCOUNT                                = 217,
     RBAC_PERM_COMMAND_ACCOUNT_ADDON                          = 218,
     RBAC_PERM_COMMAND_ACCOUNT_CREATE                         = 219,
@@ -678,8 +678,6 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
-    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
-    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // Only 4.3.4
 
     // custom permissions 1000+
     RBAC_PERM_MAX
@@ -695,70 +693,30 @@ enum RBACCommandResult
     RBAC_ID_DOES_NOT_EXISTS
 };
 
-typedef std::bitset<RBAC_PERM_MAX> RBACPermissionContainer;
-typedef std::set<uint32> RBACRoleContainer;
-typedef std::set<uint32> RBACGroupContainer;
+typedef std::set<uint32> RBACPermissionContainer;
 
-class RBACObject
+class RBACPermission
 {
     public:
-        RBACObject(uint32 id = 0, std::string const& name = ""):
+        RBACPermission(uint32 id = 0, std::string const& name = ""):
             _id(id), _name(name) { }
-
-        virtual ~RBACObject() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
         /// Gets the Id of the Object
         uint32 GetId() const { return _id; }
 
+        /// Gets the Permissions linked to this permission
+        RBACPermissionContainer const& GetLinkedPermissions() const { return _perms; }
+        /// Adds a new linked Permission
+        void AddLinkedPermission(uint32 id) { _perms.insert(id); }
+        /// Removes a linked Permission
+        void RemoveLinkedPermission(uint32 id) { _perms.erase(id); }
+
     private:
         uint32 _id;                                        ///> id of the object
         std::string _name;                                 ///> name of the object
-};
-
-/// Permission: Defines an autorization to perform certain operation
-class RBACPermission: public RBACObject
-{
-    public:
-        RBACPermission(uint32 id = 0, std::string const& name = ""):
-            RBACObject(id, name) { }
-};
-
-/// Set of Permissions
-class RBACRole: public RBACObject
-{
-    public:
-        RBACRole(uint32 id = 0, std::string const& name = ""):
-            RBACObject(id, name) { }
-
-        /// Gets the Permissions assigned to this role
-        RBACPermissionContainer const& GetPermissions() const { return _perms; }
-        /// Grants a Permission (Adds)
-        void GrantPermission(uint32 id);
-        /// Revokes a Permission (Removes)
-        void RevokePermission(uint32 id);
-
-    private:
         RBACPermissionContainer _perms;                    ///> Set of permissions
-};
-
-/// Set of Roles
-class RBACGroup: public RBACObject
-{
-    public:
-        RBACGroup(uint32 id = 0, std::string const& name = ""):
-            RBACObject(id, name) { }
-
-        /// Gets the Roles assigned to this group
-        RBACRoleContainer const& GetRoles() const { return _roles; }
-        /// Grants a Role (Adds)
-        void GrantRole(uint32 role);
-        /// Revokes a Role (Removes)
-        void RevokeRole(uint32 role);
-
-    private:
-        RBACRoleContainer _roles;                          ///> Set of Roles
 };
 
 /**
@@ -766,22 +724,22 @@ class RBACGroup: public RBACObject
  * @brief Contains all needed information about the acccount
  *
  * This class contains all the data needed to calculate the account permissions.
- * RBACDAta is formed by group permissions and user permissions through:
- * - Granted Groups, which contains roles, which contains permissions: Set of granted permissions
- * - Granted Roles, which contains permissions: Set of granted permissions
- * - Denied Roles, which contains permissions: Set of denied permissions
- * - Granted Permissions
- * - Denied Permissions
+ * RBACDAta is formed by granted and denied permissions and all the inherited permissions
  *
  * Calculation of current Permissions: Granted permissions - Denied permissions
- * - Granted permissions: through groups, through roles and directly assigned
- * - Denied permissions: through roles and directly assigned
+ * - Granted permissions: through linked permissions and directly assigned
+ * - Denied permissions: through linked permissions and directly assigned
  */
-class RBACData: public RBACObject
+class RBACData
 {
     public:
-        RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 0):
-            RBACObject(id, name), _realmId(realmId), _secLevel(secLevel) { }
+        RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
+            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel) { }
+
+        /// Gets the Name of the Object
+        std::string const& GetName() const { return _name; }
+        /// Gets the Id of the Object
+        uint32 GetId() const { return _id; }
 
         /**
          * @name HasPermission
@@ -799,7 +757,10 @@ class RBACData: public RBACObject
          * }
          * @endcode
          */
-        bool HasPermission(uint32 permission) const { return _globalPerms.test(permission); }
+        bool HasPermission(uint32 permission) const
+        {
+            return _globalPerms.find(permission) != _globalPerms.end();
+        }
 
         // Functions enabled to be used by command system
         /// Returns all the granted permissions (after computation)
@@ -808,130 +769,6 @@ class RBACData: public RBACObject
         RBACPermissionContainer const& GetGrantedPermissions() const { return _grantedPerms; }
         /// Returns all the denied permissions
         RBACPermissionContainer const& GetDeniedPermissions() const { return _deniedPerms; }
-        /// Returns all the granted roles
-        RBACRoleContainer const& GetGrantedRoles() const { return _grantedRoles; }
-        /// Returns all the denied roles
-        RBACRoleContainer const& GetDeniedRoles() const { return _deniedRoles; }
-        /// Returns all the granted groups
-        RBACGroupContainer const& GetGroups() const { return _groups; }
-
-        /**
-         * @name AddGroup
-         * @brief Adds new group
-         *
-         * Add a new group to the account. If realm is 0 or the group can not be added
-         * No save to db action will be performed.
-         *
-         * Fails if group Id does not exists or group already present
-         *
-         * @param groupId group to be added
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to add the group
-         *
-         * Example Usage:
-         * @code
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 groupId = 2;
-         * if (rbac->AddGroup(groupId) == RBAC_OK)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Group %u succesfully added", groupId);
-         * @endcode
-         */
-        RBACCommandResult AddGroup(uint32 groupId, int32 realmId = 0);
-
-        /**
-         * @name RemoveGroup
-         * @brief Removes a group
-         *
-         * Removes a group from the account. If realm is 0 or the group can not be removed
-         * No save to db action will be performed. Any delete operation will always affect
-         * "all realms (-1)" in addition to the realm specified
-         *
-         * Fails if group not present
-         *
-         * @param groupId group to be removed
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to remove the group
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 groupId = 2;
-         * if (rbac->RemoveGroup(groupId) == RBAC_OK)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Group %u succesfully removed", groupId);
-         * @endcode
-         */
-        RBACCommandResult RemoveGroup(uint32 groupId, int32 realmId = 0);
-
-        /**
-         * @name GrantRole
-         * @brief Grants a role
-         *
-         * Grants a role to the account. If realm is 0 or the role can not be added
-         * No save to db action will be performed.
-         *
-         * Fails if role Id does not exists or role already granted or denied
-         *
-         * @param roleId role to be granted
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to grant the role
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 roleId = 2;
-         * if (rbac->GrantRole(roleId) == RBAC_IN_DENIED_LIST)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Failed to grant role %u, already denied", roleId);
-         * @endcode
-         */
-        RBACCommandResult GrantRole(uint32 roleId, int32 realmId = 0);
-
-        /**
-         * @name DenyRole
-         * @brief Denies a role
-         *
-         * Denied a role to the account. If realm is 0 or the role can not be added
-         * No save to db action will be performed.
-         *
-         * Fails if role Id does not exists or role already granted or denied
-         *
-         * @param roleId role to be denied
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to deny the role
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 roleId = 2;
-         * if (rbac->DenyRole(roleId) == RBAC_ID_DOES_NOT_EXISTS)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Role Id %u does not exists", roleId);
-         * @endcode
-         */
-        RBACCommandResult DenyRole(uint32 roleId, int32 realmId = 0);
-
-        /**
-         * @name RevokeRole
-         * @brief Removes a role
-         *
-         * Removes a role from the account. If realm is 0 or the role can not be removed
-         * No save to db action will be performed. Any delete operation will always affect
-         * "all realms (-1)" in addition to the realm specified
-         *
-         * Fails if role not present
-         *
-         * @param roleId role to be removed
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to remove the role
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 roleId = 2;
-         * if (rbac->RevokeRole(roleId) == RBAC_OK)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Role %u succesfully removed", roleId);
-         * @endcode
-         */
-        RBACCommandResult RevokeRole(uint32 roleId, int32 realmId = 0);
 
         /**
          * @name GrantRole
@@ -1003,7 +840,7 @@ class RBACData: public RBACObject
          */
         RBACCommandResult RevokePermission(uint32 permissionId, int32 realmId = 0);
 
-        /// Loads all permissions, groups and roles assigned to current account
+        /// Loads all permissions assigned to current account
         void LoadFromDB();
 
         /// Sets security level
@@ -1016,8 +853,6 @@ class RBACData: public RBACObject
         /// Returns the security level assigned
         uint8 GetSecurityLevel() const { return _secLevel; }
     private:
-        /// Saves a role to DB, Granted or Denied
-        void SaveRole(uint32 role, bool granted, int32 realm);
         /// Saves a permission to DB, Granted or Denied
         void SavePermission(uint32 role, bool granted, int32 realm);
         /// Clears roles, groups and permissions - Used for reload
@@ -1027,20 +862,76 @@ class RBACData: public RBACObject
          * @name CalculateNewPermissions
          * @brief Calculates new permissions
          *
-         * Calculates new permissions after some change in groups, roles or permissions.
+         * Calculates new permissions after some change
          * The calculation is done Granted - Denied:
-         * - Granted permissions: through groups, through roles and directly assigned
-         * - Denied permissions: through roles and directly assigned
+         * - Granted permissions: through linked permissions and directly assigned
+         * - Denied permissions: through linked permissions and directly assigned
          */
         void CalculateNewPermissions();
 
         int32 GetRealmId() { return _realmId; }
 
+        // Auxiliar private functions - defined to allow to maintain same code even
+        // if internal structure changes.
+
+        /// Checks if a permission is granted
+        bool HasGrantedPermission(uint32 permissionId) const
+        {
+            return _grantedPerms.find(permissionId) != _grantedPerms.end();
+        }
+
+        /// Checks if a permission is denied
+        bool HasDeniedPermission(uint32 permissionId) const
+        {
+            return _deniedPerms.find(permissionId) != _deniedPerms.end();
+        }
+
+        /// Adds a new granted permission
+        void AddGrantedPermission(uint32 permissionId)
+        {
+            _grantedPerms.insert(permissionId);
+        }
+
+        /// Removes a granted permission
+        void RemoveGrantedPermission(uint32 permissionId)
+        {
+            _grantedPerms.erase(permissionId);
+        }
+
+        /// Adds a new denied permission
+        void AddDeniedPermission(uint32 permissionId)
+        {
+            _deniedPerms.insert(permissionId);
+        }
+
+        /// Removes a denied permission
+        void RemoveDeniedPermission(uint32 permissionId)
+        {
+            _deniedPerms.erase(permissionId);
+        }
+
+        /// Adds a list of permissions to another list
+        void AddPermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
+
+        /// Removes a list of permissions to another list
+        void RemovePermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
+
+        /**
+         * @name ExpandPermissions
+         * @brief Adds the list of linked permissions to the original list
+         *
+         * Given a list of permissions, gets all the inherited permissions
+         * @param permissions The list of permissions to expand
+         *
+         * @return new list of permissions containing original permissions and
+         * all other pemissions that are linked to the original ones
+         */
+        void ExpandPermissions(RBACPermissionContainer& permissions);
+
+        uint32 _id;                                        ///> Account id
+        std::string _name;                                 ///> Account name
         int32 _realmId;                                    ///> RealmId Affected
         uint8 _secLevel;                                   ///> Account SecurityLevel
-        RBACGroupContainer _groups;                        ///> Granted groups
-        RBACRoleContainer _grantedRoles;                   ///> Granted roles
-        RBACRoleContainer _deniedRoles;                    ///> Denied roles
         RBACPermissionContainer _grantedPerms;             ///> Granted permissions
         RBACPermissionContainer _deniedPerms;              ///> Denied permissions
         RBACPermissionContainer _globalPerms;              ///> Calculated permissions

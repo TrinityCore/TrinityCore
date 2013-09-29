@@ -415,102 +415,69 @@ void AccountMgr::LoadRBAC()
     }
     while (result->NextRow());
 
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading roles");
-    result = LoginDatabase.Query("SELECT id, name FROM rbac_roles");
+    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading linked permissions");
+    result = LoginDatabase.Query("SELECT id, linkedId FROM rbac_linked_permissions ORDER BY id ASC");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account role definitions. DB table `rbac_roles` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 linked permissions. DB table `rbac_linked_permissions` is empty.");
         return;
     }
+
+    uint32 permissionId = 0;
+    rbac::RBACPermission* permission = NULL;
 
     do
     {
         Field* field = result->Fetch();
-        uint32 id = field[0].GetUInt32();
-        _roles[id] = new rbac::RBACRole(id, field[1].GetString());
+        uint32 newId = field[0].GetUInt32();
+        if (permissionId != newId)
+        {
+            permissionId = newId;
+            permission = _permissions[newId];
+        }
+
+        uint32 linkedPermissionId = field[1].GetUInt32();
+        if (linkedPermissionId == permissionId)
+        {
+            TC_LOG_ERROR(LOG_FILTER_SQL, "RBAC Permission %u has itself as linked permission. Ignored", permissionId);
+            continue;
+        }
+        permission->AddLinkedPermission(linkedPermissionId);
         ++count2;
     }
     while (result->NextRow());
 
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading role permissions");
-    result = LoginDatabase.Query("SELECT roleId, permissionId FROM rbac_role_permissions");
+    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading default permissions");
+    result = LoginDatabase.Query("SELECT secId, permissionId FROM rbac_default_permissions ORDER BY secId ASC");
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account role-permission definitions. DB table `rbac_role_permissions` is empty.");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");
         return;
     }
 
+    uint8 secId = 255;
+    rbac::RBACPermissionContainer* permissions;
     do
     {
         Field* field = result->Fetch();
-        uint32 id = field[0].GetUInt32();
-        rbac::RBACRole* role = _roles[id];
-        role->GrantPermission(field[1].GetUInt32());
-    }
-    while (result->NextRow());
-
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading groups");
-    result = LoginDatabase.Query("SELECT id, name FROM rbac_groups");
-    if (!result)
-    {
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account group definitions. DB table `rbac_groups` is empty.");
-        return;
-    }
-
-    do
-    {
-        Field* field = result->Fetch();
-        uint32 id = field[0].GetUInt32();
-        _groups[id] = new rbac::RBACGroup(id, field[1].GetString());
+        uint32 newId = field[0].GetUInt32();
+        if (secId != newId)
+        {
+            secId = newId;
+            permissions = &_defaultPermissions[secId];
+        }
+ 
+        permissions->insert(field[1].GetUInt32());
         ++count3;
     }
     while (result->NextRow());
 
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading group roles");
-    result = LoginDatabase.Query("SELECT groupId, roleId FROM rbac_group_roles");
-    if (!result)
-    {
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account group-role definitions. DB table `rbac_group_roles` is empty.");
-        return;
-    }
-
-    do
-    {
-        Field* field = result->Fetch();
-        uint32 id = field[0].GetUInt32();
-        rbac::RBACGroup* group = _groups[id];
-        group->GrantRole(field[1].GetUInt32());
-    }
-    while (result->NextRow());
-
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC: Loading security level groups");
-    result = LoginDatabase.Query("SELECT secId, groupId FROM rbac_security_level_groups ORDER by secId ASC");
-    if (!result)
-    {
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 account default groups for security levels definitions. DB table `rbac_security_level_groups` is empty.");
-        return;
-    }
-
-    uint8 lastSecId = 255;
-    rbac::RBACGroupContainer* groups = NULL;
-    do
-    {
-        Field* field = result->Fetch();
-        uint8 secId = field[0].GetUInt8();
-
-        if (lastSecId != secId)
-            groups = &_defaultSecGroups[secId];
-
-        groups->insert(field[1].GetUInt32());
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u permission definitions, %u role definitions and %u group definitions in %u ms", count1, count2, count3, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u permission definitions, %u linked permissions and %u default permissions in %u ms", count1, count2, count3, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
 {
-    if (rbac)
+    if (rbac && securityLevel == rbac->GetSecurityLevel())
         rbac->SetSecurityLevel(securityLevel);
 
     // Delete old security level from DB
@@ -539,29 +506,9 @@ void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uin
     }
 }
 
-rbac::RBACGroup const* AccountMgr::GetRBACGroup(uint32 groupId) const
-{
-    TC_LOG_TRACE(LOG_FILTER_RBAC, "AccountMgr::GetRBACGroup: groupId: %u", groupId);
-    rbac::RBACGroupsContainer::const_iterator it = _groups.find(groupId);
-    if (it != _groups.end())
-        return it->second;
-
-    return NULL;
-}
-
-rbac::RBACRole const* AccountMgr::GetRBACRole(uint32 roleId) const
-{
-    TC_LOG_TRACE(LOG_FILTER_RBAC, "AccountMgr::GetRBACRole: roleId: %u", roleId);
-    rbac::RBACRolesContainer::const_iterator it = _roles.find(roleId);
-    if (it != _roles.end())
-        return it->second;
-
-    return NULL;
-}
-
 rbac::RBACPermission const* AccountMgr::GetRBACPermission(uint32 permissionId) const
 {
-    TC_LOG_TRACE(LOG_FILTER_RBAC, "AccountMgr::GetRBACPermission: roleId: %u", permissionId);
+    TC_LOG_TRACE(LOG_FILTER_RBAC, "AccountMgr::GetRBACPermission: %u", permissionId);
     rbac::RBACPermissionsContainer::const_iterator it = _permissions.find(permissionId);
     if (it != _permissions.end())
         return it->second;
@@ -591,14 +538,12 @@ void AccountMgr::ClearRBAC()
     for (rbac::RBACPermissionsContainer::iterator itr = _permissions.begin(); itr != _permissions.end(); ++itr)
         delete itr->second;
 
-    for (rbac::RBACRolesContainer::iterator itr = _roles.begin(); itr != _roles.end(); ++itr)
-        delete itr->second;
-
-    for (rbac::RBACGroupsContainer::iterator itr = _groups.begin(); itr != _groups.end(); ++itr)
-        delete itr->second;
-
     _permissions.clear();
-    _roles.clear();
-    _groups.clear();
-    _defaultSecGroups.clear();
+    _defaultPermissions.clear();
+}
+
+rbac::RBACPermissionContainer const& AccountMgr::GetRBACDefaultPermissions(uint8 secLevel)
+{
+    TC_LOG_TRACE(LOG_FILTER_RBAC, "AccountMgr::GetRBACDefaultPermissions: secLevel %u - size: %u", secLevel, _defaultPermissions[secLevel].size());
+    return _defaultPermissions[secLevel];
 }
