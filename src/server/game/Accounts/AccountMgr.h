@@ -46,9 +46,7 @@ enum PasswordChangeSecurity
 namespace rbac
 {
 typedef std::map<uint32, rbac::RBACPermission*> RBACPermissionsContainer;
-typedef std::map<uint32, rbac::RBACRole*> RBACRolesContainer;
-typedef std::map<uint32, rbac::RBACGroup*> RBACGroupsContainer;
-typedef std::map<uint32, rbac::RBACGroupContainer> RBACDefaultSecurityGroupContainer;
+typedef std::map<uint8, rbac::RBACPermissionContainer> RBACDefaultPermissionsContainer;
 }
 
 class AccountMgr
@@ -86,21 +84,15 @@ class AccountMgr
         void UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId);
 
         void LoadRBAC();
-        rbac::RBACGroup const* GetRBACGroup(uint32 group) const;
-        rbac::RBACRole const* GetRBACRole(uint32 role) const;
         rbac::RBACPermission const* GetRBACPermission(uint32 permission) const;
 
-        rbac::RBACGroupsContainer const& GetRBACGroupList() const { return _groups; }
-        rbac::RBACRolesContainer const& GetRBACRoleList() const { return _roles; }
         rbac::RBACPermissionsContainer const& GetRBACPermissionList() const { return _permissions; }
-        rbac::RBACGroupContainer const& GetRBACDefaultGroups(uint8 secLevel) { return _defaultSecGroups[secLevel]; }
+        rbac::RBACPermissionContainer const& GetRBACDefaultPermissions(uint8 secLevel);
 
     private:
         void ClearRBAC();
         rbac::RBACPermissionsContainer _permissions;
-        rbac::RBACRolesContainer _roles;
-        rbac::RBACGroupsContainer _groups;
-        rbac::RBACDefaultSecurityGroupContainer _defaultSecGroups;
+        rbac::RBACDefaultPermissionsContainer _defaultPermissions;
 };
 
 #define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()
