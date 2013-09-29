@@ -114,7 +114,7 @@ void ContinentBuilder::Build(bool debug)
     for (uint32 i = 0; i < NumberOfThreads; ++i)
         Threads.push_back(new BuilderThread(this, debug, params));
     printf("Map %s ( %u ) has %u tiles. Building them with %u threads\n", Continent.c_str(), MapId, uint32(TileMap->TileTable.size()), NumberOfThreads);
-    for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
+    //for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {
         bool next = false;
         while (!next)
@@ -123,7 +123,7 @@ void ContinentBuilder::Build(bool debug)
             {
                 if ((*_th)->Free)
                 {
-                    (*_th)->SetData(itr->X, itr->Y, MapId, Continent);
+                    (*_th)->SetData(40/*itr->X*/, 29/*itr->Y*/, MapId, Continent);
                     (*_th)->activate();
                     next = true;
                     break;

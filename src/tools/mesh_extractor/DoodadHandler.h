@@ -44,7 +44,7 @@ public:
 
 
 protected:
-    void ProcessInternal(ChunkedData* chunk);
+    void ProcessInternal(MapChunk* chunk);
 
 private:
     void ReadDoodadDefinitions(Chunk* chunk);

@@ -36,7 +36,7 @@ public:
     bool IsSane() { return _definitions && _paths; }
     void InsertModelGeometry(std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, WorldModelDefinition& def, WorldModelRoot* root);
 protected:
-    void ProcessInternal(ChunkedData* data);
+    void ProcessInternal(MapChunk* data);
 private:
     void ReadDefinitions();
     void ReadModelPaths();

@@ -6,8 +6,8 @@
 
 DoodadHandler::DoodadHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
 {
-    if (!adt->HasObjectData)
-        return;
+    /*if (!adt->HasObjectData)
+        return;*/
     Chunk* mddf = adt->ObjectData->GetChunkByName("MDDF");
     if (mddf)
         ReadDoodadDefinitions(mddf);
@@ -18,15 +18,14 @@ DoodadHandler::DoodadHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(
         ReadDoodadPaths(mmid, mmdx);
 }
 
-void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
+void DoodadHandler::ProcessInternal( MapChunk* mcnk )
 {
     if (!IsSane())
         return;
-    Chunk* doodadReferencesChunk = subChunks->GetChunkByName("MCRD");
-    if (!doodadReferencesChunk)
-        return;
-    FILE* stream = doodadReferencesChunk->GetStream();
-    uint32 refCount = doodadReferencesChunk->Length / 4;
+    
+    uint32 refCount = mcnk->Header.DoodadRefs;
+    FILE* stream = mcnk->Source->GetStream();
+    fseek(stream, mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
     for (uint32 i = 0; i < refCount; i++)
     {
         int32 index;
@@ -57,6 +56,8 @@ void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
 
         InsertModelGeometry(doodad, model);
     }
+    // Restore the stream position
+    fseek(stream, mcnk->Source->Offset, SEEK_SET);
 }
 
 void DoodadHandler::ReadDoodadDefinitions( Chunk* chunk )
@@ -91,13 +92,32 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
     }
 }
 
+Vector3 TransformDoodadVertex(const DoodadDefinition& def, Vector3& vec)
+{
+    float mapOffset = 17066.0f + (2 / 3.0f);
+    Vector3 MapPos = Vector3(mapOffset, 0, mapOffset);
+    G3D::Matrix4 rot = G3D::Matrix4::identity();
+    rot = rot.pitchDegrees(def.Rotation.y - 90);
+    rot = rot.yawDegrees(-def.Rotation.x);
+    rot = rot.rollDegrees(def.Rotation.z - 90);
+    
+    Vector3 offset = def.Position - MapPos;
+
+    // Because homoMul wants a G3D::Vector3
+    G3D::Vector3 g3dvec(vec.x, vec.y, vec.z);
+    G3D::Vector3 g3dOffset(offset.x, offset.y, offset.z);
+    G3D::Vector3 ret = (rot.homoMul(g3dvec, 1)  * def.Scale()) + g3dOffset;
+    Vector3 ret2 = (Utils::VectorTransform(vec, rot) * def.Scale()) + def.Position - MapPos;
+    return ret2; //Vector3(ret.x, ret.y, ret.z);
+}
+
 void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* model)
 {
     G3D::Matrix4 transformation = Utils::GetTransformation(def);
     uint32 vertOffset = Vertices.size();
-
+    
     for (std::vector<Vector3>::iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
-        Vertices.push_back(Utils::VectorTransform(*itr, transformation));
+        Vertices.push_back(TransformDoodadVertex(def, *itr)/*Utils::VectorTransform(*itr, transformation)*/);
 
     for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
