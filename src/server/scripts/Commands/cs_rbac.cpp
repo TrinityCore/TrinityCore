@@ -321,12 +321,12 @@ public:
             }
         }
         handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
-        rbac::RBACPermissionContainer const& default = sAccountMgr->GetRBACDefaultPermissions(command->rbac->GetSecurityLevel());
-        if (default.empty())
+        rbac::RBACPermissionContainer const& defaultPermissions = sAccountMgr->GetRBACDefaultPermissions(command->rbac->GetSecurityLevel());
+        if (defaultPermissions.empty())
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (rbac::RBACPermissionContainer::const_iterator itr = default.begin(); itr != default.end(); ++itr)
+            for (rbac::RBACPermissionContainer::const_iterator itr = defaultPermissions.begin(); itr != defaultPermissions.end(); ++itr)
             {
                 rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
                 handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
