@@ -456,7 +456,7 @@ void AccountMgr::LoadRBAC()
     }
 
     uint8 secId = 255;
-    rbac::RBACPermissionContainer* permissions;
+    rbac::RBACPermissionContainer* permissions = NULL;
     do
     {
         Field* field = result->Fetch();
@@ -544,6 +544,6 @@ void AccountMgr::ClearRBAC()
 
 rbac::RBACPermissionContainer const& AccountMgr::GetRBACDefaultPermissions(uint8 secLevel)
 {
-    TC_LOG_TRACE(LOG_FILTER_RBAC, "AccountMgr::GetRBACDefaultPermissions: secLevel %u - size: %u", secLevel, _defaultPermissions[secLevel].size());
+    TC_LOG_TRACE(LOG_FILTER_RBAC, "AccountMgr::GetRBACDefaultPermissions: secLevel %u - size: %u", secLevel, uint32(_defaultPermissions[secLevel].size()));
     return _defaultPermissions[secLevel];
 }
