@@ -79,7 +79,7 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
     fseek(stream, mcnk->Source->Offset, SEEK_SET);
 }
 
-void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, WorldModelDefinition& def, WorldModelRoot* root )
+void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root )
 {
     for (std::vector<WorldModelGroup>::iterator group =  root->Groups.begin(); group != root->Groups.end(); ++group)
     {
