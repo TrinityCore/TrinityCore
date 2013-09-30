@@ -86,56 +86,27 @@ std::string Utils::FixModelPath(const std::string& path )
     return Utils::GetPathBase(path) + ".M2";
 }
 
-G3D::Matrix4 Utils::GetTransformation(const IDefinition& def)
+Vector3 Utils::TransformDoodadVertex(const IDefinition& def, Vector3& vec)
 {
-    G3D::Matrix4 translation;
-    if (def.Position.x == 0.0f && def.Position.y == 0.0f && def.Position.z == 0.0f)
-        translation = G3D::Matrix4::identity();
-    else
-        translation = G3D::Matrix4::translation(-(def.Position.z - Constants::MaxXY),
-            -(def.Position.x - Constants::MaxXY), def.Position.y);
+    // Sources of information:
+    /// http://www.pxr.dk/wowdev/wiki/index.php?title=ADT/v18&oldid=3715
 
-    //G3D::Matrix4 rotation = RotationX(ToRadians(def.Rotation.z)) * RotationY(ToRadians(def.Rotation.x)) * RotationZ(ToRadians(def.Rotation.y + 180));
-    G3D::Matrix4 rotation = G3D::Matrix4::identity().rollDegrees(def.Rotation.z).pitchDegrees(def.Rotation.x).yawDegrees(def.Rotation.y + 180);
-    if (def.Scale() < 1.0f || def.Scale() > 1.0f)
-        return G3D::Matrix4::scale(def.Scale()) * rotation * translation;
-    return rotation * translation;
+    // This function applies to both external doodads and WMOs
+
+    // Rotate our Doodad vertex
+    G3D::Matrix4 rot = G3D::Matrix3::fromEulerAnglesXYZ(Utils::ToRadians(def.Rotation.z), Utils::ToRadians(-def.Rotation.x), Utils::ToRadians(def.Rotation.y + 180));
+    Vector3 ret = Utils::VectorTransform(vec, rot);
+
+    // And finally scale and translate it to our origin
+    return (ret * def.Scale()) + Vector3(Constants::MaxXY - def.Position.z, Constants::MaxXY - def.Position.x, def.Position.y);
 }
 
-G3D::Matrix4 Utils::RotationY( float angle )
+Vector3 Utils::TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, Vector3& vec )
 {
-    float _cos = cos(angle);
-    float _sin = sin(angle);
-    G3D::Matrix4 ret = G3D::Matrix4::identity();
-    ret[0][0] = _cos;
-    ret[3][0] = -_sin;
-    ret[0][3] = _sin;
-    ret[2][2] = _cos;
-    return ret;
-}
+    G3D::Quat quat = G3D::Quat(-inst.QuatY, inst.QuatZ, -inst.QuatX, inst.QuatW);
 
-G3D::Matrix4 Utils::RotationZ( float angle )
-{
-    float _cos = cos(angle);
-    float _sin = sin(angle);
-    G3D::Matrix4 ret = G3D::Matrix4::identity();
-    ret[0][0] = _cos;
-    ret[1][0] = _sin;
-    ret[0][1] = -_sin;
-    ret[1][1] = _cos;
-    return ret;
-}
-
-G3D::Matrix4 Utils::RotationX(float angle)
-{
-    float _cos = cos(angle);
-    float _sin = sin(angle);
-    G3D::Matrix4 ret = G3D::Matrix4::identity();
-    ret[1][1] = _cos;
-    ret[2][1] = _sin;
-    ret[1][2] = -_sin;
-    ret[2][2] = _cos;
-    return ret;
+    Vector3 ret = Utils::VectorTransform(vec, G3D::Matrix4(quat.toRotationMatrix()));
+    return (ret * (inst.Scale / 1024.0f)) + Vector3(Constants::MaxXY - inst.Position.z, Constants::MaxXY - inst.Position.x, inst.Position.y);
 }
 
 float Utils::ToRadians( float degrees )
@@ -143,13 +114,10 @@ float Utils::ToRadians( float degrees )
     return Constants::PI * degrees / 180.0f;
 }
 
-Vector3 Utils::VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix )
+Vector3 Utils::VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix, bool normal )
 {
     G3D::Vector3 ret(vec.x, vec.y, vec.z);
-    ret = matrix.homoMul(ret, 1);
-    /*ret.x = vec.x * matrix[0][0] + vec.y * matrix[1][0] + vec.z * matrix[2][0] + matrix[3][0];
-    ret.y = vec.x * matrix[0][1] + vec.y * matrix[1][1] + vec.z * matrix[2][1] + matrix[3][1];
-    ret.z = vec.x * matrix[0][2] + vec.y * matrix[1][2] + vec.z * matrix[2][2] + matrix[3][2];*/
+    ret = matrix.homoMul(ret, normal ? 0 : 1);
     return Vector3(ret.x, ret.y, ret.z);
 }
 
@@ -169,11 +137,11 @@ Vector3 Vector3::Read( FILE* file )
     return ret;
 }
 
-Vector3 Utils::GetLiquidVert(const G3D::Matrix4& transformation, Vector3 basePosition, float height, int /*x*/, int /*y*/)
+Vector3 Utils::GetLiquidVert(const IDefinition& def, Vector3 basePosition, float height, int /*x*/, int /*y*/)
 {
     if (Utils::Distance(height, 0.0f) > 0.5f)
         basePosition.z = 0.0f;
-    return Utils::VectorTransform(basePosition + Vector3(basePosition.x * Constants::UnitSize, basePosition.y * Constants::UnitSize, height), transformation);
+    return Utils::TransformDoodadVertex(def, basePosition + Vector3(basePosition.x * Constants::UnitSize, basePosition.y * Constants::UnitSize, height));
 }
 
 float Utils::Distance( float x, float y )
@@ -190,18 +158,6 @@ std::string Utils::Replace( std::string str, const std::string& oldStr, const st
         pos += newStr.length();
     }
     return str;
-}
-
-G3D::Matrix4 Utils::GetWmoDoodadTransformation(const DoodadInstance& inst, const WorldModelDefinition& root )
-{
-    G3D::Matrix4 rootTransformation = Utils::GetTransformation(root);
-    G3D::Matrix4 translation = G3D::Matrix4::translation(inst.Position.x, inst.Position.y, inst.Position.z);
-    G3D::Matrix4 scale = G3D::Matrix4::scale(inst.Scale);
-    G3D::Matrix4 rotation = Utils::RotationY(Constants::PI);
-    G3D::Quat quat(-inst.QuatY, inst.QuatZ, -inst.QuatX, inst.QuatW);
-    G3D::Matrix4 quatRotation = quat.toRotationMatrix();
-
-    return scale * rotation * quatRotation ** translation * rootTransformation;
 }
 
 void Utils::SaveToDisk( FILE* stream, const std::string& path )

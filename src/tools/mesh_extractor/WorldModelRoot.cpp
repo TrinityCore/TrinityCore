@@ -12,6 +12,12 @@ WorldModelRoot::WorldModelRoot( std::string path )
     ReadDoodadSets();
 }
 
+WorldModelRoot::~WorldModelRoot()
+{
+    if (Data)
+        delete Data;
+}
+
 void WorldModelRoot::ReadGroups()
 {
     std::string pathBase = Utils::GetPathBase(Path);

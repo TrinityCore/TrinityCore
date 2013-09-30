@@ -5,7 +5,5 @@
 
 void ObjectDataHandler::ProcessMapChunk( MapChunk* chunk )
 {
-    /*if (!Source->HasObjectData)
-        return;*/
     ProcessInternal(chunk);
 }

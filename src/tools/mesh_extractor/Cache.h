@@ -15,7 +15,7 @@ class GenericCache
 public:
     GenericCache() {}
 
-    static const uint32 FlushLimit = 1000;
+    static const uint32 FlushLimit = 300; // We can't get too close to filling up all the memory, and we have to be wary of the maximum number of open streams.
 
     void Insert(K key, T* val)
     {
@@ -55,7 +55,8 @@ public:
 
     void Clear()
     {
-
+        ModelCache.Clear();
+        WorldModelCache.Clear();
     }
 };
 

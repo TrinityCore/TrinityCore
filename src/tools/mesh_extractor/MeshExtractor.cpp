@@ -10,6 +10,8 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 
+#include <stdio.h>
+
 #include <set>
 
 MPQManager* MPQHandler;
@@ -340,7 +342,6 @@ void LoadTile(dtNavMesh*& navMesh, const char* tile)
 
 int main(int argc, char* argv[])
 {
-    system("pause");
     _setmaxstdio(2048);
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
