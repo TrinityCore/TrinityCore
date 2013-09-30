@@ -41,7 +41,7 @@ public:
             Free = true;
             return 0;
         }
-        uint8* nav = builder.Build(Params);
+        uint8* nav = builder.BuildTiled(Params);
         if (nav)
         {
             f = fopen(buff, "wb");
