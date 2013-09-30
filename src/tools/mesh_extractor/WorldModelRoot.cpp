@@ -14,8 +14,7 @@ WorldModelRoot::WorldModelRoot( std::string path )
 
 WorldModelRoot::~WorldModelRoot()
 {
-    if (Data)
-        delete Data;
+    delete Data;
 }
 
 void WorldModelRoot::ReadGroups()
