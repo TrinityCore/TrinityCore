@@ -5,6 +5,7 @@
 
 #include "ChunkedData.h"
 #include "WorldModelHandler.h"
+#include "WorldModelRoot.h"
 #include "Utils.h"
 
 class WDT
@@ -18,6 +19,7 @@ public:
     bool IsValid;
     std::string ModelFile;
     WorldModelDefinition ModelDefinition;
+    WorldModelRoot* Model;
     bool HasTile(int x, int y);
 private:
     void ReadGlobalModel();
