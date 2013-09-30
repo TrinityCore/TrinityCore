@@ -871,10 +871,10 @@ namespace Trinity
     class AnyFriendlyUnitInObjectRangeCheck
     {
         public:
-            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) {}
+            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool playerOnly = false) : i_obj(obj), i_funit(funit), i_range(range), i_playerOnly(playerOnly) {}
             bool operator()(Unit* u)
             {
-                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u))
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER))
                     return true;
                 else
                     return false;
@@ -883,6 +883,7 @@ namespace Trinity
             WorldObject const* i_obj;
             Unit const* i_funit;
             float i_range;
+            bool i_playerOnly;
     };
 
     class AnyGroupedUnitInObjectRangeCheck
@@ -1035,7 +1036,7 @@ namespace Trinity
     class NearestHostileUnitCheck
     {
         public:
-            explicit NearestHostileUnitCheck(Creature const* creature, float dist = 0) : me(creature)
+            explicit NearestHostileUnitCheck(Creature const* creature, float dist = 0, bool playerOnly = false) : me(creature), i_playerOnly(playerOnly)
             {
                 m_range = (dist == 0 ? 9999 : dist);
             }
@@ -1047,6 +1048,9 @@ namespace Trinity
                 if (!me->IsValidAttackTarget(u))
                     return false;
 
+                if (i_playerOnly && u->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
                 m_range = me->GetDistance(u);   // use found unit range as new range limit for next check
                 return true;
             }
@@ -1054,6 +1058,7 @@ namespace Trinity
     private:
             Creature const* me;
             float m_range;
+            bool i_playerOnly;
             NearestHostileUnitCheck(NearestHostileUnitCheck const&);
     };
 

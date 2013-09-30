@@ -89,7 +89,7 @@ class SmartScript
         Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
         void DoFindFriendlyMissingBuff(std::list<Creature*>& list, float range, uint32 spellid);
-        Unit* DoFindClosestFriendlyInRange(float range);
+        Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly);
 
         void StoreTargetList(ObjectList* targets, uint32 id)
         {
