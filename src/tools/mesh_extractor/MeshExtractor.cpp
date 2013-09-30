@@ -17,7 +17,7 @@
 MPQManager* MPQHandler;
 CacheClass* Cache;
 
-void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads, bool debug)
+void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
 {
     DBC* dbc = MPQHandler->GetDBC("Map");
     printf("Map.dbc contains %u rows.\n", dbc->Records.size());
@@ -28,7 +28,7 @@ void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads, bool debug)
         // Skip this map if a list of specific maps was provided and this one is not contained in it.
         if (!mapIds.empty() && mapIds.find(mapId) == mapIds.end())
         {
-            if (debug)
+            if (Constants::Debug)
                 printf("Map %u will not be built.\n", mapId);
             continue;
         }
@@ -42,14 +42,14 @@ void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads, bool debug)
         }
         printf("Building %s MapId %u\n", name.c_str(), mapId);
         ContinentBuilder builder(name, mapId, &wdt, threads);
-        builder.Build(debug);
+        builder.Build();
     }
 }
 
 void ExtractDBCs()
 {
     printf("Extracting DBCs\n");
-    // Create the filesystem structure
+    // Create the file system structure
     std::string baseDBCPath = "dbc/";
     Utils::CreateDir(baseDBCPath);
 
@@ -345,9 +345,8 @@ int main(int argc, char* argv[])
     _setmaxstdio(2048);
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
-    bool debug = false;
 
-    if (!HandleArgs(argc, argv, threads, mapIds, debug, extractFlags))
+    if (!HandleArgs(argc, argv, threads, mapIds, Constants::Debug, extractFlags))
     {
         PrintUsage();
         return -1;
@@ -355,7 +354,7 @@ int main(int argc, char* argv[])
 
     if (extractFlags == 0)
     {
-        printf("You must provide a valid extractflag.\n");
+        printf("You must provide valid extract flags.\n");
         PrintUsage();
         return -1;
     }
@@ -368,7 +367,7 @@ int main(int argc, char* argv[])
         ExtractDBCs();
 
     if (extractFlags & Constants::EXTRACT_FLAG_MMAPS)
-        ExtractMMaps(mapIds, threads, debug);
+        ExtractMMaps(mapIds, threads);
 
     if (extractFlags & Constants::EXTRACT_FLAG_GOB_MODELS)
         ExtractGameobjectModels();
