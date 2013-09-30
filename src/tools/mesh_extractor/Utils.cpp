@@ -87,7 +87,7 @@ std::string Utils::FixModelPath(const std::string& path )
     return Utils::GetPathBase(path) + ".M2";
 }
 
-Vector3 Utils::TransformDoodadVertex(const IDefinition& def, Vector3& vec)
+Vector3 Utils::TransformDoodadVertex(const IDefinition& def, Vector3& vec, bool translate)
 {
     // Sources of information:
     /// http://www.pxr.dk/wowdev/wiki/index.php?title=ADT/v18&oldid=3715
@@ -99,15 +99,21 @@ Vector3 Utils::TransformDoodadVertex(const IDefinition& def, Vector3& vec)
     Vector3 ret = Utils::VectorTransform(vec, rot);
 
     // And finally scale and translate it to our origin
-    return (ret * def.Scale()) + Vector3(Constants::MaxXY - def.Position.z, Constants::MaxXY - def.Position.x, def.Position.y);
+    ret = ret * def.Scale();
+    if (translate)
+        ret = ret + Vector3(Constants::MaxXY - def.Position.z, Constants::MaxXY - def.Position.x, def.Position.y);
+    return ret;
 }
 
-Vector3 Utils::TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, Vector3& vec )
+Vector3 Utils::TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, Vector3& vec, bool translate )
 {
     G3D::Quat quat = G3D::Quat(-inst.QuatY, inst.QuatZ, -inst.QuatX, inst.QuatW);
 
     Vector3 ret = Utils::VectorTransform(vec, G3D::Matrix4(quat.toRotationMatrix()));
-    return (ret * (inst.Scale / 1024.0f)) + Vector3(Constants::MaxXY - inst.Position.z, Constants::MaxXY - inst.Position.x, inst.Position.y);
+    ret = ret * (inst.Scale / 1024.0f);
+    if (translate)
+        ret = ret + Vector3(Constants::MaxXY - inst.Position.z, Constants::MaxXY - inst.Position.x, inst.Position.y);
+    return ret;
 }
 
 float Utils::ToRadians( float degrees )
@@ -138,11 +144,11 @@ Vector3 Vector3::Read( FILE* file )
     return ret;
 }
 
-Vector3 Utils::GetLiquidVert(const IDefinition& def, Vector3 basePosition, float height, int /*x*/, int /*y*/)
+Vector3 Utils::GetLiquidVert(const IDefinition& def, Vector3 basePosition, float height, int x, int y, bool translate)
 {
     if (Utils::Distance(height, 0.0f) > 0.5f)
         basePosition.z = 0.0f;
-    return Utils::TransformDoodadVertex(def, basePosition + Vector3(basePosition.x * Constants::UnitSize, basePosition.y * Constants::UnitSize, height));
+    return Utils::TransformDoodadVertex(def, basePosition + Vector3(x * Constants::UnitSize, y * Constants::UnitSize, height), translate);
 }
 
 float Utils::Distance( float x, float y )
@@ -189,7 +195,7 @@ void Utils::SaveToDisk( FILE* stream, const std::string& path )
 
 Vector3 Utils::ToWoWCoords(const Vector3& vec )
 {
-    return Vector3(-vec.z, vec.x, vec.y);
+    return Vector3(-vec.z, -vec.x, vec.y);
 }
 
 std::string Utils::GetExtension( std::string path )
