@@ -6,6 +6,7 @@
 #include "Cache.h"
 #include "ace/Task.h"
 #include "Recast.h"
+#include "DetourCommon.h"
 
 class BuilderThread : public ACE_Task_Base
 {
@@ -52,7 +53,7 @@ public:
                 return 0;
             }
 
-            uint8* nav = builder.BuildInstance(Params, Model, *Definition);
+            uint8* nav = builder.BuildInstance(Params);
             if (nav)
             {
                 f = fopen(buff, "wb");
@@ -155,26 +156,58 @@ void ContinentBuilder::Build()
     CalculateTileBounds();
 
     dtNavMeshParams params;
-    params.maxPolys = 1 << STATIC_POLY_BITS;
-    params.maxTiles = TileMap->TileTable.size();
-    rcVcopy(params.orig, bmin);
-    params.tileHeight = Constants::TileSize;
-    params.tileWidth = Constants::TileSize;
-    fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
-    fclose(mmap);
+    
     std::vector<BuilderThread*> Threads;
 
     if (TileMap->IsGlobalModel)
     {
         printf("Map %s ( %u ) is a WMO. Building with 1 thread.\n", Continent.c_str(), MapId);
-        BuilderThread* thread = new BuilderThread(this, params);
-        Threads.push_back(thread);
-        thread->SetData(65, 65, MapId, Continent, true, TileMap->Model, &TileMap->ModelDefinition);
-        thread->activate();
-        thread->wait();
+        
+        TileBuilder* builder = new TileBuilder(this, Continent, 0, 0, MapId);
+        builder->AddGeometry(TileMap->Model, TileMap->ModelDefinition);
+        builder->SetCoords(0, 0);
+        uint8* nav = builder->BuildInstance(params);
+        if (nav)
+        {
+            // Set some params for the navmesh
+            dtMeshHeader* header = (dtMeshHeader*)nav;
+            dtVcopy(params.orig, header->bmin);
+            params.tileWidth = header->bmax[0] - header->bmin[0];
+            params.tileHeight = header->bmax[2] - header->bmin[2];
+            params.maxTiles = 1;
+            params.maxPolys = header->polyCount;
+            fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
+            fclose(mmap);
+
+            char buff[100];
+            sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, 0, 0);
+            FILE* f = fopen(buff, "wb");
+            if (!f)
+            {
+                printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
+                return;
+            }
+
+            MmapTileHeader mheader;
+            mheader.size = builder->DataSize;
+            fwrite(&mheader, sizeof(MmapTileHeader), 1, f);
+            fwrite(nav, sizeof(unsigned char), builder->DataSize, f);
+            fclose(f);
+        }
+
+        dtFree(nav);
+        delete builder;
     }
     else
     {
+        params.maxPolys = 1 << STATIC_POLY_BITS;
+        params.maxTiles = TileMap->TileTable.size();
+        rcVcopy(params.orig, bmin);
+        params.tileHeight = Constants::TileSize;
+        params.tileWidth = Constants::TileSize;
+        fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
+        fclose(mmap);
+
         for (uint32 i = 0; i < NumberOfThreads; ++i)
             Threads.push_back(new BuilderThread(this, params));
         printf("Map %s ( %u ) has %u tiles. Building them with %u threads\n", Continent.c_str(), MapId, uint32(TileMap->TileTable.size()), NumberOfThreads);

@@ -14,7 +14,7 @@
 #include <ace/Synch.h>
 
 TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, int y, uint32 mapId) :
-    World(world), X(x), Y(y), MapId(mapId), _Geometry(NULL), DataSize(0), cBuilder(_cBuilder)
+    World(world), X(x), Y(y), MapId(mapId), _Geometry(NULL), DataSize(0), cBuilder(_cBuilder), pmesh(NULL), dmesh(NULL)
 {
     /*
         Test, non-working values
@@ -90,12 +90,12 @@ void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshPara
     bmax[2] = Constants::Origin[2] /*navMeshParams.orig[2]*/ + (Constants::TileSize * (Y + 1));
 }
 
-uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoot* root, const WorldModelDefinition& def )
+void TileBuilder::AddGeometry(WorldModelRoot* root, const WorldModelDefinition& def)
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
 
-    WorldModelHandler::InsertModelGeometry(_Geometry->Vertices, _Geometry->Triangles, def, root);
+    WorldModelHandler::InsertModelGeometry(_Geometry->Vertices, _Geometry->Triangles, def, root, false);
 
     if (Constants::Debug)
     {
@@ -114,11 +114,22 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoo
         }
         fclose(debug);
     }
+}
 
-    float* bmin, *bmax;
+void TileBuilder::SetCoords(int x, int y)
+{
+    X = x;
+    Y = y;
+}
+
+void TileBuilder::PrepareInstanceMesh(float*& bmin, float*& bmax)
+{
     _Geometry->CalculateBoundingBox(bmin, bmax);
     rcVcopy(InstanceConfig.bmax, bmax);
     rcVcopy(InstanceConfig.bmin, bmin);
+
+    if (pmesh && dmesh)
+        return;
 
     uint32 numVerts = _Geometry->Vertices.size();
     uint32 numTris = _Geometry->Triangles.size();
@@ -126,14 +137,12 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoo
     int* triangles;
     uint8* areas;
     _Geometry->GetRawData(vertices, triangles, areas);
-    _Geometry->Vertices.clear();
-    _Geometry->Triangles.clear();
 
     // this sets the dimensions of the heightfield - should maybe happen before border padding
     rcCalcGridSize(InstanceConfig.bmin, InstanceConfig.bmax, InstanceConfig.cs, &InstanceConfig.width, &InstanceConfig.height);
     rcHeightfield* hf = rcAllocHeightfield();
     rcCreateHeightfield(Context, *hf, InstanceConfig.width, InstanceConfig.height, InstanceConfig.bmin, InstanceConfig.bmax, InstanceConfig.cs, InstanceConfig.ch);
-    
+
     rcClearUnwalkableTriangles(Context, InstanceConfig.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
     rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, InstanceConfig.walkableClimb);
 
@@ -151,10 +160,10 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoo
     rcContourSet* contours = rcAllocContourSet();
     rcBuildContours(Context, *chf, InstanceConfig.maxSimplificationError, InstanceConfig.maxEdgeLen, *contours);
 
-    rcPolyMesh* pmesh = rcAllocPolyMesh();
+    pmesh = rcAllocPolyMesh();
     rcBuildPolyMesh(Context, *contours, InstanceConfig.maxVertsPerPoly, *pmesh);
 
-    rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
+    dmesh = rcAllocPolyMeshDetail();
     rcBuildPolyMeshDetail(Context, *pmesh, *chf, InstanceConfig.detailSampleDist, InstanceConfig.detailSampleMaxError, *dmesh);
 
     // Set flags according to area types (e.g. Swim for Water)
@@ -165,6 +174,13 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoo
         else if (pmesh->areas[i] == Constants::POLY_AREA_WATER)
             pmesh->flags[i] = Constants::POLY_FLAG_SWIM;
     }
+}
+
+uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
+{
+    float* bmin = NULL, *bmax = NULL;
+
+    PrepareInstanceMesh(bmin, bmax);
 
     dtNavMeshCreateParams params;
     memset(&params, 0, sizeof(params));
@@ -190,9 +206,10 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoo
     params.walkableClimb = InstanceConfig.walkableClimb * InstanceConfig.ch;
     params.walkableHeight = InstanceConfig.walkableHeight * InstanceConfig.ch;
     params.walkableRadius = InstanceConfig.walkableRadius * InstanceConfig.cs;
-    params.tileX = 0;
-    params.tileY = 0;
+    params.tileX = X;
+    params.tileY = Y;
     params.tileLayer = 0;
+    params.buildBvTree = true;
 
     rcVcopy(params.bmax, bmax);
     rcVcopy(params.bmin, bmin);
@@ -208,9 +225,6 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoo
         // keep in mind that we do output those into debug info
         // drop tiles with only exact count - some tiles may have geometry while having less tiles
         printf("No polygons to build on tile, skipping.\n");
-        delete areas;
-        delete triangles;
-        delete vertices;
         return NULL;
     }
 
@@ -218,10 +232,6 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams, WorldModelRoo
     uint8* navData;
     printf("Creating the navmesh with %i vertices, %i polys, %i triangles!\n", pmesh->nverts, pmesh->npolys, dmesh->ntris);
     bool result = dtCreateNavMeshData(&params, &navData, &navDataSize);
-
-    delete areas;
-    delete triangles;
-    delete vertices;
 
     if (result)
     {
