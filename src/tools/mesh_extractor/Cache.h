@@ -5,9 +5,8 @@
 #include "Define.h"
 #include <ace/Guard_T.h>
 #include <ace/Synch.h>
-
-class WorldModelRoot;
-class Model;
+#include "WorldModelRoot.h"
+#include "Model.h"
 
 template<class K, class T>
 class GenericCache

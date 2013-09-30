@@ -21,6 +21,7 @@ const float Constants::PI = 3.1415926f;
 const float Constants::MaxStandableHeight = 1.5f;
 const char* Constants::VMAPMagic =  "VMAP041";
 bool Constants::ToWoWCoords = false;
+bool Constants::Debug = false;
 const float Constants::BaseUnitDim = 0.533333f;
 const int Constants::VertexPerMap = (Constants::TileSize / Constants::BaseUnitDim) + 0.5f;
 const int Constants::VertexPerTile = 40;

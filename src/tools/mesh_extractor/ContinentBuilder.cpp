@@ -12,11 +12,10 @@ class BuilderThread : public ACE_Task_Base
 private:
     int X, Y, MapId;
     std::string Continent;
-    bool debug;
     dtNavMeshParams Params;
     ContinentBuilder* cBuilder;
 public:
-    BuilderThread(ContinentBuilder* _cBuilder, bool deb, dtNavMeshParams& params) : debug(deb), Params(params), cBuilder(_cBuilder), Free(true) {}
+    BuilderThread(ContinentBuilder* _cBuilder, dtNavMeshParams& params) : Params(params), cBuilder(_cBuilder), Free(true) {}
     void SetData(int x, int y, int map, const std::string& cont) { X = x; Y = y; MapId = map; Continent = cont; }
 
     int svc()
@@ -34,7 +33,7 @@ public:
             Free = true;
             return 0;
         }
-        uint8* nav = builder.Build(debug, Params);
+        uint8* nav = builder.Build(Params);
         if (nav)
         {
             f = fopen(buff, "wb");
@@ -89,7 +88,7 @@ void ContinentBuilder::CalculateTileBounds()
     getTileBounds(tileXMax, tileYMax, NULL, 0, bmin, bmax);
 }
 
-void ContinentBuilder::Build(bool debug)
+void ContinentBuilder::Build()
 {
     char buff[50];
     sprintf(buff, "mmaps/%03u.mmap", MapId);
@@ -112,7 +111,7 @@ void ContinentBuilder::Build(bool debug)
     fclose(mmap);
     std::vector<BuilderThread*> Threads;
     for (uint32 i = 0; i < NumberOfThreads; ++i)
-        Threads.push_back(new BuilderThread(this, debug, params));
+        Threads.push_back(new BuilderThread(this, params));
     printf("Map %s ( %u ) has %u tiles. Building them with %u threads\n", Continent.c_str(), MapId, uint32(TileMap->TileTable.size()), NumberOfThreads);
     for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {

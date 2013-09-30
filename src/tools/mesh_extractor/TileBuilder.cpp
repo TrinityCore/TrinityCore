@@ -73,7 +73,7 @@ void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshPara
     bmax[2] = Constants::Origin[2] /*navMeshParams.orig[2]*/ + (Constants::TileSize * (Y + 1));
 }
 
-uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
+uint8* TileBuilder::Build(dtNavMeshParams& navMeshParams)
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
@@ -95,7 +95,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
                 continue;
 
             ADT* _adt = new ADT(Utils::GetAdtPath(World, tx, ty), tx, ty);
-            // If this condition is met, it means that this wdt does not contain the ADT
+            // If this condition is met, it means that this WDT does not contain the ADT
             if (!_adt->Data->Stream)
             {
                 delete _adt;
@@ -107,7 +107,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
         }
     }
 
-    if (dbg)
+    if (Constants::Debug)
     {
         char buff[100];
         sprintf(buff, "mmaps/%s_%02u%02u.obj", World.c_str(), Y, X);
@@ -124,7 +124,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
         }
         fclose(debug);
     }
-    return NULL;
+    
     uint32 numVerts = _Geometry->Vertices.size();
     uint32 numTris = _Geometry->Triangles.size();
     float* vertices;
@@ -221,14 +221,6 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
     delete[] dmmerge;
 
     printf("[%02i,%02i] Meshes merged!\n", X, Y);
-
-    // Remove padding from the polymesh data. (Remove this odditity)
-    for (int i = 0; i < pmesh->nverts; ++i)
-    {
-        unsigned short* v = &pmesh->verts[i * 3];
-        v[0] -= (unsigned short)Config.borderSize;
-        v[2] -= (unsigned short)Config.borderSize;
-    }
 
     // Set flags according to area types (e.g. Swim for Water)
     for (int i = 0; i < pmesh->npolys; i++)
