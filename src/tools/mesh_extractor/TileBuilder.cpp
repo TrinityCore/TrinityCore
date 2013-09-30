@@ -14,7 +14,7 @@
 #include <ace/Synch.h>
 
 TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, int y, uint32 mapId) :
-    World(world), X(x), Y(y), MapId(mapId), _Geometry(NULL), DataSize(0), cBuilder(_cBuilder), pmesh(NULL), dmesh(NULL)
+    World(world), X(x), Y(y), MapId(mapId), _Geometry(NULL), DataSize(0), cBuilder(_cBuilder)
 {
     /*
         Test, non-working values
