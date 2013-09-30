@@ -283,7 +283,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             Player* player = ObjectAccessor::FindPlayer(itr2->first);
             uint32 team = bg->GetPlayerTeam(itr2->first);
             if (!team && player)
-                team = player->GetBGTeam();
+                team = player->GetTeam();
             *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
         }
         *data << uint32(score->DamageDone);              // damage done
@@ -893,7 +893,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     {
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
-        uint32 team = player->GetBGTeam();
+        uint32 team = player->GetTeam();
         if (team == 0)
             team = player->GetTeam();
 

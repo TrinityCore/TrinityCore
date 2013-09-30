@@ -1067,6 +1067,35 @@ class Player : public Unit, public GridObject<Player>
         explicit Player(WorldSession* session);
         ~Player();
 
+    private:
+        bool m_ForgetBGPlayers;
+        bool m_ForgetInListPlayers;
+        uint8 m_FakeRace;
+        uint8 m_RealRace;
+        uint32 m_FakeMorph;
+    public:
+        typedef std::vector<uint64> FakePlayers;
+        void SendChatMessage(const char *format, ...);
+        void FitPlayerInTeam(bool action, Battleground* pBattleGround = NULL);
+        void DoForgetPlayersInList();
+        void DoForgetPlayersInBG(Battleground* pBattleGround);
+        uint8 getORace() const { return m_RealRace; }
+        void SetORace() { m_RealRace = GetByteValue(UNIT_FIELD_BYTES_0, 0); }; // SHOULD ONLY BE CALLED ON LOGIN
+        void SetFakeRaceAndMorph(); // SHOULD ONLY BE CALLED ON LOGIN
+        uint32 GetFakeMorph() { return m_FakeMorph; };
+        uint8 getFRace() const { return m_FakeRace; }
+        void SetForgetBGPlayers(bool value) { m_ForgetBGPlayers = value; }
+        bool ShouldForgetBGPlayers() { return m_ForgetBGPlayers; }
+        void SetForgetInListPlayers(bool value) { m_ForgetInListPlayers = value; }
+        bool ShouldForgetInListPlayers() { return m_ForgetInListPlayers; }
+        bool SendBattleGroundChat(uint32 msgtype, std::string message);
+        void MorphFit(bool value);
+        bool IsPlayingNative() const { return GetTeam() == m_team; }
+        uint32 GetOTeam() const { return m_team; }
+        uint32 GetTeam() const { return m_bgData.bgTeam && GetBattleground() ? m_bgData.bgTeam : m_team; }
+        bool SendRealNameQuery();
+        FakePlayers m_FakePlayers;
+
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
         void AddToWorld();
@@ -1119,7 +1148,7 @@ class Player : public Unit, public GridObject<Player>
         PlayerSocial *GetSocial() { return m_social; }
 
         PlayerTaxi m_taxi;
-        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
+        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getORace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         void CleanupAfterTaxiFlight();
@@ -1884,8 +1913,7 @@ class Player : public Unit, public GridObject<Player>
         void CheckAreaExploreAndOutdoor(void);
 
         static uint32 TeamForRace(uint8 race);
-        uint32 GetTeam() const { return m_team; }
-        TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+        TeamId GetTeamId() const { return GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
 
         void InitDisplayIds();
@@ -2028,7 +2056,6 @@ class Player : public Unit, public GridObject<Player>
         void SetBattlegroundEntryPoint();
 
         void SetBGTeam(uint32 team);
-        uint32 GetBGTeam() const;
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground(Battleground const* bg) const;

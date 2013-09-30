@@ -16,3 +16,5 @@ CMakeLists.txt.user
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
+*.zip
+CFBG_GUIDE.txt
