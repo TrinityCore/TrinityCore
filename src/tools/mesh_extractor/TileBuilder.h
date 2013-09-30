@@ -15,7 +15,7 @@ public:
     ~TileBuilder();
 
     void CalculateTileBounds(float*& bmin, float*& bmax, dtNavMeshParams& navMeshParams);
-    uint8* Build(bool dbg, dtNavMeshParams& navMeshParams);
+    uint8* Build(dtNavMeshParams& navMeshParams);
 
     std::string World;
     int X;
