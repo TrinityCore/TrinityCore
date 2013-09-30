@@ -9,9 +9,9 @@ public:
     Model(std::string path);
     ~Model();
 
-    void ReadVertices(FILE* stream);
-    void ReadBoundingTriangles(FILE* stream);
-    void ReadBoundingNormals(FILE* stream);
+    void ReadVertices();
+    void ReadBoundingTriangles();
+    void ReadBoundingNormals();
     ModelHeader Header;
     std::vector<Vector3> Vertices;
     std::vector<Vector3> Normals;

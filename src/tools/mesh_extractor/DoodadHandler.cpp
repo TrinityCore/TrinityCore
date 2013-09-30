@@ -4,10 +4,9 @@
 #include "Model.h"
 #include "G3D/Matrix4.h"
 
-DoodadHandler::DoodadHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
+DoodadHandler::DoodadHandler( ADT* adt ) : 
+    ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
 {
-    /*if (!adt->HasObjectData)
-        return;*/
     Chunk* mddf = adt->ObjectData->GetChunkByName("MDDF");
     if (mddf)
         ReadDoodadDefinitions(mddf);
@@ -92,26 +91,12 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
     }
 }
 
-Vector3 TransformDoodadVertex(const DoodadDefinition& def, Vector3& vec)
-{
-    // Rotate our Doodad vertex
-    G3D::Matrix4 rot = G3D::Matrix3::fromEulerAnglesXZY(Utils::ToRadians(-def.Rotation.z), Utils::ToRadians(def.Rotation.x), Utils::ToRadians(-def.Rotation.y + 180));
-    Vector3 ret = Utils::VectorTransform(vec, rot);
-
-    // Convert the rotated Doodad vector to our current coordinate system
-    ret = Vector3(ret.x, ret.z, -ret.y);
-
-    // And finally translate it to our origin
-    return ret + Vector3(Constants::MaxXY - def.Position.z, Constants::MaxXY - def.Position.x, def.Position.y);
-}
-
 void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* model)
 {
-    G3D::Matrix4 transformation = Utils::GetTransformation(def);
     uint32 vertOffset = Vertices.size();
     
     for (std::vector<Vector3>::iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
-        Vertices.push_back(TransformDoodadVertex(def, *itr));
+        Vertices.push_back(Utils::TransformDoodadVertex(def, *itr)); // Vertices have to be converted based on the information from the DoodadDefinition struct
 
     for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
