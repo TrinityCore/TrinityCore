@@ -11,46 +11,99 @@ class BuilderThread : public ACE_Task_Base
 {
 private:
     int X, Y, MapId;
+    bool Instance;
     std::string Continent;
     dtNavMeshParams Params;
     ContinentBuilder* cBuilder;
+    WorldModelRoot* Model;
+    const WorldModelDefinition* Definition;
 public:
     BuilderThread(ContinentBuilder* _cBuilder, dtNavMeshParams& params) : Params(params), cBuilder(_cBuilder), Free(true) {}
-    void SetData(int x, int y, int map, const std::string& cont) { X = x; Y = y; MapId = map; Continent = cont; }
+    void SetData(int x, int y, int map, const std::string& cont, bool instance, WorldModelRoot* model, const WorldModelDefinition* def) 
+    { 
+        X = x; 
+        Y = y; 
+        MapId = map; 
+        Continent = cont; 
+        Instance = instance; 
+        if (Instance) 
+        {
+            Model = model; 
+            Definition = def;
+        }
+        else 
+            Model = NULL; 
+    }
 
     int svc()
     {
-        Free = false;
-        printf("[%02i,%02i] Building tile\n", X, Y);
-        TileBuilder builder(cBuilder, Continent, X, Y, MapId);
-        char buff[100];
-        sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, Y, X);
-        FILE* f = fopen(buff, "r");
-        if (f) // Check if file already exists.
+        if (Instance)
         {
-            printf("[%02i,%02i] Tile skipped, file already exists\n", X, Y);
-            fclose(f);
-            Free = true;
-            return 0;
-        }
-        uint8* nav = builder.Build(Params);
-        if (nav)
-        {
-            f = fopen(buff, "wb");
-            if (!f)
+            // Build a WMO
+            printf("Building WMO %s ( %u )", Continent.c_str(), MapId);
+            TileBuilder builder(cBuilder, Continent, X, Y, MapId);
+            char buff[100];
+            sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, Y, X);
+            FILE* f = fopen(buff, "r");
+            if (f) // Check if file already exists.
             {
-                printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
+                printf("Instance %s ( %u ) skipped, file already exists\n", Continent.c_str(), MapId);
+                fclose(f);
                 return 0;
             }
-            MmapTileHeader header;
-            header.size = builder.DataSize;
-            fwrite(&header, sizeof(MmapTileHeader), 1, f);
-            fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
-            fclose(f);
+
+            uint8* nav = builder.BuildInstance(Params, Model, *Definition);
+            if (nav)
+            {
+                f = fopen(buff, "wb");
+                if (!f)
+                {
+                    printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
+                    return 0;
+                }
+                MmapTileHeader header;
+                header.size = builder.DataSize;
+                fwrite(&header, sizeof(MmapTileHeader), 1, f);
+                fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
+                fclose(f);
+            }
+            dtFree(nav);
+            return 0;
         }
-        dtFree(nav);
-        printf("[%02i,%02i] Tile Built!\n", X, Y);
-        Free = true;
+        else
+        {
+            Free = false;
+            printf("[%02i,%02i] Building tile\n", X, Y);
+            TileBuilder builder(cBuilder, Continent, X, Y, MapId);
+            char buff[100];
+            sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, Y, X);
+            FILE* f = fopen(buff, "r");
+            if (f) // Check if file already exists.
+            {
+                printf("[%02i,%02i] Tile skipped, file already exists\n", X, Y);
+                fclose(f);
+                Free = true;
+                return 0;
+            }
+            uint8* nav = builder.Build(Params);
+            if (nav)
+            {
+                f = fopen(buff, "wb");
+                if (!f)
+                {
+                    printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
+                    return 0;
+                }
+                MmapTileHeader header;
+                header.size = builder.DataSize;
+                fwrite(&header, sizeof(MmapTileHeader), 1, f);
+                fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
+                fclose(f);
+            }
+            dtFree(nav);
+            printf("[%02i,%02i] Tile Built!\n", X, Y);
+            Free = true;
+        }
         return 0;
     }
 
@@ -110,28 +163,42 @@ void ContinentBuilder::Build()
     fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
     fclose(mmap);
     std::vector<BuilderThread*> Threads;
-    for (uint32 i = 0; i < NumberOfThreads; ++i)
-        Threads.push_back(new BuilderThread(this, params));
-    printf("Map %s ( %u ) has %u tiles. Building them with %u threads\n", Continent.c_str(), MapId, uint32(TileMap->TileTable.size()), NumberOfThreads);
-    for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
+
+    if (TileMap->IsGlobalModel)
     {
-        bool next = false;
-        while (!next)
+        printf("Map %s ( %u ) is a WMO. Building with 1 thread.\n", Continent.c_str(), MapId);
+        BuilderThread* thread = new BuilderThread(this, params);
+        Threads.push_back(thread);
+        thread->SetData(65, 65, MapId, Continent, true, TileMap->Model, &TileMap->ModelDefinition);
+        thread->activate();
+        thread->wait();
+    }
+    else
+    {
+        for (uint32 i = 0; i < NumberOfThreads; ++i)
+            Threads.push_back(new BuilderThread(this, params));
+        printf("Map %s ( %u ) has %u tiles. Building them with %u threads\n", Continent.c_str(), MapId, uint32(TileMap->TileTable.size()), NumberOfThreads);
+        for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
         {
-            for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
+            bool next = false;
+            while (!next)
             {
-                if ((*_th)->Free)
+                for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
                 {
-                    (*_th)->SetData(itr->X, itr->Y, MapId, Continent);
-                    (*_th)->activate();
-                    next = true;
-                    break;
+                    if ((*_th)->Free)
+                    {
+                        (*_th)->SetData(itr->X, itr->Y, MapId, Continent, false, NULL, NULL);
+                        (*_th)->activate();
+                        next = true;
+                        break;
+                    }
                 }
+                // Wait for 20 seconds
+                ACE_OS::sleep(ACE_Time_Value (0, 20000));
             }
-            // Wait for 20 seconds
-            ACE_OS::sleep(ACE_Time_Value (0, 20000));
         }
     }
+
     Cache->Clear();
 
     // Free memory

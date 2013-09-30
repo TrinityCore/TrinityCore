@@ -35,7 +35,7 @@ void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
 
         std::string name = (*itr)->GetString(1);
         WDT wdt("World\\maps\\" + name + "\\" + name + ".wdt");
-        if (!wdt.IsValid || wdt.IsGlobalModel)
+        if (!wdt.IsValid)
         {
             printf("Could not find WDT data for map %u (%s)\n", mapId, name.c_str());
             continue;
@@ -273,6 +273,8 @@ bool HandleArgs(int argc, char** argv, uint32& threads, std::set<uint32>& mapLis
                 mapList.insert(atoi(token));
                 token = strtok(NULL, ",");
             }
+            
+            free(copy);
 
             printf("Extracting only provided list of maps (%u).\n", uint32(mapList.size()));
         }
@@ -391,7 +393,7 @@ int main(int argc, char* argv[])
 
         //
         dtQueryFilter m_filter;
-        m_filter.setIncludeFlags(0xffff) ;
+        m_filter.setIncludeFlags(0xffff);
         m_filter.setExcludeFlags(0);
 
         //
