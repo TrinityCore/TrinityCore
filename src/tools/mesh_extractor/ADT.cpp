@@ -7,7 +7,7 @@ ADT::ADT( std::string file, int x, int y ) : ObjectData(NULL), Data(NULL), HasOb
     _DoodadHandler(NULL), _WorldModelHandler(NULL), _LiquidHandler(NULL), X(x), Y(y)
 {
     Data = new ChunkedData(file);
-    ObjectData = new ChunkedData(/*Utils::Replace(file, ".adt", "_obj0.adt")*/file);
+    ObjectData = new ChunkedData(file);
     if (ObjectData->Stream)
         HasObjectData = true;
     else

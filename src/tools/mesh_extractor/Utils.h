@@ -13,6 +13,7 @@
 #include <ace/Stack_Trace.h>
 
 struct WorldModelDefinition;
+class DoodadDefinition;
 class DoodadInstance;
 
 #define ASSERT(assertion) { if (!(assertion)) { ACE_Stack_Trace st; fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n%s\n", __FILE__, __LINE__, __FUNCTION__, #assertion, st.c_str()); *((volatile int*)NULL) = 0; } }
@@ -356,7 +357,6 @@ public:
     static Vector3 ToRecast(const Vector3& val );
     static std::string GetAdtPath(const std::string& world, int x, int y);
     static std::string FixModelPath(const std::string& path);
-    static G3D::Matrix4 GetTransformation(const IDefinition& def);
     /// They say its better to declare template functions in the header files.
     template <typename T>
     static std::string ToString(T val)
@@ -365,13 +365,9 @@ public:
         ss << val;
         return ss.str();
     }
-    static G3D::Matrix4 RotationX(float angle);
-    static G3D::Matrix4 RotationY(float angle);
-    static G3D::Matrix4 RotationZ(float angle);
     static float ToRadians(float degrees);
-    static Vector3 VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix);
     static std::string GetPathBase(const std::string& path);
-    static Vector3 GetLiquidVert(const G3D::Matrix4& transformation, Vector3 basePosition, float height, int x, int y);
+    static Vector3 GetLiquidVert(const IDefinition& def, Vector3 basePosition, float height, int /*x*/, int /*y*/);
     static float Distance(float x, float y);
     template<typename T>
     static bool IsAllZero(T* arr, uint32 size)
@@ -382,11 +378,13 @@ public:
         return true;
     }
     static std::string Replace( std::string str, const std::string& oldStr, const std::string& newStr );
-    static G3D::Matrix4 GetWmoDoodadTransformation(const DoodadInstance& inst, const WorldModelDefinition& root );
     static void CreateDir( const std::string& Path );
     static void SaveToDisk(FILE* stream, const std::string& path);
     static Vector3 ToWoWCoords(const Vector3& vec );
     static std::string GetExtension( std::string path );
     static char* GetPlainName(const char* FileName);
+    static Vector3 TransformDoodadVertex(const IDefinition& def, Vector3& vec);
+    static Vector3 VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix, bool normal = false );
+    static Vector3 TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, Vector3& vec );
 };
 #endif
