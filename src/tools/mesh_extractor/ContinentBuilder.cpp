@@ -12,99 +12,53 @@ class BuilderThread : public ACE_Task_Base
 {
 private:
     int X, Y, MapId;
-    bool Instance;
     std::string Continent;
     dtNavMeshParams Params;
     ContinentBuilder* cBuilder;
-    WorldModelRoot* Model;
-    const WorldModelDefinition* Definition;
 public:
     BuilderThread(ContinentBuilder* _cBuilder, dtNavMeshParams& params) : Params(params), cBuilder(_cBuilder), Free(true) {}
-    void SetData(int x, int y, int map, const std::string& cont, bool instance, WorldModelRoot* model, const WorldModelDefinition* def) 
+    
+    void SetData(int x, int y, int map, const std::string& cont) 
     { 
         X = x; 
         Y = y; 
         MapId = map; 
         Continent = cont; 
-        Instance = instance; 
-        if (Instance) 
-        {
-            Model = model; 
-            Definition = def;
-        }
-        else 
-            Model = NULL; 
     }
 
     int svc()
     {
-        if (Instance)
+        Free = false;
+        printf("[%02i,%02i] Building tile\n", X, Y);
+        TileBuilder builder(cBuilder, Continent, X, Y, MapId);
+        char buff[100];
+        sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, Y, X);
+        FILE* f = fopen(buff, "r");
+        if (f) // Check if file already exists.
         {
-            // Build a WMO
-            printf("Building WMO %s ( %u )", Continent.c_str(), MapId);
-            TileBuilder builder(cBuilder, Continent, X, Y, MapId);
-            char buff[100];
-            sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, Y, X);
-            FILE* f = fopen(buff, "r");
-            if (f) // Check if file already exists.
-            {
-                printf("Instance %s ( %u ) skipped, file already exists\n", Continent.c_str(), MapId);
-                fclose(f);
-                return 0;
-            }
-
-            uint8* nav = builder.BuildInstance(Params);
-            if (nav)
-            {
-                f = fopen(buff, "wb");
-                if (!f)
-                {
-                    printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
-                    return 0;
-                }
-                MmapTileHeader header;
-                header.size = builder.DataSize;
-                fwrite(&header, sizeof(MmapTileHeader), 1, f);
-                fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
-                fclose(f);
-            }
-            dtFree(nav);
+            printf("[%02i,%02i] Tile skipped, file already exists\n", X, Y);
+            fclose(f);
+            Free = true;
             return 0;
         }
-        else
+        uint8* nav = builder.Build(Params);
+        if (nav)
         {
-            Free = false;
-            printf("[%02i,%02i] Building tile\n", X, Y);
-            TileBuilder builder(cBuilder, Continent, X, Y, MapId);
-            char buff[100];
-            sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, Y, X);
-            FILE* f = fopen(buff, "r");
-            if (f) // Check if file already exists.
+            f = fopen(buff, "wb");
+            if (!f)
             {
-                printf("[%02i,%02i] Tile skipped, file already exists\n", X, Y);
-                fclose(f);
-                Free = true;
+                printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
                 return 0;
             }
-            uint8* nav = builder.Build(Params);
-            if (nav)
-            {
-                f = fopen(buff, "wb");
-                if (!f)
-                {
-                    printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
-                    return 0;
-                }
-                MmapTileHeader header;
-                header.size = builder.DataSize;
-                fwrite(&header, sizeof(MmapTileHeader), 1, f);
-                fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
-                fclose(f);
-            }
-            dtFree(nav);
-            printf("[%02i,%02i] Tile Built!\n", X, Y);
-            Free = true;
+            MmapTileHeader header;
+            header.size = builder.DataSize;
+            fwrite(&header, sizeof(MmapTileHeader), 1, f);
+            fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
+            fclose(f);
         }
+        dtFree(nav);
+        printf("[%02i,%02i] Tile Built!\n", X, Y);
+        Free = true;
         return 0;
     }
 
@@ -165,7 +119,6 @@ void ContinentBuilder::Build()
         
         TileBuilder* builder = new TileBuilder(this, Continent, 0, 0, MapId);
         builder->AddGeometry(TileMap->Model, TileMap->ModelDefinition);
-        builder->SetCoords(0, 0);
         uint8* nav = builder->BuildInstance(params);
         if (nav)
         {
@@ -220,7 +173,7 @@ void ContinentBuilder::Build()
                 {
                     if ((*_th)->Free)
                     {
-                        (*_th)->SetData(itr->X, itr->Y, MapId, Continent, false, NULL, NULL);
+                        (*_th)->SetData(itr->X, itr->Y, MapId, Continent);
                         (*_th)->activate();
                         next = true;
                         break;
