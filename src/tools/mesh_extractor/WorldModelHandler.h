@@ -34,7 +34,7 @@ public:
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;
     bool IsSane() { return _definitions && _paths; }
-    static void InsertModelGeometry(std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root);
+    static void InsertModelGeometry(std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root, bool translate = true);
 protected:
     void ProcessInternal(MapChunk* data);
 private:

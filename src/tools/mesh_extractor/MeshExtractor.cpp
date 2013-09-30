@@ -328,6 +328,8 @@ void PrintUsage()
 void LoadTile(dtNavMesh*& navMesh, const char* tile)
 {
     FILE* f = fopen(tile, "rb");
+    if (!f)
+        return;
     MmapTileHeader header;
 
     if (fread(&header, sizeof(MmapTileHeader), 1, f) != 1)
@@ -376,37 +378,37 @@ int main(int argc, char* argv[])
 
     if (extractFlags & Constants::EXTRACT_FLAG_TEST)
     {
-        float start[] = { 0.0f, 0.0f, 0.0f };
-        float end[] = { 0.0f, 0.0f, 0.0f };
+        float start[] = { -230.133f, 191.085f, -24.9191f };
+        float end[] = { -396.309f, 150.828f, 7.82184f };
 
         //
         float m_spos[3];
-        m_spos[0] = -1.0f * start[1];
+        m_spos[0] = -start[1];
         m_spos[1] = start[2];
-        m_spos[2] = -1.0f * start[0];
+        m_spos[2] = -start[0];
 
         //
         float m_epos[3];
-        m_epos[0] = -1.0f * end[1];
+        m_epos[0] = -end[1];
         m_epos[1] = end[2];
-        m_epos[2] = -1.0f * end[0];
+        m_epos[2] = -end[0];
 
         //
         dtQueryFilter m_filter;
-        m_filter.setIncludeFlags(0xffff);
-        m_filter.setExcludeFlags(0);
+        m_filter.setIncludeFlags(Constants::POLY_AREA_ROAD | Constants::POLY_AREA_TERRAIN);
+        m_filter.setExcludeFlags(Constants::POLY_AREA_WATER);
 
         //
         float m_polyPickExt[3];
-        m_polyPickExt[0] = 2;
-        m_polyPickExt[1] = 4;
-        m_polyPickExt[2] = 2;
+        m_polyPickExt[0] = 2.5f;
+        m_polyPickExt[1] = 2.5f;
+        m_polyPickExt[2] = 2.5f;
 
         //
         dtPolyRef m_startRef;
         dtPolyRef m_endRef;
 
-        FILE* mmap = fopen(".mmap", "rb");
+        FILE* mmap = fopen("mmaps/389.mmap", "rb");
         dtNavMeshParams params;
         int count = fread(&params, sizeof(dtNavMeshParams), 1, mmap);
         fclose(mmap);
@@ -420,13 +422,16 @@ int main(int argc, char* argv[])
         dtNavMeshQuery* navMeshQuery = new dtNavMeshQuery();
 
         navMesh->init(&params);
-        LoadTile(navMesh, ".mmtile");
-        LoadTile(navMesh, ".mmtile");
-        LoadTile(navMesh, ".mmtile");
-        LoadTile(navMesh, ".mmtile");
-        LoadTile(navMesh, ".mmtile");
-        LoadTile(navMesh, ".mmtile");
-
+        for (int i = 0; i <= 32; ++i)
+        {
+            for (int j = 0; j <= 32; ++j)
+            {
+                char buff[100];
+                sprintf(buff, "mmaps/389%02i%02i.mmtile", i, j);
+                LoadTile(navMesh, buff);
+            }
+        }
+        
         navMeshQuery->init(navMesh, 2048);
 
         float nearestPt[3];
@@ -440,7 +445,24 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        printf("Found!");
+        int hops;
+        dtPolyRef* hopBuffer = new dtPolyRef[8192];
+        dtStatus status = navMeshQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, hopBuffer, &hops, 8192);
+        
+        int resultHopCount;
+        float* straightPath = new float[2048*3];
+        unsigned char* pathFlags = new unsigned char[2048];
+        dtPolyRef* pathRefs = new dtPolyRef[2048];
+
+        status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
+        std::vector<Vector3> FinalPath;
+        FinalPath.reserve(resultHopCount);
+        for (uint32 i = 0; i < resultHopCount; ++i)
+        {
+            Vector3 finalV = Utils::ToWoWCoords(Vector3(straightPath[i * 3 + 0], straightPath[i * 3 + 1], straightPath[i * 3 + 2]));
+            FinalPath.push_back(finalV);
+            printf("Point %f %f %f\n", finalV.x, finalV.y, finalV.z);
+        }
     }
 
     return 0;
