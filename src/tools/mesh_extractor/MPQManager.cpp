@@ -23,7 +23,7 @@ void MPQManager::Initialize()
     for (uint32 i = 0; i < size; ++i)
     {
         MPQArchive* arc = new MPQArchive(std::string("Data/" + std::string(Files[i])).c_str());
-        Archives.push_front(arc);
+        Archives.push_front(arc); // MPQ files have to be transversed in reverse order to properly account for patched files
         printf("Opened %s\n", Files[i]);
     }
 }
