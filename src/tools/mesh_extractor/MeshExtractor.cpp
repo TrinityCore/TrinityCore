@@ -378,8 +378,8 @@ int main(int argc, char* argv[])
 
     if (extractFlags & Constants::EXTRACT_FLAG_TEST)
     {
-        float start[] = { -44.641f, -34.606f, -1.045f };
-        float end[] = { -66.18f, 20.222f, -1.128f };
+        float start[] = { 16226.200195f, 16257.000000f, 13.202200f };
+        float end[] = { 16245.725586f, 16382.465820f, 47.384956f };
 
         //
         float m_spos[3];
@@ -408,7 +408,7 @@ int main(int argc, char* argv[])
         dtPolyRef m_startRef;
         dtPolyRef m_endRef;
 
-        FILE* mmap = fopen("mmaps/555.mmap", "rb");
+        FILE* mmap = fopen("mmaps/001.mmap", "rb");
         dtNavMeshParams params;
         int count = fread(&params, sizeof(dtNavMeshParams), 1, mmap);
         fclose(mmap);
@@ -427,7 +427,7 @@ int main(int argc, char* argv[])
             for (int j = 0; j <= 32; ++j)
             {
                 char buff[100];
-                sprintf(buff, "mmaps/555%02i%02i.mmtile", i, j);
+                sprintf(buff, "mmaps/001%02i%02i.mmtile", i, j);
                 LoadTile(navMesh, buff);
             }
         }

@@ -283,6 +283,15 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
     rcBuildPolyMeshDetail(Context, *pmesh, *chf, Config.detailSampleDist, Config.detailSampleMaxError, *dmesh);
 
+    // Set flags according to area types (e.g. Swim for Water)
+    for (int i = 0; i < pmesh->npolys; i++)
+    {
+        if (pmesh->areas[i] == Constants::POLY_AREA_ROAD || pmesh->areas[i] == Constants::POLY_AREA_TERRAIN)
+            pmesh->flags[i] = Constants::POLY_FLAG_WALK;
+        else if (pmesh->areas[i] == Constants::POLY_AREA_WATER)
+            pmesh->flags[i] = Constants::POLY_FLAG_SWIM;
+    }
+
     dtNavMeshCreateParams params;
     memset(&params, 0, sizeof(params));
     // PolyMesh data
@@ -299,21 +308,25 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     params.detailVertsCount = dmesh->nverts;
     params.detailTris = dmesh->tris;
     params.detailTriCount = dmesh->ntris;
-    rcVcopy(params.bmin, pmesh->bmin);
-    rcVcopy(params.bmax, pmesh->bmax);
     // General settings
-    params.ch = InstanceConfig.ch;
-    params.cs = InstanceConfig.cs;
-    params.walkableClimb = InstanceConfig.walkableClimb * InstanceConfig.ch;
-    params.walkableHeight = InstanceConfig.walkableHeight * InstanceConfig.ch;
-    params.walkableRadius = InstanceConfig.walkableRadius * InstanceConfig.cs;
+    params.ch = Config.ch;
+    params.cs = Config.cs;
+    params.walkableClimb = Config.walkableClimb * Config.ch;
+    params.walkableHeight = Config.walkableHeight * Config.ch;
+    params.walkableRadius = Config.walkableRadius * Config.cs;
     params.tileX = X;
     params.tileY = Y;
     params.tileLayer = 0;
     params.buildBvTree = true;
 
-    rcVcopy(params.bmax, bmax);
-    rcVcopy(params.bmin, bmin);
+    // Recalculate the bounds with the added geometry
+    float* bmin2 = NULL, *bmax2 = NULL;
+    CalculateTileBounds(bmin2, bmax2, navMeshParams);
+    bmin2[1] = bmin[1];
+    bmax2[1] = bmax[1];
+
+    rcVcopy(params.bmax, bmax2);
+    rcVcopy(params.bmin, bmin2);
 
     // Offmesh-connection settings
     params.offMeshConCount = 0; // none for now
