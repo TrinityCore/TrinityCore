@@ -15943,11 +15943,10 @@ void Unit::RemoveVehicleKit()
     if (!m_vehicleKit)
         return;
 
-    Vehicle* vehicle = m_vehicleKit;
-    m_vehicleKit = NULL;
+    m_vehicleKit->Uninstall();
+    delete m_vehicleKit;
 
-    vehicle->Uninstall();
-    delete vehicle;
+    m_vehicleKit = NULL;
 
     m_updateFlag &= ~UPDATEFLAG_VEHICLE;
     m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
@@ -16905,7 +16904,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
         if (((Minion*)vehicle->GetBase())->GetOwner() == this)
-            vehicle->GetBase()->ToCreature()->DespawnOrUnsummon();
+            vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
 
     if (HasUnitTypeMask(UNIT_MASK_ACCESSORY))
     {
