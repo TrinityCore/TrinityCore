@@ -1585,8 +1585,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
             }
 
-            ObjectList* targets = GetTargets(e, unit);
-            if (targets)
+            if (ObjectList* targets = GetTargets(e, unit))
             {
                 for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
@@ -3463,16 +3462,15 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
         return;
     for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
     {
-        if (i == mTimedActionList.begin())
-        {
-            i->enableTimed = true;//enable processing only for the first action
-        }
-        else i->enableTimed = false;
+        i->enableTimed = i == mTimedActionList.begin();//enable processing only for the first action
 
-        if (e.action.timedActionList.timerType == 1)
+        if (e.action.timedActionList.timerType == 0)
+            i->event.type = SMART_EVENT_UPDATE_OOC;
+        else if (e.action.timedActionList.timerType == 1)
             i->event.type = SMART_EVENT_UPDATE_IC;
         else if (e.action.timedActionList.timerType > 1)
             i->event.type = SMART_EVENT_UPDATE;
+
         InitTimer((*i));
     }
 }
