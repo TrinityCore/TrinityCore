@@ -76,7 +76,7 @@ void ExtractDBCs()
 
         std::string component = "component.wow-" + std::string(MPQManager::Languages[*itr]) + ".txt";
         // Extract the component file
-        Utils::SaveToDisk(MPQHandler->GetFile(component), path + component);
+        Utils::SaveToDisk(MPQHandler->GetFileFrom(component, MPQHandler->LocaleFiles[*itr]), path + component);
         // Extract the DBC files for the given locale
         for (std::set<std::string>::iterator itr2 = DBCFiles.begin(); itr2 != DBCFiles.end(); ++itr2)
             Utils::SaveToDisk(MPQHandler->GetFileFrom(*itr2, MPQHandler->LocaleFiles[*itr]), path + (itr2->c_str() + folderLen));
