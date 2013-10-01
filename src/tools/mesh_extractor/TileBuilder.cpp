@@ -192,8 +192,6 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
     rcFreeHeightField(hf);
     rcFreeCompactHeightfield(chf);
     rcFreeContourSet(contours);
-    rcFreePolyMesh(pmesh);
-    rcFreePolyMeshDetail(dmesh);
     delete vertices;
     delete triangles;
     delete areas;
@@ -206,6 +204,8 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
         // keep in mind that we do output those into debug info
         // drop tiles with only exact count - some tiles may have geometry while having less tiles
         printf("No polygons to build on tile, skipping.\n");
+        rcFreePolyMesh(pmesh);
+        rcFreePolyMeshDetail(dmesh);
         return NULL;
     }
 
@@ -213,6 +213,9 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
     uint8* navData;
     printf("Creating the navmesh with %i vertices, %i polys, %i triangles!\n", params.vertCount, params.polyCount, params.detailTriCount);
     bool result = dtCreateNavMeshData(&params, &navData, &navDataSize);
+
+    rcFreePolyMesh(pmesh);
+    rcFreePolyMeshDetail(dmesh);
 
     if (result)
     {
