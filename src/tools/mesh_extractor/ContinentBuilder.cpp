@@ -153,9 +153,9 @@ void ContinentBuilder::Build()
     }
     else
     {
-        params.maxPolys = 1 << STATIC_POLY_BITS;
-        params.maxTiles = TileMap->TileTable.size();
-        rcVcopy(params.orig, bmin);
+        params.maxPolys = 32768;
+        params.maxTiles = 4096;
+        rcVcopy(params.orig, Constants::Origin);
         params.tileHeight = Constants::TileSize;
         params.tileWidth = Constants::TileSize;
         fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
