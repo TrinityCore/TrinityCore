@@ -173,24 +173,38 @@ void Utils::SaveToDisk( FILE* stream, const std::string& path )
     if (!disk)
     {
         printf("SaveToDisk: Could not save file %s to disk, please verify that you have write permissions on that directory\n", path.c_str());
+        fclose(stream);
         return;
     }
 
     uint32 size = Utils::Size(stream);
     uint8* data = new uint8[size];
     // Read the data to an array
-    if (fread(data, 1, size, stream) != 1)
+    size_t read = fread(data, size, 1, stream);
+    if (read != 1)
     {
-        printf("SaveToDisk: Error reading from Stream while trying to save file %s to disck.\n", path.c_str());
+        printf("SaveToDisk: Error reading from Stream while trying to save file %s to disk.\n", path.c_str());
+        fclose(disk);
+        fclose(stream);
         return;
     }
+    
     // And write it in the file
-    fwrite(data, 1, size, disk);
+    size_t wrote = fwrite(data, size, 1, disk);
+    if (wrote != 1)
+    {
+        printf("SaveToDisk: Error writing to the file while trying to save %s to disk.\n", path.c_str());
+        fclose(stream);
+        fclose(disk);
+        return;
+    }
 
     // Close the filestream
     fclose(disk);
+    fclose(stream);
+
     // Free the used memory
-    delete [] data;
+    delete[] data;
 }
 
 Vector3 Utils::ToWoWCoords(const Vector3& vec )
