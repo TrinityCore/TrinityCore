@@ -110,5 +110,6 @@ FILE* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
     }
     fwrite(buffer, sizeof(uint8), size, ret);
     fseek(ret, 0, SEEK_SET);
+    delete[] buffer;
     return ret;
 }
