@@ -89,8 +89,8 @@ void MapManager::UnLoadTransportFromMap(Transport* t)
     transData.BuildPacket(&out_packet);
 
     for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
-        if (t != itr->getSource()->GetTransport())
-            itr->getSource()->SendDirectMessage(&out_packet);
+        if (t != itr->GetSource()->GetTransport())
+            itr->GetSource()->SendDirectMessage(&out_packet);
 
     t->m_NPCPassengerSet.clear();         
     m_TransportsByInstanceIdMap[t->GetInstanceId()].erase(t);
@@ -810,7 +810,7 @@ Creature* Transport::AddNPCPassengerInInstance(uint32 entry, float x, float y, f
     creature->SetTransport(this);
     creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     creature->m_movementInfo.guid = GetGUID();
-    creature->m_movementInfo.t_pos.Relocate(x, y, z, o);
+    creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
 
     creature->Relocate(
         GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
@@ -883,4 +883,9 @@ void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float* o 
     float inx = x, iny = y;
     y = (iny - inx * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
     x = (inx + iny * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
+}
+
+void Transport::UpdatePlayerPositions()
+{
+    
 }

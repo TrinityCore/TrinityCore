@@ -1804,7 +1804,6 @@ class npc_gunship_cannon : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 DoCast(me, SPELL_HEAT_DRAIN, true);
-                TC_LOG_INFO("void Reset()");
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spellEntry)
@@ -1830,33 +1829,24 @@ class npc_gunship_cannon : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-            	me->SetReactState(REACT_PASSIVE); //Überlegung 1: wenn nicht Reset, sondern Update zum Laden benutzt wird, sollte dies den fehler fixxen
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                DoCast(me, SPELL_HEAT_DRAIN, true);
-                me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG_STRAFE_LEFT);
+            	me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG_STRAFE_LEFT);
 		me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT);
-		me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_INTERPOLATED_TURNING); //Überlegung 2: Wenn die else nur bei einem Tot aufgerufen wird, nicht bei einem Update?....
-                TC_LOG_INFO("void UpdateAI()");
-                
+		me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_INTERPOLATED_TURNING);
+		
                 if(me->HasAura(SPELL_BELOW_ZERO))
                 {
-                    me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 					
                     if (Vehicle* veh = me->GetVehicleKit())
                         veh->RemoveAllPassengers();
                 }
                 else
                 {
-                	TC_LOG_INFO("void UpdateAI() - else");
 			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 			me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG_STRAFE_LEFT);
 			me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT);
 			me->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_INTERPOLATED_TURNING);
-					//me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
-					//me->AddExtraUnitMovementFlag(MOVEMENTFLAG_LEFT);
-					//me->AddExtraUnitMovementFlag(MOVEMENTFLAG_RIGHT);
-
 					
                 }
             }
@@ -3167,7 +3157,7 @@ class spell_remove_rocket_pack : public SpellScriptLoader
  
                 int32 itemId = GetEffectValue();
                 uint32 itemCount = hitPlr->GetItemCount(itemId, false); // Should be 1, but just in case.
-                hitPlr->DestroyItemCount(itemId, itemCount, true, false);
+                hitPlr->DestroyItemCount(itemId, -itemCount, true, false);
             }
  
             void Register()

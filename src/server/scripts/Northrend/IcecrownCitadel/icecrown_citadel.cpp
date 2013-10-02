@@ -2247,12 +2247,12 @@ class npc_sindragosas_ward : public CreatureScript
 
                 for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                 {
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                     {
-                        if (player->isGameMaster())
+                        if (player->IsGameMaster())
                             continue;
 
-                        if (player->isAlive() && me->GetDistance(player) > 125.0f)
+                        if (player->IsAlive() && me->GetDistance(player) > 125.0f)
                             return true;
                     }
                 }
@@ -2275,7 +2275,7 @@ class npc_sindragosas_ward : public CreatureScript
             void SummonedCreatureDespawn(Creature* summon)
             {
                 // This one should never happen, if summoned creature despawns alive, reset!
-                if (summon->isAlive())
+                if (summon->IsAlive())
                 {
                     EnterEvadeMode();
                     return;
