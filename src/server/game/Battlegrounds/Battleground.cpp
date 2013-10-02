@@ -811,7 +811,7 @@ void Battleground::EndBattleground(uint32 winner)
                 SetArenaMatchmakerRating(GetOtherTeam(winner), loserMatchmakerRating + loserMatchmakerChange);
                 SetArenaTeamRatingChangeForTeam(winner, winnerChange);
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loserChange);
- /*                World of Warcraft Armory 
+                 /* World of Warcraft Armory */
                 uint32 maxChartID;
                 QueryResult result = CharacterDatabase.PQuery("SELECT MAX(gameid) FROM armory_game_chart");
                 if (!result)
@@ -845,11 +845,11 @@ void Battleground::EndBattleground(uint32 winner)
                         ratingChange = loserChange;
                     }
                     std::ostringstream sql_query;
-                    //                                                       gameid,             teamid,                    guid,                changeType,           ratingChange,             teamRating,                  damageDone,                          deaths,                          healingDone,                           damageTaken,,                       healingTaken,                        killingBlows,           mapId,              start,                  end
+                   //                                                     gameid,             teamid,                    guid,                changeType,           ratingChange,             teamRating,                  damageDone,                          deaths,                          healingDone,                           damageTaken,,                       healingTaken,                        killingBlows,           mapId,              start,                  end
                     sql_query << "INSERT INTO armory_game_chart VALUES (" << gameID << ", " << resultTeamID << ", " << plr->GetGUID() << ", " << changeType << ", " << ratingChange  << ", " << resultRating << ", " << itr->second->DamageDone << ", " << itr->second->Deaths << ", " << itr->second->HealingDone << ", " << itr->second->DamageTaken << ", " << itr->second->HealingTaken << ", " << itr->second->KillingBlows << ", " << m_MapId << ", " << m_StartTime << ", " << m_EndTime << ");";
                     CharacterDatabase.Execute(sql_query.str().c_str());
                 }
-                World of Warcraft Armory */
+                /*World of Warcraft Armory */
                 TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                     for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
