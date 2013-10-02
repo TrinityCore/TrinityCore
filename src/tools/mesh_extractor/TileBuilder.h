@@ -16,8 +16,10 @@ public:
     ~TileBuilder();
 
     void CalculateTileBounds(float*& bmin, float*& bmax, dtNavMeshParams& navMeshParams);
-    uint8* Build(dtNavMeshParams& navMeshParams);
-    uint8* BuildInstance(dtNavMeshParams& navMeshParams, WorldModelRoot* root, const WorldModelDefinition& def);
+    uint8* BuildTiled(dtNavMeshParams& navMeshParams);
+    uint8* BuildInstance(dtNavMeshParams& navMeshParams);
+    void AddGeometry(WorldModelRoot* root, const WorldModelDefinition& def);
+    void OutputDebugVertices();
     std::string World;
     int X;
     int Y;

@@ -609,7 +609,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void SendAIReaction(AiReaction reactionType);
 
-        Unit* SelectNearestTarget(float dist = 0) const;
+        Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
         Player* SelectNearestPlayer(float distance = 0) const;
         Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
