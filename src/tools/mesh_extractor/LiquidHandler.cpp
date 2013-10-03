@@ -34,7 +34,7 @@ void LiquidHandler::HandleNewLiquid()
         H2OInformation information = H2OInformation::Read(stream);
 
         float** heights = new float*[9];
-        for (int j = 0; j < 9; ++i)
+        for (int j = 0; j < 9; ++j)
         {
             heights[j] = new float[9];
             memset(heights[j], 0, sizeof(float) * 9);

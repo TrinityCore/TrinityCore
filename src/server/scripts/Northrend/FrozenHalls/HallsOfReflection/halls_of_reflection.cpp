@@ -1069,7 +1069,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         {
                             me->AI()->DoCast(me, SPELL_SYLVANAS_DESTROY_ICE_WALL, false);
                             if (_isattackingwall)
-                                _events.ScheduleEvent(EVENT_ESCAPE_22, 1000);
+                                _events.ScheduleEvent(EVENT_ESCAPE_23, 1000);
                         }
                         break;
 

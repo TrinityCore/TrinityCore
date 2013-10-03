@@ -214,6 +214,9 @@ class DatabaseWorkerPool
             T* t = GetFreeConnection();
             t->Execute(stmt);
             t->Unlock();
+
+            //! Delete proxy-class. Not needed anymore
+            delete stmt;
         }
 
         /**
@@ -430,7 +433,7 @@ class DatabaseWorkerPool
         */
 
         //! Automanaged (internally) pointer to a prepared statement object for usage in upper level code.
-        //! Pointer is deleted in this->Query(PreparedStatement*) or PreparedStatementTask::~PreparedStatementTask.
+        //! Pointer is deleted in this->DirectExecute(PreparedStatement*), this->Query(PreparedStatement*) or PreparedStatementTask::~PreparedStatementTask.
         //! This object is not tied to the prepared statement on the MySQL context yet until execution.
         PreparedStatement* GetPreparedStatement(uint32 index)
         {

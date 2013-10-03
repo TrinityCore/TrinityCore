@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "Define.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Quat.h"
 #include <cstdio>
 
 WorldModelDefinition WorldModelDefinition::Read( FILE* file )
@@ -30,22 +31,20 @@ WorldModelDefinition WorldModelDefinition::Read( FILE* file )
 
 WorldModelHandler::WorldModelHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
 {
-    if (!adt->HasObjectData)
-        return;
     ReadModelPaths();
     ReadDefinitions();
 }
 
-void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
+void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
 {
     if (!IsSane())
         return;
-    Chunk* wmoReferencesChunk = subChunks->GetChunkByName("MCRW");
-    if (!wmoReferencesChunk)
-        return;
-    FILE* stream = wmoReferencesChunk->GetStream();
-    uint32 refCount = wmoReferencesChunk->Length / 4;
-    for (uint32 i = 0; i < refCount; i++)
+    
+    uint32 refCount = mcnk->Header.MapObjectRefs;
+    FILE* stream = mcnk->Source->GetStream();
+    fseek(stream, mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
+    // Start looping at the last Doodad Ref index
+    for (uint32 i = mcnk->Header.DoodadRefs; i < refCount; i++)
     {
         int32 index;
         if (fread(&index, sizeof(int32), 1, stream) != 1)
@@ -76,20 +75,25 @@ void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
 
         InsertModelGeometry(Vertices, Triangles, wmo, model);
     }
+    // Restore the stream position
+    fseek(stream, mcnk->Source->Offset, SEEK_SET);
 }
 
-void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, WorldModelDefinition& def, WorldModelRoot* root )
+void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root, bool translate )
 {
-    G3D::Matrix4 transformation = Utils::GetTransformation(def);
     for (std::vector<WorldModelGroup>::iterator group =  root->Groups.begin(); group != root->Groups.end(); ++group)
     {
         uint32 vertOffset = verts.size();
         for (std::vector<Vector3>::iterator itr2 = group->Vertices.begin(); itr2 != group->Vertices.end(); ++itr2)
-            verts.push_back(Utils::VectorTransform(*itr2, transformation));
+        {
+            Vector3 v = Utils::TransformDoodadVertex(def, *itr2, translate);
+            // If translate is false, then we were called directly from the TileBuilder to add data to it's _Geometry member, hence, we have to manually convert the vertices to Recast format.
+            verts.push_back(translate ? v : Utils::ToRecast(v)); // Transform the vertex to world space
+        }
 
         for (uint32 i = 0; i < group->Triangles.size(); ++i)
         {
-            // only include collidable tris
+            // only include colliding tris
             if ((group->TriangleFlags[i] & 0x04) != 0 && group->TriangleMaterials[i] != 0xFF)
                 continue;
             Triangle<uint16> tri = group->Triangles[i];
@@ -120,10 +124,12 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
 
             if (!model->IsCollidable)
                 continue;
-            G3D::Matrix4 doodadTransformation = Utils::GetWmoDoodadTransformation(*instance, def);
             int vertOffset = verts.size();
             for (std::vector<Vector3>::iterator itr2 = model->Vertices.begin(); itr2 != model->Vertices.end(); ++itr2)
-                verts.push_back(Utils::VectorTransform(*itr2, doodadTransformation));
+            {
+                Vector3 v = Utils::TransformDoodadVertex(def, Utils::TransformWmoDoodad(*instance, def, *itr2, false), translate);
+                verts.push_back(translate ? v : Utils::ToRecast(v));
+            }
             for (std::vector<Triangle<uint16> >::iterator itr2 = model->Triangles.begin(); itr2 != model->Triangles.end(); ++itr2)
                 tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WMO, itr2->V0 + vertOffset, itr2->V1 + vertOffset, itr2->V2 + vertOffset));
         }
@@ -133,22 +139,32 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
             if (!group->HasLiquidData)
                 continue;
 
-            for (uint32 y = 0; y < group->LiquidDataHeader.Height; y++)
+            const LiquidHeader& liquidHeader = group->LiquidDataHeader;
+            LiquidData& liquidDataGeometry = group->LiquidDataGeometry;
+
+            for (uint32 y = 0; y < liquidHeader.Height; y++)
             {
-                for (uint32 x = 0; x < group->LiquidDataHeader.Width; x++)
+                for (uint32 x = 0; x < liquidHeader.Width; x++)
                 {
-                    if (!group->LiquidDataGeometry.ShouldRender(x, y))
+
+                    if (!liquidDataGeometry.ShouldRender(x, y))
                         continue;
 
                     uint32 vertOffset = verts.size();
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x][y], x, y));
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x + 1][y], x + 1, y));
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x][y + 1], x, y + 1));
-                    verts.push_back(Utils::GetLiquidVert(transformation, group->LiquidDataHeader.BaseLocation,
-                        group->LiquidDataGeometry.HeightMap[x + 1][y + 1], x + 1, y + 1));
+
+                    Vector3 v1 = Utils::GetLiquidVert(def, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x][y], x, y, translate);
+                    Vector3 v2 = Utils::GetLiquidVert(def, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x + 1][y], x + 1, y, translate);
+                    Vector3 v3 = Utils::GetLiquidVert(def, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x][y + 1], x, y + 1, translate);
+                    Vector3 v4 = Utils::GetLiquidVert(def, liquidHeader.BaseLocation,
+                        liquidDataGeometry.HeightMap[x + 1][y + 1], x + 1, y + 1, translate);
+
+                    verts.push_back(translate ? v1 : Utils::ToRecast(v1));
+                    verts.push_back(translate ? v2 : Utils::ToRecast(v2));
+                    verts.push_back(translate ? v3 : Utils::ToRecast(v3));
+                    verts.push_back(translate ? v4 : Utils::ToRecast(v4));
 
                     tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset, vertOffset + 2, vertOffset + 1));
                     tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));

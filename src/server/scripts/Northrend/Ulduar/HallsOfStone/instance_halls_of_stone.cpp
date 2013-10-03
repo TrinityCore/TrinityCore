@@ -187,7 +187,7 @@ class instance_halls_of_stone : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player /*= NULL*/) const OVERRIDE
             {
-                if (player && player->GetSession()->HasPermission(RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES))
+                if (player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES))
                     return true;
 
                 switch (bossId)
