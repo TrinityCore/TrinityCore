@@ -36,7 +36,7 @@ namespace MMAP
         MMapData(dtNavMesh* mesh) : navMesh(mesh) {}
         ~MMapData()
         {
-            for (NavMeshQuerySet::iterator i = navMeshQueries.begin(); i != navMeshQueries.end(); ++i)
+            for (NavMeshQuerySet::iterator i = _navMeshQueries.begin(); i != _navMeshQueries.end(); ++i)
                 dtFreeNavMeshQuery(i->second);
 
             if (navMesh)
@@ -46,8 +46,8 @@ namespace MMAP
         dtNavMesh* navMesh;
 
         // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
-        NavMeshQuerySet navMeshQueries;     // instanceId to query
-        MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
+        NavMeshQuerySet _navMeshQueries;     // instanceId to query
+        MMapTileSet _loadedTiles;        // maps [map grid coords] to [dtTile]
     };
 
 
@@ -58,26 +58,26 @@ namespace MMAP
     class MMapManager
     {
         public:
-            MMapManager() : loadedTiles(0) {}
+            MMapManager() : _loadedTiles(0) {}
             ~MMapManager();
 
-            bool loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y);
-            bool unloadMap(uint32 mapId, int32 x, int32 y);
-            bool unloadMap(uint32 mapId);
-            bool unloadMapInstance(uint32 mapId, uint32 instanceId);
+            bool LoadMapTile(uint32 mapId, int32 x, int32 y);
+            bool UnloadMapTile(uint32 mapId, int32 x, int32 y);
+            bool UnloadMap(uint32 mapId);
+            bool UnloadMapInstance(uint32 mapId, uint32 instanceId);
 
             // the returned [dtNavMeshQuery const*] is NOT threadsafe
             dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId);
             dtNavMesh const* GetNavMesh(uint32 mapId);
 
-            uint32 getLoadedTilesCount() const { return loadedTiles; }
-            uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
+            uint32 GetLoadedTilesCount() const { return _loadedTiles; }
+            uint32 GetLoadedMapsCount() const { return _loadedMaps.size(); }
         private:
-            bool loadMapData(uint32 mapId);
-            uint32 packTileID(int32 x, int32 y);
+            bool LoadMap(uint32 mapId);
+            uint32 PackTileId(int32 x, int32 y) { return uint32(x << 16 | y); }
 
-            MMapDataSet loadedMMaps;
-            uint32 loadedTiles;
+            MMapDataSet _loadedMaps;
+            uint32 _loadedTiles;
     };
 }
 
