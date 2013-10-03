@@ -1297,22 +1297,17 @@ public:
         char* receiver_str = strtok((char*)args, " ");
         char* text = strtok(NULL, "");
 
-        uint64 guid = handler->GetSession()->GetPlayer()->GetSelection();
-        Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(guid);
-
+        Creature* creature = handler->getSelectedCreature();
         if (!creature || !receiver_str || !text)
-        {
             return false;
-        }
 
-        uint64 receiver_guid= atol(receiver_str);
+        uint64 receiver_guid = atol(receiver_str);
 
         // check online security
         if (handler->HasLowerSecurity(ObjectAccessor::FindPlayer(receiver_guid), 0))
             return false;
 
         creature->MonsterWhisper(text, receiver_guid);
-
         return true;
     }
 

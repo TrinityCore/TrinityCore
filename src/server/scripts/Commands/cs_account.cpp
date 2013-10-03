@@ -450,12 +450,12 @@ public:
         uint32 pwConfig = sWorld->getIntConfig(CONFIG_ACC_PASSCHANGESEC); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
         // Command is supposed to be: .account password [$oldpassword] [$newpassword] [$newpasswordconfirmation] [$emailconfirmation]
-        char* oldPassword = strtok((char*)args, " ");    // This extracts [$oldpassword]
-        char* newPassword = strtok(NULL, " ");           // This extracts [$newpassword]
-        char* passwordConfirmation = strtok(NULL, " ");  // This extracts [$newpasswordconfirmation]
-        const char* emailConfirmation;                   // This defines the emailConfirmation variable, which is optional depending on sec type.
-        if (!(emailConfirmation = strtok(NULL, " ")))    // This extracts [$emailconfirmation]. If it doesn't exist, however...
-            emailConfirmation = "";                      // ... it's simply "" for emailConfirmation.
+        char* oldPassword = strtok((char*)args, " ");       // This extracts [$oldpassword]
+        char* newPassword = strtok(NULL, " ");              // This extracts [$newpassword]
+        char* passwordConfirmation = strtok(NULL, " ");     // This extracts [$newpasswordconfirmation]
+        char const* emailConfirmation = strtok(NULL, " ");  // This defines the emailConfirmation variable, which is optional depending on sec type.
+        if (!emailConfirmation)                             // This extracts [$emailconfirmation]. If it doesn't exist, however...
+            emailConfirmation = "";                         // ... it's simply "" for emailConfirmation.
 
         //Is any of those variables missing for any reason ? We return false.
         if (!oldPassword || !newPassword || !passwordConfirmation)
