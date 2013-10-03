@@ -1058,9 +1058,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_BLOOD_PRINCE_COUNCIL:
                     case DATA_ROTFACE:
                     case DATA_FESTERGUT:
-                        if (GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
-                            return false;
-                        // no break
                     case DATA_DEATHBRINGER_SAURFANG:
                         if (GetBossState(DATA_GUNSHIP_EVENT) != DONE)
                             return false;

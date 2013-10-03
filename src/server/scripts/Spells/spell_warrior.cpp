@@ -797,6 +797,10 @@ class spell_warr_second_wind_trigger : public SpellScriptLoader
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 amount = int32(GetUnitOwner()->CountPctFromMaxHealth(amount));
+
+				//Amount is received from dbc. It is supposed to heal "amount" at the end of the effect. 
+				//But it's healing the total amount for every application. Since it must use 10 charges amount is 10 times the correct amount of healing.
+				amount = amount/10;
             }
 
             void Register() OVERRIDE

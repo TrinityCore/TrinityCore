@@ -29,6 +29,12 @@
 
 enum PaladinSpells
 {
+	//Spells related to Guardian of ancient kings
+	SPELL_PALADIN_GUARDIAN_ANCIENT_KINGS         = 86150, //Dummy
+    SPELL_PALADIN_GUARDIAN_RETRIBUTION           = 86698,
+    SPELL_PALADIN_GUARDIAN_HOLY                  = 86669,
+    SPELL_PALADIN_GUARDIAN_PROTECTION            = 86659,
+
     SPELL_PALADIN_AVENGERS_SHIELD               = 31935,
     SPELL_PALADIN_AURA_MASTERY_IMMUNE            = 64364,
     SPELL_PALADIN_BEACON_OF_LIGHT_MARKER         = 53563,
@@ -1138,6 +1144,73 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
         }
 };
 
+class spell_pal_guardian_ancient_kings : public SpellScriptLoader
+{
+    public:
+        spell_pal_guardian_ancient_kings() : SpellScriptLoader("spell_pal_guardian_ancient_kings") { }
+
+        class spell_pal_guardian_ancient_kings_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_guardian_ancient_kings_SpellScript);
+
+            bool Validate (SpellInfo const* /*spellEntry*/)
+            {
+				if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GUARDIAN_ANCIENT_KINGS) || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_GUARDIAN_HOLY) ||
+					!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GUARDIAN_RETRIBUTION) || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_GUARDIAN_PROTECTION))
+					return false;
+
+				return true;
+            }
+
+            bool Load() OVERRIDE
+            {
+
+               if (GetCaster()->GetTypeId() != TYPEID_PLAYER) //Check if caster is a player. 
+                return false;
+
+			   else if(GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
+				   return false;
+
+			   else
+			   return true;
+            }
+
+			void HandleDummy(SpellEffIndex /*effIndex*/)
+			{
+				if (Unit* caster = GetCaster())
+				{
+					//Check first spell in every spec to decide which guardian should be summoned.
+					if (caster->ToPlayer()->HasSpell(20473)) 
+					{
+						caster->CastSpell(caster, SPELL_PALADIN_GUARDIAN_HOLY, false);
+						return;
+					}
+
+					else if (caster->ToPlayer()->HasSpell(31935)) 
+					{
+						caster->CastSpell(caster, SPELL_PALADIN_GUARDIAN_PROTECTION, false);
+						return;
+					}
+
+					else if (caster->ToPlayer()->HasSpell(85256)) 
+					{
+						caster->CastSpell(caster, SPELL_PALADIN_GUARDIAN_RETRIBUTION, false);
+						return;
+					}
+				}
+			}
+
+            void Register() OVERRIDE
+            {
+                OnEffectLaunch += SpellEffectFn(spell_pal_guardian_ancient_kings_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pal_guardian_ancient_kings_SpellScript();
+        }
+};
 
 void AddSC_paladin_spell_scripts()
 {
@@ -1164,4 +1237,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sacred_shield();
     new spell_pal_templar_s_verdict();
     new spell_pal_seal_of_righteousness();
+	new spell_pal_guardian_ancient_kings();
 }

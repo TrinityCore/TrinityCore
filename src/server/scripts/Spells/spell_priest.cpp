@@ -29,6 +29,10 @@
 
 enum PriestSpells
 {
+	SPELL_PRIEST_INNER_FOCUS                        = 89485,
+	SPELL_PRIEST_FLASH_HEAL                         = 2061,
+	SPELL_PRIEST_GREATER_HEAL                       = 2060,
+	SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
     SPELL_PRIEST_ABSOLUTION                         = 33167,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
@@ -124,6 +128,52 @@ class spell_pri_body_and_soul : public SpellScriptLoader
         {
             return new spell_pri_body_and_soul_AuraScript();
         }
+};
+
+// 78203 - Aparicion sombria
+class spell_pri_shadowy_apparitions : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadowy_apparitions() : SpellScriptLoader("spell_pri_shadowy_apparitions") { }
+
+        class spell_pri_shadowy_apparitions_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_shadowy_apparitions_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(78203))
+                    return false;
+                return true;
+            }
+
+			void HandleDummyLaunchTarget(SpellEffIndex /*effIndex*/)
+            {
+				Unit* caster = GetCaster();
+				caster->SummonCreature(46954,caster->GetPositionX(),caster->GetPositionY(),caster->GetPositionZ(),0.0F);
+
+				if(Creature* creature = caster->ToPlayer()->FindNearestCreature(46952,10,true))
+				{
+					creature->SetDisplayId(caster->GetDisplayId());
+				}
+
+            }
+
+
+            void Register()
+            {
+                OnEffectLaunchTarget += SpellEffectFn(spell_pri_shadowy_apparitions_SpellScript::HandleDummyLaunchTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_shadowy_apparitions_SpellScript();
+        }
+
+		/*
+		insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('78203','126','0','0','0','0','262144','2','0','100','0');
+		*/
 };
 
 // 527 - Dispel magic
@@ -1074,6 +1124,22 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
+class player_priest_inner_focus : public PlayerScript
+{
+    public:
+
+   	 player_priest_inner_focus()
+		    : PlayerScript("player_priest_inner_focus")
+	    {
+	    }
+
+        void OnSpellCast (Player* player, Spell* spell, bool skipCheck)
+        {
+			if (spell->GetSpellInfo()->Id==SPELL_PRIEST_FLASH_HEAL || spell->GetSpellInfo()->Id==SPELL_PRIEST_GREATER_HEAL || spell->GetSpellInfo()->Id==SPELL_PRIEST_PRAYER_OF_HEALING)
+				player->RemoveAurasDueToSpell(SPELL_PRIEST_INNER_FOCUS);
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1099,4 +1165,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
+    new spell_pri_shadowy_apparitions();
+    new player_priest_inner_focus();
 }

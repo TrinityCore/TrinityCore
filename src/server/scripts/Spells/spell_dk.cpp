@@ -580,7 +580,18 @@ class spell_dk_death_strike : public SpellScriptLoader
                     return;
 
                 if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_MASTERY, EFFECT_0))
-                    GetCaster()->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, GetCaster()->CountPctFromMaxHealth(aurEff->GetAmount()), GetCaster());
+				{
+					if(Player* caster = GetCaster()->ToPlayer())
+					{
+						uint32 amount = urand(87458,127845);
+						amount = ((amount/85) * (GetCaster()->ToPlayer()->getLevel()));
+						amount = (amount/100)*20;
+
+						GetCaster()->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, amount, GetCaster());
+					}
+					else 
+						GetCaster()->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, GetCaster()->CountPctFromMaxHealth(aurEff->GetAmount()), GetCaster());
+				}
             }
 
             void Register() OVERRIDE
