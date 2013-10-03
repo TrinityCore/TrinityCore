@@ -66,7 +66,9 @@ Map::~Map()
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
-    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
+    MMAP::MMapManager* manager = MMAP::MMapFactory::CreateOrGetMMapManager();
+    manager->UnloadMapInstance(GetId(), i_InstanceId); // Delete the dtNavMeshQuery
+    manager->UnloadMap(GetId()); // Unload the loaded tiles and delete the dtNavMesh
 }
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
@@ -119,12 +121,12 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
+    bool mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), gx, gy);
 
     if (mmapLoadResult)
-        TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP loaded name: %s, id: %d, x: %d, y: %d", GetMapName(), GetId(), gx, gy);
     else
-        TC_LOG_INFO(LOG_FILTER_MAPS, "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_INFO(LOG_FILTER_MAPS, "Could not load MMAP name: %s, id: %d, x: %d, y: %d", GetMapName(), GetId(), gx, gy);
 }
 
 void Map::LoadVMap(int gx, int gy)
@@ -224,9 +226,9 @@ m_activeNonPlayersIter(m_activeNonPlayers.end()), i_gridExpiry(expiry),
 i_scriptLock(false)
 {
     m_parentMap = (_parent ? _parent : this);
-    for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
+    for (unsigned int idx = 0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
-        for (unsigned int j=0; j < MAX_NUMBER_OF_GRIDS; ++j)
+        for (unsigned int j = 0; j < MAX_NUMBER_OF_GRIDS; ++j)
         {
             //z code
             GridMaps[idx][j] =NULL;
@@ -1009,7 +1011,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
                 delete GridMaps[gx][gy];
             }
             VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
-            MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
+            MMAP::MMapFactory::CreateOrGetMMapManager()->UnloadMapTile(GetId(), gx, gy);
         }
         else
             ((MapInstanced*)m_parentMap)->RemoveGridMapReference(GridCoord(gx, gy));
