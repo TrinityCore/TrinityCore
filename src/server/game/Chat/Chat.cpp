@@ -344,7 +344,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
             Player* player = m_session->GetPlayer();
             if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
             {
-                uint64 guid = player->GetSelection();
+                uint64 guid = player->GetTarget();
                 uint32 areaId = player->GetAreaId();
                 std::string areaName = "Unknown";
                 std::string zoneName = "Unknown";
@@ -713,12 +713,10 @@ Player* ChatHandler::getSelectedPlayer()
     if (!m_session)
         return NULL;
 
-    uint64 guid  = m_session->GetPlayer()->GetSelection();
+    if (Player* selected = m_session->GetPlayer()->GetSelectedPlayer())
+        return selected;
 
-    if (guid == 0)
-        return m_session->GetPlayer();
-
-    return ObjectAccessor::FindPlayer(guid);
+    return m_session->GetPlayer();
 }
 
 Unit* ChatHandler::getSelectedUnit()
@@ -726,12 +724,10 @@ Unit* ChatHandler::getSelectedUnit()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    if (Unit* selected = m_session->GetPlayer()->GetSelectedUnit())
+        return selected;
 
-    if (guid == 0)
-        return m_session->GetPlayer();
-
-    return ObjectAccessor::GetUnit(*m_session->GetPlayer(), guid);
+    return m_session->GetPlayer();
 }
 
 WorldObject* ChatHandler::getSelectedObject()
@@ -739,7 +735,7 @@ WorldObject* ChatHandler::getSelectedObject()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    uint64 guid = m_session->GetPlayer()->GetTarget();
 
     if (guid == 0)
         return GetNearbyGameObject();
@@ -752,7 +748,7 @@ Creature* ChatHandler::getSelectedCreature()
     if (!m_session)
         return NULL;
 
-    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetSelection());
+    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetTarget());
 }
 
 char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** something1)

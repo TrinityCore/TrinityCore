@@ -259,7 +259,6 @@ Unit::Unit(bool isWorldObject) :
 
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
 
-    _focusSpell = NULL;
     _lastLiquid = NULL;
     _isWalkingBeforeCharm = false;
 }
@@ -5258,18 +5257,19 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // cast 45429 Arcane Bolt if Exalted by Scryers
                 case 45481:
                 {
-                    if (GetTypeId() != TYPEID_PLAYER)
+                    Player* player = ToPlayer();
+                    if (!player)
                         return false;
 
                     // Get Aldor reputation rank
-                    if (ToPlayer()->GetReputationRank(932) == REP_EXALTED)
+                    if (player->GetReputationRank(932) == REP_EXALTED)
                     {
                         target = this;
                         triggered_spell_id = 45479;
                         break;
                     }
                     // Get Scryers reputation rank
-                    if (ToPlayer()->GetReputationRank(934) == REP_EXALTED)
+                    if (player->GetReputationRank(934) == REP_EXALTED)
                     {
                         // triggered at positive/self casts also, current attack target used then
                         if (target && IsFriendlyTo(target))
@@ -5277,8 +5277,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             target = GetVictim();
                             if (!target)
                             {
-                                uint64 selected_guid = ToPlayer()->GetSelection();
-                                target = ObjectAccessor::GetUnit(*this, selected_guid);
+                                target = player->GetSelectedUnit();
                                 if (!target)
                                     return false;
                             }
@@ -17469,43 +17468,6 @@ bool Unit::SetHover(bool enable, bool /*packetOnly = false*/)
     }
 
     return true;
-}
-
-void Unit::SetTarget(uint64 guid)
-{
-    if (!_focusSpell)
-        SetUInt64Value(UNIT_FIELD_TARGET, guid);
-}
-
-void Unit::FocusTarget(Spell const* focusSpell, WorldObject const* target)
-{
-    // already focused
-    if (_focusSpell)
-        return;
-
-    _focusSpell = focusSpell;
-    SetUInt64Value(UNIT_FIELD_TARGET, target->GetGUID());
-    if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
-        AddUnitState(UNIT_STATE_ROTATING);
-
-    // Set serverside orientation if needed (needs to be after attribute check)
-    SetInFront(target);
-}
-
-void Unit::ReleaseFocus(Spell const* focusSpell)
-{
-    // focused to something else
-    if (focusSpell != _focusSpell)
-        return;
-
-    _focusSpell = NULL;
-    if (Unit* victim = GetVictim())
-        SetUInt64Value(UNIT_FIELD_TARGET, victim->GetGUID());
-    else
-        SetUInt64Value(UNIT_FIELD_TARGET, 0);
-
-    if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
-        ClearUnitState(UNIT_STATE_ROTATING);
 }
 
 void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
