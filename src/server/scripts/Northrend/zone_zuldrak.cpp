@@ -425,7 +425,7 @@ public:
                             uiPhase = 0;
                             break;
 						case 15:
-							std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()));
+							std::string sText = ("Prepare to make you stand... ");
 							me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
 							me->SummonCreature(NPC_VLADOF_THE_BUTCHER, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
 							uiPhase = 0;
@@ -601,7 +601,7 @@ public:
 			if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself()){
 				player->GroupEventHappens(QUEST_THE_CHAMPION_OF_ANGUISH, player);
 			}
-	}
+		}
  };
 };
 /*####
