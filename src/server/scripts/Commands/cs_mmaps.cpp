@@ -213,7 +213,7 @@ public:
         handler->PSendSysMessage("  global mmap pathfinding is %sabled", MMAP::MMapFactory::IsPathfindingEnabled(mapId) ? "en" : "dis");
 
         MMAP::MMapManager* manager = MMAP::MMapFactory::CreateOrGetMMapManager();
-        handler->PSendSysMessage(" %u maps loaded with %u tiles overall", manager->getLoadedMapsCount(), manager->getLoadedTilesCount());
+        handler->PSendSysMessage(" %u maps loaded with %u tiles overall", manager->GetLoadedMapsCount(), manager->GetLoadedTilesCount());
 
         dtNavMesh const* navmesh = manager->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
         if (!navmesh)

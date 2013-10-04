@@ -58,9 +58,12 @@ void ExtractDBCs()
     // Populate list of DBC files
     // We get the DBC names by going over the (guaranteed to exist) default locale files
     // Then we look in other locale files in case that they are available.
-    for (std::vector<std::string>::iterator itr = MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.begin(); itr != MPQHandler->LocaleFiles[MPQHandler->BaseLocale]->Files.end(); ++itr)
-        if (itr->rfind(".dbc") == itr->length() - extLen) // Check if the extension is ".dbc"
-            DBCFiles.insert(*itr);
+    for (std::map<uint32, std::deque<MPQArchive*> >::iterator itr = MPQHandler->LocaleFiles.begin(); itr != MPQHandler->LocaleFiles.end(); ++itr)
+        for (std::deque<MPQArchive*>::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+            for (std::vector<std::string>::iterator itr3 = (*itr2)->Files.begin(); itr3 != (*itr2)->Files.end(); ++itr3)
+                if (itr3->rfind(".dbc") == itr3->length() - extLen) // Check if the extension is ".dbc"
+                    if (DBCFiles.find(*itr3) == DBCFiles.end())
+                        DBCFiles.insert(*itr3);
 
     const size_t folderLen = strlen("DBFilesClient\\");
     // Iterate over all available locales
@@ -76,10 +79,10 @@ void ExtractDBCs()
 
         std::string component = "component.wow-" + std::string(MPQManager::Languages[*itr]) + ".txt";
         // Extract the component file
-        Utils::SaveToDisk(MPQHandler->GetFileFrom(component, MPQHandler->LocaleFiles[*itr]), path + component);
+        Utils::SaveToDisk(MPQHandler->GetFileFromLocale(component, *itr), path + component);
         // Extract the DBC files for the given locale
         for (std::set<std::string>::iterator itr2 = DBCFiles.begin(); itr2 != DBCFiles.end(); ++itr2)
-            Utils::SaveToDisk(MPQHandler->GetFileFrom(*itr2, MPQHandler->LocaleFiles[*itr]), path + (itr2->c_str() + folderLen));
+            Utils::SaveToDisk(MPQHandler->GetFileFromLocale(*itr2, *itr), path + (itr2->c_str() + folderLen));
     }
     printf("DBC extraction finished!\n");
 }

@@ -16,15 +16,18 @@ public:
     void Initialize();
     FILE* GetFile(const std::string& path);
     FILE* GetFileFrom(const std::string& path, MPQArchive* file);
+    FILE* GetFileFromLocale(const std::string& path, uint32 locale);
+
     DBC* GetDBC(const std::string& name);
     std::vector<std::string> GetAllFiles(std::string extension);
 
     std::deque<MPQArchive*> Archives;
     int32 BaseLocale;
     std::set<uint32> AvailableLocales;
-    std::map<uint32, MPQArchive*> LocaleFiles;
+    std::map<uint32, std::deque<MPQArchive*> > LocaleFiles;
 
     static char const* Files[];
+    static char const* LocalePatchFiles[];
     static char const* Languages[];
 protected:
     void InitializeDBC();
