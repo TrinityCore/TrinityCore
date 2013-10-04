@@ -1,3 +1,26 @@
+/* All data of gilneas */
+-- First of all gilneas have 4 maps:
+-- 638 [gilneas] -> starting zone with worgen attack
+-- 654 [gilneas2] ->outside city forsaken invasion 
+-- 655 - 656 -> after cataclism
+
+-- worgen should start at map 638
+UPDATE `playercreateinfo` SET  `map` = 638 WHERE `race` = 22;
+
+-- move current creature spawns to correct place
+UPDATE `creature` SET `map` = 638 WHERE `id` = 34850;
+UPDATE `creature` SET `map` = 638 WHERE `id` = 34851;
+UPDATE `creature` SET `map` = 638 WHERE `id` = 34864;
+UPDATE `creature` SET `map` = 638 WHERE `id` = 34863;
+UPDATE `creature` SET `map` = 638 WHERE `id` = 39095;
+UPDATE `creature` SET `map` = 638 WHERE `id` = 44086;
+UPDATE `creature` SET `map` = 638 WHERE `id` = 50260;
+
+-- move current object spawns to correct place
+UPDATE `gameobject` SET `map` = 638 WHERE `id` = 195581;
+UPDATE `gameobject` SET `map` = 638 WHERE `id` = 195327;
+
+-- scipts
 UPDATE `creature_template` SET `ScriptName` = 'npc_prince_liam_greymane_1' WHERE `entry` = 34850;
 
 DELETE FROM `creature_text` WHERE `entry` = 34850;
