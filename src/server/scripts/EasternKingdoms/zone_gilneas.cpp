@@ -21,8 +21,7 @@
 enum Quests
 {
     // 1 - wargen attack
-    LOCKDOWN                   = 14078,
-    SOMETHINGS_AMISS           = 14091
+    LOCKDOWN                   = 14078
     // 2 - forsaken invasion
 
     // 3 - cataclism
@@ -105,29 +104,12 @@ public:
         EventMap events;
     };
 };
-
-class npc_lieutenant_walden : public CreatureScript
-{
-public:
-    npc_lieutenant_walden() : CreatureScript("npc_lieutenant_walden") {}
-
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) OVERRIDE
-    {
-        if (quest->GetQuestId() == LOCKDOWN)
-        {
-			//creature->CastSpell((Unit*)player, SPELL_PHASE_2, true);   // wrong spell or spell not working correctly
-            creature->AddAura(SPELL_PHASE_2, (Unit*)player);  
-        }
-        return true;
-    }
-};
 /*********************************************************************************/
 
 void AddSC_gilneas()
 {
     // 1 - wargen attack
     new npc_prince_liam_greymane_1();
-    new npc_lieutenant_walden();
     // 2 - forsaken invasion
 
     // 3 - cataclism
