@@ -680,7 +680,6 @@ Player::Player(WorldSession* session): Unit(true)
     if (!GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS))
         SetAcceptWhispers(true);
 
-    m_curSelection = 0;
     m_lootGuid = 0;
 
     m_comboTarget = 0;
@@ -22528,15 +22527,15 @@ bool Player::IsQuestRewarded(uint32 quest_id) const
 
 Unit* Player::GetSelectedUnit() const
 {
-    if (m_curSelection)
-        return ObjectAccessor::GetUnit(*this, m_curSelection);
+    if (uint64 selectionGUID = GetUInt64Value(UNIT_FIELD_TARGET))
+        return ObjectAccessor::GetUnit(*this, selectionGUID);
     return NULL;
 }
 
 Player* Player::GetSelectedPlayer() const
 {
-    if (m_curSelection)
-        return ObjectAccessor::GetPlayer(*this, m_curSelection);
+    if (uint64 selectionGUID = GetUInt64Value(UNIT_FIELD_TARGET))
+        return ObjectAccessor::GetPlayer(*this, selectionGUID);
     return NULL;
 }
 
