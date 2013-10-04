@@ -567,6 +567,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
 
+    // Hook for OnDamage Event
+    sScriptMgr->OnDamage(this, victim, damage);
+
     if (victim->GetTypeId() == TYPEID_PLAYER && this != victim)
     {
         // Signal to pets that their owner was attacked
@@ -9586,6 +9589,9 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
 
     if (addhealth)
         gain = victim->ModifyHealth(int32(addhealth));
+
+    // Hook for OnHeal Event
+    sScriptMgr->OnHeal(this, victim, gain);
 
     Unit* unit = this;
 
