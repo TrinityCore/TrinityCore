@@ -499,109 +499,109 @@ enum vladof_spells{
 
  //NPC_VLADOF_THE_BUTCHER spells
 
- SPELL_BLOOD_BOIL = 55974,
- SPELL_BLOOD_PLAGUE = 55973,
- SPELL_BLOOD_PRESENCE = 50689,
- SPELL_FROST_FEVER = 55095,
- SPELL_HYSRERIA = 55975,
- SPELL_SLOW = 31589,
- SPELL_DEFLECTION = 55976,
- SPELL_WHIRLWIND = 55977,
+	SPELL_BLOOD_BOIL = 55974,
+	SPELL_BLOOD_PLAGUE = 55973,
+	SPELL_BLOOD_PRESENCE = 50689,
+	SPELL_FROST_FEVER = 55095,
+	SPELL_HYSRERIA = 55975,
+	SPELL_SLOW = 31589,
+	SPELL_DEFLECTION = 55976,
+	SPELL_WHIRLWIND = 55977,
 };
 
-	class npc_vladof_the_butcher : public CreatureScript
-		{
-			public:
-					npc_vladof_the_butcher() : CreatureScript("npc_vladof_the_butcher") { }
+class npc_vladof_the_butcher : public CreatureScript
+{
+public:
+	npc_vladof_the_butcher() : CreatureScript("npc_vladof_the_butcher") { }
 
-					CreatureAI* GetAI(Creature* creature) const
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_vladof_the_butcherAI(creature);
+	}
+
+	struct npc_vladof_the_butcherAI : public ScriptedAI
+	{
+		npc_vladof_the_butcherAI(Creature* creature) : ScriptedAI(creature)
 		{
-				return new npc_vladof_the_butcherAI(creature);
 		}
 
- struct npc_vladof_the_butcherAI : public ScriptedAI
- {
- npc_vladof_the_butcherAI(Creature* creature) : ScriptedAI(creature)
- {
- }
+		EventMap events;
 
- EventMap events;
+		void Reset()
+		{
+			events.Reset();
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			me->SetReactState(REACT_AGGRESSIVE);
+		}
 
- void Reset()
- {
- events.Reset();
- me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
- me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
- me->SetReactState(REACT_AGGRESSIVE);
- }
+		void EnterCombat(Unit* /*who*/)
+		{
+			events.ScheduleEvent(EVENT_BLOOD_BOIL, 2000); // TODO: adjust timers
+			events.ScheduleEvent(EVENT_BLOOD_PLAGUE, 7000);
+			events.ScheduleEvent(EVENT_BLOOD_PRESENCE, 1000);
+			events.ScheduleEvent(EVENT_HYSRERIA, 21000);
+			events.ScheduleEvent(SPELL_SLOW, 6000);
+			events.ScheduleEvent(EVENT_FROST_FEVER, 6000);
+			events.ScheduleEvent(EVENT_DEFLECTION, 15000);
+			events.ScheduleEvent(EVENT_WHIRLWIND, 15000);
+		}
 
- void EnterCombat(Unit* /*who*/)
- {
- events.ScheduleEvent(EVENT_BLOOD_BOIL, 2000); // TODO: adjust timers
- events.ScheduleEvent(EVENT_BLOOD_PLAGUE, 7000);
- events.ScheduleEvent(EVENT_BLOOD_PRESENCE, 1000);
- events.ScheduleEvent(EVENT_HYSRERIA, 21000);
- events.ScheduleEvent(SPELL_SLOW, 6000);
- events.ScheduleEvent(EVENT_FROST_FEVER, 6000);
- events.ScheduleEvent(EVENT_DEFLECTION, 15000);
- events.ScheduleEvent(EVENT_WHIRLWIND, 15000);
- }
+		void UpdateAI(const uint32 diff)
+		{
+			if (!UpdateVictim())
+				return;
 
- void UpdateAI(const uint32 diff)
- {
- if (!UpdateVictim())
- return;
+			events.Update(diff);
 
- events.Update(diff);
+			if (me->HasUnitState(UNIT_STATE_CASTING))
+				return;
 
- if (me->HasUnitState(UNIT_STATE_CASTING))
- return;
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+					case EVENT_BLOOD_BOIL:
+							DoCastVictim(SPELL_BLOOD_BOIL);
+						events.ScheduleEvent(EVENT_BLOOD_BOIL, 8000);
+						return;
+					case EVENT_BLOOD_PLAGUE:
+							DoCastVictim(SPELL_BLOOD_PLAGUE);
+						events.ScheduleEvent(EVENT_BLOOD_PLAGUE, 8000);
+						return;
+					case EVENT_BLOOD_PRESENCE:
+							DoCast(SPELL_BLOOD_PRESENCE);
+						return;
+					case EVENT_FROST_FEVER:
+							DoCastVictim(SPELL_FROST_FEVER);
+						events.ScheduleEvent(EVENT_FROST_FEVER, 15000);
+						return;
+					case EVENT_WHIRLWIND:
+							DoCast(SPELL_WHIRLWIND);
+						return;
+					case EVENT_DEFLECTION:
+							DoCastVictim(SPELL_DEFLECTION);
+						return;
+					case EVENT_SLOW:
+							DoCastVictim(SPELL_SLOW);
+						events.ScheduleEvent(EVENT_SLOW, 9000);
+						return;
+					case EVENT_HYSRERIA:
+							DoCast(SPELL_HYSRERIA);
+						return;
+				}
+			}
 
- while (uint32 eventId = events.ExecuteEvent())
- {
- switch (eventId)
- {
- case EVENT_BLOOD_BOIL:
- DoCastVictim(SPELL_BLOOD_BOIL);
- events.ScheduleEvent(EVENT_BLOOD_BOIL, 8000);
- return;
- case EVENT_BLOOD_PLAGUE:
- DoCastVictim(SPELL_BLOOD_PLAGUE);
- events.ScheduleEvent(EVENT_BLOOD_PLAGUE, 8000);
- return;
- case EVENT_BLOOD_PRESENCE:
- DoCast(SPELL_BLOOD_PRESENCE);
- return;
- case EVENT_FROST_FEVER:
- DoCastVictim(SPELL_FROST_FEVER);
- events.ScheduleEvent(EVENT_FROST_FEVER, 15000);
- return;
- case EVENT_WHIRLWIND:
- DoCast(SPELL_WHIRLWIND);
- return;
- case EVENT_DEFLECTION:
- DoCastVictim(SPELL_DEFLECTION);
- return;
- case EVENT_SLOW:
- DoCastVictim(SPELL_SLOW);
- events.ScheduleEvent(EVENT_SLOW, 9000);
- return;
- case EVENT_HYSRERIA:
- DoCast(SPELL_HYSRERIA);
- return;
- }
- }
+			DoMeleeAttackIfReady();
+		}
 
- DoMeleeAttackIfReady();
- }
+		void JustDied(Unit* killer)
+		{
 
- void JustDied(Unit* killer)
- {
-
- if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself()){
- player->GroupEventHappens(QUEST_THE_CHAMPION_OF_ANGUISH, player);
- }
- }
+			if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself()){
+				player->GroupEventHappens(QUEST_THE_CHAMPION_OF_ANGUISH, player);
+			}
+	}
  };
 };
 /*####
