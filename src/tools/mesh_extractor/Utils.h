@@ -334,7 +334,7 @@ public:
 };
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 3
+#define MMAP_VERSION 5
 
 struct MmapTileHeader
 {
