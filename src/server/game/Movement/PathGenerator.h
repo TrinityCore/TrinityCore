@@ -61,6 +61,8 @@ class PathGenerator
         Movement::PointsArray const& GetPath() const { return _pathPoints; }
 
         PathType GetPathType() const { return _type; }
+        
+        static float MinWallDistance;
 
     private:
         Movement::PointsArray _pathPoints;  // our actual (x,y,z) path to the target
@@ -79,6 +81,13 @@ class PathGenerator
         void SetStartPosition(G3D::Vector3 const& point) { _startPosition = point; }
         void SetEndPosition(G3D::Vector3 const& point) { _actualEndPosition = point; _endPosition = point; }
         void SetActualEndPosition(G3D::Vector3 const& point) { _actualEndPosition = point; }
+
+        // Path smoothing
+        void SmoothPath(float* polyPickExt, int pathLength, float*& straightPath);
+        float DistanceToWall(float* polyPickExt, float* pos, float* hitPos, float* hitNormal);
+        // dtPointInPolygon will return false when the point is too close to the edge, so we rewrite the test function.
+        static bool PointInPoly(float* pos, float* verts, int nv, float err);
+        static float GetTriangleArea(float* verts, int nv);
 
         void CreateFilter();
         void UpdateFilter();
