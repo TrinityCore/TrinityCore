@@ -42,13 +42,13 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
     InstanceConfig.mergeRegionArea = 100;
     InstanceConfig.walkableSlopeAngle = 50.0f;
     InstanceConfig.detailSampleDist = 3.0f;
-    InstanceConfig.detailSampleMaxError = 1.5f;
+    InstanceConfig.detailSampleMaxError = 1.25f;
     InstanceConfig.walkableClimb = 1.0f / InstanceConfig.ch;
     InstanceConfig.walkableHeight = 2.1f / InstanceConfig.ch;
     InstanceConfig.walkableRadius = 0.6f / InstanceConfig.cs;
     InstanceConfig.maxEdgeLen = 8 * InstanceConfig.walkableRadius;
     InstanceConfig.maxVertsPerPoly = 6;
-    InstanceConfig.maxSimplificationError = 1.25f;
+    InstanceConfig.maxSimplificationError = 1.3f;
     InstanceConfig.borderSize = 0;
 
     Context = new rcContext;
