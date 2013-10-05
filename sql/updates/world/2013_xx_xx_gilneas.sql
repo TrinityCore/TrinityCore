@@ -30,23 +30,30 @@ INSERT INTO `creature_text`(`entry`, `groupid`, `id`, `text`, `type`, `language`
 (34850, 2, 0, 'We protected Gilneas from the Scourge. We protected Gilneas during the Northgate rebellion. We will protect Gilneas from whatever this new threat may be.', 14, 0, 100, 0, 0, 19616, 'PRINCE_LIAM_GREYMANE_1_TALK_3');
 
 UPDATE `creature` SET `phaseMask` = `phaseMask` | 2 WHERE `id` = 34863;
-UPDATE `gameobject` SET `phaseMask` = `phaseMask` | 2 WHERE `id` = 195581;
-UPDATE `gameobject` SET `phaseMask` = `phaseMask` | 2 WHERE `id` = 195327;
+UPDATE `gameobject` SET `phaseMask` = `phaseMask` | 2 | 4 WHERE `id` = 195581;
+UPDATE `gameobject` SET `phaseMask` = `phaseMask` | 2 | 4 WHERE `id` = 195327;
 
+-- From https://github.com/ProjectSkyfire/SkyFireEMU
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 34863;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 34863;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (34863, 0, 0, 1, 20, 0, 100, 0, 14078, 0, 0, 0, 75, 59073, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Quest Reward (Lockdown), cast 59073 on player (to change to phase 2)'),
 (34863, 0, 1, 0, 61, 0, 100, 0, 14078, 0, 0, 0, 103, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Quest Reward (Lockdown), Force Character Save to DB');
 
 -- creature spawns
 SET @creatureguid   := ; -- trinity selection
-DELETE FROM `creature` WHERE `guid` BETWEEN @creatureguid AND @creatureguid + 0;
+DELETE FROM `creature` WHERE `guid` BETWEEN @creatureguid AND @creatureguid + 1;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-(@creatureguid, 34936, 638, 1, 2, 0, 34936, -1465.22, 1403.52, 35.6392, 4.59022, 300, 0, 0, 42, 0, 0, 0, 0, 0);
+(@creatureguid, 34936, 638, 1, 2, 0, 34936, -1465.22, 1403.52, 35.6392, 4.59022, 300, 0, 0, 42, 0, 0, 0, 0, 0),
+(@creatureguid + 1, 34913, 638, 1, 2, 0, 663, -1447.71, 1409.8, 35.5561, 0.113226, 300, 0, 0, 42, 0, 0, 0, 134217728, 0);
+
+-- creature addons 
+INSERT INTO `CTworld`.`creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+('34913', '0', '2410', '1', '0', '0', NULL);
 
 -- game objects spawns
 SET @objectguid     := ; -- trinity selection
-DELETE FROM `gameobject` WHERE `guid` BETWEEN @guid AND @guid + 22;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @objectguid AND @objectguid + 22;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
 (@objectguid + 0, 195306, 638, 1, 2, -1461.21, 1412.6, 35.556, 4.774, 0, 0, 0, 0, 60, 0, 1),
 (@objectguid + 1, 195306, 638, 1, 2, -1485.84, 1442.07, 35.996, 1.55, 0, 0, 0, 0, 60, 0, 1),
