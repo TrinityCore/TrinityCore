@@ -121,7 +121,11 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    bool mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), gx, gy);
+    bool mmapLoadResult = false;
+    if (GetEntry()->Instanceable())
+        mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), 0, 0); // Ignore the tile entry for instances, as they only have 1 tile.
+    else
+        mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), gx, gy);
 
     if (mmapLoadResult)
         TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP loaded name: %s, id: %d, x: %d, y: %d", GetMapName(), GetId(), gx, gy);
