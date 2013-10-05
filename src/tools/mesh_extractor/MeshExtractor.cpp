@@ -19,6 +19,9 @@ CacheClass* Cache;
 
 void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
 {
+    std::string basePath = "mmaps/";
+    Utils::CreateDir(basePath);
+
     DBC* dbc = MPQHandler->GetDBC("Map");
     printf("Map.dbc contains %u rows.\n", dbc->Records.size());
     for (std::vector<Record*>::iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
