@@ -139,13 +139,13 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
 void PathGenerator::CreateFilter()
 {
-    uint16 includeFlags = 1 | 2;
+    uint16 includeFlags = POLY_FLAG_WALK | POLY_FLAG_SWIM;
     uint16 excludeFlags = 0;
     
     if (_sourceUnit->GetTypeId() == TYPEID_UNIT && !_sourceUnit->ToCreature()->CanSwim())
     {
-        includeFlags = 1;
-        excludeFlags = 2;
+        includeFlags = POLY_FLAG_WALK;
+        excludeFlags = POLY_FLAG_SWIM;
     }
 
     _filter.setIncludeFlags(includeFlags);

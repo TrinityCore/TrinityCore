@@ -37,6 +37,12 @@ enum PathType
     PATHFIND_SHORT          = 0x20,   // path is longer or equal to its limited path length
 };
 
+enum PolyFlag
+{
+    POLY_FLAG_WALK  = 1,
+    POLY_FLAG_SWIM  = 2
+};
+
 class PathGenerator
 {
     public:
