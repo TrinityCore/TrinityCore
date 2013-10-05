@@ -30,6 +30,7 @@
 #include "PointMovementGenerator.h"
 #include "PathGenerator.h"
 #include "MMapFactory.h"
+#include "DetourCommon.h"
 #include "Map.h"
 #include "TargetedMovementGenerator.h"
 #include "GridNotifiers.h"
@@ -60,6 +61,134 @@ public:
             { NULL,   0,                     false, NULL, "", NULL }
         };
         return commandTable;
+    }
+
+    static float Fix_GetXZArea(float* verts, int nv)
+    {
+        float area = 0;
+        for(int i=0; i<nv-1; i++)
+            area+=(verts[i*3]*verts[i*3+5]-verts[i*3+3]*verts[i*3+2]);
+        area += (verts[(nv-1)*3]*verts[2] - verts[0]*verts[(nv-1)*3+2]);
+        return area*0.5f;
+    }
+
+
+    //dtPointInPolygon will return false when the point is too close to the edge,so we rewite the test function.
+    static bool Fix_PointIsInPoly(float* pos,float* verts,int nv,float err)
+    {
+        //poly area
+        float area = abs(Fix_GetXZArea(verts,nv));
+
+        //calculate each area of triangles
+        float TestTri[9];
+        memcpy(TestTri,pos,sizeof(float)*3);
+        float area1 = 0;
+        for(int i=0;i<nv-1;++i)
+        {
+            memcpy(&TestTri[3],&verts[i*3],sizeof(float)*3);
+            memcpy(&TestTri[6],&verts[i*3+3],sizeof(float)*3);
+            area1+= abs(Fix_GetXZArea(TestTri,3));
+            if(area1-err>area)
+                return false;
+        }
+
+        //last one
+        memcpy(&TestTri[3],verts,sizeof(float)*3);
+        memcpy(&TestTri[6],&verts[nv*3-3],sizeof(float)*3);
+        area1+= abs(Fix_GetXZArea(TestTri,3));
+
+        return abs(area1-area)<err;
+    }
+
+
+    static float DistanceToWall(dtNavMeshQuery* navQuery, dtNavMesh* navMesh, float* polyPickExt, dtQueryFilter& filter, float* pos,float* hitPos,float* hitNormal)
+    {
+        float distanceToWall=0;
+        dtPolyRef ref;
+        if(dtStatusSucceed(navQuery->findNearestPoly(pos, polyPickExt, &filter, &ref, 0))==false || ref ==0)
+            return -1;
+
+        const dtMeshTile* tile = 0;
+        const dtPoly* poly = 0;
+        if (dtStatusFailed(navMesh->getTileAndPolyByRef(ref, &tile, &poly)))
+            return -1;
+
+        // Collect vertices.
+        float verts[DT_VERTS_PER_POLYGON*3];
+        int nv = 0;
+        for (int i = 0; i < (int)poly->vertCount; ++i)
+        {
+            dtVcopy(&verts[nv*3], &tile->verts[poly->verts[i]*3]);
+            nv++;
+        }		
+
+        bool inside = Fix_PointIsInPoly(pos, verts, nv,0.05f);
+        if(inside == false)
+            return -1;
+
+        if(dtStatusSucceed(navQuery->findDistanceToWall(ref, pos, 100.0f, &filter, &distanceToWall, hitPos, hitNormal))==false)
+            return -1;
+
+        return distanceToWall;
+    }
+
+    #define MIN_WALL_DISTANCE 1.5f    //set this value bigger to make the path point far way from wall
+
+    //Try to fix the path,
+    static void FixPath(dtNavMesh* navMesh, dtNavMeshQuery* navQuery, float* polyPickExt, dtQueryFilter& filter, int pathLength, float*& straightPath)
+    {
+        float hitPos[3];
+        float hitNormal[3];
+        float TestPos[3];
+        float distanceToWall=0;
+        float up[3]={0,1,0};
+        float origDis = 0;
+
+        for(int i=1;i<pathLength-1;++i)
+        {
+            dtPolyRef pt;
+            float* pCurPoi=&straightPath[i*3];
+            distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter, pCurPoi,hitPos,hitNormal);
+
+            if(distanceToWall<MIN_WALL_DISTANCE && distanceToWall>=0)
+            {
+                float vec[3];
+                dtVsub(vec,&straightPath[i*3-3],&straightPath[i*3]);
+                //distanceToWall is 0 means the point is in the edge.so we can't get the hitpos.
+                if(distanceToWall == 0)
+                {
+                    //test left side
+                    dtVcross(TestPos,vec,up);
+                    dtVadd(TestPos,TestPos,pCurPoi);
+                    float ft = MIN_WALL_DISTANCE/dtVdist(TestPos,pCurPoi);
+                    dtVlerp(TestPos,pCurPoi,TestPos,ft);
+                    distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter,TestPos,hitPos,hitNormal);
+                    if(abs(MIN_WALL_DISTANCE - distanceToWall)>0.1f)
+                    {
+                        //test right side
+                        dtVcross(TestPos,up,vec);
+                        dtVadd(TestPos,TestPos,pCurPoi);
+                        ft = MIN_WALL_DISTANCE/dtVdist(TestPos,pCurPoi);
+                        dtVlerp(TestPos,pCurPoi,TestPos,ft);
+                        distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter,TestPos,hitPos,hitNormal);
+                    }
+
+                    //if test point is better than the orig point,replace it.
+                    if(abs(distanceToWall-MIN_WALL_DISTANCE)<0.1f)
+                        dtVcopy(pCurPoi,TestPos);
+                }
+                else
+                {
+                    //ok,we get the hitpos,just make a ray
+                    float ft = MIN_WALL_DISTANCE/distanceToWall;
+                    dtVlerp(TestPos,hitPos,pCurPoi,ft);
+                    distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter, TestPos,hitPos,hitNormal);
+
+                    if(abs(distanceToWall-MIN_WALL_DISTANCE)<0.1f)
+                        dtVcopy(pCurPoi,TestPos);
+                }
+            }
+        }
     }
 
     static bool HandleMmapPathCommand(ChatHandler* handler, char const* args)
@@ -159,6 +288,7 @@ public:
         dtPolyRef* pathRefs = new dtPolyRef[2048];
 
         status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
+        FixPath(const_cast<dtNavMesh*>(navMesh), const_cast<dtNavMeshQuery*>(navMeshQuery), m_polyPickExt, m_filter, resultHopCount, straightPath);
         for (uint32 i = 0; i < resultHopCount; ++i)
             player->SummonCreature(VISUAL_WAYPOINT, -straightPath[i * 3 + 2], -straightPath[i * 3 + 0], straightPath[i * 3 + 1], 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
 
