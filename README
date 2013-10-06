@@ -124,21 +124,17 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.82 - 04/06/2013: Anti-rollback loot por Eilo basado en raidinfo de Eilo
 0.83 - 18/06/2013: Funciones base para el sistema anti-caidas debajo del suelo en arenas por Eilo
 0.84 - 20/06/2013: Sistema anti-caida debajo del suelo en RoV por Eilo
-0.85 - 04/07/2013: Implementacion del metodo ApplySpellPenetrationBonus por Retriman
-0.86 - 04/07/2013: Implementacion del metodo GetSpellPenetration por Retriman
-0.87 - 04/07/2013: Resistencias Binarias por Retriman
-0.88 - 05/07/2013: Mejoramos el llamado de deflect y resist parcial, añadimos una formula mas blizlike acorde a comentarios de oficiales respecto al calculo de esto, se realiza una limpieza y optimizacion por Retriman
 0.90 - 07/07/2013: Duel Reset: Fix problema CD con spell Elemental Mastery (chamy) por Gildor
-0.91 - 07/07/2013: GCD(Delay Magico): Se implementa de una manera mas macro este sistema usando las auras llamas del core por ende enredamos a la mayor parte de spells con el delay como debe ser excluyendo algunas spells que tengan que tner un delay mas bajo.
 0.92 - 09/07/2013: PerformanceLog por Eilo
 0.93 - 22/07/2013: Cmake: Añadimos al cmake la opcion de forzar el Zm para no tener que usar el cmake 2.8 y poder usar las ultimas versiones de visual + ultimo cmake por Retriman
 0.94 - 22/07/2013: Build: Fix compilacion en vs10 x64
-0.95 - 24/07/2013: Implementamos el metodo IsAreaAuraEffect por Retriman
-0.96 - 28/07/2013: Implementamos el metodo RemoveNegativeAuras por Retriman
 0.97 - 12/08/2013: Implementacion de prioridad y multiprocesamiento en linux del authserver por Nay adaptacion por Eilo
 0.98 - 12/08/2013: Implementacion de prioridad y multiprocesamiento en linux del worldserver por Nay adaptacion por Eilo
 0.99 - 27/08/2013: Implementación de sistema de anti flood de opcodes base por Lilecarl implementacion y mejoras por Eilo
 0.100 - 09/09/2013: Sistema de xprates implementado por Eilo
+0.101 - 28/09/2013: Implementamos el metodo GetTrueDamage por A.Metaphysical.Drama y modificado por Gildor
+0.102 - 29/09/2013: Sistema de Resistencias Binarias: NUEVO, valores de calculos por Retriman, el resto de la implementacion por Eilo
+0.103 - 30/09/2013: IsVanishRemover funcion añadida al nucleo por Eilo
 
 
 ###############
@@ -168,7 +164,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.54 - 14/05/2012: Spells de cambio de facción por Muzashi
 1.55 - 29/09/2012: Fix exploit eat/drink in mount by Jildor
 1.56 - 01/10/2012: Misiones semanales de Dalaran no se pueden compartir por Rincewind
-1.59 - 24/10/2012: Arreglado Dynamic LoS adecuado de algunos gameobjects por Eilo
 1.62 - 18/10/2012: Los integrantes del raid ahora veran el loot en MasterLooter por tibbi
 1.63 - 04/11/2012: Vehicles: Exclude player from vehicle gear scaling effect por Xanvial
 1.64 - 05/11/2012: Mechanics: Arreglando varios issues con el evade por Ille
@@ -185,7 +180,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.78 - 01/02/2013: Vehiculos, evitando crash por Eilo
 1.79 - 19/12/2012: Deshabilitando SoTA por Gildor
 1.81 - 02/01/2013: Evitando crashes del IntersectRay por Eilo
-1.83 - 30/12/2012: Fix LoS problems con varías spells, entre ellas los totems, por ejemplo earthbind totem o magma totem por Retriman
 1.84 - 10/01/2013: Fix de arena frames por 3kids
 1.85 - 10/01/2013: Fix Root auras, ahora eliminarán los efectos de sigilo por elecyb
 1.86 - 02/02/2013: Eye of Storm: Fix exploit saliendo de la burbuja, ahora colocará a los jugadores que hayan bajado de la zona inicial si no ha empezado la BG por Tobmaps actualizado por Gildor
@@ -241,9 +235,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.150 - 02/07/2013: IoC: Agregando scripts y asignacion de scriptname a los bosses de la Alianza y la Horda por Jar
 1.151 - 03/07/2013: Varios ajustes en  SpellInfo::CheckTarge y Spell::CheckCast, Ahora los power-ups o auras de ayuda de Warsong Gulch y Arathi Basin, se pueden usar cuando el personaje se encuentra en sigilo o invisible por jar
 1.152 - 04/07/2013: IoC: Fix del movimiento del cannon por Apa
-1.153 - 07/07/2013: MotionMaster:MoveKnockbackFrom, Ahora Las creaturas jamas podran entrar a las texturas por Retriman
-1.154 - 07/07/2013: Update al Sistema de visibilidad ahora sera mas blizlike (necesario para fix de Fade Out) por Retriman
-1.155 - 07/07/2013: Implementamos Sistema de Fade Out (atributo custom) para spells de invisibilidad mas blizlike a la vida pvp por Retriman
 1.156 - 06/07/2013: SotA: Fix regenhealth del demolisher por Apa
 1.157 - 05/07/2013: Wintergrasp: Fix Regenhealth de Tower Cannon por komix
 1.158 - 05/07/2013: Wintergrasp: Fix del movimiento de Tower Cannon por komix
@@ -251,8 +242,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.160 - 09/07/2013: IoC: Agregadas las inmunidades de los boss por jar
 1.161 - 09/07/2013: Profesiones: corregidas las misiones de especializaciones para que no se vuelvan a aprender al reloguear por Muzashi
 1.162 - 13/03/2013: Vehiculos, funcionamiento de VEHICLE_SEAT_FLAG_CAN_CONTROL a cualquier asiento por Machiavell1
-1.163 - 12/07/2013: FleeingMovementGenerator: Ahora el fear no debera tirar al vacio por Retriman
-1.166 - 12/07/2013: Core/Pet: Ahora las pet que tengan informacion en la DB de resistencias no la tomaran en cuenta, arregla el exeso de resistencia magica de la pet Devilsaur por Retriman
 1.171 - 13/07/2013: Wintergrasp: Ahora los cementerios de la base horda y alianza daran resurreccion de forma correcta.Ademas todos los cementerios estarán funcionales solo cuando se este llevando a cabo una batalla por Jar
 1.172 - 13/07/2013: Wintergrasp: Fix cementerio del Workshop  Broken temple, ahora los espíritus horda y alianza cambiaran  de fase dependiendo de quien controle  el Workshop, para que los personajes puedan ser resucitados por Jar
 1.173 - 22/07/2013: Wintergrasp: Ahora tenacity se actualizara cuando los jugadores summonen vehículos por Jar
@@ -273,7 +262,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.190 - 12/08/2013: Wintergrasp: Limpiando NPCs y Gobject de la base de datos ya que estos son spawneados mediante el script del campo de batalla y provoca que hayan duplicados por Jar
 1.191 - 12/08/2013: Wintergrasp: Ahora el temporizador  de conquista de invierno será visible por los jugadores cuando ingresen a cualquier zona de rasgan norte por Jar
 1.192 - 12/08/2013: Armas s3 (vengeful) añadidas a Meminie en filospada por Angelinna
-1.193 - 13/08/2013: Debe fijarse el cast Mientras  se usa polymorph/Fear (por algún problema) al blanco se bloquea & solucionamos el problema con Automovimiento tras huir &  solucionamos el problema con Movimiento confuso por Retriman
 1.194 - 12/08/2013: Armas s2 (merciless) añadidas a Olus en queldanas por Angelinna
 1.195 - 15/08/2013: IoC: Ahora no desapareceran los spirits guides de la facción contraria al tomar todas las bases por Apa y Jar
 1.196 - 18/08/2013: Wintergrasp: Añadido el script del teleport dalaran a wintergrasp con ayuda de Jar por Ramas
@@ -289,6 +277,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.206 - 23/09/2013: UpdateAllowedPositionZ desactivada por Eilo
 1.207 - 23/09/2013: Permitiendo actualizar las posiciones de los npcs sobre transports como gunship por Eilo
 1.208 - 23/09/2013: Mejorando el sistema de movimientos para evectos de charge y leap con GetFirstCollisionPosition por Eilo
+1.209 - 24/09/2013: Vehiculos: Ahora los personajes pueden canalizar spells como Drain Soul o Arcane Missiles cuando esten sobre vehiculos donde el seat se lo permita por jar
+1.210 - 02/10/2013: Mejorado el funcionamiento de SPELL_AURA_FORCE_REACTION por Jar
 
 
 ########################
@@ -332,6 +322,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.40 - 13/01/2012: LichKing inmune a taunt en cambio de fase por Odyssey
 2.2.43 - 09/11/2011: Trashmob Valkyr lower spire añadida AI por Macavity
 2.2.44 - 06/02/2012: LadyDeathwhisper añadiendo dificultades de la spell Death&Decay por AliveShiro
+2.2.47 - 04/05/2012: Marrowgar añadido resistencia al coldflame por Xanvial
 2.2.48 - 04/05/2012: Putricidio añadiendo inmunidades a la ooze y gas cloud por Xanvial
 2.2.49 - 04/05/2012: Rotface añadiendo el visual correcto a slime spray por Xanvial
 2.2.51 - 04/05/2012: Lanathel arreglando el requisito para blood quickening por Xanvial
@@ -343,7 +334,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.64 - 20/03/2012: Lanathel removiendo el gunshing wounds para los que lleven la shadowmourne por Eilo
 2.2.69 - 28/05/2012: Sindragosa cambiando los timers para el frost bomb por Eilo
 2.2.70 - 26/03/2012: Sindragosa inmunidad a Mystic Buffet por Elron
-2.2.71 - 17/06/2012: Sindragosa frost bomb LoS por Frozensoul
 2.2.75 - 13/06/2012: Svalna some correction to the script by FrozenSoul
 2.2.76 - 17/06/2012: Saurfang outro event by FrozenSoul
 2.2.79 - 23/06/2012: LadyDeathwhisper frostbolts should be interruptable by Angarius
@@ -444,6 +434,14 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.189 - 24/09/2013: TheLichKing despawn de las shadow traps en las interfases por Eilo
 2.2.190 - 24/09/2013: TheLichKing haciendo que traiga a los pjs de la Frostmourne para la fase final por Eilo
 2.2.191 - 24/09/2013: TheLichKing la spell Harvest Soul channeled no debe ser resistida por Eilo
+2.2.192 - 24/09/2013: Rotface añadido tiempo de activación al Big Ooze cuando se crea por Saitama
+2.2.193 - 25/09/2013: TheLichKing mejorado el ai de los Raging Spirits para cuando coinciden con el Harvest Soul por Eilo
+2.2.194 - 30/09/2013: TheLichKing mejorado el ai de los Vile Spirits para cuando coinciden con el Harvest Soul por Eilo
+2.2.195 - 01/10/2013: TheLichKing protegiendo el casting de Remorsless Winter pare prevenir exploits por Eilo
+2.2.196 - 01/10/2013: TheLichKing protegiendo el casting de Harvest Soul N/H para prevenir exploits por Eilo
+2.2.197 - 03/10/2013: Deathbringer Saurfang corregido el radio de efecto, el timer y los targets de Boiling Blood por Saitama
+2.2.198 - 03/10/2013: Deathbringer Saurfang ahora cada tick de Boiling Blood dará Blood Power al boss por Saitama
+2.2.199 - 03/10/2013: Deathbringer Saurfang ahora al morir un jugador con Mark of the Fallen Champion el boss se curará por Muzashi
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -474,6 +472,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.18 - 15/07/2013: Ulduar: La puerta antes del General Vezax ya no se quedara cerrada al morir los 4 titanes por Dolanpls
 2.6.19 - 28/07/2013: Ulduar: Traduccion de los textos del teleport por Apa 
 2.6.21 - 14/09/2013: Ulduar: Actualizado el loot para los boss  Freya , General Vezax y Thorim en su modalidad normal y Hard mode. También corregido los cofres de Freya y Thorim, ahora cuando acabe el evento, solo saldrá un cofre y será looteable solo una vez por Jar
+2.6.22 - 26/09/2012: Ulduar: Ahora el evento contra Yogg-Saron se reiniciara correctamente y algunos ajustes en Sara y Death Orb para una animación correcta por Jar
+2.6.23 - 29/09/2013: Ulduar: Ahora Thorim solo usará Charge Orb en uno de los orbes, además de que éste se marcará de una manera correcta por Saitama
+2.6.24 - 29/09/2013: Ulduar: Corregida la dirección en la que Thorim utiliza Lightning Charge por Saitama
+2.6.25 - 29/09/2013: Ulduar: Ahora la spell Stormhamer de Thorim Ignorara LoS para que funcione correctamente por Jar
+2.6.26 - 30/09/2013: Ulduar: Mejoras varias en los eventos y el encuentro de Thorim para que tengan un aspecto blizzlike por Saitama
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -505,6 +508,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.9.25 - 03/03/2013: RubySanctum: Añadido damage a los adds en 25h, solo spawneará un Inferno, añadido el check de distancia entre Living Inferno y Living Embers por Evef
 2.9.26 - 11/03/2013: RubySanctum: Baltharus invocara las copias aunque este casteando por Dolanpls.
 2.9.27 - 23/03/2013: RubySanctum: Halion twilight cutter dará el aviso 3 segundos antes de lanzarlo por Eilo
+2.9.28 - 01/10/2013: RubySanctum: Halion lanzará correctamente Dusk Shroud en la fase 3 por Evef.
+2.9.29 - 04/10/2013: RubySanctum: Ahora las áreas dejadas por Fiery Combustion y Soul Consumption incrementarán su tamaño correctamente por Saitama
 - Ahn'Kahet -
 2.10.1 - 03/08/2011: Ahn'Kahet: Taldaram combate en invisible por Greymane
 2.10.2 - 16/12/2011: Ahn'Kahet: Taldaram daño esferas ajustado por Eilo
@@ -543,6 +548,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.18.3 - 23/10/2012: ForgeOfSouls: Correcciones a las Unleashed Souls por tibbi
 2.18.4 - 22/09/2013: ForgeOfSouls: Modificada la velocidad de los Corrupted Soul Fragment de Bronjahm por Evef
 2.18.5 - 22/09/2013: ForgeOfSouls: Bronjahm absroberá correctamente el Corrupted Soul Fragment por Evef.
+2.18.6 - 03/10/2013: ForgeOfSouls: Corrupted Soul Fragment dejará de curar de manera infinita a Bronjahm por Evef.
 - TheNexus -
 2.19.1 - 05/12/2011: TheNexus: Correccion de trash mob y varias flags por Treak
 2.19.2 - 21/07/2012: TheNexus: Fixed quest "Buying Time" and the white dragons falling to the ground by Muzashi
@@ -602,6 +608,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.42 - 23/05/2012: Shaman: Línea de Visión de los totems por Dany
 3.43 - 03/06/2012: Pets: Allowing revive pets on BG por Frozensoul
 3.44 - 31/05/2012: Warrior: Heroic Strike should deal bonus dmg to dazed targets por tibbi
+3.46 - 28/05/2012: Spell delays por Dany
 3.47 - 09/06/2012: Mixology (53042) por mweinelt
 3.48 - 09/06/2012: DK: Dancing Rune Weapon (49028) should also copy disease application and damage copy although copied damage account target armor, so make it less than 50% of owner por oMadMano
 3.51 - 13/06/2012: DK: Raise ally (61999) por FrozenSoul
@@ -637,6 +644,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.96 - 08/11/2012: DK: Wandering Plague no incrementará su daño por las auras del player por tobmaps
 3.97 - 09/11/2012: Shaman: Fix talent Storm, Earth and Fire (Earthbind Totem root effect) ya no tendrá Diminishing Returns consigo mismo por Vincent-Michael
 3.98 - 11/11/2012: Temp Fix Renewed hope stack with vigilance, ya no eliminará vigilancia al obtener esperanza renovada por rdoo
+3.99 - 12/11/2012: Rogue: Fix del stealth en combo vanish+ccDelayed por Eilo
+3.101 - 12/11/2012: Mago: Añadido delay a traslación por Gildor
 3.102 - 15/11/2012: Mago: Fix temporal para que invisibilidad no genere agro a los NPCs de alrededor por Gildor
 3.103 - 17/11/2012: Rogue: Fix temporal para que Sigilo no elimine Danza de las Sombras por Gildor (con ayuda de muza :) )
 3.104 - 19/11/2012: Chaman: Fix spell power coeficient del escudo de tierra por Gildor
@@ -644,6 +653,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.107 - 22/11/2012: Druida: Fix spell Omen of Clarity, ahora solo se accionará la spell al causar daño o sanación por Gildor
 3.108 - 22/11/2012: Rogue: Fix spell Honor Among Thieves, ahora no pondrá en combate y dará los puntos de combo correctamente por Tobmaps y editado por Gildor
 3.110 - 24/11/2012: Mago: Fix spell Invocar elemental de agua, ahora se podrá invocar correctamente al usar Cold Snap por Axium
+3.111 - 27/11/2012: Hunter: Fix spell Flare, ahora su efecto actuará antes de tocar el suelo por Gildor
 3.112 - 28/11/2012: Rogue: Fix spell Slice and Dice, ahora no pondrá en combate por Gildor
 3.113 - 30/11/2012: Chaman: Fix spell Stormstrike, ahora no se reemplazará si hay mas de uno por Gildor
 3.114 - 30/11/2012: DK: Fix Death runes, ahora se reemplazarán correctamente por Gildor
@@ -673,6 +683,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.140 - 31/01/2013: DK: Fix spell Death Grip, ahora funcionará si el objetivo (o DK si le reflejan) está fuera de LOS en el momento de atraerlo por Gildor
 3.141 - 02/02/2013: Hunter: Fix spell Animal Handler, ahora aumentará el AP de la Pet por tibbi
 3.142 - 08/02/2013: DK: Fix spell Bloodworms, ahora invocará de 2 a 4 gusanos por Gildor
+3.143 - 08/02/2013: Warrior: Añadido delay a Charge and Intercept por Gildor
 3.144 - 13/02/2013: DK: Fix spell Anti-magic Shell, ahora no será inmune a cargar e interceptar del Guerrero, Druida y Hunter (Pet) por Gildor
 3.145 - 18/02/2013: Undead: Fix Cannibalize in battleground por Dany
 3.146 - 19/02/2013: DK: Fix spell Explode (ghoul), ahora casteará la spell aunque tenga GCD el ghoul por Gildor
@@ -696,16 +707,13 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.167 - 07/06/2013: Fix spells Pvp Trinket, Every Man For Himself(Racial - Humano), ahora aplicarán su inmunidad correspondiente en la duración (0.1 secs) por Gildor
 3.168 - 07/06/2013: Mago: Fix spell Hot Streak, ahora se eliminará al lanzar piroexplosión y no al impactar al objetivo con ella por Gildor
 3.169 - 12/06/2013: DK: Fix spell Dark Command, ahora al usar la spell podrá activar los encantamientos de runas de las armas del DK por Gildor
-3.171 - 12/07/2013: Hunter: Flare ahora tiene las yardas correctas de efecto y la velocidad por Retriman
 3.172 - 12/07/2013: Dk/Pet: Cuando la pet de dk aparece en el mapa, tiene que esperar hasta que la animacion termine para moverse por Retriman
-3.173 - 12/07/2013: Sacer: Spell Levitate ahora no podra ser usada cuando el player target esta en montura por Retriman
 3.174 - 12/07/2013: Mago: Mirror Image atacara al target que tiene seleccionado el owner primero por Retriman y Phantons
 3.175 - 23/07/2013: DK: Fix spell Raise Dead, ahora requerirá el componente necesario, el glifo o un cadaver cercano (y pasado a spell_script) por Tibbi y modificado por Gildor
 3.176 - 08/07/2013: Warrior: Fix spell Deep Wounds, ahora hará el daño correcto con la habilidad trauma por Gildor
 3.179 - 27/07/2013: Paladin: Fix spell Beacon of Light, ahora funcionará tambien con las pets por darvid
 3.180 - 28/07/2013: Brujo: Fix spell Spell Lock (Felhunter), ahora funcionará la parte de silenciar los 6 segundos por A-Metaphysical-Drama
 3.181 - 02/08/2013: DK: Ahora la gárgola se beneficiará de la celeridad del DK por Tibbi
-3.182 - 09/08/2013: Rogue: Update a la spell Cheat Death de rogue ahora su calculo sera el correcto baso en addon dr.damage por Retriman
 3.183 - 09/08/2013: Priest: Fix spell Penance, ahora no funcionará si el objetivo muere por Gildor
 3.184 - 11/08/2013: DK: Fix spell Avoidance (Pets), ahora Army of the dead ghoul tendrá avoidance de forma pasiva, Ebon Gargoyle y Risen Ghoul (temporal y permanente) lo obtendran al tener el talento NotD por Gildor
 3.185 - 11/08/2013: Chaman: Fix spell Avoidance (Pets), ahora el Elemental de Fuego y Spirit Wolf obtendran Avoidance de forma pasiva por Gildor
@@ -715,6 +723,17 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.189 - 19/08/2013: Sacer: Fix del levitar despues de usar un teleport o entrar a instance por Eilo
 3.190 - 12/09/2013: Stacks: Fix Leader of the Pack (Druida) and Rampage (Warrior), ahora no se acumularán por Gildor
 3.191 - 12/09/2013: Stacks: Fix Sanctified Retribution (Paladin) vs Ferocious Inspiration (Hunter) vs Arcane Empowerment (Mage), ahora no se acumularán por Gildor
+3.194 - 26/09/2013: Hunter: Fix spell Steady Shot, corregido su tiempo de casteo por Gildor
+3.195 - 28/09/2013: Stacks: Fix Enrage (Warrior), ahora no sobrescribirá a Death Wish (Warrior) por Gildor
+3.196 - 28/09/2013: Brujo: Fix Spell Haunt, ahora curará tambien todo el daño crítico causado por Gildor
+3.197 - 29/09/2013: Priest: Fix spell Shadow Word: Death, ahora no será resistido por Gildor
+3.198 - 30/09/2013: Rogue: Fix sigilo, ahora se elimina el aura de sigilo cuando el picaro es afectado por un Crowd Control por Soneh
+3.199 - 01/10/2013: Fix LoS problems con las spells: Earthbind Totem, Magma Totem (Chaman), Filotormenta y Torbellino (Warrior), Typhoon (Druida) por Gildor
+3.200 - 01/10/2013: Rogue: Fix spell Fan of Knives, ahora no ignorará LoS por Gildor
+3.201 - 01/10/2013: Hunter: Fix spell Flare, modificado para que sean las yardas mas blizzlike por Gildor
+3.202 - 03/10/2013: Chaman: Fix spell Fire Nova, ahora no ignorará LoS por Gildor
+3.203 - 03/10/2013: Paladin: Fix spell Divine Storm (Heal), ahora no ignorará LoS por Gildor
+3.204 - 04/10/2013: Fix varias spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
 
 
 #################
@@ -1152,6 +1171,16 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.10.36 - 07/09/2013: Bosque de Terokkar: Descubriendo tus raíces y Redescubriendo tus raíces por Rincewind
 4.10.37 - 07/09/2013: Nagrand: Más abalorios de guerra por Rincewind
 4.10.38 - 15/05/2013: Montañas Filospada: Reinar en los cielos por Rincewind
+4.10.39 - 24/09/2013: Bosque de Terokkar: Excavando huesos por Kirkhammett
+4.10.40 - 24/09/2013: Tormenta Abisal: ¡Atracadores viles, no gracias! por Muzashi
+4.10.41 - 24/09/2013: Tormenta Abisal: Problemas a la vista por Muzashi
+4.10.42 - 25/09/2013: Tormenta Abisal: El capitán Tyralius por Muzashi
+4.10.43 - 25/09/2013: Península del Fuego Infernal: El cristal de adivinación demoníaco por Muzashi
+4.10.44 - 25/09/2013: Tormenta Abisal: Huida del punto de escala por Khaneina y Muzashi
+4.10.45 - 28/09/2013: Montañas Filospada: Vuelo de Prueba por Kirkhammett
+4.10.46 - 01/10/2013: Tormenta Abisal: Criaturas de los Ecodomos por Muzashi y Rinsewind
+4.10.47 - 01/10/2013: Tormenta Abisal: Entregar el mensaje por Muzashi
+4.10.48 - 02/10/2013: Península del Fuego Infernal: Un espíritu guía por Muzashi y Jar
 - Kalimdor y Reinos del Este -
 4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
 4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
@@ -1171,6 +1200,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.11.15 - 13/09/2013: Profundidades de Roca Negra: El reto por Rincewind
 4.11.16 - 17/09/2013: Forjaz/Orgrimmar: La despedida de Anthion por Rincewind
 4.11.17 - 23/09/2013: Profundidades Rocanegra: Ribbly Llavenrosca por Rincewind
+4.11.18 - 29/09/2013: La Garganta de Fuego: La antorcha de reprensión por Discovered
 
 
 ################
@@ -1243,6 +1273,10 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.59 - 21/08/2013: Magisters' Terrace: Agregado un check al gameobject scrying orb para evitar el spam de kalecgos lo que provocaba caídas en el servidor, codigo inicial de Mangos, modificado por Apa y Jar
 6.60 - 10/09/2013: Blackrock Depths: Agregado check en Ring of the law para quest "The Challenge" por Evef
 6.61 - 24/09/2013: Cumbre Rocanegra Superior: Evento de Piroguardia Brasadivino pasado a SAI por Rincewind
+6.62 - 25/09/2013: Imagen del Comandante Ameer: Spawn y flags modificadas para que sea inatacable por Rincewind
+6.63 - 25/09/2013: Ar'tok, Hijo de Oronok: SAI y conditions para despawnear y summon a Espiritu de Ar'tok por Rincewind
+6.64 - 25/09/2013: Battle for Mount Hyjal: Fix Protection of Elune(38258), ahora hará inmune a Finger of Death(31984) y Hand of Death(35354) por Soneh.
+6.65 - 30/09/2013: Fiesta de la Cerveza: Chug and Chuck hack para targets por DarkBrain2580
 
 
 ##########
