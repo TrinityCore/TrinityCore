@@ -2,6 +2,7 @@
 #define MPQ_MANAGER_H
 
 #include "MPQ.h"
+#include "Stream.h"
 #include <ace/Synch.h>
 #include <set>
 #include <map>
@@ -14,9 +15,9 @@ public:
     ~MPQManager() {}
 
     void Initialize();
-    FILE* GetFile(const std::string& path);
-    FILE* GetFileFrom(const std::string& path, MPQArchive* file);
-    FILE* GetFileFromLocale(const std::string& path, uint32 locale);
+    Stream* GetFile(const std::string& path);
+    Stream* GetFileFrom(const std::string& path, MPQArchive* file);
+    Stream* GetFileFromLocale(const std::string& path, uint32 locale);
 
     DBC* GetDBC(const std::string& name);
     std::vector<std::string> GetAllFiles(std::string extension);

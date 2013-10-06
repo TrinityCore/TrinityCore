@@ -228,7 +228,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
 
             ADT* _adt = new ADT(Utils::GetAdtPath(World, tx, ty), tx, ty);
             // If this condition is met, it means that this WDT does not contain the ADT
-            if (!_adt->Data->Stream)
+            if (!_adt->Data->_Stream)
             {
                 delete _adt;
                 continue;

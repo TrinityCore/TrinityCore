@@ -12,7 +12,7 @@ public:
     MapChunk(ADT* _adt, Chunk* chunk);
 
     void GenerateTriangles();
-    void GenerateVertices(FILE* stream);
+    void GenerateVertices(Stream* stream);
     static bool HasHole(uint32 map, int x, int y);
     ADT* Adt;
     Chunk* Source;

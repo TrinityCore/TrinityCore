@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "Chunk.h"
 #include "Model.h"
+#include "Stream.h"
 #include <set>
 #include <vector>
 
@@ -22,18 +23,14 @@ public:
         return Vector3(vec.z, vec.x, vec.y);
     }
 
-    void Read(FILE* stream)
+    void Read(Stream* stream)
     {
-        int count = 0;
-
-        count += fread(&MmidIndex, sizeof(uint32), 1, stream);
-        count += fread(&UniqueId, sizeof(uint32), 1, stream);
-        Position = (Vector3::Read(stream));
+        MmidIndex = stream->Read<uint32>();
+        UniqueId = stream->Read<uint32>();
+        Position = Vector3::Read(stream);
         Rotation = Vector3::Read(stream);
-        count += fread(&DecimalScale, sizeof(uint16), 1, stream);
-        count += fread(&Flags, sizeof(uint16), 1, stream);
-        if (count != 4)
-            printf("DoodadDefinition::Read: Failed to read some data expected 4, read %d\n", count);
+        DecimalScale = stream->Read<uint16>();
+        Flags = stream->Read<uint16>();
     }
 };
 

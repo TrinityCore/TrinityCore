@@ -2,19 +2,21 @@
 #define CHUNK_H
 #include "Define.h"
 #include <string>
+#include "Stream.h"
+
 class ChunkedData;
 
 class Chunk
 {
 public:
-    Chunk(const char* name, uint32 length, uint32 offset, FILE* stream) : Name(name), Length(length), Offset(offset), Stream(stream) {}
+    Chunk(const char* name, uint32 length, uint32 offset, Stream* stream) : Name(name), Length(length), Offset(offset), _Stream(stream) {}
 
     int32 FindSubChunkOffset(std::string name);
-    FILE* GetStream();
+    Stream* GetStream();
     std::string Name;
     uint32 Length;
     uint32 Offset;
-    FILE* Stream;
+    Stream* _Stream;
 };
 
 #endif
