@@ -8,7 +8,7 @@ ADT::ADT( std::string file, int x, int y ) : ObjectData(NULL), Data(NULL), HasOb
 {
     Data = new ChunkedData(file);
     ObjectData = new ChunkedData(file);
-    if (ObjectData->Stream)
+    if (ObjectData->_Stream)
         HasObjectData = true;
     else
         ObjectData = NULL;

@@ -20,7 +20,7 @@ void WDT::ReadGlobalModel()
 
     IsGlobalModel = true;
     ModelDefinition = WorldModelDefinition::Read(defChunk->GetStream());
-    ModelFile = Utils::ReadString(fileChunk->GetStream());
+    ModelFile = fileChunk->GetStream()->ReadString();
     Model = new WorldModelRoot(ModelFile);
 }
 
@@ -30,20 +30,14 @@ void WDT::ReadTileTable()
     if (!chunk)
         return;
     IsValid = true;
-    FILE* stream = chunk->GetStream();
+    Stream* stream = chunk->GetStream();
     for (int y = 0; y < 64; ++y)
     {
         for (int x = 0; x < 64; ++x)
         {
             const uint32 hasTileFlag = 0x1;
-            uint32 flags;
-            uint32 discard;
-            int count = 0;
-            count += fread(&flags, sizeof(uint32), 1, stream);
-            count += fread(&discard, sizeof(uint32), 1, stream);
-
-            if (count != 2)
-                printf("WDT::ReadTileTable: Failed to read some data expected 2, read %d\n", count);
+            uint32 flags = stream->Read<uint32>();
+            uint32 discard = stream->Read<uint32>();
 
             if (flags & hasTileFlag)
                 TileTable.push_back(TilePos(x, y));

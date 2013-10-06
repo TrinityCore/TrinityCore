@@ -15,7 +15,7 @@ void LiquidHandler::HandleNewLiquid()
     Vertices.reserve(1000);
     Triangles.reserve(1000);
 
-    FILE* stream = chunk->GetStream();
+    Stream* stream = chunk->GetStream();
     H2OHeader header[256];
     MCNKData.reserve(256);
     for (int i = 0; i < 256; i++)
@@ -30,7 +30,7 @@ void LiquidHandler::HandleNewLiquid()
             MCNKData.push_back(MCNKLiquidData(NULL, H2ORenderMask()));
             continue;
         }
-        fseek(stream, chunk->Offset + h.OffsetInformation, SEEK_SET);
+        stream->Seek(chunk->Offset + h.OffsetInformation, SEEK_SET);
         H2OInformation information = H2OInformation::Read(stream);
 
         float** heights = new float*[9];
@@ -43,24 +43,22 @@ void LiquidHandler::HandleNewLiquid()
         H2ORenderMask renderMask;
         if (information.LiquidType != 2)
         {
-            fseek(stream, chunk->Offset + h.OffsetRender, SEEK_SET);
+            stream->Seek(chunk->Offset + h.OffsetRender, SEEK_SET);
             renderMask = H2ORenderMask::Read(stream);
             if ((Utils::IsAllZero(renderMask.Mask, 8) || (information.Width == 8 && information.Height == 8)) && information.OffsetMask2)
             {
-                fseek(stream, chunk->Offset + information.OffsetMask2, SEEK_SET);
+                stream->Seek(chunk->Offset + information.OffsetMask2, SEEK_SET);
                 uint32 size = ceil(information.Width * information.Height / 8.0f);
-                uint8* altMask = new uint8[size];
-                if (fread(altMask, sizeof(uint8), size, stream) == size)
-                    for (uint32 mi = 0; mi < size; mi++)
-                        renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
+                uint8* altMask = (uint8*)stream->Read(size);
+                for (uint32 mi = 0; mi < size; mi++)
+                    renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
                 delete[] altMask;
             }
-            fseek(stream, chunk->Offset + information.OffsetHeightmap, SEEK_SET);
+            stream->Seek(chunk->Offset + information.OffsetHeightmap, SEEK_SET);
 
             for (int y = information.OffsetY; y < (information.OffsetY + information.Height); y++)
                 for (int x = information.OffsetX; x < (information.OffsetX + information.Width); x++)
-                    if (fread(&heights[x][y], sizeof(float), 1, stream) != 1)
-                        return;
+                    heights[x][y] = stream->Read<float>();
         }
         else
         {

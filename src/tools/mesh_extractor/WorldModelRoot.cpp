@@ -37,7 +37,7 @@ void WorldModelRoot::ReadDoodadSets()
     if (!chunk)
         return;
 
-    FILE* stream = chunk->GetStream();
+    Stream* stream = chunk->GetStream();
     ASSERT(chunk->Length / 32 == Header.CountSets && "chunk.Length / 32 == Header.CountSets");
     DoodadSets.reserve(Header.CountSets);
     for (uint32 i = 0; i < Header.CountSets; i++)
@@ -56,14 +56,14 @@ void WorldModelRoot::ReadDoodadInstances()
     DoodadInstances.reserve(countInstances);
     for (uint32 i = 0; i < countInstances; i++)
     {
-        FILE* stream = chunk->GetStream();
-        fseek(stream, instanceSize * i, SEEK_CUR);
+        Stream* stream = chunk->GetStream();
+        stream->Seek(instanceSize * i, SEEK_CUR);
         DoodadInstance instance = DoodadInstance::Read(stream);
-        FILE* nameStream = nameChunk->GetStream();
+        Stream* nameStream = nameChunk->GetStream();
         if (instance.FileOffset >= nameChunk->Length)
             continue;
-        fseek(nameStream, instance.FileOffset, SEEK_CUR);
-        instance.File = Utils::ReadString(nameStream);
+        nameStream->Seek(instance.FileOffset, SEEK_CUR);
+        instance.File = nameStream->ReadString();
         DoodadInstances.push_back(instance);
     }
 }
@@ -74,6 +74,6 @@ void WorldModelRoot::ReadHeader()
     if (!chunk)
         return;
 
-    FILE* stream = chunk->GetStream();
+    Stream* stream = chunk->GetStream();
     Header = WorldModelHeader::Read(stream);
 }

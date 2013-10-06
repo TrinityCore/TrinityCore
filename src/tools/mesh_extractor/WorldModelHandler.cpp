@@ -4,27 +4,24 @@
 #include "Cache.h"
 #include "Model.h"
 #include "Define.h"
+#include "Stream.h"
 #include "G3D/Matrix4.h"
 #include "G3D/Quat.h"
 #include <cstdio>
 
-WorldModelDefinition WorldModelDefinition::Read( FILE* file )
+WorldModelDefinition WorldModelDefinition::Read(Stream* file)
 {
     WorldModelDefinition ret;
-    int count = 0;
-    count += fread(&ret.MwidIndex, sizeof(uint32), 1, file);
-    count += fread(&ret.UniqueId, sizeof(uint32), 1, file);
+    ret.MwidIndex = file->Read<uint32>();
+    ret.UniqueId = file->Read<uint32>();
     ret.Position = Vector3::Read(file);
     ret.Rotation = Vector3::Read(file);
     ret.UpperExtents = Vector3::Read(file);
     ret.LowerExtents = Vector3::Read(file);
-    count += fread(&ret.Flags, sizeof(uint16), 1, file);
-    count += fread(&ret.DoodadSet, sizeof(uint16), 1, file);
-    uint32 discard;
-    count += fread(&discard, sizeof(uint32), 1, file);
-
-    if (count != 5)
-         printf("WorldModelDefinition::Read: Error reading data, expected 5, read %d\n", count);
+    ret.Flags = file->Read<uint16>();
+    ret.DoodadSet = file->Read<uint16>();
+    file->Read<uint32>(); // Discarded
+    
     return ret;
 }
 
@@ -41,14 +38,12 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
         return;
     
     uint32 refCount = mcnk->Header.MapObjectRefs;
-    FILE* stream = mcnk->Source->GetStream();
-    fseek(stream, mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
+    Stream* stream = mcnk->Source->GetStream();
+    stream->Seek(mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
     // Start looping at the last Doodad Ref index
     for (uint32 i = mcnk->Header.DoodadRefs; i < refCount; i++)
     {
-        int32 index;
-        if (fread(&index, sizeof(int32), 1, stream) != 1)
-            printf("WorldModelDefinition::Read: Error reading data, expected 1, read 0\n");
+        int32 index = stream->Read<int32>();
 
         if (index < 0 || uint32(index) >= _definitions->size())
             continue;
@@ -76,7 +71,7 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
         InsertModelGeometry(Vertices, Triangles, wmo, model);
     }
     // Restore the stream position
-    fseek(stream, mcnk->Source->Offset, SEEK_SET);
+    stream->Seek(mcnk->Source->Offset, SEEK_SET);
 }
 
 void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root, bool translate )
@@ -185,7 +180,7 @@ void WorldModelHandler::ReadDefinitions()
     uint32 definitionCount = chunk->Length / definitionSize;
     _definitions = new std::vector<WorldModelDefinition>;
     _definitions->reserve(definitionCount);
-    FILE* stream = chunk->GetStream();
+    Stream* stream = chunk->GetStream();
     for (uint32 i = 0; i < definitionCount; i++)
         _definitions->push_back(WorldModelDefinition::Read(stream));
 }
@@ -202,14 +197,13 @@ void WorldModelHandler::ReadModelPaths()
     _paths->reserve(paths);
     for (uint32 i = 0; i < paths; i++)
     {
-        FILE* stream = mwid->GetStream();
-        fseek(stream, i * 4, SEEK_CUR);
-        uint32 offset;
-        if (fread(&offset, sizeof(uint32), 1, stream) != 1)
-            printf("WorldModelDefinition::Read: Error reading data, expected 1, read 0\n");
-        FILE* dataStream = mwmo->GetStream();
-        fseek(dataStream, offset + mwmo->Offset, SEEK_SET);
-        _paths->push_back(Utils::ReadString(dataStream));
+        Stream* stream = mwid->GetStream();
+        stream->Seek(i * 4, SEEK_CUR);
+        uint32 offset = stream->Read<uint32>();
+
+        Stream* dataStream = mwmo->GetStream();
+        dataStream->Seek(offset + mwmo->Offset, SEEK_SET);
+        _paths->push_back(dataStream->ReadString());
     }
 }
 

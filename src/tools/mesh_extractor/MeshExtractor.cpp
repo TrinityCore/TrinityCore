@@ -352,7 +352,6 @@ void LoadTile(dtNavMesh*& navMesh, const char* tile)
 
 int main(int argc, char* argv[])
 {
-    _setmaxstdio(2048);
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
 

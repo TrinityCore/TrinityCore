@@ -2,6 +2,7 @@
 #include "MPQ.h"
 #include "DBC.h"
 #include "Utils.h"
+#include "Stream.h"
 #include <ace/Guard_T.h>
 
 char const* MPQManager::Files[] = {
@@ -83,7 +84,7 @@ void MPQManager::InitializeDBC()
         printf("Using default locale: %s\n", Languages[BaseLocale]);
 }
 
-FILE* MPQManager::GetFile(const std::string& path )
+Stream* MPQManager::GetFile(const std::string& path )
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     MPQFile file(path.c_str());
@@ -98,11 +99,11 @@ DBC* MPQManager::GetDBC(const std::string& name )
     return new DBC(GetFile(path));
 }
 
-FILE* MPQManager::GetFileFromLocale( const std::string& path, uint32 locale )
+Stream* MPQManager::GetFileFromLocale( const std::string& path, uint32 locale )
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     std::deque<MPQArchive*> files = LocaleFiles[locale];
-    FILE* ret = NULL;
+    Stream* ret = NULL;
     for (std::deque<MPQArchive*>::iterator itr = files.begin(); itr != files.end(); ++itr)
     {
         mpq_archive* mpq_a = (*itr)->mpq_a;
@@ -123,22 +124,15 @@ FILE* MPQManager::GetFileFromLocale( const std::string& path, uint32 locale )
         //libmpq_file_getdata
         libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
         
-        // Pack the return into a FILE stream
-        ret = tmpfile();
-        if (!ret)
-        {
-            printf("Could not create temporary file. Please run as Administrator or root\n");
-            exit(1);
-        }
-        fwrite(buffer, sizeof(uint8), size, ret);
-        fseek(ret, 0, SEEK_SET);
+        ret = new Stream(buffer, size);
+
         delete[] buffer;
         break;
     }
     return ret;
 }
 
-FILE* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
+Stream* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     mpq_archive* mpq_a = file->mpq_a;
@@ -161,14 +155,7 @@ FILE* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
     libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
 
     // Pack the return into a FILE stream
-    FILE* ret = tmpfile();
-    if (!ret)
-    {
-        printf("Could not create temporary file. Please run as Administrator or root\n");
-        exit(1);
-    }
-    fwrite(buffer, sizeof(uint8), size, ret);
-    fseek(ret, 0, SEEK_SET);
+    Stream* ret = new Stream((char*)buffer, size);
     delete[] buffer;
     return ret;
 }

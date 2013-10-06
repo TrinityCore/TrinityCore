@@ -3,13 +3,15 @@
 #include <vector>
 #include <string>
 #include "Define.h"
+#include "Stream.h"
 
 class Record;
 
 class DBC
 {
 public:
-    DBC(FILE* stream);
+    DBC(Stream* stream);
+    ~DBC();
 
     std::string GetStringByOffset(int offset);
 

@@ -22,7 +22,7 @@ public:
     uint16 Flags;
     uint16 DoodadSet;
 
-    static WorldModelDefinition Read(FILE* file);
+    static WorldModelDefinition Read(Stream* file);
 };
 
 class WorldModelHandler : public ObjectDataHandler
