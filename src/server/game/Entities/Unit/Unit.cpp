@@ -2485,7 +2485,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo)
 {
     // Can`t miss on dead target (on skinning for example)
-    if ((!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER) || spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
+    if ((!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER) || spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
         return SPELL_MISS_NONE;
 
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
@@ -2557,7 +2557,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         }
     }
 
-   // Roll chance
+    // Roll chance
     if (rand < tmp)
         return SPELL_MISS_RESIST;
 
