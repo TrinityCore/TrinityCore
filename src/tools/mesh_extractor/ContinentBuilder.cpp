@@ -24,11 +24,11 @@ public:
         Y = y; 
         MapId = map; 
         Continent = cont; 
+        Free = false;
     }
 
     int svc()
     {
-        Free = false;
         printf("[%02i,%02i] Building tile\n", X, Y);
         TileBuilder builder(cBuilder, Continent, X, Y, MapId);
         char buff[100];
