@@ -462,7 +462,7 @@ int main(int argc, char* argv[])
         status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
         std::vector<Vector3> FinalPath;
         FinalPath.reserve(resultHopCount);
-        for (uint32 i = 0; i < resultHopCount; ++i)
+        for (int i = 0; i < resultHopCount; ++i)
         {
             Vector3 finalV = Utils::ToWoWCoords(Vector3(straightPath[i * 3 + 0], straightPath[i * 3 + 1], straightPath[i * 3 + 2]));
             FinalPath.push_back(finalV);

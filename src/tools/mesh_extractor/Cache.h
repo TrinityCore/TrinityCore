@@ -14,16 +14,6 @@ class GenericCache
 public:
     GenericCache() {}
 
-    static const uint32 FlushLimit = 300;
-
-    void Insert(K key, T* val)
-    {
-        ACE_GUARD(ACE_Thread_Mutex, g, mutex);
-        if (_items.find(key) != _items.end()) // Make sure that the object isn't in the cache already
-            delete _items[key]; // Delete the previous item
-        _items[key] = val; // Reassign it
-    }
-
     T* Get(K key)
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
