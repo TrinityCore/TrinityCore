@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../../scripts/Custom/Transmogrification.h"
 #include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -652,6 +653,12 @@ Player::Player(WorldSession* session): Unit(true)
 #pragma warning(default:4355)
 #endif
 
+    m_FakeRace = 0;
+    m_RealRace = 0;
+    m_FakeMorph = 0;
+    m_ForgetBGPlayers = false;
+    m_ForgetInListPlayers = false;
+
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -982,6 +989,12 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     uint32 RaceClassGender = (createInfo->Race) | (createInfo->Class << 8) | (createInfo->Gender << 16);
 
     SetUInt32Value(UNIT_FIELD_BYTES_0, (RaceClassGender | (powertype << 24)));
+    
+    SetORace();
+    m_team = TeamForRace(getORace());
+    SetFakeRaceAndMorph(); // m_team must be set before this can be used.
+    setFactionForRace(getORace());
+
     InitDisplayIds();
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
     {
@@ -3035,7 +3048,7 @@ void Player::GiveLevel(uint8 level)
         guild->UpdateMemberData(this, GUILD_MEMBER_DATA_LEVEL, level);
 
     PlayerLevelInfo info;
-    sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), level, &info);
+    sObjectMgr->GetPlayerLevelInfo(getORace(), getClass(), level, &info);
 
     PlayerClassLevelInfo classInfo;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, &classInfo);
@@ -3173,7 +3186,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), &classInfo);
 
     PlayerLevelInfo info;
-    sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), getLevel(), &info);
+    sObjectMgr->GetPlayerLevelInfo(getORace(), getClass(), getLevel(), &info);
 
     SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
@@ -4874,7 +4887,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
-
+						
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
@@ -4991,7 +5004,11 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILLS);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
-
+						
+            /* World of Warcraft Armory */
+            trans->PAppend("DELETE FROM armory_character_stats WHERE guid = '%u'",guid);
+            trans->PAppend("DELETE FROM character_feed_log WHERE guid = '%u'",guid);
+            /* World of Warcraft Armory */
             CharacterDatabase.CommitTransaction(trans);
             break;
         }
@@ -5252,7 +5269,7 @@ void Player::CreateCorpse()
         return;
     }
 
-    _uf = GetUInt32Value(UNIT_FIELD_BYTES_0);
+    _uf = getORace();
     _pb = GetUInt32Value(PLAYER_BYTES);
     _pb2 = GetUInt32Value(PLAYER_BYTES_2);
 
@@ -6915,10 +6932,9 @@ uint32 Player::TeamForRace(uint8 race)
 
 void Player::setFactionForRace(uint8 race)
 {
-    m_team = TeamForRace(race);
-
+    SetBGTeam(TeamForRace(race));
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
-    setFaction(rEntry ? rEntry->FactionID : 0);
+    setFaction(rEntry ? rEntry->FactionID : getFaction());
 }
 
 ReputationRank Player::GetReputationRank(uint32 faction) const
@@ -7020,6 +7036,27 @@ void Player::RewardReputation(Unit* victim, float rate)
     if (!Rep)
         return;
 
+    uint32 repfaction1 = Rep->RepFaction1;
+    uint32 repfaction2 = Rep->RepFaction2;
+
+    if (!IsPlayingNative())
+    {
+        if (GetOTeam() == ALLIANCE)
+        {
+            if (repfaction1 == 729)
+                repfaction1 = 730;
+            if (repfaction2 == 729)
+                repfaction2 = 730;
+        }
+        else
+        {
+            if (repfaction1 == 730)
+                repfaction1 = 729;
+            if (repfaction2 == 730)
+                repfaction2 = 729;
+        }
+    }
+
     uint32 ChampioningFaction = 0;
 
     if (GetChampioningFaction())
@@ -7034,23 +7071,23 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     uint32 team = GetTeam();
 
-    if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
+    if (repfaction1 && (!Rep->TeamDependent || team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
+        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : repfaction1);
         donerep1 = int32(donerep1 * rate);
 
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
+        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : repfaction1);
         uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
         if (factionEntry1 && current_reputation_rank1 <= Rep->ReputationMaxCap1)
             GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
     }
 
-    if (Rep->RepFaction2 && (!Rep->TeamDependent || team == HORDE))
+    if (repfaction2 && (!Rep->TeamDependent || team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
+        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : repfaction2);
         donerep2 = int32(donerep2 * rate);
 
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
+        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : repfaction2);
         uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
         if (factionEntry2 && current_reputation_rank2 <= Rep->ReputationMaxCap2)
             GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
@@ -7145,7 +7182,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         if (!victim || victim == this || victim->GetTypeId() != TYPEID_PLAYER)
             return false;
 
-        if (GetBGTeam() == victim->ToPlayer()->GetBGTeam())
+        if (GetTeam() == victim->ToPlayer()->GetTeam())
             return false;
 
         return true;
@@ -7157,6 +7194,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
     uint64 victim_guid = 0;
     uint32 victim_rank = 0;
+    uint32 rank_diff = 0;
 
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
@@ -7199,17 +7237,54 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             //  title[1..14]  -> rank[5..18]
             //  title[15..28] -> rank[5..18]
             //  title[other]  -> 0
-            if (victim_title == 0)
-                victim_guid = 0;                        // Don't show HK: <rank> message, only log.
-            else if (victim_title < 15)
-                victim_rank = victim_title + 4;
-            else if (victim_title < 29)
-                victim_rank = victim_title - 14 + 4;
-            else
-                victim_guid = 0;                        // Don't show HK: <rank> message, only log.
+                // PLAYER__FIELD_KNOWN_TITLES describe which titles player can use,
+                // so we must find biggest pvp title , even for killer to find extra honor value
+                uint32 vtitle = victim->GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES);
+                //uint32 victim_title = 0;
+                uint32 ktitle = GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES);
+                uint32 killer_title = 0;
+                if (PLAYER_TITLE_MASK_ALL_PVP & ktitle)
+                {
+                    for (int i = ((GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
+                    {
+                        if (ktitle & (1<<i))
+                            killer_title = i;
+                    }
+                }
+                if (PLAYER_TITLE_MASK_ALL_PVP & vtitle)
+                {
+                    for (int i = ((plrVictim->GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((plrVictim->GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
+                    {
+                        if (vtitle & (1<<i))
+                            victim_title = i;
+                    }
+                }
+
+                // Get Killer titles, CharTitlesEntry::bit_index
+                // Ranks:
+                //  title[1..14]  -> rank[5..18]
+                //  title[15..28] -> rank[5..18]
+                //  title[other]  -> 0
+                if (victim_title == 0)
+                    victim_guid = 0;                        // Don't show HK: <rank> message, only log.
+                else if (victim_title < HKRANKMAX)
+                    victim_rank = victim_title + 4;
+                else if (victim_title < (2*HKRANKMAX-1))
+                    victim_rank = victim_title - (HKRANKMAX-1) + 4;
+                else
+                    victim_guid = 0;                        // Don't show HK: <rank> message, only log.
+
+                // now find rank difference
+                if (killer_title == 0 && victim_rank>4)
+                    rank_diff = victim_rank - 4;
+                else if (killer_title < HKRANKMAX)
+                    rank_diff = (victim_rank>(killer_title + 4))? (victim_rank - (killer_title + 4)) : 0;
+                else if (killer_title < (2*HKRANKMAX-1))
+                    rank_diff = (victim_rank>(killer_title - (HKRANKMAX-1) +4))? (victim_rank - (killer_title - (HKRANKMAX-1) + 4)) : 0;
+
 
             honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
-
+            honor *= 1 + sWorld->getRate(RATE_PVP_RANK_EXTRA_HONOR)*(((float)rank_diff) / 10.0f);
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
             // and those in a lifetime
@@ -7217,6 +7292,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL);
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS, victim->getClass());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_RACE, victim->getRace());
+            UpdateKnownTitles();
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, victim);
         }
@@ -7308,6 +7384,30 @@ void Player::SetArenaPoints(uint32 value)
     SetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY, value);
     if (value)
         AddKnownCurrency(ITEM_ARENA_POINTS_ID);
+}
+
+void Player::UpdateKnownTitles()
+{
+    uint32 new_title = 0;
+    uint32 honor_kills = GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+    uint32 old_title = GetUInt32Value(PLAYER_CHOSEN_TITLE);
+    RemoveFlag64(PLAYER__FIELD_KNOWN_TITLES,PLAYER_TITLE_MASK_ALL_PVP);
+    if (honor_kills < 0)
+        return;
+    bool max_rank = ((honor_kills >= sWorld->pvp_ranks[HKRANKMAX-1]) ? true : false);
+    for (int i = HKRANK01; i != HKRANKMAX; ++i)
+    {
+        if (honor_kills < sWorld->pvp_ranks[i] || (max_rank))
+        {
+            new_title = ((max_rank) ? (HKRANKMAX-1) : (i-1));
+            if (new_title > 0)
+                new_title += ((GetTeam() == ALLIANCE) ? 0 : (HKRANKMAX-1));
+            break;
+        }
+    }
+    SetFlag64(PLAYER__FIELD_KNOWN_TITLES,uint64(1) << new_title);
+    if (old_title > 0 && old_title < (2*HKRANKMAX-1) && new_title > old_title)
+        SetUInt32Value(PLAYER_CHOSEN_TITLE,new_title);
 }
 
 void Player::ModifyHonorPoints(int32 value, SQLTransaction* trans /*=NULL*/)
@@ -11947,13 +12047,13 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
     if (proto)
     {
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetOTeam() != HORDE)
             return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetOTeam() != ALLIANCE)
             return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
-        if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
+        if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getORaceMask()) == 0)
             return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
         if (proto->RequiredSkill != 0)
@@ -12444,7 +12544,11 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
+        // custom
+        if (uint32 entry = sTransmogrification->GetFakeEntry(pItem->GetGUID()))
+            SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), entry);
+        else
+            SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
@@ -12570,6 +12674,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
 {
     if (Item* it = GetItemByPos(bag, slot))
     {
+        sTransmogrification->DeleteFakeFromDB(it->GetGUIDLow()); // custom
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
         it->SetNotRefundable(this, false);
@@ -16983,6 +17088,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         return false;
     }
 
+    /* World of Warcraft Armory */
+    InitWowarmoryFeeds();
+    /* World of Warcraft Armory */	
     // overwrite possible wrong/corrupted guid
     SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
@@ -16999,6 +17107,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     bytes0 |= fields[4].GetUInt8() << 8;                    // class
     bytes0 |= gender << 16;                                 // gender
     SetUInt32Value(UNIT_FIELD_BYTES_0, bytes0);
+
+    SetORace();
+    m_team = TeamForRace(getORace());
+    SetFakeRaceAndMorph(); // m_team must be set before this can be used.
+    setFactionForRace(getORace());
 
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
@@ -17045,10 +17158,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     TC_LOG_DEBUG(LOG_FILTER_PLAYER_LOADING, "Load Basic value of player %s is: ", m_name.c_str());
     outDebugValues();
-
-    //Need to call it to initialize m_team (m_team can be calculated from race)
-    //Other way is to saves m_team into characters table.
-    setFactionForRace(getRace());
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
     if (!_LoadHomeBind(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
@@ -18845,7 +18954,7 @@ void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
 
 bool Player::_LoadHomeBind(PreparedQueryResult result)
 {
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getORace(), getClass());
     if (!info)
     {
         TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player (Name %s) has incorrect race/class pair. Can't be loaded.", GetName().c_str());
@@ -18935,7 +19044,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetGUIDLow());
         stmt->setUInt32(index++, GetSession()->GetAccountId());
         stmt->setString(index++, GetName());
-        stmt->setUInt8(index++, getRace());
+        stmt->setUInt8(index++, getORace());
         stmt->setUInt8(index++, getClass());
         stmt->setUInt8(index++, getGender());
         stmt->setUInt8(index++, getLevel());
@@ -19032,7 +19141,7 @@ void Player::SaveToDB(bool create /*=false*/)
         // Update query
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER);
         stmt->setString(index++, GetName());
-        stmt->setUInt8(index++, getRace());
+        stmt->setUInt8(index++, getORace());
         stmt->setUInt8(index++, getClass());
         stmt->setUInt8(index++, getGender());
         stmt->setUInt8(index++, getLevel());
@@ -19176,6 +19285,29 @@ void Player::SaveToDB(bool create /*=false*/)
         _SaveStats(trans);
 
     CharacterDatabase.CommitTransaction(trans);
+    /* World of Warcraft Armory */
+    // Place this code AFTER CharacterDatabase.CommitTransaction(); to avoid some character saving errors.
+    // Wowarmory feeds
+    std::ostringstream sWowarmory;
+    for (WowarmoryFeeds::iterator iter = m_wowarmory_feeds.begin(); iter < m_wowarmory_feeds.end(); ++iter) {
+        sWowarmory << "INSERT IGNORE INTO character_feed_log (guid,type,data,date,counter,difficulty,item_guid,item_quality) VALUES ";
+        //                      guid                    type                        data                    date                            counter                   difficulty                        item_guid                      item_quality
+        sWowarmory << "(" << (*iter).guid << ", " << (*iter).type << ", " << (*iter).data << ", " << uint64((*iter).date) << ", " << (*iter).counter << ", " << uint32((*iter).difficulty) << ", " << (*iter).item_guid << ", " << (*iter).item_quality <<  ");";
+        CharacterDatabase.PExecute(sWowarmory.str().c_str());
+        sWowarmory.str("");
+    }
+    // Clear old saved feeds from storage - they are not required for server core.
+    InitWowarmoryFeeds();
+    // Character stats
+    std::ostringstream ps;
+    time_t t = time(NULL);
+    CharacterDatabase.PExecute("DELETE FROM armory_character_stats WHERE guid = %u", GetGUIDLow());
+    ps << "INSERT INTO armory_character_stats (guid, data, save_date) VALUES (" << GetGUIDLow() << ", '";
+    for (uint16 i = 0; i < m_valuesCount; ++i)
+        ps << GetUInt32Value(i) << " ";
+    ps << "', " << uint64(t) << ");";
+    CharacterDatabase.PExecute(ps.str().c_str());
+    /* World of Warcraft Armory */
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
@@ -20259,7 +20391,7 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language) const
+void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language) const
 {
     *data << uint8(msgtype);
     *data << uint32(language);
@@ -21277,22 +21409,26 @@ void Player::InitDataForForm(bool reapplyMods)
 
 void Player::InitDisplayIds()
 {
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getORace(), getClass());
     if (!info)
     {
         TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player %u has incorrect race/class pair. Can't init display ids.", GetGUIDLow());
         return;
     }
 
+    bool isMorphed = GetNativeDisplayId() != GetDisplayId();
+
     uint8 gender = getGender();
     switch (gender)
     {
         case GENDER_FEMALE:
-            SetDisplayId(info->displayId_f);
+            if (!isMorphed)
+                SetDisplayId(info->displayId_f);
             SetNativeDisplayId(info->displayId_f);
             break;
         case GENDER_MALE:
-            SetDisplayId(info->displayId_m);
+            if (!isMorphed)
+                SetDisplayId(info->displayId_m);
             SetNativeDisplayId(info->displayId_m);
             break;
         default:
@@ -22001,11 +22137,6 @@ void Player::SetBGTeam(uint32 team)
 {
     m_bgData.bgTeam = team;
     SetByteValue(PLAYER_BYTES_3, 3, uint8(team == ALLIANCE ? 1 : 0));
-}
-
-uint32 Player::GetBGTeam() const
-{
-    return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam();
 }
 
 void Player::LeaveBattleground(bool teleportToEntryPoint)
@@ -22770,11 +22901,11 @@ void Player::resetSpells(bool myClassOnly)
 void Player::learnDefaultSpells()
 {
     // learn default race/class spells
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getORace(), getClass());
     for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
     {
         uint32 tspell = *itr;
-        TC_LOG_DEBUG(LOG_FILTER_PLAYER_LOADING, "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
+        TC_LOG_DEBUG(LOG_FILTER_PLAYER_LOADING, "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getORace()), tspell);
         if (!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
             addSpell(tspell, true, true, true, false);
         else                                                // but send in normal spell in game learn case
@@ -26429,3 +26560,44 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     return pet;
 }
+/* World of Warcraft Armory */
+void Player::InitWowarmoryFeeds()
+{
+    m_wowarmory_feeds.clear();
+}
+
+void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uint32 item_quality)
+{
+    /*
+    1 - TYPE_ACHIEVEMENT_FEED
+    2 - TYPE_ITEM_FEED
+    3 - TYPE_BOSS_FEED
+    */
+    if (GetGUIDLow() == 0)
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "[Wowarmory]: player is not initialized, unable to create log entry!");
+        return;
+    }
+    if (type <= 0 || type > 3)
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "[Wowarmory]: unknown feed type: %d, ignore.", type);
+        return;
+    }
+    if (data == 0)
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "[Wowarmory]: empty data (GUID: %u), ignore.", GetGUIDLow());
+        return;
+    }
+    WowarmoryFeedEntry feed;
+    feed.guid = GetGUIDLow();
+    feed.type = type;
+    feed.data = data;
+    feed.difficulty = type == 3 ? GetMap()->GetDifficulty() : 0;
+    feed.item_guid  = item_guid;
+    feed.item_quality = item_quality;
+    feed.counter = 0;
+    feed.date = time(NULL);
+    sLog->outDebug(LOG_FILTER_GENERAL, "[Wowarmory]: create wowarmory feed (GUID: %u, type: %d, data: %u).", feed.guid, feed.type, feed.data);
+    m_wowarmory_feeds.push_back(feed);
+}
+/* World of Warcraft Armory */

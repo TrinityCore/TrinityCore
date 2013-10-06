@@ -317,7 +317,7 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             {
                 player->GetPosition(&pos);
-                GetTeamStartLoc(player->GetBGTeam(), x, y, z, o);
+                GetTeamStartLoc(player->GetTeam(), x, y, z, o);
                 if (pos.GetExactDistSq(x, y, z) > maxDist)
                 {
                     TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", player->GetName().c_str(), GetMapId());
@@ -523,7 +523,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     WorldPacket status;
                     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
-                    sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType(), player->GetBGTeam());
+                    sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType(), player->GetTeam());
                     player->SendDirectMessage(&status);
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
@@ -704,12 +704,32 @@ void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
             UpdatePlayerScore(player, SCORE_BONUS_HONOR, Honor);
 }
 
-void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
+void Battleground::RewardReputationToTeam(uint32 a_faction_id, uint32 h_faction_id, uint32 Reputation, uint32 teamId)
 {
-    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id))
-        for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-            if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam"))
-                player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
+    FactionEntry const* a_factionEntry = sFactionStore.LookupEntry(a_faction_id);
+    FactionEntry const* h_factionEntry = sFactionStore.LookupEntry(h_faction_id);
+
+    if (!a_factionEntry || !h_factionEntry)
+        return;
+
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (itr->second.OfflineRemoveTime)
+            continue;
+
+        Player* plr = ObjectAccessor::FindPlayer(itr->first);
+
+        if (!plr)
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "BattleGround:RewardReputationToTeam: %u not found!", itr->first);
+            continue;
+        }
+
+        uint32 team = plr->GetTeam();
+
+        if (team == teamId)
+            plr->GetReputationMgr().ModifyReputation(plr->GetOTeam() == ALLIANCE ? a_factionEntry : h_factionEntry, Reputation);
+    }
 }
 
 void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
@@ -791,6 +811,45 @@ void Battleground::EndBattleground(uint32 winner)
                 SetArenaMatchmakerRating(GetOtherTeam(winner), loserMatchmakerRating + loserMatchmakerChange);
                 SetArenaTeamRatingChangeForTeam(winner, winnerChange);
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loserChange);
+                 /* World of Warcraft Armory */
+                uint32 maxChartID;
+                QueryResult result = CharacterDatabase.PQuery("SELECT MAX(gameid) FROM armory_game_chart");
+                if (!result)
+                    maxChartID = 0;
+                else
+                    maxChartID = (*result)[0].GetUInt32();
+
+                uint32 gameID = maxChartID+1;
+                for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)			//Armory needs to be fixed
+                {
+                    Player *plr = ObjectAccessor::FindPlayer(itr->first);
+                    if (!plr)
+                        continue;
+                    uint32 plTeamID = plr->GetArenaTeamId(winnerArenaTeam->GetSlot());
+                    int changeType;
+                    uint32 resultRating;
+                    uint32 resultTeamID;
+                    int32 ratingChange;
+                    if (plTeamID == winnerArenaTeam->GetId())
+                    {
+                        changeType = 1; // Winner
+                        resultRating = winnerTeamRating;
+                        resultTeamID = plTeamID;
+                        ratingChange = winnerChange;
+                    }
+                    else
+                    {
+                        changeType = 2; // Loser
+                        resultRating = loserTeamRating;
+                        resultTeamID = loserArenaTeam->GetId();
+                        ratingChange = loserChange;
+                    }
+                    std::ostringstream sql_query;
+                   //                                                     gameid,             teamid,                    guid,                changeType,           ratingChange,             teamRating,                  damageDone,                          deaths,                          healingDone,                           damageTaken,,                       healingTaken,                        killingBlows,           mapId,              start,                  end
+                    sql_query << "INSERT INTO armory_game_chart VALUES (" << gameID << ", " << resultTeamID << ", " << plr->GetGUID() << ", " << changeType << ", " << ratingChange  << ", " << resultRating << ", " << itr->second->DamageDone << ", " << itr->second->Deaths << ", " << itr->second->HealingDone << ", " << itr->second->DamageTaken << ", " << itr->second->HealingTaken << ", " << itr->second->KillingBlows << ", " << m_MapId << ", " << m_StartTime << ", " << m_EndTime << ");";
+                    CharacterDatabase.Execute(sql_query.str().c_str());
+                }
+                /*World of Warcraft Armory */
                 TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                     for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
@@ -918,7 +977,7 @@ void Battleground::EndBattleground(uint32 winner)
         player->SendDirectMessage(&pvpLogData);
 
         WorldPacket data;
-        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, TIME_TO_AUTOREMOVE, GetStartTime(), GetArenaType(), player->GetBGTeam());
+        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, TIME_TO_AUTOREMOVE, GetStartTime(), GetArenaType(), player->GetTeam());
         player->SendDirectMessage(&data);
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
     }
@@ -1065,6 +1124,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 
     if (player)
     {
+        player->FitPlayerInTeam(false, this);
         // Do next only if found in battleground
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
@@ -1131,7 +1191,7 @@ void Battleground::AddPlayer(Player* player)
     // score struct must be created in inherited class
 
     uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();
+    uint32 team = player->GetTeam();
 
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
@@ -1197,6 +1257,8 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+
+    player->FitPlayerInTeam(true, this);
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1266,8 +1328,8 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
-                EndBattleground(GetOtherTeam(player->GetBGTeam()));
+            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
+                EndBattleground(GetOtherTeam(player->GetTeam()));
     }
 }
 
@@ -1388,7 +1450,15 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
             break;
         case SCORE_HEALING_DONE:                            // Healing Done
             itr->second->HealingDone += value;
+			break;
+            /* World of Warcraft Armory */
+        case SCORE_DAMAGE_TAKEN:
+            itr->second->DamageTaken += value;              // Damage Taken
             break;
+        case SCORE_HEALING_TAKEN:
+            itr->second->HealingTaken += value;             // Healing Taken
+            break;
+            /* World of Warcraft Armory */
         default:
             TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Battleground::UpdatePlayerScore: unknown score type (%u) for BG (map: %u, instance id: %u)!",
                 type, m_MapId, m_InstanceID);
@@ -1860,7 +1930,7 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
     sBattlegroundMgr->BuildPvpLogDataPacket(&data, this);
     player->SendDirectMessage(&data);
 
-    sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, GetEndTime(), GetStartTime(), GetArenaType(), player->GetBGTeam());
+    sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, GetEndTime(), GetStartTime(), GetArenaType(), player->GetTeam());
     player->SendDirectMessage(&data);
 }
 

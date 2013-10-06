@@ -194,7 +194,11 @@ enum ScoreType
     SCORE_SECONDARY_OBJECTIVES  = 17,
     //SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19
+    SCORE_DESTROYED_WALL        = 19,
+    /* World of Warcraft Armory */
+    SCORE_DAMAGE_TAKEN          = 20,
+    SCORE_HEALING_TAKEN         = 21
+    /* World of Warcraft Armory */
 };
 
 enum ArenaType
@@ -251,6 +255,10 @@ struct BattlegroundScore
     uint32 BonusHonor;
     uint32 DamageDone;
     uint32 HealingDone;
+    /** World of Warcraft Armory **/
+    uint32 DamageTaken;
+    uint32 HealingTaken;
+    /** World of Warcraft Armory **/
 };
 
 enum BGHonorMode
@@ -422,7 +430,7 @@ class Battleground
         void CastSpellOnTeam(uint32 SpellID, uint32 TeamID);
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);
-        void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
+        void RewardReputationToTeam(uint32 a_faction_id, uint32 h_faction_id, uint32 Reputation, uint32 teamId);
         void UpdateWorldState(uint32 Field, uint32 Value);
         void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* player);
         void EndBattleground(uint32 winner);

@@ -48,7 +48,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
     data << uint8(0);                               // name known
     data << nameData->m_name;                       // played name
     data << uint8(0);                               // realm name - only set for cross realm interaction (such as Battlegrounds)
-    data << uint8(nameData->m_race);
+    data << uint8(player ? player->getRace() : nameData->m_race);
     data << uint8(nameData->m_gender);
     data << uint8(nameData->m_class);
 

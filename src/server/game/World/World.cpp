@@ -73,6 +73,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "ScriptMgr.h"
 #include "WeatherMgr.h"
+#include "AuctionHouseBot.h"
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Channel.h"
@@ -844,6 +845,18 @@ void World::LoadConfigSettings(bool reload)
         TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MinPetitionSigns (%i) must be in range 0..9. Set to 9.", m_int_configs[CONFIG_MIN_PETITION_SIGNS]);
         m_int_configs[CONFIG_MIN_PETITION_SIGNS] = 9;
     }
+    rate_values[RATE_PVP_RANK_EXTRA_HONOR] = sConfigMgr->GetFloatDefault("PvPRank.Rate.ExtraHonor", 1);
+    std::string s_pvp_ranks = sConfigMgr->GetStringDefault("PvPRank.HKPerRank", "10,50,100,200,450,750,1300,2000,3500,6000,9500,15000,21000,30000");
+    char *c_pvp_ranks = const_cast<char*>(s_pvp_ranks.c_str());
+    for (int i = 0; i !=HKRANKMAX; i++)
+    {
+        if (i==0)
+            pvp_ranks[0] = 0;
+        else if (i==1)
+            pvp_ranks[1] = atoi(strtok (c_pvp_ranks, ","));
+        else
+            pvp_ranks[i] = atoi(strtok (NULL, ","));
+    }
 
     m_int_configs[CONFIG_GM_LOGIN_STATE]        = sConfigMgr->GetIntDefault("GM.LoginState", 2);
     m_int_configs[CONFIG_GM_VISIBLE_STATE]      = sConfigMgr->GetIntDefault("GM.Visible", 2);
@@ -1034,6 +1047,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = sConfigMgr->GetBoolDefault("ArenaLog.ExtendedInfo", false);
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
+
+    m_bool_configs[BATTLEGROUND_CROSSFACTION_ENABLED]                = sConfigMgr->GetBoolDefault("CrossfactionBG.enable", true);
 
     if (int32 clientCacheId = sConfigMgr->GetIntDefault("ClientCacheVersion", 0))
     {
@@ -1816,6 +1831,9 @@ void World::SetInitialWorldSettings()
 
     LoadCharacterNameData();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize AuctionHouseBot...");
+    auctionbot.Initialize();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
@@ -1983,6 +2001,7 @@ void World::Update(uint32 diff)
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
+        auctionbot.Update();
         m_timers[WUPDATE_AUCTIONS].Reset();
 
         ///- Update mails (return old mails with item, or delete them)

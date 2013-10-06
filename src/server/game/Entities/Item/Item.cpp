@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../../scripts/Custom/Transmogrification.h"
 #include "Common.h"
 #include "Item.h"
 #include "ObjectMgr.h"
@@ -278,6 +279,14 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
+    /* World of Warcraft Armory */
+    if (itemProto->Quality > 2 && itemProto->Flags != 2048 && (itemProto->Class == ITEM_CLASS_WEAPON || itemProto->Class == ITEM_CLASS_ARMOR))
+    {
+        if (!GetOwner())
+            return true;
+            GetOwner()->CreateWowarmoryFeed(2, itemid, guidlow, itemProto->Quality);
+    }
+    /* World of Warcraft Armory */
     return true;
 }
 
@@ -479,6 +488,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 /*static*/
 void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid)
 {
+    sTransmogrification->DeleteFakeFromDB(itemGuid, &trans); // custom
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt32(0, itemGuid);
     trans->Append(stmt);
