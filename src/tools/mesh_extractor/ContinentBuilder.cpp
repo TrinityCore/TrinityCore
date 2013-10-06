@@ -72,7 +72,7 @@ void ContinentBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, i
         rcCalcBounds(verts, vertCount, bmin, bmax);
     else
     {
-        bmin[1] = FLT_MIN;
+        bmin[1] = -FLT_MAX;
         bmax[1] = FLT_MAX;
     }
 
@@ -185,12 +185,12 @@ void ContinentBuilder::Build()
         }
     }
 
-    Cache->Clear();
-
     // Free memory
     for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
     {
         (*_th)->wait();
         delete *_th;
     }
+
+    Cache->Clear();
 }
