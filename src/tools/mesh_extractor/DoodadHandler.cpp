@@ -40,11 +40,6 @@ void DoodadHandler::ProcessInternal(MapChunk* mcnk)
 
         std::string path = (*_paths)[doodad.MmidIndex];
         Model* model = Cache->ModelCache.Get(path);
-        if (!model)
-        {
-            model = new Model(path);
-            Cache->ModelCache.Insert(path, model);
-        }
         if (!model->IsCollidable)
             continue;
 

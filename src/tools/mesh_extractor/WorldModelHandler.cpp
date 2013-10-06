@@ -59,11 +59,6 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
 
         std::string path = (*_paths)[wmo.MwidIndex];
         WorldModelRoot* model = Cache->WorldModelCache.Get(path);
-        if (!model)
-        {
-            model = new WorldModelRoot(path);
-            Cache->WorldModelCache.Insert(path, model);
-        }
 
         Vertices.reserve(1000);
         Triangles.reserve(1000);
@@ -111,11 +106,6 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
         for (std::vector<DoodadInstance>::iterator instance = instances.begin(); instance != instances.end(); ++instance)
         {
             Model* model = Cache->ModelCache.Get(instance->File);
-            if (!model)
-            {
-                model = new Model(instance->File);
-                Cache->ModelCache.Insert(instance->File, model);
-            }
 
             if (!model->IsCollidable)
                 continue;
