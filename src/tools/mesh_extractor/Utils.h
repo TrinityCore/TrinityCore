@@ -383,7 +383,7 @@ public:
     static Vector3 ToWoWCoords(const Vector3& vec);
     static std::string GetExtension( std::string path);
     static char* GetPlainName(const char* FileName);
-    static Vector3 TransformDoodadVertex(const IDefinition& def, Vector3& vec, bool translate = true);
+    static Vector3 TransformDoodadVertex(const IDefinition& def, Vector3 vec, bool translate = true);
     static Vector3 VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix, bool normal = false);
     static Vector3 TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, Vector3& vec, bool translate = true);
 };

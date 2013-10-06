@@ -63,7 +63,7 @@ std::string Utils::FixModelPath(const std::string& path )
     return Utils::GetPathBase(path) + ".M2";
 }
 
-Vector3 Utils::TransformDoodadVertex(const IDefinition& def, Vector3& vec, bool translate)
+Vector3 Utils::TransformDoodadVertex(const IDefinition& def, Vector3 vec, bool translate)
 {
     // Sources of information:
     /// http://www.pxr.dk/wowdev/wiki/index.php?title=ADT/v18&oldid=3715

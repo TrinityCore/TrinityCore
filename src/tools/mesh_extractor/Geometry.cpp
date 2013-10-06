@@ -17,7 +17,7 @@ void Geometry::CalculateBoundingBox( float*& min, float*& max )
     max = new float[3];
     for (int i = 0; i < 3; ++i)
     {
-        max[i] = std::numeric_limits<float>::lowest();
+        max[i] = -FLT_MAX;
         min[i] = std::numeric_limits<float>::max();
     }
 
@@ -43,7 +43,7 @@ void Geometry::CalculateBoundingBox( float*& min, float*& max )
 void Geometry::CalculateMinMaxHeight( float& min, float& max )
 {
     min = std::numeric_limits<float>::max();
-    max = std::numeric_limits<float>::lowest();
+    max = -FLT_MAX;
 
     for (std::vector<Vector3>::iterator itr = Vertices.begin(); itr != Vertices.end(); ++itr)
     {
