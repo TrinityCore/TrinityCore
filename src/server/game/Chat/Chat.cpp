@@ -713,10 +713,11 @@ Player* ChatHandler::getSelectedPlayer()
     if (!m_session)
         return NULL;
 
-    if (Player* selected = m_session->GetPlayer()->GetSelectedPlayer())
-        return selected;
+    uint64 selected = m_session->GetPlayer()->GetTarget();
+    if (!selected)
+        return m_session->GetPlayer();
 
-    return m_session->GetPlayer();
+    return ObjectAccessor::FindPlayer(selected);
 }
 
 Unit* ChatHandler::getSelectedUnit()

@@ -5326,7 +5326,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!m_caster->GetTarget())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                Player* target = m_caster->ToPlayer()->GetSelectedPlayer();
+                Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
                 if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
                     return SPELL_FAILED_BAD_TARGETS;
 
