@@ -23,7 +23,7 @@ void MPQManager::Initialize()
     for (uint32 i = 0; i < size; ++i)
     {
         MPQArchive* arc = new MPQArchive(std::string("Data/" + std::string(Files[i])).c_str());
-        Archives.push_front(arc);
+        Archives.push_front(arc); // MPQ files have to be transversed in reverse order to properly account for patched files
         printf("Opened %s\n", Files[i]);
     }
 }
@@ -57,14 +57,14 @@ void MPQManager::InitializeDBC()
     Archives.push_front(_baseLocale);
     if (BaseLocale == -1)
     {
-        printf("No locale data detected\n");
+        printf("No locale data detected. Please make sure that the executable is in the same folder as your WoW installation.\n");
         ASSERT(false);
     }
     else
         printf("Using default locale: %s\n", Languages[BaseLocale]);
 }
 
-FILE* MPQManager::GetFile( std::string path )
+FILE* MPQManager::GetFile(const std::string& path )
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     MPQFile file(path.c_str());
@@ -73,13 +73,13 @@ FILE* MPQManager::GetFile( std::string path )
     return file.GetFileStream();
 }
 
-DBC* MPQManager::GetDBC( std::string name )
+DBC* MPQManager::GetDBC(const std::string& name )
 {
     std::string path = "DBFilesClient\\" + name + ".dbc";
     return new DBC(GetFile(path));
 }
 
-FILE* MPQManager::GetFileFrom( std::string path, MPQArchive* file )
+FILE* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     mpq_archive* mpq_a = file->mpq_a;
@@ -103,6 +103,13 @@ FILE* MPQManager::GetFileFrom( std::string path, MPQArchive* file )
 
     // Pack the return into a FILE stream
     FILE* ret = tmpfile();
+    if (!ret)
+    {
+        printf("Could not create temporary file. Please run as Administrator or root\n");
+        exit(1);
+    }
     fwrite(buffer, sizeof(uint8), size, ret);
+    fseek(ret, 0, SEEK_SET);
+    delete[] buffer;
     return ret;
 }

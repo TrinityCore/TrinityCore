@@ -223,7 +223,7 @@ bool WMOGroup::open()
         else if (!strcmp(fourcc,"MLIQ"))
         {
             liquflags |= 1;
-            hlq = new WMOLiquidHeader;
+            hlq = new WMOLiquidHeader();
             f.read(hlq, 0x1E);
             LiquEx_size = sizeof(WMOLiquidVert) * hlq->xverts * hlq->yverts;
             LiquEx = new WMOLiquidVert[hlq->xverts * hlq->yverts];

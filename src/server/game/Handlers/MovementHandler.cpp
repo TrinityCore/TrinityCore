@@ -32,7 +32,9 @@
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
 
-void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
+#define MOVEMENT_PACKET_TIME_DELAY 0
+
+void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 {
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
@@ -372,7 +374,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
-    movementInfo.time = getMSTime();
+    uint32 mstime = getMSTime();
+    /*----------------------*/
+    if(m_clientTimeDelay == 0)
+        m_clientTimeDelay = mstime - movementInfo.time;
+
+    /* process position-change */
+    movementInfo.time = movementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+
     movementInfo.guid = mover->GetGUID();
     mover->m_movementInfo = movementInfo;
 
