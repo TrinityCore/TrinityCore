@@ -8,9 +8,14 @@
 #include "Recast.h"
 #include "DetourCommon.h"
 
+#include <ace/Atomic_Op.h>
+#include <ace/Guard_T.h>
+#include <ace/Synch.h>
+
 class BuilderThread : public ACE_Task_Base
 {
 private:
+    ACE_Thread_Mutex lock;
     int X, Y, MapId;
     std::string Continent;
     dtNavMeshParams Params;
@@ -19,7 +24,8 @@ public:
     BuilderThread(ContinentBuilder* _cBuilder, dtNavMeshParams& params) : Params(params), cBuilder(_cBuilder), Free(true) {}
     
     void SetData(int x, int y, int map, const std::string& cont) 
-    { 
+    {
+        ACE_GUARD(ACE_Thread_Mutex, g, lock);
         X = x; 
         Y = y; 
         MapId = map; 
@@ -29,6 +35,7 @@ public:
 
     int svc()
     {
+        ACE_GUARD_RETURN(ACE_Thread_Mutex, g, lock, 0);
         printf("[%02i,%02i] Building tile\n", X, Y);
         TileBuilder builder(cBuilder, Continent, X, Y, MapId);
         char buff[100];
@@ -62,7 +69,7 @@ public:
         return 0;
     }
 
-    bool Free;
+    ACE_Atomic_Op<ACE_Thread_Mutex, bool> Free;
 };
 
 void ContinentBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax)
@@ -171,7 +178,7 @@ void ContinentBuilder::Build()
             {
                 for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
                 {
-                    if ((*_th)->Free)
+                    if ((*_th)->Free.value())
                     {
                         (*_th)->SetData(itr->X, itr->Y, MapId, Continent);
                         (*_th)->activate();
