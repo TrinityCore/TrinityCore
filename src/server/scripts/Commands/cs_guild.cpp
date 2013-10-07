@@ -39,17 +39,17 @@ public:
     {
         static ChatCommand guildCommandTable[] =
         {
-            { "create",   RBAC_PERM_COMMAND_GUILD_CREATE,   true, &HandleGuildCreateCommand,           "", NULL },
-            { "delete",   RBAC_PERM_COMMAND_GUILD_DELETE,   true, &HandleGuildDeleteCommand,           "", NULL },
-            { "invite",   RBAC_PERM_COMMAND_GUILD_INVITE,   true, &HandleGuildInviteCommand,           "", NULL },
-            { "uninvite", RBAC_PERM_COMMAND_GUILD_UNINVITE, true, &HandleGuildUninviteCommand,         "", NULL },
-            { "rank",     RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "", NULL },
-            { "rename",   RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "", NULL },
+            { "create",   rbac::RBAC_PERM_COMMAND_GUILD_CREATE,   true, &HandleGuildCreateCommand,           "", NULL },
+            { "delete",   rbac::RBAC_PERM_COMMAND_GUILD_DELETE,   true, &HandleGuildDeleteCommand,           "", NULL },
+            { "invite",   rbac::RBAC_PERM_COMMAND_GUILD_INVITE,   true, &HandleGuildInviteCommand,           "", NULL },
+            { "uninvite", rbac::RBAC_PERM_COMMAND_GUILD_UNINVITE, true, &HandleGuildUninviteCommand,         "", NULL },
+            { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "", NULL },
+            { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "", NULL },
             { NULL,       0,                               false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "guild", RBAC_PERM_COMMAND_GUILD,  true, NULL, "", guildCommandTable },
+            { "guild", rbac::RBAC_PERM_COMMAND_GUILD,  true, NULL, "", guildCommandTable },
             { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;

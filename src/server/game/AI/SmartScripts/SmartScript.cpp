@@ -411,11 +411,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
+            if (count == 0)
+            {
+                delete targets;
+                break;
+            }
+
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
                 if (IsUnit(*itr))
                 {
-                    uint32 emote = temp[urand(0, count)];
+                    uint32 emote = temp[urand(0, count - 1)];
                     (*itr)->ToUnit()->HandleEmoteCommand(emote);
                     TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_EMOTE: Creature guidLow %u handle random emote %u",
                         (*itr)->GetGUIDLow(), emote);
@@ -835,7 +841,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
-            uint32 phase = temp[urand(0, count)];
+            if (count == 0)
+                break;
+
+            uint32 phase = temp[urand(0, count - 1)];
             SetPhase(phase);
             TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_RANDOM_PHASE: Creature %u sets event phase to %u",
                 GetBaseObject()->GetGUIDLow(), phase);
@@ -933,7 +942,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             instance->SetData64(e.action.setInstanceData64.field, targets->front()->GetGUID());
-            TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_SET_INST_DATA64: Field: %u, data: "UI64FMTD,
+            TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_SET_INST_DATA64: Field: %u, data: " UI64FMTD,
                 e.action.setInstanceData64.field, targets->front()->GetGUID());
 
             delete targets;
@@ -1475,7 +1484,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CREATE_TIMED_EVENT:
         {
-            SmartEvent ne;
+            SmartEvent ne = SmartEvent();
             ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
             ne.event_chance = e.action.timeEvent.chance;
             if (!ne.event_chance) ne.event_chance = 100;
@@ -1489,11 +1498,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!ne.minMaxRepeat.repeatMin && !ne.minMaxRepeat.repeatMax)
                 ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
 
-            SmartAction ac;
+            SmartAction ac = SmartAction();
             ac.type = (SMART_ACTION)SMART_ACTION_TRIGGER_TIMED_EVENT;
             ac.timeEvent.id = e.action.timeEvent.id;
 
-            SmartScriptHolder ev;
+            SmartScriptHolder ev = SmartScriptHolder();
             ev.event = ne;
             ev.event_id = e.action.timeEvent.id;
             ev.target = e.target;
@@ -1576,8 +1585,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
             }
 
-            ObjectList* targets = GetTargets(e, unit);
-            if (targets)
+            if (ObjectList* targets = GetTargets(e, unit))
             {
                 for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
@@ -1693,7 +1701,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
-            uint32 id = temp[urand(0, count)];
+            if (count == 0)
+                break;
+
+            uint32 id = temp[urand(0, count - 1)];
             if (e.GetTargetType() == SMART_TARGET_NONE)
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript: Entry %d SourceType %u Event %u Action %u is using TARGET_NONE(0) for Script9 target. Please correct target_type in database.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
@@ -2539,7 +2550,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         case SMART_TARGET_CLOSEST_ENEMY:
         {
             if (me)
-                if (Unit* target = me->SelectNearestTarget(e.target.closestAttackable.maxDist))
+                if (Unit* target = me->SelectNearestTarget(e.target.closestAttackable.maxDist, e.target.closestAttackable.playerOnly))
                     l->push_back(target);
 
             break;
@@ -2547,7 +2558,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         case SMART_TARGET_CLOSEST_FRIENDLY:
         {
             if (me)
-                if (Unit* target = DoFindClosestFriendlyInRange(e.target.closestFriendly.maxDist))
+                if (Unit* target = DoFindClosestFriendlyInRange(e.target.closestFriendly.maxDist, e.target.closestFriendly.playerOnly))
                     l->push_back(target);
 
             break;
@@ -3431,13 +3442,13 @@ void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& list, float ra
     cell.Visit(p, grid_creature_searcher, *me->GetMap(), *me, range);
 }
 
-Unit* SmartScript::DoFindClosestFriendlyInRange(float range)
+Unit* SmartScript::DoFindClosestFriendlyInRange(float range, bool playerOnly)
 {
     if (!me)
         return NULL;
 
     Unit* unit = NULL;
-    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, range);
+    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, range, playerOnly);
     Trinity::UnitLastSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, unit, u_check);
     me->VisitNearbyObject(range, searcher);
     return unit;
@@ -3451,16 +3462,15 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
         return;
     for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
     {
-        if (i == mTimedActionList.begin())
-        {
-            i->enableTimed = true;//enable processing only for the first action
-        }
-        else i->enableTimed = false;
+        i->enableTimed = i == mTimedActionList.begin();//enable processing only for the first action
 
-        if (e.action.timedActionList.timerType == 1)
+        if (e.action.timedActionList.timerType == 0)
+            i->event.type = SMART_EVENT_UPDATE_OOC;
+        else if (e.action.timedActionList.timerType == 1)
             i->event.type = SMART_EVENT_UPDATE_IC;
         else if (e.action.timedActionList.timerType > 1)
             i->event.type = SMART_EVENT_UPDATE;
+
         InitTimer((*i));
     }
 }

@@ -4,10 +4,9 @@
 #include "Model.h"
 #include "G3D/Matrix4.h"
 
-DoodadHandler::DoodadHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
+DoodadHandler::DoodadHandler( ADT* adt ) : 
+    ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
 {
-    if (!adt->HasObjectData)
-        return;
     Chunk* mddf = adt->ObjectData->GetChunkByName("MDDF");
     if (mddf)
         ReadDoodadDefinitions(mddf);
@@ -18,19 +17,19 @@ DoodadHandler::DoodadHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(
         ReadDoodadPaths(mmid, mmdx);
 }
 
-void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
+void DoodadHandler::ProcessInternal( MapChunk* mcnk )
 {
     if (!IsSane())
         return;
-    Chunk* doodadReferencesChunk = subChunks->GetChunkByName("MCRD");
-    if (!doodadReferencesChunk)
-        return;
-    FILE* stream = doodadReferencesChunk->GetStream();
-    uint32 refCount = doodadReferencesChunk->Length / 4;
+    
+    uint32 refCount = mcnk->Header.DoodadRefs;
+    FILE* stream = mcnk->Source->GetStream();
+    fseek(stream, mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
     for (uint32 i = 0; i < refCount; i++)
     {
         int32 index;
-        if (int count = fread(&index, sizeof(int32), 1, stream) != 1)
+        int32 count;
+        if ((count = fread(&index, sizeof(int32), 1, stream)) != 1)
             printf("DoodadHandler::ProcessInternal: Failed to read some data expected 1, read %d\n", count);
         if (index < 0 || uint32(index) >= _definitions->size())
             continue;
@@ -56,6 +55,8 @@ void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
 
         InsertModelGeometry(doodad, model);
     }
+    // Restore the stream position
+    fseek(stream, mcnk->Source->Offset, SEEK_SET);
 }
 
 void DoodadHandler::ReadDoodadDefinitions( Chunk* chunk )
@@ -92,11 +93,10 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
 
 void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* model)
 {
-    G3D::Matrix4 transformation = Utils::GetTransformation(def);
     uint32 vertOffset = Vertices.size();
-
+    
     for (std::vector<Vector3>::iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
-        Vertices.push_back(Utils::VectorTransform(*itr, transformation));
+        Vertices.push_back(Utils::TransformDoodadVertex(def, *itr)); // Vertices have to be converted based on the information from the DoodadDefinition struct
 
     for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));

@@ -66,6 +66,8 @@ void MapChunk::GenerateVertices( FILE* stream )
             Vertices.push_back(vert);
         }
     }
+    // Restore stream position.
+    fseek(stream, Source->Offset, SEEK_SET);
 }
 
 bool MapChunk::HasHole( uint32 map, int x, int y )

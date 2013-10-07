@@ -273,7 +273,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
     recvData >> guid;
-    GetPlayer()->SetSelection(guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
 

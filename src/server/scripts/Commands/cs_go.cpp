@@ -39,22 +39,22 @@ public:
     {
         static ChatCommand goCommandTable[] =
         {
-            { "creature",  RBAC_PERM_COMMAND_GO_CREATURE,  false, &HandleGoCreatureCommand,  "", NULL },
-            { "graveyard", RBAC_PERM_COMMAND_GO_GRAVEYARD, false, &HandleGoGraveyardCommand, "", NULL },
-            { "grid",      RBAC_PERM_COMMAND_GO_GRID,      false, &HandleGoGridCommand,      "", NULL },
-            { "object",    RBAC_PERM_COMMAND_GO_OBJECT,    false, &HandleGoObjectCommand,    "", NULL },
-            { "taxinode",  RBAC_PERM_COMMAND_GO_TAXINODE,  false, &HandleGoTaxinodeCommand,  "", NULL },
-            { "trigger",   RBAC_PERM_COMMAND_GO_TRIGGER,   false, &HandleGoTriggerCommand,   "", NULL },
-            { "zonexy",    RBAC_PERM_COMMAND_GO_ZONEXY,    false, &HandleGoZoneXYCommand,    "", NULL },
-            { "xyz",       RBAC_PERM_COMMAND_GO_XYZ,       false, &HandleGoXYZCommand,       "", NULL },
-            { "ticket",    RBAC_PERM_COMMAND_GO_TICKET,    false, &HandleGoTicketCommand,    "", NULL },
-            { "",          RBAC_PERM_COMMAND_GO,           false, &HandleGoXYZCommand,       "", NULL },
+            { "creature",  rbac::RBAC_PERM_COMMAND_GO_CREATURE,  false, &HandleGoCreatureCommand,  "", NULL },
+            { "graveyard", rbac::RBAC_PERM_COMMAND_GO_GRAVEYARD, false, &HandleGoGraveyardCommand, "", NULL },
+            { "grid",      rbac::RBAC_PERM_COMMAND_GO_GRID,      false, &HandleGoGridCommand,      "", NULL },
+            { "object",    rbac::RBAC_PERM_COMMAND_GO_OBJECT,    false, &HandleGoObjectCommand,    "", NULL },
+            { "taxinode",  rbac::RBAC_PERM_COMMAND_GO_TAXINODE,  false, &HandleGoTaxinodeCommand,  "", NULL },
+            { "trigger",   rbac::RBAC_PERM_COMMAND_GO_TRIGGER,   false, &HandleGoTriggerCommand,   "", NULL },
+            { "zonexy",    rbac::RBAC_PERM_COMMAND_GO_ZONEXY,    false, &HandleGoZoneXYCommand,    "", NULL },
+            { "xyz",       rbac::RBAC_PERM_COMMAND_GO_XYZ,       false, &HandleGoXYZCommand,       "", NULL },
+            { "ticket",    rbac::RBAC_PERM_COMMAND_GO_TICKET,    false, &HandleGoTicketCommand,    "", NULL },
+            { "",          rbac::RBAC_PERM_COMMAND_GO,           false, &HandleGoXYZCommand,       "", NULL },
             { NULL,        0,                              false, NULL,                      "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "go", RBAC_PERM_COMMAND_GO, false, NULL, "", goCommandTable },
+            { "go", rbac::RBAC_PERM_COMMAND_GO, false, NULL, "", goCommandTable },
             { NULL, 0,                    false, NULL, "", NULL }
         };
         return commandTable;
