@@ -354,6 +354,10 @@ void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
 void AddSC_instance_firelands();
 void AddSC_boss_alysrazor();
+void AddSC_boss_grand_vizier_ertan();       //The Vortex Pinnacle
+void AddSC_boss_altairus();
+void AddSC_boss_asaad();
+void AddSC_instance_the_vortex_pinnacle();
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -1050,6 +1054,10 @@ void AddKalimdorScripts()
     AddSC_boss_zum_rah();                   //Zul'Farrak
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();
+    AddSC_boss_grand_vizier_ertan();       //The Vortex Pinnacle
+    AddSC_boss_altairus();
+    AddSC_boss_asaad();
+    AddSC_instance_the_vortex_pinnacle();
 
     AddSC_ashenvale();
     AddSC_azshara();
