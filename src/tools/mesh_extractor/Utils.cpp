@@ -455,3 +455,13 @@ WMOGroupHeader WMOGroupHeader::Read(Stream* stream)
     
     return ret;
 }
+
+void Utils::InitializeMmapTileHeader(MmapTileHeader& header)
+{
+    memset(&header, 0, sizeof(MmapTileHeader));
+    header.mmapMagic = MMAP_MAGIC;
+    header.dtVersion = DT_NAVMESH_VERSION;
+    header.mmapVersion = MMAP_VERSION;
+    header.size = 0;
+    header.usesLiquids = true;
+}
