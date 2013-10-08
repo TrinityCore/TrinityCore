@@ -58,6 +58,7 @@ public:
                 return 0;
             }
             MmapTileHeader header;
+            Utils::InitializeMmapTileHeader(header);
             header.size = builder.DataSize;
             fwrite(&header, sizeof(MmapTileHeader), 1, f);
             fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
@@ -149,6 +150,7 @@ void ContinentBuilder::Build()
             }
 
             MmapTileHeader mheader;
+            Utils::InitializeMmapTileHeader(mheader);
             mheader.size = builder->DataSize;
             fwrite(&mheader, sizeof(MmapTileHeader), 1, f);
             fwrite(nav, sizeof(unsigned char), builder->DataSize, f);

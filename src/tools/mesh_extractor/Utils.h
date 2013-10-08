@@ -344,10 +344,7 @@ struct MmapTileHeader
     uint32 dtVersion;
     uint32 mmapVersion;
     uint32 size;
-    bool usesLiquids;
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
+    bool usesLiquids : 1;
 };
 
 class Utils
@@ -386,5 +383,6 @@ public:
     static Vector3 TransformDoodadVertex(const IDefinition& def, Vector3 vec, bool translate = true);
     static Vector3 VectorTransform(const Vector3& vec, const G3D::Matrix4& matrix, bool normal = false);
     static Vector3 TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& root, Vector3& vec, bool translate = true);
+    static void InitializeMmapTileHeader(MmapTileHeader& header);
 };
 #endif
