@@ -346,7 +346,7 @@ class Item : public Object
 
         uint32 GetRefundRecipient() const { return m_refundRecipient; }
         uint32 GetPaidMoney() const { return m_paidMoney; }
-        uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
+        uint32 GetPaidExtendedCost() const { return ((uint32)m_paidExtendedCost*865/1000); }
 
         void UpdatePlayedTime(Player* owner);
         uint32 GetPlayedTime();
