@@ -175,4 +175,10 @@ struct boss_horAI : ScriptedAI
     }
 };
 
+template<class AI>
+AI* GetHallsOfReflectionAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, HoRScriptName);
+}
+
 #endif
