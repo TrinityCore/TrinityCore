@@ -1363,7 +1363,7 @@ void ScriptMgr::OnGroupDisband(Group* group)
 }
 
 // Unit
-void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, uint32& gain)
+void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, int32& gain)
 {
     FOREACH_SCRIPT(UnitScript)->OnHeal(healer, reciever, gain);
 }
