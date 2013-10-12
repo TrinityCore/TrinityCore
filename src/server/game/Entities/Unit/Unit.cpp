@@ -9592,8 +9592,10 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
     if (addhealth)
         gain = victim->ModifyHealth(int32(addhealth));
 
+    uint32 unsignedGain = gain;
+
     // Hook for OnHeal Event
-    sScriptMgr->OnHeal(this, victim, gain);
+    sScriptMgr->OnHeal(this, victim, unsignedGain);
 
     Unit* unit = this;
 
