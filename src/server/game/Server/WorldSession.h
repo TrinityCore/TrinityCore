@@ -40,7 +40,6 @@ class LoginQueryHolder;
 class Object;
 class Player;
 class Quest;
-class RBACData;
 class SpellCastTargets;
 class Unit;
 class Warden;
@@ -61,6 +60,11 @@ struct LfgQueueStatusData;
 struct LfgPlayerRewardData;
 struct LfgRoleCheck;
 struct LfgUpdateData;
+}
+
+namespace rbac
+{
+class RBACData;
 }
 
 enum AccountDataType
@@ -218,7 +222,7 @@ class WorldSession
         void SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
 
-        RBACData* GetRBACData();
+        rbac::RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
         void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
@@ -352,6 +356,7 @@ class WorldSession
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
+        void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
         uint32 getDialogStatus(Player* player, Object* questgiver, uint32 defstatus);
 
         time_t m_timeOutTime;
@@ -987,6 +992,7 @@ class WorldSession
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
         uint32 m_latency;
+        uint32 m_clientTimeDelay;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
@@ -995,7 +1001,7 @@ class WorldSession
         bool isRecruiter;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
         time_t timeLastWhoCommand;
-        RBACData* _RBACData;
+        rbac::RBACData* _RBACData;
 };
 #endif
 /// @}

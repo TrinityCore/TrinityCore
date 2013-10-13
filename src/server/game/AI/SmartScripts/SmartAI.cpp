@@ -206,7 +206,7 @@ void SmartAI::EndPath(bool fail)
     mLastWP = NULL;
 
     if (mCanRepeatPath)
-        StartPath(mRun, GetScript()->GetPathId(), mCanRepeatPath);
+        StartPath(mRun, GetScript()->GetPathId(), true);
     else
         GetScript()->SetPathId(0);
 

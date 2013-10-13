@@ -10,7 +10,7 @@ class LiquidHandler;
 class ADT
 {
 public:
-    ADT(std::string file);
+    ADT(std::string file, int x, int y);
     ~ADT();
 
     void Read();
@@ -25,5 +25,8 @@ public:
     DoodadHandler* _DoodadHandler;
     WorldModelHandler* _WorldModelHandler;
     LiquidHandler* _LiquidHandler;
+
+    int X;
+    int Y;
 };
 #endif
