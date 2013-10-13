@@ -11111,6 +11111,12 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
     if (!spellInfo || !spellInfo->Effects[index].IsEffect())
         return false;
 
+    // Anti-magic Shell; immune to magical aura effects
+    if (HasAura(48707, EFFECT_0))
+        if ((spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !spellInfo->_IsPositiveSpell() && spellInfo->Effects[index].Effect == SPELL_EFFECT_APPLY_AURA) ||
+            (spellInfo->Dispel == DISPEL_DISEASE || spellInfo->Dispel == DISPEL_POISON))
+            return true;
+
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 effect = spellInfo->Effects[index].Effect;
     SpellImmuneList const& effectList = m_spellImmune[IMMUNITY_EFFECT];
