@@ -18,30 +18,28 @@
 #ifndef DEF_PINNACLE_H
 #define DEF_PINNACLE_H
 
-enum Data
+uint32 const EncounterCount = 4;
+
+enum DataTypes
 {
-    DATA_SVALA_SORROWGRAVE_EVENT,
-    DATA_GORTOK_PALEHOOF_EVENT,
-    DATA_SKADI_THE_RUTHLESS_EVENT,
-    DATA_KING_YMIRON_EVENT
+    DATA_SVALA                  = 0,
+    DATA_GORTOK_PALEHOOF        = 1,
+    DATA_SKADI_THE_RUTHLESS     = 2,
+    DATA_KING_YMIRON            = 3,  
+
+    DATA_SVALA_SORROWGRAVE      = 4,
+    DATA_SACRIFICED_PLAYER      = 5,
+
+    DATA_NPC_FRENZIED_WORGEN    = 6,
+    DATA_NPC_RAVENOUS_FURBOLG   = 7,
+    DATA_NPC_MASSIVE_JORMUNGAR  = 8,
+    DATA_NPC_FEROCIOUS_RHINO    = 9,
+    DATA_NPC_ORB                = 10,
+    DATA_GORTOK_PALEHOOF_SPHERE = 11,
+
+    DATA_NPC_GRAUF              = 12
 };
 
-enum Data64
-{
-    DATA_SVALA,
-    DATA_SVALA_SORROWGRAVE,
-    DATA_GORTOK_PALEHOOF,
-    DATA_SKADI_THE_RUTHLESS,
-    DATA_NPC_GRAUF,
-    DATA_KING_YMIRON,
-    DATA_NPC_FRENZIED_WORGEN,
-    DATA_NPC_RAVENOUS_FURBOLG,
-    DATA_NPC_MASSIVE_JORMUNGAR,
-    DATA_NPC_FEROCIOUS_RHINO,
-    DATA_NPC_ORB,
-    DATA_GORTOK_PALEHOOF_SPHERE,
-    DATA_SACRIFICED_PLAYER
-};
 
 enum CreatureID
 {
@@ -54,7 +52,16 @@ enum CreatureID
     NPC_MASSIVE_JORMUNGAR    = 26685,
     NPC_FEROCIOUS_RHINO      = 26686,
     NPC_SVALA                = 29281,
-    NPC_PALEHOOF_ORB         = 26688
+    NPC_PALEHOOF_ORB         = 26688,
+    NPC_GRAUF                = 26893
+};
+
+enum GameObjects
+{
+    GO_SKADI_THE_RUTHLESS_DOOR            = 192173,
+    GO_KING_YMIRON_DOOR                   = 192174,
+    GO_PALEHOOF_SPHERE                    = 188593,
+    GO_UTGARDE_MIRROR                     = 191745
 };
 
 #endif

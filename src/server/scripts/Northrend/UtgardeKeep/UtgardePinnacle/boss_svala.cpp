@@ -82,11 +82,6 @@ enum Creatures
     NPC_SCOURGE_HULK                                = 26555
 };
 
-enum GameObjects
-{
-    GO_UTGARDE_MIRROR                             = 191745
-};
-
 enum SvalaPhase
 {
     IDLE,
@@ -119,9 +114,9 @@ public:
         return new boss_svalaAI(creature);
     }
 
-    struct boss_svalaAI : public ScriptedAI
+    struct boss_svalaAI : public BossAI
     {
-        boss_svalaAI(Creature* creature) : ScriptedAI(creature), summons(creature)
+        boss_svalaAI(Creature* creature) : BossAI(creature, DATA_SVALA_SORROWGRAVE), summons(creature)
         {
             instance = creature->GetInstanceScript();
             Phase = IDLE;
@@ -152,6 +147,7 @@ public:
 
         void Reset() OVERRIDE
         {
+            _Reset();
             sacrificed = false;
             SetCombatMovement(true);
 
@@ -169,20 +165,17 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
                 instance->SetData64(DATA_SACRIFICED_PLAYER, 0);
             }
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
 
             sinsterStrikeTimer = 7 * IN_MILLISECONDS;
             callFlamesTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
-
-            if (instance)
-                instance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
         }
 
         void JustSummoned(Creature* summon) OVERRIDE
@@ -228,15 +221,13 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            _JustDied();
             if (Phase == SACRIFICING)
                 SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
             me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
 
             summons.DespawnAll();
-
-            if (instance)
-                instance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, DONE);
 
             Talk(SAY_DEATH);
         }

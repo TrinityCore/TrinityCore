@@ -108,9 +108,9 @@ public:
         return new boss_ymironAI(creature);
     }
 
-    struct boss_ymironAI : public ScriptedAI
+    struct boss_ymironAI : public BossAI
     {
-        boss_ymironAI(Creature* creature) : ScriptedAI(creature)
+        boss_ymironAI(Creature* creature) : BossAI(creature, DATA_KING_YMIRON)
         {
             instance = creature->GetInstanceScript();
             for (int i = 0; i < 4; ++i)
@@ -159,6 +159,7 @@ public:
 
         void Reset() OVERRIDE
         {
+            _Reset();
             m_bIsWalking = false;
             m_bIsPause = false;
             m_bIsActiveWithBJORN = false;
@@ -185,16 +186,13 @@ public:
             DespawnBoatGhosts(m_uiActivedCreatureGUID);
             DespawnBoatGhosts(m_uiOrbGUID);
 
-            if (instance)
-                instance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
+
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
-
-            if (instance)
-                instance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
         }
 
         void SpellHitTarget(Unit* who, SpellInfo const* spell) OVERRIDE
@@ -371,13 +369,11 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            _JustDied();
             Talk(SAY_DEATH);
 
             DespawnBoatGhosts(m_uiActivedCreatureGUID);
             DespawnBoatGhosts(m_uiOrbGUID);
-
-            if (instance)
-                instance->SetData(DATA_KING_YMIRON_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
