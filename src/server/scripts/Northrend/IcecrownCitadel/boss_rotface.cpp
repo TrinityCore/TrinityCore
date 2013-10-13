@@ -91,10 +91,10 @@ enum Events
 
 static const uint32 OozeEntries[4] =
 { 
-    36897, 
-    38138, 
-    36899, 
-    38123
+    36897, // Little Ooze 10
+    38138, // Little Ooze 25 
+    36899, // Big Ooze 10
+    38123 // Big Ooze 25
 };
 
 class boss_rotface : public CreatureScript
@@ -121,13 +121,7 @@ class boss_rotface : public CreatureScript
 
                 infectionStage = 0;
                 infectionCooldown = 14000;
-                
-                std::list<Creature*> Type[4];
-                for (int i = 0; i < 4; ++i)
-                    GetCreatureListWithEntryInGrid(Type[i], me, OozeEntries[i], 200);
-                for (int x = 0; x < 4; ++x)
-                    for (std::list<Creature*>::const_iterator itr = Type[x].begin(); itr != Type[x].end(); ++itr)
-                        (*itr)->DespawnOrUnsummon();
+                DespawnOozes();
             }
 
             void EnterCombat(Unit* who) OVERRIDE
@@ -155,6 +149,7 @@ class boss_rotface : public CreatureScript
                 Talk(SAY_DEATH);
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_DEATH);
+                DespawnOozes();
             }
 
             void JustReachedHome() OVERRIDE
@@ -239,6 +234,16 @@ class boss_rotface : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void DespawnOozes()
+            {
+                std::list<Creature*> Type[4];
+                for (int i = 0; i < 4; ++i)
+                    GetCreatureListWithEntryInGrid(Type[i], me, OozeEntries[i], 200);
+                for (int x = 0; x < 4; ++x)
+                    for (std::list<Creature*>::const_iterator itr = Type[x].begin(); itr != Type[x].end(); ++itr)
+                        (*itr)->DespawnOrUnsummon();
             }
 
         private:
