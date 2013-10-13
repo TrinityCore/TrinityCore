@@ -1043,7 +1043,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     // convert DK melee haste into the gargoyles spell haste
                     float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
                     ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
-                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modMeleeHitChance;
 
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
