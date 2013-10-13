@@ -81,11 +81,8 @@ enum Spells
     SPELL_SKADI_TELEPORT    = 61790,
     // PHASE_GROUND
     SPELL_CRUSH             = 50234,
-    SPELL_CRUSH_H           = 59330,
     SPELL_POISONED_SPEAR    = 50225, //isn't being casted =/
-    SPELL_POISONED_SPEAR_H  = 59331,
-    SPELL_WHIRLWIND         = 50228, //random target, but not the tank approx. every 20s
-    SPELL_WHIRLWIND_H       = 59322
+    SPELL_WHIRLWIND         = 50228 //random target, but not the tank approx. every 20s
 };
 
 enum Creatures
@@ -224,16 +221,16 @@ public:
                     events.ScheduleEvent(EVENT_SUMMON, 20000, 0, PHASE_FLYING); //20000
                     break;
                 case EVENT_CRUSH:
-                    DoCastVictim(IsHeroic() ? SPELL_CRUSH_H : SPELL_CRUSH);
+                    DoCastVictim(SPELL_CRUSH);
                     events.ScheduleEvent(EVENT_CRUSH, 8000, 0, PHASE_GROUND);  
                     break;
                 case EVENT_POISONED_SPEAR:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(target, IsHeroic() ? SPELL_POISONED_SPEAR_H : SPELL_POISONED_SPEAR);
+                        DoCast(target, SPELL_POISONED_SPEAR);
                     events.ScheduleEvent(EVENT_POISONED_SPEAR, 10000, 0, PHASE_GROUND);
                     break;
                 case EVENT_WHIRLWIND:
-                    DoCastAOE(IsHeroic() ?  SPELL_WHIRLWIND_H : SPELL_WHIRLWIND);
+                    DoCastAOE(SPELL_WHIRLWIND);
                     events.ScheduleEvent(EVENT_WHIRLWIND, 23000, 0, PHASE_GROUND);
                     break;                        
                 }
