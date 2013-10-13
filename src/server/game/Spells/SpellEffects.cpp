@@ -2559,7 +2559,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         if (!item_owner)
             return;
 
-        if (item_owner != player && player->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
+        if (item_owner != player && player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
             sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
                 player->GetName().c_str(), player->GetSession()->GetAccountId(),
@@ -2624,7 +2624,7 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     if (!item_owner)
         return;
 
-    if (item_owner != player && player->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
+    if (item_owner != player && player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
             player->GetName().c_str(), player->GetSession()->GetAccountId(),
@@ -2705,7 +2705,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     if (!item_owner)
         return;
 
-    if (item_owner != player && player->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
+    if (item_owner != player && player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(temp): %s (Entry: %d) for player: %s (Account: %u)",
             player->GetName().c_str(), player->GetSession()->GetAccountId(),

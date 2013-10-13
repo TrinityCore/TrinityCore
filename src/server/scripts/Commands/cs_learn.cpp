@@ -40,35 +40,35 @@ public:
     {
         static ChatCommand learnAllMyCommandTable[] =
         {
-            { "class",      RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,      false, &HandleLearnAllMyClassCommand,      "", NULL },
-            { "pettalents", RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS, false, &HandleLearnAllMyPetTalentsCommand, "", NULL },
-            { "spells",     RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,     false, &HandleLearnAllMySpellsCommand,     "", NULL },
-            { "talents",    RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS,    false, &HandleLearnAllMyTalentsCommand,    "", NULL },
+            { "class",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,      false, &HandleLearnAllMyClassCommand,      "", NULL },
+            { "pettalents", rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS, false, &HandleLearnAllMyPetTalentsCommand, "", NULL },
+            { "spells",     rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,     false, &HandleLearnAllMySpellsCommand,     "", NULL },
+            { "talents",    rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS,    false, &HandleLearnAllMyTalentsCommand,    "", NULL },
             { NULL,         0,                                         false, NULL,                               "", NULL }
         };
 
         static ChatCommand learnAllCommandTable[] =
         {
-            { "my",      RBAC_PERM_COMMAND_LEARN_ALL_MY,      false, NULL,                          "", learnAllMyCommandTable },
-            { "gm",      RBAC_PERM_COMMAND_LEARN_ALL_GM,      false, &HandleLearnAllGMCommand,      "", NULL },
-            { "crafts",  RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS,  false, &HandleLearnAllCraftsCommand,  "", NULL },
-            { "default", RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT, false, &HandleLearnAllDefaultCommand, "", NULL },
-            { "lang",    RBAC_PERM_COMMAND_LEARN_ALL_LANG,    false, &HandleLearnAllLangCommand,    "", NULL },
-            { "recipes", RBAC_PERM_COMMAND_LEARN_ALL_RECIPES, false, &HandleLearnAllRecipesCommand, "", NULL },
+            { "my",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY,      false, NULL,                          "", learnAllMyCommandTable },
+            { "gm",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_GM,      false, &HandleLearnAllGMCommand,      "", NULL },
+            { "crafts",  rbac::RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS,  false, &HandleLearnAllCraftsCommand,  "", NULL },
+            { "default", rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT, false, &HandleLearnAllDefaultCommand, "", NULL },
+            { "lang",    rbac::RBAC_PERM_COMMAND_LEARN_ALL_LANG,    false, &HandleLearnAllLangCommand,    "", NULL },
+            { "recipes", rbac::RBAC_PERM_COMMAND_LEARN_ALL_RECIPES, false, &HandleLearnAllRecipesCommand, "", NULL },
             { NULL,      0,                                   false, NULL,                          "", NULL }
         };
 
         static ChatCommand learnCommandTable[] =
         {
-            { "all", RBAC_PERM_COMMAND_LEARN_ALL, false, NULL,                "", learnAllCommandTable },
-            { "",    RBAC_PERM_COMMAND_LEARN,     false, &HandleLearnCommand, "", NULL },
+            { "all", rbac::RBAC_PERM_COMMAND_LEARN_ALL, false, NULL,                "", learnAllCommandTable },
+            { "",    rbac::RBAC_PERM_COMMAND_LEARN,     false, &HandleLearnCommand, "", NULL },
             { NULL,  0,                           false, NULL,                "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "learn",   RBAC_PERM_COMMAND_LEARN,   false, NULL,                  "", learnCommandTable },
-            { "unlearn", RBAC_PERM_COMMAND_UNLEARN, false, &HandleUnLearnCommand, "", NULL },
+            { "learn",   rbac::RBAC_PERM_COMMAND_LEARN,   false, NULL,                  "", learnCommandTable },
+            { "unlearn", rbac::RBAC_PERM_COMMAND_UNLEARN, false, &HandleUnLearnCommand, "", NULL },
             { NULL,      0,                         false, NULL,                  "", NULL }
         };
         return commandTable;

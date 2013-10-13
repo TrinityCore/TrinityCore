@@ -2134,11 +2134,8 @@ class Unit : public WorldObject
         TempSummon* ToTempSummon() { if (IsSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
         TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return NULL; }
 
-        void SetTarget(uint64 guid);
-
-        // Handling caster facing during spellcast
-        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
-        void ReleaseFocus(Spell const* focusSpell);
+        uint64 GetTarget() const { return GetUInt64Value(UNIT_FIELD_TARGET); }
+        virtual void SetTarget(uint64 /*guid*/) = 0;
 
         // Movement info
         Movement::MoveSpline * movespline;
@@ -2267,7 +2264,6 @@ class Unit : public WorldObject
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
 
-        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 
         time_t _lastDamagedTime; // Part of Evade mechanics

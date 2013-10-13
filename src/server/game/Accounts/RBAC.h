@@ -42,9 +42,11 @@
 
 #include "Define.h"
 #include <string>
-#include <bitset>
 #include <set>
 #include <map>
+
+namespace rbac
+{
 
 enum RBACPermissions
 {
@@ -98,25 +100,26 @@ enum RBACPermissions
     RBAC_PERM_COMMANDS_PINFO_CHECK_PERSONAL_DATA             = 48,
     RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE                  = 49,
     RBAC_PERM_MAY_CHECK_OWN_EMAIL                            = 50,
-    // Leave some space for core permissions
 
+    // Free space for core permissions (till 149)
+    // Roles (Permissions with delegated permissions) use 199 and descending
     RBAC_PERM_COMMAND_RBAC                                   = 200,
     RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
-    RBAC_PERM_COMMAND_RBAC_ACC_GROUP                         = 202,
-    RBAC_PERM_COMMAND_RBAC_ACC_GROUP_ADD                     = 203,
-    RBAC_PERM_COMMAND_RBAC_ACC_GROUP_DEL                     = 204,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE                          = 205,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_GRANT                    = 206,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_DENY                     = 207,
-    RBAC_PERM_COMMAND_RBAC_ACC_ROLE_REVOKE                   = 208,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM                          = 209,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT                    = 210,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 211,
-    RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE                   = 212,
-    RBAC_PERM_COMMAND_RBAC_LIST                              = 213,
-    RBAC_PERM_COMMAND_RBAC_LIST_GROUPS                       = 214,
-    RBAC_PERM_COMMAND_RBAC_LIST_ROLES                        = 215,
-    RBAC_PERM_COMMAND_RBAC_LIST_PERMS                        = 216,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST                     = 202,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT                    = 203,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY                     = 204,
+    RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE                   = 205,
+    RBAC_PERM_COMMAND_RBAC_LIST                              = 206,
+    // 207 - reuse
+    // 208 - reuse
+    // 209 - reuse
+    // 210 - reuse
+    // 211 - reuse
+    // 212 - reuse
+    // 213 - reuse
+    // 214 - reuse
+    // 215 - reuse
+    // 216 - reuse
     RBAC_PERM_COMMAND_ACCOUNT                                = 217,
     RBAC_PERM_COMMAND_ACCOUNT_ADDON                          = 218,
     RBAC_PERM_COMMAND_ACCOUNT_CREATE                         = 219,
@@ -507,109 +510,109 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_QUEST_COMPLETE                         = 604,
     RBAC_PERM_COMMAND_QUEST_REMOVE                           = 605,
     RBAC_PERM_COMMAND_QUEST_REWARD                           = 606,
-    RBAC_PERM_COMMANDS_RELOAD                                = 607,
-    RBAC_PERM_COMMANDS_RELOAD_ACCESS_REQUIREMENT             = 608,
-    RBAC_PERM_COMMANDS_RELOAD_ACHIEVEMENT_CRITERIA_DATA      = 609,
-    RBAC_PERM_COMMANDS_RELOAD_ACHIEVEMENT_REWARD             = 610,
-    RBAC_PERM_COMMANDS_RELOAD_ALL                            = 611,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_ACHIEVEMENT                = 612,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_AREA                       = 613,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_EVENTAI                    = 614,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_GOSSIP                     = 615,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_ITEM                       = 616,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_LOCALES                    = 617,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_LOOT                       = 618,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_NPC                        = 619,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_QUEST                      = 620,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_SCRIPTS                    = 621,
-    RBAC_PERM_COMMANDS_RELOAD_ALL_SPELL                      = 622,
-    RBAC_PERM_COMMANDS_RELOAD_AREATRIGGER_INVOLVEDRELATION   = 623,
-    RBAC_PERM_COMMANDS_RELOAD_AREATRIGGER_TAVERN             = 624,
-    RBAC_PERM_COMMANDS_RELOAD_AREATRIGGER_TELEPORT           = 625,
-    RBAC_PERM_COMMANDS_RELOAD_AUCTIONS                       = 626,
-    RBAC_PERM_COMMANDS_RELOAD_AUTOBROADCAST                  = 627,
-    RBAC_PERM_COMMANDS_RELOAD_COMMAND                        = 628,
-    RBAC_PERM_COMMANDS_RELOAD_CONDITIONS                     = 629,
-    RBAC_PERM_COMMANDS_RELOAD_CONFIG                         = 630,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_AI_SCRIPTS            = 631,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_AI_TEXTS              = 632,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_LINKED_RESPAWN        = 633,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_LOOT_TEMPLATE         = 634,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_ONKILL_REPUTATION     = 635,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_QUESTENDER            = 636,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_QUESTSTARTER          = 637,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_SUMMON_GROUPS         = 638,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_TEMPLATE              = 639,
-    RBAC_PERM_COMMANDS_RELOAD_CREATURE_TEXT                  = 640,
-    RBAC_PERM_COMMANDS_RELOAD_DISABLES                       = 641,
-    RBAC_PERM_COMMANDS_RELOAD_DISENCHANT_LOOT_TEMPLATE       = 642,
-    RBAC_PERM_COMMANDS_RELOAD_EVENT_SCRIPTS                  = 643,
-    RBAC_PERM_COMMANDS_RELOAD_FISHING_LOOT_TEMPLATE          = 644,
-    RBAC_PERM_COMMANDS_RELOAD_GAME_GRAVEYARD_ZONE            = 645,
-    RBAC_PERM_COMMANDS_RELOAD_GAMEOBJECT_QUESTENDER          = 646,
-    RBAC_PERM_COMMANDS_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE = 647,
-    RBAC_PERM_COMMANDS_RELOAD_GAMEOBJECT_QUESTSTARTER        = 648,
-    RBAC_PERM_COMMANDS_RELOAD_GAME_TELE                      = 649,
-    RBAC_PERM_COMMANDS_RELOAD_GM_TICKETS                     = 650,
-    RBAC_PERM_COMMANDS_RELOAD_GOSSIP_MENU                    = 651,
-    RBAC_PERM_COMMANDS_RELOAD_GOSSIP_MENU_OPTION             = 652,
-    RBAC_PERM_COMMANDS_RELOAD_ITEM_ENCHANTMENT_TEMPLATE      = 653,
-    RBAC_PERM_COMMANDS_RELOAD_ITEM_LOOT_TEMPLATE             = 654,
-    RBAC_PERM_COMMANDS_RELOAD_ITEM_SET_NAMES                 = 655,
-    RBAC_PERM_COMMANDS_RELOAD_LFG_DUNGEON_REWARDS            = 656,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_ACHIEVEMENT_REWARD     = 657,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_CRETURE                = 658,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_CRETURE_TEXT           = 659,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_GAMEOBJECT             = 660,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_GOSSIP_MENU_OPTION     = 661,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_ITEM                   = 662,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_ITEM_SET_NAME          = 663,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_NPC_TEXT               = 664,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_PAGE_TEXT              = 665,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_POINTS_OF_INTEREST     = 666,
-    RBAC_PERM_COMMANDS_RELOAD_LOCALES_QUEST                  = 667,
-    RBAC_PERM_COMMANDS_RELOAD_MAIL_LEVEL_REWARD              = 668,
-    RBAC_PERM_COMMANDS_RELOAD_MAIL_LOOT_TEMPLATE             = 669,
-    RBAC_PERM_COMMANDS_RELOAD_MILLING_LOOT_TEMPLATE          = 670,
-    RBAC_PERM_COMMANDS_RELOAD_NPC_SPELLCLICK_SPELLS          = 671,
-    RBAC_PERM_COMMANDS_RELOAD_NPC_TRAINER                    = 672,
-    RBAC_PERM_COMMANDS_RELOAD_NPC_VENDOR                     = 673,
-    RBAC_PERM_COMMANDS_RELOAD_PAGE_TEXT                      = 674,
-    RBAC_PERM_COMMANDS_RELOAD_PICKPOCKETING_LOOT_TEMPLATE    = 675,
-    RBAC_PERM_COMMANDS_RELOAD_POINTS_OF_INTEREST             = 676,
-    RBAC_PERM_COMMANDS_RELOAD_PROSPECTING_LOOT_TEMPLATE      = 677,
-    RBAC_PERM_COMMANDS_RELOAD_QUEST_POI                      = 678,
-    RBAC_PERM_COMMANDS_RELOAD_QUEST_TEMPLATE                 = 679,
-    RBAC_PERM_COMMANDS_RELOAD_RBAC                           = 680,
-    RBAC_PERM_COMMANDS_RELOAD_REFERENCE_LOOT_TEMPLATE        = 681,
-    RBAC_PERM_COMMANDS_RELOAD_REPUTATION_REWARD_RATE         = 682,
-    RBAC_PERM_COMMANDS_RELOAD_RESERVED_NAME                  = 683,
-    RBAC_PERM_COMMANDS_RELOAD_SKILL_DISCOVERY_TEMPLATE       = 684,
-    RBAC_PERM_COMMANDS_RELOAD_SKILL_EXTRA_ITEM_TEMPLATE      = 685,
-    RBAC_PERM_COMMANDS_RELOAD_SKILL_FISHING_BASE_LEVEL       = 686,
-    RBAC_PERM_COMMANDS_RELOAD_SKINNING_LOOT_TEMPLATE         = 687,
-    RBAC_PERM_COMMANDS_RELOAD_SMART_SCRIPTS                  = 688,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_AREA                     = 689,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_BONUS_DATA               = 690,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_GROUP                    = 691,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_GROUP_STACK_RULES        = 692,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_LEARN_SPELL              = 693,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_LINKED_SPELL             = 694,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_LOOT_TEMPLATE            = 695,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_PET_AURAS                = 696,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_PROC                     = 697,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_PROC_EVENT               = 698,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_REQUIRED                 = 699,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_SCRIPTS                  = 700,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_TARGET_POSITION          = 701,
-    RBAC_PERM_COMMANDS_RELOAD_SPELL_THREATS                  = 702,
-    RBAC_PERM_COMMANDS_RELOAD_SPILLOVER_TEMPLATE             = 703,
-    RBAC_PERM_COMMANDS_RELOAD_TRINITY_STRING                 = 704,
-    RBAC_PERM_COMMANDS_RELOAD_VEHICLE_ACCESORY               = 705,
-    RBAC_PERM_COMMANDS_RELOAD_VEHICLE_TEMPLATE_ACCESSORY     = 706,
-    RBAC_PERM_COMMANDS_RELOAD_WARDEN_ACTION                  = 707,
-    RBAC_PERM_COMMANDS_RELOAD_WAYPOINT_DATA                  = 708,
-    RBAC_PERM_COMMANDS_RELOAD_WAYPOINT_SCRIPTS               = 709,
+    RBAC_PERM_COMMAND_RELOAD                                 = 607,
+    RBAC_PERM_COMMAND_RELOAD_ACCESS_REQUIREMENT              = 608,
+    RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_CRITERIA_DATA       = 609,
+    RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_REWARD              = 610,
+    RBAC_PERM_COMMAND_RELOAD_ALL                             = 611,
+    RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT                 = 612,
+    RBAC_PERM_COMMAND_RELOAD_ALL_AREA                        = 613,
+    RBAC_PERM_COMMAND_RELOAD_ALL_EVENTAI                     = 614,
+    RBAC_PERM_COMMAND_RELOAD_ALL_GOSSIP                      = 615,
+    RBAC_PERM_COMMAND_RELOAD_ALL_ITEM                        = 616,
+    RBAC_PERM_COMMAND_RELOAD_ALL_LOCALES                     = 617,
+    RBAC_PERM_COMMAND_RELOAD_ALL_LOOT                        = 618,
+    RBAC_PERM_COMMAND_RELOAD_ALL_NPC                         = 619,
+    RBAC_PERM_COMMAND_RELOAD_ALL_QUEST                       = 620,
+    RBAC_PERM_COMMAND_RELOAD_ALL_SCRIPTS                     = 621,
+    RBAC_PERM_COMMAND_RELOAD_ALL_SPELL                       = 622,
+    RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_INVOLVEDRELATION    = 623,
+    RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TAVERN              = 624,
+    RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TELEPORT            = 625,
+    RBAC_PERM_COMMAND_RELOAD_AUCTIONS                        = 626,
+    RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST                   = 627,
+    RBAC_PERM_COMMAND_RELOAD_COMMAND                         = 628,
+    RBAC_PERM_COMMAND_RELOAD_CONDITIONS                      = 629,
+    RBAC_PERM_COMMAND_RELOAD_CONFIG                          = 630,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_AI_SCRIPTS             = 631,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_AI_TEXTS               = 632,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN         = 633,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE          = 634,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_ONKILL_REPUTATION      = 635,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTENDER             = 636,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER           = 637,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS          = 638,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE               = 639,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_TEXT                   = 640,
+    RBAC_PERM_COMMAND_RELOAD_DISABLES                        = 641,
+    RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE        = 642,
+    RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS                   = 643,
+    RBAC_PERM_COMMAND_RELOAD_FISHING_LOOT_TEMPLATE           = 644,
+    RBAC_PERM_COMMAND_RELOAD_GAME_GRAVEYARD_ZONE             = 645,
+    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER           = 646,
+    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE  = 647,
+    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTSTARTER         = 648,
+    RBAC_PERM_COMMAND_RELOAD_GAME_TELE                       = 649,
+    RBAC_PERM_COMMAND_RELOAD_GM_TICKETS                      = 650,
+    RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU                     = 651,
+    RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION              = 652,
+    RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE       = 653,
+    RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE              = 654,
+    RBAC_PERM_COMMAND_RELOAD_ITEM_SET_NAMES                  = 655,
+    RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS             = 656,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_ACHIEVEMENT_REWARD      = 657,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE                 = 658,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE_TEXT            = 659,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT              = 660,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION      = 661,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM                    = 662,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM_SET_NAME           = 663,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_NPC_TEXT                = 664,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT               = 665,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST      = 666,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_QUEST                   = 667,
+    RBAC_PERM_COMMAND_RELOAD_MAIL_LEVEL_REWARD               = 668,
+    RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE              = 669,
+    RBAC_PERM_COMMAND_RELOAD_MILLING_LOOT_TEMPLATE           = 670,
+    RBAC_PERM_COMMAND_RELOAD_NPC_SPELLCLICK_SPELLS           = 671,
+    RBAC_PERM_COMMAND_RELOAD_NPC_TRAINER                     = 672,
+    RBAC_PERM_COMMAND_RELOAD_NPC_VENDOR                      = 673,
+    RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT                       = 674,
+    RBAC_PERM_COMMAND_RELOAD_PICKPOCKETING_LOOT_TEMPLATE     = 675,
+    RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST              = 676,
+    RBAC_PERM_COMMAND_RELOAD_PROSPECTING_LOOT_TEMPLATE       = 677,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_POI                       = 678,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE                  = 679,
+    RBAC_PERM_COMMAND_RELOAD_RBAC                            = 680,
+    RBAC_PERM_COMMAND_RELOAD_REFERENCE_LOOT_TEMPLATE         = 681,
+    RBAC_PERM_COMMAND_RELOAD_REPUTATION_REWARD_RATE          = 682,
+    RBAC_PERM_COMMAND_RELOAD_RESERVED_NAME                   = 683,
+    RBAC_PERM_COMMAND_RELOAD_SKILL_DISCOVERY_TEMPLATE        = 684,
+    RBAC_PERM_COMMAND_RELOAD_SKILL_EXTRA_ITEM_TEMPLATE       = 685,
+    RBAC_PERM_COMMAND_RELOAD_SKILL_FISHING_BASE_LEVEL        = 686,
+    RBAC_PERM_COMMAND_RELOAD_SKINNING_LOOT_TEMPLATE          = 687,
+    RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS                   = 688,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_AREA                      = 689,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_BONUS_DATA                = 690,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP                     = 691,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES         = 692,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL               = 693,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL              = 694,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE             = 695,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS                 = 696,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_PROC                      = 697,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_PROC_EVENT                = 698,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED                  = 699,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS                   = 700,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION           = 701,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS                   = 702,
+    RBAC_PERM_COMMAND_RELOAD_SPILLOVER_TEMPLATE              = 703,
+    RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING                  = 704,
+    RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY                = 705,
+    RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY      = 706,
+    RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION                   = 707,
+    RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA                   = 708,
+    RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS                = 709,
     RBAC_PERM_COMMAND_RESET                                  = 710,
     RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS                     = 711,
     RBAC_PERM_COMMAND_RESET_HONOR                            = 712,
@@ -692,70 +695,30 @@ enum RBACCommandResult
     RBAC_ID_DOES_NOT_EXISTS
 };
 
-typedef std::bitset<RBAC_PERM_MAX> RBACPermissionContainer;
-typedef std::set<uint32> RBACRoleContainer;
-typedef std::set<uint32> RBACGroupContainer;
+typedef std::set<uint32> RBACPermissionContainer;
 
-class RBACObject
+class RBACPermission
 {
     public:
-        RBACObject(uint32 id = 0, std::string const& name = ""):
+        RBACPermission(uint32 id = 0, std::string const& name = ""):
             _id(id), _name(name) { }
-
-        virtual ~RBACObject() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
         /// Gets the Id of the Object
         uint32 GetId() const { return _id; }
 
+        /// Gets the Permissions linked to this permission
+        RBACPermissionContainer const& GetLinkedPermissions() const { return _perms; }
+        /// Adds a new linked Permission
+        void AddLinkedPermission(uint32 id) { _perms.insert(id); }
+        /// Removes a linked Permission
+        void RemoveLinkedPermission(uint32 id) { _perms.erase(id); }
+
     private:
         uint32 _id;                                        ///> id of the object
         std::string _name;                                 ///> name of the object
-};
-
-/// Permission: Defines an autorization to perform certain operation
-class RBACPermission: public RBACObject
-{
-    public:
-        RBACPermission(uint32 id = 0, std::string const& name = ""):
-            RBACObject(id, name) { }
-};
-
-/// Set of Permissions
-class RBACRole: public RBACObject
-{
-    public:
-        RBACRole(uint32 id = 0, std::string const& name = ""):
-            RBACObject(id, name) { }
-
-        /// Gets the Permissions assigned to this role
-        RBACPermissionContainer const& GetPermissions() const { return _perms; }
-        /// Grants a Permission (Adds)
-        void GrantPermission(uint32 id);
-        /// Revokes a Permission (Removes)
-        void RevokePermission(uint32 id);
-
-    private:
         RBACPermissionContainer _perms;                    ///> Set of permissions
-};
-
-/// Set of Roles
-class RBACGroup: public RBACObject
-{
-    public:
-        RBACGroup(uint32 id = 0, std::string const& name = ""):
-            RBACObject(id, name) { }
-
-        /// Gets the Roles assigned to this group
-        RBACRoleContainer const& GetRoles() const { return _roles; }
-        /// Grants a Role (Adds)
-        void GrantRole(uint32 role);
-        /// Revokes a Role (Removes)
-        void RevokeRole(uint32 role);
-
-    private:
-        RBACRoleContainer _roles;                          ///> Set of Roles
 };
 
 /**
@@ -763,22 +726,22 @@ class RBACGroup: public RBACObject
  * @brief Contains all needed information about the acccount
  *
  * This class contains all the data needed to calculate the account permissions.
- * RBACDAta is formed by group permissions and user permissions through:
- * - Granted Groups, which contains roles, which contains permissions: Set of granted permissions
- * - Granted Roles, which contains permissions: Set of granted permissions
- * - Denied Roles, which contains permissions: Set of denied permissions
- * - Granted Permissions
- * - Denied Permissions
+ * RBACDAta is formed by granted and denied permissions and all the inherited permissions
  *
  * Calculation of current Permissions: Granted permissions - Denied permissions
- * - Granted permissions: through groups, through roles and directly assigned
- * - Denied permissions: through roles and directly assigned
+ * - Granted permissions: through linked permissions and directly assigned
+ * - Denied permissions: through linked permissions and directly assigned
  */
-class RBACData: public RBACObject
+class RBACData
 {
     public:
-        RBACData(uint32 id, std::string const& name, int32 realmId):
-            RBACObject(id, name), _realmId(realmId) { }
+        RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
+            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel) { }
+
+        /// Gets the Name of the Object
+        std::string const& GetName() const { return _name; }
+        /// Gets the Id of the Object
+        uint32 GetId() const { return _id; }
 
         /**
          * @name HasPermission
@@ -796,7 +759,10 @@ class RBACData: public RBACObject
          * }
          * @endcode
          */
-        bool HasPermission(uint32 permission) const { return _globalPerms.test(permission); }
+        bool HasPermission(uint32 permission) const
+        {
+            return _globalPerms.find(permission) != _globalPerms.end();
+        }
 
         // Functions enabled to be used by command system
         /// Returns all the granted permissions (after computation)
@@ -805,130 +771,6 @@ class RBACData: public RBACObject
         RBACPermissionContainer const& GetGrantedPermissions() const { return _grantedPerms; }
         /// Returns all the denied permissions
         RBACPermissionContainer const& GetDeniedPermissions() const { return _deniedPerms; }
-        /// Returns all the granted roles
-        RBACRoleContainer const& GetGrantedRoles() const { return _grantedRoles; }
-        /// Returns all the denied roles
-        RBACRoleContainer const& GetDeniedRoles() const { return _deniedRoles; }
-        /// Returns all the granted groups
-        RBACGroupContainer const& GetGroups() const { return _groups; }
-
-        /**
-         * @name AddGroup
-         * @brief Adds new group
-         *
-         * Add a new group to the account. If realm is 0 or the group can not be added
-         * No save to db action will be performed.
-         *
-         * Fails if group Id does not exists or group already present
-         *
-         * @param groupId group to be added
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to add the group
-         *
-         * Example Usage:
-         * @code
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 groupId = 2;
-         * if (rbac->AddGroup(groupId) == RBAC_OK)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Group %u succesfully added", groupId);
-         * @endcode
-         */
-        RBACCommandResult AddGroup(uint32 groupId, int32 realmId = 0);
-
-        /**
-         * @name RemoveGroup
-         * @brief Removes a group
-         *
-         * Removes a group from the account. If realm is 0 or the group can not be removed
-         * No save to db action will be performed. Any delete operation will always affect
-         * "all realms (-1)" in addition to the realm specified
-         *
-         * Fails if group not present
-         *
-         * @param groupId group to be removed
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to remove the group
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 groupId = 2;
-         * if (rbac->RemoveGroup(groupId) == RBAC_OK)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Group %u succesfully removed", groupId);
-         * @endcode
-         */
-        RBACCommandResult RemoveGroup(uint32 groupId, int32 realmId = 0);
-
-        /**
-         * @name GrantRole
-         * @brief Grants a role
-         *
-         * Grants a role to the account. If realm is 0 or the role can not be added
-         * No save to db action will be performed.
-         *
-         * Fails if role Id does not exists or role already granted or denied
-         *
-         * @param roleId role to be granted
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to grant the role
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 roleId = 2;
-         * if (rbac->GrantRole(roleId) == RBAC_IN_DENIED_LIST)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Failed to grant role %u, already denied", roleId);
-         * @endcode
-         */
-        RBACCommandResult GrantRole(uint32 roleId, int32 realmId = 0);
-
-        /**
-         * @name DenyRole
-         * @brief Denies a role
-         *
-         * Denied a role to the account. If realm is 0 or the role can not be added
-         * No save to db action will be performed.
-         *
-         * Fails if role Id does not exists or role already granted or denied
-         *
-         * @param roleId role to be denied
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to deny the role
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 roleId = 2;
-         * if (rbac->DenyRole(roleId) == RBAC_ID_DOES_NOT_EXISTS)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Role Id %u does not exists", roleId);
-         * @endcode
-         */
-        RBACCommandResult DenyRole(uint32 roleId, int32 realmId = 0);
-
-        /**
-         * @name RevokeRole
-         * @brief Removes a role
-         *
-         * Removes a role from the account. If realm is 0 or the role can not be removed
-         * No save to db action will be performed. Any delete operation will always affect
-         * "all realms (-1)" in addition to the realm specified
-         *
-         * Fails if role not present
-         *
-         * @param roleId role to be removed
-         * @param realmId realm affected
-         *
-         * @return Success or failure (with reason) to remove the role
-         *
-         * Example Usage:
-         * // previously defined "RBACData* rbac" with proper initialization
-         * uint32 roleId = 2;
-         * if (rbac->RevokeRole(roleId) == RBAC_OK)
-         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Role %u succesfully removed", roleId);
-         * @endcode
-         */
-        RBACCommandResult RevokeRole(uint32 roleId, int32 realmId = 0);
 
         /**
          * @name GrantRole
@@ -1000,34 +842,103 @@ class RBACData: public RBACObject
          */
         RBACCommandResult RevokePermission(uint32 permissionId, int32 realmId = 0);
 
-        /// Loads all permissions, groups and roles assigned to current account
+        /// Loads all permissions assigned to current account
         void LoadFromDB();
+
+        /// Sets security level
+        void SetSecurityLevel(uint8 id)
+        {
+            _secLevel = id;
+            LoadFromDB();
+        }
+
+        /// Returns the security level assigned
+        uint8 GetSecurityLevel() const { return _secLevel; }
     private:
-        /// Saves a role to DB, Granted or Denied
-        void SaveRole(uint32 role, bool granted, int32 realm);
         /// Saves a permission to DB, Granted or Denied
         void SavePermission(uint32 role, bool granted, int32 realm);
+        /// Clears roles, groups and permissions - Used for reload
+        void ClearData();
 
         /**
          * @name CalculateNewPermissions
          * @brief Calculates new permissions
          *
-         * Calculates new permissions after some change in groups, roles or permissions.
+         * Calculates new permissions after some change
          * The calculation is done Granted - Denied:
-         * - Granted permissions: through groups, through roles and directly assigned
-         * - Denied permissions: through roles and directly assigned
+         * - Granted permissions: through linked permissions and directly assigned
+         * - Denied permissions: through linked permissions and directly assigned
          */
         void CalculateNewPermissions();
 
         int32 GetRealmId() { return _realmId; }
 
+        // Auxiliar private functions - defined to allow to maintain same code even
+        // if internal structure changes.
+
+        /// Checks if a permission is granted
+        bool HasGrantedPermission(uint32 permissionId) const
+        {
+            return _grantedPerms.find(permissionId) != _grantedPerms.end();
+        }
+
+        /// Checks if a permission is denied
+        bool HasDeniedPermission(uint32 permissionId) const
+        {
+            return _deniedPerms.find(permissionId) != _deniedPerms.end();
+        }
+
+        /// Adds a new granted permission
+        void AddGrantedPermission(uint32 permissionId)
+        {
+            _grantedPerms.insert(permissionId);
+        }
+
+        /// Removes a granted permission
+        void RemoveGrantedPermission(uint32 permissionId)
+        {
+            _grantedPerms.erase(permissionId);
+        }
+
+        /// Adds a new denied permission
+        void AddDeniedPermission(uint32 permissionId)
+        {
+            _deniedPerms.insert(permissionId);
+        }
+
+        /// Removes a denied permission
+        void RemoveDeniedPermission(uint32 permissionId)
+        {
+            _deniedPerms.erase(permissionId);
+        }
+
+        /// Adds a list of permissions to another list
+        void AddPermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
+
+        /// Removes a list of permissions to another list
+        void RemovePermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
+
+        /**
+         * @name ExpandPermissions
+         * @brief Adds the list of linked permissions to the original list
+         *
+         * Given a list of permissions, gets all the inherited permissions
+         * @param permissions The list of permissions to expand
+         *
+         * @return new list of permissions containing original permissions and
+         * all other pemissions that are linked to the original ones
+         */
+        void ExpandPermissions(RBACPermissionContainer& permissions);
+
+        uint32 _id;                                        ///> Account id
+        std::string _name;                                 ///> Account name
         int32 _realmId;                                    ///> RealmId Affected
-        RBACGroupContainer _groups;                        ///> Granted groups
-        RBACRoleContainer _grantedRoles;                   ///> Granted roles
-        RBACRoleContainer _deniedRoles;                    ///> Denied roles
+        uint8 _secLevel;                                   ///> Account SecurityLevel
         RBACPermissionContainer _grantedPerms;             ///> Granted permissions
         RBACPermissionContainer _deniedPerms;              ///> Denied permissions
         RBACPermissionContainer _globalPerms;              ///> Calculated permissions
 };
+
+}
 
 #endif

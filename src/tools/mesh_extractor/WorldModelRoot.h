@@ -11,6 +11,7 @@ class WorldModelRoot
 {
 public:
     WorldModelRoot(std::string path);
+    ~WorldModelRoot();
     std::string Path;
     ChunkedData* Data;
     WorldModelHeader Header;

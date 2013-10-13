@@ -3,6 +3,7 @@
 #include "ADT.h"
 #include "WorldModelHandler.h"
 #include "DoodadHandler.h"
+#include <limits.h>
 
 Geometry::Geometry() : Transform(false)
 {
@@ -14,6 +15,11 @@ void Geometry::CalculateBoundingBox( float*& min, float*& max )
 {
     min = new float[3];
     max = new float[3];
+    for (int i = 0; i < 3; ++i)
+    {
+        max[i] = std::numeric_limits<float>::lowest();
+        min[i] = std::numeric_limits<float>::max();
+    }
 
     for (std::vector<Vector3>::iterator itr = Vertices.begin(); itr != Vertices.end(); ++itr)
     {
@@ -36,8 +42,8 @@ void Geometry::CalculateBoundingBox( float*& min, float*& max )
 
 void Geometry::CalculateMinMaxHeight( float& min, float& max )
 {
-    min = 0.0f;
-    max = 0.0f;
+    min = std::numeric_limits<float>::max();
+    max = std::numeric_limits<float>::lowest();
 
     for (std::vector<Vector3>::iterator itr = Vertices.begin(); itr != Vertices.end(); ++itr)
     {
