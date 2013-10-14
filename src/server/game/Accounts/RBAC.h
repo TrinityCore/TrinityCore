@@ -679,6 +679,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
 
+    RBAC_PERM_COMMAND_RESET_ARENA_POINTS                     = 1001,
+
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
