@@ -1461,7 +1461,8 @@ class npc_captain_brandon : public CreatureScript
                                 DoCast(me, SPELL_DIVINE_SHIELD);
                                 Events.RescheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 5*MINUTE*IN_MILLISECONDS); 
                             }
-                            Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500);
+                            else
+                                Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500);
                             break;
                         case EVENT_BRANDON_JUDGEMENT_OF_COMMAND:
                             DoCastVictim(SPELL_JUDGEMENT_OF_COMMAND);
