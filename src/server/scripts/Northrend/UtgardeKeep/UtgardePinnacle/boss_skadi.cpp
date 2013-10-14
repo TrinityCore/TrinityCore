@@ -183,7 +183,8 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6);
             events.SetPhase(PHASE_INTRO);
             events.ScheduleEvent(EVENT_MOUNT, 1 * IN_MILLISECONDS);
-
+            events.SetPhase(PHASE_INTRO);
+            events.ScheduleEvent(EVENT_MOUNT, 1 * IN_MILLISECONDS);
             if (instance)
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
@@ -235,10 +236,13 @@ public:
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             events.Update(diff);
 
+            if((events.IsInPhase(PHASE_FLYING) || events.IsInPhase(PHASE_GROUND)) && !UpdateVictim())
+
+        void UpdateAI(uint32 diff) OVERRIDE
             if((events.IsInPhase(PHASE_FLYING) || events.IsInPhase(PHASE_GROUND)) && !UpdateVictim())
                 return;
 
@@ -297,6 +301,7 @@ public:
         } 
     };
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
+};
     {
         return new boss_skadiAI(creature);
     }
@@ -306,14 +311,25 @@ class npc_grauf : public CreatureScript
 {
 public:
     npc_grauf() : CreatureScript("npc_grauf") { }
+        }
 
     struct npc_graufAI : public ScriptedAI
+        EventMap events;
+        uint32 m_uiWaypointId;
+        std::list<Creature*> CloudTriggerList;
+        uint8 harpoonsHit;
+
+        void Reset() OVERRIDE
     {
         npc_graufAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
             instance = me->GetInstanceScript();
             
+            if(Creature* pSkadi = Unit::GetCreature(*me, DATA_SKADI_THE_RUTHLESS))
+            {
+                pSkadi->AI()->EnterEvadeMode();
+            me->SetCanFly(false);
         }
 
         InstanceScript* instance;
@@ -328,23 +344,6 @@ public:
             events.SetPhase(PHASE_INTRO);
             m_uiWaypointId = 0;
             harpoonsHit = 0;
-        }
-
-        void JustReachedHome() OVERRIDE
-        {
-            if(Creature* pSkadi = Unit::GetCreature(*me, DATA_SKADI_THE_RUTHLESS))
-            {
-                pSkadi->AI()->EnterEvadeMode();
-            }
-            me->SetDisableGravity(false);
-        }
-
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
-        {
-            if(!instance)
-                return;
-
-            if(spell->Id == SPELL_HARPOON_DAMAGE)
             {
                 if(me->GetHealth() <= me->GetMaxHealth() * (IsHeroic() ? 0.17f : 0.27f))
                 {
@@ -359,6 +358,68 @@ public:
                 harpoonsHit++;
             }
 
+        void JustReachedHome() OVERRIDE
+            {
+            if(Creature* pSkadi = Unit::GetCreature(*me, DATA_SKADI_THE_RUTHLESS))
+            {
+                pSkadi->AI()->EnterEvadeMode();
+            }
+            me->SetDisableGravity(false);
+                me->SetWalk(false);
+            }
+        }
+
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
+            me->GetCreatureListWithEntryInGrid(CloudTriggerList, NPC_TRIGGER, 200.0f);
+            if(!CloudTriggerList.empty())
+            {
+            if(!instance)
+                return;
+
+            if(spell->Id == SPELL_HARPOON_DAMAGE)
+                {
+                if(me->GetHealth() <= me->GetMaxHealth() * (IsHeroic() ? 0.17f : 0.27f))
+                    {
+                        if (trigger->GetPositionY() > -511.0f && triggerLeft == true)
+                            trigger->CastSpell(trigger, SPELL_FREEZING_CLOUD, true);
+                        else if (trigger->GetPositionY() < -511.0f && triggerLeft == false)
+                            trigger->CastSpell(trigger, SPELL_FREEZING_CLOUD, true);
+                    }
+                }
+            }
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            events.Update(diff);
+
+            //if (me->GetPositionX() >= 519)
+            //{
+            //    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            //    Talk(EMOTE_RANGE);
+            //}
+            //else
+            //{
+            //    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            //}
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_MOVE:
+                    switch (m_uiWaypointId)
+                    {
+                    if(Creature* pSkadi = Unit::GetCreature(*me, instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+                    {
+                        me->RemoveAllAuras();
+                        pSkadi->CastSpell(pSkadi, SPELL_SKADI_TELEPORT, true);
+                        pSkadi->AI()->Talk(SAY_DRAKE_DEATH);
+                    }
+                }
+                me->DealDamage(me, me->GetMaxHealth() * (IsHeroic() ? 0.17f : 0.25f), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+                harpoonsHit++;
+            }
             if(spell->Id == SPELL_RIDE_VEHICLE)
             {
                 events.SetPhase(PHASE_FLYING);
@@ -390,6 +451,7 @@ public:
             }
 
         void CastFreezingCloud() {
+        void CastFreezingCloud() {
             me->GetCreatureListWithEntryInGrid(CloudTriggerList, NPC_TRIGGER, 200.0f);
             bool triggerLeft = urand(0,1);
             if(!CloudTriggerList.empty())
@@ -408,13 +470,12 @@ public:
                             trigger->CastSpell(trigger, SPELL_FREEZING_CLOUD_1, true);
                             trigger->CastSpell(trigger, SPELL_FREEZING_CLOUD_2, true);
                         }
+                        }
                     }
                 }
             }
-        }
-
         void UpdateAI(uint32 diff) OVERRIDE
-        {
+                        {
             events.Update(diff);
 
             //if (me->GetPositionX() >= 519)

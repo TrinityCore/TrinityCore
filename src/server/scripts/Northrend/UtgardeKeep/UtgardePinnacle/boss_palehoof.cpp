@@ -93,9 +93,9 @@ public:
         return new boss_palehoofAI(creature);
     }
 
-    struct boss_palehoofAI : public ScriptedAI
+    struct boss_palehoofAI : public BossAI
     {
-        boss_palehoofAI(Creature* creature) : ScriptedAI(creature)
+        boss_palehoofAI(Creature* creature) : BossAI(creature, DATA_GORTOK_PALEHOOF)
         {
             instance = creature->GetInstanceScript();
         }
@@ -112,6 +112,7 @@ public:
 
         void Reset() OVERRIDE
         {
+            _Reset();
             /// There is a good reason to store them like this, we are going to shuffle the order.
             for (uint32 i = PHASE_FRENZIED_WORGEN; i < PHASE_GORTOK_PALEHOOF; ++i)
                 Sequence[i] = Phase(i);
@@ -131,8 +132,6 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, NOT_STARTED);
-
                 Creature* temp = Unit::GetCreature((*me), instance->GetData64(DATA_NPC_FRENZIED_WORGEN));
                 if (temp && !temp->IsAlive())
                     temp->Respawn();
@@ -217,9 +216,8 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            _JustDied();
           //Talk(SAY_DEATH);
-            if (instance)
-                instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, DONE);
             Creature* temp = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_NPC_ORB) : 0);
             if (temp && temp->IsAlive())
                 temp->DisappearAndDie();
@@ -234,9 +232,7 @@ public:
         {
             if (currentPhase == PHASE_NONE)
             {
-                if (instance)
-                    instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
-
+                instance->SetBossState(DATA_GORTOK_PALEHOOF, IN_PROGRESS);
                 me->SummonCreature(NPC_STASIS_CONTROLLER, moveLocs[5].x, moveLocs[5].y, moveLocs[5].z, 0, TEMPSUMMON_CORPSE_DESPAWN);
             }
             Phase move = PHASE_NONE;
@@ -306,7 +302,7 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
 
             if (instance)
-                if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
                 {
                     Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                     if (pPalehoof && pPalehoof->IsAlive())
@@ -419,7 +415,7 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
 
             if (instance)
-                if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
                 {
                     Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                     if (pPalehoof && pPalehoof->IsAlive())
@@ -470,7 +466,7 @@ public:
                 DoStartMovement(who);
             }
             if (instance)
-                instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_GORTOK_PALEHOOF, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
@@ -535,7 +531,7 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
 
             if (instance)
-                if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
                 {
                     Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                     if (pPalehoof && pPalehoof->IsAlive())
@@ -655,7 +651,7 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
 
             if (instance)
-                if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
                 {
                     Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                     if (pPalehoof && pPalehoof->IsAlive())
