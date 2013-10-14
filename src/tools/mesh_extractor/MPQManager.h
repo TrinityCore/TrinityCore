@@ -14,9 +14,9 @@ public:
     ~MPQManager() {}
 
     void Initialize();
-    FILE* GetFile(std::string path);
-    FILE* GetFileFrom(std::string path, MPQArchive* file);
-    DBC* GetDBC(std::string name);
+    FILE* GetFile(const std::string& path);
+    FILE* GetFileFrom(const std::string& path, MPQArchive* file);
+    DBC* GetDBC(const std::string& name);
     std::vector<std::string> GetAllFiles(std::string extension);
 
     std::deque<MPQArchive*> Archives;

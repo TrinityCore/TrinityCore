@@ -3,7 +3,7 @@
 #include "Chunk.h"
 #include "Utils.h"
 
-WorldModelGroup::WorldModelGroup( std::string path, int groupIndex ) : GroupIndex(groupIndex), MOBA(NULL), IsBad(false)
+WorldModelGroup::WorldModelGroup( std::string path, int groupIndex ) : GroupIndex(groupIndex), MOBA(NULL), IsBad(false), HasLiquidData(false)
 {
     Data = new ChunkedData(path);
     if (!Data->Stream)

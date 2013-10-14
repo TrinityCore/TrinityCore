@@ -395,6 +395,12 @@ class UnitScript : public ScriptObject
         UnitScript(const char* name, bool addToScripts = true);
 
     public:
+        // Called when a unit deals damage to another unit
+        virtual void OnHeal(Unit* /*healer*/, Unit* /*reciever*/, uint32 /*gain*/) { }
+
+        // Called when a unit deals damage to another unit
+        virtual void OnDamage(Unit* /*attacker*/, Unit* /*victim*/, uint32 /*damage*/) { }
+
         // Called when DoT's Tick Damage is being Dealt
         virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
 
@@ -1053,6 +1059,8 @@ class ScriptMgr
 
     public: /* UnitScript */
 
+        void OnHeal(Unit* healer, Unit* reciever, uint32 gain);
+        void OnDamage(Unit* attacker, Unit* victim, uint32 damage);
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
