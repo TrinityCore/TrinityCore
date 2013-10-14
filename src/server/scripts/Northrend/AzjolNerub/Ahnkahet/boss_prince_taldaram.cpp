@@ -17,7 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Map.h"
+#include "Player.h"
 #include "ahnkahet.h"
 
 enum Spells
