@@ -98,7 +98,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     Creature* anubArak = Unit::GetCreature(*player, GetData64(NPC_ANUBARAK));
                     if (!anubArak)
                     {
-                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, HOUR*IN_MILLISECONDS);
                         anubArak->SetRespawnDelay(7*DAY);
                     }
 
