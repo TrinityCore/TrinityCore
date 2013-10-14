@@ -270,8 +270,7 @@ public:
                     events.ScheduleEvent(EVENT_POISONED_SPEAR, 10000, 0, PHASE_GROUND);
                     break;
                 case EVENT_WHIRLWIND:
-                    me->AI()->SelectTarget(SELECT_TARGET_BOTTOMAGGRO);
-                    DoCastAOE(SPELL_WHIRLWIND);
+                    DoCast(me, SPELL_WHIRLWIND);
                     events.ScheduleEvent(EVENT_WHIRLWIND, 23000, 0, PHASE_GROUND);
                     break;                        
                 }
