@@ -29,11 +29,9 @@ enum Spells
     SPELL_FLAME_SPHERE_SPAWN_EFFECT               = 55891,
     SPELL_FLAME_SPHERE_VISUAL                     = 55928,
     SPELL_FLAME_SPHERE_PERIODIC                   = 55926,
-    H_SPELL_FLAME_SPHERE_PERIODIC                 = 59508,
     SPELL_FLAME_SPHERE_DEATH_EFFECT               = 55947,
     SPELL_BEAM_VISUAL                             = 60342,
     SPELL_EMBRACE_OF_THE_VAMPYR                   = 55959,
-    H_SPELL_EMBRACE_OF_THE_VAMPYR                 = 59513,
     SPELL_VANISH                                  = 55964,
     CREATURE_FLAME_SPHERE                         = 30106,
     H_CREATURE_FLAME_SPHERE_1                     = 31686,
@@ -48,8 +46,8 @@ enum Misc
     DATA_SPHERE_DISTANCE                          = 15
 };
 
-#define DATA_SPHERE_ANGLE_OFFSET                    0.7f
-#define DATA_GROUND_POSITION_Z                      11.30809f
+#define DATA_SPHERE_ANGLE_OFFSET                  0.7f
+#define DATA_GROUND_POSITION_Z                    11.30809f
 
 enum Yells
 {
@@ -61,315 +59,299 @@ enum Yells
     SAY_FEED                                      = 5,
     SAY_VANISH                                    = 6
 };
-enum CombatPhase
+
+enum Events
 {
-    NORMAL,
-    CASTING_FLAME_SPHERES,
-    JUST_VANISHED,
-    VANISHED,
-    FEEDING
+    EVENT_CASTING_FLAME_SPHERES                   = 1,
+    EVENT_JUST_VANISHED,
+    EVENT_VANISHED,
+    EVENT_FEEDING,
+
+    EVENT_BLOODTHIRST,
+    EVENT_FLAME_SPHERE,
+    EVENT_VANISH
+};
+
+enum Phase
+{
+    PHASE_NORMAL                                  = 1,
+    PHASE_SPECIAL                                 = 2
 };
 
 class boss_taldaram : public CreatureScript
 {
-public:
-    boss_taldaram() : CreatureScript("boss_taldaram") { }
+    public:
+        boss_taldaram() : CreatureScript("boss_taldaram") { }
 
-    struct boss_taldaramAI : public ScriptedAI
-    {
-        boss_taldaramAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_taldaramAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-            me->SetDisableGravity(true);
-        }
-
-        uint32 uiBloodthirstTimer;
-        uint32 uiVanishTimer;
-        uint32 uiWaitTimer;
-        uint32 uiEmbraceTimer;
-        uint32 uiEmbraceTakenDamage;
-        uint32 uiFlamesphereTimer;
-        uint32 uiPhaseTimer;
-
-        uint64 uiEmbraceTarget;
-
-        CombatPhase Phase;
-
-        InstanceScript* instance;
-
-        void Reset() OVERRIDE
-        {
-            uiBloodthirstTimer = 10*IN_MILLISECONDS;
-            uiVanishTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
-            uiEmbraceTimer = 20*IN_MILLISECONDS;
-            uiFlamesphereTimer = 5*IN_MILLISECONDS;
-            uiEmbraceTakenDamage = 0;
-            Phase = NORMAL;
-            uiPhaseTimer = 0;
-            uiEmbraceTarget = 0;
-            if (instance)
-                instance->SetBossState(DATA_PRINCE_TALDARAM, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            if (instance)
-                instance->SetBossState(DATA_PRINCE_TALDARAM, IN_PROGRESS);
-            Talk(SAY_AGGRO);
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-            if (uiPhaseTimer <= diff)
+            boss_taldaramAI(Creature* creature) : BossAI(creature, DATA_PRINCE_TALDARAM)
             {
-                switch (Phase)
+                me->SetDisableGravity(true);
+            }
+
+            void Reset() OVERRIDE
+            {
+                _Reset();
+                _embraceTargetGUID = 0;
+                _embraceTakenDamage = 0;
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
+                events.SetPhase(PHASE_NORMAL);
+                events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
+                events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
+                events.ScheduleEvent(EVENT_FLAME_SPHERE, 5000);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case CASTING_FLAME_SPHERES:
+                    switch (eventId)
                     {
-                        Creature* pSpheres[3];
-
-                        //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
-                        pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
-                        Unit* pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                        if (pSphereTarget && pSpheres[0])
+                        if (events.IsInPhase(PHASE_NORMAL))
                         {
+                            case EVENT_BLOODTHIRST:
+                                DoCast(me, SPELL_BLOODTHIRST);
+                                events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
+                                break;
+                            case EVENT_FLAME_SPHERE:
+                                DoCastVictim(SPELL_CONJURE_FLAME_SPHERE);
+                                events.SetPhase(PHASE_SPECIAL);
+                                events.ScheduleEvent(EVENT_CASTING_FLAME_SPHERES, 3000);
+                                events.ScheduleEvent(EVENT_FLAME_SPHERE, 15000);
+                                break;
+                            case EVENT_VANISH:
+                            {
+                                Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                                uint32 targets = 0;
+                                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                                {
+                                    Player* player = i->GetSource();
+                                    if (player && player->IsAlive())
+                                        ++targets;
+                                }
+
+                                if (targets > 2)
+                                {
+                                    Talk(SAY_VANISH);
+                                    DoCast(me, SPELL_VANISH);
+                                    events.SetPhase(PHASE_SPECIAL);
+                                    events.ScheduleEvent(EVENT_JUST_VANISHED, 500);
+                                    if (Unit* embraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                        _embraceTargetGUID = embraceTarget->GetGUID();
+                                }
+                                events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
+                                break;
+                            }
+                        }
+                        case EVENT_CASTING_FLAME_SPHERES:
+                        {
+                            events.SetPhase(PHASE_NORMAL);
+                            Unit* sphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                            if (!sphereTarget)
+                                break;
+
                             float angle, x, y;
-                            angle = pSpheres[0]->GetAngle(pSphereTarget);
-                            x = pSpheres[0]->GetPositionX() + DATA_SPHERE_DISTANCE * std::cos(angle);
-                            y = pSpheres[0]->GetPositionY() + DATA_SPHERE_DISTANCE * std::sin(angle);
-                            pSpheres[0]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[0]->GetPositionZ());
-                        }
-                        if (IsHeroic())
-                        {
-                            //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_1);
-                            pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
-                            //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_2);
-                            pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
-                            if (pSphereTarget && pSpheres[1] && pSpheres[2])
-                            {
-                                float angle, x, y;
-                                angle = pSpheres[1]->GetAngle(pSphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
-                                x = pSpheres[1]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
-                                y = pSpheres[1]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
-                                pSpheres[1]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[1]->GetPositionZ());
-                                angle = pSpheres[2]->GetAngle(pSphereTarget) - DATA_SPHERE_ANGLE_OFFSET;
-                                x = pSpheres[2]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
-                                y = pSpheres[2]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
-                                pSpheres[2]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[2]->GetPositionZ());
-                            }
-                        }
 
-                        Phase = NORMAL;
-                        uiPhaseTimer = 0;
-                        break;
-                    }
-                    case JUST_VANISHED:
-                        if (Unit* pEmbraceTarget = GetEmbraceTarget())
-                        {
+                            //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
+                            if (Creature* sphere = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
+                            {
+                                angle = sphere->GetAngle(sphereTarget);
+                                x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE * std::cos(angle);
+                                y = sphere->GetPositionY() + DATA_SPHERE_DISTANCE * std::sin(angle);
+                                sphere->GetMotionMaster()->MovePoint(0, x, y, sphere->GetPositionZ());
+                            }
+
+                            if (IsHeroic())
+                            {
+                                //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_1);
+                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
+                                {
+                                    angle = sphere->GetAngle(sphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
+                                    x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
+                                    y = sphere->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
+                                    sphere->GetMotionMaster()->MovePoint(0, x, y, sphere->GetPositionZ());
+                                }
+
+                                //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_2);
+                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
+                                {
+                                    angle = sphere->GetAngle(sphereTarget) - DATA_SPHERE_ANGLE_OFFSET;
+                                    x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
+                                    y = sphere->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
+                                    sphere->GetMotionMaster()->MovePoint(0, x, y, sphere->GetPositionZ());
+                                }
+                            }
+                            break;
+                        }
+                        case EVENT_JUST_VANISHED:
+                            if (Unit* embraceTarget = GetEmbraceTarget())
+                            {
+                                me->GetMotionMaster()->Clear();
+                                me->SetSpeed(MOVE_WALK, 2.0f, true);
+                                me->GetMotionMaster()->MoveChase(embraceTarget);
+                            }
+                            events.ScheduleEvent(EVENT_VANISHED, 1300);
+                            break;
+                        case EVENT_VANISHED:
+                            if (Unit* embraceTarget = GetEmbraceTarget())
+                                DoCast(embraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
+                            Talk(SAY_FEED);
                             me->GetMotionMaster()->Clear();
-                            me->SetSpeed(MOVE_WALK, 2.0f, true);
-                            me->GetMotionMaster()->MoveChase(pEmbraceTarget);
-                        }
-                        Phase = VANISHED;
-                        uiPhaseTimer = 1300;
-                        break;
-                    case VANISHED:
-                        if (Unit* pEmbraceTarget = GetEmbraceTarget())
-                            DoCast(pEmbraceTarget, DUNGEON_MODE(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
-                        Talk(SAY_FEED);
-                        me->GetMotionMaster()->Clear();
-                        me->SetSpeed(MOVE_WALK, 1.0f, true);
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
-                        Phase = FEEDING;
-                        uiPhaseTimer = 20*IN_MILLISECONDS;
-                        break;
-                    case FEEDING:
-                        Phase = NORMAL;
-                        uiPhaseTimer = 0;
-                        uiEmbraceTarget = 0;
-                        break;
-                    case NORMAL:
-                        if (uiBloodthirstTimer <= diff)
-                        {
-                            DoCast(me, SPELL_BLOODTHIRST);
-                            uiBloodthirstTimer = 10*IN_MILLISECONDS;
-                        } else uiBloodthirstTimer -= diff;
-
-                        if (uiFlamesphereTimer <= diff)
-                        {
-                            // because TARGET_UNIT_TARGET_ENEMY we need a target selected to cast
-                            DoCastVictim(SPELL_CONJURE_FLAME_SPHERE);
-                            Phase = CASTING_FLAME_SPHERES;
-                            uiPhaseTimer = 3*IN_MILLISECONDS + diff;
-                            uiFlamesphereTimer = 15*IN_MILLISECONDS;
-                        } else uiFlamesphereTimer -= diff;
-
-                        if (uiVanishTimer <= diff)
-                        {
-                            //Count alive players
-                            Unit* target = NULL;
-                            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-                            std::vector<Unit*> target_list;
-                            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
-                            {
-                                target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                                // exclude pets & totems
-                                if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
-                                    target_list.push_back(target);
-                                target = NULL;
-                            }
-                            //He only vanishes if there are 3 or more alive players
-                            if (target_list.size() > 2)
-                            {
-                                Talk(SAY_VANISH);
-                                DoCast(me, SPELL_VANISH);
-                                Phase = JUST_VANISHED;
-                                uiPhaseTimer = 500;
-                                if (Unit* pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                    uiEmbraceTarget = pEmbraceTarget->GetGUID();
-
-                            }
-                            uiVanishTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
-                        } else uiVanishTimer -= diff;
-
-                        DoMeleeAttackIfReady();
-                    break;
+                            me->SetSpeed(MOVE_WALK, 1.0f, true);
+                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            events.ScheduleEvent(EVENT_FEEDING, 20000);
+                            break;
+                        case EVENT_FEEDING:
+                            _embraceTargetGUID = 0;
+                            events.SetPhase(PHASE_NORMAL);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            } else uiPhaseTimer -= diff;
-        }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
-        {
-            Unit* pEmbraceTarget = GetEmbraceTarget();
-
-            if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->IsAlive())
-            {
-              uiEmbraceTakenDamage += damage;
-              if (uiEmbraceTakenDamage > (uint32) DUNGEON_MODE(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG))
-              {
-                  Phase = NORMAL;
-                  uiPhaseTimer = 0;
-                  uiEmbraceTarget = 0;
-                  me->CastStop();
-              }
+                DoMeleeAttackIfReady();
             }
-        }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            Talk(SAY_DEATH);
-
-            if (instance)
-                instance->SetBossState(DATA_PRINCE_TALDARAM, DONE);
-        }
-
-        void KilledUnit(Unit* victim) OVERRIDE
-        {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Unit* pEmbraceTarget = GetEmbraceTarget();
-            if (Phase == FEEDING && pEmbraceTarget && victim == pEmbraceTarget)
+            void DamageTaken(Unit* /*doneBy*/, uint32& damage) OVERRIDE
             {
-                Phase = NORMAL;
-                uiPhaseTimer = 0;
-                uiEmbraceTarget = 0;
+                Unit* embraceTarget = GetEmbraceTarget();
+
+                if (events.IsInPhase(PHASE_SPECIAL) && embraceTarget && embraceTarget->IsAlive())
+                {
+                    _embraceTakenDamage += damage;
+                    if (_embraceTakenDamage > DUNGEON_MODE<uint32>(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG))
+                    {
+                        _embraceTargetGUID = 0;
+                        events.SetPhase(PHASE_NORMAL);
+                        me->CastStop();
+                    }
+                }
             }
-            Talk(SAY_SLAY);
-        }
 
-        bool CheckSpheres()
-        {
-            for (uint8 i = 0; i < 2; ++i)
-                if (!instance->GetData(DATA_SPHERE_1 + i))
-                    return false;
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
 
-            RemovePrison();
-            return true;
-        }
+            void KilledUnit(Unit* victim) OVERRIDE
+            {
+                if (victim->GetTypeId() != TYPEID_PLAYER)
+                    return;
 
-        Unit* GetEmbraceTarget()
-        {
-            if (!uiEmbraceTarget)
+                Unit* embraceTarget = GetEmbraceTarget();
+                if (events.IsInPhase(PHASE_SPECIAL) && embraceTarget && victim == embraceTarget)
+                {
+                    _embraceTargetGUID = 0;
+                    events.SetPhase(PHASE_NORMAL);
+                }
+                Talk(SAY_SLAY);
+            }
+
+            bool CheckSpheres()
+            {
+                for (uint8 i = 0; i < 2; ++i)
+                    if (!instance->GetData(DATA_SPHERE_1 + i))
+                        return false;
+
+                RemovePrison();
+                return true;
+            }
+
+            Unit* GetEmbraceTarget()
+            {
+                if (_embraceTargetGUID)
+                    return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
+
                 return NULL;
+            }
 
-            return Unit::GetUnit(*me, uiEmbraceTarget);
-        }
+            void RemovePrison()
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
+                DoCast(SPELL_HOVER_FALL);
+                me->SetDisableGravity(false);
+                me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
+                Talk(SAY_WARNING);
+                instance->HandleGameObject(instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM), true);
+            }
 
-        void RemovePrison()
+        private:
+            uint64 _embraceTargetGUID;
+            uint32 _embraceTakenDamage;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!instance)
-                return;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
-            me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
-            DoCast(SPELL_HOVER_FALL);
-            me->SetDisableGravity(false);
-            me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
-            Talk(SAY_WARNING);
-            uint64 prison_GUID = instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
-            instance->HandleGameObject(prison_GUID, true);
+            return GetAhnKahetAI<boss_taldaramAI>(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetAhnKahetAI<boss_taldaramAI>(creature);
-    }
 };
 
 class npc_taldaram_flamesphere : public CreatureScript
 {
-public:
-    npc_taldaram_flamesphere() : CreatureScript("npc_taldaram_flamesphere") { }
+    public:
+        npc_taldaram_flamesphere() : CreatureScript("npc_taldaram_flamesphere") { }
 
-    struct npc_taldaram_flamesphereAI : public ScriptedAI
-    {
-        npc_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_taldaram_flamesphereAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            npc_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
 
-        uint32 uiDespawnTimer;
-        InstanceScript* instance;
+            void Reset() OVERRIDE
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
+                me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+                me->setFaction(16);
+                me->SetObjectScale(1.0f);
+                DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
+                DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
+                DoCast(me, SPELL_FLAME_SPHERE_PERIODIC);
+                _despawnTimer = 10 * IN_MILLISECONDS;
+            }
 
-        void Reset() OVERRIDE
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (_despawnTimer <= diff)
+                    me->DisappearAndDie();
+                else
+                    _despawnTimer -= diff;
+            }
+
+        private:
+            uint32 _despawnTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
-            me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-            me->setFaction(16);
-            me->SetObjectScale(1.0f);
-            DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
-            DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
-            DoCast(me, SPELL_FLAME_SPHERE_PERIODIC);
-            uiDespawnTimer = 10*IN_MILLISECONDS;
+            return new npc_taldaram_flamesphereAI(creature);
         }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
-
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (uiDespawnTimer <= diff)
-                me->DisappearAndDie();
-            else
-                uiDespawnTimer -= diff;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_taldaram_flamesphereAI(creature);
-    }
 };
 
 class prince_taldaram_sphere : public GameObjectScript
@@ -377,7 +359,7 @@ class prince_taldaram_sphere : public GameObjectScript
     public:
         prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)
