@@ -162,14 +162,28 @@ class spell_mage_offensive_state : public SpellScriptLoader
             {
                 PreventDefaultAction();
 				uint32 eff = eventInfo.GetDamageInfo()->GetSpellInfo()->Id;
-				if((eff != 7268))
+				TypeID isplayer = eventInfo.GetDamageInfo()->GetAttacker()->GetTypeId();
+				bool dot = eventInfo.GetDamageInfo()->GetSpellInfo()->HasAura(SPELL_AURA_PERIODIC_DAMAGE);
+				printf("El id es %d",eff);
+				if(isplayer==TYPEID_PLAYER)
+				{
+					printf("Es player");
+				}else{
+				    printf("No es player");
+				}
+				if(dot)
+				{
+					printf("Es dano periodico.");
+				}
+				if((eff != 7268)&&(eff != 71757)&&(dot==FALSE)&&(isplayer==TYPEID_PLAYER))
 				{
 				if(Player* player = GetCaster()->ToPlayer())
 				{
 					if((roll_chance_i(30)) &&(!player->HasAura(79683)))
 					{
 					player->RemoveAurasDueToSpell(79683);
-					player->CastSpell(player,79683);					}
+					player->CastSpell(player,79683);
+					player->RemoveAurasDueToSpell(79683);					}
 				}
 
 				}
