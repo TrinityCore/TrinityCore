@@ -81,7 +81,9 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_FREEZE              = 82691,
     SPELL_MAGE_RING_OF_FROST_DUMMY               = 91264,
 
-    SPELL_MAGE_FINGERS_OF_FROST                  = 44544
+    SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
+	SPELL_MAGE_ARCANE_MISSILES                   = 79683,
+	SPELL_MAGE_OFFENSIVE_STATE                   = 79684
 };
 
 enum MageIcons
@@ -97,6 +99,96 @@ enum MiscSpells
 {
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
 };
+
+//SQL
+//Agregar en spell_script_names el id del spell y en scriptname "spell_mage_arcane_missiles" sin comillas
+//  79683  -  Arcane Missiles!
+class spell_mage_arcane_missiles : public SpellScriptLoader
+{
+    public:
+        spell_mage_arcane_missiles() : SpellScriptLoader("spell_mage_arcane_missiles") { }
+
+        class spell_mage_arcane_missiles_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_arcane_missiles_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES))
+                    return false;
+                return true;
+            }
+			
+			void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+				std::cout << "Hizo proc" << std::endl;
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_arcane_missiles_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_mage_arcane_missiles_AuraScript();
+        }
+};
+
+
+
+//SQL
+//Agregar en spell_script_names el id del spell y en scriptname "spell_mage_offensive_state" sin comillas
+//  79684  -  Offensive State!
+class spell_mage_offensive_state : public SpellScriptLoader
+{
+    public:
+        spell_mage_offensive_state() : SpellScriptLoader("spell_mage_offensive_state") { }
+
+        class spell_mage_offensive_state_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_offensive_state_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_OFFENSIVE_STATE))
+                    return false;
+                return true;
+            }
+			
+			void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+				uint32 eff = eventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+				if((eff != 7268))
+				{
+				if(Player* player = GetCaster()->ToPlayer())
+				{
+					if((roll_chance_i(30)) &&(!player->HasAura(79683)))
+					{
+					player->RemoveAurasDueToSpell(79683);
+					player->CastSpell(player,79683);					}
+				}
+
+				}
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_offensive_state_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_mage_offensive_state_AuraScript();
+        }
+};
+
+
+
 
 // -31571 - Arcane Potency
 class spell_mage_arcane_potency : public SpellScriptLoader
@@ -1433,4 +1525,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost();
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_water_elemental_freeze();
+	new spell_mage_arcane_missiles();
+	new spell_mage_offensive_state();
 }

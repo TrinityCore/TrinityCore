@@ -4851,10 +4851,33 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         }
         case SPELLFAMILY_MAGE:
         {
-            //if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                //break;
+            switch(GetId())
+            {
+
+				 case 79808: //Arcane Missiles Aura state
+                	if (apply)
+                	{
+                    	aurApp->GetBase()->SetMaxDuration(20000);
+                    	aurApp->GetBase()->SetDuration(20000);
+                	}
+                	break;
+
+                case 79683: // Arcane Missiles!
+                {
+                    if (apply)
+                        caster->CastSpell(caster, 79808, true, NULL, NULL, GetCasterGUID()); // Arcane Missiles Aurastate
+                        break;
+                }
+                case 5143:
+                {
+                    caster->RemoveAurasDueToSpell(79808);
+					caster->RemoveAurasDueToSpell(79683);
+                    break;
+                }
+            }
             break;
         }
+
         case SPELLFAMILY_PRIEST:
         {
             //if (!(mode & AURA_EFFECT_HANDLE_REAL))
@@ -5313,7 +5336,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         break;
                     int32 mod = (rage < 100) ? rage : 100;
                     int32 points = target->CalculateSpellDamage(target, GetSpellInfo(), 1);
-                    int32 regen = (target->GetMaxHealth() * (mod * points / 10) / 100) / 200;
+                    int32 regen = target->GetMaxHealth() * (mod * points / 10) / 1000;
                     target->CastCustomSpell(target, 22845, &regen, 0, 0, true, 0, this);
                     target->SetPower(POWER_RAGE, rage-mod);
                     break;
@@ -5835,7 +5858,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 
     int32 dmg = damage;
-    caster->ApplyResilience(target, &dmg, CR_CRIT_TAKEN_SPELL);
+    caster->ApplyResilience(target, &dmg, crit);
     damage = dmg;
 
     caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, GetSpellInfo());
@@ -5846,8 +5869,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     caster->DealDamageMods(target, damage, &absorb);
 
     // Set trigger flag
-    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
+    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC + PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC + PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
     uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
     damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
     if (damage)
@@ -5902,7 +5925,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     }
 
     int32 dmg = damage;
-    caster->ApplyResilience(target, &dmg, CR_CRIT_TAKEN_SPELL);
+    caster->ApplyResilience(target, &dmg, crit);
     damage = dmg;
 
     caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, m_spellInfo);
@@ -5916,8 +5939,8 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, false, 0, crit);
 
     // Set trigger flag
-    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
-    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
+    uint32 procAttacker = PROC_FLAG_DONE_PERIODIC + PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+    uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC + PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
     uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
     damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
     if (damage)
