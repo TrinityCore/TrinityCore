@@ -115,6 +115,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
+    m_clientTimeDelay(0),
     m_TutorialsChanged(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
@@ -785,10 +786,6 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
         if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
             data >> mi->transport.time2;
-
-        if (mi->pos.m_positionX != mi->transport.pos.m_positionX)
-            if (GetPlayer()->GetTransport())
-                GetPlayer()->GetTransport()->UpdatePosition(mi);
     }
 
     if (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (mi->HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)))
@@ -1188,15 +1185,16 @@ void WorldSession::LoadPermissions()
     uint32 id = GetAccountId();
     std::string name;
     AccountMgr::GetName(id, name);
+    uint8 secLevel = GetSecurity();
 
-    _RBACData = new RBACData(id, name, realmID);
+    _RBACData = new rbac::RBACData(id, name, realmID, secLevel);
     _RBACData->LoadFromDB();
 
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d]",
-                   id, name.c_str(), realmID);
+    TC_LOG_DEBUG(LOG_FILTER_RBAC, "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d, secLevel: %u]",
+                   id, name.c_str(), realmID, secLevel);
 }
 
-RBACData* WorldSession::GetRBACData()
+rbac::RBACData* WorldSession::GetRBACData()
 {
     return _RBACData;
 }
@@ -1215,7 +1213,7 @@ bool WorldSession::HasPermission(uint32 permission)
 
 void WorldSession::InvalidateRBACData()
 {
-    TC_LOG_DEBUG(LOG_FILTER_RBAC, "WorldSession::InvalidateRBACData [AccountId: %u, Name: %s, realmId: %d]",
+    TC_LOG_DEBUG(LOG_FILTER_RBAC, "WorldSession::Invalidaterbac::RBACData [AccountId: %u, Name: %s, realmId: %d]",
                    _RBACData->GetId(), _RBACData->GetName().c_str(), realmID);
     delete _RBACData;
     _RBACData = NULL;

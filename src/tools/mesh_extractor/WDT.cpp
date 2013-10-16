@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include "WorldModelHandler.h"
 
-WDT::WDT(std::string file) : IsGlobalModel(false), IsValid(false)
+WDT::WDT(std::string file) : IsGlobalModel(false), IsValid(false), Model(NULL)
 {
     Data = new ChunkedData(file, 2);
     ReadTileTable();
@@ -21,6 +21,7 @@ void WDT::ReadGlobalModel()
     IsGlobalModel = true;
     ModelDefinition = WorldModelDefinition::Read(defChunk->GetStream());
     ModelFile = Utils::ReadString(fileChunk->GetStream());
+    Model = new WorldModelRoot(ModelFile);
 }
 
 void WDT::ReadTileTable()

@@ -47,6 +47,7 @@ public:
     static const float PI;
     static const float MaxStandableHeight;
     static bool ToWoWCoords;
+    static bool Debug;
     static const char* VMAPMagic;
     static const float BaseUnitDim;
     static const int VertexPerMap;

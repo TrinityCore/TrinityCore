@@ -80,6 +80,7 @@
 #include "Warden.h"
 #include "CalendarMgr.h"
 #include "BattlefieldMgr.h"
+#include "TransportMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -267,7 +268,7 @@ void World::AddSession_(WorldSession* s)
     if (decrease_session)
         --Sessions;
 
-    if (pLimit > 0 && Sessions >= pLimit && !s->HasPermission(RBAC_PERM_SKIP_QUEUE) && !HasRecentlyDisconnected(s))
+    if (pLimit > 0 && Sessions >= pLimit && !s->HasPermission(rbac::RBAC_PERM_SKIP_QUEUE) && !HasRecentlyDisconnected(s))
     {
         AddQueuedPlayer(s);
         UpdateMaxSessionCounters();
@@ -1374,6 +1375,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Game Object Templates...");         // must be after LoadPageTexts
     sObjectMgr->LoadGameObjectTemplate();
 
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
+    sTransportMgr->LoadTransportTemplates();
+
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 
@@ -1784,10 +1788,7 @@ void World::SetInitialWorldSettings()
     sBattlefieldMgr->InitBattlefield();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transports...");
-    sMapMgr->LoadTransports();
-
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transport NPCs...");
-    sMapMgr->LoadTransportNPCs();
+    sTransportMgr->SpawnContinentTransports();
 
     ///- Initialize Warden
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Warden Checks...");
@@ -2148,7 +2149,7 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 
     {
         // check if session and can receive global GM Messages and its not self
         WorldSession* session = itr->second;
-        if (!session || session == self || !session->HasPermission(RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
+        if (!session || session == self || !session->HasPermission(rbac::RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
             continue;
 
         // Player should be in world
@@ -2250,7 +2251,7 @@ void World::SendGMText(int32 string_id, ...)
     {
         // Session should have permissions to receive global gm messages
         WorldSession* session = itr->second;
-        if (!session || !session->HasPermission(RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
+        if (!session || !session->HasPermission(rbac::RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
             continue;
 
         // Player should be in world

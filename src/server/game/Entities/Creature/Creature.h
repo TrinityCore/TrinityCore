@@ -415,36 +415,7 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 3.x.x item count in SMSG_LIST_INVENTORY
 
-enum CreatureCellMoveState
-{
-    CREATURE_CELL_MOVE_NONE,    // not in move list
-    CREATURE_CELL_MOVE_ACTIVE,  // in move list
-    CREATURE_CELL_MOVE_INACTIVE // in move list but should not move
-};
-
-class MapCreature
-{
-    friend class Map;              // map for moving creatures
-    friend class ObjectGridLoader; // grid loader for loading creatures
-
-protected:
-    MapCreature() : _moveState(CREATURE_CELL_MOVE_NONE) {}
-
-private:
-    Cell _currentCell;
-    Cell const& GetCurrentCell() const { return _currentCell; }
-    void SetCurrentCell(Cell const& cell) { _currentCell = cell; }
-
-    CreatureCellMoveState _moveState;
-    Position _newPosition;
-    void SetNewCellPosition(float x, float y, float z, float o)
-    {
-        _moveState = CREATURE_CELL_MOVE_ACTIVE;
-        _newPosition.Relocate(x, y, z, o);
-    }
-};
-
-class Creature : public Unit, public GridObject<Creature>, public MapCreature
+class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
 
@@ -609,7 +580,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void SendAIReaction(AiReaction reactionType);
 
-        Unit* SelectNearestTarget(float dist = 0) const;
+        Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
         Player* SelectNearestPlayer(float distance = 0) const;
         Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
@@ -703,6 +674,11 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool m_isTempWorldObject; //true when possessed
 
+        // Handling caster facing during spellcast
+        void SetTarget(uint64 guid);
+        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        void ReleaseFocus(Spell const* focusSpell);
+
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
@@ -762,6 +738,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         //Formation var
         CreatureGroup* m_formation;
         bool TriggerJustRespawned;
+
+        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
 };
 
 class AssistDelayEvent : public BasicEvent

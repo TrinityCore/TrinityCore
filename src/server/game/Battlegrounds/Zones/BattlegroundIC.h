@@ -956,8 +956,6 @@ class BattlegroundIC : public Battleground
         void UpdateNodeWorldState(ICNodePoint* nodePoint);
         void HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture);
         void HandleContestedNodes(ICNodePoint* nodePoint);
-        Transport* CreateTransport(uint32 goEntry, uint32 period);
-        void SendTransportInit(Player* player);
 };
 
 #endif
