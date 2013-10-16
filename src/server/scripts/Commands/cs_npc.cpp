@@ -897,17 +897,6 @@ public:
             return false;
         }
 
-        if (target->GetTransport() && target->GetGUIDTransport())
-        {
-            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_TRANSPORT_EMOTE);
-
-            stmt->setInt32(0, int32(emote));
-            stmt->setInt32(1, target->GetTransport()->GetEntry());
-            stmt->setInt32(2, target->GetGUIDTransport());
-
-            WorldDatabase.Execute(stmt);
-        }
-
         target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
 
         return true;
