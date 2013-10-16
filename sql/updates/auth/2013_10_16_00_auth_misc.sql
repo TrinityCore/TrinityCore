@@ -5,7 +5,6 @@ DELETE FROM `rbac_permissions` WHERE `id`=@id;
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 (@id, 'debug transport');
 
--- Add permissions to "corresponding Commands Role"
-DELETE FROM `rbac_role_permissions` WHERE `permissionId`=@id;
-INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
-(3, @id);
+DELETE FROM `rbac_linked_permissions` WHERE `linkedId`=@id;
+INSERT INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES
+(196, @id);
