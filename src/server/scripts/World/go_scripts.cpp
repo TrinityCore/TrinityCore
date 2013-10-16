@@ -1261,7 +1261,7 @@ class go_firelands_portal : public CreatureScript
             {
                 if(object_timer <= uiDiff)
 				{
-				   if (Player* nearplayer = me->SelectNearestPlayer(5))
+				   if (Player* nearplayer = me->SelectNearestPlayer(5.0f))
                    {
 					   if(Group* g = nearplayer->GetGroup())
 					   { 
