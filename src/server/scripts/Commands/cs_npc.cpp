@@ -245,24 +245,22 @@ public:
         float o = chr->GetOrientation();
         Map* map = chr->GetMap();
 
-        if (chr->GetTransport())
+        if (Transport* trans = chr->GetTransport())
         {
-            uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
-            if (tguid > 0)
-            {
-                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_TRANSPORT);
+            uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+            CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
+            data.id = id;
+            data.phaseMask = chr->GetPhaseMaskForSpawn();
+            data.posX = chr->GetTransOffsetX();
+            data.posY = chr->GetTransOffsetY();
+            data.posZ = chr->GetTransOffsetZ();
+            data.orientation = chr->GetTransOffsetO();
 
-                stmt->setInt32(0, int32(tguid));
-                stmt->setInt32(1, int32(id));
-                stmt->setInt32(2, int32(chr->GetTransport()->GetEntry()));
-                stmt->setFloat(3, chr->GetTransOffsetX());
-                stmt->setFloat(4, chr->GetTransOffsetY());
-                stmt->setFloat(5, chr->GetTransOffsetZ());
-                stmt->setFloat(6, chr->GetTransOffsetO());
+            Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-                WorldDatabase.Execute(stmt);
-            }
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMaskForSpawn());
 
+            sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
         }
 
@@ -1337,7 +1335,8 @@ public:
     {
         if (!*args)
             return false;
-        char* charID = strtok((char*)args, " ");
+
+        char* charID = handler->extractKeyFromLink((char*)args, "Hcreature_entry");
         if (!charID)
             return false;
 

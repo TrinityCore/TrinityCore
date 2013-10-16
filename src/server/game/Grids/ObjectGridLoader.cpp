@@ -43,6 +43,20 @@ void ObjectGridEvacuator::Visit(CreatureMapType &m)
     }
 }
 
+void ObjectGridEvacuator::Visit(GameObjectMapType &m)
+{
+    // gameobject in unloading grid can have respawn point in another grid
+    // if it will be unloaded then it will not respawn in original grid until unload/load original grid
+    // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
+    for (GameObjectMapType::iterator iter = m.begin(); iter != m.end();)
+    {
+        GameObject* go = iter->GetSource();
+        ++iter;
+
+        go->GetMap()->GameObjectRespawnRelocation(go, true);
+    }
+}
+
 // for loading world object at grid loading (Corpses)
 /// @todo to implement npc on transport, also need to load npcs at grid loading
 class ObjectWorldLoader
@@ -70,7 +84,12 @@ template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellCoord con
 template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellCoord const& cellCoord)
 {
     Cell cell(cellCoord);
+    obj->SetCurrentCell(cell);
+}
 
+template<> void ObjectGridLoader::SetObjectCell(GameObject* obj, CellCoord const& cellCoord)
+{
+    Cell cell(cellCoord);
     obj->SetCurrentCell(cell);
 }
 
