@@ -164,7 +164,7 @@ class spell_mage_offensive_state : public SpellScriptLoader
 				uint32 eff = eventInfo.GetDamageInfo()->GetSpellInfo()->Id;
 				TypeID isplayer = eventInfo.GetDamageInfo()->GetAttacker()->GetTypeId();
 				bool dot = eventInfo.GetDamageInfo()->GetSpellInfo()->HasAura(SPELL_AURA_PERIODIC_DAMAGE);
-				if((eff != 7268)&&(eff != 71757)&&(dot==FALSE)&&(isplayer==TYPEID_PLAYER))
+				if((eff != 7268)&&(eff != 71757)&&(dot==0)&&(isplayer==TYPEID_PLAYER))
 				{
 				if(Player* player = GetCaster()->ToPlayer())
 				{
