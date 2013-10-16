@@ -465,6 +465,8 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
                     newMap->AddToMap(go);
                     break;
                 }
+                default:
+                    break;
             }
         }
 
@@ -487,6 +489,8 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
                 }
                 case TYPEID_PLAYER:
                     (*itr)->ToPlayer()->TeleportTo(newMapid, x, y, z, (*itr)->GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+                    break;
+                default:
                     break;
             }
         }
@@ -540,6 +544,8 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
+                break;
+            default:
                 break;
         }
 
