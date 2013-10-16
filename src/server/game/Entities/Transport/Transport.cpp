@@ -165,7 +165,7 @@ void Transport::Update(uint32 diff)
 
         sScriptMgr->OnRelocate(this, _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
 
-        TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
+        TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName().c_str(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
     }
 
     // Set position
@@ -189,7 +189,7 @@ void Transport::Update(uint32 diff)
 void Transport::AddPassenger(WorldObject* passenger)
 {
     if (_passengers.insert(passenger).second)
-        TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Object %s boarded transport %s.", passenger->GetName(), GetName());
+        TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
     if (Player* plr = passenger->ToPlayer())
         sScriptMgr->OnAddPassenger(this, plr);
@@ -198,7 +198,7 @@ void Transport::AddPassenger(WorldObject* passenger)
 void Transport::RemovePassenger(WorldObject* passenger)
 {
     if (_passengers.erase(passenger) || _staticPassengers.erase(passenger)) // static passenger can remove itself in case of grid unload
-        TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Object %s removed from transport %s.", passenger->GetName(), GetName());
+        TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
 
     if (Player* plr = passenger->ToPlayer())
@@ -553,7 +553,7 @@ void Transport::DoEventIfAny(KeyFrame const& node, bool departure)
 {
     if (uint32 eventid = departure ? node.Node->departureEventID : node.Node->arrivalEventID)
     {
-        TC_LOG_DEBUG(LOG_FILTER_MAPSCRIPTS, "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->index, GetName());
+        TC_LOG_DEBUG(LOG_FILTER_MAPSCRIPTS, "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->index, GetName().c_str());
         GetMap()->ScriptsStart(sEventScripts, eventid, this, this);
         EventInform(eventid);
     }
