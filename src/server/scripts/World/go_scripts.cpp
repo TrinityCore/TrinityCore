@@ -54,6 +54,8 @@ EndContentData */
 #include "Spell.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GroupMgr.h"
+
 
 /*######
 ## go_cat_figurine
@@ -1235,6 +1237,50 @@ public:
     }
 };
 
+/*######
+## go_firelands_portal
+######*/
+
+class go_firelands_portal : public CreatureScript
+{
+    public:
+        go_firelands_portal() : CreatureScript("go_firelands_portal") {}
+
+        struct go_firelands_portalAI : public ScriptedAI
+        {
+            go_firelands_portalAI(Creature* creature) :ScriptedAI(creature){}
+
+			uint32 object_timer;
+			 void Reset() OVERRIDE
+            {                                    
+                object_timer = 500;                             
+            }
+
+
+			 void UpdateAI(uint32 uiDiff) OVERRIDE
+            {
+                if(object_timer <= uiDiff)
+				{
+				   if (Player* nearplayer = me->SelectNearestPlayer(5))
+                   {
+					   if(nearplayer->GetGroup()->isRaidGroup())
+					     nearplayer->TeleportTo(720,-544.7360f,318.4902f,115.4943f,0.0f);
+				   }else{
+				   return;
+				   }
+				} else {
+				object_timer-=uiDiff;
+				}
+			 }
+
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return new go_firelands_portalAI(creature);
+        }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine();
@@ -1274,4 +1320,5 @@ void AddSC_go_scripts()
     new go_veil_skith_cage();
     new go_frostblade_shrine();
     new go_midsummer_bonfire();
+	new go_firelands_portal();
 }
