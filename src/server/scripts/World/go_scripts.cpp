@@ -1263,8 +1263,13 @@ class go_firelands_portal : public CreatureScript
 				{
 				   if (Player* nearplayer = me->SelectNearestPlayer(5))
                    {
-					   if(nearplayer->GetGroup()->isRaidGroup())
-					     nearplayer->TeleportTo(720,-544.7360f,318.4902f,115.4943f,0.0f);
+					   if(Group* g = nearplayer->GetGroup())
+					   { 
+							  if(g->isRaidGroup())
+							  {
+								nearplayer->TeleportTo(720,-544.7360f,318.4902f,115.4943f,0.0f);
+							  }
+					   }
 				   }else{
 				   return;
 				   }
