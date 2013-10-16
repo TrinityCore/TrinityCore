@@ -2541,10 +2541,15 @@ void Map::AddToActive(Creature* c)
     }
 }
 
+template<>
+void Map::AddToActive(DynamicObject* d)
+{
+    AddToActiveHelper(d);
+}
+
 template<class T>
 void Map::RemoveFromActive(T* obj)
 {
-    RemoveFromActiveHelper(obj);
 }
 
 template <>
@@ -2569,6 +2574,12 @@ void Map::RemoveFromActive(Creature* c)
     }
 }
 
+template<>
+void Map::RemoveFromActive(DynamicObject* obj)
+{
+    RemoveFromActiveHelper(obj);
+}
+
 template bool Map::AddToMap(Corpse*);
 template bool Map::AddToMap(Creature*);
 template bool Map::AddToMap(GameObject*);
@@ -2578,10 +2589,6 @@ template void Map::RemoveFromMap(Corpse*, bool);
 template void Map::RemoveFromMap(Creature*, bool);
 template void Map::RemoveFromMap(GameObject*, bool);
 template void Map::RemoveFromMap(DynamicObject*, bool);
-
-template void Map::AddToActive(DynamicObject*);
-
-template void Map::RemoveFromActive(DynamicObject*);
 
 /* ******* Dungeon Instance Maps ******* */
 
