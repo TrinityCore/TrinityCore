@@ -99,6 +99,15 @@ void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* 
     obj->AddToGrid(m);
     ObjectGridLoader::SetObjectCell(obj, cell);
     obj->AddToWorld();
+    ++count;
+}
+
+template <>
+void AddObjectHelper(CellCoord &cell, CreatureMapType &m, uint32 &count, Map* map, Creature *obj)
+{
+    obj->AddToGrid(m);
+    ObjectGridLoader::SetObjectCell(obj, cell);
+    obj->AddToWorld();
     if (obj->isActiveObject())
         map->AddToActive(obj);
 
