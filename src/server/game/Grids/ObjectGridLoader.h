@@ -67,6 +67,7 @@ class ObjectGridEvacuator
 {
     public:
         void Visit(CreatureMapType &m);
+        void Visit(GameObjectMapType &m);
         template<class T> void Visit(GridRefManager<T> &) {}
 };
 
