@@ -603,14 +603,12 @@ class Map : public GridRefManager<NGridType>
         template<class T>
         void DeleteFromWorld(T*);
 
-        template<class T>
-        void AddToActiveHelper(T* obj)
+        void AddToActiveHelper(WorldObject* obj)
         {
             m_activeNonPlayers.insert(obj);
         }
 
-        template<class T>
-        void RemoveFromActiveHelper(T* obj)
+        void RemoveFromActiveHelper(WorldObject* obj)
         {
             // Map::Update for active object in proccess
             if (m_activeNonPlayersIter != m_activeNonPlayers.end())
