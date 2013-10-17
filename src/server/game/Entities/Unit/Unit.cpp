@@ -6517,6 +6517,39 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
             }
             break;
         }
+ 	 case SPELLFAMILY_PRIEST:
+        {
+            if (dummySpell->Id == 14751) // Chakra
+            {
+                switch (procSpell->Id)
+                {
+                    case 2050:  // Heal
+                    case 2060:  // Greater heal
+                    case 2061:  // Flash Heal
+                    case 32546: // Binding Heal
+                    {
+                        *handled = true;
+                        CastSpell(this, 81208, true);  // Chakra: Serenity
+                        return true;
+                    }
+                    case 33076: // Prayer of Mending
+                    case 596:   // Prayer of Healing
+                    {
+                        *handled = true;
+                        CastSpell(this, 81206, true);  // Chakra: Sanctuary
+                        return true;
+                    }
+                    case 585:   // Smite
+                    case 73510: // Mind Spike
+                    {
+                        *handled = true;
+                        CastSpell(this, 81209, true);  // Chakra: Chastise
+                        return true;
+                    }
+                }
+            }
+            break;
+	 }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Blood of the North
