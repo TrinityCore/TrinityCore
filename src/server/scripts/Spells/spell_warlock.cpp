@@ -74,6 +74,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
+    WARLOCK_DRAIN_LIFE                              = 89653,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
 };
 
@@ -1431,6 +1432,36 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
+/// Updated 4.3.4 dream wow  DRAIN LIFE WARLOCK
+class spell_warl_drain_life : public SpellScriptLoader
+{
+    public:
+        spell_warl_drain_life() : SpellScriptLoader("spell_warl_drain_life") { }
+
+           class spell_warl_drain_life_AuraScript : public AuraScript
+			{
+            PrepareAuraScript(spell_warl_drain_life_AuraScript);
+
+				void OnPeriodic(AuraEffect const* /*aurEff*/)
+				{
+				int32 getPctHealth = 2; // 2% Restore
+				// Check for Death's Embrace
+				if(AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 3223, 0))
+				if(GetCaster()->HealthBelowPct(25))
+	           		getPctHealth += int32(aurEff->GetAmount());
+	            		GetCaster()->CastCustomSpell(GetCaster(), WARLOCK_DRAIN_LIFE, &getPctHealth, NULL, NULL, true);
+				}
+				void Register() OVERRIDE
+				{
+				OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_life_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+				}
+			};
+			AuraScript* GetAuraScript() const OVERRIDE
+			{
+				return new spell_warl_drain_life_AuraScript();
+			}
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1463,4 +1494,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_swap_override();
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
+    new spell_warl_drain_life();
 }
