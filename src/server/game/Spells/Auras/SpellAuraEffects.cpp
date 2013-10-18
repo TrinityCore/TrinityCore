@@ -1042,8 +1042,108 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+{
+			if (!caster)
+			break;
+
+			if (!target->IsAlive())
+				return;
+
+			if (target->HasUnitState(UNIT_STATE_ISOLATED)) 
+			{
+				SendTickImmune(target, caster);
+			return;
+		    }
+			// Dark Evangelism
+			if (target->HasAura(15407)) // Mind Flay
+			{
+				if (caster->HasAura(81659)) // Rank 1
+				{
+					caster->CastSpell(caster, 87117, true);
+					caster->RemoveAurasDueToSpell(81660);
+					caster->RemoveAurasDueToSpell(81661);
+				}
+				else if (caster->HasAura(81662)) // Rank 2
+				{
+					caster->CastSpell(caster, 87118, true);
+					caster->RemoveAurasDueToSpell(81660);
+					caster->RemoveAurasDueToSpell(81661);
+				}
+				caster->CastSpell(caster, 87154, true);
+			}
+			if(target->HasAura(589)) //Shadow word: Pain
+			{
+				int32 pct = 0;
+				if(caster->HasAura(78204)) //Shadowy Apparition rank 3
+				{
+					pct = 12;
+					if(caster->isMoving()) // Chance increased to 60 if the caster is moving
+						pct = 60;
+				}
+				if(caster->HasAura(78203)) //Shadowy Apparition rank 2
+				{
+					pct = 8;
+					if(caster->isMoving()) // Chance increased to 40 if the caster is moving
+						pct = 40;
+				}
+				if(caster->HasAura(78202)) //Shadowy Apparition rank 1
+				{
+					pct = 4;
+					if(caster->isMoving()) // Chance increased to 20 if the caster is moving
+						pct = 20;
+				}
+				if(roll_chance_i(pct)) //Summon the apparition
+					caster->CastSpell(caster,87426,true);
+			}
+			// shadow word: pain or mind flay + shadow orbs passive aura
+			if((target->HasAura(589) || target->HasAura(15407)) && caster->HasAura(95740))
+			{
+				 uint32 chance = 10;
+                //Harnessed Shadows increase chance of creating a shadow orb by 4 and 8%
+                //Rank 1
+				if(caster->HasAura(33191))
+                {
+                    chance += 4;
+                }
+                //Rank 2
+				else if(caster->HasAura(78228))
+                {
+                    chance += 8;
+                }
+                //Proc shadow orb
+                if(roll_chance_i(chance))
+                {
+                    caster->CastSpell(caster,77487,true);
+                }
+			}
+
+			// Flame shock
+			if(target->HasAura(8050))
+			{
+				// Lava Surge (Rank 2)
+				if(Aura* lava2 = caster->GetAura(77756))
+				{
+					// 20% to reset cooldown of lava burst
+					if(caster->ToPlayer()->HasSpellCooldown(51505))
+					{
+						if(roll_chance_i(20))
+							caster->CastSpell(caster, 77762, true);
+					}
+				}
+				// Lava Surge (Rank 1)
+				else if(Aura * lava1 = caster->GetAura(77755))
+				{
+					//10% to reset cooldown of lava burst
+					if(caster->ToPlayer()->HasSpellCooldown(51505))
+					{
+						if(roll_chance_i(10))
+							caster->CastSpell(caster, 77762, true);
+					}
+				}
+			}
             HandlePeriodicDamageAurasTick(target, caster);
             break;
+}
         case SPELL_AURA_PERIODIC_LEECH:
             HandlePeriodicHealthLeechAuraTick(target, caster);
             break;
@@ -4243,7 +4343,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
         return;
 
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
-}
+    }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {

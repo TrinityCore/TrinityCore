@@ -1683,6 +1683,86 @@ public:
 };
 
 /*######
+# npc_shadowy_apparition
+######*/
+
+class npc_shadowy_apparition: public CreatureScript
+{
+public:
+    npc_shadowy_apparition () :
+            CreatureScript("npc_shadowy_apparition")
+    {
+    }
+
+    struct npc_shadowy_apparitionAI: public ScriptedAI
+    {
+        npc_shadowy_apparitionAI (Creature* c) :
+                ScriptedAI(c)
+        {
+            me->SetReactState(REACT_AGGRESSIVE);
+        }
+
+        uint64 targetGuid;
+
+        void InitializeAI ()
+        {
+            Unit * owner = me->GetOwner();
+
+            if (!owner)
+                return;
+
+            owner->CastSpell(me, 87213, true);
+
+            if (me->GetCharmInfo())
+            {
+                me->GetCharmInfo()->SetIsAtStay(true);
+                me->GetCharmInfo()->SetIsFollowing(false);
+                me->GetCharmInfo()->SetIsReturning(false);
+            }
+        }
+
+        void Reset ()
+        {
+            me->CastSpell(me, 87427, true);
+        }
+
+        void MoveInLineOfSight (Unit* who)
+        {
+            if (who->IsHostileTo(me) && me->GetDistance(who) <= 2.0f)
+            {
+                me->CastCustomSpell(who, 87532, NULL, NULL, NULL, true, 0, 0, me->GetOwnerGUID());
+                me->CastSpell(me, 87529, true);
+                me->DisappearAndDie();
+            }
+        }
+
+        void UpdateAI (const uint32 diff)
+        {
+            if (!UpdateVictim())
+            {
+                Unit * owner = me->GetOwner();
+
+                if (!owner)
+                    return;
+
+                if (Unit* target = owner->getAttackerForHelper())
+                {
+                    me->Attack(target, false);
+                    me->AddThreat(target, 100.0f);
+                    me->GetMotionMaster()->MoveChase(target, 0.0f, 0.0f);
+                    targetGuid = target->GetGUID();
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI (Creature* creature) const
+    {
+        return new npc_shadowy_apparitionAI(creature);
+    }
+};
+
+/*######
 # npc_wormhole
 ######*/
 
@@ -2436,6 +2516,56 @@ public:
     };
 };
 
+/*######
+# npc_shadowfiend
+######*/
+
+enum Shadowfiend
+{
+    MANA_LEECH                       = 28305,
+    GLYPH_OF_SHADOWFIEND_MANA        = 58227,
+    GLYPH_OF_SHADOWFIEND             = 58228
+};
+
+class npc_shadowfiend : public CreatureScript
+{
+public:
+    npc_shadowfiend() : CreatureScript("npc_shadowfiend") { }
+
+    struct npc_shadowfiendAI : public ScriptedAI
+    {
+        npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset()
+        {
+            if (me->IsSummon())
+                if (Unit* owner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* pet = owner->GetGuardianPet())
+                        pet->CastSpell(pet, MANA_LEECH, true);
+        }
+
+        void DamageTaken(Unit* /*killer*/, uint32& damage)
+        {
+            if (me->IsSummon())
+                if (Unit* owner = me->ToTempSummon()->GetSummoner())
+                    if (owner->HasAura(GLYPH_OF_SHADOWFIEND) && damage >= me->GetHealth())
+                        owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
+        }
+
+        void UpdateAI(uint32 /*diff*/)
+	 {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+         }
+    };
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_shadowfiendAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2459,4 +2589,6 @@ void AddSC_npcs_special()
     new npc_experience();
     new npc_firework();
     new npc_spring_rabbit();
+    new npc_shadowy_apparition();
+    new npc_shadowfiend();
 }
