@@ -29,6 +29,7 @@
 #include "Vehicle.h"
 #include "MapReference.h"
 #include "Player.h"
+#include "Cell.h"
 
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false)
@@ -38,6 +39,7 @@ Transport::Transport() : GameObject(),
 
 Transport::~Transport()
 {
+    UnloadStaticPassengers();
 }
 
 bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress)

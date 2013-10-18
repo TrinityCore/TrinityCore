@@ -63,6 +63,17 @@ Map::~Map()
         obj->ResetMap();
     }
 
+    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end(); ++itr)
+    {
+        Transport* transport = *itr;
+        // Destroy local transports
+        if (transport->GetTransportTemplate()->inInstance)
+        {
+            transport->RemoveFromWorld();
+            delete transport;
+        }
+    }
+
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
@@ -2396,7 +2407,7 @@ void Map::AddObjectToSwitchList(WorldObject* obj, bool on)
     ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
     // i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
     // the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
-    if (obj->GetTypeId() != TYPEID_UNIT)
+    if (obj->GetTypeId() != TYPEID_UNIT && obj->GetTypeId() != TYPEID_GAMEOBJECT)
         return;
 
     std::map<WorldObject*, bool>::iterator itr = i_objectsToSwitch.find(obj);
@@ -2417,7 +2428,7 @@ void Map::RemoveAllObjectsInRemoveList()
         bool on = itr->second;
         i_objectsToSwitch.erase(itr);
 
-        if (obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_GAMEOBJECT && !obj->IsPermanentWorldObject())
+        if ((obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_GAMEOBJECT) && !obj->IsPermanentWorldObject())
             SwitchGridContainers(obj, on);
     }
 

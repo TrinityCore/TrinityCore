@@ -67,6 +67,8 @@ class Transport : public GameObject, public TransportBase
 
         void EnableMovement(bool enabled);
 
+        TransportTemplate const* GetTransportTemplate() const { return _transportInfo; }
+
     private:
         void MoveToNextWaypoint();
         float CalculateSegmentPos(float perc);
