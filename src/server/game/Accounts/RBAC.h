@@ -303,7 +303,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GOBJECT_SET_STATE                      = 397,
     RBAC_PERM_COMMAND_GOBJECT_TARGET                         = 398,
     RBAC_PERM_COMMAND_GOBJECT_TURN                           = 399,
-    // 400 - reuse
+    RBAC_PERM_COMMAND_DEBUG_TRANSPORT                        = 400,
     RBAC_PERM_COMMAND_GUILD                                  = 401,
     RBAC_PERM_COMMAND_GUILD_CREATE                           = 402,
     RBAC_PERM_COMMAND_GUILD_DELETE                           = 403,
