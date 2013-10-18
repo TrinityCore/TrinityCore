@@ -2548,7 +2548,7 @@ void Map::AddToActive(DynamicObject* d)
 }
 
 template<class T>
-void Map::RemoveFromActive(T* obj)
+void Map::RemoveFromActive(T* /*obj*/)
 {
 }
 
