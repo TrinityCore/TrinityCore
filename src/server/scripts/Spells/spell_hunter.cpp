@@ -54,6 +54,7 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
+
 };
 
 // 53209 - Chimera Shot
@@ -1025,6 +1026,33 @@ class spell_hun_tnt : public SpellScriptLoader
         }
 };
 
+// 13165 - Aspect of the Hawk DREAM WOW
+class spell_hun_aspect_of_the_hawk: public SpellScriptLoader
+{
+   public:
+       spell_hun_aspect_of_the_hawk() : SpellScriptLoader("spell_hun_aspect_of_the_hawk") {}
+
+   class spell_hun_aspect_of_the_hawk_AuraScript: public AuraScript
+   {
+       PrepareAuraScript(spell_hun_aspect_of_the_hawk_AuraScript);
+
+       void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount,  bool & /*canBeRecalculated*/) 
+      {
+           amount = 23.52f * GetCaster()->getLevel();
+       }
+
+       void Register()OVERRIDE
+       {
+           DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_aspect_of_the_hawk_AuraScript::CalculateAmount, EFFECT_0, UNIT_MOD_ATTACK_POWER_RANGED);
+       }
+   };
+
+   AuraScript *GetAuraScript() const OVERRIDE
+   {
+       return new spell_hun_aspect_of_the_hawk_AuraScript();
+   }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_chimera_shot();
@@ -1050,4 +1078,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_tnt();
+    new spell_hun_aspect_of_the_hawk();
 }
