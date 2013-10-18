@@ -63,6 +63,17 @@ Map::~Map()
         obj->ResetMap();
     }
 
+    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end(); ++itr)
+    {
+        Transport* transport = *itr;
+        // Destroy local transports
+        if (transport->GetTransportTemplate()->inInstance)
+        {
+            transport->RemoveFromWorld();
+            delete transport;
+        }
+    }
+
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
