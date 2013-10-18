@@ -94,7 +94,7 @@ template<> void ObjectGridLoader::SetObjectCell(GameObject* obj, CellCoord const
 }
 
 template <class T>
-void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
+void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* /*map*/, T *obj)
 {
     obj->AddToGrid(m);
     ObjectGridLoader::SetObjectCell(obj, cell);

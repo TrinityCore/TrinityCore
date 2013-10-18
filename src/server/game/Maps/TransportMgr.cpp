@@ -361,7 +361,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
     {
-        if (uint32(mapEntry->Instanceable()) != tInfo->inInstance)
+        if (mapEntry->Instanceable() != tInfo->inInstance)
         {
             TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "Transport %u (name: %s) attempted creation in instance map (id: %u) but it is not an instanced transport!", entry, trans->GetName().c_str(), mapId);
             delete trans;
