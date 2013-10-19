@@ -1,4 +1,4 @@
-SET @CREATURE_GUID := 4000150; -- 13 needed
+SET @CREATURE_GUID := 4000150; -- 11 needed
 SET @GOB_GUID := 400010; -- 1 needed
 
 UPDATE `item_template` SET `ScriptName` = 'TW_item_water_bucket' WHERE `entry` = 32971;
@@ -6,7 +6,7 @@ UPDATE `creature_template` SET `ScriptName` = 'TW_npc_halloween_fire' WHERE `ent
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=23686; -- fire dummies should be invisible
 UPDATE `creature_template` SET `Health_mod`=20 WHERE `entry`=23543; -- HH should have 4440 hp
 
-DELETE FROM `creature` WHERE `id` IN (23537,23686) AND `guid` BETWEEN @CREATURE_GUID+00 AND @CREATURE_GUID+12;
+DELETE FROM `creature` WHERE `id` IN (23537,23686) AND `guid` BETWEEN @CREATURE_GUID+00 AND @CREATURE_GUID+10;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 -- Spawn fire dummys for fire effigys
 (@CREATURE_GUID+00,23537,530,1,1,0,0,-4192.38,-12268.1,2.53389,-1.72788,300,0,0,45780,0,0,0,0,0),
@@ -19,12 +19,12 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 (@CREATURE_GUID+07,23537,0,1,1,0,0,2240.44,459.159,39.2838,0.820305,300,0,0,15260,0,0,0,0,0),
 (@CREATURE_GUID+08,23537,0,1,1,0,0,2239.49,487.861,38.3446,-0.715585,300,0,0,15260,0,0,0,0,0),
 (@CREATURE_GUID+09,23537,0,1,1,0,0,-9328.25,56.2778,63.2509,2.60054,300,0,0,15260,0,0,0,0,0),
-(@CREATURE_GUID+10,23537,0,1,1,0,0,-9314.1,52.4562,77.7343,2.93215,300,0,0,15260,0,0,0,0,0),
+(@CREATURE_GUID+10,23537,0,1,1,0,0,-9314.1,52.4562,77.7343,2.93215,300,0,0,15260,0,0,0,0,0);
 -- Spawn Fire Handlers for villages
-(@CREATURE_GUID+11,23686,1,1,1,0,0,305.144,-4724.5,9.83766,3.68348,300,0,0,7185,7196,0,0,0,0),
-(@CREATURE_GUID+12,23686,0,1,1,0,0,-9465.54,63.2228,55.8587,6.25841,300,0,0,7185,7196,0,0,0,0);
+#(@CREATURE_GUID+11,23686,1,1,1,0,0,305.144,-4724.5,9.83766,3.68348,300,0,0,7185,7196,0,0,0,0),
+#(@CREATURE_GUID+12,23686,0,1,1,0,0,-9465.54,63.2228,55.8587,6.25841,300,0,0,7185,7196,0,0,0,0);
 
-DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CREATURE_GUID+00 AND @CREATURE_GUID+12;
+DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CREATURE_GUID+00 AND @CREATURE_GUID+10;
 INSERT INTO `game_event_creature` VALUES
 (12, @CREATURE_GUID+00),
 (12, @CREATURE_GUID+01),
@@ -36,9 +36,9 @@ INSERT INTO `game_event_creature` VALUES
 (12, @CREATURE_GUID+07),
 (12, @CREATURE_GUID+08),
 (12, @CREATURE_GUID+09),
-(12, @CREATURE_GUID+10),
-(12, @CREATURE_GUID+11),
-(12, @CREATURE_GUID+12);
+(12, @CREATURE_GUID+10);
+#(12, @CREATURE_GUID+11),
+#(12, @CREATURE_GUID+12);
 
 -- missing water bucket in Goldshire
 DELETE FROM `gameobject` WHERE `guid`=@GOB_GUID;
