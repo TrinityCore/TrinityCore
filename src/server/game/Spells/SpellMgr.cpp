@@ -1855,7 +1855,7 @@ void SpellMgr::LoadSpellProcEvents()
             }
 
             if (!spellInfo->ProcFlags && !spellProcEvent.procFlags)
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` probally not triggered spell", spellInfo->Id);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` probably not triggered spell", spellInfo->Id);
 
             mSpellProcEventMap[spellInfo->Id] = spellProcEvent;
 
