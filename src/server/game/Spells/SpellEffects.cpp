@@ -754,6 +754,23 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
+
+ 	// Espiral de la muerte DREAM WOW
+        if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_COIL)
+        {
+            if (m_caster->IsFriendlyTo(unitTarget))
+            {
+                int32 bp = (985 + damage * 0.53) * 3.5;
+                m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
+            }
+            else
+            {
+                int32 bp = (985 + damage * 0.53);
+                m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
+            }
+            return;
+        }
+
             switch (m_spellInfo->Id)
             {
                 case 46584: // Raise Dead
@@ -3776,6 +3793,15 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     npc->LoadEquipment();
                     return;
                 }
+		  // Emblazon Runeblade
+                case 51770:
+                {
+                    if (!m_originalCaster)
+                        return;
+
+                    m_originalCaster->CastSpell(m_originalCaster, damage, false);
+                    break;
+                }
                 // Deathbolt from Thalgran Blightbringer
                 // reflected by Freya's Ward
                 // Retribution by Sevenfold Retribution
@@ -3995,7 +4021,105 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
             }
             break;
         }
-        
+        case SPELLFAMILY_PALADIN:
+        {
+            // Judgement (seal trigger)
+            if (m_spellInfo->Category == SPELLCATEGORY_JUDGEMENT)
+            {
+                if (!unitTarget || !unitTarget->IsAlive())
+                    return;
+                uint32 spellId1 = 0;
+                uint32 spellId2 = 0;
+
+                // Judgement self add switch
+                switch (m_spellInfo->Id)
+                {
+                    case 53407: spellId1 = 20184; break;    // Judgement of Justice
+                    case 20271:                             // Judgement of Light
+                    case 57774: spellId1 = 20185; break;    // Judgement of Light
+                    case 53408: spellId1 = 20186; break;    // Judgement of Wisdom
+                    default:
+                        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Unsupported Judgement (seal trigger) spell (Id: %u) in Spell::EffectScriptEffect", m_spellInfo->Id);
+                        return;
+                }
+                // all seals have aura dummy in 2 effect
+                Unit::AuraApplicationMap & sealAuras = m_caster->GetAppliedAuras();
+                for (Unit::AuraApplicationMap::iterator iter = sealAuras.begin(); iter != sealAuras.end();)
+                {
+                    Aura* aura = iter->second->GetBase();
+                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
+                    {
+                        if (AuraEffect* aureff = aura->GetEffect(2))
+                            if (aureff->GetAuraType() == SPELL_AURA_DUMMY)
+                            {
+                                if (sSpellMgr->GetSpellInfo(aureff->GetAmount()))
+                                    spellId2 = aureff->GetAmount();
+                                break;
+                            }
+                        if (!spellId2)
+                        {
+                            switch (iter->first)
+                            {
+                                // Seal of light, Seal of wisdom, Seal of justice
+                                case 20165:
+                                case 20166:
+                                case 20164:
+                                    spellId2 = 54158;
+                            }
+                        }
+                        break;
+                    }
+                    else
+                        ++iter;
+                }
+                if (spellId1)
+                    m_caster->CastSpell(unitTarget, spellId1, true);
+                if (spellId2)
+                    m_caster->CastSpell(unitTarget, spellId2, true);
+                return;
+            }
+	  break;
+        }
+   	 case SPELLFAMILY_PRIEST:
+        {			
+		  // Archangel(87151)
+                if (m_spellInfo->Id == 87151)
+                {
+                    // holy
+                    if (Aura* holy = m_caster->GetAura(81661))
+                    {
+                        int32 bp = holy->GetStackAmount() * 3;
+                        //Give mana
+                        m_caster->CastSpell(m_caster,87152,true);
+                        //Cast visual & mod healing
+                        m_caster->CastCustomSpell(m_caster, 81700,&bp,NULL,NULL, true);
+                        m_caster->RemoveAurasDueToSpell(81661);
+                    }
+                    // dark
+                    if (Aura* shadow = m_caster->GetAura(87118))
+                    {
+                        int32 bp = shadow->GetStackAmount() * 4;
+                        int32 bp_ = 5;
+                        m_caster->CastCustomSpell(m_caster, 87152, &bp_, NULL,NULL, true);
+                        m_caster->CastCustomSpell(m_caster, 87153,&bp,&bp,NULL, true);
+                        m_caster->RemoveAurasDueToSpell(87118);
+                    }
+                } 
+                if (m_spellInfo->Id == 89490) // Strength of Soul
+               {
+               if (unitTarget->HasAura(6788))
+               {
+                   uint32 newCooldownDelay = unitTarget->GetAura(6788)->GetDuration();
+                   if (newCooldownDelay <= uint32(damage*1000))
+                       newCooldownDelay = 0;
+                   else
+                       newCooldownDelay -= uint32(damage*1000);
+
+                   unitTarget->GetAura(6788)->SetDuration(newCooldownDelay, true);
+               }
+           }
+           break;
+        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Pestilence

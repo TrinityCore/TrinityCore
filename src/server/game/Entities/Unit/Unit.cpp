@@ -3063,7 +3063,7 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
         for (Unit::AuraList::iterator itr = scAuras.begin(); itr != scAuras.end();)
         {
             if ((*itr) != aura &&
-                (*itr)->IsSingleTargetWith(aura))
+                (*itr)->GetSpellInfo()->IsSingleTargetWith(aura->GetSpellInfo()))
             {
                 (*itr)->Remove();
                 itr = scAuras.begin();
@@ -5800,6 +5800,30 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     break;
                 }
+
+		  // Judgement of Light
+                case 20185:
+                {
+                    if (!victim)
+                        return false;
+                    // 2% of base mana
+                    basepoints0 = int32(victim->CountPctFromMaxHealth(2));
+                    victim->CastCustomSpell(victim, 20267, &basepoints0, 0, 0, true, 0, triggeredByAura);
+                    return true;
+               break;
+                }
+                // Judgement of Wisdom
+                case 20186:
+                {
+                    if (victim && victim->IsAlive() && victim->getPowerType() == POWER_MANA)
+                    {
+                        // 2% of base mana
+                        basepoints0 = int32(CalculatePct(victim->GetCreateMana(), 2));
+                        victim->CastCustomSpell(victim, 20268, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
+                    }
+                    return true;
+                 break;
+                }
                 case 31801:
                 {
                     if (effIndex != 0)                       // effect 2 used by seal unleashing code
@@ -7054,6 +7078,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
+	 // Find weakness DREAMWOW 
+        case 91021:
+        {
+            if (!procSpell || (
+                procSpell->Id != 8676 &&
+                procSpell->Id != 703 &&
+                procSpell->Id != 1833))
+                return false;
+            break;
+        }
         // Auras which should proc on area aura source (caster in this case):
         // Cast positive spell on enemy target
         case 7099:  // Curse of Mending
@@ -7125,6 +7159,27 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+
+	// Rolling Thunder DREAM WOW
+	case 88765:
+	{
+		if (Aura * lightningShield = GetAura(324))
+		{
+			uint8 lsCharges = lightningShield->GetCharges();
+			if (lsCharges < 9)
+				lightningShield->SetCharges(lsCharges + 1);
+
+			if (HasAura(88766))
+			{
+			   if (lsCharges > 5)
+				CastSpell(this, 95774, true);
+			   else
+				RemoveAurasDueToSpell(95774);
+		 	}
+				
+		}
+		break;
+	}
         // Savage Defense
         case 62606:
         {
@@ -7140,6 +7195,17 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+	// Chakra: Serenity should proc only on direct heals DREAM WOW
+        case 81208:
+        {
+            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; i++)
+            {
+                if (procSpell->Effects[i].Effect == SPELL_EFFECT_HEAL)
+                    return true;
+            }
+            return false;
+        }
+
         // Culling the Herd
         case 70893:
         {

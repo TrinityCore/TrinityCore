@@ -1212,6 +1212,134 @@ class spell_pal_guardian_ancient_kings : public SpellScriptLoader
         }
 };
 
+// 20425 - Judgement of Command DREAM WOW
+
+class spell_pal_judgement_of_command : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgement_of_command() : SpellScriptLoader("spell_pal_judgement_of_command") { }
+
+        class spell_pal_judgement_of_command_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_judgement_of_command_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                    if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
+                        GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_judgement_of_command_SpellScript();
+        }
+};
+
+/// judgmenets pala DREAM WOW 
+
+enum Judgements
+{
+	SPELL_JUDGEMENT_TRIGGER           = 23590, 
+	SPELL_JUDGEMENT_LONG_ARM_OF_LAWL  = 87173,
+	SPELL_JUDGEMENT_WISE              = 31930,
+	SPELL_JUDGEMENT_BOLD              = 89906,
+	SPELL_JUDGEMENT_PURE              = 53655,
+	SPELL_JUDGEMENT_ENLIGHTENED       = 87188,
+};
+
+/// Updated 4.3.4
+class spell_pal_judgements : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgements() : SpellScriptLoader("spell_pal_judgements") { }
+
+        class spell_pal_judgements_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_judgements_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+         	   Unit* caster = GetCaster();
+          	  if (caster->GetTypeId() != TYPEID_PLAYER)
+              	  return SPELL_FAILED_DONT_REPORT;
+
+         	   if (Unit* target = GetExplTargetUnit())
+           	   {
+               	   if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
+                  	    return SPELL_FAILED_BAD_TARGETS;
+           	   }
+          	   else
+               	 return SPELL_FAILED_BAD_TARGETS;
+
+             return SPELL_CAST_OK;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+		        {
+                	caster->CastSpell(target, SPELL_JUDGEMENT_TRIGGER, true);
+                	int32 regen = 0;
+
+         	        if (caster->HasAura(89901)) // Jugements of the bold
+                 	{
+                   	   regen = int32(caster->GetCreateMana() * 0.025);
+                   	   caster->CastCustomSpell(caster, SPELL_JUDGEMENT_BOLD, &regen, 0, 0, true);
+		  	        }
+         	  	    if (caster->HasAura(31878)) // Judgements of the Wise
+                	{
+                        regen = int32(caster->GetCreateMana() * 0.030);
+                   	    caster->CastCustomSpell(caster, SPELL_JUDGEMENT_WISE, &regen, 0, 0, true);
+		  	        }
+
+		 	        if (caster->HasAura(87168)) // Long arm of Lawl Rank 1
+				    {
+                  		  if (roll_chance_i(50.0f))
+                      		  if (caster->GetDistance(target) > 15.0f || !caster->IsWithinDistInMap(target, 15.0f)) 
+                    				caster->CastSpell(caster, SPELL_JUDGEMENT_LONG_ARM_OF_LAWL, true);
+			        }
+		   	        else if (caster->HasAura(87172)) // Long arm of Lawl Rank 2
+					{
+                       	 if (caster->GetDistance(target) > 15.0f || !caster->IsWithinDistInMap(target, 15.0f)) 
+                    	     caster->CastSpell(caster, SPELL_JUDGEMENT_LONG_ARM_OF_LAWL, true);
+				    }
+
+		 		    if (caster->HasAura(53671)) // Judgements of the Pure
+                    		caster->CastSpell(caster, SPELL_JUDGEMENT_PURE, true);
+		  	        if (caster->HasAura(53673)) 
+                    		caster->CastSpell(caster, SPELL_JUDGEMENT_PURE+1, true);
+		  	        if (caster->HasAura(54151)) 
+                    		caster->CastSpell(caster, SPELL_JUDGEMENT_PURE+2, true);
+
+		  	        if (caster->HasAura(53556)) // Enlightened Judgements
+                    		caster->CastSpell(caster, SPELL_JUDGEMENT_ENLIGHTENED, true);
+		  	        if (caster->HasAura(53557)) 
+                    		caster->CastSpell(caster, SPELL_JUDGEMENT_ENLIGHTENED+1, true);
+		        }
+            } 
+
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_judgements_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_judgements_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1238,4 +1366,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_templar_s_verdict();
     new spell_pal_seal_of_righteousness();
 	new spell_pal_guardian_ancient_kings();
+new spell_pal_judgement_of_command();
+new spell_pal_judgements();
 }

@@ -1062,6 +1062,36 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
         }
 };
 
+// Cleave DREAM WOW 
+// Spell Id: 845
+class spell_warr_cleave : public SpellScriptLoader
+{
+    public:
+        spell_warr_cleave() : SpellScriptLoader("spell_warr_cleave") { }
+
+        class spell_warr_cleave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_cleave_SpellScript);
+
+            void CalculateDamage(SpellEffIndex effect)
+            {
+                // Formula: 6 + AttackPower * 0.45
+                if (Unit* caster = GetCaster())
+                    SetHitDamage(int32(6 + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.45f));
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_cleave::spell_warr_cleave_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_warr_cleave_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1089,4 +1119,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_victorious();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+    new spell_warr_cleave();
 }
