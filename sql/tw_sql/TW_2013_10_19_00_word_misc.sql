@@ -93,3 +93,6 @@ INSERT INTO creature_text (entry, groupid, id, TEXT, TYPE, LANGUAGE, probability
 
 -- HH in Scarlet Monastery needs to be able to fly
 UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry`=23682;
+
+-- HH in Goldshire&Razor Hill needs to be able to fly
+UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry`=23543;
