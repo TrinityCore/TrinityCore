@@ -1,4 +1,4 @@
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 void AddSC_custom_scripts()
 {
