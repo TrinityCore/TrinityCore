@@ -231,13 +231,13 @@ void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)
 {
     RBACPermissionContainer toCheck = permissions;
     permissions.clear();
- 
+
     while (!toCheck.empty())
     {
         // remove the permission from original list
         uint32 permissionId = *toCheck.begin();
         toCheck.erase(toCheck.begin());
- 
+
         RBACPermission const* permission = sAccountMgr->GetRBACPermission(permissionId);
         if (!permission)
             continue;
