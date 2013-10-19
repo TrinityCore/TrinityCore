@@ -2114,10 +2114,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     int32 skillValue;
 
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
-	printf("El resultado de res es %d \n",res);
     if (res != SPELL_CAST_OK)
     {
-		printf("El spell RETORNO DIFERENTE DE SPELLCASTOK.\n");
         SendCastResult(res);
         return;
     }
