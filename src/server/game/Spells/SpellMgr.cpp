@@ -1862,7 +1862,7 @@ void SpellMgr::LoadSpellProcEvents()
             }
 
             if (!spellInfo->ProcFlags && !spellProcEvent.procFlags)
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` probally not triggered spell", spellInfo->Id);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc_event` probably not triggered spell", spellInfo->Id);
 
             mSpellProcEventMap[spellInfo->Id] = spellProcEvent;
 
@@ -3168,6 +3168,16 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 66588: // Flaming Spear
             case 54171: // Divine Storm
                 spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 7328:  // Redemption
+            case 7329:  // Redemption
+            case 10322: // Redemption
+            case 10324: // Redemption
+            case 20772: // Redemption
+            case 20773: // Redemption
+            case 48949: // Redemption
+            case 48950: // Redemption
+                spellInfo->SpellFamilyName = SPELLFAMILY_PALADIN;
                 break;
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)

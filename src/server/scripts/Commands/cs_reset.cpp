@@ -46,6 +46,7 @@ public:
             { "stats",        rbac::RBAC_PERM_COMMAND_RESET_STATS,        true, &HandleResetStatsCommand,        "", NULL },
             { "talents",      rbac::RBAC_PERM_COMMAND_RESET_TALENTS,      true, &HandleResetTalentsCommand,      "", NULL },
             { "all",          rbac::RBAC_PERM_COMMAND_RESET_ALL,          true, &HandleResetAllCommand,          "", NULL },
+            { "arenapoints",  rbac::RBAC_PERM_COMMAND_RESET_ARENA_POINTS, true, &HandleResetArenaPointsCommand,  "", NULL },
             { NULL,           0,                                   false, NULL,                            "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -302,6 +303,17 @@ public:
         for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
             itr->second->SetAtLoginFlag(atLogin);
 
+        return true;
+    }
+
+    static bool HandleResetArenaPointsCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        if (!handler->extractPlayerTarget((char*)args, &target))
+            return false;
+
+        target->SetArenaPoints(0);
+        target->SetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY, 0);
         return true;
     }
 };

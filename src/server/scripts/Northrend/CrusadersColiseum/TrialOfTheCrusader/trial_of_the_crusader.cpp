@@ -333,7 +333,7 @@ class boss_lich_king_toc : public CreatureScript
                             Creature* temp = Unit::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK));
                             if (!temp || !temp->IsAlive())
                             {
-                                temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                                temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, HOUR*IN_MILLISECONDS);
                                 temp->SetRespawnDelay(7*DAY);
                             }
 

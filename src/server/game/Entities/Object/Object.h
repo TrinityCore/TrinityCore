@@ -523,6 +523,35 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+enum MapObjectCellMoveState
+{
+    MAP_OBJECT_CELL_MOVE_NONE, //not in move list
+    MAP_OBJECT_CELL_MOVE_ACTIVE, //in move list
+    MAP_OBJECT_CELL_MOVE_INACTIVE, //in move list but should not move
+};
+
+class MapObject
+{
+        friend class Map; //map for moving creatures
+        friend class ObjectGridLoader; //grid loader for loading creatures
+
+    protected:
+        MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE) {}
+
+    private:
+        Cell _currentCell;
+        Cell const& GetCurrentCell() const { return _currentCell; }
+        void SetCurrentCell(Cell const& cell) { _currentCell = cell; }
+
+        MapObjectCellMoveState _moveState;
+        Position _newPosition;
+        void SetNewCellPosition(float x, float y, float z, float o)
+        {
+            _moveState = MAP_OBJECT_CELL_MOVE_ACTIVE;
+            _newPosition.Relocate(x, y, z, o);
+        }
+};
+
 class WorldObject : public Object, public WorldLocation
 {
     protected:
@@ -700,16 +729,22 @@ class WorldObject : public Object, public WorldLocation
 
         // Transports
         Transport* GetTransport() const { return m_transport; }
-        virtual float GetTransOffsetX() const { return 0; }
-        virtual float GetTransOffsetY() const { return 0; }
-        virtual float GetTransOffsetZ() const { return 0; }
-        virtual float GetTransOffsetO() const { return 0; }
-        virtual uint32 GetTransTime()   const { return 0; }
-        virtual int8 GetTransSeat()     const { return -1; }
+        float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
+        float GetTransOffsetY() const { return m_movementInfo.transport.pos.GetPositionY(); }
+        float GetTransOffsetZ() const { return m_movementInfo.transport.pos.GetPositionZ(); }
+        float GetTransOffsetO() const { return m_movementInfo.transport.pos.GetOrientation(); }
+        uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
+        int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual uint64 GetTransGUID()   const;
         void SetTransport(Transport* t) { m_transport = t; }
 
         MovementInfo m_movementInfo;
+
+        virtual float GetStationaryX() const { return GetPositionX(); }
+        virtual float GetStationaryY() const { return GetPositionY(); }
+        virtual float GetStationaryZ() const { return GetPositionZ(); }
+        virtual float GetStationaryO() const { return GetOrientation(); }
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -739,7 +774,6 @@ class WorldObject : public Object, public WorldLocation
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;
-
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
 
         bool CanNeverSee(WorldObject const* obj) const;

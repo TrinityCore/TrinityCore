@@ -804,6 +804,18 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if ((cInfo->npcflag & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
         TC_LOG_ERROR(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong trainer type %u.", cInfo->Entry, cInfo->trainer_type);
 
+    if (cInfo->speed_walk == 0.0f)
+    {
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong value (%f) in speed_walk, set to 1.", cInfo->Entry, cInfo->speed_walk);
+        const_cast<CreatureTemplate*>(cInfo)->speed_walk = 1.0f;
+    }
+
+    if (cInfo->speed_run == 0.0f)
+    {
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong value (%f) in speed_run, set to 1.14286.", cInfo->Entry, cInfo->speed_run);
+        const_cast<CreatureTemplate*>(cInfo)->speed_run = 1.14286f;
+    }
+
     if (cInfo->type && !sCreatureTypeStore.LookupEntry(cInfo->type))
     {
         TC_LOG_ERROR(LOG_FILTER_SQL, "Creature (Entry: %u) has invalid creature type (%u) in `type`.", cInfo->Entry, cInfo->type);
