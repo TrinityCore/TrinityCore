@@ -30,6 +30,7 @@
 #include "MapReference.h"
 #include "Player.h"
 #include "Cell.h"
+#include "CellImpl.h"
 
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false)
