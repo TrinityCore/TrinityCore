@@ -3110,6 +3110,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+	 case 79268: // soul harvest DREAM WOW
+			 spellInfo->Effects[0].Amplitude = 3000;
+			 break;
             case 42730: // Woe Strike
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
                 break;

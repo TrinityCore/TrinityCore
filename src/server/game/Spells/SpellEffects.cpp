@@ -720,6 +720,19 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     // selection by spell family
     switch (m_spellInfo->SpellFamilyName)
     {
+
+	//DREAM WOW AGREGADOS
+		case SPELLFAMILY_MAGE:
+			{
+				switch (m_spellInfo->Id)
+				{
+				case 92315: // Pyroblast!
+					m_caster->RemoveAurasDueToSpell(48108); // Remove hot streak
+					break;
+				
+				}
+				break;
+			}
         case SPELLFAMILY_PALADIN:
             switch (m_spellInfo->Id)
             {

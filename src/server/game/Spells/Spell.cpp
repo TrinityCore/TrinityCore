@@ -3726,6 +3726,27 @@ void Spell::finish(bool ok)
     // Stop Attack for some spells
     if (m_spellInfo->Attributes & SPELL_ATTR0_STOP_ATTACK_TARGET)
         m_caster->AttackStop();
+	
+	// dream wow fade y improved freeze
+	switch (m_spellInfo->Id) {
+	case 586: // Fade
+		if (m_caster->HasAura(47570) || (m_caster->HasAura(47569) && roll_chance_i(50))) // Phantasm
+			m_caster->RemoveMovementImpairingAuras();
+		break;
+	case 33395: // Improved Freeze
+		{
+			if (Unit* owner = m_caster->GetOwner()) {
+				if (owner->HasAura(86259) && roll_chance_i(33)
+					|| (owner->HasAura(86260) && roll_chance_i(67))
+					|| (owner->HasAura(86314))) {
+						//Gives your Water Elemental's Freeze spell a % chance to grant 2 charges of Fingers of Frost.
+						owner->SetAuraStack(44544, owner, 2);
+				}
+			}
+		break;
+		}
+	 }
+
 }
 
 void Spell::SendCastResult(SpellCastResult result)

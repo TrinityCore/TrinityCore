@@ -75,6 +75,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
     WARLOCK_DRAIN_LIFE                              = 89653,
+    SPELL_WARLOCK_DARK_INTENT_EFFECT                = 85767,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
 };
 
@@ -1462,6 +1463,40 @@ class spell_warl_drain_life : public SpellScriptLoader
 			}
 };
 
+//80398 Dark Intent
+class spell_warl_dark_intent: public SpellScriptLoader
+{
+public:
+	spell_warl_dark_intent() : SpellScriptLoader("spell_warl_dark_intent") { }
+
+	  class spell_warl_dark_intent_SpellScript: public SpellScript 
+         {
+		  PrepareSpellScript(spell_warl_dark_intent_SpellScript)
+
+			  void HandleScriptEffect(SpellEffIndex effIndex) 
+                        {
+				  Unit* caster = GetCaster();
+				  Unit* target = GetHitUnit();
+
+				  if (!caster || !target)
+					  return;
+
+				  caster->CastSpell(target, SPELL_WARLOCK_DARK_INTENT_EFFECT, true);
+				  target->CastSpell(caster, SPELL_WARLOCK_DARK_INTENT_EFFECT, true);
+		 	   }
+
+		  void Register() 
+                {
+			  OnEffectHit += SpellEffectFn(spell_warl_dark_intent_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+		  }
+	  };
+	  
+	  SpellScript* GetSpellScript() const 
+         {
+		  return new spell_warl_dark_intent_SpellScript();
+	  }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1495,4 +1530,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
     new spell_warl_drain_life();
+    new spell_warl_dark_intent();
 }
