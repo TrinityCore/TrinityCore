@@ -6865,6 +6865,10 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)
 {
+	uint32 playerLockPickLevel = 0;
+	uint32 itemLockPickLevel = 0;
+	bool canOpenItem = false;
+
     if (!lockId)                                             // possible case for GO and maybe for items.
         return SPELL_CAST_OK;
 
@@ -6878,64 +6882,36 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
     for (int j = 0; j < MAX_LOCK_CASE; ++j)
     {
-    switch (lockInfo->Type[j])
-        {
-        //    // check key item (many fit cases can be)
-			case LOCK_KEY_NONE:
-				printf("LockKeyNone\n.");
-				break;
+		switch(lockInfo->Type[j])
+		{
+		case LOCK_KEY_SKILL:
+			{
 
-            case LOCK_KEY_ITEM:
-				printf("LockKeyItem\n.");
-        //        if (lockInfo->Index[j] && m_CastItem && m_CastItem->GetEntry() == lockInfo->Index[j])
-        //            return SPELL_CAST_OK;
-        //        reqKey = true;
-                break;
-        //        // check key skill (only single first fit case can be)
-            case LOCK_KEY_SKILL:
-            {
-				printf("LockKeyItem\n.");
-				break;
+			if(lockInfo->Skill[j] != 0 )
+			{
+				
+				if(m_caster->GetTypeId()==TYPEID_PLAYER)
+					   playerLockPickLevel=m_caster->getLevel()*5;
+
+					itemLockPickLevel = lockInfo->Skill[j];
+
+					if(playerLockPickLevel > itemLockPickLevel)
+					{
+					canOpenItem=true;
+					}
 			}
+		break;
+			}
+		}
 	}
+
+	if(canOpenItem==true)
+	{
+		return SPELL_CAST_OK;
 	}
-        //        reqKey = true;
-
-        //        // wrong locktype, skip
-        //        if (uint32(m_spellInfo->Effects[effIndex].MiscValue) != lockInfo->Index[j])
-        //            continue;
-
-    //            skillId = SkillByLockType(LockType(lockInfo->Index[j]));
-
-    //            if (skillId != SKILL_NONE)
-    //            {
-				//	printf("EL skillId es %d \n",skillId);
-    //                reqSkillValue = lockInfo->Skill[j];
-				//	printf("El item requiere %d de habilidad\n",reqSkillValue);
-
-    //                // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
-    //                skillValue = m_CastItem || m_caster->GetTypeId()!= TYPEID_PLAYER ?
-    //                    0 : m_caster->ToPlayer()->GetSkillValue(skillId);
-				//	printf("El jugador tiene %d de habilidad con GetSkillValue\n",reqSkillValue);
-
-    //                // skill bonus provided by casting spell (mostly item spells)
-    //                // add the effect base points modifier from the spell casted (cheat lock / skeleton key etc.)
-    //                if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET)
-    //                    skillValue += m_spellInfo->Effects[effIndex].CalcValue();
-
-    //                if (skillValue < reqSkillValue)
-    //                    return SPELL_FAILED_LOW_CASTLEVEL;
-    //            }
-
-                //return SPELL_CAST_OK;
-        //}
-        //}
-    //}
-
-    //if (reqKey)
-    //    return SPELL_FAILED_BAD_TARGETS;
-
-    return SPELL_CAST_OK;
+	else {
+		return SPELL_FAILED_LOW_CASTLEVEL;
+	}
 }
 
 void Spell::SetSpellValue(SpellValueMod mod, int32 value)
