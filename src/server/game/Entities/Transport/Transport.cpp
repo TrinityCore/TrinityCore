@@ -450,40 +450,19 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
             }
         }
 
-        // Teleport passengers after everyone on destination map are sent create packet
-        // but before transport itself is registered there and begins updating
-        for (std::set<WorldObject*>::iterator itr = _staticPassengers.begin(); itr != _staticPassengers.end(); ++itr)
+        for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end();)
         {
-            switch ((*itr)->GetTypeId())
-            {
-                case TYPEID_UNIT:
-                    (*itr)->ToCreature()->FarTeleportTo(newMap, x, y, z, (*itr)->GetOrientation());
-                    break;
-                case TYPEID_GAMEOBJECT:
-                {
-                    GameObject* go = (*itr)->ToGameObject();
-                    go->GetMap()->RemoveFromMap(go, false);
-                    Relocate(x, y, z, go->GetOrientation());
-                    SetMap(newMap);
-                    newMap->AddToMap(go);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
+            WorldObject* obj = (*itr++);
 
-        for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
-        {
-            switch ((*itr)->GetTypeId())
+            switch (obj->GetTypeId())
             {
                 case TYPEID_UNIT:
-                    if (!IS_PLAYER_GUID((*itr)->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
-                        (*itr)->ToCreature()->FarTeleportTo(newMap, x, y, z, (*itr)->GetOrientation());
+                    if (!IS_PLAYER_GUID(obj->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
+                        obj->ToCreature()->FarTeleportTo(newMap, x, y, z, obj->GetOrientation());
                     break;
                 case TYPEID_GAMEOBJECT:
                 {
-                    GameObject* go = (*itr)->ToGameObject();
+                    GameObject* go = obj->ToGameObject();
                     go->GetMap()->RemoveFromMap(go, false);
                     Relocate(x, y, z, go->GetOrientation());
                     SetMap(newMap);
@@ -491,7 +470,8 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
                     break;
                 }
                 case TYPEID_PLAYER:
-                    (*itr)->ToPlayer()->TeleportTo(newMapid, x, y, z, (*itr)->GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+                    if (!obj->ToPlayer()->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT))
+                        _passengers.erase(obj);
                     break;
                 default:
                     break;
