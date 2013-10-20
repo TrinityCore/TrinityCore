@@ -13499,9 +13499,12 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
 {
     CleanupBeforeRemoveFromMap(finalCleanup);
 
-    if (Creature* thisCreature = ToCreature())
-        if (GetTransport())
-            GetTransport()->RemovePassenger(thisCreature);
+    if (GetTransport())
+    {
+        GetTransport()->RemovePassenger(this);
+        SetTransport(NULL);
+        m_movementInfo.transport.Reset();
+    }
 }
 
 void Unit::UpdateCharmAI()
