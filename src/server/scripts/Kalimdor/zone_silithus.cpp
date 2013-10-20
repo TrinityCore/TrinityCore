@@ -1014,7 +1014,7 @@ public:
                 uint8 DeadMemberCount = 0;
                 uint8 FailedMemberCount = 0;
 
-                Group::MemberSlotList const members = EventGroup->GetMemberSlots();
+                Group::MemberSlotList const& members = EventGroup->GetMemberSlots();
 
                 for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
