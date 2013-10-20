@@ -447,7 +447,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool IsTrigger() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER; }
         bool IsGuard() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
         bool CanWalk() const { return GetCreatureTemplate()->InhabitType & INHABIT_GROUND; }
-        bool CanSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER; }
+        bool CanSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER || IsPet(); }
         bool CanFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
