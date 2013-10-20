@@ -727,6 +727,7 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
+	printf("UpdateManaRegen called.\n.");
     // Mana regen from spirit
     float spirit_regen = OCTRegenMPPerSpirit();
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
@@ -735,6 +736,7 @@ void Player::UpdateManaRegen()
     // SpiritRegen(SPI, INT, LEVEL) = (0.001 + (SPI x sqrt(INT) x BASE_REGEN[LEVEL])) x 5
     if (GetStat(STAT_INTELLECT) > 0.0f){
         spirit_regen *= sqrt(GetStat(STAT_INTELLECT));
+	    printf("La stat intelecto es mayor a cero.\n.");
 	    }
 
     // CombatRegen = 5% of Base Mana
