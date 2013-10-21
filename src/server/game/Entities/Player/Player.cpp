@@ -923,9 +923,6 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
 
     Unit::CleanupsBeforeDelete(finalCleanup);
 
-    if (m_transport)
-        m_transport->RemovePassenger(this);
-
     // clean up player-instance binds, may unload some instance saves
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
@@ -2297,10 +2294,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (m_transport)
             {
-                final_x += m_movementInfo.transport.pos.GetPositionX();
-                final_y += m_movementInfo.transport.pos.GetPositionY();
-                final_z += m_movementInfo.transport.pos.GetPositionZ();
-                final_o += m_movementInfo.transport.pos.GetOrientation();
+                float tx, ty, tz, to;
+                m_movementInfo.transport.pos.GetPosition(tx, ty, tz, to);
+
+                final_x = x + tx * std::cos(orientation) - ty * std::sin(orientation);
+                final_y = y + ty * std::cos(orientation) + tx * std::sin(orientation);
+                final_z = z + tz;
+                final_o = Position::NormalizeOrientation(orientation + m_movementInfo.transport.pos.GetOrientation());
             }
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
