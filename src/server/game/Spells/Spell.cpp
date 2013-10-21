@@ -1556,6 +1556,9 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
 
 void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
+    if (!(m_targets.GetObjectTarget() || m_targets.GetItemTarget()))
+      return;
+	
     ASSERT((m_targets.GetObjectTarget() || m_targets.GetItemTarget()) && "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
 
     WorldObject* target = m_targets.GetObjectTarget();
