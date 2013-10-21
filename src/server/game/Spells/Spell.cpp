@@ -6871,72 +6871,59 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
     if (!lockId)                                             // possible case for GO and maybe for items.
         return SPELL_CAST_OK;
 
-    //// Get LockInfo
+    // Get LockInfo
     LockEntry const* lockInfo = sLockStore.LookupEntry(lockId);
 
     if (!lockInfo)
-       return SPELL_FAILED_BAD_TARGETS;
+        return SPELL_FAILED_BAD_TARGETS;
 
-    //bool reqKey = false;                                    // some locks not have reqs
+    bool reqKey = false;                                    // some locks not have reqs
 
     for (int j = 0; j < MAX_LOCK_CASE; ++j)
     {
-    switch (lockInfo->Type[j])
+        switch (lockInfo->Type[j])
         {
-        //    // check key item (many fit cases can be)
-			case LOCK_KEY_NONE:
-				printf("LockKeyNone\n.");
-				break;
-
+            // check key item (many fit cases can be)
             case LOCK_KEY_ITEM:
-				printf("LockKeyItem\n.");
-        //        if (lockInfo->Index[j] && m_CastItem && m_CastItem->GetEntry() == lockInfo->Index[j])
-        //            return SPELL_CAST_OK;
-        //        reqKey = true;
+                if (lockInfo->Index[j] && m_CastItem && m_CastItem->GetEntry() == lockInfo->Index[j])
+                    return SPELL_CAST_OK;
+                reqKey = true;
                 break;
-        //        // check key skill (only single first fit case can be)
+                // check key skill (only single first fit case can be)
             case LOCK_KEY_SKILL:
             {
-				printf("LockKeyItem\n.");
-				break;
-			}
-	}
-	}
-        //        reqKey = true;
+                reqKey = true;
 
-        //        // wrong locktype, skip
-        //        if (uint32(m_spellInfo->Effects[effIndex].MiscValue) != lockInfo->Index[j])
-        //            continue;
+                // wrong locktype, skip
+                if (uint32(m_spellInfo->Effects[effIndex].MiscValue) != lockInfo->Index[j])
+                    continue;
 
-    //            skillId = SkillByLockType(LockType(lockInfo->Index[j]));
+                skillId = SkillByLockType(LockType(lockInfo->Index[j]));
 
-    //            if (skillId != SKILL_NONE)
-    //            {
-				//	printf("EL skillId es %d \n",skillId);
-    //                reqSkillValue = lockInfo->Skill[j];
-				//	printf("El item requiere %d de habilidad\n",reqSkillValue);
+                if (skillId != SKILL_NONE)
+                {
+                    reqSkillValue = lockInfo->Skill[j];
 
-    //                // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
-    //                skillValue = m_CastItem || m_caster->GetTypeId()!= TYPEID_PLAYER ?
-    //                    0 : m_caster->ToPlayer()->GetSkillValue(skillId);
-				//	printf("El jugador tiene %d de habilidad con GetSkillValue\n",reqSkillValue);
+                    // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
+                    skillValue = m_CastItem || m_caster->GetTypeId()!= TYPEID_PLAYER ?
+                        0 : m_caster->ToPlayer()->GetSkillValue(skillId);
 
-    //                // skill bonus provided by casting spell (mostly item spells)
-    //                // add the effect base points modifier from the spell casted (cheat lock / skeleton key etc.)
-    //                if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET)
-    //                    skillValue += m_spellInfo->Effects[effIndex].CalcValue();
+                    // skill bonus provided by casting spell (mostly item spells)
+                    // add the effect base points modifier from the spell casted (cheat lock / skeleton key etc.)
+                    if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET)
+                        skillValue += m_spellInfo->Effects[effIndex].CalcValue();
 
-    //                if (skillValue < reqSkillValue)
-    //                    return SPELL_FAILED_LOW_CASTLEVEL;
-    //            }
+                    if (skillValue < reqSkillValue)
+                        return SPELL_FAILED_LOW_CASTLEVEL;
+                }
 
-                //return SPELL_CAST_OK;
-        //}
-        //}
-    //}
+                return SPELL_CAST_OK;
+            }
+        }
+    }
 
-    //if (reqKey)
-    //    return SPELL_FAILED_BAD_TARGETS;
+    if (reqKey)
+        return SPELL_FAILED_BAD_TARGETS;
 
     return SPELL_CAST_OK;
 }

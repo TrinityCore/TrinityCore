@@ -2056,7 +2056,6 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
 
 void Spell::EffectOpenLock(SpellEffIndex effIndex)
 {
-	printf("Spell con efecto de OpenLocku usado");
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -2127,10 +2126,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     int32 skillValue;
 
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
-	printf("El resultado de res es %d \n",res);
     if (res != SPELL_CAST_OK)
     {
-		printf("El spell RETORNO DIFERENTE DE SPELLCASTOK.\n");
         SendCastResult(res);
         return;
     }
