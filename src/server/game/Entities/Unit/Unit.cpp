@@ -7575,7 +7575,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
 
                     CastSpell(this, 28682, true);
 
-                    return (procEx & PROC_EX_CRITICAL_HIT) ? true : false;
+                    return (procEx & PROC_EX_CRITICAL_HIT);
                 }
                 // Empowered Fire
                 case 31656:
@@ -13349,7 +13349,7 @@ void Unit::SetPower(Powers power, uint32 val)
     data.append(GetPackGUID());
     data << uint8(power);
     data << uint32(val);
-    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
+    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER);
 
     // group update
     if (Player* player = ToPlayer())
