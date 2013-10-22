@@ -678,7 +678,7 @@ class npc_janalai_hatchling : public CreatureScript
 class npc_janalai_egg : public CreatureScript
 {
 public:
-    npc_janalai_egg(): CreatureScript("npc_janalai_egg") {}
+    npc_janalai_egg(): CreatureScript("npc_janalai_egg") { }
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {

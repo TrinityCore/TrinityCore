@@ -54,7 +54,7 @@ public:
 
     struct boss_azuregosAI : public ScriptedAI
     {
-        boss_azuregosAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_azuregosAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 MarkOfFrostTimer;
         uint32 ManaStormTimer;

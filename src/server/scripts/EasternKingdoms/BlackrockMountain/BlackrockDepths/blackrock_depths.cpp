@@ -359,7 +359,7 @@ public:
 
     struct npc_phalanxAI : public ScriptedAI
     {
-        npc_phalanxAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_phalanxAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;
@@ -613,7 +613,7 @@ public:
 
     struct npc_dughal_stormwingAI : public npc_escortAI
     {
-        npc_dughal_stormwingAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_dughal_stormwingAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -1125,7 +1125,7 @@ public:
 
     struct npc_tobias_seecherAI : public npc_escortAI
     {
-        npc_tobias_seecherAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_tobias_seecherAI(Creature* creature) : npc_escortAI(creature) { }
 
         void EnterCombat(Unit* who) OVERRIDE {}
         void Reset() OVERRIDE {}

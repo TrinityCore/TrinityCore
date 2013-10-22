@@ -289,7 +289,7 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
         }
         struct boss_harbinger_skyriss_illusionAI : public ScriptedAI
         {
-            boss_harbinger_skyriss_illusionAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_harbinger_skyriss_illusionAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE {}
 

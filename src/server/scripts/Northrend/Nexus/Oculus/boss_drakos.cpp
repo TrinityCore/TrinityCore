@@ -62,7 +62,7 @@ public:
 
     struct boss_drakosAI : public BossAI
     {
-        boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS_EVENT) {}
+        boss_drakosAI(Creature* creature) : BossAI(creature, DATA_DRAKOS_EVENT) { }
 
         void Reset() OVERRIDE
         {
@@ -156,7 +156,7 @@ public:
 
     struct npc_unstable_sphereAI : public ScriptedAI
     {
-        npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_unstable_sphereAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {

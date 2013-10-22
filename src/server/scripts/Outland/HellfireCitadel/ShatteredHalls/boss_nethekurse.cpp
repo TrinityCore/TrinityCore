@@ -384,7 +384,7 @@ class npc_lesser_shadow_fissure : public CreatureScript
 
         struct npc_lesser_shadow_fissureAI : public ScriptedAI
         {
-            npc_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE {}
             void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}

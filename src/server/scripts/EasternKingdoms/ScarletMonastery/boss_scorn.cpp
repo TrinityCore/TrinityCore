@@ -46,7 +46,7 @@ public:
 
     struct boss_scornAI : public ScriptedAI
     {
-        boss_scornAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_scornAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 LichSlap_Timer;
         uint32 FrostboltVolley_Timer;

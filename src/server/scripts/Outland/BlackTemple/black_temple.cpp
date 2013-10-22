@@ -63,7 +63,7 @@ public:
 
     struct npc_spirit_of_olumAI : public ScriptedAI
     {
-        npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) { }
 
         void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
         {

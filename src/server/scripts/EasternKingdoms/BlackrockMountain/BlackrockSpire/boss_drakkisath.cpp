@@ -43,7 +43,7 @@ public:
 
     struct boss_drakkisathAI : public BossAI
     {
-        boss_drakkisathAI(Creature* creature) : BossAI(creature, DATA_GENERAL_DRAKKISATH) {}
+        boss_drakkisathAI(Creature* creature) : BossAI(creature, DATA_GENERAL_DRAKKISATH) { }
 
         void Reset() OVERRIDE
         {

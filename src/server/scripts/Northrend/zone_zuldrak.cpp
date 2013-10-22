@@ -47,7 +47,7 @@ public:
 
     struct npc_drakuru_shacklesAI : public ScriptedAI
     {
-        npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -133,7 +133,7 @@ public:
 
     struct npc_captured_rageclawAI : public ScriptedAI
     {
-        npc_captured_rageclawAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_captured_rageclawAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -267,7 +267,7 @@ public:
 
     struct npc_gurgthockAI : public ScriptedAI
     {
-        npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -726,7 +726,7 @@ public:
 
     struct npc_yggdrasAI : public ScriptedAI
     {
-        npc_yggdrasAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_yggdrasAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -943,7 +943,7 @@ public:
 
     struct npc_elemental_lordAI : public ScriptedAI
     {
-        npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) { }
 
         std::list<uint64> SummonList;
 
@@ -1088,7 +1088,7 @@ public:
 
     struct npc_fiend_elementalAI : public ScriptedAI
     {
-        npc_fiend_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fiend_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -1154,7 +1154,7 @@ public:
 
     struct npc_released_offspring_harkoaAI : public ScriptedAI
     {
-        npc_released_offspring_harkoaAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_released_offspring_harkoaAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -1200,7 +1200,7 @@ public:
 
     struct npc_crusade_recruitAI : public ScriptedAI
     {
-        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -1831,7 +1831,7 @@ public:
 
     struct npc_storm_cloudAI : public ScriptedAI
     {
-        npc_storm_cloudAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_storm_cloudAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {

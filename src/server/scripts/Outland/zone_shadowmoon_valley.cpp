@@ -349,7 +349,7 @@ public:
 
     struct npc_dragonmaw_peonAI : public ScriptedAI
     {
-        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
         bool Tapped;
@@ -726,7 +726,7 @@ public:
 
     struct npc_overlord_morghorAI : public ScriptedAI
     {
-        npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
         uint64 IllidanGUID;
@@ -1262,7 +1262,7 @@ public:
 
     struct npc_torloth_the_magnificentAI : public ScriptedAI
     {
-        npc_torloth_the_magnificentAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_torloth_the_magnificentAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 AnimationTimer, SpellTimer1, SpellTimer2, SpellTimer3;
 
@@ -1417,7 +1417,7 @@ public:
 
     struct npc_lord_illidan_stormrageAI : public ScriptedAI
     {
-        npc_lord_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_lord_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
 
@@ -1559,7 +1559,7 @@ public:
 
     struct npc_illidari_spawnAI : public ScriptedAI
     {
-        npc_illidari_spawnAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_illidari_spawnAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 LordIllidanGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3;
@@ -1814,7 +1814,7 @@ public:
 
     struct npc_enraged_spiritAI : public ScriptedAI
     {
-        npc_enraged_spiritAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_enraged_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
 
@@ -1930,11 +1930,11 @@ enum ShadowMoonTuberEnum
 class npc_shadowmoon_tuber_node : public CreatureScript
 {
 public:
-    npc_shadowmoon_tuber_node() : CreatureScript("npc_shadowmoon_tuber_node") {}
+    npc_shadowmoon_tuber_node() : CreatureScript("npc_shadowmoon_tuber_node") { }
 
     struct npc_shadowmoon_tuber_nodeAI : public ScriptedAI
     {
-        npc_shadowmoon_tuber_nodeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shadowmoon_tuber_nodeAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {

@@ -48,7 +48,7 @@ class boss_lorekeeper_polkelt : public CreatureScript
 
         struct boss_lorekeeperpolkeltAI : public BossAI
         {
-            boss_lorekeeperpolkeltAI(Creature* creature) : BossAI(creature, DATA_LOREKEEPERPOLKELT) {}
+            boss_lorekeeperpolkeltAI(Creature* creature) : BossAI(creature, DATA_LOREKEEPERPOLKELT) { }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {

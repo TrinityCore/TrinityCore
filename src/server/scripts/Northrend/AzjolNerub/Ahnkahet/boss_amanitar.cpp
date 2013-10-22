@@ -165,7 +165,7 @@ public:
 
     struct npc_amanitar_mushroomsAI : public ScriptedAI
     {
-        npc_amanitar_mushroomsAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_amanitar_mushroomsAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 

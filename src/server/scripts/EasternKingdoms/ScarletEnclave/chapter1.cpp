@@ -288,7 +288,7 @@ public:
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
     {
-        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) {}
+        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) { }
 
         uint64 prisonerGUID;
 
@@ -615,7 +615,7 @@ public:
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
     {
-        npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
@@ -687,7 +687,7 @@ public:
 
     struct npc_ros_dark_riderAI : public ScriptedAI
     {
-        npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -742,7 +742,7 @@ public:
 
     struct npc_dkc1_gothikAI : public ScriptedAI
     {
-        npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 

@@ -68,7 +68,7 @@ public:
 
     struct npc_unkor_the_ruthlessAI : public ScriptedAI
     {
-        npc_unkor_the_ruthlessAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_unkor_the_ruthlessAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool CanDoQuest;
         uint32 UnkorUnfriendly_Timer;
@@ -175,7 +175,7 @@ public:
 
     struct npc_infested_root_walkerAI : public ScriptedAI
     {
-        npc_infested_root_walkerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_infested_root_walkerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
         void EnterCombat(Unit* /*who*/) OVERRIDE {}
@@ -207,7 +207,7 @@ public:
     struct npc_skywingAI : public npc_escortAI
     {
     public:
-        npc_skywingAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_skywingAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -262,7 +262,7 @@ public:
 
     struct npc_rotting_forest_ragerAI : public ScriptedAI
     {
-        npc_rotting_forest_ragerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_rotting_forest_ragerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
         void EnterCombat(Unit* /*who*/) OVERRIDE {}
@@ -305,7 +305,7 @@ public:
 
     struct npc_netherweb_victimAI : public ScriptedAI
     {
-        npc_netherweb_victimAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_netherweb_victimAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
         void EnterCombat(Unit* /*who*/) OVERRIDE {}
@@ -467,7 +467,7 @@ public:
 
     struct npc_isla_starmaneAI : public npc_escortAI
     {
-        npc_isla_starmaneAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_isla_starmaneAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -672,7 +672,7 @@ public:
 
     struct npc_akunoAI : public npc_escortAI
     {
-        npc_akunoAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {

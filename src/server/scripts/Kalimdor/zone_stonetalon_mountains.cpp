@@ -115,7 +115,7 @@ public:
 
     struct npc_kaya_flathoofAI : public npc_escortAI
     {
-        npc_kaya_flathoofAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_kaya_flathoofAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {

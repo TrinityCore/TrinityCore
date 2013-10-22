@@ -1620,7 +1620,7 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 class TwilightCutterSelector
 {
     public:
-        TwilightCutterSelector(Unit* caster, Unit* target) : _caster(caster), _channelTarget(target) {}
+        TwilightCutterSelector(Unit* caster, Unit* target) : _caster(caster), _channelTarget(target) { }
 
         bool operator()(WorldObject* unit)
         {
