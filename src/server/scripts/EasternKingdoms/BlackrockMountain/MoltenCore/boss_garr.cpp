@@ -108,7 +108,7 @@ class npc_firesworn : public CreatureScript
 
         struct npc_fireswornAI : public ScriptedAI
         {
-            npc_fireswornAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_fireswornAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 immolateTimer;
 

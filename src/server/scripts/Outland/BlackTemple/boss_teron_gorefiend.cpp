@@ -63,7 +63,7 @@ public:
 
     struct npc_doom_blossomAI : public ScriptedAI
     {
-        npc_doom_blossomAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_doom_blossomAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -132,7 +132,7 @@ public:
 
     struct npc_shadowy_constructAI : public ScriptedAI
     {
-        npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 GhostGUID;
         uint64 TeronGUID;

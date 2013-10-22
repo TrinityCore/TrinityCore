@@ -238,7 +238,7 @@ public:
 
     struct npc_titoAI : public ScriptedAI
     {
-        npc_titoAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_titoAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 DorotheeGUID;
         uint32 YipTimer;
@@ -724,7 +724,7 @@ public:
 
     struct npc_cycloneAI : public ScriptedAI
     {
-        npc_cycloneAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_cycloneAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 MoveTimer;
 

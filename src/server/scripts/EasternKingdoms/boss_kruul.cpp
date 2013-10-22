@@ -49,7 +49,7 @@ public:
 
     struct boss_kruulAI : public ScriptedAI
     {
-        boss_kruulAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_kruulAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowVolley_Timer;
         uint32 Cleave_Timer;

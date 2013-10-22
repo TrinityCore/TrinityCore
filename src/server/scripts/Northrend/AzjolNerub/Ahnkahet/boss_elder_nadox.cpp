@@ -291,7 +291,7 @@ public:
 class achievement_respect_your_elders : public AchievementCriteriaScript
 {
 public:
-    achievement_respect_your_elders() : AchievementCriteriaScript("achievement_respect_your_elders") {}
+    achievement_respect_your_elders() : AchievementCriteriaScript("achievement_respect_your_elders") { }
 
     bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
     {

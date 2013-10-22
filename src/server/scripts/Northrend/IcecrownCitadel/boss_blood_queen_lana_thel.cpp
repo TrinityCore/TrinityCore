@@ -636,7 +636,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
 class BloodboltHitCheck
 {
     public:
-        explicit BloodboltHitCheck(LanaThelAI* ai) : _ai(ai) {}
+        explicit BloodboltHitCheck(LanaThelAI* ai) : _ai(ai) { }
 
         bool operator()(WorldObject* object) const
         {

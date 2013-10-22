@@ -47,7 +47,7 @@ public:
 
     struct boss_ptheradrasAI : public ScriptedAI
     {
-        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 DustfieldTimer;
         uint32 BoulderTimer;

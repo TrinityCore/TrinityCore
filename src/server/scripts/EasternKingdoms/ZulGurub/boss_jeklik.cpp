@@ -50,11 +50,11 @@ enum Spells
 
 class boss_jeklik : public CreatureScript //jeklik
 {
-    public: boss_jeklik() : CreatureScript("boss_jeklik") {}
+    public: boss_jeklik() : CreatureScript("boss_jeklik") { }
 
         struct boss_jeklikAI : public BossAI
         {
-            boss_jeklikAI(Creature* creature) : BossAI(creature, DATA_JEKLIK) {}
+            boss_jeklikAI(Creature* creature) : BossAI(creature, DATA_JEKLIK) { }
 
             uint32 Charge_Timer;
             uint32 SonicBurst_Timer;

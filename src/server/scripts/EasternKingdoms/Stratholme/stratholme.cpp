@@ -100,7 +100,7 @@ public:
 
     struct npc_freed_soulAI : public ScriptedAI
     {
-        npc_freed_soulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_freed_soulAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -142,7 +142,7 @@ public:
 
     struct npc_restless_soulAI : public ScriptedAI
     {
-        npc_restless_soulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_restless_soulAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 Tagger;
         uint32 Die_Timer;
@@ -224,7 +224,7 @@ public:
 
     struct npc_spectral_ghostly_citizenAI : public ScriptedAI
     {
-        npc_spectral_ghostly_citizenAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_spectral_ghostly_citizenAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Die_Timer;
         bool Tagged;

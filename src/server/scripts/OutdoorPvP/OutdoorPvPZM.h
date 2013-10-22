@@ -205,7 +205,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         bool Update(uint32 diff);
 
-        void ChangeState() {}
+        void ChangeState() { }
 
         void FillInitialWorldStates(WorldPacket & data);
 

@@ -889,7 +889,7 @@ enum SoulWellData
 class go_soulwell : public GameObjectScript
 {
     public:
-        go_soulwell() : GameObjectScript("go_soulwell") {}
+        go_soulwell() : GameObjectScript("go_soulwell") { }
 
         struct go_soulwellAI : public GameObjectAI
         {

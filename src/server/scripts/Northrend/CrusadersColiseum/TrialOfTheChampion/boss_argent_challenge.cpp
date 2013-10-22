@@ -417,7 +417,7 @@ public:
 
     struct npc_memoryAI : public ScriptedAI
     {
-        npc_memoryAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_memoryAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiOldWoundsTimer;
         uint32 uiShadowPastTimer;

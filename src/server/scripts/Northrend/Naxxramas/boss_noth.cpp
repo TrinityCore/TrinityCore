@@ -80,7 +80,7 @@ public:
 
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH) {}
+        boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH) { }
 
         uint32 waveCount, balconyCount;
 

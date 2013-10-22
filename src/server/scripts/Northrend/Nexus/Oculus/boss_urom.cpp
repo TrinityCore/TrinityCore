@@ -99,7 +99,7 @@ public:
 
     struct boss_uromAI : public BossAI
     {
-        boss_uromAI(Creature* creature) : BossAI(creature, DATA_UROM_EVENT) {}
+        boss_uromAI(Creature* creature) : BossAI(creature, DATA_UROM_EVENT) { }
 
         void Reset() OVERRIDE
         {

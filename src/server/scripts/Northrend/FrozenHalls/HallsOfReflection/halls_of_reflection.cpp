@@ -1363,7 +1363,7 @@ public:
 
     struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
     {
-        npc_phantom_hallucinationAI(Creature* creature) : npc_phantom_mage::npc_phantom_mageAI(creature) {}
+        npc_phantom_hallucinationAI(Creature* creature) : npc_phantom_mage::npc_phantom_mageAI(creature) { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
@@ -1728,7 +1728,7 @@ public:
 class at_hor_intro_start : public AreaTriggerScript
 {
 public:
-    at_hor_intro_start() : AreaTriggerScript("at_hor_intro_start") {}
+    at_hor_intro_start() : AreaTriggerScript("at_hor_intro_start") { }
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
     {
@@ -1747,7 +1747,7 @@ public:
 class at_hor_waves_restarter : public AreaTriggerScript
 {
 public:
-    at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") {}
+    at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") { }
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
     {

@@ -78,11 +78,11 @@ enum Phases
 
 class boss_thekal : public CreatureScript
 {
-    public: boss_thekal() : CreatureScript("boss_thekal") {}
+    public: boss_thekal() : CreatureScript("boss_thekal") { }
 
         struct boss_thekalAI : public BossAI
         {
-            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL) {}
+            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL) { }
 
             bool Enraged;
             bool WasDead;
@@ -258,7 +258,7 @@ class boss_thekal : public CreatureScript
 //Zealot Lor'Khan
 class npc_zealot_lorkhan : public CreatureScript
 {
-    public: npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") {}
+    public: npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") { }
 
         struct npc_zealot_lorkhanAI : public ScriptedAI
         {

@@ -46,7 +46,7 @@ public:
 
     struct boss_shadowvoshAI : public BossAI
     {
-        boss_shadowvoshAI(Creature* creature) : BossAI(creature, DATA_SHADOW_HUNTER_VOSHGAJIN) {}
+        boss_shadowvoshAI(Creature* creature) : BossAI(creature, DATA_SHADOW_HUNTER_VOSHGAJIN) { }
 
         void Reset() OVERRIDE
         {
