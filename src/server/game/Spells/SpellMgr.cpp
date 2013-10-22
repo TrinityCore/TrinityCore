@@ -3110,6 +3110,15 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+	
+ 	 case 26573: // Consecration Dream wow 
+                spellInfo->Effects[1].TriggerSpell = 82366;
+                spellInfo->Effects[2].TriggerSpell = 36946;
+                break;
+
+	  case 80353:  // Time Warp DREAM WOW 
+                spellInfo->Effects[0].TriggerSpell = 80354; // Temporal Displacement
+                break;
 	 case 79268: // soul harvest DREAM WOW
 			 spellInfo->Effects[0].Amplitude = 3000;
 			 break;

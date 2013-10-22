@@ -1463,7 +1463,7 @@ class spell_warl_drain_life : public SpellScriptLoader
 			}
 };
 
-//80398 Dark Intent
+//80398 Dark Intent PRUEBA DREAM WOW
 class spell_warl_dark_intent: public SpellScriptLoader
 {
 public:

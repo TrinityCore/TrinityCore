@@ -733,6 +733,71 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 				}
 				break;
 			}
+
+	//DREAM WOW AGREGADO DRUIDA
+	case SPELLFAMILY_DRUID:
+		{
+			if(m_spellInfo->Id == 80964)  // Skull Bash (bear) 
+			{
+				if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, 473, 1))
+				{
+					switch(aurEff->GetId())
+					{
+					case 16940: // Brutal Impact (Rank 1)
+						{
+							m_caster->CastSpell(unitTarget, 82364 ,true);
+							break;
+						}
+					case 16941: // Brutal Impact (Rank 2)
+						{
+							m_caster->CastSpell(unitTarget, 82365 ,true);
+							break;
+						}
+					}
+				}
+				m_caster->CastSpell(unitTarget,93983,true);  
+			}
+			if(m_spellInfo->Id == 80965)  // Skull Bash(cat) 
+			{ 
+				if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, 473, 1))
+				{
+					switch(aurEff->GetId())
+					{
+					case 16940: // Brutal Impact (Rank 1)
+						{
+							m_caster->CastSpell(unitTarget, 82364 ,true);
+							break;
+						}
+					case 16941: // Brutal Impact (Rank 2)
+						{
+							m_caster->CastSpell(unitTarget, 82365 ,true);
+							break;
+						}
+					}
+				}
+				m_caster->CastSpell(unitTarget,93983,true); 
+			}
+			// Starfall
+            if (m_spellInfo->SpellFamilyFlags[2] & SPELLFAMILYFLAG2_DRUID_STARFALL)
+            {
+                // Shapeshifting into an animal form or mounting cancels the effect.
+                if (m_caster->GetCreatureType() == CREATURE_TYPE_BEAST || m_caster->IsMounted())
+                {
+                    if (m_triggeredByAuraSpell)
+                        m_caster->RemoveAurasDueToSpell(m_triggeredByAuraSpell->Id);
+                    return;
+                }
+
+                // Any effect which causes you to lose control of your character will suppress the starfall effect.
+                if (m_caster->HasUnitState(UNIT_STATE_STUNNED | UNIT_STATE_FLEEING | UNIT_STATE_ROOT | UNIT_STATE_CONFUSED))
+                    return;
+
+                m_caster->CastSpell(unitTarget, damage, true);
+                return;
+            }
+           break;
+         }
+
         case SPELLFAMILY_PALADIN:
             switch (m_spellInfo->Id)
             {
