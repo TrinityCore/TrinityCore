@@ -181,8 +181,8 @@ void Transport::Update(uint32 diff)
             float t = CalculateSegmentPos(float(timer) * 0.001f);
             G3D::Vector3 pos, dir;
             _currentFrame->Spline->evaluate_percent(_currentFrame->Index, t, pos);
-            //_currentFrame->Spline->evaluate_derivative(_currentFrame->Index, t, dir);
-            UpdatePosition(pos.x, pos.y, pos.z, 0.0f/*atan2(dir.x, dir.y)*/);
+            _currentFrame->Spline->evaluate_derivative(_currentFrame->Index, t, dir);
+            UpdatePosition(pos.x, pos.y, pos.z, atan2(dir.x, dir.y));
         }
     }
 
