@@ -7985,6 +7985,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         if (!victim || !victim->IsAlive() || GetTypeId() != TYPEID_PLAYER)
                             return false;
 
+                        if (ToPlayer()->HasSpellCooldown(auraSpellInfo->Id))
+                            return false;
+                        ToPlayer()->AddSpellCooldown(auraSpellInfo->Id, 0, time(0) + cooldown);
+
                         uint32 stack_spell_id = 0;
                         switch (auraSpellInfo->Id)
                         {
