@@ -48,7 +48,7 @@ public:
 
     struct boss_commander_stoutbeardAI : public ScriptedAI
     {
-        boss_commander_stoutbeardAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_commander_stoutbeardAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
         void AttackStart(Unit* /*who*/) OVERRIDE {}

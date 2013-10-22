@@ -121,7 +121,7 @@ public:
 
     struct npc_darrowshire_spiritAI : public ScriptedAI
     {
-        npc_darrowshire_spiritAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_darrowshire_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {

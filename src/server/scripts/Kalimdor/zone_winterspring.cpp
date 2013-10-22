@@ -199,7 +199,7 @@ public:
 
 protected:
     /// Will be called when a dialogue step was done
-    virtual void JustDidDialogueStep(int32 /*entry*/) {}
+    virtual void JustDidDialogueStep(int32 /*entry*/) { }
     /// Will be called to get a speaker, MUST be implemented if not used in instances
     virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return NULL; }
 

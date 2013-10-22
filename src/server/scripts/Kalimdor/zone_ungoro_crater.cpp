@@ -77,7 +77,7 @@ public:
 
     struct npc_ameAI : public npc_escortAI
     {
-        npc_ameAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_ameAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint32 DemoralizingShoutTimer;
 

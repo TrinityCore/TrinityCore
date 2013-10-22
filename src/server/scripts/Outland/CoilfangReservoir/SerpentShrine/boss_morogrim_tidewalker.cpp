@@ -299,7 +299,7 @@ public:
 
     struct npc_water_globuleAI : public ScriptedAI
     {
-        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Check_Timer;
 

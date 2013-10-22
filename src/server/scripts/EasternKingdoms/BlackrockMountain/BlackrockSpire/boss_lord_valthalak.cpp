@@ -46,7 +46,7 @@ public:
 
     struct boss_lord_valthalakAI : public BossAI
     {
-        boss_lord_valthalakAI(Creature* creature) : BossAI(creature, DATA_LORD_VALTHALAK) {}
+        boss_lord_valthalakAI(Creature* creature) : BossAI(creature, DATA_LORD_VALTHALAK) { }
 
         void Reset() OVERRIDE
         {

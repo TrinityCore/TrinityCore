@@ -667,7 +667,7 @@ public:
 
     struct npc_giant_spotlightAI : public ScriptedAI
     {
-        npc_giant_spotlightAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_giant_spotlightAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 

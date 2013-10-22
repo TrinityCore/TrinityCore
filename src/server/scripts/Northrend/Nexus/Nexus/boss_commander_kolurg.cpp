@@ -54,7 +54,7 @@ public:
 
     struct boss_commander_kolurgAI : public ScriptedAI
     {
-        boss_commander_kolurgAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_commander_kolurgAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
         void EnterCombat(Unit* /*who*/) OVERRIDE {}

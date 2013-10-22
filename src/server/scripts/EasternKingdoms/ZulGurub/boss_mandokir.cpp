@@ -106,7 +106,7 @@ Position const PosMandokir[2] =
 
 class boss_mandokir : public CreatureScript
 {
-    public: boss_mandokir() : CreatureScript("boss_mandokir") {}
+    public: boss_mandokir() : CreatureScript("boss_mandokir") { }
 
         struct boss_mandokirAI : public BossAI
         {
@@ -293,7 +293,7 @@ enum OhganSpells
 
 class npc_ohgan : public CreatureScript
 {
-    public: npc_ohgan() : CreatureScript("npc_ohgan") {}
+    public: npc_ohgan() : CreatureScript("npc_ohgan") { }
 
         struct npc_ohganAI : public ScriptedAI
         {
@@ -345,7 +345,7 @@ enum VilebranchSpells
 
 class npc_vilebranch_speaker : public CreatureScript
 {
-    public: npc_vilebranch_speaker() : CreatureScript("npc_vilebranch_speaker") {}
+    public: npc_vilebranch_speaker() : CreatureScript("npc_vilebranch_speaker") { }
 
         struct npc_vilebranch_speakerAI : public ScriptedAI
         {

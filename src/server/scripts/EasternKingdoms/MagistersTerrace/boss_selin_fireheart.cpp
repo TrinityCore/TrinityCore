@@ -332,7 +332,7 @@ public:
 
     struct npc_fel_crystalAI : public ScriptedAI
     {
-        npc_fel_crystalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fel_crystalAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
         void EnterCombat(Unit* /*who*/) OVERRIDE {}

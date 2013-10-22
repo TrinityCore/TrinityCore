@@ -172,7 +172,7 @@ public:
 class item_disgusting_jar : public ItemScript
 {
 public:
-    item_disgusting_jar() : ItemScript("item_disgusting_jar") {}
+    item_disgusting_jar() : ItemScript("item_disgusting_jar") { }
 
     bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/) OVERRIDE
     {

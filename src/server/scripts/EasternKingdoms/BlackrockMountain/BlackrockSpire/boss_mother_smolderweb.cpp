@@ -45,7 +45,7 @@ public:
 
     struct boss_mothersmolderwebAI : public BossAI
     {
-        boss_mothersmolderwebAI(Creature* creature) : BossAI(creature, DATA_MOTHER_SMOLDERWEB) {}
+        boss_mothersmolderwebAI(Creature* creature) : BossAI(creature, DATA_MOTHER_SMOLDERWEB) { }
 
         void Reset() OVERRIDE
         {

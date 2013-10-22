@@ -37,7 +37,7 @@ public:
 
     struct instance_the_stockade_InstanceMapScript : public InstanceScript
     {
-        instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map) { }
     };
 };
 

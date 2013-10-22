@@ -84,7 +84,7 @@ public:
 
     struct npc_daphne_stilwellAI : public npc_escortAI
     {
-        npc_daphne_stilwellAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_daphne_stilwellAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint32 uiWPHolder;
         uint32 uiShootTimer;

@@ -68,7 +68,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
 
         struct npc_professor_phizzlethorpeAI : public npc_escortAI
         {
-            npc_professor_phizzlethorpeAI(Creature* creature) : npc_escortAI(creature) {}
+            npc_professor_phizzlethorpeAI(Creature* creature) : npc_escortAI(creature) { }
 
             void WaypointReached(uint32 waypointId) OVERRIDE
             {

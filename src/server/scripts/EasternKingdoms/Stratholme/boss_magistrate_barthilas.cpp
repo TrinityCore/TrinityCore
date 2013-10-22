@@ -53,7 +53,7 @@ public:
 
     struct boss_magistrate_barthilasAI : public ScriptedAI
     {
-        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 DrainingBlow_Timer;
         uint32 CrowdPummel_Timer;

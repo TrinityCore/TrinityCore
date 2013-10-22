@@ -94,7 +94,7 @@ class example_creature : public CreatureScript
         {
             // *** HANDLED FUNCTION ***
             //This is the constructor, called only once when the Creature is first created
-            example_creatureAI(Creature* creature) : ScriptedAI(creature) {}
+            example_creatureAI(Creature* creature) : ScriptedAI(creature) { }
 
             // *** CUSTOM VARIABLES ****
             //These variables are for use only by this individual script.

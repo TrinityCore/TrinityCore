@@ -37,7 +37,7 @@ public:
 
     struct instance_ragefire_chasm_InstanceMapScript : public InstanceScript
     {
-        instance_ragefire_chasm_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_ragefire_chasm_InstanceMapScript(Map* map) : InstanceScript(map) { }
     };
 };
 

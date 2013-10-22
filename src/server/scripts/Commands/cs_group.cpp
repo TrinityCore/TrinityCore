@@ -263,7 +263,6 @@ public:
         // Get ALL the variables!
         Player* playerTarget;
         uint32 phase = 0;
-        uint32 groupCounter = 0;
         uint64 guidTarget;
         std::string nameTarget;
         std::string zoneName;
