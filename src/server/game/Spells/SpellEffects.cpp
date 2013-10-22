@@ -4269,10 +4269,51 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (!m_caster->m_movedPlayer)
         return;
 
-    if (damage <= 0)
-        return;
+    //if (damage <= 0)
+     //   return;
 
-    m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
+    // dream wow para rogue redirect
+   Player* plr = m_caster->m_movedPlayer;
+    if (damage > 0)
+        plr->AddComboPoints(unitTarget, damage, this);
+    else
+    {
+        // Rogue: Redirect
+        if (GetSpellInfo()->Id == 73981 && plr->GetComboPoints() > 0 && plr->GetComboTarget())
+            plr->AddComboPoints(unitTarget, plr->GetComboPoints(), this);
+    }
+
+    if (m_spellInfo->Id == 1752 || m_spellInfo->Id == 84617) // Sinister Strike and Revealing Strike
+    {
+        uint32 times = m_caster->GetTimesCastedInRow(1752);
+        times += m_caster->GetTimesCastedInRow(84617);
+
+        if (m_caster->HasAura(84654)) // It shouldn't count while under effect of last aura.
+            return;
+
+        if (m_caster->HasAura(84652) && !m_caster->HasAura(84654)) // Bandit's Guile Rank 1
+            if (roll_chance_i(33))
+                times += 1;
+            else if (m_caster->HasAura(84653) && !m_caster->HasAura(84654)) // Bandit's Guile Rank 2
+                if (roll_chance_i(66))
+                    times += 1;
+                else if (m_caster->HasAura(84654) && !m_caster->HasAura(84654)) // Bandit's Guile Rank 3
+                    times += 1;
+
+        if (times == 4)
+            m_caster->CastSpell(m_caster, 84745, true);
+
+        else if (times == 8)
+            m_caster->CastSpell(m_caster, 84746, true);
+
+        else if (times == 12)
+        {
+            times = 0;
+            m_caster->CastSpell(m_caster, 84747, true);
+        }
+    }
+
+    //m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
 
 void Spell::EffectDuel(SpellEffIndex effIndex)

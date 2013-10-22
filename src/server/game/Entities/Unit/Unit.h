@@ -1052,6 +1052,7 @@ struct GlobalCooldown
 };
 
 typedef UNORDERED_MAP<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
+typedef UNORDERED_MAP<uint32, uint32> SpellsCastedInRow; //dream wow agregada para redirect
 
 class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
 {
@@ -1319,6 +1320,20 @@ class Unit : public WorldObject
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
+
+	// dream wow para redirect
+        int32 m_lastSpellCasted;
+        SpellsCastedInRow m_spellsinrow;
+
+        uint32 GetTimesCastedInRow(uint32 spellid)
+        {
+            SpellsCastedInRow::iterator itr = m_spellsinrow.find(spellid);
+            if(itr != m_spellsinrow.end())
+                return itr->second;
+           return 0;
+       }
+        inline int32 getLastSpellCasted() const { return m_lastSpellCasted ? m_lastSpellCasted : 0; }
+
 
         void _addAttacker(Unit* pAttacker);                  // must be called only from Unit::Attack(Unit*)
         void _removeAttacker(Unit* pAttacker);               // must be called only from Unit::AttackStop()
