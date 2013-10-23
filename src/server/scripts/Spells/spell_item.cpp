@@ -1350,7 +1350,7 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 class spell_item_book_of_glyph_mastery : public SpellScriptLoader
 {
     public:
-        spell_item_book_of_glyph_mastery() : SpellScriptLoader("spell_item_book_of_glyph_mastery") {}
+        spell_item_book_of_glyph_mastery() : SpellScriptLoader("spell_item_book_of_glyph_mastery") { }
 
         class spell_item_book_of_glyph_mastery_SpellScript : public SpellScript
         {
@@ -1404,7 +1404,7 @@ enum GiftOfTheHarvester
 class spell_item_gift_of_the_harvester : public SpellScriptLoader
 {
     public:
-        spell_item_gift_of_the_harvester() : SpellScriptLoader("spell_item_gift_of_the_harvester") {}
+        spell_item_gift_of_the_harvester() : SpellScriptLoader("spell_item_gift_of_the_harvester") { }
 
         class spell_item_gift_of_the_harvester_SpellScript : public SpellScript
         {
@@ -1445,7 +1445,7 @@ enum Sinkholes
 class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
 {
     public:
-        spell_item_map_of_the_geyser_fields() : SpellScriptLoader("spell_item_map_of_the_geyser_fields") {}
+        spell_item_map_of_the_geyser_fields() : SpellScriptLoader("spell_item_map_of_the_geyser_fields") { }
 
         class spell_item_map_of_the_geyser_fields_SpellScript : public SpellScript
         {
@@ -1536,7 +1536,7 @@ enum AshbringerSounds
 class spell_item_ashbringer : public SpellScriptLoader
 {
     public:
-        spell_item_ashbringer() : SpellScriptLoader("spell_item_ashbringer") {}
+        spell_item_ashbringer() : SpellScriptLoader("spell_item_ashbringer") { }
 
         class spell_item_ashbringer_SpellScript : public SpellScript
         {
@@ -1585,7 +1585,7 @@ enum MagicEater
 class spell_magic_eater_food : public SpellScriptLoader
 {
     public:
-        spell_magic_eater_food() : SpellScriptLoader("spell_magic_eater_food") {}
+        spell_magic_eater_food() : SpellScriptLoader("spell_magic_eater_food") { }
 
         class spell_magic_eater_food_AuraScript : public AuraScript
         {

@@ -223,7 +223,7 @@ public:
 
     struct npc_prospector_remtravelAI : public npc_escortAI
     {
-        npc_prospector_remtravelAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_prospector_remtravelAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {

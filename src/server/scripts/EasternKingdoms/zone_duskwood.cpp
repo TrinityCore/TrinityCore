@@ -87,7 +87,7 @@ public:
 
     struct boss_twilight_corrupterAI : public ScriptedAI
     {
-        boss_twilight_corrupterAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_twilight_corrupterAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SoulCorruption_Timer;
         uint32 CreatureOfNightmare_Timer;

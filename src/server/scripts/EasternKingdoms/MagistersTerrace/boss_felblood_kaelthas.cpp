@@ -600,7 +600,7 @@ public:
 
     struct npc_felkael_phoenix_eggAI : public ScriptedAI
     {
-        npc_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 HatchTimer;
 

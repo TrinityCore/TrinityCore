@@ -54,7 +54,7 @@ class npc_jadespine_basilisk : public CreatureScript
 
         struct npc_jadespine_basiliskAI : public ScriptedAI
         {
-            npc_jadespine_basiliskAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_jadespine_basiliskAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 uiCslumberTimer;
 

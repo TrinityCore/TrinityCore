@@ -52,7 +52,7 @@ public:
 
     struct instance_old_hillsbrad_InstanceMapScript : public InstanceScript
     {
-        instance_old_hillsbrad_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_old_hillsbrad_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 mBarrelCount;

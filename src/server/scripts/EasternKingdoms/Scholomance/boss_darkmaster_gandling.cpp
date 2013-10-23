@@ -54,7 +54,7 @@ class boss_darkmaster_gandling : public CreatureScript
 
         struct boss_darkmaster_gandlingAI : public BossAI
         {
-            boss_darkmaster_gandlingAI(Creature* creature) : BossAI(creature, DATA_DARKMASTERGANDLING) {}
+            boss_darkmaster_gandlingAI(Creature* creature) : BossAI(creature, DATA_DARKMASTERGANDLING) { }
 
             void Reset() OVERRIDE
             {

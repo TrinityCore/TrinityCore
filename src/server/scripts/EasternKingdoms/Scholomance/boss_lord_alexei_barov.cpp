@@ -44,7 +44,7 @@ class boss_lord_alexei_barov : public CreatureScript
 
         struct boss_lordalexeibarovAI : public BossAI
         {
-            boss_lordalexeibarovAI(Creature* creature) : BossAI(creature, DATA_LORDALEXEIBAROV) {}
+            boss_lordalexeibarovAI(Creature* creature) : BossAI(creature, DATA_LORDALEXEIBAROV) { }
 
             void Reset() OVERRIDE
             {

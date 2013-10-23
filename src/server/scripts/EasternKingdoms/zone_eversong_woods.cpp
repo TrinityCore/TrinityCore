@@ -66,7 +66,7 @@ public:
 
     struct npc_apprentice_mirvedaAI : public ScriptedAI
     {
-        npc_apprentice_mirvedaAI(Creature* creature) : ScriptedAI(creature), Summons(me) {}
+        npc_apprentice_mirvedaAI(Creature* creature) : ScriptedAI(creature), Summons(me) { }
 
         uint32 KillCount;
         uint64 PlayerGUID;

@@ -66,7 +66,7 @@ public:
 
     struct npc_willixAI : public npc_escortAI
     {
-        npc_willixAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_willixAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -149,7 +149,7 @@ enum SnufflenoseGopher
 
 struct DistanceOrder : public std::binary_function<GameObject, GameObject, bool>
 {
-    DistanceOrder(Creature* me) : me(me) {}
+    DistanceOrder(Creature* me) : me(me) { }
 
     bool operator() (GameObject* first, GameObject* second)
     {

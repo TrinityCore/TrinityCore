@@ -130,7 +130,7 @@ public:
 
     struct npc_ragged_johnAI : public ScriptedAI
     {
-        npc_ragged_johnAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ragged_johnAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
 

@@ -66,11 +66,11 @@ enum Events
 
 class boss_hakkar : public CreatureScript
 {
-    public: boss_hakkar() : CreatureScript("boss_hakkar") {}
+    public: boss_hakkar() : CreatureScript("boss_hakkar") { }
 
         struct boss_hakkarAI : public BossAI
         {
-            boss_hakkarAI(Creature* creature) : BossAI(creature, DATA_HAKKAR) {}
+            boss_hakkarAI(Creature* creature) : BossAI(creature, DATA_HAKKAR) { }
 
             void Reset() OVERRIDE
             {

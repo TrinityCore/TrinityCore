@@ -330,7 +330,7 @@ public:
 
     struct npc_chicken_cluckAI : public ScriptedAI
     {
-        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ResetFlagTimer;
 
@@ -425,7 +425,7 @@ public:
 
     struct npc_dancing_flamesAI : public ScriptedAI
     {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool Active;
         uint32 CanIteract;
@@ -572,11 +572,11 @@ uint32 const HordeSoldierId[3] =
 class npc_doctor : public CreatureScript
 {
 public:
-    npc_doctor() : CreatureScript("npc_doctor") {}
+    npc_doctor() : CreatureScript("npc_doctor") { }
 
     struct npc_doctorAI : public ScriptedAI
     {
-        npc_doctorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_doctorAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
 
@@ -721,7 +721,7 @@ public:
 
     struct npc_injured_patientAI : public ScriptedAI
     {
-        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 DoctorGUID;
         Location* Coord;
@@ -1123,7 +1123,7 @@ public:
 
     struct npc_guardianAI : public ScriptedAI
     {
-        npc_guardianAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_guardianAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -1498,7 +1498,7 @@ public:
 
     struct npc_steam_tonkAI : public ScriptedAI
     {
-        npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
         void EnterCombat(Unit* /*who*/) OVERRIDE {}
@@ -1716,11 +1716,11 @@ enum WormholeSpells
 class npc_wormhole : public CreatureScript
 {
     public:
-        npc_wormhole() : CreatureScript("npc_wormhole") {}
+        npc_wormhole() : CreatureScript("npc_wormhole") { }
 
         struct npc_wormholeAI : public PassiveAI
         {
-            npc_wormholeAI(Creature* creature) : PassiveAI(creature) {}
+            npc_wormholeAI(Creature* creature) : PassiveAI(creature) { }
 
             void InitializeAI() OVERRIDE
             {
@@ -2135,7 +2135,7 @@ public:
 
     struct npc_fireworkAI : public ScriptedAI
     {
-        npc_fireworkAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fireworkAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool isCluster()
         {

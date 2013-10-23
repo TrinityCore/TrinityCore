@@ -203,7 +203,7 @@ enum TrickOrTreatSpells
 class spell_hallow_end_trick_or_treat : public SpellScriptLoader
 {
     public:
-        spell_hallow_end_trick_or_treat() : SpellScriptLoader("spell_hallow_end_trick_or_treat") {}
+        spell_hallow_end_trick_or_treat() : SpellScriptLoader("spell_hallow_end_trick_or_treat") { }
 
         class spell_hallow_end_trick_or_treat_SpellScript : public SpellScript
         {

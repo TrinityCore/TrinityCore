@@ -22,7 +22,7 @@
 class instance_ruins_of_ahnqiraj : public InstanceMapScript
 {
     public:
-        instance_ruins_of_ahnqiraj() : InstanceMapScript("instance_ruins_of_ahnqiraj", 509) {}
+        instance_ruins_of_ahnqiraj() : InstanceMapScript("instance_ruins_of_ahnqiraj", 509) { }
 
         struct instance_ruins_of_ahnqiraj_InstanceMapScript : public InstanceScript
         {

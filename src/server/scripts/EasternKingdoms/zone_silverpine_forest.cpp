@@ -65,7 +65,7 @@ public:
 
     struct npc_deathstalker_erlandAI : public npc_escortAI
     {
-        npc_deathstalker_erlandAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_deathstalker_erlandAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {

@@ -243,7 +243,7 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
 {
     public:
 
-        AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") {}
+        AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) OVERRIDE
         {

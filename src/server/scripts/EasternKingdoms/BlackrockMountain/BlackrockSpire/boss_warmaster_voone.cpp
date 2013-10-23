@@ -52,7 +52,7 @@ public:
 
     struct boss_warmastervooneAI : public BossAI
     {
-        boss_warmastervooneAI(Creature* creature) : BossAI(creature, DATA_WARMASTER_VOONE) {}
+        boss_warmastervooneAI(Creature* creature) : BossAI(creature, DATA_WARMASTER_VOONE) { }
 
         void Reset() OVERRIDE
         {

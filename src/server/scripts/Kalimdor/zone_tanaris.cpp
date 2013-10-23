@@ -65,7 +65,7 @@ public:
 
     struct npc_aquementasAI : public ScriptedAI
     {
-        npc_aquementasAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_aquementasAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SendItemTimer;
         uint32 SwitchFactionTimer;
@@ -182,7 +182,7 @@ public:
 
     struct npc_custodian_of_timeAI : public npc_escortAI
     {
-        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -470,7 +470,7 @@ public:
 
     struct npc_OOX17AI : public npc_escortAI
     {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) {}
+        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {

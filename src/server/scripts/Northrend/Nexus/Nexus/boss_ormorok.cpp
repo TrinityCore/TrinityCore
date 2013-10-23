@@ -49,7 +49,7 @@ enum Events
 class OrmorokTanglerPredicate
 {
    public:
-      OrmorokTanglerPredicate(Unit* unit) : me(unit) {}
+      OrmorokTanglerPredicate(Unit* unit) : me(unit) { }
 
     bool operator() (WorldObject* object) const
     {
@@ -67,7 +67,7 @@ public:
 
     struct boss_ormorokAI : public BossAI
     {
-        boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK_EVENT) {}
+        boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK_EVENT) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -188,7 +188,7 @@ public:
 
     struct npc_crystal_spike_triggerAI : public ScriptedAI
     {
-        npc_crystal_spike_triggerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_crystal_spike_triggerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void IsSummonedBy(Unit* owner) OVERRIDE
         {
