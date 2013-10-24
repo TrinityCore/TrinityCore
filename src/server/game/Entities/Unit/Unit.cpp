@@ -5741,6 +5741,310 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             break;
         }
+// agregado para dream wow rogue family
+ case SPELLFAMILY_ROGUE:
+        {
+            switch (dummySpell->Id)
+            {
+	       // Restless Blades
+                case 79095:
+                case 79096:
+                {
+                    // Rupture & Eviscerate.
+                    if(procSpell->Id == 2098 || procSpell->Id == 1943)
+                    {
+                        // Adrenaline Rush.
+                        if (ToPlayer()->HasSpellCooldown(13750))
+                        {
+                            int32 cooldown = ((triggeredByAura->GetAmount() * ToPlayer()->GetComboPoints()) * -1);
+				if (!cooldown)
+				    cooldown = -2;
+                            uint32 newCooldownDelay = ToPlayer()->GetSpellCooldownDelay(13750);
+
+                            if (newCooldownDelay < uint32(cooldown / -1000) + 1)
+                                newCooldownDelay = 0;
+                            else
+                                newCooldownDelay += cooldown / 1000;
+                            ToPlayer()->AddSpellCooldown(13750,0, uint32(time(NULL) + newCooldownDelay));
+
+                            WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
+                            data << uint32(13750);                  // Spell ID
+                            data << uint64(GetGUID());              // Player GUID
+                            data << int32(cooldown);                // Cooldown mod in milliseconds
+                            ToPlayer()->GetSession()->SendPacket(&data);
+                        }
+
+                        // Killing Spree.
+                        if (ToPlayer()->HasSpellCooldown(51690))
+                        {
+                            int32 cooldown = ((triggeredByAura->GetAmount() * ToPlayer()->GetComboPoints()) * -1);
+				if (!cooldown)
+				    cooldown = -2;
+                            uint32 newCooldownDelay = ToPlayer()->GetSpellCooldownDelay(51690);
+
+                            if (newCooldownDelay < uint32(cooldown / -1000) + 1)
+                                newCooldownDelay = 0;
+                            else
+                                newCooldownDelay += cooldown / 1000;
+                            ToPlayer()->AddSpellCooldown(51690,0, uint32(time(NULL) + newCooldownDelay));
+
+                            WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
+                            data << uint32(51690);                  // Spell ID
+                            data << uint64(GetGUID());              // Player GUID
+                            data << int32(cooldown);                // Cooldown mod in milliseconds
+                            ToPlayer()->GetSession()->SendPacket(&data);
+                        }
+
+                        // Sprint.
+                        if (ToPlayer()->HasSpellCooldown(2983))
+                        {
+                            int32 cooldown = ((triggeredByAura->GetAmount() * ToPlayer()->GetComboPoints()) * -1);
+				if (!cooldown)
+				    cooldown = -2;
+                            uint32 newCooldownDelay = ToPlayer()->GetSpellCooldownDelay(2983);
+
+                            if (newCooldownDelay < uint32(cooldown / -1000) + 1)
+                                newCooldownDelay = 0;
+                            else
+                                newCooldownDelay += cooldown / 1000;
+                            ToPlayer()->AddSpellCooldown(2983,0, uint32(time(NULL) + newCooldownDelay));
+
+                            WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
+                            data << uint32(2983);                  // Spell ID
+                            data << uint64(GetGUID());              // Player GUID
+                            data << int32(cooldown);                // Cooldown mod in milliseconds
+                            ToPlayer()->GetSession()->SendPacket(&data);
+                        }
+			}
+		  }
+                case 32748: // Deadly Throw Interrupt
+                {
+                    // Prevent cast Deadly Throw Interrupt on self from last effect (apply dummy) of Deadly Throw
+                    if (this == victim)
+                        return false;
+
+                    triggered_spell_id = 32747;
+                    break;
+                }
+                case 56807: // Glyph of hemorrhage
+                {
+                    basepoints0 = int32(0.40f * damage);
+                    triggered_spell_id = 89775;
+                    break;
+                }
+                // Venomeous wounds rank 1 & 2
+                case 79133:
+                case 79134:
+                {
+                    if(effIndex != 0)
+                        return false;
+
+                    bool poisoned = false;
+                    Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
+
+                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        if (itr->second->GetBase()->GetSpellInfo()->Dispel == DISPEL_POISON)
+                        {
+                            poisoned = true;
+                            break;
+                        }
+                    }
+                    if (!poisoned)
+                        return false;
+
+                    basepoints0 = triggerAmount;
+                    this->CastCustomSpell(this, 51637, &basepoints0, NULL, NULL, true);
+                    triggered_spell_id = 79136;
+                    break;
+                }
+            }
+
+			switch (dummySpell->SpellIconID)
+            {
+                case 2116: // Quick Recovery
+                {
+                    if (!procSpell)
+                        return false;
+
+                    // energy cost save
+                    basepoints0 = CalculatePct(int32(procSpell->ManaCost), triggerAmount);
+                    if (basepoints0 <= 0)
+                        return false;
+
+                    target = this;
+					triggered_spell_id = 31663;
+					break;
+				}
+				// Improved Expose Armor
+				case 563:
+					{
+						int32 combo = ToPlayer()->GetComboPoints();
+						for(int32 i = 0; i < combo; ++i)
+							CastSpell(victim,79128,true);
+						break;
+					}
+					break;
+				case 2909: // Cut to the Chase
+					{
+                    // "refresh your Slice and Dice duration to its 5 combo point maximum"
+                    // lookup Slice and Dice
+                    if (AuraEffect const* aur = GetAuraEffect(5171, 0))
+                    {
+                        aur->GetBase()->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+                        return true;
+                    }
+                    return false;
+                }
+                case 2963: // Deadly Brew
+                {
+                    triggered_spell_id = 3409;
+                    break;
+                }
+            }
+            break;
+        }
+
+// agregado para dream wow hunter family
+   case SPELLFAMILY_HUNTER:
+        {
+            switch (dummySpell->SpellIconID)
+            {
+                case 267: // Improved Mend Pet
+                {
+                    if (!roll_chance_i(triggerAmount))
+                        return false;
+
+                    triggered_spell_id = 24406;
+                    break;
+                }
+  		  case 2236: // Thrill of the Hunt
+                {
+                    if (!procSpell)
+                        return false;
+
+                    Spell* spell = ToPlayer()->m_spellModTakingSpell;
+
+                    // Disable charge drop because of Lock and Load
+                    ToPlayer()->SetSpellModTakingSpell(spell, false);
+
+                    // Explosive Shot
+                    if (procSpell->SpellFamilyFlags[2] & 0x200)
+                    {
+                        if (!victim)
+                            return false;
+                        if (AuraEffect const* pEff = victim->GetAuraEffect(SPELL_AURA_PERIODIC_DUMMY, SPELLFAMILY_HUNTER, 0x0, 0x80000000, 0x0, GetGUID()))
+                            basepoints0 = pEff->GetSpellInfo()->CalcPowerCost(this, SpellSchoolMask(pEff->GetSpellInfo()->SchoolMask)) * 4/10/3;
+                    }
+                    else
+                        basepoints0 = procSpell->CalcPowerCost(this, SpellSchoolMask(procSpell->SchoolMask)) * 4/10;
+
+                    ToPlayer()->SetSpellModTakingSpell(spell, true);
+
+                    if (basepoints0 <= 0)
+                        return false;
+
+                    target = this;
+                    triggered_spell_id = 34720;
+                    break;
+                }
+                case 3406: // Hunting Party
+                {
+                    triggered_spell_id = 57669;
+                    target = this;
+                    break;
+                }
+  		  case 5094: // Posthaste
+               {
+                   triggered_spell_id = 83559;
+                   basepoints0 = triggerAmount;
+                   target = this;
+                   break;
+               }
+                 case 3524: // Marked for Death
+                {
+                    if (!roll_chance_i(triggerAmount))
+                        return false;
+
+                    triggered_spell_id = 88691;
+                    target = victim;
+                    break;
+                }
+                case 3560: // Rapid Recuperation
+                {
+                    // This effect only from Rapid Killing (focus regen)
+                    if (!(procSpell->SpellFamilyFlags[1] & 0x01000000))
+                        return false;
+
+                    target = this;
+                    triggered_spell_id = 58883;
+                    basepoints0 = CalculatePct(GetMaxPower(POWER_FOCUS), triggerAmount);
+                    break;
+                }
+                // T.N.T.
+                case 355:
+                triggered_spell_id = 56453;
+                    break;
+                // Lock and Load
+                case 3579:
+                {
+                    if (!(procFlag & PROC_FLAG_DONE_PERIODIC) || !roll_chance_i(triggerAmount)) 
+                        return false;
+                    triggered_spell_id = 56453;
+                    target = this;
+                    break;
+                }
+            }
+ 	     switch (dummySpell->Id)
+            {
+                case 82897: // Resistance is Futile kill command refund proc
+                {
+                    // Proc only on the damage spell
+                    if (procSpell->Id != 34026)
+                        return false;
+
+                    Unit* currentTarget = GetVictim();
+
+                    if (!currentTarget)
+                        return false;
+
+                    // Check for Hunter's mark or Marked for Death on currentTarget
+                    if (currentTarget->HasAuraTypeWithFamilyFlags(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS,SPELLFAMILY_HUNTER,1024))
+                    {
+                        CastSpell(this,86316,true);
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                case 34477: // Misdirection
+                {
+                    triggered_spell_id = 35079; // 4 sec buff on self
+                    target = this;
+                    return true;
+                }
+                case 57870: // Glyph of Mend Pet
+                {
+                    victim->CastSpell(victim, 57894, true, NULL, NULL, GetGUID());
+                    return true;
+                }
+                // Sic 'Em! rank 1
+                case 83340:
+                {
+                    triggered_spell_id = 83359;
+                    target = this;
+                    break;
+                }
+                // Sic 'Em! rank 2
+                case 83356:
+                {
+                    triggered_spell_id = 89388;
+                    target = this;
+                    break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_PALADIN:
         {
             // Judgements of the Wise

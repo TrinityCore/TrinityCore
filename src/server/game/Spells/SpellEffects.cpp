@@ -392,7 +392,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 // Victory Rush
                 if (m_spellInfo->Id == 34428)
                     ApplyPct(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                // Shockwave
+                
+		  // Shockwave
                 else if (m_spellInfo->Id == 46968)
                 {
                     int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
@@ -684,6 +685,35 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
+// agregado por Dream wow
+case SPELLFAMILY_HUNTER:
+				{
+					//Base attack of hunter pets
+					if (m_spellInfo->Id == 16827 || m_spellInfo->Id == 49966 || m_spellInfo->Id == 17253)
+						if (m_caster->IsPet())
+							if (Unit *owner = m_caster->GetOwner())
+							{
+								//Frenzy
+								if (AuraEffect const * aurEff = owner->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_HUNTER, 1562, 0))
+								{
+									int32 bp = aurEff->GetAmount();
+									m_caster->CastCustomSpell(m_caster, 19615, &bp, NULL, NULL, true);
+								}
+
+								//Sic'em remove
+								if (owner->HasAura(89388))
+									owner->RemoveAura(89388);
+								else if	(owner->HasAura(83359))
+									owner->RemoveAura(83359);
+							}
+							//Gore
+							if (m_spellInfo->SpellIconID == 1578)
+							{
+								if (m_caster->HasAura(57627))           // Charge 6 sec post-affect
+									damage *= 2;
+							}
+							break;
+				}
             case SPELLFAMILY_MAGE:
             {
                 // Deep Freeze should deal damage to permanently stun-immune targets.
@@ -797,7 +827,36 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             }
            break;
          }
-
+// agregado por Dream wow
+case SPELLFAMILY_HUNTER:
+	// steady shot focus effect (it has its own skill for this)
+		if (m_spellInfo->SpellFamilyFlags[1] & 0x1)
+		{
+			if(m_caster->HasAura(83490)) // Termination rank 2
+			{
+				if(unitTarget->HealthBelowPct(25))
+				{
+					int32 bp = 9+6;
+					m_caster->CastCustomSpell(m_caster,77443,&bp,NULL,NULL,true);
+				}
+			}
+			else if(m_caster->HasAura(83489)) // Termination rank 1
+			{
+				if(unitTarget->HealthBelowPct(25))
+				{
+					int32 bp = 9+3;
+					m_caster->CastCustomSpell(m_caster,77443,&bp,NULL,NULL,true);
+				}
+			}
+			else
+				m_caster->CastSpell(m_caster,77443,true);
+		}
+		if (m_spellInfo->Id == 77767)
+			m_caster->CastSpell(m_caster,91954,true);
+		if (m_spellInfo->SpellFamilyFlags[2] & 0x20)
+			m_caster->CastSpell(m_caster,51755,true);
+	       
+		break;
         case SPELLFAMILY_PALADIN:
             switch (m_spellInfo->Id)
             {

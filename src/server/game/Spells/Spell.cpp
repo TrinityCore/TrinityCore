@@ -4989,6 +4989,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (m_caster->GetEntry() != WORLD_TRIGGER) // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
                 if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOSInMap(target))
                     return SPELL_FAILED_LINE_OF_SIGHT;
+            
         }
     }
 
@@ -5102,7 +5103,22 @@ SpellCastResult Spell::CheckCast(bool strict)
         // for effects of spells that have only one target
         switch (m_spellInfo->Effects[i].Effect)
         {
-	     // dream wow redirect rogue
+		// dream wow para Focus Fire Hunter
+		case SPELL_EFFECT_APPLY_AURA:
+            {
+                switch (m_spellInfo->Id)
+                {
+                    case 82692: // Focus Fire
+                    {
+                        if (Player* caster = m_caster->ToPlayer())
+                            if (!caster->GetPet())
+                                return SPELL_FAILED_NO_PET;
+                        break;
+                    }
+                }
+                break;
+            }
+	     // Dream Wow para Redirect rogue
 	     case SPELL_EFFECT_ADD_COMBO_POINTS:
             {
                 if (m_spellInfo->Id == 73981)          // Redirect

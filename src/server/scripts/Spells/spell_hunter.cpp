@@ -54,6 +54,8 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
+    SPELL_HUNTER_SPELL_KILL_COMMAND                 = 34026,
+    SPELL_HUNTER_SPELL_KILL_COMMAND_TRIGGER         = 83381,
 
 };
 
@@ -1053,6 +1055,118 @@ class spell_hun_aspect_of_the_hawk: public SpellScriptLoader
    }
 };
 
+// kill command dream wow
+// 34026 Kill comamnd
+class spell_hun_kill_command : public SpellScriptLoader
+{	
+public:
+    spell_hun_kill_command() : SpellScriptLoader("spell_hun_kill_command") { }
+
+    class spell_hun_kill_command_SpellScript : public SpellScript
+    {
+       PrepareSpellScript(spell_hun_kill_command_SpellScript)
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_SPELL_KILL_COMMAND))
+                return false;	
+            return true;
+        }	
+
+        SpellCastResult CheckCastMeet()
+        {
+            Unit* pet = GetCaster()->GetGuardianPet();
+            Unit* petTarget = pet->GetVictim();
+            if (!pet)
+                return SPELL_FAILED_NO_PET;
+
+            // Make sure pet has a target and target is within 5 yards	
+            if (!petTarget || !pet->IsWithinDist(petTarget, 5.0f, true))
+            {
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_TARGET_TOO_FAR);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+          Unit* pet = GetCaster()->GetGuardianPet();
+
+            if (!pet)
+                return;
+
+	 
+            pet->CastSpell(pet->GetVictim(), SPELL_HUNTER_SPELL_KILL_COMMAND_TRIGGER, true);
+        }
+        
+       
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_hun_kill_command_SpellScript::CheckCastMeet);
+           OnEffectHit += SpellEffectFn(spell_hun_kill_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const 
+    {
+        return new spell_hun_kill_command_SpellScript();
+    }
+};
+
+// agregar focus fire dream wow
+
+class spell_hun_focus_fire: public SpellScriptLoader
+{
+public:
+    spell_hun_focus_fire () : SpellScriptLoader("spell_hun_focus_fire") { }
+
+    class spell_hun_focus_fire_SpellScript: public SpellScript
+    {
+        PrepareSpellScript(spell_hun_focus_fire_SpellScript)
+
+        SpellCastResult CheckCast ()
+        {
+            Unit* caster = GetCaster();
+            Pet* pet = caster->ToPlayer()->GetPet();
+
+            if (!pet || pet->isDead())
+                return SPELL_FAILED_NO_PET;
+
+            if (!pet->GetAura(19615))
+                return SPELL_FAILED_NO_CHARGES_REMAIN;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleScriptEffect (SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            Pet* pet = GetCaster()->ToPlayer()->GetPet();
+
+            if (Aura* aur = pet->GetAura(19615))
+            {
+                uint8 aurCharges = aur->GetStackAmount();
+                caster->GetAura(82692)->SetStackAmount(aurCharges);
+                pet->RemoveAurasDueToSpell(19615);
+            }
+            int32 bp = GetEffectValue();
+            caster->CastCustomSpell(pet, 83468, &bp, NULL, NULL, true, NULL, NULL, caster->GetGUID());
+        }
+
+        void Register ()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_hun_focus_fire_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_hun_focus_fire_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript () const
+    {
+        return new spell_hun_focus_fire_SpellScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_chimera_shot();
@@ -1079,4 +1193,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_tnt();
     new spell_hun_aspect_of_the_hawk();
+    new spell_hun_kill_command();
+    new spell_hun_focus_fire();
 }

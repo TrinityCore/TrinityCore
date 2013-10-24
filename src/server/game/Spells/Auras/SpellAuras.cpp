@@ -1270,18 +1270,29 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         caster->CastCustomSpell(caster, 75999, &heal, NULL, NULL, true, NULL, GetEffect(0));
                     }
                 }
-                // Power Word: Shield
-                else if (m_spellInfo->SpellFamilyFlags[0] & 0x1 && m_spellInfo->SpellFamilyFlags[2] & 0x400 && GetEffect(0))
+                 // Power Word: Shield MODIFICADO PARA DREAM WOW
+            if (GetId() == 17)
+            {
+                // Glyph of Power Word: Shield
+                if (AuraEffect* glyph = caster->GetAuraEffect(55672, 0))
                 {
-                    // Glyph of Power Word: Shield
-                    if (AuraEffect* glyph = caster->GetAuraEffect(55672, 0))
-                    {
-                        // instantly heal m_amount% of the absorb-value
-                        int32 heal = glyph->GetAmount() * GetEffect(0)->GetAmount()/100;
-                        caster->CastCustomSpell(GetUnitOwner(), 56160, &heal, NULL, NULL, true, 0, GetEffect(0));
-                    }
-                }
-                break;
+                    // instantly heal m_amount% of the absorb-value
+                    int32 heal = glyph->GetAmount() * GetEffect(0)->GetAmount() / 100;
+                    caster->CastCustomSpell(GetUnitOwner(), 56160, &heal, NULL, NULL, true, 0, GetEffect(0));
+                }	
+		  //Reparado cuerpo y alma, ahora te da el 60% de velocidad al castear este aura (17).
+		  //Cuerpo y alma rango 2				
+		  if(caster->HasAura(64129))
+		  {
+		    caster->CastSpell(target,65081,true);
+		  }
+		  //Cuerpo y alma rango 1
+		  if(caster->HasAura(64127))
+		  {
+		     caster->CastSpell(target,64128,true);
+		  }
+            }
+            break;
             case SPELLFAMILY_ROGUE:
                 // Sprint (skip non player casted spells by category)
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x40 && GetSpellInfo()->Category == 44)
