@@ -136,6 +136,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.102 - 29/09/2013: Sistema de Resistencias Binarias: NUEVO, valores de calculos por Retriman, el resto de la implementacion por Eilo
 0.103 - 30/09/2013: IsVanishRemover funcion añadida al nucleo por Eilo
 0.104 - 16/10/2013: Evitando floodeo de Realmlist Request por Eilo
+0.105 - 07/04/2013: IsUnderCrowdControlEffects funcion añadida a núcleo por Phantons
+0.106 - 23/10/2013: IsSapped funcion añadida al nucleo por Sonneh
+0.107 - 23/10/2013: IsIncapacited funcion añadida al nucleo por Sonneh
+0.108 - 23/10/2013: Implementado sistema de Fade Out Sigilo por Sonneh
+0.109 - 24/10/2013: IsFadingOut funcion añadida al nucleo por Sonneh
 
 
 ###############
@@ -472,6 +477,10 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.228 - 19/10/2013: TheLichKing asegurando el casting de Necrotic Plague por Eilo
 2.2.229 - 20/10/2013: Putricide ahora al usar Vanish y Invisibility Tear Gas no tendrá efecto por Saitama
 2.2.230 - 20/10/2013: Rotface ajustados los tiempos de Ooze Flood para que sea blizzlike por Saitama
+2.2.231 - 20/10/2013: Rotface corregido el momento en que se usa el primer Ooze Flood por Saitama
+2.2.232 - 22/10/2013: TheLichKing añadido script a Wicked Spirit por Saitama
+2.2.233 - 22/10/2013: TheLichKing corregido comportamiento de Wicked Spirit al respawnear por Saitama
+2.2.234 - 24/10/2013: TheLichKing ajustado el comportamiento del Harvested Soul para que no gane poder LK mientras no estan en Frostmourne Room por Eilo
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -507,7 +516,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.25 - 29/09/2013: Ulduar: Ahora la spell Stormhamer de Thorim Ignorara LoS para que funcione correctamente por Jar
 2.6.26 - 30/09/2013: Ulduar: Mejoras varias en los eventos y el encuentro de Thorim para que tengan un aspecto blizzlike por Saitama
 2.6.27 - 07/10/2013: Ulduar: Mimiron Varios ajustes en la fase 2 del encuentro (VX-001), ahora las spells Spinning Up y Rapid Burst se ejecutaran de forma correcta y la animación de la unidad VX-001 en fase 2 y 4 será la esperada (en fase 4 Spinning Up requiere mejoras) por jar
-2.6.28 - 11/10/2013: Ulduar: Las spells de los vehículos ya no harán daño a los otros vehículos ni a los jugadores por Jar
 2.6.29 - 15/10/2013: Ulduar: Thorim actualizada la tabla de looteo por Jar
 2.6.30 - 15/10/2013: Ulduar: Thorim reestructurada la forma en que se spawnean los Thorim Chest, ahora los spawneamos por db y controlamos su PhaseMask por script por Jar
 2.6.31 - 15/10/2013: Ulduar: Freya actualizada la tabla de looteo por Jar
@@ -516,6 +524,12 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.34 - 15/10/2013: Ulduar: General Verzax definimos un LootMode específico para que concuerde con la tabla de loteo y la dificultad del encuentro por Jar
 2.6.35 - 15/10/2013: Ulduar: Desarmador Xt002 actualizada la tabla de looteo por Jar
 2.6.36 - 15/10/2013: Ulduar: Desarmador Xt002 definimos un LootMode específico para que concuerde con la tabla de loteo y la dificultad del encuentro por Jar
+2.6.37 - 21/10/2013: Ulduar: Las spells de los vehículos ya no harán daño a los otros vehículos ni a los jugadores por Jar
+2.6.38 - 21/10/2013: Ulduar: Flame Leviathan corregida la habilidad Mimiron's Inferno, ahora se ejecuta de forma correcta por jar
+2.6.39 - 22/10/2013: Ulduar: Flame Leviathan corregida la habilidad Thorim's Hammer, ahora se ejecuta de forma correcta por jar
+2.6.40 - 22/10/2013: Ulduar: Flame Leviathan corregida la habilidad Hodir's Fury, ahora se ejecuta de forma correcta por jar
+2.6.41 - 22/10/2013: Ulduar: Flame Leviathan corregida la habilidad Freya's Ward, ahora se ejecuta de forma correcta, original de swerg modificado por jar
+2.6.42 - 24/10/2013: Ulduar: Vehiculos al utilizar la spell Grab Crate se cargara el Gameobject Liquid Pyrite en el seat correcto, evitando que expulse al jugador del vehiculo por jar
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -778,13 +792,18 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.201 - 01/10/2013: Hunter: Fix spell Flare, modificado para que sean las yardas mas blizzlike por Gildor
 3.202 - 03/10/2013: Chaman: Fix spell Fire Nova, ahora no ignorará LoS por Gildor
 3.203 - 03/10/2013: Paladin: Fix spell Divine Storm (Heal), ahora no ignorará LoS por Gildor
-3.204 - 04/10/2013: Fix varias spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
+3.204 - 24/10/2013: Fix spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
 3.205 - 05/10/2013: Fix Maestro en runas de muerte, ahora seguiran el orden correcto por Phantons
 3.208 - 15/10/2013: Mago: Fix spell Burnout, ahora consumirá el mana correspondiente por DrTenma y modificado por Gildor
 3.209 - 15/10/2013: DK: Fix spell Raise Dead, previniendo error con el CD al reiniciar CDs por Gildor
 3.210 - 16/10/2013: Hunter: Fix spell Improved Mend Pet, ahora realizará el efecto de limpiar en cada pulso por Discover- y modificado por Gildor
 3.211 - 20/10/2013: Mago: Fix spell Frostfire Bolt, ahora no se eliminará el efecto de daño periódico al quitarse el efecto de ralentización por Kerhong y modificado por Gildor
 3.212 - 20/10/2013: Druida: Fix spell Infected Wounds, ahora no se eliminará el efecto de reducción de la velocidad de ataque al quitarse el efecto de ralentización por Gildor
+3.213 - 20/10/2013: Mago: Fix spell Slow, ahora no se eliminará los efectos increases the time between ranged attacks and increases casting time, al quitarse el efecto de ralentización por Gildor
+3.214 - 20/10/2013: Mago: Fix spell Chilled (Frost Armor, Ice Armor), ahora no se eliminará el efecto de reducción de la velocidad de ataque al quitarse el efecto de ralentización por Gildor
+3.215 - 23/10/2013: Mago: Fix spell Glyph of Molten Armor, ahora se actualizará su efecto al loguear el player por Gildor
+3.216 - 23/10/2013: Mago: Fix spell Glyph of Molten Armor, previniendo exploit de mantener el efecto sin el glifo por Gildor
+3.217 - 23/10/2013: Mago: Fix Mage T9 2P Bonus, ahora se actualizará su efecto al loguear el player por Gildor
 
 
 #################
@@ -1268,6 +1287,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.11.17 - 23/09/2013: Profundidades Rocanegra: Ribbly Llavenrosca por Rincewind
 4.11.18 - 29/09/2013: La Garganta de Fuego: La antorcha de reprensión por Discovered
 4.11.19 - 14/10/2013: Desolace: La mano de Iruxos por Muzashi
+4.11.20 - 22/10/2013: Tierras de la Peste Oeste: Profanar la tumba de Uther por Rincewind
+4.11.21 - 23/10/2013: Isla Bruma de Sangre: Salvar a la princesa Semprepino por Lauja
 
 
 ################
@@ -1352,6 +1373,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.71 - 18/10/2013: Halloween: El Jinete decapitado ahora es atacable por Muzashi
 6.72 - 18/10/2013: Halloween: Spameado Sergeant Hartman en SouthShore para las quests del logro Rotten Hallow por Eilo
 6.73 - 18/10/2013: Halloween: Spameada Darkcaller Yanka en las afueras de Undercity para las quests del logro Rotten Hallow por Eilo
+6.74 - 22/10/2013: Corregido exploit de la creatura Oozeling, no deberia botar 3 objetos peligrosos para el balance de los twinks por Apa
+6.75 - 23/10/2013: Halloween: Misiones autocompletables para conseguir el logro El Salvador de Halloween por Muzashi
 
 
 ##########
