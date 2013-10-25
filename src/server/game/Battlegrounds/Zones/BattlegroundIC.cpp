@@ -59,17 +59,6 @@ BattlegroundIC::BattlegroundIC()
 
 BattlegroundIC::~BattlegroundIC()
 {
-    if (gunshipHorde)
-    {
-        gunshipHorde->RemoveFromWorld();
-        delete gunshipHorde;
-    }
-
-    if (gunshipAlliance)
-    {
-        gunshipAlliance->RemoveFromWorld();
-        delete gunshipAlliance;
-    }
 }
 
 void BattlegroundIC::HandlePlayerResurrect(Player* player)
