@@ -7808,6 +7808,25 @@ GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
     return alt;
 }
 
+GameTele const* ObjectMgr::GetGameTeleExactName(const std::string& name) const
+{
+    // explicit name case
+    std::wstring wname;
+    if (!Utf8toWStr(name, wname))
+        return NULL;
+
+    // converting string that we try to find to lower case
+    wstrToLower(wname);
+
+    for (GameTeleContainer::const_iterator itr = _gameTeleStore.begin(); itr != _gameTeleStore.end(); ++itr)
+    {
+        if (itr->second.wnameLow == wname)
+            return &itr->second;
+    }
+
+    return NULL;
+}
+
 bool ObjectMgr::AddGameTele(GameTele& tele)
 {
     // find max id
