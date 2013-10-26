@@ -414,36 +414,7 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
 
-enum CreatureCellMoveState
-{
-    CREATURE_CELL_MOVE_NONE,    // not in move list
-    CREATURE_CELL_MOVE_ACTIVE,  // in move list
-    CREATURE_CELL_MOVE_INACTIVE // in move list but should not move
-};
-
-class MapCreature
-{
-    friend class Map;              // map for moving creatures
-    friend class ObjectGridLoader; // grid loader for loading creatures
-
-protected:
-    MapCreature() : _moveState(CREATURE_CELL_MOVE_NONE) {}
-
-private:
-    Cell _currentCell;
-    Cell const& GetCurrentCell() const { return _currentCell; }
-    void SetCurrentCell(Cell const& cell) { _currentCell = cell; }
-
-    CreatureCellMoveState _moveState;
-    Position _newPosition;
-    void SetNewCellPosition(float x, float y, float z, float o)
-    {
-        _moveState = CREATURE_CELL_MOVE_ACTIVE;
-        _newPosition.Relocate(x, y, z, o);
-    }
-};
-
-class Creature : public Unit, public GridObject<Creature>, public MapCreature
+class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
 
@@ -475,7 +446,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool IsTrigger() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER; }
         bool IsGuard() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
         bool CanWalk() const { return GetCreatureTemplate()->InhabitType & INHABIT_GROUND; }
-        bool CanSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER; }
+        bool CanSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER || IsPet(); }
         bool CanFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }

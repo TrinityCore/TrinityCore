@@ -229,9 +229,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
                 case GAMEOBJECT_TYPE_FLAGDROP:
                     updateType = UPDATETYPE_CREATE_OBJECT2;
                     break;
-                case GAMEOBJECT_TYPE_TRANSPORT:
-                    flags |= UPDATEFLAG_TRANSPORT;
-                    break;
                 default:
                     break;
             }
@@ -625,13 +622,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
-        *data << float(self->GetOrientation());
-        *data << float(self->GetPositionX());
-        *data << float(self->GetPositionY());
-        if (Unit const* unit = ToUnit())
-            *data << float(unit->GetPositionZMinusOffset());
-        else
-            *data << float(self->GetPositionZ());
+        *data << float(self->GetStationaryO());
+        *data << float(self->GetStationaryX());
+        *data << float(self->GetStationaryY());
+        *data << float(self->GetStationaryZ());
     }
 
     if (flags & UPDATEFLAG_HAS_TARGET)
@@ -658,7 +652,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     //}
 
     if (flags & UPDATEFLAG_TRANSPORT)
-        *data << uint32(getMSTime());                       // Unknown - getMSTime is wrong.
+    {
+        GameObject const* go = ToGameObject();
+        if (go && go->IsTransport())
+            *data << uint32(go->GetGOValue()->Transport.PathProgress);
+        else
+            *data << uint32(getMSTime());
+    }
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -2847,7 +2847,8 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     // Prevent invalid coordinates here, position is unchanged
     if (!Trinity::IsValidMapCoord(destx, desty, pos.m_positionZ))
     {
-        TC_LOG_FATAL(LOG_FILTER_GENERAL, "WorldObject::MovePosition invalid coordinates X: %f and Y: %f were passed!", destx, desty);
+        TC_LOG_FATAL(LOG_FILTER_GENERAL, "WorldObject::MovePosition: Object (TypeId: %u Entry: %u GUID: %u) has invalid coordinates X: %f and Y: %f were passed!",
+            GetTypeId(), GetEntry(), GetGUIDLow(), destx, desty);
         return;
     }
 

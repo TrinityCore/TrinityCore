@@ -52,7 +52,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 
-// apply implementation of the singletons
+#include "Transport.h"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -141,7 +141,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapCreature(),
+Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
 m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
@@ -932,7 +932,8 @@ void Creature::SaveToDB()
         return;
     }
 
-    SaveToDB(GetMapId(), data->spawnMask, GetPhaseMask());
+    uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.mapID : GetMapId();
+    SaveToDB(mapId, data->spawnMask, GetPhaseMask());
 }
 
 void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
@@ -971,10 +972,21 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.phaseMask = phaseMask;
     data.displayid = displayId;
     data.equipmentId = GetCurrentEquipmentId();
-    data.posX = GetPositionX();
-    data.posY = GetPositionY();
-    data.posZ = GetPositionZMinusOffset();
-    data.orientation = GetOrientation();
+    if (!GetTransport())
+    {
+        data.posX = GetPositionX();
+        data.posY = GetPositionY();
+        data.posZ = GetPositionZMinusOffset();
+        data.orientation = GetOrientation();
+    }
+    else
+    {
+        data.posX = GetTransOffsetX();
+        data.posY = GetTransOffsetY();
+        data.posZ = GetTransOffsetZ();
+        data.orientation = GetTransOffsetO();
+    }
+
     data.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
     data.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0.0f : m_respawnradius;
@@ -2131,8 +2143,8 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
     if (cooldown)
         _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILLISECONDS);
 
-    if (spellInfo->Category)
-        _AddCreatureCategoryCooldown(spellInfo->Category, time(NULL));
+    if (spellInfo->GetCategory())
+        _AddCreatureCategoryCooldown(spellInfo->GetCategory(), time(NULL));
 }
 
 bool Creature::HasCategoryCooldown(uint32 spell_id) const
@@ -2141,7 +2153,7 @@ bool Creature::HasCategoryCooldown(uint32 spell_id) const
     if (!spellInfo)
         return false;
 
-    CreatureSpellCooldowns::const_iterator itr = m_CreatureCategoryCooldowns.find(spellInfo->Category);
+    CreatureSpellCooldowns::const_iterator itr = m_CreatureCategoryCooldowns.find(spellInfo->GetCategory());
     return(itr != m_CreatureCategoryCooldowns.end() && time_t(itr->second + (spellInfo->CategoryRecoveryTime / IN_MILLISECONDS)) > time(NULL));
 }
 
@@ -2175,7 +2187,7 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
         }
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)

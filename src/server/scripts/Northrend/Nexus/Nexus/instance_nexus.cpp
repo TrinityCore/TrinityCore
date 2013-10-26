@@ -40,7 +40,7 @@ public:
 
     struct instance_nexus_InstanceMapScript : public InstanceScript
     {
-        instance_nexus_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_nexus_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 

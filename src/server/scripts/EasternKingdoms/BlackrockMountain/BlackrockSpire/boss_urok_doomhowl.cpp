@@ -46,7 +46,7 @@ public:
 
     struct boss_urok_doomhowlAI : public BossAI
     {
-        boss_urok_doomhowlAI(Creature* creature) : BossAI(creature, DATA_UROK_DOOMHOWL) {}
+        boss_urok_doomhowlAI(Creature* creature) : BossAI(creature, DATA_UROK_DOOMHOWL) { }
 
         void Reset() OVERRIDE
         {

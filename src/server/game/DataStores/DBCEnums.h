@@ -427,6 +427,12 @@ enum MountFlags
     MOUNT_FLAG_CAN_SWIM                 = 0x8,                    // client checks MOVEMENTFLAG_SWIMMING
 };
 
+enum SpellCategoryFlags
+{
+    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
+    SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04
+};
+
 enum TotemCategoryType
 {
     TOTEM_CATEGORY_TYPE_KNIFE           = 1,

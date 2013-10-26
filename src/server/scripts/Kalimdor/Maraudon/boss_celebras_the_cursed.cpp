@@ -45,7 +45,7 @@ public:
 
     struct celebras_the_cursedAI : public ScriptedAI
     {
-        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature) {}
+        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WrathTimer;
         uint32 EntanglingRootsTimer;

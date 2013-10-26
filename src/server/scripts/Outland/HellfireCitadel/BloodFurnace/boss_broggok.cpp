@@ -161,7 +161,7 @@ class boss_broggok : public CreatureScript
 class go_broggok_lever : public GameObjectScript
 {
     public:
-        go_broggok_lever() : GameObjectScript("go_broggok_lever") {}
+        go_broggok_lever() : GameObjectScript("go_broggok_lever") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {

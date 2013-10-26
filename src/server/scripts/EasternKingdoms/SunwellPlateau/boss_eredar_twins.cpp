@@ -675,7 +675,7 @@ public:
 
     struct npc_shadow_imageAI : public ScriptedAI
     {
-        npc_shadow_imageAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shadow_imageAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;

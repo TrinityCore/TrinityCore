@@ -331,7 +331,7 @@ public:
 
     struct npc_ethereal_apprenticeAI : public ScriptedAI
     {
-        npc_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Cast_Timer;
 
@@ -378,7 +378,7 @@ public:
 
     struct npc_yorAI : public ScriptedAI
     {
-        npc_yorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_yorAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE {}
 

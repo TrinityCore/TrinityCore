@@ -37,7 +37,7 @@ public:
 
     struct instance_dire_maul_InstanceMapScript : public InstanceScript
     {
-        instance_dire_maul_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_dire_maul_InstanceMapScript(Map* map) : InstanceScript(map) { }
     };
 };
 

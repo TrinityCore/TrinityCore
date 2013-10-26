@@ -45,7 +45,7 @@ public:
 
     struct boss_drektharAI : public ScriptedAI
     {
-        boss_drektharAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_drektharAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WhirlwindTimer;
         uint32 Whirlwind2Timer;

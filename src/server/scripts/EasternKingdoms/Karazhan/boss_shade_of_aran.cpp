@@ -520,7 +520,7 @@ public:
 
     struct water_elementalAI : public ScriptedAI
     {
-        water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        water_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 CastTimer;
 

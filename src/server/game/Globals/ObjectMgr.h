@@ -1023,6 +1023,11 @@ class ObjectMgr
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
         }
 
+        CellObjectGuidsMap const& GetMapObjectGuids(uint16 mapid, uint8 spawnMode)
+        {
+            return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)];
+        }
+
         /**
          * Gets temp summon data for all creatures of specified group.
          *
@@ -1154,6 +1159,7 @@ class ObjectMgr
             return &itr->second;
         }
         GameTele const* GetGameTele(std::string const& name) const;
+        GameTele const* GetGameTeleExactName(std::string const& name) const;
         GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(std::string const& name);

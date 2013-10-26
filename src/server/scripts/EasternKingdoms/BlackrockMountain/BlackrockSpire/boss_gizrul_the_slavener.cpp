@@ -46,7 +46,7 @@ public:
 
     struct boss_gizrul_the_slavenerAI : public BossAI
     {
-       boss_gizrul_the_slavenerAI(Creature* creature) : BossAI(creature, DATA_GIZRUL_THE_SLAVENER) {}
+       boss_gizrul_the_slavenerAI(Creature* creature) : BossAI(creature, DATA_GIZRUL_THE_SLAVENER) { }
 
         void Reset() OVERRIDE
         {

@@ -262,9 +262,17 @@ void TicketMgr::Initialize()
 
 void TicketMgr::ResetTickets()
 {
-    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end();)
+    {
         if (itr->second->IsClosed())
-            sTicketMgr->RemoveTicket(itr->second->GetId());
+        {
+            uint32 ticketId = itr->second->GetId();
+            ++itr;
+            sTicketMgr->RemoveTicket(ticketId);
+        }
+        else
+            ++itr;
+    }
 
     _lastTicketId = 0;
 

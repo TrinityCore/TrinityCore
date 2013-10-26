@@ -309,7 +309,7 @@ public:
 
     struct npc_twiggy_flatheadAI : public ScriptedAI
     {
-        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool EventInProgress;
         bool EventGrate;

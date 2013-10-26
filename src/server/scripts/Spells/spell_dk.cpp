@@ -415,7 +415,7 @@ class spell_dk_death_coil : public SpellScriptLoader
 class spell_dk_death_gate : public SpellScriptLoader
 {
     public:
-        spell_dk_death_gate() : SpellScriptLoader("spell_dk_death_gate") {}
+        spell_dk_death_gate() : SpellScriptLoader("spell_dk_death_gate") { }
 
         class spell_dk_death_gate_SpellScript : public SpellScript
         {

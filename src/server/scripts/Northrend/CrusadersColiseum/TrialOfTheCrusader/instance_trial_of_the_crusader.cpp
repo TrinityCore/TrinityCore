@@ -29,7 +29,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
         struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
         {
-            instance_trial_of_the_crusader_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_trial_of_the_crusader_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             void Initialize() OVERRIDE
             {

@@ -633,7 +633,7 @@ class npc_cult_fanatic : public CreatureScript
 
         struct npc_cult_fanaticAI : public ScriptedAI
         {
-            npc_cult_fanaticAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_cult_fanaticAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE
             {
@@ -710,7 +710,7 @@ class npc_cult_adherent : public CreatureScript
 
         struct npc_cult_adherentAI : public ScriptedAI
         {
-            npc_cult_adherentAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_cult_adherentAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE
             {

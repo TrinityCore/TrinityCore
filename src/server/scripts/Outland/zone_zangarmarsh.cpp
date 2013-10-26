@@ -342,7 +342,7 @@ public:
 
     struct npc_kayra_longmaneAI : public npc_escortAI
     {
-        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) { }
 
         void Reset() OVERRIDE {}
 

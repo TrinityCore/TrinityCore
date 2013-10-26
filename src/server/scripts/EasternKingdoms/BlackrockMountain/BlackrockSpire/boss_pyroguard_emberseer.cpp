@@ -75,7 +75,7 @@ public:
 
     struct boss_pyroguard_emberseerAI : public BossAI
     {
-        boss_pyroguard_emberseerAI(Creature* creature) : BossAI(creature, DATA_PYROGAURD_EMBERSEER) {}
+        boss_pyroguard_emberseerAI(Creature* creature) : BossAI(creature, DATA_PYROGAURD_EMBERSEER) { }
 
         void Reset() OVERRIDE
         {
@@ -340,7 +340,7 @@ public:
 
     struct npc_blackhand_incarceratorAI : public ScriptedAI
     {
-        npc_blackhand_incarceratorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_blackhand_incarceratorAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {

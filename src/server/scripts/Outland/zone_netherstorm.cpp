@@ -81,7 +81,7 @@ public:
 
     struct npc_manaforge_control_consoleAI : public ScriptedAI
     {
-        npc_manaforge_control_consoleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_manaforge_control_consoleAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Event_Timer;
         uint32 Wave_Timer;
@@ -746,7 +746,7 @@ public:
 
     struct npc_phase_hunterAI : public ScriptedAI
     {
-        npc_phase_hunterAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_phase_hunterAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool Weak;
         bool Materialize;
@@ -882,7 +882,7 @@ public:
 
     struct npc_bessyAI : public npc_escortAI
     {
-        npc_bessyAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_bessyAI(Creature* creature) : npc_escortAI(creature) { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
@@ -953,7 +953,7 @@ public:
 
     struct npc_maxx_a_million_escortAI : public npc_escortAI
     {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) { }
 
         bool bTake;
         uint32 uiTakeTimer;

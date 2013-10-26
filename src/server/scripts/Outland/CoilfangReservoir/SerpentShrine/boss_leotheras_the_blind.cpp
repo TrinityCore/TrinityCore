@@ -609,7 +609,7 @@ public:
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
     {
-        boss_leotheras_the_blind_demonformAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_leotheras_the_blind_demonformAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ChaosBlast_Timer;
         bool DealDamage;
