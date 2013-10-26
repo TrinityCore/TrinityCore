@@ -1675,6 +1675,12 @@ struct SpellCastTimesEntry
     //int32     MinCastTime;                                // 3 unsure
 };
 
+struct SpellCategoryEntry
+{
+    uint32 Id;
+    uint32 Flags;
+};
+
 struct SpellDifficultyEntry
 {
     uint32     ID;                                          // 0
