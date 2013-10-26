@@ -97,6 +97,7 @@ char const SkillLinefmt[] = "nixssssssssssssssssxxxxxxxxxxxxxxxxxxixxxxxxxxxxxxx
 char const SkillLineAbilityfmt[] = "niiiixxiiiiixx";
 char const SoundEntriesfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const SpellCastTimefmt[] = "nixx";
+char const SpellCategoryfmt[] = "ni";
 char const SpellDifficultyfmt[] = "niiii";
 const std::string CustomSpellDifficultyfmt = "ppppp";
 const std::string CustomSpellDifficultyIndex = "id";
