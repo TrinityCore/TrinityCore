@@ -2402,7 +2402,7 @@ class spell_the_lich_king_raging_spirit : public SpellScriptLoader
 class ExactDistanceCheck
 {
     public:
-        ExactDistanceCheck(Unit* source, float dist) : _source(source), _dist(dist) {}
+        ExactDistanceCheck(Unit* source, float dist) : _source(source), _dist(dist) { }
 
         bool operator()(WorldObject* unit)
         {

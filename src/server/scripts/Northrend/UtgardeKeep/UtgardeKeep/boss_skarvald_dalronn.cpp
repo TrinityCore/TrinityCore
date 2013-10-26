@@ -61,7 +61,7 @@ enum Spells
 class SkarvaldChargePredicate
 {
    public:
-      SkarvaldChargePredicate(Unit* unit) : me(unit) {}
+      SkarvaldChargePredicate(Unit* unit) : me(unit) { }
 
     bool operator() (WorldObject* object) const
     {

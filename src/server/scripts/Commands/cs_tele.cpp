@@ -65,7 +65,7 @@ public:
 
         std::string name = args;
 
-        if (sObjectMgr->GetGameTele(name))
+        if (sObjectMgr->GetGameTeleExactName(name))
         {
             handler->SendSysMessage(LANG_COMMAND_TP_ALREADYEXIST);
             handler->SetSentErrorMessage(true);

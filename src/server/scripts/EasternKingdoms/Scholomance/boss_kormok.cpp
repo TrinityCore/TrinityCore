@@ -44,7 +44,7 @@ public:
 
     struct boss_kormokAI : public ScriptedAI
     {
-        boss_kormokAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_kormokAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowVolley_Timer;
         uint32 BoneShield_Timer;

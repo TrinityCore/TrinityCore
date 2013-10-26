@@ -40,7 +40,7 @@ public:
 
     struct boss_anubshiahAI : public ScriptedAI
     {
-        boss_anubshiahAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_anubshiahAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowBolt_Timer;
         uint32 CurseOfTongues_Timer;

@@ -20,6 +20,7 @@
 //Extended headers
 #include "ObjectMgr.h"
 #include "World.h"
+#include "Transport.h"
 //Flightmaster grid preloading
 #include "MapManager.h"
 //Creature-specific headers
@@ -92,14 +93,37 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 {
     if (!i_path || i_path->empty())
         return false;
+
     if (Stopped())
         return true;
+
+    bool transportPath = creature->GetTransport() != NULL;
 
     if (m_isArrivalDone)
     {
         if ((i_currentNode == i_path->size() - 1) && !repeating) // If that's our last waypoint
         {
-            creature->SetHomePosition(i_path->at(i_currentNode)->x, i_path->at(i_currentNode)->y, i_path->at(i_currentNode)->z, creature->GetOrientation());
+            float x = i_path->at(i_currentNode)->x;
+            float y = i_path->at(i_currentNode)->y;
+            float z = i_path->at(i_currentNode)->z;
+            float o = creature->GetOrientation();
+
+            if (!transportPath)
+                creature->SetHomePosition(x, y, z, o);
+            else
+            {
+                if (Transport* trans = creature->GetTransport())
+                {
+                    o -= trans->GetOrientation();
+                    creature->SetTransportHomePosition(x, y, z, o);
+                    trans->CalculatePassengerPosition(x, y, z, &o);
+                    creature->SetHomePosition(x, y, z, o);
+                }
+                else
+                    transportPath = false;
+                // else if (vehicle) - this should never happen, vehicle offsets are const
+            }
+
             creature->GetMotionMaster()->Initialize();
             return false;
         }
@@ -113,7 +137,19 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     creature->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
+    Movement::Location formationDest(node->x, node->y, node->z, 0.0f);
     Movement::MoveSplineInit init(creature);
+
+    //! If creature is on transport, we assume waypoints set in DB are already transport offsets
+    if (transportPath)
+    {
+        init.DisableTransportPathTransformations();
+        if (TransportBase* trans = creature->GetDirectTransport())
+            trans->CalculatePassengerPosition(formationDest.x, formationDest.y, formationDest.z, &formationDest.orientation);
+    }
+
+    //! Do not use formationDest here, MoveTo requires transport offsets due to DisableTransportPathTransformations() call
+    //! but formationDest contains global coordinates
     init.MoveTo(node->x, node->y, node->z);
 
     //! Accepts angles such as 0.00001 and -0.00001, 0 must be ignored, default value in waypoint table
@@ -125,7 +161,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     //Call for creature group update
     if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-        creature->GetFormation()->LeaderMoveTo(node->x, node->y, node->z);
+        creature->GetFormation()->LeaderMoveTo(formationDest.x, formationDest.y, formationDest.z);
 
     return true;
 }

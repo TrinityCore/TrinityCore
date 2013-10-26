@@ -539,7 +539,7 @@ class npc_flame_patch_alar : public CreatureScript
 
         struct npc_flame_patch_alarAI : public ScriptedAI
         {
-            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) { }
             void Reset() OVERRIDE {}
             void EnterCombat(Unit* /*who*/) OVERRIDE {}
             void AttackStart(Unit* /*who*/) OVERRIDE {}

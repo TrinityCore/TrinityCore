@@ -1844,6 +1844,14 @@ struct SpellCastTimesEntry
     //int32     MinCastTime;                                // 3 unsure
 };
 
+struct SpellCategoryEntry
+{
+    uint32 Id;
+    uint32 Flags;
+    // uint32 unk;
+    // char* Name;
+};
+
 struct SpellDifficultyEntry
 {
     uint32     ID;                                          // 0
@@ -2170,6 +2178,28 @@ struct UnitPowerBarEntry
     //char*   Tooltip;
     //float   StartInset;
     //float   EndInset;
+};
+
+struct TransportAnimationEntry
+{
+    //uint32  Id;
+    uint32  TransportEntry;
+    uint32  TimeSeg;
+    float   X;
+    float   Y;
+    float   Z;
+    //uint32  MovementId;
+};
+
+struct TransportRotationEntry
+{
+    //uint32  Id;
+    uint32  TransportEntry;
+    uint32  TimeSeg;
+    float   X;
+    float   Y;
+    float   Z;
+    float   W;
 };
 
 #define MAX_VEHICLE_SEATS 8

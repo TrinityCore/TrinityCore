@@ -321,7 +321,7 @@ class npc_vrykul_skeleton : public CreatureScript
 class spell_frost_tomb : public SpellScriptLoader
 {
     public:
-        spell_frost_tomb() : SpellScriptLoader("spell_frost_tomb") {}
+        spell_frost_tomb() : SpellScriptLoader("spell_frost_tomb") { }
 
         class spell_frost_tomb_AuraScript : public AuraScript
         {
@@ -351,7 +351,7 @@ class spell_frost_tomb : public SpellScriptLoader
 class achievement_on_the_rocks : public AchievementCriteriaScript
 {
     public:
-        achievement_on_the_rocks() : AchievementCriteriaScript("achievement_on_the_rocks") {}
+        achievement_on_the_rocks() : AchievementCriteriaScript("achievement_on_the_rocks") { }
 
         bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
         {

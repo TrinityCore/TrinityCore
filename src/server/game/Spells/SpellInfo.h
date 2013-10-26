@@ -299,7 +299,7 @@ class SpellInfo
 {
 public:
     uint32 Id;
-    uint32 Category;
+    SpellCategoryEntry const* CategoryEntry;
     uint32 Dispel;
     uint32 Mechanic;
     uint32 Attributes;
@@ -419,6 +419,7 @@ public:
     SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects);
     ~SpellInfo();
 
+    uint32 GetCategory() const;
     bool HasEffect(SpellEffects effect) const;
     bool HasAura(AuraType aura) const;
     bool HasAreaAuraEffect() const;
@@ -444,6 +445,7 @@ public:
     bool IsPassiveStackableWithRanks() const;
     bool IsMultiSlotAura() const;
     bool IsStackableOnOneSlotWithDifferentCasters() const;
+    bool IsCooldownStartedOnEvent() const;
     bool IsDeathPersistent() const;
     bool IsRequiringDeadTarget() const;
     bool IsAllowingDeadTarget() const;

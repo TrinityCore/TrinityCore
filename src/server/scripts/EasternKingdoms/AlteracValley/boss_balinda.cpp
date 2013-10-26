@@ -50,7 +50,7 @@ public:
 
     struct npc_water_elementalAI : public ScriptedAI
     {
-        npc_water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_water_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 waterBoltTimer;
         uint64 balindaGUID;
@@ -99,7 +99,7 @@ public:
 
     struct boss_balindaAI : public ScriptedAI
     {
-        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me) {}
+        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
 
         uint32 arcaneExplosionTimer;
         uint32 coneOfColdTimer;

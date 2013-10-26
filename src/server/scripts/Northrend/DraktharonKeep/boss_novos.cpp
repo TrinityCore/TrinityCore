@@ -276,11 +276,11 @@ public:
 class npc_crystal_channel_target : public CreatureScript
 {
 public:
-    npc_crystal_channel_target() : CreatureScript("npc_crystal_channel_target") {}
+    npc_crystal_channel_target() : CreatureScript("npc_crystal_channel_target") { }
 
     struct npc_crystal_channel_targetAI : public ScriptedAI
     {
-        npc_crystal_channel_targetAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_crystal_channel_targetAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -339,7 +339,7 @@ public:
 class achievement_oh_novos : public AchievementCriteriaScript
 {
 public:
-    achievement_oh_novos() : AchievementCriteriaScript("achievement_oh_novos") {}
+    achievement_oh_novos() : AchievementCriteriaScript("achievement_oh_novos") { }
 
     bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
     {

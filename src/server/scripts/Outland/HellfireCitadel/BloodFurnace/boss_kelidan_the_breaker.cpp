@@ -296,7 +296,7 @@ class npc_shadowmoon_channeler : public CreatureScript
 {
     public:
 
-        npc_shadowmoon_channeler() : CreatureScript("npc_shadowmoon_channeler") {}
+        npc_shadowmoon_channeler() : CreatureScript("npc_shadowmoon_channeler") { }
 
         struct npc_shadowmoon_channelerAI : public ScriptedAI
         {

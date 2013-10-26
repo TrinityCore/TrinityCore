@@ -1055,7 +1055,7 @@ public:
 
     struct npc_volatile_felfire_fiendAI : public ScriptedAI
     {
-        npc_volatile_felfire_fiendAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_volatile_felfire_fiendAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiExplodeTimer;
 
@@ -1256,7 +1256,7 @@ public:
 
     struct npc_sinster_reflectionAI : public ScriptedAI
     {
-        npc_sinster_reflectionAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_sinster_reflectionAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint8 victimClass;
         uint32 uiTimer[3];

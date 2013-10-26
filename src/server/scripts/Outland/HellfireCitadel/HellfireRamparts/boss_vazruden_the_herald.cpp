@@ -456,7 +456,7 @@ class npc_hellfire_sentry : public CreatureScript
 
         struct npc_hellfire_sentryAI : public ScriptedAI
         {
-            npc_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE
             {

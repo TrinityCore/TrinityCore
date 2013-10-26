@@ -553,7 +553,7 @@ class MistressKissTargetSelector
 class spell_mistress_kiss_area : public SpellScriptLoader
 {
     public:
-        spell_mistress_kiss_area() : SpellScriptLoader("spell_mistress_kiss_area") {}
+        spell_mistress_kiss_area() : SpellScriptLoader("spell_mistress_kiss_area") { }
 
         class spell_mistress_kiss_area_SpellScript : public SpellScript
         {

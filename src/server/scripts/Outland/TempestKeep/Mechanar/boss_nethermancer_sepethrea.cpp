@@ -61,11 +61,11 @@ enum Events
 
 class boss_nethermancer_sepethrea : public CreatureScript
 {
-    public: boss_nethermancer_sepethrea(): CreatureScript("boss_nethermancer_sepethrea") {}
+    public: boss_nethermancer_sepethrea(): CreatureScript("boss_nethermancer_sepethrea") { }
 
         struct boss_nethermancer_sepethreaAI : public BossAI
         {
-            boss_nethermancer_sepethreaAI(Creature* creature) : BossAI(creature, DATA_NETHERMANCER_SEPRETHREA) {}
+            boss_nethermancer_sepethreaAI(Creature* creature) : BossAI(creature, DATA_NETHERMANCER_SEPRETHREA) { }
 
             void EnterCombat(Unit* who) OVERRIDE
             {

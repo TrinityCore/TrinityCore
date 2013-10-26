@@ -233,7 +233,7 @@ public:
 
     struct npc_headAI : public ScriptedAI
     {
-        npc_headAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_headAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 bodyGUID;
 
@@ -580,7 +580,11 @@ public:
 
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.isEmpty())
-                sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 285);
+            {
+                if (Group* group = players.begin()->GetSource()->GetGroup())
+                    if (group->isLFGGroup())
+                        sLFGMgr->FinishDungeon(group->GetGUID(), 285);
+            }
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
@@ -792,7 +796,7 @@ public:
 
     struct npc_pulsing_pumpkinAI : public ScriptedAI
     {
-        npc_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool sprouted;
         uint64 debuffGUID;

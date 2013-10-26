@@ -316,30 +316,21 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         {
             if (!plrMover->GetTransport())
             {
-                // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
-                for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
+                if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
                 {
-                    if ((*iter)->GetGUID() == movementInfo.transport.guid)
-                    {
-                        plrMover->m_transport = *iter;
-                        (*iter)->AddPassenger(plrMover);
-                        break;
-                    }
+                    plrMover->m_transport = transport;
+                    transport->AddPassenger(plrMover);
                 }
             }
             else if (plrMover->GetTransport()->GetGUID() != movementInfo.transport.guid)
             {
                 bool foundNewTransport = false;
                 plrMover->m_transport->RemovePassenger(plrMover);
-                for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
+                if (Transport* transport = plrMover->GetMap()->GetTransport(movementInfo.transport.guid))
                 {
-                    if ((*iter)->GetGUID() == movementInfo.transport.guid)
-                    {
-                        foundNewTransport = true;
-                        plrMover->m_transport = *iter;
-                        (*iter)->AddPassenger(plrMover);
-                        break;
-                    }
+                    foundNewTransport = true;
+                    plrMover->m_transport = transport;
+                    transport->AddPassenger(plrMover);
                 }
 
                 if (!foundNewTransport)
@@ -376,7 +367,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     uint32 mstime = getMSTime();
     /*----------------------*/
-    if(m_clientTimeDelay == 0)
+    if (m_clientTimeDelay == 0)
         m_clientTimeDelay = mstime - movementInfo.time;
 
     /* process position-change */

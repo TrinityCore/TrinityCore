@@ -97,7 +97,7 @@ public:
 
     struct npc_kyle_frenziedAI : public ScriptedAI
     {
-        npc_kyle_frenziedAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_kyle_frenziedAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool EventActive;
         bool IsMovingToLunch;

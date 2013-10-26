@@ -429,7 +429,7 @@ public:
 class go_strange_pool : public GameObjectScript
 {
     public:
-        go_strange_pool() : GameObjectScript("go_strange_pool") {}
+        go_strange_pool() : GameObjectScript("go_strange_pool") { }
 
         bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
         {

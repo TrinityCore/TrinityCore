@@ -55,7 +55,7 @@ public:
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
-        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         void Initialize() OVERRIDE
         {

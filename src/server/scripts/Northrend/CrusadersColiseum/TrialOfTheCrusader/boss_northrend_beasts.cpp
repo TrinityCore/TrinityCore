@@ -830,7 +830,7 @@ class npc_slime_pool : public CreatureScript
 class spell_gormok_fire_bomb : public SpellScriptLoader
 {
     public:
-        spell_gormok_fire_bomb() : SpellScriptLoader("spell_gormok_fire_bomb") {}
+        spell_gormok_fire_bomb() : SpellScriptLoader("spell_gormok_fire_bomb") { }
 
         class spell_gormok_fire_bomb_SpellScript : public SpellScript
         {

@@ -147,7 +147,7 @@ public:
 
     struct npc_demon_chainAI : public ScriptedAI
     {
-        npc_demon_chainAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_demon_chainAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 SacrificeGUID;
 
@@ -219,7 +219,7 @@ public:
 
     struct npc_fiendish_impAI : public ScriptedAI
     {
-        npc_fiendish_impAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fiendish_impAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 FireboltTimer;
 
