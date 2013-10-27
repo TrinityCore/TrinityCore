@@ -140,7 +140,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.106 - 23/10/2013: IsSapped funcion añadida al nucleo por Sonneh
 0.107 - 23/10/2013: IsIncapacited funcion añadida al nucleo por Sonneh
 0.108 - 23/10/2013: Implementado sistema de Fade Out Sigilo por Sonneh
-0.109 - 24/10/2013: IsFadingOut funcion añadida al nucleo por Sonneh
 
 
 ###############
@@ -307,6 +306,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.1.16 - 21/09/2013: TrialOfTheCrusader: Twin Val'kyrs retocadas las inmunidades de Fjola Lightbane y Eydis Darkbane por Saitama
 2.1.17 - 08/10/2013: TrialOfTheCrusader: Gormok ahora comenzará el encuentro con los snobolds a su espalda por Saitama
 2.1.18 - 08/10/2013: TrialOfTheCrusader: Gormok, ahora las Firebombs de los snobolds dejarán fuego en su punto de impacto por Saitama
+2.1.19 - 26/10/2013: TrialOfTheCrusader: Gormok, cuando queden Snobolds en la espalda del boss al momento de su muerte estos bajarán y enfrentarán a los players por Saitama
 - IcecrownCitadel - 
 2.2.4  - 26/11/2011: Inmunidades en script para todos los bosses y mini bosses por Eilo
 2.2.6  - 24/10/2011: Trash mob Deathbound Ward disminuido rango de aggro por Plangcoder
@@ -355,10 +355,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.93 - 19/03/2012: Un respiro para un alma atormentada se entrega en Kalecgos por Muzashi
 2.2.94 - 25/09/2012: Saurfang Ensuring Scent of Blood effect on Blood Beasts by Hexa
 2.2.95 - 03/09/2012: Rampart of Skulls trashmob añadido por Muzashi
-2.2.96 - 30/09/2012: TheLichKing Temp fix heal player when Harvest Soul by Jildor
 2.2.97 - 30/09/2012: TheLichKing Valkyr become selectable on Life Syphon use by Jildor
 2.2.98 - 30/09/2012: TheLichKing Valkyr Shadowguard drop player prematurely when stunned or similar effect by Xanvial
-2.2.99 - 30/09/2012: Marrowgar Impaled players can be healed by Jildor
 2.2.100 - 30/09/2012: LadyDeathwhisper Temp fix spell dark martyrdom by Jildor
 2.2.102 - 25/10/2012: Putricidio Evitando que las babosas targeteen a la abominacion por Eilo
 2.2.105 - 22/08/2012: GunshipBattle añadido scripts de instancia y transportes por Eilo
@@ -430,9 +428,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.180 - 23/08/2013: Putricidio las auras como Hand of Protection, Deterrence, Divine Shield no evitaran el impacto de la spell por Eilo
 2.2.181 - 24/08/2013: Rotface Ajuste de velocidades de las big oozes por Eilo
 2.2.182 - 24/08/2013: Putricidio las babosas ya no tomarán al tanke de putricidio como objetivo por Eilo
-2.2.184 - 20/09/2013: Rotface ahora al combinarse dos Big Ooze y alcanzar 5 o más stacks de Unstable Ooze desencadenarán Unstable Ooze Explotion por Sussanou
+2.2.184 - 20/09/2013: Rotface ahora al combinarse dos Big Ooze y alcanzar 5 o más stacks de Unstable Ooze desencadenarán Unstable Ooze Explotion por Saitama
 2.2.185 - 20/09/2013: Festergut arrego de los stacks de gas spore blizzlike por Eilo
-2.2.186 - 23/09/2013: Rotface ahora los dos Little Ooze que se fusionen en un Big Ooze desaparecerán correctamente
+2.2.186 - 23/09/2013: Rotface ahora los dos Little Ooze que se fusionen en un Big Ooze desaparecerán correctamente por Saitama
 2.2.187 - 23/09/2013: Professor Putricide ahora utilizará el Malleable Goo correcto para el encuentro de Festergut Heroico por Saitama.
 2.2.188 - 24/09/2013: Rotface ajustado el daño de los Big Ooze para acercarse a un valor Blizzlike por Saitama
 2.2.189 - 24/09/2013: TheLichKing despawn de las shadow traps en las interfases por Eilo
@@ -481,6 +479,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.232 - 22/10/2013: TheLichKing añadido script a Wicked Spirit por Saitama
 2.2.233 - 22/10/2013: TheLichKing corregido comportamiento de Wicked Spirit al respawnear por Saitama
 2.2.234 - 24/10/2013: TheLichKing ajustado el comportamiento del Harvested Soul para que no gane poder LK mientras no estan en Frostmourne Room por Eilo
+2.2.235 - 25/10/2013: TheLichKing los players afectados por Harvest Soul ya no serán objetivos inválidos por Saitama
+2.2.236 - 25/10/2013: Marrowgar los players empalados ya no serán objetivos inválidos por Saitama
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -529,7 +529,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.39 - 22/10/2013: Ulduar: Flame Leviathan corregida la habilidad Thorim's Hammer, ahora se ejecuta de forma correcta por jar
 2.6.40 - 22/10/2013: Ulduar: Flame Leviathan corregida la habilidad Hodir's Fury, ahora se ejecuta de forma correcta por jar
 2.6.41 - 22/10/2013: Ulduar: Flame Leviathan corregida la habilidad Freya's Ward, ahora se ejecuta de forma correcta, original de swerg modificado por jar
-2.6.42 - 24/10/2013: Ulduar: Vehiculos al utilizar la spell Grab Crate se cargara el Gameobject Liquid Pyrite en el seat correcto, evitando que expulse al jugador del vehiculo por jar
+2.6.42 - 26/10/2013: Ulduar: Thorim correciones en los targets de Lightning Release por Saitama
+2.6.43 - 26/10/2013: Ulduar: Thorim dado un aspecto más blizzlike al evento de fin del hardmode por Saitama
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -636,6 +637,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.21.3 - 13/06/2012: TheVioletHold: Text improvements by Eilo
 2.21.4 - 22/03/2013: TheVioletHold: Ichoron lanzara Water Blast antes de desaparecer por Dolanpls.
 2.21.5 - 25/03/2013: TheVioletHold: Añadidas las 2 habilidades faltantes a Moragg por Dolanpls.
+- HallsOfLightning -
+2.22.1 - 24/10/2013: HallOfLightning: Hall of the Watchers añadido AreaTrigger para la invocacion de NPCs Titanium Thunderer y Titanium Siegebreaker por Efreet
 - HallsOfStone -
 2.23.1 - 20/07/2012: HallsOfStone: TribunalOfAegis Added motionmaster to summons to avoid exploits by Eilo
 2.23.2 - 16/08/2012: HallsOfStone: adding some texts by Eilo
@@ -792,7 +795,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.201 - 01/10/2013: Hunter: Fix spell Flare, modificado para que sean las yardas mas blizzlike por Gildor
 3.202 - 03/10/2013: Chaman: Fix spell Fire Nova, ahora no ignorará LoS por Gildor
 3.203 - 03/10/2013: Paladin: Fix spell Divine Storm (Heal), ahora no ignorará LoS por Gildor
-3.204 - 24/10/2013: Fix spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
 3.205 - 05/10/2013: Fix Maestro en runas de muerte, ahora seguiran el orden correcto por Phantons
 3.208 - 15/10/2013: Mago: Fix spell Burnout, ahora consumirá el mana correspondiente por DrTenma y modificado por Gildor
 3.209 - 15/10/2013: DK: Fix spell Raise Dead, previniendo error con el CD al reiniciar CDs por Gildor
@@ -803,7 +805,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.214 - 20/10/2013: Mago: Fix spell Chilled (Frost Armor, Ice Armor), ahora no se eliminará el efecto de reducción de la velocidad de ataque al quitarse el efecto de ralentización por Gildor
 3.215 - 23/10/2013: Mago: Fix spell Glyph of Molten Armor, ahora se actualizará su efecto al loguear el player por Gildor
 3.216 - 23/10/2013: Mago: Fix spell Glyph of Molten Armor, previniendo exploit de mantener el efecto sin el glifo por Gildor
-3.217 - 23/10/2013: Mago: Fix Mage T9 2P Bonus, ahora se actualizará su efecto al loguear el player por Gildor
+3.218 - 24/10/2013: Fix spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
 
 
 #################
@@ -827,6 +829,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.193 - 22/09/2013: Mago: Fix T9 2P Bonus, previniendo exploit de mantener el efecto sin el tier por Gildor
 3.206 - 14/10/2013: Items: Fix item Pyrite Infuser (45286) ajustado el ICD por Soneh
 3.207 - 14/10/2013: Items: Fix item Comet's Trail (45609) ajustado el ICD por Soneh
+3.217 - 23/10/2013: Mago: Fix Mage T9 2P Bonus, ahora se actualizará su efecto al loguear el player por Gildor
 
 
 ############
@@ -1375,6 +1378,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.73 - 18/10/2013: Halloween: Spameada Darkcaller Yanka en las afueras de Undercity para las quests del logro Rotten Hallow por Eilo
 6.74 - 22/10/2013: Corregido exploit de la creatura Oozeling, no deberia botar 3 objetos peligrosos para el balance de los twinks por Apa
 6.75 - 23/10/2013: Halloween: Misiones autocompletables para conseguir el logro El Salvador de Halloween por Muzashi
+6.76 - 27/10/2013: Zulgurub: Arlokk ahora si se invoca cuando se interactua con su gameObject por Sothu y Efreet
+6.77 - 27/10/2013: Zulgurub: Arlokk mejorada la respuesta del gameObject que lo invoca cuando el boss entra en EvadeMode o derrota al grupo, reactivando el GO para re-invocar el boss por Efreet
 
 
 ##########
