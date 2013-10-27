@@ -22289,6 +22289,14 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
                 if (catrec > 0)
                     catrec += categoryModifier;
             }
+
+            SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.LookupEntry(cat);
+            ASSERT(categoryEntry);
+            if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
+            {
+                struct tm date = *localtime(&curTime);
+                catrec = catrec * DAY - (date.tm_hour * HOUR + date.tm_min * MINUTE + date.tm_sec) * IN_MILLISECONDS;
+            }
         }
 
         // replace negative cooldowns by 0
