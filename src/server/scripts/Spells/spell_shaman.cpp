@@ -1194,9 +1194,16 @@ public:
 
                 if (DynamicObject* dynObj = GetCaster()->GetDynObject(61882))
 	            {
+					if(GetTarget())
+					{
                     GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHAMAN_EARTHQUAKE_DAMAGE, true);
-		            if (roll_chance_i(10))
+		            
+					if (roll_chance_i(10))
+					{
                         GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHAMAN_EARTHQUAKE_KNOCKDOWN, true);
+					}
+
+					}
 	            }
         }
 
@@ -1297,6 +1304,35 @@ public:
     }
 };
 
+// 73920 - Healing Rain
+class spell_sha_healing_rain : public SpellScriptLoader
+{
+public:
+    spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
+
+    class spell_sha_healing_rain_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_healing_rain_AuraScript);
+
+        void OnTick(AuraEffect const* /*aurEff*/)
+        {
+            if (DynamicObject* dynObj = GetCaster()->GetDynObject(73920))
+				if(GetTarget())
+                GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 73921, true);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_healing_rain_AuraScript();
+    }
+};
+
 
 void AddSC_shaman_spell_scripts()
 {
@@ -1312,6 +1348,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_flame_shock();
     new spell_sha_focused_insight();
     new spell_sha_glyph_of_healing_wave();
+	new spell_sha_healing_rain();
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();
     new spell_sha_item_lightning_shield();
