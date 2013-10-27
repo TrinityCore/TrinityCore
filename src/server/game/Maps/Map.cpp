@@ -63,9 +63,11 @@ Map::~Map()
         obj->ResetMap();
     }
 
-    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end(); ++itr)
+    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end();)
     {
         Transport* transport = *itr;
+        ++itr;
+
         // Destroy local transports
         if (transport->GetTransportTemplate()->inInstance)
         {
