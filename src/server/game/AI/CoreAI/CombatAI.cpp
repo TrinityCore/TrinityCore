@@ -272,7 +272,7 @@ void TurretAI::UpdateAI(uint32 /*diff*/)
 //VehicleAI
 //////////////
 
-VehicleAI::VehicleAI(Creature* c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
+VehicleAI::VehicleAI(Creature* c) : CreatureAI(c), m_IsVehicleInUse(false), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
 {
     LoadConditions();
     m_DoDismiss = false;
@@ -291,7 +291,9 @@ void VehicleAI::UpdateAI(uint32 diff)
             m_DoDismiss = false;
             me->SetVisible(false);
             me->DespawnOrUnsummon();
-        }else m_DismissTimer -= diff;
+        }
+        else
+            m_DismissTimer -= diff;
     }
 }
 
@@ -310,6 +312,7 @@ void VehicleAI::OnCharmed(bool apply)
     }
     else if (apply)
         m_DoDismiss = false;//in use again
+
     m_DismissTimer = VEHICLE_DISMISS_TIME;//reset timer
     m_IsVehicleInUse = apply;
 }
@@ -327,8 +330,8 @@ void VehicleAI::CheckConditions(const uint32 diff)
     {
         if (!conditions.empty())
         {
-            for (SeatMap::iterator itr = m_vehicle->Seats.begin(); itr != m_vehicle->Seats.end(); ++itr)
-                if (Unit* passenger = ObjectAccessor::GetUnit(*m_vehicle->GetBase(), itr->second.Passenger.Guid))
+            for (SeatMap::iterator itr = me->GetVehicleKit()->Seats.begin(); itr != me->GetVehicleKit()->Seats.end(); ++itr)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*me, itr->second.Passenger.Guid))
                 {
                     if (Player* player = passenger->ToPlayer())
                     {
@@ -341,5 +344,7 @@ void VehicleAI::CheckConditions(const uint32 diff)
                 }
         }
         m_ConditionsTimer = VEHICLE_CONDITION_CHECK_TIME;
-    } else m_ConditionsTimer -= diff;
+    }
+    else
+        m_ConditionsTimer -= diff;
 }
