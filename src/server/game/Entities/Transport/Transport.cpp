@@ -40,6 +40,7 @@ Transport::Transport() : GameObject(),
 
 Transport::~Transport()
 {
+    ASSERT(_passengers.empty());
     UnloadStaticPassengers();
 }
 
@@ -192,20 +193,23 @@ void Transport::Update(uint32 diff)
 void Transport::AddPassenger(WorldObject* passenger)
 {
     if (_passengers.insert(passenger).second)
+    {
         TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
-    if (Player* plr = passenger->ToPlayer())
-        sScriptMgr->OnAddPassenger(this, plr);
+        if (Player* plr = passenger->ToPlayer())
+            sScriptMgr->OnAddPassenger(this, plr);
+    }
 }
 
 void Transport::RemovePassenger(WorldObject* passenger)
 {
     if (_passengers.erase(passenger) || _staticPassengers.erase(passenger)) // static passenger can remove itself in case of grid unload
+    {
         TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
-
-    if (Player* plr = passenger->ToPlayer())
-        sScriptMgr->OnRemovePassenger(this, plr);
+        if (Player* plr = passenger->ToPlayer())
+            sScriptMgr->OnRemovePassenger(this, plr);
+    }
 }
 
 Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
@@ -240,9 +244,13 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
         return NULL;
     }
 
-    map->AddToMap(creature);
-    _staticPassengers.insert(creature);
+    if (!map->AddToMap(creature))
+    {
+        delete creature;
+        return NULL;
+    }
 
+    _staticPassengers.insert(creature);
     sScriptMgr->OnAddCreaturePassenger(this, creature);
     return creature;
 }
@@ -276,10 +284,13 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
         return NULL;
     }
 
-    map->AddToMap(go);
-    _staticPassengers.insert(go);
+    if (!map->AddToMap(go))
+    {
+        delete go;
+        return NULL;
+    }
 
-    //sScriptMgr->OnAddCreaturePassenger(this, go);
+    _staticPassengers.insert(go);
     return go;
 }
 
