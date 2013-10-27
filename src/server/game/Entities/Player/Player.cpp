@@ -22294,7 +22294,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             ASSERT(categoryEntry);
             if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
             {
-                struct tm date = *localtime(&curTime);
+                tm date;
+                ACE_OS::localtime_r(&curTime, &date);
                 catrec = catrec * DAY - (date.tm_hour * HOUR + date.tm_min * MINUTE + date.tm_sec) * IN_MILLISECONDS;
             }
         }
