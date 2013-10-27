@@ -219,7 +219,7 @@ public:
     {
         npc_mrfloppyAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* Who) OVERRIDE
         {
@@ -239,9 +239,9 @@ public:
             }
         }
 
-        void EnterEvadeMode() OVERRIDE {}
+        void EnterEvadeMode() OVERRIDE { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE

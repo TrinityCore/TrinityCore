@@ -564,7 +564,7 @@ typedef UNORDERED_MAP<uint32, CreatureEventAI_Summon> CreatureEventAI_Summon_Map
 
 struct CreatureEventAIHolder
 {
-    CreatureEventAIHolder(CreatureEventAI_Event const& p) : Event(p), Time(0), Enabled(true){}
+    CreatureEventAIHolder(CreatureEventAI_Event const& p) : Event(p), Time(0), Enabled(true){ }
 
     CreatureEventAI_Event Event;
     uint32 Time;
@@ -592,7 +592,7 @@ class CreatureEventAI : public CreatureAI
         void MoveInLineOfSight(Unit* who);
         void SpellHit(Unit* unit, const SpellInfo* spell);
         void DamageTaken(Unit* done_by, uint32& damage);
-        void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
+        void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }
         void UpdateAI(uint32 diff);
         void ReceiveEmote(Player* player, uint32 textEmote);
         static int Permissible(const Creature*);

@@ -246,7 +246,7 @@ typedef UNORDERED_MAP<uint32, EquipmentInfoContainerInternal> EquipmentInfoConta
 // from `creature` table
 struct CreatureData
 {
-    CreatureData() : dbData(true) {}
+    CreatureData() : dbData(true) { }
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint32 phaseMask;
@@ -325,7 +325,7 @@ typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureAddonContainer;
 struct VendorItem
 {
     VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost)
-        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost) {}
+        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost) { }
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
@@ -367,7 +367,7 @@ struct VendorItemData
 struct VendorItemCount
 {
     explicit VendorItemCount(uint32 _item, uint32 _count)
-        : itemId(_item), count(_count), lastIncrementTime(time(NULL)) {}
+        : itemId(_item), count(_count), lastIncrementTime(time(NULL)) { }
 
     uint32 itemId;
     uint32 count;
@@ -399,7 +399,7 @@ typedef UNORDERED_MAP<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
 
 struct TrainerSpellData
 {
-    TrainerSpellData() : trainerType(0) {}
+    TrainerSpellData() : trainerType(0) { }
     ~TrainerSpellData() { spellList.clear(); }
 
     TrainerSpellMap spellList;

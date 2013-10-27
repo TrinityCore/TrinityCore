@@ -389,7 +389,7 @@ class npc_akilzon_eagle : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
             void MovementInform(uint32, uint32) OVERRIDE

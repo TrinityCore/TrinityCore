@@ -76,9 +76,9 @@ public:
             TeronGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void Despawn()
@@ -149,7 +149,7 @@ public:
             CheckTeronTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -266,7 +266,7 @@ public:
             Done = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 

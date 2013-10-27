@@ -102,7 +102,7 @@ public:
             add = NULL;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         /*void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
@@ -426,7 +426,7 @@ public:
             isEvent = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {

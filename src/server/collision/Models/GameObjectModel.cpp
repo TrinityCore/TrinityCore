@@ -37,7 +37,7 @@ using G3D::AABox;
 struct GameobjectModelData
 {
     GameobjectModelData(const std::string& name_, const AABox& box) :
-        bound(box), name(name_) {}
+        bound(box), name(name_) { }
 
     AABox bound;
     std::string name;

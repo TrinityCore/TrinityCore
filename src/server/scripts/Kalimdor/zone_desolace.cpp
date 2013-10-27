@@ -195,9 +195,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {

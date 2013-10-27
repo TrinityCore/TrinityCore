@@ -270,8 +270,8 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void Reset() OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void Reset() OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -500,7 +500,7 @@ public:
             }
         }
 
-        void Reset()OVERRIDE {}
+        void Reset()OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {

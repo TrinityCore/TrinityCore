@@ -26,7 +26,7 @@ template<class T>
 class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMovementGenerator<T> >
 {
     public:
-        explicit ConfusedMovementGenerator() : i_nextMoveTime(0) {}
+        explicit ConfusedMovementGenerator() : i_nextMoveTime(0) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);

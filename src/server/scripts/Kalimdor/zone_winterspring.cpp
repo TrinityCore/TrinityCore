@@ -159,7 +159,7 @@ public:
       _dialogueArray(dialogueArray),
           _currentEntry(NULL),
           _actionTimer(0)
-      {}
+      { }
       // The array MUST be terminated by {0, 0, 0, 0, 0}
 
       /// Function to initialize the dialogue helper for instances. If not used with instances, GetSpeakerByEntry MUST be overwritten to obtain the speakers

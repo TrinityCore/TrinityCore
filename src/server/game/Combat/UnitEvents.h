@@ -123,8 +123,8 @@ class ThreatManagerEvent : public ThreatRefStatusChangeEvent
     private:
         ThreatContainer* iThreatContainer;
     public:
-        ThreatManagerEvent(uint32 pType) : ThreatRefStatusChangeEvent(pType), iThreatContainer(NULL) {}
-        ThreatManagerEvent(uint32 pType, HostileReference* pHostileReference) : ThreatRefStatusChangeEvent(pType, pHostileReference), iThreatContainer(NULL) {}
+        ThreatManagerEvent(uint32 pType) : ThreatRefStatusChangeEvent(pType), iThreatContainer(NULL) { }
+        ThreatManagerEvent(uint32 pType, HostileReference* pHostileReference) : ThreatRefStatusChangeEvent(pType, pHostileReference), iThreatContainer(NULL) { }
 
         void setThreatContainer(ThreatContainer* pThreatContainer) { iThreatContainer = pThreatContainer; }
 

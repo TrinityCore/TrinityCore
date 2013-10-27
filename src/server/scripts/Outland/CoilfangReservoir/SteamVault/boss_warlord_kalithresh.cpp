@@ -78,7 +78,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void StartRageGen(Unit* /*caster*/)
         {

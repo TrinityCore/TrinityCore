@@ -157,7 +157,7 @@ public:
         SpawnAssociation* SpawnAssoc;
         uint64 SpawnedGUID;
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         Creature* SummonGuard()
         {
@@ -341,7 +341,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -461,7 +461,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
         void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
         {
@@ -693,7 +693,7 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE;
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
     };
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
@@ -759,7 +759,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
         {
@@ -942,7 +942,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
         {
@@ -1500,8 +1500,8 @@ public:
     {
         npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void Reset() OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void OnPossess(bool apply)
         {
@@ -1548,9 +1548,9 @@ public:
             ExplosionTimer = 3000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -1679,7 +1679,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -2393,7 +2393,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void DoAction(int32 /*param*/) OVERRIDE
         {

@@ -47,7 +47,7 @@ public:
             Spirit_Timer = 24000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SummonSpirits(Unit* victim)
         {

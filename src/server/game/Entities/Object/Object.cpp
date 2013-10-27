@@ -1881,7 +1881,7 @@ namespace Trinity
     {
         public:
             MonsterChatBuilder(WorldObject const& obj, ChatMsg msgtype, int32 textId, uint32 language, uint64 targetGUID)
-                : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(language), i_targetGUID(targetGUID) {}
+                : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(language), i_targetGUID(targetGUID) { }
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
@@ -1902,7 +1902,7 @@ namespace Trinity
     {
         public:
             MonsterCustomChatBuilder(WorldObject const& obj, ChatMsg msgtype, const char* text, uint32 language, uint64 targetGUID)
-                : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(language), i_targetGUID(targetGUID) {}
+                : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(language), i_targetGUID(targetGUID) { }
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 /// @todo i_object.GetName() also must be localized?
@@ -2426,10 +2426,10 @@ namespace Trinity
     {
         public:
             NearUsedPosDo(WorldObject const& obj, WorldObject const* searcher, float angle, ObjectPosSelector& selector)
-                : i_object(obj), i_searcher(searcher), i_angle(angle), i_selector(selector) {}
+                : i_object(obj), i_searcher(searcher), i_angle(angle), i_selector(selector) { }
 
-            void operator()(Corpse*) const {}
-            void operator()(DynamicObject*) const {}
+            void operator()(Corpse*) const { }
+            void operator()(DynamicObject*) const { }
 
             void operator()(Creature* c) const
             {
@@ -2850,7 +2850,7 @@ struct WorldObjectChangeAccumulator
     UpdateDataMapType& i_updateDatas;
     WorldObject& i_object;
     std::set<uint64> plr_list;
-    WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) {}
+    WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) { }
     void Visit(PlayerMapType &m)
     {
         Player* source = NULL;
@@ -2912,7 +2912,7 @@ struct WorldObjectChangeAccumulator
         }
     }
 
-    template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
+    template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
 };
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)

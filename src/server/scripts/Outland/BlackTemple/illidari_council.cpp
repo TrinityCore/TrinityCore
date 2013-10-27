@@ -164,10 +164,10 @@ public:
             } else TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -277,9 +277,9 @@ public:
             me->SetDisplayId(11686);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void StartEvent(Unit* target)

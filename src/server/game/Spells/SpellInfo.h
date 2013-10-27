@@ -250,7 +250,7 @@ public:
     flag96    SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
 
-    SpellEffectInfo() {}
+    SpellEffectInfo() { }
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex);
 
     bool IsEffect() const;

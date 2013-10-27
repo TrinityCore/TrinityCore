@@ -124,7 +124,7 @@ public:
             MultiShotTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {
@@ -246,7 +246,7 @@ public:
             EventCast = true;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
