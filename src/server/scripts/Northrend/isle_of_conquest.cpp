@@ -27,7 +27,7 @@
 class npc_four_car_garage : public CreatureScript
 {
     public:
-        npc_four_car_garage() : CreatureScript("npc_four_car_garage") {}
+        npc_four_car_garage() : CreatureScript("npc_four_car_garage") { }
 
         struct npc_four_car_garageAI : public NullCreatureAI
         {

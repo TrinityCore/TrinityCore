@@ -45,6 +45,7 @@ BattlegroundIC::BattlegroundIC()
 
     closeFortressDoorsTimer = CLOSE_DOORS_TIME; // the doors are closed again... in a special way
     doorsClosed = false;
+    docksTimer = DOCKS_UPDATE_TIME;
     resourceTimer = IC_RESOURCE_TIME;
 
     for (uint8 i = NODE_TYPE_REFINERY; i < MAX_NODE_TYPES; ++i)
@@ -58,17 +59,6 @@ BattlegroundIC::BattlegroundIC()
 
 BattlegroundIC::~BattlegroundIC()
 {
-    if (gunshipHorde)
-    {
-        gunshipHorde->RemoveFromWorld();
-        delete gunshipHorde;
-    }
-
-    if (gunshipAlliance)
-    {
-        gunshipAlliance->RemoveFromWorld();
-        delete gunshipAlliance;
-    }
 }
 
 void BattlegroundIC::HandlePlayerResurrect(Player* player)

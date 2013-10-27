@@ -42,7 +42,7 @@ public:
 
     struct boss_vanndarAI : public ScriptedAI
     {
-        boss_vanndarAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_vanndarAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 AvatarTimer;
         uint32 ThunderclapTimer;

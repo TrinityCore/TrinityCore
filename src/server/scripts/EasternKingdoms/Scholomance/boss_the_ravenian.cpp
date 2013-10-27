@@ -48,7 +48,7 @@ class boss_the_ravenian : public CreatureScript
 
         struct boss_theravenianAI : public BossAI
         {
-            boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THERAVENIAN) {}
+            boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THERAVENIAN) { }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {

@@ -449,7 +449,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool IsGuard() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
         bool IsIgnorePathfinding() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING; }
         bool CanWalk() const { return GetCreatureTemplate()->InhabitType & INHABIT_GROUND; }
-        bool CanSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER; }
+        bool CanSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER || IsPet(); }
         bool CanFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
@@ -668,9 +668,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         static float _GetDamageMod(int32 Rank);
 
         float m_SightDistance, m_CombatDistance;
-
-        void SetGUIDTransport(uint32 guid) { guid_transport=guid; }
-        uint32 GetGUIDTransport() { return guid_transport; }
 
         void FarTeleportTo(Map* map, float X, float Y, float Z, float O);
 

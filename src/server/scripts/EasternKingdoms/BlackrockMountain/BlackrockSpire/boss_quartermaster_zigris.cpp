@@ -40,7 +40,7 @@ public:
 
     struct boss_quatermasterzigrisAI : public BossAI
     {
-        boss_quatermasterzigrisAI(Creature* creature) : BossAI(creature, DATA_QUARTERMASTER_ZIGRIS) {}
+        boss_quatermasterzigrisAI(Creature* creature) : BossAI(creature, DATA_QUARTERMASTER_ZIGRIS) { }
 
         void Reset() OVERRIDE
         {

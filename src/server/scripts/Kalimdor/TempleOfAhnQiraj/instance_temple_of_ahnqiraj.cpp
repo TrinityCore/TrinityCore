@@ -39,7 +39,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 
         struct instance_temple_of_ahnqiraj_InstanceMapScript : public InstanceScript
         {
-            instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             //If Vem is dead...
             bool IsBossDied[3];

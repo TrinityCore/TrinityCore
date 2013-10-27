@@ -36,7 +36,7 @@ public:
 
     struct boss_ambassador_flamelashAI : public ScriptedAI
     {
-        boss_ambassador_flamelashAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_ambassador_flamelashAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 FireBlast_Timer;
         uint32 Spirit_Timer;

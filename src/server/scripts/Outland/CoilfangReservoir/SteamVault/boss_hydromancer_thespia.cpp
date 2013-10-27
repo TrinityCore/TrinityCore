@@ -146,7 +146,7 @@ public:
 
     struct npc_coilfang_waterelementalAI : public ScriptedAI
     {
-        npc_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WaterBoltVolley_Timer;
 

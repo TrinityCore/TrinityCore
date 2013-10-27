@@ -128,7 +128,7 @@ class npc_frost_warder : public CreatureScript
 
         struct npc_frost_warderAI : public ScriptedAI
         {
-            npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE
             {

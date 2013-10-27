@@ -69,7 +69,7 @@ enum Creatures
 class boss_pathaleon_the_calculator : public CreatureScript
 {
     public:
-        boss_pathaleon_the_calculator(): CreatureScript("boss_pathaleon_the_calculator") {}
+        boss_pathaleon_the_calculator(): CreatureScript("boss_pathaleon_the_calculator") { }
 
         struct boss_pathaleon_the_calculatorAI : public BossAI
         {
@@ -172,7 +172,7 @@ class npc_nether_wraith : public CreatureScript
 
         struct npc_nether_wraithAI : public ScriptedAI
         {
-            npc_nether_wraithAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_nether_wraithAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 ArcaneMissiles_Timer;
             uint32 Detonation_Timer;

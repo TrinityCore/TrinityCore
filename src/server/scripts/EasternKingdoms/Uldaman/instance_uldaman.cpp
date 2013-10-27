@@ -41,11 +41,11 @@ enum Events
 class instance_uldaman : public InstanceMapScript
 {
     public:
-        instance_uldaman() : InstanceMapScript("instance_uldaman", 70) {}
+        instance_uldaman() : InstanceMapScript("instance_uldaman", 70) { }
 
         struct instance_uldaman_InstanceMapScript : public InstanceScript
         {
-            instance_uldaman_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_uldaman_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             void Initialize() OVERRIDE
             {

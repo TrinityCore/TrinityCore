@@ -925,9 +925,6 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
 
     Unit::CleanupsBeforeDelete(finalCleanup);
 
-    if (m_transport)
-        m_transport->RemovePassenger(this);
-
     // clean up player-instance binds, may unload some instance saves
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
@@ -2183,8 +2180,26 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (!(options & TELE_TO_NOT_LEAVE_COMBAT))
             CombatStop();
 
+        // new final coordinates
+        float final_x = x;
+        float final_y = y;
+        float final_z = z;
+        float final_o = orientation;
+
+        // Calculate final positions if on transport
+        if (m_transport)
+        {
+            float tx, ty, tz, to;
+            m_movementInfo.transport.pos.GetPosition(tx, ty, tz, to);
+
+            final_x = x + tx * std::cos(orientation) - ty * std::sin(orientation);
+            final_y = y + ty * std::cos(orientation) + tx * std::sin(orientation);
+            final_z = z + tz;
+            final_o = Position::NormalizeOrientation(orientation + m_movementInfo.transport.pos.GetOrientation());
+        }
+
         // this will be used instead of the current location in SaveToDB
-        m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+        m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
         SetFallInformation(0, z);
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
@@ -2195,7 +2210,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             Position oldPos;
             GetPosition(&oldPos);
-            Relocate(x, y, z, orientation);
+            Relocate(final_x, final_y, final_z, final_o);
             SendTeleportAckPacket();
             SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
         }
@@ -2297,16 +2312,20 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             float final_z = z;
             float final_o = orientation;
 
+            // Calculate final positions if on transport
             if (m_transport)
             {
-                final_x += m_movementInfo.transport.pos.GetPositionX();
-                final_y += m_movementInfo.transport.pos.GetPositionY();
-                final_z += m_movementInfo.transport.pos.GetPositionZ();
-                final_o += m_movementInfo.transport.pos.GetOrientation();
+                float tx, ty, tz, to;
+                m_movementInfo.transport.pos.GetPosition(tx, ty, tz, to);
+
+                final_x = x + tx * std::cos(orientation) - ty * std::sin(orientation);
+                final_y = y + ty * std::cos(orientation) + tx * std::sin(orientation);
+                final_z = z + tz;
+                final_o = Position::NormalizeOrientation(orientation + m_movementInfo.transport.pos.GetOrientation());
             }
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
-            SetFallInformation(0, final_z);
+            SetFallInformation(0, z);
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
@@ -3367,7 +3386,7 @@ void Player::SendInitialSpells()
         data << uint32(itr->first);
 
         data << uint16(itr->second.itemid);                 // cast item id
-        data << uint16(sEntry->Category);                   // spell category
+        data << uint16(sEntry->GetCategory());              // spell category
 
         // send infinity cooldown in special format
         if (itr->second.end >= infTime)
@@ -3379,7 +3398,7 @@ void Player::SendInitialSpells()
 
         time_t cooldown = itr->second.end > curTime ? (itr->second.end-curTime)*IN_MILLISECONDS : 0;
 
-        if (sEntry->Category)                                // may be wrong, but anyway better than nothing...
+        if (sEntry->GetCategory())                          // may be wrong, but anyway better than nothing...
         {
             data << uint32(0);                              // cooldown
             data << uint32(cooldown);                       // category cooldown
@@ -4246,16 +4265,16 @@ void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
 // I am not sure which one is more efficient
 void Player::RemoveCategoryCooldown(uint32 cat)
 {
-    SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(cat);
-    if (i_scstore != sSpellCategoryStore.end())
+    SpellCategoryStore::const_iterator i_scstore = sSpellsByCategoryStore.find(cat);
+    if (i_scstore != sSpellsByCategoryStore.end())
         for (SpellCategorySet::const_iterator i_scset = i_scstore->second.begin(); i_scset != i_scstore->second.end(); ++i_scset)
             RemoveSpellCooldown(*i_scset, true);
 }
 
 void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
 {
-    SpellCategoryStore::const_iterator ct = sSpellCategoryStore.find(cat);
-    if (ct == sSpellCategoryStore.end())
+    SpellCategoryStore::const_iterator ct = sSpellsByCategoryStore.find(cat);
+    if (ct == sSpellsByCategoryStore.end())
         return;
 
     const SpellCategorySet& ct_set = ct->second;
@@ -15487,9 +15506,6 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                 // can be start if only all quests in prev quest exclusive group completed and rewarded
                 ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qPrevInfo->GetExclusiveGroup()));
 
-                // always must be found if qPrevInfo->ExclusiveGroup != 0
-                ASSERT(range.first != range.second);
-
                 for (; range.first != range.second; ++range.first)
                 {
                     uint32 exclude_Id = range.first->second;
@@ -15522,9 +15538,6 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                 // each-from-all exclusive group (< 0)
                 // can be start if only all quests in prev quest exclusive group active
                 ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qPrevInfo->GetExclusiveGroup()));
-
-                // always must be found if qPrevInfo->ExclusiveGroup != 0
-                ASSERT(range.first != range.second);
 
                 for (; range.first != range.second; ++range.first)
                 {
@@ -15692,9 +15705,6 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
         return true;
 
     ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qInfo->GetExclusiveGroup()));
-
-    // always must be found if qInfo->ExclusiveGroup != 0
-    ASSERT(range.first != range.second);
 
     for (; range.first != range.second; ++range.first)
     {
@@ -20477,13 +20487,13 @@ void Player::PetSpellInitialize()
         time_t cooldown = (itr->second > curTime) ? (itr->second - curTime) * IN_MILLISECONDS : 0;
         data << uint32(itr->first);                 // spell ID
 
-        CreatureSpellCooldowns::const_iterator categoryitr = pet->m_CreatureCategoryCooldowns.find(spellInfo->Category);
+        CreatureSpellCooldowns::const_iterator categoryitr = pet->m_CreatureCategoryCooldowns.find(spellInfo->GetCategory());
         if (categoryitr != pet->m_CreatureCategoryCooldowns.end())
         {
             time_t categoryCooldown = (categoryitr->second > curTime) ? (categoryitr->second - curTime) * IN_MILLISECONDS : 0;
-            data << uint16(spellInfo->Category);    // spell category
-            data << uint32(cooldown);               // spell cooldown
-            data << uint32(categoryCooldown);       // category cooldown
+            data << uint16(spellInfo->GetCategory());   // spell category
+            data << uint32(cooldown);                   // spell cooldown
+            data << uint32(categoryCooldown);           // category cooldown
         }
         else
         {
@@ -20590,13 +20600,13 @@ void Player::VehicleSpellInitialize()
         time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
         data << uint32(itr->first);                 // spell ID
 
-        CreatureSpellCooldowns::const_iterator categoryitr = vehicle->m_CreatureCategoryCooldowns.find(spellInfo->Category);
+        CreatureSpellCooldowns::const_iterator categoryitr = vehicle->m_CreatureCategoryCooldowns.find(spellInfo->GetCategory());
         if (categoryitr != vehicle->m_CreatureCategoryCooldowns.end())
         {
             time_t categoryCooldown = (categoryitr->second > now) ? (categoryitr->second - now) * IN_MILLISECONDS : 0;
-            data << uint16(spellInfo->Category);    // spell category
-            data << uint32(cooldown);               // spell cooldown
-            data << uint32(categoryCooldown);       // category cooldown
+            data << uint16(spellInfo->GetCategory());   // spell category
+            data << uint32(cooldown);                   // spell cooldown
+            data << uint32(categoryCooldown);           // category cooldown
         }
         else
         {
@@ -21264,7 +21274,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         }
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
@@ -21727,7 +21737,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     // if no cooldown found above then base at DBC data
     if (rec < 0 && catrec < 0)
     {
-        cat = spellInfo->Category;
+        cat = spellInfo->GetCategory();
         rec = spellInfo->RecoveryTime;
         catrec = spellInfo->CategoryRecoveryTime;
     }
@@ -21778,8 +21788,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     // category spells
     if (cat && catrec > 0)
     {
-        SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(cat);
-        if (i_scstore != sSpellCategoryStore.end())
+        SpellCategoryStore::const_iterator i_scstore = sSpellsByCategoryStore.find(cat);
+        if (i_scstore != sSpellsByCategoryStore.end())
         {
             for (SpellCategorySet::const_iterator i_scset = i_scstore->second.begin(); i_scset != i_scstore->second.end(); ++i_scset)
             {

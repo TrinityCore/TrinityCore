@@ -295,7 +295,7 @@ class SummonUnleashedDarkMatter : public BasicEvent
 class boss_algalon_the_observer : public CreatureScript
 {
     public:
-        boss_algalon_the_observer() : CreatureScript("boss_algalon_the_observer") {}
+        boss_algalon_the_observer() : CreatureScript("boss_algalon_the_observer") { }
 
         struct boss_algalon_the_observerAI : public BossAI
         {
@@ -957,7 +957,7 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
 class go_celestial_planetarium_access : public GameObjectScript
 {
     public:
-        go_celestial_planetarium_access() : GameObjectScript("go_celestial_planetarium_access") {}
+        go_celestial_planetarium_access() : GameObjectScript("go_celestial_planetarium_access") { }
 
         struct go_celestial_planetarium_accessAI : public GameObjectAI
         {

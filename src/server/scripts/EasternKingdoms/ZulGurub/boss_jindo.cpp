@@ -59,11 +59,11 @@ Position const TeleportLoc = {-11583.7783f, -1249.4278f, 77.5471f, 4.745f};
 
 class boss_jindo : public CreatureScript
 {
-    public: boss_jindo() : CreatureScript("boss_jindo") {}
+    public: boss_jindo() : CreatureScript("boss_jindo") { }
 
         struct boss_jindoAI : public BossAI
         {
-            boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) {}
+            boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) { }
 
             void Reset() OVERRIDE
             {
@@ -248,7 +248,7 @@ class npc_shade_of_jindo : public CreatureScript
 
         struct npc_shade_of_jindoAI : public ScriptedAI
         {
-            npc_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 ShadowShock_Timer;
 

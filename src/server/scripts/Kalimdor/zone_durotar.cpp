@@ -51,7 +51,7 @@ public:
 
     struct npc_lazy_peonAI : public ScriptedAI
     {
-        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
 
@@ -230,7 +230,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
 class npc_tiger_matriarch : public CreatureScript
 {
     public:
-        npc_tiger_matriarch() : CreatureScript("npc_tiger_matriarch") {}
+        npc_tiger_matriarch() : CreatureScript("npc_tiger_matriarch") { }
 
         struct npc_tiger_matriarchAI : public ScriptedAI
         {
@@ -443,7 +443,7 @@ typedef npc_troll_volunteer::npc_troll_volunteerAI VolunteerAI;
 class spell_mount_check : public SpellScriptLoader
 {
     public:
-        spell_mount_check() : SpellScriptLoader("spell_mount_check") {}
+        spell_mount_check() : SpellScriptLoader("spell_mount_check") { }
 
         class spell_mount_check_AuraScript : public AuraScript
         {
@@ -491,7 +491,7 @@ class spell_mount_check : public SpellScriptLoader
 class spell_voljin_war_drums : public SpellScriptLoader
 {
     public:
-        spell_voljin_war_drums() : SpellScriptLoader("spell_voljin_war_drums") {}
+        spell_voljin_war_drums() : SpellScriptLoader("spell_voljin_war_drums") { }
 
         class spell_voljin_war_drums_SpellScript : public SpellScript
         {
@@ -548,7 +548,7 @@ enum VoodooSpells
 class spell_voodoo : public SpellScriptLoader
 {
     public:
-        spell_voodoo() : SpellScriptLoader("spell_voodoo") {}
+        spell_voodoo() : SpellScriptLoader("spell_voodoo") { }
 
         class spell_voodoo_SpellScript : public SpellScript
         {

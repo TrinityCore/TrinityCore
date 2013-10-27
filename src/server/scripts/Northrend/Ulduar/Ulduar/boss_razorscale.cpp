@@ -307,7 +307,7 @@ class boss_razorscale_controller : public CreatureScript
 class go_razorscale_harpoon : public GameObjectScript
 {
     public:
-        go_razorscale_harpoon() : GameObjectScript("go_razorscale_harpoon") {}
+        go_razorscale_harpoon() : GameObjectScript("go_razorscale_harpoon") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
         {

@@ -359,7 +359,7 @@ class npc_halazzi_lynx : public CreatureScript
 
         struct npc_halazzi_lynxAI : public ScriptedAI
         {
-            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 FrenzyTimer;
             uint32 shredder_timer;
