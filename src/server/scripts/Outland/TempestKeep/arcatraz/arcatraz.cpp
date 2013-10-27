@@ -122,7 +122,7 @@ class npc_millhouse_manastorm : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)OVERRIDE {}
+            void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
             void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
@@ -308,7 +308,7 @@ class npc_warden_mellichar : public CreatureScript
                     instance->SetData(TYPE_HARBINGERSKYRISS, NOT_STARTED);
             }
 
-            void AttackStart(Unit* /*who*/) OVERRIDE {}
+            void AttackStart(Unit* /*who*/) OVERRIDE { }
 
             void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -550,7 +550,7 @@ class npc_zerekethvoidzone : public CreatureScript
                 DoCast(me, SPELL_VOID_ZONE_DAMAGE);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

@@ -118,7 +118,7 @@ public:
             }
         }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {

@@ -3553,7 +3553,7 @@ struct MmapTileHeader
     bool usesLiquids : 1;
 
     MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
+        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) { }
 };
 
 enum NavTerrain

@@ -25,7 +25,7 @@ template<class T>
 class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovementGenerator<T> >
 {
     public:
-        FleeingMovementGenerator(uint64 fright) : i_frightGUID(fright), i_nextCheckTime(0) {}
+        FleeingMovementGenerator(uint64 fright) : i_frightGUID(fright), i_nextCheckTime(0) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -47,7 +47,7 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
     public:
         TimedFleeingMovementGenerator(uint64 fright, uint32 time) :
             FleeingMovementGenerator<Creature>(fright),
-            i_totalFleeTime(time) {}
+            i_totalFleeTime(time) { }
 
         MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
         bool Update(Unit*, uint32);

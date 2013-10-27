@@ -1291,7 +1291,7 @@ struct SmartScriptHolder
 {
     SmartScriptHolder() : entryOrGuid(0), source_type(SMART_SCRIPT_TYPE_CREATURE)
         , event_id(0), link(0), event(), action(), target(), timer(0), active(false), runOnce(false)
-        , enableTimed(false) {}
+        , enableTimed(false) { }
 
     int32 entryOrGuid;
     SmartScriptType source_type;
@@ -1322,7 +1322,7 @@ typedef UNORDERED_MAP<uint32, ObjectList*> ObjectListMap;
 class SmartWaypointMgr
 {
     friend class ACE_Singleton<SmartWaypointMgr, ACE_Null_Mutex>;
-    SmartWaypointMgr() {}
+    SmartWaypointMgr() { }
     public:
         ~SmartWaypointMgr();
 
@@ -1348,9 +1348,9 @@ typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
 class SmartAIMgr
 {
     friend class ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>;
-    SmartAIMgr(){}
+    SmartAIMgr(){ }
     public:
-        ~SmartAIMgr(){}
+        ~SmartAIMgr(){ }
 
         void LoadSmartAIFromDB();
 

@@ -31,8 +31,8 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
 {
     public:
 
-        HomeMovementGenerator() : arrived(false) {}
-        ~HomeMovementGenerator() {}
+        HomeMovementGenerator() : arrived(false) { }
+        ~HomeMovementGenerator() { }
 
         void DoInitialize(Creature*);
         void DoFinalize(Creature*);

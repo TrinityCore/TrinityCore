@@ -235,12 +235,12 @@ public:
             creature->UpdateAllStats();
         }
 
-        void Reset() OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void AttackStart(Unit* /*victim*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void Reset() OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*victim*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+        void UpdateAI(uint32 /*diff*/) OVERRIDE { }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE

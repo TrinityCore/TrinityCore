@@ -22,7 +22,7 @@ class FollowerAI : public ScriptedAI
 {
     public:
         explicit FollowerAI(Creature* creature);
-        ~FollowerAI() {}
+        ~FollowerAI() { }
 
         //virtual void WaypointReached(uint32 uiPointId) = 0;
 

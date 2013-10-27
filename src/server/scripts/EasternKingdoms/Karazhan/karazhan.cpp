@@ -176,7 +176,7 @@ public:
             Start(false, false);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -512,7 +512,7 @@ public:
                 me->RemoveCorpse();
             }
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
         {

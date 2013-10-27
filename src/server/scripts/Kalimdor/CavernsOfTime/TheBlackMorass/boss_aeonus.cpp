@@ -59,7 +59,7 @@ public:
     {
         boss_aeonusAI(Creature* creature) : BossAI(creature, TYPE_AEONUS) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {

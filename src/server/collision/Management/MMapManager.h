@@ -33,7 +33,7 @@ namespace MMAP
     // dummy struct to hold map's mmap data
     struct MMapData
     {
-        MMapData(dtNavMesh* mesh) : navMesh(mesh) {}
+        MMapData(dtNavMesh* mesh) : navMesh(mesh) { }
         ~MMapData()
         {
             for (NavMeshQuerySet::iterator i = navMeshQueries.begin(); i != navMeshQueries.end(); ++i)
@@ -58,7 +58,7 @@ namespace MMAP
     class MMapManager
     {
         public:
-            MMapManager() : loadedTiles(0) {}
+            MMapManager() : loadedTiles(0) { }
             ~MMapManager();
 
             bool loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y);

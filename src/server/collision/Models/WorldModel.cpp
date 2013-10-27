@@ -84,7 +84,7 @@ namespace VMAP
     class TriBoundFunc
     {
         public:
-            TriBoundFunc(std::vector<Vector3> &vert): vertices(vert.begin()) {}
+            TriBoundFunc(std::vector<Vector3> &vert): vertices(vert.begin()) { }
             void operator()(const MeshTriangle &tri, G3D::AABox &out) const
             {
                 G3D::Vector3 lo = vertices[tri.idx0];
@@ -360,7 +360,7 @@ namespace VMAP
     struct GModelRayCallback
     {
         GModelRayCallback(const std::vector<MeshTriangle> &tris, const std::vector<Vector3> &vert):
-            vertices(vert.begin()), triangles(tris.begin()), hit(false) {}
+            vertices(vert.begin()), triangles(tris.begin()), hit(false) { }
         bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool /*pStopAtFirstHit*/)
         {
             bool result = IntersectTriangle(triangles[entry], vertices, ray, distance);
@@ -420,7 +420,7 @@ namespace VMAP
 
     struct WModelRayCallBack
     {
-        WModelRayCallBack(const std::vector<GroupModel> &mod): models(mod.begin()), hit(false) {}
+        WModelRayCallBack(const std::vector<GroupModel> &mod): models(mod.begin()), hit(false) { }
         bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool pStopAtFirstHit)
         {
             bool result = models[entry].IntersectRay(ray, distance, pStopAtFirstHit);
@@ -446,7 +446,7 @@ namespace VMAP
     class WModelAreaCallback {
         public:
             WModelAreaCallback(const std::vector<GroupModel> &vals, const Vector3 &down):
-                prims(vals.begin()), hit(vals.end()), minVol(G3D::inf()), zDist(G3D::inf()), zVec(down) {}
+                prims(vals.begin()), hit(vals.end()), minVol(G3D::inf()), zDist(G3D::inf()), zVec(down) { }
             std::vector<GroupModel>::const_iterator prims;
             std::vector<GroupModel>::const_iterator hit;
             float minVol;

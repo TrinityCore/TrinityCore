@@ -25,7 +25,7 @@ template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
 {
     public:
-        RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) {}
+        RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) { }
 
         void _setRandomLocation(T*);
         void DoInitialize(T*);
