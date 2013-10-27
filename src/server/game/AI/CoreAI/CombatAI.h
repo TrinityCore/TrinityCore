@@ -105,7 +105,6 @@ struct VehicleAI : public CreatureAI
         void OnCharmed(bool apply);
 
     private:
-        Vehicle* m_vehicle;
         bool m_IsVehicleInUse;
         void LoadConditions();
         void CheckConditions(const uint32 diff);
