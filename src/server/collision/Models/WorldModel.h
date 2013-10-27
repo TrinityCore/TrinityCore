@@ -36,8 +36,8 @@ namespace VMAP
     class MeshTriangle
     {
         public:
-            MeshTriangle(){}
-            MeshTriangle(uint32 na, uint32 nb, uint32 nc): idx0(na), idx1(nb), idx2(nc) {}
+            MeshTriangle(){ }
+            MeshTriangle(uint32 na, uint32 nb, uint32 nc): idx0(na), idx1(nb), idx2(nc) { }
 
             uint32 idx0;
             uint32 idx1;
@@ -59,7 +59,7 @@ namespace VMAP
             bool writeToFile(FILE* wf);
             static bool readFromFile(FILE* rf, WmoLiquid* &liquid);
         private:
-            WmoLiquid(): iHeight(0), iFlags(0) {}
+            WmoLiquid(): iHeight(0), iFlags(0) { }
             uint32 iTilesX;       //!< number of tiles in x direction, each
             uint32 iTilesY;
             G3D::Vector3 iCorner; //!< the lower corner
@@ -74,10 +74,10 @@ namespace VMAP
     class GroupModel
     {
         public:
-            GroupModel(): iLiquid(0) {}
+            GroupModel(): iLiquid(0) { }
             GroupModel(const GroupModel &other);
             GroupModel(uint32 mogpFlags, uint32 groupWMOID, const G3D::AABox &bound):
-                        iBound(bound), iMogpFlags(mogpFlags), iGroupWMOID(groupWMOID), iLiquid(0) {}
+                        iBound(bound), iMogpFlags(mogpFlags), iGroupWMOID(groupWMOID), iLiquid(0) { }
             ~GroupModel() { delete iLiquid; }
 
             //! pass mesh data to object and create BIH. Passed vectors get get swapped with old geometry!
@@ -107,7 +107,7 @@ namespace VMAP
     class WorldModel
     {
         public:
-            WorldModel(): RootWMOID(0) {}
+            WorldModel(): RootWMOID(0) { }
 
             //! pass group models to WorldModel and create BIH. Passed vector is swapped with old geometry!
             void setGroupModels(std::vector<GroupModel> &models);

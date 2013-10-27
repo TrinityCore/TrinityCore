@@ -35,7 +35,7 @@ npc_escortAI::npc_escortAI(Creature* creature) : ScriptedAI(creature),
     DespawnAtFar(true),
     ScriptWP(false),
     HasImmuneToNPCFlags(false)
-{}
+{ }
 
 void npc_escortAI::AttackStart(Unit* who)
 {

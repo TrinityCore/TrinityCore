@@ -380,7 +380,7 @@ public:
     {
         npc_yorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {

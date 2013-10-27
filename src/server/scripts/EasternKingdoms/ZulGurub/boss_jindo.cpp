@@ -258,7 +258,7 @@ class npc_shade_of_jindo : public CreatureScript
                 DoCast(me, SPELL_INVISIBLE, true);
             }
 
-            void EnterCombat(Unit* /*who*/)OVERRIDE {}
+            void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {

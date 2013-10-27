@@ -60,7 +60,7 @@ public:
     typedef std::map<std::string, Realm> RealmMap;
 
     RealmList();
-    ~RealmList() {}
+    ~RealmList() { }
 
     void Initialize(uint32 updateInterval);
 

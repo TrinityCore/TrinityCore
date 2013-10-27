@@ -120,8 +120,8 @@ class UnitAI
     protected:
         Unit* const me;
     public:
-        explicit UnitAI(Unit* unit) : me(unit) {}
-        virtual ~UnitAI() {}
+        explicit UnitAI(Unit* unit) : me(unit) { }
+        virtual ~UnitAI() { }
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
         virtual void AttackStart(Unit* /*target*/);
@@ -129,16 +129,16 @@ class UnitAI
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
-        virtual void Reset() {};
+        virtual void Reset() { };
 
         // Called when unit is charmed
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(int32 /*param*/) {}
+        virtual void DoAction(int32 /*param*/) { }
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
-        virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
-        virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
+        virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
+        virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) { }
         virtual uint64 GetGUID(int32 /*id*/ = 0) const { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
@@ -225,17 +225,17 @@ class UnitAI
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }
 
         // Called when the creature receives heal
-        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
+        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }
 
         // Called when the unit heals
-        virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
+        virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) { }
 
         /// Called when a spell is interrupted by Spell::EffectInterruptCast
         /// Use to reschedule next planned cast of spell.
-        virtual void SpellInterrupted(uint32 /*spellId*/, uint32 /*unTimeMs*/) {}
+        virtual void SpellInterrupted(uint32 /*spellId*/, uint32 /*unTimeMs*/) { }
 
         void AttackStartCaster(Unit* victim, float dist);
 
@@ -254,15 +254,15 @@ class UnitAI
         static AISpellInfoType* AISpellInfo;
         static void FillAISpellInfo();
 
-        virtual void sGossipHello(Player* /*player*/) {}
-        virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) {}
-        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) {}
-        virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) {}
-        virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) {}
-        virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) {}
-        virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) {}
+        virtual void sGossipHello(Player* /*player*/) { }
+        virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { }
+        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) { }
+        virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+        virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) { }
+        virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) { }
+        virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
         virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
-        virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
+        virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
 };
 
 class PlayerAI : public UnitAI
@@ -270,7 +270,7 @@ class PlayerAI : public UnitAI
     protected:
         Player* const me;
     public:
-        explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) {}
+        explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) { }
 
         void OnCharmed(bool apply);
 };
@@ -279,7 +279,7 @@ class SimpleCharmedAI : public PlayerAI
 {
     public:
         void UpdateAI(uint32 diff);
-        SimpleCharmedAI(Player* player): PlayerAI(player) {}
+        SimpleCharmedAI(Player* player): PlayerAI(player) { }
 };
 
 #endif

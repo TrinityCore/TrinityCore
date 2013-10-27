@@ -68,9 +68,9 @@ class npc_forest_frog : public CreatureScript
 
             InstanceScript* instance;
 
-            void Reset() OVERRIDE {}
+            void Reset() OVERRIDE { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void DoSpawnRandom()
             {
@@ -144,9 +144,9 @@ class npc_zulaman_hostage : public CreatureScript
             bool IsLoot;
             uint64 PlayerGUID;
 
-            void Reset() OVERRIDE {}
+            void Reset() OVERRIDE { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
@@ -295,7 +295,7 @@ class npc_harrison_jones : public CreatureScript
                 uiTargetGUID = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
             {

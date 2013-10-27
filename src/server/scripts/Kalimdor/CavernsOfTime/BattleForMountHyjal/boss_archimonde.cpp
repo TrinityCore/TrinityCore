@@ -108,7 +108,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
@@ -148,11 +148,11 @@ public:
     {
         npc_doomfireAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
@@ -195,7 +195,7 @@ public:
                 TargetGUID = who->GetGUID();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
@@ -638,7 +638,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE {}
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE { }
     };
 };
 

@@ -65,9 +65,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
@@ -325,9 +325,9 @@ public:
     {
         npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void EnterEvadeMode() OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterEvadeMode() OVERRIDE { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
         {

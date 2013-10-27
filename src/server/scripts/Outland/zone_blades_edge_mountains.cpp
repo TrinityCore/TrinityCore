@@ -69,7 +69,7 @@ public:
     {
         npc_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void UpdateAI(uint32 /*uiDiff*/) OVERRIDE
         {
@@ -140,7 +140,7 @@ public:
             IntangiblePresence_Timer = 15000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -286,9 +286,9 @@ public:
     {
         npc_daranelleAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -470,7 +470,7 @@ public:
             OgreGUID = 0;
         }
 
-        void UpdateAI(uint32 /*uiDiff*/) OVERRIDE {}
+        void UpdateAI(uint32 /*uiDiff*/) OVERRIDE { }
     };
 };
 

@@ -304,7 +304,7 @@ class npc_ohgan : public CreatureScript
                 SunderArmor_Timer = 5000;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
@@ -357,7 +357,7 @@ class npc_vilebranch_speaker : public CreatureScript
                 cleave_Timer = urand(5000, 8000);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {

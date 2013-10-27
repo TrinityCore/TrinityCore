@@ -71,7 +71,7 @@ public:
 
     struct npc_Apothecary_HanesAI : public npc_escortAI
     {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){}
+        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){ }
         uint32 PotTimer;
 
         void Reset() OVERRIDE

@@ -1286,7 +1286,7 @@ public:
             me->SetTarget(0);
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
         void HandleAnimation()
         {
@@ -1447,10 +1447,10 @@ public:
             me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
 
         void SummonNextWave();
 
@@ -1571,7 +1571,7 @@ public:
             Timers = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
@@ -1816,9 +1816,9 @@ public:
     {
         npc_enraged_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {

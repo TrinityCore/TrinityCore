@@ -68,10 +68,10 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
 {
     public:
         ChaseMovementGenerator(Unit* target)
-            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target) {}
+            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target) { }
         ChaseMovementGenerator(Unit* target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) {}
-        ~ChaseMovementGenerator() {}
+            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
+        ~ChaseMovementGenerator() { }
 
         MovementGeneratorType GetMovementGeneratorType() { return CHASE_MOTION_TYPE; }
 
@@ -92,10 +92,10 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
 {
     public:
         FollowMovementGenerator(Unit* target)
-            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target){}
+            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target){ }
         FollowMovementGenerator(Unit* target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) {}
-        ~FollowMovementGenerator() {}
+            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) { }
+        ~FollowMovementGenerator() { }
 
         MovementGeneratorType GetMovementGeneratorType() { return FOLLOW_MOTION_TYPE; }
 
@@ -108,7 +108,7 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
         static void _addUnitStateMove(T* u)  { u->AddUnitState(UNIT_STATE_FOLLOW_MOVE); }
         bool EnableWalking() const;
         bool _lostTarget(T*) const { return false; }
-        void _reachTarget(T*) {}
+        void _reachTarget(T*) { }
     private:
         void _updateSpeed(T* owner);
 };

@@ -27,7 +27,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 {
     public:
         PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false) {}
+            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -53,7 +53,7 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
         AssistanceMovementGenerator(float _x, float _y, float _z) :
-            PointMovementGenerator<Creature>(0, _x, _y, _z, true) {}
+            PointMovementGenerator<Creature>(0, _x, _y, _z, true) { }
 
         MovementGeneratorType GetMovementGeneratorType() { return ASSISTANCE_MOTION_TYPE; }
         void Finalize(Unit*);
@@ -63,10 +63,10 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        explicit EffectMovementGenerator(uint32 Id) : m_Id(Id) {}
-        void Initialize(Unit*) {}
+        explicit EffectMovementGenerator(uint32 Id) : m_Id(Id) { }
+        void Initialize(Unit*) { }
         void Finalize(Unit*);
-        void Reset(Unit*) {}
+        void Reset(Unit*) { }
         bool Update(Unit*, uint32);
         MovementGeneratorType GetMovementGeneratorType() { return EFFECT_MOTION_TYPE; }
     private:

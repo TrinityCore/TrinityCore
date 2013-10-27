@@ -33,7 +33,7 @@ class Transaction
     friend class DatabaseWorkerPool;
 
     public:
-        Transaction() : _cleanedUp(false) {}
+        Transaction() : _cleanedUp(false) { }
         ~Transaction() { Cleanup(); }
 
         void Append(PreparedStatement* statement);
@@ -59,8 +59,8 @@ class TransactionTask : public SQLOperation
     friend class DatabaseWorker;
 
     public:
-        TransactionTask(SQLTransaction trans) : m_trans(trans) {} ;
-        ~TransactionTask(){};
+        TransactionTask(SQLTransaction trans) : m_trans(trans) { } ;
+        ~TransactionTask(){ };
 
     protected:
         bool Execute();

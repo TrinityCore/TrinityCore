@@ -93,9 +93,9 @@ class OPvPCapturePoint
 
         OPvPCapturePoint(OutdoorPvP* pvp);
 
-        virtual ~OPvPCapturePoint() {}
+        virtual ~OPvPCapturePoint() { }
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -119,7 +119,7 @@ class OPvPCapturePoint
 
         virtual void ChangeState() = 0;
 
-        virtual void ChangeTeam(TeamId /*oldTeam*/) {}
+        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
 
         virtual void SendChangePhase();
 
@@ -205,7 +205,7 @@ class OutdoorPvP : public ZoneScript
 
         typedef std::map<uint32/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* player, uint32 trigger);
@@ -221,7 +221,7 @@ class OutdoorPvP : public ZoneScript
 
         void OnGameObjectCreate(GameObject* go);
         void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature*) {}
+        void OnCreatureCreate(Creature*) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -231,13 +231,13 @@ class OutdoorPvP : public ZoneScript
 
         // handle npc/player kill
         virtual void HandleKill(Player* killer, Unit* killed);
-        virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
+        virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) { }
 
         // checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
 
         // awards rewards for player kill
-        virtual void AwardKillBonus(Player* /*player*/) {}
+        virtual void AwardKillBonus(Player* /*player*/) { }
 
         uint32 GetTypeId() {return m_TypeId;}
 
@@ -261,7 +261,7 @@ class OutdoorPvP : public ZoneScript
         bool m_sendUpdate;
 
         // world state stuff
-        virtual void SendRemoveWorldStates(Player* /*player*/) {}
+        virtual void SendRemoveWorldStates(Player* /*player*/) { }
 
         void BroadcastPacket(WorldPacket & data) const;
 
