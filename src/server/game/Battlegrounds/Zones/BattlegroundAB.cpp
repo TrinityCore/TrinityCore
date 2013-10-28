@@ -41,9 +41,7 @@ BattlegroundAB::BattlegroundAB()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
 }
 
-BattlegroundAB::~BattlegroundAB()
-{
-}
+BattlegroundAB::~BattlegroundAB() { }
 
 void BattlegroundAB::PostUpdateImpl(uint32 diff)
 {

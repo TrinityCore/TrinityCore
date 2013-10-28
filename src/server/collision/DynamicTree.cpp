@@ -107,9 +107,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
     int unbalanced_times;
 };
 
-DynamicMapTree::DynamicMapTree() : impl(new DynTreeImpl())
-{
-}
+DynamicMapTree::DynamicMapTree() : impl(new DynTreeImpl()) { }
 
 DynamicMapTree::~DynamicMapTree()
 {

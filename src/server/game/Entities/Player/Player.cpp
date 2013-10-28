@@ -22193,9 +22193,7 @@ inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, Player* target, std
 }
 
 template<class T>
-inline void BeforeVisibilityDestroy(T* /*t*/, Player* /*p*/)
-{
-}
+inline void BeforeVisibilityDestroy(T* /*t*/, Player* /*p*/) { }
 
 template<>
 inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)

@@ -17,9 +17,7 @@
 
 #include "Logger.h"
 
-Logger::Logger(): name(""), type(LOG_FILTER_GENERAL), level(LOG_LEVEL_DISABLED)
-{
-}
+Logger::Logger(): name(""), type(LOG_FILTER_GENERAL), level(LOG_LEVEL_DISABLED) { }
 
 void Logger::Create(std::string const& _name, LogFilterType _type, LogLevel _level)
 {
