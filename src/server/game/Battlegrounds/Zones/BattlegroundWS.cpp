@@ -56,9 +56,7 @@ BattlegroundWS::BattlegroundWS()
     _flagDebuffState = 0;
 }
 
-BattlegroundWS::~BattlegroundWS()
-{
-}
+BattlegroundWS::~BattlegroundWS() { }
 
 void BattlegroundWS::PostUpdateImpl(uint32 diff)
 {

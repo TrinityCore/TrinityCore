@@ -41,9 +41,7 @@ m_queue(NULL),
 m_worker(NULL),
 m_Mysql(NULL),
 m_connectionInfo(connInfo),
-m_connectionFlags(CONNECTION_SYNCH)
-{
-}
+m_connectionFlags(CONNECTION_SYNCH) { }
 
 MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
 m_reconnecting(false),
