@@ -437,9 +437,7 @@ AchievementMgr::AchievementMgr(Player* player)
     m_player = player;
 }
 
-AchievementMgr::~AchievementMgr()
-{
-}
+AchievementMgr::~AchievementMgr() { }
 
 void AchievementMgr::Reset()
 {

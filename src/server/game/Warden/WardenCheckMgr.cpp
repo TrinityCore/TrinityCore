@@ -25,9 +25,7 @@
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 
-WardenCheckMgr::WardenCheckMgr()
-{
-}
+WardenCheckMgr::WardenCheckMgr() { }
 
 WardenCheckMgr::~WardenCheckMgr()
 {

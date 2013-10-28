@@ -1096,9 +1096,7 @@ PatcherRunnable::PatcherRunnable(class AuthSocket* as)
 }
 
 // Send content of patch file to the client
-void PatcherRunnable::run()
-{
-}
+void PatcherRunnable::run() { }
 
 // Preload MD5 hashes of existing patch files on server
 #ifndef _WIN32
