@@ -148,9 +148,9 @@ public:
 
         uint32 Start_Timer;
 
-        void Reset() OVERRIDE {}
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void Reset() OVERRIDE { }
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

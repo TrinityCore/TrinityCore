@@ -187,7 +187,7 @@ class npc_nether_wraith : public CreatureScript
                 Detonation = false;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {

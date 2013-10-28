@@ -462,7 +462,7 @@ public:
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
     {
         //Retr Pally
-        boss_baron_rafe_dreugerAI(Creature* creature) : boss_moroes_guestAI(creature){}
+        boss_baron_rafe_dreugerAI(Creature* creature) : boss_moroes_guestAI(creature){ }
 
         uint32 HammerOfJustice_Timer;
         uint32 SealOfCommand_Timer;
@@ -589,7 +589,7 @@ public:
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
     {
         //Holy Pally
-        boss_lady_keira_berrybuckAI(Creature* creature) : boss_moroes_guestAI(creature)  {}
+        boss_lady_keira_berrybuckAI(Creature* creature) : boss_moroes_guestAI(creature)  { }
 
         uint32 Cleanse_Timer;
         uint32 GreaterBless_Timer;

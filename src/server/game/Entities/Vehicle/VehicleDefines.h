@@ -81,7 +81,7 @@ struct VehicleSeat
 struct VehicleAccessory
 {
     VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime) :
-        AccessoryEntry(entry), IsMinion(isMinion), SummonTime(summonTime), SeatId(seatId), SummonedType(summonType) {}
+        AccessoryEntry(entry), IsMinion(isMinion), SummonTime(summonTime), SeatId(seatId), SummonedType(summonType) { }
     uint32 AccessoryEntry;
     uint32 IsMinion;
     uint32 SummonTime;

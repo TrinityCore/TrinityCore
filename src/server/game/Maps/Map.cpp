@@ -693,7 +693,7 @@ struct ResetNotifier
         for (typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
             iter->GetSource()->ResetAllNotifies();
     }
-    template<class T> void Visit(GridRefManager<T> &) {}
+    template<class T> void Visit(GridRefManager<T> &) { }
     void Visit(CreatureMapType &m) { resetNotify<Creature>(m);}
     void Visit(PlayerMapType &m) { resetNotify<Player>(m);}
 };

@@ -68,7 +68,7 @@ public:
     {
         npc_mistAI(Creature* creature) : FollowerAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 

@@ -75,7 +75,7 @@ public:
     {
         npc_kanatiAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -164,7 +164,7 @@ public:
     {
         npc_lakota_windsongAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -247,7 +247,7 @@ public:
     {
         npc_paoka_swiftmountainAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {

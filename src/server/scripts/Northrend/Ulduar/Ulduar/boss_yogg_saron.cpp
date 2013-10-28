@@ -1047,7 +1047,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
             void DoAction(int32 action) OVERRIDE
             {
@@ -1132,7 +1132,7 @@ class npc_ominous_cloud : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
             void DoAction(int32 action) OVERRIDE
             {
@@ -1400,7 +1400,7 @@ class npc_influence_tentacle : public CreatureScript
                     brain->AI()->DoAction(ACTION_TENTACLE_KILLED);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
         private:
             InstanceScript* _instance;
@@ -1431,7 +1431,7 @@ class npc_descend_into_madness : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
         private:
             InstanceScript* _instance;
@@ -1544,7 +1544,7 @@ class npc_observation_ring_keeper : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -1914,7 +1914,7 @@ class npc_laughing_skull : public CreatureScript
             }
 
             // don't evade, otherwise the Lunatic Gaze aura is removed
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

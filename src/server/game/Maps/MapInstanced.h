@@ -30,7 +30,7 @@ class MapInstanced : public Map
         typedef UNORDERED_MAP< uint32, Map*> InstancedMaps;
 
         MapInstanced(uint32 id, time_t expiry);
-        ~MapInstanced() {}
+        ~MapInstanced() { }
 
         // functions overwrite Map versions
         void Update(const uint32);

@@ -174,9 +174,9 @@ public:
     {
         npc_the_scourge_cauldronAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void DoDie()
         {
@@ -393,7 +393,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
          void JustDied(Unit* /*killer*/) OVERRIDE
         {
