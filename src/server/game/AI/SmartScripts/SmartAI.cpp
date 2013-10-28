@@ -674,9 +674,7 @@ void SmartAI::SummonedCreatureDespawn(Creature* unit)
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit);
 }
 
-void SmartAI::UpdateAIWhileCharmed(const uint32 /*diff*/)
-{
-}
+void SmartAI::UpdateAIWhileCharmed(const uint32 /*diff*/) { }
 
 void SmartAI::CorpseRemoved(uint32& respawnDelay)
 {
@@ -720,9 +718,7 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(uint64 /*guid*/, int32 /*id*/)
-{
-}
+void SmartAI::SetGUID(uint64 /*guid*/, int32 /*id*/) { }
 
 uint64 SmartAI::GetGUID(int32 /*id*/) const
 {
@@ -755,9 +751,7 @@ void SmartAI::sGossipSelect(Player* player, uint32 sender, uint32 action)
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, sender, action);
 }
 
-void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/)
-{
-}
+void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
 
 void SmartAI::sQuestAccept(Player* player, Quest const* quest)
 {

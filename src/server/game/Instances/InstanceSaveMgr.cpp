@@ -163,9 +163,7 @@ void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
 
 InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset)
 : m_resetTime(resetTime), m_instanceid(InstanceId), m_mapid(MapId),
-  m_difficulty(difficulty), m_canReset(canReset), m_toDelete(false)
-{
-}
+  m_difficulty(difficulty), m_canReset(canReset), m_toDelete(false) { }
 
 InstanceSave::~InstanceSave()
 {
