@@ -228,9 +228,7 @@ ACE_Token_Invariant_Manager::~ACE_Token_Invariant_Manager (void)
 // **************************************************
 
 ACE_Mutex_Invariants::ACE_Mutex_Invariants (void)
-: owners_ (0)
-{
-}
+: owners_ (0) { }
 
 int
 ACE_Mutex_Invariants::acquired (void)
@@ -252,9 +250,7 @@ ACE_Mutex_Invariants::releasing (void)
 }
 
 ACE_Mutex_Invariants::ACE_Mutex_Invariants (const ACE_Mutex_Invariants &rhs)
-: owners_ (rhs.owners_)
-{
-}
+: owners_ (rhs.owners_) { }
 
 void
 ACE_Mutex_Invariants::operator= (const ACE_Mutex_Invariants &rhs)
@@ -279,9 +275,7 @@ ACE_Mutex_Invariants::dump (void) const
 
 ACE_RWLock_Invariants::ACE_RWLock_Invariants (void)
 : writers_ (0),
-  readers_ (0)
-{
-}
+  readers_ (0) { }
 
 int
 ACE_RWLock_Invariants::writer_acquired (void)
@@ -326,9 +320,7 @@ ACE_RWLock_Invariants::releasing (void)
 
 ACE_RWLock_Invariants::ACE_RWLock_Invariants (const ACE_RWLock_Invariants &rhs)
 : writers_ (rhs.writers_),
-  readers_ (rhs.readers_)
-{
-}
+  readers_ (rhs.readers_) { }
 
 void
 ACE_RWLock_Invariants::operator= (const ACE_RWLock_Invariants &rhs)

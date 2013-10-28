@@ -42,9 +42,7 @@ ACE_Registry::Name_Component::operator!= (const Name_Component &rhs) const
 // Simple binding constructor
 ACE_Registry::Binding::Binding ()
   : name_ (),
-    type_ (INVALID)
-{
-}
+    type_ (INVALID) { }
 
 
 // Binding constructor
@@ -52,9 +50,7 @@ ACE_Registry::Binding::Binding ()
 ACE_Registry::Binding::Binding (const Name &name,
                                 Binding_Type type)
   : name_ (ACE_Registry::make_string (name)),
-    type_ (type)
-{
-}
+    type_ (type) { }
 
 
 // Binding constructor
@@ -62,9 +58,7 @@ ACE_Registry::Binding::Binding (const Name &name,
 ACE_Registry::Binding::Binding (const ACE_TString &name,
                                 Binding_Type type)
   : name_ (name),
-    type_ (type)
-{
-}
+    type_ (type) { }
 
 
 bool
@@ -122,9 +116,7 @@ ACE_Registry::Object::Object (void *data,
                               u_long type)
   : data_ (data),
     size_ (size),
-    type_ (type)
-{
-}
+    type_ (type) { }
 
 // Object accessors and set methods
 void
@@ -173,18 +165,14 @@ ACE_Registry::Object::type (void) const
 ACE_Registry::Naming_Context::Naming_Context (void)
   : key_ ((HKEY) 0),
     parent_key_ ((HKEY) 0),
-    name_ ()
-{
-}
+    name_ () { }
 
 
 // Context constructor
 ACE_Registry::Naming_Context::Naming_Context (const HKEY &key)
   : key_ (key),
     parent_key_ ((HKEY) 0),
-    name_ ()
-{
-}
+    name_ () { }
 
 
 ACE_Registry::Naming_Context::Naming_Context (const Naming_Context &rhs)
@@ -839,13 +827,9 @@ ACE_Registry::Binding_Iterator::Iteration_State::iterator (Binding_Iterator *ite
 
 
 ACE_Registry::Binding_Iterator::Iteration_State::Iteration_State (void)
-  : index_ (0)
-{
-}
+  : index_ (0) { }
 
-ACE_Registry::Binding_Iterator::Iteration_State::~Iteration_State (void)
-{
-}
+ACE_Registry::Binding_Iterator::Iteration_State::~Iteration_State (void) { }
 
 // Next entry
 int

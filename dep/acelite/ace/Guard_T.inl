@@ -53,9 +53,7 @@ ACE_Guard<ACE_LOCK>::ACE_Guard (ACE_LOCK &l, bool block)
 template <class ACE_LOCK> ACE_INLINE
 ACE_Guard<ACE_LOCK>::ACE_Guard (ACE_LOCK &l, bool /* block */, int become_owner)
   : lock_ (&l),
-    owner_ (become_owner == 0 ? -1 : 0)
-{
-}
+    owner_ (become_owner == 0 ? -1 : 0) { }
 
 // Implicitly and automatically acquire (or try to acquire) the
 // lock.

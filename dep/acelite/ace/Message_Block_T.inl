@@ -24,8 +24,6 @@ ACE_Locked_Data_Block (size_t size,
                     allocator_strategy,
                     &lock_,
                     flags,
-                    data_block_allocator)
-{
-}
+                    data_block_allocator) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

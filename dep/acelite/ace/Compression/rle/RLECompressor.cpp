@@ -6,13 +6,9 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_RLECompressor::ACE_RLECompressor(void)
-    : ACE_Compressor(ACE_COMPRESSORID_RLE)
-{
-}
+    : ACE_Compressor(ACE_COMPRESSORID_RLE) { }
 
-ACE_RLECompressor::~ACE_RLECompressor(void)
-{
-}
+ACE_RLECompressor::~ACE_RLECompressor(void) { }
 
 ACE_UINT64
 ACE_RLECompressor::compress( const void *in_ptr,

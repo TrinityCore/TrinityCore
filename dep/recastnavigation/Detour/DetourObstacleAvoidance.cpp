@@ -92,9 +92,7 @@ dtObstacleAvoidanceDebugData::dtObstacleAvoidanceDebugData() :
 	m_vpen(0),
 	m_vcpen(0),
 	m_spen(0),
-	m_tpen(0)
-{
-}
+	m_tpen(0) { }
 
 dtObstacleAvoidanceDebugData::~dtObstacleAvoidanceDebugData()
 {
@@ -217,9 +215,7 @@ dtObstacleAvoidanceQuery::dtObstacleAvoidanceQuery() :
 	m_ncircles(0),
 	m_maxSegments(0),
 	m_segments(0),
-	m_nsegments(0)
-{
-}
+	m_nsegments(0) { }
 
 dtObstacleAvoidanceQuery::~dtObstacleAvoidanceQuery()
 {

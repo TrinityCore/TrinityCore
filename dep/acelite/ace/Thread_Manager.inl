@@ -9,9 +9,7 @@ ACE_At_Thread_Exit::ACE_At_Thread_Exit (void)
   : next_ (0),
     td_ (0),
     was_applied_ (false),
-    is_owner_ (true)
-{
-}
+    is_owner_ (true) { }
 
 ACE_INLINE bool
 ACE_At_Thread_Exit::was_applied() const
@@ -54,9 +52,7 @@ ACE_At_Thread_Exit_Func::ACE_At_Thread_Exit_Func (void *object,
                                                   void *param)
   : object_(object),
     func_(func),
-    param_(param)
-{
-}
+    param_(param) { }
 
 ACE_INLINE
 ACE_Thread_Descriptor_Base::ACE_Thread_Descriptor_Base (void)
@@ -67,14 +63,10 @@ ACE_Thread_Descriptor_Base::ACE_Thread_Descriptor_Base (void)
     thr_state_ (ACE_Thread_Manager::ACE_THR_IDLE),
     task_ (0),
     next_ (0),
-    prev_ (0)
-{
-}
+    prev_ (0) { }
 
 ACE_INLINE
-ACE_Thread_Descriptor_Base::~ACE_Thread_Descriptor_Base (void)
-{
-}
+ACE_Thread_Descriptor_Base::~ACE_Thread_Descriptor_Base (void) { }
 
 ACE_INLINE bool
 ACE_Thread_Descriptor_Base::operator== (

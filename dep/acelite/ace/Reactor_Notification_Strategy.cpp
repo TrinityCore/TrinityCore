@@ -14,13 +14,9 @@ ACE_Reactor_Notification_Strategy::ACE_Reactor_Notification_Strategy (
   ACE_Event_Handler *eh,
   ACE_Reactor_Mask mask)
   : ACE_Notification_Strategy (eh, mask),
-    reactor_ (reactor)
-{
-}
+    reactor_ (reactor) { }
 
-ACE_Reactor_Notification_Strategy::~ACE_Reactor_Notification_Strategy (void)
-{
-}
+ACE_Reactor_Notification_Strategy::~ACE_Reactor_Notification_Strategy (void) { }
 
 int
 ACE_Reactor_Notification_Strategy::notify (void)

@@ -10,9 +10,7 @@ ACE_Env_Value<T>::operator T (void)
 
 template <class T> ACE_INLINE
 ACE_Env_Value<T>::ACE_Env_Value (void)
-  : varname_ (0)
-{
-}
+  : varname_ (0) { }
 
 template <class T> ACE_INLINE
 ACE_Env_Value<T>::ACE_Env_Value (const ACE_TCHAR *varname,
@@ -53,8 +51,6 @@ ACE_Env_Value<T>::varname (void) const
 }
 
 template <class T> ACE_INLINE
-ACE_Env_Value<T>::~ACE_Env_Value (void)
-{
-}
+ACE_Env_Value<T>::~ACE_Env_Value (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

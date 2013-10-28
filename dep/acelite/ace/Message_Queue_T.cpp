@@ -698,9 +698,7 @@ ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY>::set_time_pol
 template <ACE_SYNCH_DECL, class TIME_POLICY>
 ACE_Message_Queue_Iterator<ACE_SYNCH_USE, TIME_POLICY>::ACE_Message_Queue_Iterator (ACE_Message_Queue <ACE_SYNCH_USE, TIME_POLICY> &q)
   : queue_ (q),
-    curr_ (q.head_)
-{
-}
+    curr_ (q.head_) { }
 
 template <ACE_SYNCH_DECL, class TIME_POLICY> int
 ACE_Message_Queue_Iterator<ACE_SYNCH_USE, TIME_POLICY>::next (ACE_Message_Block *&entry)
@@ -746,9 +744,7 @@ ACE_ALLOC_HOOK_DEFINE(ACE_Message_Queue_Iterator)
 template <ACE_SYNCH_DECL, class TIME_POLICY>
 ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE, TIME_POLICY>::ACE_Message_Queue_Reverse_Iterator (ACE_Message_Queue <ACE_SYNCH_USE, TIME_POLICY> &q)
   : queue_ (q),
-    curr_ (queue_.tail_)
-{
-}
+    curr_ (queue_.tail_) { }
 
 template <ACE_SYNCH_DECL, class TIME_POLICY> int
 ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE, TIME_POLICY>::next (ACE_Message_Block *&entry)

@@ -30,9 +30,7 @@ template <class EXT_ID, class INT_ID>
 ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::ACE_Hash_Multi_Map_Entry (ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID> *next,
                                                                     ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID> *prev)
   : next_ (next),
-    prev_ (prev)
-{
-}
+    prev_ (prev) { }
 
 template <class EXT_ID, class INT_ID>
 ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::ACE_Hash_Multi_Map_Entry (const EXT_ID &ext_id,
@@ -42,14 +40,10 @@ ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::ACE_Hash_Multi_Map_Entry (const EXT_ID
   : ext_id_ (ext_id),
     int_id_set_ (int_id_set),
     next_ (next),
-    prev_ (prev)
-{
-}
+    prev_ (prev) { }
 
 template <class EXT_ID, class INT_ID>
-ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::~ACE_Hash_Multi_Map_Entry (void)
-{
-}
+ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::~ACE_Hash_Multi_Map_Entry (void) { }
 
 template <class EXT_ID, class INT_ID> EXT_ID &
 ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::key ()

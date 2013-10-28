@@ -134,9 +134,7 @@ ACE_PI_Control_Block::ACE_Name_Node::name (const char *)
 
 ACE_PI_Control_Block::ACE_Malloc_Header::ACE_Malloc_Header (void)
   : next_block_ (0),
-    size_ (0)
-{
-}
+    size_ (0) { }
 
 void
 ACE_PI_Control_Block::ACE_Name_Node::dump (void) const

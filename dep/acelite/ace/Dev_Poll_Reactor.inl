@@ -13,9 +13,7 @@ ACE_Dev_Poll_Reactor::Event_Tuple::Event_Tuple (ACE_Event_Handler *eh,
   : event_handler (eh),
     mask (m),
     suspended (is_suspended),
-    controlled (is_controlled)
-{
-}
+    controlled (is_controlled) { }
 
 // ---------------------------------------------------------------------
 
@@ -99,9 +97,7 @@ ACE_INLINE
 ACE_Dev_Poll_Reactor::Token_Guard::Token_Guard (ACE_Dev_Poll_Reactor_Token &token)
 
   : token_ (token),
-    owner_ (0)
-{
-}
+    owner_ (0) { }
 
 ACE_INLINE
 ACE_Dev_Poll_Reactor::Token_Guard::~Token_Guard (void)

@@ -36,9 +36,7 @@ int ACE_SEH_Default_Exception_Handler (void *)
 ACE_Object_Manager_Base::ACE_Object_Manager_Base (void)
   : object_manager_state_ (OBJ_MAN_UNINITIALIZED)
   , dynamically_allocated_ (false)
-  , next_ (0)
-{
-}
+  , next_ (0) { }
 
 ACE_Object_Manager_Base::~ACE_Object_Manager_Base (void)
 {

@@ -27,8 +27,6 @@ ACE_Obchunk::ACE_Obchunk (size_t size)
   : end_ (contents_ + size),
     block_ (contents_),
     cur_ (contents_),
-    next_ (0)
-{
-}
+    next_ (0) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

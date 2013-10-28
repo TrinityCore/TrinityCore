@@ -27,14 +27,10 @@ template <class RECEIVER, class ACTION>
 ACE_Command_Callback<RECEIVER, ACTION>::ACE_Command_Callback (RECEIVER &recvr,
                                     ACTION action)
   : receiver_ (recvr),
-    action_ (action)
-{
-}
+    action_ (action) { }
 
 template <class RECEIVER, class ACTION>
-ACE_Command_Callback<RECEIVER, ACTION>::~ACE_Command_Callback (void)
-{
-}
+ACE_Command_Callback<RECEIVER, ACTION>::~ACE_Command_Callback (void) { }
 
 // Invokes an operation.
 

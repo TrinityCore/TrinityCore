@@ -23,13 +23,9 @@ ACE_ALLOC_HOOK_DEFINE(ACE_Addr)
 
 ACE_Addr::ACE_Addr (int type, int size) :
   addr_type_ (type),
-  addr_size_ (size)
-{
-}
+  addr_size_ (size) { }
 
-ACE_Addr::~ACE_Addr (void)
-{
-}
+ACE_Addr::~ACE_Addr (void) { }
 
 void *
 ACE_Addr::get_addr (void) const
@@ -38,9 +34,7 @@ ACE_Addr::get_addr (void) const
 }
 
 void
-ACE_Addr::set_addr (void *, int)
-{
-}
+ACE_Addr::set_addr (void *, int) { }
 
 // Initializes instance variables.
 

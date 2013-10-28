@@ -18,9 +18,7 @@ ACE_Cleanup::cleanup (void *)
   delete this;
 }
 
-ACE_Cleanup::~ACE_Cleanup (void)
-{
-}
+ACE_Cleanup::~ACE_Cleanup (void) { }
 
 /*****************************************************************************/
 
@@ -36,9 +34,7 @@ ACE_Cleanup_Info_Node::ACE_Cleanup_Info_Node (void)
   : object_ (0),
     cleanup_hook_ (0),
     param_ (0),
-    name_ (0)
-{
-}
+    name_ (0) { }
 
 ACE_Cleanup_Info_Node::ACE_Cleanup_Info_Node (void *object,
                                               ACE_CLEANUP_FUNC cleanup_hook,
@@ -47,9 +43,7 @@ ACE_Cleanup_Info_Node::ACE_Cleanup_Info_Node (void *object,
   : object_ (object),
     cleanup_hook_ (cleanup_hook),
     param_ (param),
-    name_ (name ? ACE_OS::strdup (name) : 0)
-{
-}
+    name_ (name ? ACE_OS::strdup (name) : 0) { }
 
 ACE_Cleanup_Info_Node::~ACE_Cleanup_Info_Node (void)
 {
@@ -74,13 +68,9 @@ ACE_Cleanup_Info_Node::operator!= (const ACE_Cleanup_Info_Node &o) const
 
 /*****************************************************************************/
 
-ACE_OS_Exit_Info::ACE_OS_Exit_Info (void)
-{
-}
+ACE_OS_Exit_Info::ACE_OS_Exit_Info (void) { }
 
-ACE_OS_Exit_Info::~ACE_OS_Exit_Info (void)
-{
-}
+ACE_OS_Exit_Info::~ACE_OS_Exit_Info (void) { }
 
 int
 ACE_OS_Exit_Info::at_exit_i (void *object,

@@ -14,9 +14,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 template <class ACE_LOCK, class TYPE>
 ACE_Test_and_Set<ACE_LOCK, TYPE>::ACE_Test_and_Set (TYPE initial_value)
-  : is_set_ (initial_value)
-{
-}
+  : is_set_ (initial_value) { }
 
 // Returns true if we are done, else false.
 template <class ACE_LOCK, class TYPE> TYPE

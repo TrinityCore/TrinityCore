@@ -16,9 +16,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Token_Request::ACE_Token_Request (void)
   : token_name_ (0),
-    client_id_ (0)
-{
-}
+    client_id_ (0) { }
 
 // Create a ACE_Token_Request message.
 

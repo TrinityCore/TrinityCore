@@ -7,9 +7,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 template <class ACE_LOCK>
 ACE_INLINE
 ACE_Refcountable_T<ACE_LOCK>::ACE_Refcountable_T (long refcount)
-  : refcount_ (refcount)
-{
-}
+  : refcount_ (refcount) { }
 
 template <class ACE_LOCK>
 ACE_INLINE long

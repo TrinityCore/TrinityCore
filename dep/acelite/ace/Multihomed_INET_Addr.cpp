@@ -23,9 +23,7 @@ ACE_Multihomed_INET_Addr::ACE_Multihomed_INET_Addr (void)
 
 ACE_Multihomed_INET_Addr::ACE_Multihomed_INET_Addr (const char address[])
  : ACE_INET_Addr (address),
-   secondaries_ (0)
-{
-}
+   secondaries_ (0) { }
 
 ACE_Multihomed_INET_Addr::ACE_Multihomed_INET_Addr(u_short port_number,
                                                    const char host_name[],

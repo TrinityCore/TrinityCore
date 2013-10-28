@@ -15,9 +15,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Dirent_Selector::ACE_Dirent_Selector (void)
   : namelist_ (0),
-    n_ (0)
-{
-}
+    n_ (0) { }
 
 ACE_Dirent_Selector::~ACE_Dirent_Selector (void)
 {

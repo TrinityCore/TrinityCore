@@ -16,9 +16,7 @@ ACE_EH_Dispatch_Info::ACE_EH_Dispatch_Info (void) :
   callback_ (0),
   resume_flag_ (ACE_Event_Handler::ACE_REACTOR_RESUMES_HANDLER),
   reference_counting_required_ (false),
-  dispatch_ (false)
-{
-}
+  dispatch_ (false) { }
 
 ACE_INLINE void
 ACE_EH_Dispatch_Info::set (ACE_HANDLE handle,
@@ -57,9 +55,7 @@ ACE_INLINE
 ACE_TP_Token_Guard::ACE_TP_Token_Guard (ACE_Select_Reactor_Token &token)
 
   : token_ (token),
-    owner_ (false)
-{
-}
+    owner_ (false) { }
 
 ACE_INLINE
 ACE_TP_Token_Guard::~ACE_TP_Token_Guard (void)
@@ -95,9 +91,7 @@ ACE_TP_Token_Guard::is_owner (void)
 /************************************************************************/
 
 ACE_INLINE void
-ACE_TP_Reactor::no_op_sleep_hook (void *)
-{
-}
+ACE_TP_Reactor::no_op_sleep_hook (void *) { }
 
 ACE_INLINE void
 ACE_TP_Reactor::clear_handle_read_set (ACE_HANDLE handle)

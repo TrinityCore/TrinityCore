@@ -3363,43 +3363,29 @@ void SmartScript::OnMoveInLineOfSight(Unit* who)
 }
 
 /*
-void SmartScript::UpdateAIWhileCharmed(const uint32 diff)
-{
-}
+void SmartScript::UpdateAIWhileCharmed(const uint32 diff) { }
 
-void SmartScript::DoAction(const int32 param)
-{
-}
+void SmartScript::DoAction(const int32 param) { }
 
 uint32 SmartScript::GetData(uint32 id)
 {
     return 0;
 }
 
-void SmartScript::SetData(uint32 id, uint32 value)
-{
-}
+void SmartScript::SetData(uint32 id, uint32 value) { }
 
-void SmartScript::SetGUID(uint64 guid, int32 id)
-{
-}
+void SmartScript::SetGUID(uint64 guid, int32 id) { }
 
 uint64 SmartScript::GetGUID(int32 id)
 {
     return 0;
 }
 
-void SmartScript::MovepointStart(uint32 id)
-{
-}
+void SmartScript::MovepointStart(uint32 id) { }
 
-void SmartScript::SetRun(bool run)
-{
-}
+void SmartScript::SetRun(bool run) { }
 
-void SmartScript::SetMovePathEndAction(SMART_ACTION action)
-{
-}
+void SmartScript::SetMovePathEndAction(SMART_ACTION action) { }
 
 uint32 SmartScript::DoChat(int8 id, uint64 whisperGuid)
 {

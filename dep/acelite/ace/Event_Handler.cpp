@@ -217,14 +217,10 @@ ACE_Event_Handler::remove_reference (void)
     }
 }
 
-ACE_Event_Handler::Policy::~Policy (void)
-{
-}
+ACE_Event_Handler::Policy::~Policy (void) { }
 
 ACE_Event_Handler::Reference_Counting_Policy::Reference_Counting_Policy (Reference_Counting_Policy::Value value)
-  : value_ (value)
-{
-}
+  : value_ (value) { }
 
 ACE_Event_Handler::Reference_Counting_Policy::Value
 ACE_Event_Handler::Reference_Counting_Policy::value (void) const
@@ -300,14 +296,10 @@ ACE_Event_Handler::remove_stdin_handler (ACE_Reactor *reactor,
 // ---------------------------------------------------------------------
 
 ACE_Event_Handler_var::ACE_Event_Handler_var (void)
-  : ptr_ (0)
-{
-}
+  : ptr_ (0) { }
 
 ACE_Event_Handler_var::ACE_Event_Handler_var (ACE_Event_Handler *p)
-  : ptr_ (p)
-{
-}
+  : ptr_ (p) { }
 
 ACE_Event_Handler_var::ACE_Event_Handler_var (const ACE_Event_Handler_var &b)
   : ptr_ (b.ptr_)

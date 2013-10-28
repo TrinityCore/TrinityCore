@@ -12,9 +12,7 @@ ACE_SizeCDR::ACE_SizeCDR (ACE_CDR::Octet major_version,
     : good_bit_ (true),
       size_ (0),
       major_version_ (major_version),
-      minor_version_ (minor_version)
-{
-}
+      minor_version_ (minor_version) { }
 
 ACE_INLINE bool
 ACE_SizeCDR::good_bit (void) const

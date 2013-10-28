@@ -37,9 +37,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 // Default constructor.
 
 ACE_INLINE
-ACE_Command_Base::ACE_Command_Base (void)
-{
-}
+ACE_Command_Base::ACE_Command_Base (void) { }
 
 ////////////////////////////////////////////////////////////
 // STL-style Functor Classes and Template Specializations //

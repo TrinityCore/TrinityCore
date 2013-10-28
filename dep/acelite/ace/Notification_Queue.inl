@@ -5,9 +5,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 ACE_INLINE ACE_Notification_Queue_Node::
 ACE_Notification_Queue_Node()
   : ACE_Intrusive_List_Node<ACE_Notification_Queue_Node>()
-  , contents_(0, 0)
-{
-}
+  , contents_(0, 0) { }
 
 ACE_INLINE void
 ACE_Notification_Queue_Node::set(ACE_Notification_Buffer const & rhs)

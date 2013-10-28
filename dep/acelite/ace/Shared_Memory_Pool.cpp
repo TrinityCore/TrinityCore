@@ -265,9 +265,7 @@ ACE_Shared_Memory_Pool::ACE_Shared_Memory_Pool (
                 ACE_TEXT ("ACE_Sig_Handler::register_handler")));
 }
 
-ACE_Shared_Memory_Pool::~ACE_Shared_Memory_Pool (void)
-{
-}
+ACE_Shared_Memory_Pool::~ACE_Shared_Memory_Pool (void) { }
 
 // Ask system for more shared memory.
 

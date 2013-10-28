@@ -8,17 +8,13 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
-ACE_Reactive_MEM_IO::ACE_Reactive_MEM_IO ()
-{
-}
+ACE_Reactive_MEM_IO::ACE_Reactive_MEM_IO () { }
 
 #if defined (ACE_WIN32) || !defined (_ACE_USE_SV_SEM)
 ACE_INLINE
 ACE_MT_MEM_IO::Simple_Queue::Simple_Queue (void)
   : mq_ (0),
-    malloc_ (0)
-{
-}
+    malloc_ (0) { }
 
 ACE_INLINE
 ACE_MT_MEM_IO::ACE_MT_MEM_IO ()
@@ -32,9 +28,7 @@ ACE_MT_MEM_IO::ACE_MT_MEM_IO ()
 ACE_INLINE
 ACE_MT_MEM_IO::Simple_Queue::Simple_Queue (MQ_Struct *mq)
   : mq_ (mq),
-    malloc_ (0)
-{
-}
+    malloc_ (0) { }
 
 ACE_INLINE int
 ACE_MT_MEM_IO::Simple_Queue::init (MQ_Struct *mq,

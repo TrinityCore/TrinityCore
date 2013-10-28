@@ -37,9 +37,7 @@ ACE_FoxReactor::ACE_FoxReactor (FXApp* a,
 #endif /* ACE_MT_SAFE */
 }
 
-ACE_FoxReactor::~ACE_FoxReactor (void)
-{
-}
+ACE_FoxReactor::~ACE_FoxReactor (void) { }
 
 void ACE_FoxReactor::fxapplication(FXApp *a)
 {

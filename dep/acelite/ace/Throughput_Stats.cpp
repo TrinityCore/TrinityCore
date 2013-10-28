@@ -13,9 +13,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Throughput_Stats::ACE_Throughput_Stats (void)
   : ACE_Basic_Stats ()
-  , throughput_last_ (0)
-{
-}
+  , throughput_last_ (0) { }
 
 void
 ACE_Throughput_Stats::sample (ACE_UINT64 throughput,

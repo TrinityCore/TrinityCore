@@ -38,9 +38,7 @@ ACE_Pagefile_Memory_Pool_Options::ACE_Pagefile_Memory_Pool_Options (
   void *base_addr,
   size_t max_size)
   : base_addr_ (base_addr),
-    max_size_ (max_size)
-{
-}
+    max_size_ (max_size) { }
 
 int
 ACE_Pagefile_Memory_Pool::release (int)
@@ -95,9 +93,7 @@ ACE_Pagefile_Memory_Pool::ACE_Pagefile_Memory_Pool (const ACE_TCHAR *backing_sto
                       ACE_TEXT ("_"));
 }
 
-ACE_Pagefile_Memory_Pool::~ACE_Pagefile_Memory_Pool (void)
-{
-}
+ACE_Pagefile_Memory_Pool::~ACE_Pagefile_Memory_Pool (void) { }
 
 void *
 ACE_Pagefile_Memory_Pool::acquire (size_t nbytes,

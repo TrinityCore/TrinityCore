@@ -7,9 +7,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
-ACE_Bcast_Node::~ACE_Bcast_Node (void)
-{
-}
+ACE_Bcast_Node::~ACE_Bcast_Node (void) { }
 
 ACE_INLINE
 ACE_SOCK_Dgram_Bcast::~ACE_SOCK_Dgram_Bcast (void)

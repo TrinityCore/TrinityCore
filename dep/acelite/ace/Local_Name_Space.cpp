@@ -132,9 +132,7 @@ ACE_NS_String::hash (void) const
 
 ACE_NS_Internal::ACE_NS_Internal (void)
   : value_ (),
-    type_ ()
-{
-}
+    type_ () { }
 
 ACE_NS_Internal::ACE_NS_Internal (ACE_NS_String &value, const char *type)
   : value_ (value),

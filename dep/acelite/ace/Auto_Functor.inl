@@ -8,23 +8,17 @@ template<typename X, typename Functor> ACE_INLINE
 ACE_Utils::Auto_Functor_Ref<X,Functor>::
 Auto_Functor_Ref(X * p, Functor f)
   : p_(p)
-  , f_(f)
-{
-}
+  , f_(f) { }
 
 template<typename X, typename Functor> ACE_INLINE
 ACE_Utils::Auto_Functor<X,Functor>::Auto_Functor(X * p, Functor f)
   : p_(p)
-  , f_(f)
-{
-}
+  , f_(f) { }
 
 template<typename X, typename Functor> ACE_INLINE
 ACE_Utils::Auto_Functor<X,Functor>::Auto_Functor(Auto_Functor & rhs)
   : p_(rhs.release())
-  , f_(rhs.f_)
-{
-}
+  , f_(rhs.f_) { }
 
 template<typename X, typename Functor>
 ACE_INLINE ACE_Utils::Auto_Functor<X,Functor>&
@@ -38,9 +32,7 @@ ACE_Utils::Auto_Functor<X,Functor>:: operator=(Auto_Functor & rhs)
 template<typename X, typename Functor> template<typename Y> ACE_INLINE
 ACE_Utils::Auto_Functor<X,Functor>::Auto_Functor(Auto_Functor<Y,Functor>& rhs)
   : p_(rhs.release())
-  , f_(rhs.f_)
-{
-}
+  , f_(rhs.f_) { }
 
 template<typename X, typename Functor> template<typename Y>
 ACE_INLINE ACE_Utils::Auto_Functor<X,Functor>&
@@ -89,9 +81,7 @@ ACE_Utils::Auto_Functor<X,Functor>::functor() const
 template<typename X, typename Functor> ACE_INLINE
 ACE_Utils::Auto_Functor<X,Functor>::Auto_Functor(Auto_Functor_Ref<X,Functor> rhs)
   : p_(rhs.p_)
-  , f_(rhs.f_)
-{
-}
+  , f_(rhs.f_) { }
 
 template<typename X, typename Functor>
 ACE_INLINE ACE_Utils::Auto_Functor<X,Functor> &

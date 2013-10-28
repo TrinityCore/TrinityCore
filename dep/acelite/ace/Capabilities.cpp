@@ -15,14 +15,10 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_CapEntry::~ACE_CapEntry (void)
-{
-}
+ACE_CapEntry::~ACE_CapEntry (void) { }
 
 ACE_Capabilities::ACE_Capabilities (void)
-  : caps_ ()
-{
-}
+  : caps_ () { }
 
 ACE_Capabilities::~ACE_Capabilities (void)
 {

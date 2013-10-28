@@ -36,17 +36,13 @@ ACE_IOStream<STREAM>::eof (void) const
 }
 
 template <class STREAM> ACE_INLINE
-ACE_SOCK_Dgram_SC<STREAM>::ACE_SOCK_Dgram_SC (void)
-{
-}
+ACE_SOCK_Dgram_SC<STREAM>::ACE_SOCK_Dgram_SC (void) { }
 
 template <class STREAM> ACE_INLINE
 ACE_SOCK_Dgram_SC<STREAM>::ACE_SOCK_Dgram_SC (STREAM &source,
                                               ACE_INET_Addr &dest)
   : STREAM (source),
-    peer_ (dest)
-{
-}
+    peer_ (dest) { }
 
 template <class STREAM> ACE_INLINE ssize_t
 ACE_SOCK_Dgram_SC<STREAM>::send_n (char *buf,

@@ -176,8 +176,6 @@ ACE_Handle_Set::fdset (void)
 }
 
 ACE_INLINE
-ACE_Handle_Set_Iterator::~ACE_Handle_Set_Iterator (void)
-{
-}
+ACE_Handle_Set_Iterator::~ACE_Handle_Set_Iterator (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

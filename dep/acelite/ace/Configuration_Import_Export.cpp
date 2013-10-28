@@ -9,22 +9,14 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Config_ImpExp_Base::ACE_Config_ImpExp_Base (ACE_Configuration& config)
-  : config_ (config)
-{
-}
+  : config_ (config) { }
 
-ACE_Config_ImpExp_Base::~ACE_Config_ImpExp_Base (void)
-{
-}
+ACE_Config_ImpExp_Base::~ACE_Config_ImpExp_Base (void) { }
 
 ACE_Registry_ImpExp::ACE_Registry_ImpExp (ACE_Configuration& config)
-    : ACE_Config_ImpExp_Base (config)
-{
-}
+    : ACE_Config_ImpExp_Base (config) { }
 
-ACE_Registry_ImpExp::~ACE_Registry_ImpExp (void)
-{
-}
+ACE_Registry_ImpExp::~ACE_Registry_ImpExp (void) { }
 
 // Imports the configuration database from filename.
 // No existing data is removed.
@@ -391,13 +383,9 @@ ACE_Registry_ImpExp::process_previous_line_format (ACE_TCHAR* buffer,
 
 
 ACE_Ini_ImpExp::ACE_Ini_ImpExp (ACE_Configuration& config)
-    : ACE_Config_ImpExp_Base (config)
-{
-}
+    : ACE_Config_ImpExp_Base (config) { }
 
-ACE_Ini_ImpExp::~ACE_Ini_ImpExp (void)
-{
-}
+ACE_Ini_ImpExp::~ACE_Ini_ImpExp (void) { }
 
 // Method to read file and populate object.
 int

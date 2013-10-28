@@ -15,9 +15,7 @@ ACE_Notification_Queue()
   : ACE_Copy_Disabled()
   , alloc_queue_()
   , notify_queue_()
-  , free_queue_()
-{
-}
+  , free_queue_() { }
 
 ACE_Notification_Queue::
 ~ACE_Notification_Queue()

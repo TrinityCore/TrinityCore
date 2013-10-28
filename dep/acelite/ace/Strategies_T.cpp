@@ -29,9 +29,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 template<class SVC_HANDLER>
-ACE_Recycling_Strategy<SVC_HANDLER>::~ACE_Recycling_Strategy (void)
-{
-}
+ACE_Recycling_Strategy<SVC_HANDLER>::~ACE_Recycling_Strategy (void) { }
 
 template<class SVC_HANDLER> int
 ACE_Recycling_Strategy<SVC_HANDLER>::assign_recycler (SVC_HANDLER *svc_handler,
@@ -1434,9 +1432,7 @@ ACE_Schedule_All_Threaded_Strategy<SVC_HANDLER>::dump (void) const
 }
 
 template <class T>
-ACE_Refcounted_Hash_Recyclable<T>::~ACE_Refcounted_Hash_Recyclable (void)
-{
-}
+ACE_Refcounted_Hash_Recyclable<T>::~ACE_Refcounted_Hash_Recyclable (void) { }
 
 template <class SVC_HANDLER> void
 ACE_Singleton_Strategy<SVC_HANDLER>::dump (void) const

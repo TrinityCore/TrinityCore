@@ -35,9 +35,7 @@ ACE_WFMO_Reactor_Handler_Repository::Common_Info::Common_Info (void)
     network_events_ (0),
     delete_event_ (false),
     delete_entry_ (false),
-    close_masks_ (ACE_Event_Handler::NULL_MASK)
-{
-}
+    close_masks_ (ACE_Event_Handler::NULL_MASK) { }
 
 ACE_INLINE void
 ACE_WFMO_Reactor_Handler_Repository::Common_Info::reset (void)
@@ -119,9 +117,7 @@ ACE_WFMO_Reactor_Handler_Repository::Common_Info::dump (void) const
 
 ACE_INLINE
 ACE_WFMO_Reactor_Handler_Repository::Current_Info::Current_Info (void)
-  : suspend_entry_ (false)
-{
-}
+  : suspend_entry_ (false) { }
 
 ACE_INLINE void
 ACE_WFMO_Reactor_Handler_Repository::Current_Info::set (bool io_entry,
@@ -187,9 +183,7 @@ ACE_WFMO_Reactor_Handler_Repository::Current_Info::dump (ACE_HANDLE event_handle
 ACE_INLINE
 ACE_WFMO_Reactor_Handler_Repository::To_Be_Added_Info::To_Be_Added_Info (void)
   : event_handle_ (ACE_INVALID_HANDLE),
-    suspend_entry_ (false)
-{
-}
+    suspend_entry_ (false) { }
 
 ACE_INLINE void
 ACE_WFMO_Reactor_Handler_Repository::To_Be_Added_Info::set (ACE_HANDLE event_handle,
@@ -258,9 +252,7 @@ ACE_WFMO_Reactor_Handler_Repository::To_Be_Added_Info::dump (void) const
 ACE_INLINE
 ACE_WFMO_Reactor_Handler_Repository::Suspended_Info::Suspended_Info (void)
   : event_handle_ (ACE_INVALID_HANDLE),
-    resume_entry_ (false)
-{
-}
+    resume_entry_ (false) { }
 
 ACE_INLINE void
 ACE_WFMO_Reactor_Handler_Repository::Suspended_Info::reset (void)
@@ -1193,9 +1185,7 @@ ACE_WFMO_Reactor_Handler_Repository::make_changes (void)
 }
 
 ACE_INLINE
-ACE_WFMO_Reactor_Handler_Repository::~ACE_WFMO_Reactor_Handler_Repository (void)
-{
-}
+ACE_WFMO_Reactor_Handler_Repository::~ACE_WFMO_Reactor_Handler_Repository (void) { }
 
 #endif /* ACE_WIN32 */
 

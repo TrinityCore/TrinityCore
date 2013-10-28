@@ -3651,16 +3651,12 @@ ACE_INLINE
 ACE_Thread_ID::ACE_Thread_ID (ACE_thread_t thread_id,
                               ACE_hthread_t thread_handle)
   : thread_id_ (thread_id),
-    thread_handle_ (thread_handle)
-{
-}
+    thread_handle_ (thread_handle) { }
 
 ACE_INLINE
 ACE_Thread_ID::ACE_Thread_ID (const ACE_Thread_ID &id)
   : thread_id_ (id.thread_id_),
-    thread_handle_ (id.thread_handle_)
-{
-}
+    thread_handle_ (id.thread_handle_) { }
 
 ACE_INLINE
 ACE_Thread_ID&

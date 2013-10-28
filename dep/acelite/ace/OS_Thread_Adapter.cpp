@@ -26,13 +26,9 @@ ACE_OS_Thread_Adapter::ACE_OS_Thread_Adapter (
                              , handler
 # endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
                              , cancel_flags
-                             )
-{
-}
+                             ) { }
 
-ACE_OS_Thread_Adapter::~ACE_OS_Thread_Adapter (void)
-{
-}
+ACE_OS_Thread_Adapter::~ACE_OS_Thread_Adapter (void) { }
 
 ACE_THR_FUNC_RETURN
 ACE_OS_Thread_Adapter::invoke (void)

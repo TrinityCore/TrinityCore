@@ -153,9 +153,7 @@ ACE_Metrics_Timeprobe<ACE_LOCK, ALLOCATOR>::probe_id (u_int id)
 
 template <class ACE_LOCK, class ALLOCATOR> void
 ACE_Metrics_Timeprobe<ACE_LOCK, ALLOCATOR>::
-flush_ACE_Metrics_Timeprobe ()
-{
-}
+flush_ACE_Metrics_Timeprobe () { }
 
 
 /////////////////////////////
@@ -201,9 +199,7 @@ ACE_Metrics_Cache (u_long table_size,
 // Destructor.
 
 template <class ACE_LOCK, class ALLOCATOR>
-ACE_Metrics_Cache<ACE_LOCK, ALLOCATOR>::~ACE_Metrics_Cache ()
-{
-}
+ACE_Metrics_Cache<ACE_LOCK, ALLOCATOR>::~ACE_Metrics_Cache () { }
 
 // Obtain an allocator pointer correctly thunked for the current
 // address space.  If there is no allocator stored in the instance,
@@ -223,9 +219,7 @@ ACE_Metrics_Cache<ACE_LOCK, ALLOCATOR>::allocator (void)
 
 template <class ACE_LOCK, class ALLOCATOR> void
 ACE_Metrics_Cache<ACE_LOCK, ALLOCATOR>::
-flush_ACE_Metrics_Cache ()
-{
-}
+flush_ACE_Metrics_Cache () { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

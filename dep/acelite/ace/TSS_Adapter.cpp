@@ -14,9 +14,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_TSS_Adapter::ACE_TSS_Adapter (void *object, ACE_THR_DEST f)
   : ts_obj_ (object),
-    func_ (f)
-{
-}
+    func_ (f) { }
 
 void
 ACE_TSS_Adapter::cleanup (void)

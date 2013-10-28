@@ -5,9 +5,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
-ACE_Control_Block::ACE_Name_Node::~ACE_Name_Node (void)
-{
-}
+ACE_Control_Block::ACE_Name_Node::~ACE_Name_Node (void) { }
 
 ACE_INLINE void
 ACE_Control_Block::ACE_Malloc_Header::init_ptr

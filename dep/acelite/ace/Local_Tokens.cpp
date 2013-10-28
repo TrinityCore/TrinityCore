@@ -38,9 +38,7 @@ ACE_Tokens::ACE_Tokens (void)
   ACE_TRACE ("ACE_Tokens::ACE_Tokens");
 }
 
-ACE_Tokens::~ACE_Tokens (void)
-{
-}
+ACE_Tokens::~ACE_Tokens (void) { }
 
 void
 ACE_Tokens::make_owner (ACE_TPQ_Entry *caller)
@@ -64,13 +62,9 @@ ACE_Tokens::no_of_waiters ()
 }
 
 #if defined (ACE_LACKS_INLINE_FUNCTIONS)
-ACE_Null_Token::ACE_Null_Token (void)
-{
-}
+ACE_Null_Token::ACE_Null_Token (void) { }
 
-ACE_Null_Token::~ACE_Null_Token (void)
-{
-}
+ACE_Null_Token::~ACE_Null_Token (void) { }
 #endif /* ACE_LACKS_INLINE_FUNCTIONS */
 
 void
@@ -177,9 +171,7 @@ ACE_TPQ_Entry::client_id (const ACE_TCHAR *id)
                     ACE_MAXCLIENTIDLEN);
 }
 
-ACE_TSS_TPQ_Entry::~ACE_TSS_TPQ_Entry (void)
-{
-}
+ACE_TSS_TPQ_Entry::~ACE_TSS_TPQ_Entry (void) { }
 
 void
 ACE_TSS_TPQ_Entry::dump (void) const
@@ -1542,15 +1534,11 @@ ACE_Local_Mutex::create_token (const ACE_TCHAR *name)
   return temp;
 }
 
-ACE_Local_Mutex::~ACE_Local_Mutex (void)
-{
-}
+ACE_Local_Mutex::~ACE_Local_Mutex (void) { }
 
 // ************************************************************
 
-ACE_Local_RLock::~ACE_Local_RLock (void)
-{
-}
+ACE_Local_RLock::~ACE_Local_RLock (void) { }
 
 ACE_Tokens *
 ACE_Local_RLock::create_token (const ACE_TCHAR *name)
@@ -1582,9 +1570,7 @@ ACE_Local_RLock::clone (void) const
 
 // ************************************************************
 
-ACE_Local_WLock::~ACE_Local_WLock (void)
-{
-}
+ACE_Local_WLock::~ACE_Local_WLock (void) { }
 
 ACE_Tokens *
 ACE_Local_WLock::create_token (const ACE_TCHAR *name)

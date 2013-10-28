@@ -12,51 +12,35 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 // implementing the special types
 ACE_INLINE
 ACE_OutputCDR::from_boolean::from_boolean (ACE_CDR::Boolean b)
-  : val_ (b)
-{
-}
+  : val_ (b) { }
 
 ACE_INLINE
 ACE_InputCDR::to_boolean::to_boolean (ACE_CDR::Boolean &b)
-  : ref_ (b)
-{
-}
+  : ref_ (b) { }
 
 ACE_INLINE
 ACE_OutputCDR::from_octet::from_octet (ACE_CDR::Octet o)
-  : val_ (o)
-{
-}
+  : val_ (o) { }
 
 ACE_INLINE
 ACE_InputCDR::to_octet::to_octet (ACE_CDR::Octet &o)
-  : ref_ (o)
-{
-}
+  : ref_ (o) { }
 
 ACE_INLINE
 ACE_OutputCDR::from_char::from_char (ACE_CDR::Char c)
-  : val_ (c)
-{
-}
+  : val_ (c) { }
 
 ACE_INLINE
 ACE_InputCDR::to_char::to_char (ACE_CDR::Char &c)
-  : ref_ (c)
-{
-}
+  : ref_ (c) { }
 
 ACE_INLINE
 ACE_OutputCDR::from_wchar::from_wchar (ACE_CDR::WChar wc)
-  : val_ (wc)
-{
-}
+  : val_ (wc) { }
 
 ACE_INLINE
 ACE_InputCDR::to_wchar::to_wchar (ACE_CDR::WChar &wc)
-  : ref_ (wc)
-{
-}
+  : ref_ (wc) { }
 
 ACE_INLINE
 ACE_OutputCDR::from_string::from_string (ACE_CDR::Char *s,
@@ -64,9 +48,7 @@ ACE_OutputCDR::from_string::from_string (ACE_CDR::Char *s,
                                          ACE_CDR::Boolean nocopy)
   : val_ (s),
     bound_ (b),
-    nocopy_ (nocopy)
-{
-}
+    nocopy_ (nocopy) { }
 
 ACE_INLINE
 ACE_OutputCDR::from_string::from_string (const ACE_CDR::Char *s,
@@ -74,25 +56,19 @@ ACE_OutputCDR::from_string::from_string (const ACE_CDR::Char *s,
                                          ACE_CDR::Boolean nocopy)
   : val_ (const_cast<ACE_CDR::Char *> (s)),
     bound_ (b),
-    nocopy_ (nocopy)
-{
-}
+    nocopy_ (nocopy) { }
 
 ACE_INLINE
 ACE_InputCDR::to_string::to_string (ACE_CDR::Char *&s,
                                     ACE_CDR::ULong b)
   : val_ (const_cast<const ACE_CDR::Char *&> (s)),
-    bound_ (b)
-{
-}
+    bound_ (b) { }
 
 ACE_INLINE
 ACE_InputCDR::to_string::to_string (const ACE_CDR::Char *&s,
                                     ACE_CDR::ULong b)
   : val_ (s),
-    bound_ (b)
-{
-}
+    bound_ (b) { }
 
 ACE_INLINE
 ACE_OutputCDR::from_wstring::from_wstring (ACE_CDR::WChar *ws,
@@ -100,9 +76,7 @@ ACE_OutputCDR::from_wstring::from_wstring (ACE_CDR::WChar *ws,
                                            ACE_CDR::Boolean nocopy)
   : val_ (ws),
     bound_ (b),
-    nocopy_ (nocopy)
-{
-}
+    nocopy_ (nocopy) { }
 
 ACE_INLINE
 ACE_OutputCDR::from_wstring::from_wstring (const ACE_CDR::WChar *ws,
@@ -110,31 +84,23 @@ ACE_OutputCDR::from_wstring::from_wstring (const ACE_CDR::WChar *ws,
                                            ACE_CDR::Boolean nocopy)
   : val_ (const_cast<ACE_CDR::WChar *> (ws)),
     bound_ (b),
-    nocopy_ (nocopy)
-{
-}
+    nocopy_ (nocopy) { }
 
 ACE_INLINE
 ACE_InputCDR::to_wstring::to_wstring (ACE_CDR::WChar *&ws,
                                       ACE_CDR::ULong b)
   : val_ (const_cast<const ACE_CDR::WChar *&> (ws)),
-    bound_ (b)
-{
-}
+    bound_ (b) { }
 
 ACE_INLINE
 ACE_InputCDR::to_wstring::to_wstring (const ACE_CDR::WChar *&ws,
                                       ACE_CDR::ULong b)
   : val_ (ws),
-    bound_ (b)
-{
-}
+    bound_ (b) { }
 
 ACE_INLINE
 ACE_InputCDR::Transfer_Contents::Transfer_Contents (ACE_InputCDR &rhs)
-  :  rhs_ (rhs)
-{
-}
+  :  rhs_ (rhs) { }
 
 // ****************************************************************
 

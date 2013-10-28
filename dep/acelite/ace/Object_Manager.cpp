@@ -145,9 +145,7 @@ ACE_Object_Manager_Preallocations::ACE_Object_Manager_Preallocations (void)
     insert (&ace_svc_desc_ACE_Service_Manager);
 }
 
-ACE_Object_Manager_Preallocations::~ACE_Object_Manager_Preallocations (void)
-{
-}
+ACE_Object_Manager_Preallocations::~ACE_Object_Manager_Preallocations (void) { }
 
 #endif /* ! ACE_LACKS_ACE_SVCCONF */
 

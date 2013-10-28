@@ -31,9 +31,7 @@ ACE_FlReactor::ACE_FlReactor (size_t size,
 #endif /* ACE_MT_SAFE */
 }
 
-ACE_FlReactor::~ACE_FlReactor (void)
-{
-}
+ACE_FlReactor::~ACE_FlReactor (void) { }
 
 // This is just the <wait_for_multiple_events> from ace/Reactor.cpp
 // but we use the Fl functions to wait for an event, not <select>

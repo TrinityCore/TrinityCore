@@ -15,42 +15,30 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
 ACE_NS_WString::ACE_NS_WString (ACE_Allocator *alloc)
-  : ACE_WString (alloc)
-{
-}
+  : ACE_WString (alloc) { }
 
 ACE_INLINE
 ACE_NS_WString::ACE_NS_WString (const ACE_WSTRING_TYPE *s,
                                 size_type len,
                                 ACE_Allocator *alloc)
-  : ACE_WString (s, len, alloc)
-{
-}
+  : ACE_WString (s, len, alloc) { }
 
 ACE_INLINE
 ACE_NS_WString::ACE_NS_WString (const ACE_WSTRING_TYPE *s,
                                 ACE_Allocator *alloc)
-  : ACE_WString (s, alloc)
-{
-}
+  : ACE_WString (s, alloc) { }
 
 ACE_INLINE
 ACE_NS_WString::ACE_NS_WString (size_type len, ACE_Allocator *alloc)
-  : ACE_WString (len, 0, alloc)
-{
-}
+  : ACE_WString (len, 0, alloc) { }
 
 ACE_INLINE
 ACE_NS_WString::ACE_NS_WString (const ACE_NS_WString &s)
-  : ACE_WString (s)
-{
-}
+  : ACE_WString (s) { }
 
 ACE_INLINE
 ACE_NS_WString::ACE_NS_WString (ACE_WSTRING_TYPE c, ACE_Allocator *alloc)
-  : ACE_WString (c, alloc)
-{
-}
+  : ACE_WString (c, alloc) { }
 
 ACE_INLINE ACE_NS_WString
 operator+ (const ACE_NS_WString &s, const ACE_NS_WString &t)
@@ -63,9 +51,7 @@ operator+ (const ACE_NS_WString &s, const ACE_NS_WString &t)
 // -------------------------------------------------------
 
 ACE_INLINE
-ACE_SString::~ACE_SString (void)
-{
-}
+ACE_SString::~ACE_SString (void) { }
 
 ACE_INLINE ACE_SString
 ACE_SString::substr (size_type offset,
@@ -235,9 +221,7 @@ ACE_SString::length (void) const
 
 ACE_INLINE
 ACE_Auto_String_Free::ACE_Auto_String_Free (char* p)
-  :  p_ (p)
-{
-}
+  :  p_ (p) { }
 
 ACE_INLINE
 ACE_Auto_String_Free::ACE_Auto_String_Free (ACE_Auto_String_Free& rhs)

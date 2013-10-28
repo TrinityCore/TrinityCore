@@ -14,9 +14,7 @@ ACE_System_Time_Policy::operator()() const
 }
 
 ACE_INLINE void
-ACE_System_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void))
-{
-}
+ACE_System_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void)) { }
 
 ACE_INLINE ACE_Time_Value_T<ACE_HR_Time_Policy>
 ACE_HR_Time_Policy::operator()() const
@@ -25,22 +23,16 @@ ACE_HR_Time_Policy::operator()() const
 }
 
 ACE_INLINE void
-ACE_HR_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void))
-{
-}
+ACE_HR_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void)) { }
 
 ACE_INLINE
 ACE_FPointer_Time_Policy::ACE_FPointer_Time_Policy()
-  : function_(ACE_OS::gettimeofday)
-{
-}
+  : function_(ACE_OS::gettimeofday) { }
 
 ACE_INLINE
 ACE_FPointer_Time_Policy::
 ACE_FPointer_Time_Policy(ACE_FPointer_Time_Policy::FPtr f)
-  : function_(f)
-{
-}
+  : function_(f) { }
 
 ACE_INLINE ACE_Time_Value_T<ACE_FPointer_Time_Policy>
 ACE_FPointer_Time_Policy::operator()() const
@@ -61,9 +53,7 @@ ACE_Dynamic_Time_Policy_Base::operator()() const
 }
 
 ACE_INLINE void
-ACE_Dynamic_Time_Policy_Base::set_gettimeofday (ACE_Time_Value (*)(void))
-{
-}
+ACE_Dynamic_Time_Policy_Base::set_gettimeofday (ACE_Time_Value (*)(void)) { }
 
 ACE_INLINE ACE_Time_Value_T<ACE_Delegating_Time_Policy>
 ACE_Delegating_Time_Policy::operator()() const
@@ -72,9 +62,7 @@ ACE_Delegating_Time_Policy::operator()() const
 }
 
 ACE_INLINE void
-ACE_Delegating_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void))
-{
-}
+ACE_Delegating_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void)) { }
 
 ACE_INLINE void
 ACE_Delegating_Time_Policy::set_delegate (ACE_Dynamic_Time_Policy_Base const * delegate)

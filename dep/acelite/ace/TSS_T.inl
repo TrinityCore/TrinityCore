@@ -11,9 +11,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 template <class TYPE> ACE_INLINE
 ACE_TSS<TYPE>::ACE_TSS (TYPE *type)
-  : type_ (type)
-{
-}
+  : type_ (type) { }
 
 template <class TYPE> ACE_INLINE int
 ACE_TSS<TYPE>::ts_init (void)

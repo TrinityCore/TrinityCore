@@ -15,13 +15,9 @@ ACE_Task_Base::ACE_Task_Base (ACE_Thread_Manager *thr_man)
     thr_mgr_ (thr_man),
     flags_ (0),
     grp_id_ (-1)
-    ,last_thread_id_ (0)
-{
-}
+    ,last_thread_id_ (0) { }
 
-ACE_Task_Base::~ACE_Task_Base (void)
-{
-}
+ACE_Task_Base::~ACE_Task_Base (void) { }
 
 /// Default ACE_Task service routine
 int

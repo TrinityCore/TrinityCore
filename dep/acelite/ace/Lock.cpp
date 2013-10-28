@@ -10,18 +10,12 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_Lock::~ACE_Lock (void)
-{
-}
+ACE_Lock::~ACE_Lock (void) { }
 
 ACE_Adaptive_Lock::ACE_Adaptive_Lock (void)
-  : lock_ (0)
-{
-}
+  : lock_ (0) { }
 
-ACE_Adaptive_Lock::~ACE_Adaptive_Lock (void)
-{
-}
+ACE_Adaptive_Lock::~ACE_Adaptive_Lock (void) { }
 
 int
 ACE_Adaptive_Lock::remove (void)

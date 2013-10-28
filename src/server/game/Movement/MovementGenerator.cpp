@@ -18,6 +18,4 @@
 
 #include "MovementGenerator.h"
 
-MovementGenerator::~MovementGenerator()
-{
-}
+MovementGenerator::~MovementGenerator() { }

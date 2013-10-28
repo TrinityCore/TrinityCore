@@ -11,12 +11,8 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 ACE_Notification_Strategy::ACE_Notification_Strategy (ACE_Event_Handler *eh,
                                                       ACE_Reactor_Mask mask)
   : eh_ (eh),
-    mask_ (mask)
-{
-}
+    mask_ (mask) { }
 
-ACE_Notification_Strategy::~ACE_Notification_Strategy (void)
-{
-}
+ACE_Notification_Strategy::~ACE_Notification_Strategy (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

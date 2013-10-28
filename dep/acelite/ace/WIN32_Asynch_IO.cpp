@@ -104,9 +104,7 @@ ACE_WIN32_Asynch_Result::set_error (u_long errcode)
   this->error_ = errcode;
 }
 
-ACE_WIN32_Asynch_Result::~ACE_WIN32_Asynch_Result (void)
-{
-}
+ACE_WIN32_Asynch_Result::~ACE_WIN32_Asynch_Result (void) { }
 
 ACE_WIN32_Asynch_Result::ACE_WIN32_Asynch_Result
    (const ACE_Handler::Proxy_Ptr &handler_proxy,
@@ -200,13 +198,9 @@ ACE_WIN32_Asynch_Operation::ACE_WIN32_Asynch_Operation (ACE_WIN32_Proactor *win3
   : ACE_Asynch_Operation_Impl (),
     win32_proactor_ (win32_proactor),
     proactor_ (0),
-    handle_ (ACE_INVALID_HANDLE)
-{
-}
+    handle_ (ACE_INVALID_HANDLE) { }
 
-ACE_WIN32_Asynch_Operation::~ACE_WIN32_Asynch_Operation (void)
-{
-}
+ACE_WIN32_Asynch_Operation::~ACE_WIN32_Asynch_Operation (void) { }
 
 // ************************************************************
 
@@ -250,9 +244,7 @@ ACE_WIN32_Asynch_Read_Stream_Result::ACE_WIN32_Asynch_Read_Stream_Result (
     bytes_to_read_ (bytes_to_read),
     message_block_ (message_block),
     handle_ (handle),
-    scatter_enabled_ (scatter_enabled)
-{
-}
+    scatter_enabled_ (scatter_enabled) { }
 
 void
 ACE_WIN32_Asynch_Read_Stream_Result::complete (size_t bytes_transferred,
@@ -295,9 +287,7 @@ ACE_WIN32_Asynch_Read_Stream_Result::complete (size_t bytes_transferred,
     handler->handle_read_stream (result);
 }
 
-ACE_WIN32_Asynch_Read_Stream_Result::~ACE_WIN32_Asynch_Read_Stream_Result (void)
-{
-}
+ACE_WIN32_Asynch_Read_Stream_Result::~ACE_WIN32_Asynch_Read_Stream_Result (void) { }
 
 // Base class operations. These operations are here to kill dominance
 // warnings. These methods call the base class methods.
@@ -377,9 +367,7 @@ ACE_WIN32_Asynch_Read_Stream_Result::scatter_enabled (void) const
 ACE_WIN32_Asynch_Read_Stream::ACE_WIN32_Asynch_Read_Stream (ACE_WIN32_Proactor *win32_proactor)
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Read_Stream_Impl (),
-    ACE_WIN32_Asynch_Operation (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Operation (win32_proactor) { }
 
 int
 ACE_WIN32_Asynch_Read_Stream::read (ACE_Message_Block &message_block,
@@ -563,9 +551,7 @@ ACE_WIN32_Asynch_Read_Stream::readv (ACE_Message_Block &message_block,
 #endif /* ACE_HAS_WINSOCK2 && ACE_HAS_WINSOCK2 != 0 */
 }
 
-ACE_WIN32_Asynch_Read_Stream::~ACE_WIN32_Asynch_Read_Stream (void)
-{
-}
+ACE_WIN32_Asynch_Read_Stream::~ACE_WIN32_Asynch_Read_Stream (void) { }
 
 int
 ACE_WIN32_Asynch_Read_Stream::shared_read (ACE_WIN32_Asynch_Read_Stream_Result *result)
@@ -680,9 +666,7 @@ ACE_WIN32_Asynch_Write_Stream_Result::ACE_WIN32_Asynch_Write_Stream_Result (
     bytes_to_write_ (bytes_to_write),
     message_block_ (message_block),
     handle_ (handle),
-    gather_enabled_ (gather_enabled)
-{
-}
+    gather_enabled_ (gather_enabled) { }
 
 void
 ACE_WIN32_Asynch_Write_Stream_Result::complete (size_t bytes_transferred,
@@ -725,9 +709,7 @@ ACE_WIN32_Asynch_Write_Stream_Result::complete (size_t bytes_transferred,
     handler->handle_write_stream (result);
 }
 
-ACE_WIN32_Asynch_Write_Stream_Result::~ACE_WIN32_Asynch_Write_Stream_Result (void)
-{
-}
+ACE_WIN32_Asynch_Write_Stream_Result::~ACE_WIN32_Asynch_Write_Stream_Result (void) { }
 
 // Base class operations. These operations are here to kill dominance
 // warnings. These methods call the base class methods.
@@ -807,9 +789,7 @@ ACE_WIN32_Asynch_Write_Stream_Result::gather_enabled (void) const
 ACE_WIN32_Asynch_Write_Stream::ACE_WIN32_Asynch_Write_Stream (ACE_WIN32_Proactor *win32_proactor)
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Write_Stream_Impl (),
-    ACE_WIN32_Asynch_Operation (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Operation (win32_proactor) { }
 
 int
 ACE_WIN32_Asynch_Write_Stream::write (ACE_Message_Block &message_block,
@@ -990,9 +970,7 @@ ACE_WIN32_Asynch_Write_Stream::writev (ACE_Message_Block &message_block,
 #endif /* ACE_HAS_WINSOCK2 && ACE_HAS_WINSOCK2 != 0 */
 }
 
-ACE_WIN32_Asynch_Write_Stream::~ACE_WIN32_Asynch_Write_Stream (void)
-{
-}
+ACE_WIN32_Asynch_Write_Stream::~ACE_WIN32_Asynch_Write_Stream (void) { }
 
 int
 ACE_WIN32_Asynch_Write_Stream::shared_write (ACE_WIN32_Asynch_Write_Stream_Result *result)
@@ -1162,9 +1140,7 @@ ACE_WIN32_Asynch_Read_File_Result::complete (size_t bytes_transferred,
     handler->handle_read_file (result);
 }
 
-ACE_WIN32_Asynch_Read_File_Result::~ACE_WIN32_Asynch_Read_File_Result (void)
-{
-}
+ACE_WIN32_Asynch_Read_File_Result::~ACE_WIN32_Asynch_Read_File_Result (void) { }
 
 // Base class operations. These operations are here to kill dominance
 // warnings. These methods call the base class methods.
@@ -1264,9 +1240,7 @@ ACE_WIN32_Asynch_Read_File::ACE_WIN32_Asynch_Read_File (ACE_WIN32_Proactor *win3
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Read_Stream_Impl (),
     ACE_Asynch_Read_File_Impl (),
-    ACE_WIN32_Asynch_Read_Stream (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Read_Stream (win32_proactor) { }
 
 int
 ACE_WIN32_Asynch_Read_File::read (ACE_Message_Block &message_block,
@@ -1428,9 +1402,7 @@ ACE_WIN32_Asynch_Read_File::readv (ACE_Message_Block &message_block,
 }
 
 
-ACE_WIN32_Asynch_Read_File::~ACE_WIN32_Asynch_Read_File (void)
-{
-}
+ACE_WIN32_Asynch_Read_File::~ACE_WIN32_Asynch_Read_File (void) { }
 
 int
 ACE_WIN32_Asynch_Read_File::read (ACE_Message_Block &message_block,
@@ -1565,9 +1537,7 @@ ACE_WIN32_Asynch_Write_File_Result::complete (size_t bytes_transferred,
     handler->handle_write_file (result);
 }
 
-ACE_WIN32_Asynch_Write_File_Result::~ACE_WIN32_Asynch_Write_File_Result  (void)
-{
-}
+ACE_WIN32_Asynch_Write_File_Result::~ACE_WIN32_Asynch_Write_File_Result  (void) { }
 
 // Base class operations. These operations are here to kill dominance
 // warnings. These methods call the base class methods.
@@ -1665,9 +1635,7 @@ ACE_WIN32_Asynch_Write_File::ACE_WIN32_Asynch_Write_File (ACE_WIN32_Proactor *wi
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Write_Stream_Impl (),
     ACE_Asynch_Write_File_Impl (),
-    ACE_WIN32_Asynch_Write_Stream (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Write_Stream (win32_proactor) { }
 
 int
 ACE_WIN32_Asynch_Write_File::write (ACE_Message_Block &message_block,
@@ -1835,9 +1803,7 @@ ACE_WIN32_Asynch_Write_File::writev (ACE_Message_Block &message_block,
 }
 
 
-ACE_WIN32_Asynch_Write_File::~ACE_WIN32_Asynch_Write_File (void)
-{
-}
+ACE_WIN32_Asynch_Write_File::~ACE_WIN32_Asynch_Write_File (void) { }
 
 int
 ACE_WIN32_Asynch_Write_File::write (ACE_Message_Block &message_block,
@@ -1941,9 +1907,7 @@ ACE_WIN32_Asynch_Accept_Result::ACE_WIN32_Asynch_Accept_Result (
     bytes_to_read_ (bytes_to_read),
     message_block_ (message_block),
     listen_handle_ (listen_handle),
-    accept_handle_ (accept_handle)
-{
-}
+    accept_handle_ (accept_handle) { }
 
 void
 ACE_WIN32_Asynch_Accept_Result::complete (size_t bytes_transferred,
@@ -1975,9 +1939,7 @@ ACE_WIN32_Asynch_Accept_Result::complete (size_t bytes_transferred,
     handler->handle_accept (result);
 }
 
-ACE_WIN32_Asynch_Accept_Result::~ACE_WIN32_Asynch_Accept_Result (void)
-{
-}
+ACE_WIN32_Asynch_Accept_Result::~ACE_WIN32_Asynch_Accept_Result (void) { }
 
 // Base class operations. These operations are here to kill dominance
 // warnings. These methods call the base class methods.
@@ -2051,9 +2013,7 @@ ACE_WIN32_Asynch_Accept_Result::post_completion (ACE_Proactor_Impl *proactor)
 ACE_WIN32_Asynch_Accept::ACE_WIN32_Asynch_Accept (ACE_WIN32_Proactor *win32_proactor)
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Accept_Impl (),
-    ACE_WIN32_Asynch_Operation (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Operation (win32_proactor) { }
 
 int
 ACE_WIN32_Asynch_Accept::accept (ACE_Message_Block &message_block,
@@ -2180,9 +2140,7 @@ ACE_WIN32_Asynch_Accept::accept (ACE_Message_Block &message_block,
 #endif /* defined (ACE_HAS_WIN32_OVERLAPPED_IO) || (defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)) */
 }
 
-ACE_WIN32_Asynch_Accept::~ACE_WIN32_Asynch_Accept (void)
-{
-}
+ACE_WIN32_Asynch_Accept::~ACE_WIN32_Asynch_Accept (void) { }
 
 // Methods belong to ACE_WIN32_Asynch_Operation base class. These
 // methods are defined here to avoid VC++ warnings. They route the
@@ -2263,9 +2221,7 @@ ACE_WIN32_Asynch_Connect_Result::complete (size_t bytes_transferred,
     handler->handle_connect (result);
 }
 
-ACE_WIN32_Asynch_Connect_Result::~ACE_WIN32_Asynch_Connect_Result (void)
-{
-}
+ACE_WIN32_Asynch_Connect_Result::~ACE_WIN32_Asynch_Connect_Result (void) { }
 
 // Base class operations. These operations are here to kill dominance
 // warnings. These methods call the base class methods.
@@ -2342,9 +2298,7 @@ ACE_WIN32_Asynch_Connect::ACE_WIN32_Asynch_Connect (ACE_WIN32_Proactor * win32_p
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Connect_Impl (),
     ACE_WIN32_Asynch_Operation (win32_proactor),
-    flg_open_ (false)
-{
-}
+    flg_open_ (false) { }
 
 ACE_WIN32_Asynch_Connect::~ACE_WIN32_Asynch_Connect (void)
 {
@@ -2846,9 +2800,7 @@ ACE_WIN32_Asynch_Transmit_File_Result::ACE_WIN32_Asynch_Transmit_File_Result (
     header_and_trailer_ (header_and_trailer),
     bytes_to_write_ (bytes_to_write),
     bytes_per_send_ (bytes_per_send),
-    flags_ (flags)
-{
-}
+    flags_ (flags) { }
 
 void
 ACE_WIN32_Asynch_Transmit_File_Result::complete (size_t bytes_transferred,
@@ -2887,9 +2839,7 @@ ACE_WIN32_Asynch_Transmit_File_Result::complete (size_t bytes_transferred,
     handler->handle_transmit_file (result);
 }
 
-ACE_WIN32_Asynch_Transmit_File_Result::~ACE_WIN32_Asynch_Transmit_File_Result (void)
-{
-}
+ACE_WIN32_Asynch_Transmit_File_Result::~ACE_WIN32_Asynch_Transmit_File_Result (void) { }
 
 // Base class operations. These operations are here to kill dominance
 // warnings. These methods call the base class methods.
@@ -2963,9 +2913,7 @@ ACE_WIN32_Asynch_Transmit_File_Result::post_completion (ACE_Proactor_Impl *proac
 ACE_WIN32_Asynch_Transmit_File::ACE_WIN32_Asynch_Transmit_File (ACE_WIN32_Proactor *win32_proactor)
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Transmit_File_Impl (),
-    ACE_WIN32_Asynch_Operation (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Operation (win32_proactor) { }
 
 int
 ACE_WIN32_Asynch_Transmit_File::transmit_file (ACE_HANDLE file,
@@ -3062,9 +3010,7 @@ ACE_WIN32_Asynch_Transmit_File::transmit_file (ACE_HANDLE file,
 #endif /* ACE_HAS_WIN32_OVERLAPPED_IO || ACE_HAS_WINSOCK2 */
 }
 
-ACE_WIN32_Asynch_Transmit_File::~ACE_WIN32_Asynch_Transmit_File (void)
-{
-}
+ACE_WIN32_Asynch_Transmit_File::~ACE_WIN32_Asynch_Transmit_File (void) { }
 
 // Methods belong to ACE_WIN32_Asynch_Operation base class. These
 // methods are defined here to avoid VC++ warnings. They route the
@@ -3283,9 +3229,7 @@ ACE_WIN32_Asynch_Read_Dgram_Result::~ACE_WIN32_Asynch_Read_Dgram_Result (void)
 
 //***************************************************************************
 
-ACE_WIN32_Asynch_Read_Dgram::~ACE_WIN32_Asynch_Read_Dgram (void)
-{
-}
+ACE_WIN32_Asynch_Read_Dgram::~ACE_WIN32_Asynch_Read_Dgram (void) { }
 
 ssize_t
 ACE_WIN32_Asynch_Read_Dgram::recv (ACE_Message_Block *message_block,
@@ -3450,9 +3394,7 @@ ACE_WIN32_Asynch_Read_Dgram::proactor (void) const
 ACE_WIN32_Asynch_Read_Dgram::ACE_WIN32_Asynch_Read_Dgram (ACE_WIN32_Proactor *win32_proactor)
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Read_Dgram_Impl (),
-    ACE_WIN32_Asynch_Operation (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Operation (win32_proactor) { }
 
 //***********************************************
 
@@ -3568,9 +3510,7 @@ ACE_WIN32_Asynch_Write_Dgram_Result::ACE_WIN32_Asynch_Write_Dgram_Result (
     bytes_to_write_ (bytes_to_write),
     message_block_ (message_block),
     flags_ (flags),
-    handle_ (handle)
-{
-}
+    handle_ (handle) { }
 
 void
 ACE_WIN32_Asynch_Write_Dgram_Result::complete (size_t bytes_transferred,
@@ -3608,16 +3548,12 @@ ACE_WIN32_Asynch_Write_Dgram_Result::complete (size_t bytes_transferred,
     handler->handle_write_dgram (result);
 }
 
-ACE_WIN32_Asynch_Write_Dgram_Result::~ACE_WIN32_Asynch_Write_Dgram_Result (void)
-{
-}
+ACE_WIN32_Asynch_Write_Dgram_Result::~ACE_WIN32_Asynch_Write_Dgram_Result (void) { }
 
 
 //***********************************************
 
-ACE_WIN32_Asynch_Write_Dgram::~ACE_WIN32_Asynch_Write_Dgram (void)
-{
-}
+ACE_WIN32_Asynch_Write_Dgram::~ACE_WIN32_Asynch_Write_Dgram (void) { }
 
 ssize_t
 ACE_WIN32_Asynch_Write_Dgram::send (ACE_Message_Block *message_block,
@@ -3775,9 +3711,7 @@ ACE_WIN32_Asynch_Write_Dgram::proactor (void) const
 ACE_WIN32_Asynch_Write_Dgram::ACE_WIN32_Asynch_Write_Dgram (ACE_WIN32_Proactor *win32_proactor)
   : ACE_Asynch_Operation_Impl (),
     ACE_Asynch_Write_Dgram_Impl (),
-    ACE_WIN32_Asynch_Operation (win32_proactor)
-{
-}
+    ACE_WIN32_Asynch_Operation (win32_proactor) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

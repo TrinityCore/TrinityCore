@@ -5,17 +5,13 @@
 
 ACE_INLINE
 ETCL_Literal_Constraint::ETCL_Literal_Constraint (void)
-  : type_ (ACE_ETCL_UNKNOWN)
-{
-}
+  : type_ (ACE_ETCL_UNKNOWN) { }
 
 // ****************************************************************
 
 ACE_INLINE
 ETCL_Identifier::ETCL_Identifier (const char *value)
-  : string_ (value)
-{
-}
+  : string_ (value) { }
 
 ACE_INLINE const char *
 ETCL_Identifier::value (void) const
@@ -203,9 +199,7 @@ ETCL_Component::component (void) const
 
 ACE_INLINE
 ETCL_Dot::ETCL_Dot (ETCL_Constraint *component)
-  : component_ (component)
-{
-}
+  : component_ (component) { }
 
 ACE_INLINE ETCL_Constraint *
 ETCL_Dot::component (void) const
@@ -217,9 +211,7 @@ ETCL_Dot::component (void) const
 
 ACE_INLINE
 ETCL_Eval::ETCL_Eval (ETCL_Constraint *component)
-  : component_ (component)
-{
-}
+  : component_ (component) { }
 
 ACE_INLINE ETCL_Constraint *
 ETCL_Eval::component (void) const
@@ -231,9 +223,7 @@ ETCL_Eval::component (void) const
 
 ACE_INLINE
 ETCL_Default::ETCL_Default (ETCL_Constraint *component)
-  : component_ (component)
-{
-}
+  : component_ (component) { }
 
 ACE_INLINE ETCL_Constraint *
 ETCL_Default::component (void) const
@@ -245,9 +235,7 @@ ETCL_Default::component (void) const
 
 ACE_INLINE
 ETCL_Exist::ETCL_Exist (ETCL_Constraint *component)
-  : component_ (component)
-{
-}
+  : component_ (component) { }
 
 ACE_INLINE ETCL_Constraint *
 ETCL_Exist::component (void) const

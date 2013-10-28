@@ -16,9 +16,7 @@ ACE_Auto_Event::ACE_Auto_Event (int initial_state,
                initial_state,
                type,
                ACE_TEXT_CHAR_TO_TCHAR (name),
-               arg)
-{
-}
+               arg) { }
 
 #if defined (ACE_HAS_WCHAR)
 ACE_Auto_Event::ACE_Auto_Event (int initial_state,
@@ -29,9 +27,7 @@ ACE_Auto_Event::ACE_Auto_Event (int initial_state,
                initial_state,
                type,
                ACE_TEXT_WCHAR_TO_TCHAR (name),
-               arg)
-{
-}
+               arg) { }
 #endif /* ACE_HAS_WCHAR */
 
 void

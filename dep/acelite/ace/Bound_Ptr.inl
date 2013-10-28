@@ -134,28 +134,20 @@ ACE_Bound_Ptr_Counter<ACE_LOCK>::object_was_deleted (ACE_Bound_Ptr_Counter<ACE_L
 template <class ACE_LOCK> inline
 ACE_Bound_Ptr_Counter<ACE_LOCK>::ACE_Bound_Ptr_Counter (long init_obj_ref_count)
   : obj_ref_count_ (init_obj_ref_count),
-    self_ref_count_ (1)
-{
-}
+    self_ref_count_ (1) { }
 
 template <class ACE_LOCK> inline
-ACE_Bound_Ptr_Counter<ACE_LOCK>::~ACE_Bound_Ptr_Counter (void)
-{
-}
+ACE_Bound_Ptr_Counter<ACE_LOCK>::~ACE_Bound_Ptr_Counter (void) { }
 
 template <class X, class ACE_LOCK> inline
 ACE_Strong_Bound_Ptr<X, ACE_LOCK>::ACE_Strong_Bound_Ptr (X *p)
   : counter_ (COUNTER::create_strong ()),
-    ptr_ (p)
-{
-}
+    ptr_ (p) { }
 
 template <class X, class ACE_LOCK> inline
 ACE_Strong_Bound_Ptr<X, ACE_LOCK>::ACE_Strong_Bound_Ptr (auto_ptr<X> p)
   : counter_ (COUNTER::create_strong ()),
-    ptr_ (p.release())
-{
-}
+    ptr_ (p.release()) { }
 
 template <class X, class ACE_LOCK> inline
 ACE_Strong_Bound_Ptr<X, ACE_LOCK>::ACE_Strong_Bound_Ptr (const ACE_Strong_Bound_Ptr<X, ACE_LOCK> &r)
@@ -319,9 +311,7 @@ ACE_Strong_Bound_Ptr<X, ACE_LOCK>::reset (auto_ptr<X> p)
 template <class X, class ACE_LOCK> inline
 ACE_Weak_Bound_Ptr<X, ACE_LOCK>::ACE_Weak_Bound_Ptr (X *p)
   : counter_ (COUNTER::create_weak ()),
-    ptr_ (p)
-{
-}
+    ptr_ (p) { }
 
 template <class X, class ACE_LOCK> inline
 ACE_Weak_Bound_Ptr<X, ACE_LOCK>::ACE_Weak_Bound_Ptr (const ACE_Weak_Bound_Ptr<X, ACE_LOCK> &r)

@@ -17,30 +17,20 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 template <class T>
-ACE_Future_Holder<T>::ACE_Future_Holder (void)
-{
-}
+ACE_Future_Holder<T>::ACE_Future_Holder (void) { }
 
 template <class T>
 ACE_Future_Holder<T>::ACE_Future_Holder (const ACE_Future<T> &item)
-  : item_ (item)
-{
-}
+  : item_ (item) { }
 
 template <class T>
-ACE_Future_Holder<T>::~ACE_Future_Holder (void)
-{
-}
+ACE_Future_Holder<T>::~ACE_Future_Holder (void) { }
 
 template <class T>
-ACE_Future_Observer<T>::ACE_Future_Observer (void)
-{
-}
+ACE_Future_Observer<T>::ACE_Future_Observer (void) { }
 
 template <class T>
-ACE_Future_Observer<T>::~ACE_Future_Observer (void)
-{
-}
+ACE_Future_Observer<T>::~ACE_Future_Observer (void) { }
 
 // Dump the state of an object.
 
@@ -146,9 +136,7 @@ template <class T>
 ACE_Future_Rep<T>::ACE_Future_Rep (void)
   : value_ (0),
     ref_count_ (0),
-    value_ready_ (value_ready_mutex_)
-{
-}
+    value_ready_ (value_ready_mutex_) { }
 
 template <class T>
 ACE_Future_Rep<T>::~ACE_Future_Rep (void)
@@ -287,15 +275,11 @@ ACE_Future_Rep<T>::operator T ()
 
 template <class T>
 ACE_Future<T>::ACE_Future (void)
-  : future_rep_ (FUTURE_REP::create ())
-{
-}
+  : future_rep_ (FUTURE_REP::create ()) { }
 
 template <class T>
 ACE_Future<T>::ACE_Future (const ACE_Future<T> &r)
-  : future_rep_ (FUTURE_REP::attach (((ACE_Future<T> &) r).future_rep_))
-{
-}
+  : future_rep_ (FUTURE_REP::attach (((ACE_Future<T> &) r).future_rep_)) { }
 
 template <class T>
 ACE_Future<T>::ACE_Future (const T &r)

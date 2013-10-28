@@ -21,9 +21,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_WFMO_Reactor_Handler_Repository::ACE_WFMO_Reactor_Handler_Repository (ACE_WFMO_Reactor &wfmo_reactor)
-  : wfmo_reactor_ (wfmo_reactor)
-{
-}
+  : wfmo_reactor_ (wfmo_reactor) { }
 
 int
 ACE_WFMO_Reactor_Handler_Repository::open (size_t size)
@@ -2402,9 +2400,7 @@ ACE_WFMO_Reactor_Notify::ACE_WFMO_Reactor_Notify (size_t max_notifies)
   : timer_queue_ (0),
     message_queue_ (max_notifies * sizeof (ACE_Notification_Buffer),
                     max_notifies * sizeof (ACE_Notification_Buffer)),
-    max_notify_iterations_ (-1)
-{
-}
+    max_notify_iterations_ (-1) { }
 
 int
 ACE_WFMO_Reactor_Notify::open (ACE_Reactor_Impl *wfmo_reactor,

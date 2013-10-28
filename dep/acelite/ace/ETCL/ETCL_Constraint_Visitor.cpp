@@ -13,9 +13,7 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ETCL_Constraint_Visitor::~ETCL_Constraint_Visitor (void)
-{
-}
+ETCL_Constraint_Visitor::~ETCL_Constraint_Visitor (void) { }
 
 int
 ETCL_Constraint_Visitor::visit_literal (ETCL_Literal_Constraint *)

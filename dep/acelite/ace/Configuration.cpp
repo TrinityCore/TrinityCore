@@ -17,13 +17,9 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Section_Key_Internal::ACE_Section_Key_Internal (void)
-  : ref_count_ (0)
-{
-}
+  : ref_count_ (0) { }
 
-ACE_Section_Key_Internal::~ACE_Section_Key_Internal (void)
-{
-}
+ACE_Section_Key_Internal::~ACE_Section_Key_Internal (void) { }
 
 int
 ACE_Section_Key_Internal::add_ref (void)
@@ -41,9 +37,7 @@ ACE_Section_Key_Internal::dec_ref (void)
 }
 
 ACE_Configuration_Section_Key::ACE_Configuration_Section_Key (void)
-  : key_ (0)
-{
-}
+  : key_ (0) { }
 
 ACE_Configuration_Section_Key::~ACE_Configuration_Section_Key (void)
 {
@@ -86,13 +80,9 @@ ACE_Configuration_Section_Key::operator= (const ACE_Configuration_Section_Key& r
 ACE_TCHAR ACE_Configuration::NULL_String_ = '\0';
 
 ACE_Configuration::ACE_Configuration (void)
-  : root_ ()
-{
-}
+  : root_ () { }
 
-ACE_Configuration::~ACE_Configuration (void)
-{
-}
+ACE_Configuration::~ACE_Configuration (void) { }
 
 ACE_Section_Key_Internal*
 ACE_Configuration::get_internal_key (const ACE_Configuration_Section_Key& key)
@@ -425,9 +415,7 @@ static const ACE_TCHAR *temp_name (const ACE_TCHAR *name)
 }
 
 ACE_Section_Key_Win32::ACE_Section_Key_Win32 (HKEY hKey)
-  : hKey_ (hKey)
-{
-}
+  : hKey_ (hKey) { }
 
 ACE_Section_Key_Win32::~ACE_Section_Key_Win32 (void)
 {
@@ -460,9 +448,7 @@ ACE_Configuration_Win32Registry::ACE_Configuration_Win32Registry (HKEY hKey)
 }
 
 
-ACE_Configuration_Win32Registry::~ACE_Configuration_Win32Registry (void)
-{
-}
+ACE_Configuration_Win32Registry::~ACE_Configuration_Win32Registry (void) { }
 
 int
 ACE_Configuration_Win32Registry::open_section (const ACE_Configuration_Section_Key& base,
@@ -1077,13 +1063,9 @@ ACE_Configuration_Value_IntId::ACE_Configuration_Value_IntId (void* data, size_t
 ACE_Configuration_Value_IntId::ACE_Configuration_Value_IntId (const ACE_Configuration_Value_IntId& rhs)
   : type_ (rhs.type_),
     data_ (rhs.data_),
-    length_ (rhs.length_)
-{
-}
+    length_ (rhs.length_) { }
 
-ACE_Configuration_Value_IntId::~ACE_Configuration_Value_IntId (void)
-{
-}
+ACE_Configuration_Value_IntId::~ACE_Configuration_Value_IntId (void) { }
 
 ACE_Configuration_Value_IntId& ACE_Configuration_Value_IntId::operator= (const ACE_Configuration_Value_IntId& rhs)
 {
@@ -1106,23 +1088,15 @@ ACE_Configuration_Value_IntId::free (ACE_Allocator *alloc)
 }
 
 ACE_Configuration_ExtId::ACE_Configuration_ExtId (void)
-  : name_ (0)
-{
-}
+  : name_ (0) { }
 
 ACE_Configuration_ExtId::ACE_Configuration_ExtId (const ACE_TCHAR* name)
-  : name_ (name)
-{
-}
+  : name_ (name) { }
 
 ACE_Configuration_ExtId::ACE_Configuration_ExtId (const ACE_Configuration_ExtId& rhs)
-  : name_ (rhs.name_)
-{
-}
+  : name_ (rhs.name_) { }
 
-ACE_Configuration_ExtId::~ACE_Configuration_ExtId (void)
-{
-}
+ACE_Configuration_ExtId::~ACE_Configuration_ExtId (void) { }
 
 ACE_Configuration_ExtId& ACE_Configuration_ExtId::operator= (const ACE_Configuration_ExtId& rhs)
 {
@@ -1161,15 +1135,11 @@ ACE_Configuration_ExtId::free (ACE_Allocator *alloc)
 
 ACE_Configuration_Section_IntId::ACE_Configuration_Section_IntId (void)
   : value_hash_map_ (0),
-    section_hash_map_ (0)
-{
-}
+    section_hash_map_ (0) { }
 
 ACE_Configuration_Section_IntId::ACE_Configuration_Section_IntId (VALUE_MAP* value_hash_map, SUBSECTION_MAP* section_hash_map)
   : value_hash_map_ (value_hash_map),
-    section_hash_map_ (section_hash_map)
-{
-}
+    section_hash_map_ (section_hash_map) { }
 
 ACE_Configuration_Section_IntId::ACE_Configuration_Section_IntId (const ACE_Configuration_Section_IntId& rhs)
   : value_hash_map_ (rhs.value_hash_map_),
@@ -1178,9 +1148,7 @@ ACE_Configuration_Section_IntId::ACE_Configuration_Section_IntId (const ACE_Conf
 
 }
 
-ACE_Configuration_Section_IntId::~ACE_Configuration_Section_IntId ()
-{
-}
+ACE_Configuration_Section_IntId::~ACE_Configuration_Section_IntId () { }
 
 ACE_Configuration_Section_IntId&
 ACE_Configuration_Section_IntId::operator= (const ACE_Configuration_Section_IntId& rhs)
