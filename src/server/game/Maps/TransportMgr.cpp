@@ -32,13 +32,9 @@ TransportTemplate::~TransportTemplate()
         delete *itr;
 }
 
-TransportMgr::TransportMgr()
-{
-}
+TransportMgr::TransportMgr() { }
 
-TransportMgr::~TransportMgr()
-{
-}
+TransportMgr::~TransportMgr() { }
 
 void TransportMgr::Unload()
 {
