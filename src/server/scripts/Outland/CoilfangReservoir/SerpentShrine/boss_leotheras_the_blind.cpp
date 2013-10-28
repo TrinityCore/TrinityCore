@@ -801,7 +801,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE {}
+        void JustDied(Unit* /*killer*/) OVERRIDE { }
     };
 };
 

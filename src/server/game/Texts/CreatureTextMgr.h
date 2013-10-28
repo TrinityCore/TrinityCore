@@ -82,10 +82,10 @@ typedef UNORDERED_MAP<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//g
 class CreatureTextMgr
 {
     friend class ACE_Singleton<CreatureTextMgr, ACE_Null_Mutex>;
-    CreatureTextMgr() {};
+    CreatureTextMgr() { };
 
     public:
-        ~CreatureTextMgr() {};
+        ~CreatureTextMgr() { };
         void LoadCreatureTexts();
         void LoadCreatureTextLocales();
         CreatureTextMap  const& GetTextMap() const { return mTextMap; }

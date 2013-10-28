@@ -98,7 +98,7 @@ template<class VISITOR, class TYPE_CONTAINER>
 class TypeContainerVisitor
 {
     public:
-        TypeContainerVisitor(VISITOR &v) : i_visitor(v) {}
+        TypeContainerVisitor(VISITOR &v) : i_visitor(v) { }
 
         void Visit(TYPE_CONTAINER &c)
         {

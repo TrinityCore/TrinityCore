@@ -525,7 +525,7 @@ public:
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature){}
+        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature){ }
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;

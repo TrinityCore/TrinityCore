@@ -386,10 +386,10 @@ class npc_lesser_shadow_fissure : public CreatureScript
         {
             npc_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE {}
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
-            void AttackStart(Unit* /*who*/) OVERRIDE {}
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void Reset() OVERRIDE { }
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
+            void AttackStart(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
