@@ -28,9 +28,7 @@ ACE_Dirent::open (const ACE_TCHAR *dirname)
 
 ACE_INLINE
 ACE_Dirent::ACE_Dirent (void)
-  : dirp_ (0)
-{
-}
+  : dirp_ (0) { }
 
 ACE_INLINE
 ACE_Dirent::ACE_Dirent (const ACE_TCHAR *dirname)

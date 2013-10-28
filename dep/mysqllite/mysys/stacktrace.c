@@ -440,9 +440,7 @@ static EXCEPTION_POINTERS *exception_ptrs;
 #define MODULE64_SIZE_WINXP 576
 #define STACKWALK_MAX_FRAMES 64
 
-void my_init_stacktrace()
-{
-}
+void my_init_stacktrace() { }
 
 
 void my_set_exception_pointers(EXCEPTION_POINTERS *ep)

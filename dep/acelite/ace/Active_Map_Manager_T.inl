@@ -227,22 +227,16 @@ ACE_Active_Map_Manager<T>::unbind (const ACE_Active_Map_Manager_Key &key)
 
 template <class T> ACE_INLINE
 ACE_Active_Map_Manager<T>::ACE_Active_Map_Manager (ACE_Allocator *alloc)
-  : ACE_AMM_BASE (alloc)
-{
-}
+  : ACE_AMM_BASE (alloc) { }
 
 template <class T> ACE_INLINE
 ACE_Active_Map_Manager<T>::ACE_Active_Map_Manager (size_t size,
                                                    ACE_Allocator *alloc)
   : ACE_AMM_BASE (size,
-                  alloc)
-{
-}
+                  alloc) { }
 
 template <class T> ACE_INLINE
-ACE_Active_Map_Manager<T>::~ACE_Active_Map_Manager (void)
-{
-}
+ACE_Active_Map_Manager<T>::~ACE_Active_Map_Manager (void) { }
 
 template <class T> ACE_INLINE int
 ACE_Active_Map_Manager<T>::open (size_t length,

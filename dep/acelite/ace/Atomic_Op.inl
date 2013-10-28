@@ -20,22 +20,16 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::ACE_Atomic_Op (void)
-  : value_ (0)
-{
-}
+  : value_ (0) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::ACE_Atomic_Op (long c)
-  : value_ (c)
-{
-}
+  : value_ (c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::ACE_Atomic_Op (
   const ACE_Atomic_Op<ACE_Thread_Mutex, long> &rhs)
-  : value_ (rhs.value_)
-{
-}
+  : value_ (rhs.value_) { }
 
 ACE_INLINE long
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::operator++ (void)
@@ -219,22 +213,16 @@ ACE_Atomic_Op<ACE_Thread_Mutex, long>::value_i (void)
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::ACE_Atomic_Op (void)
-  : value_ (0)
-{
-}
+  : value_ (0) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::ACE_Atomic_Op (unsigned long c)
-  : value_ (c)
-{
-}
+  : value_ (c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::ACE_Atomic_Op (
   const ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long> &rhs)
-  : value_ (rhs.value_)
-{
-}
+  : value_ (rhs.value_) { }
 
 ACE_INLINE unsigned long
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::operator++ (void)
@@ -422,21 +410,15 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::value_i (void)
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, int>::ACE_Atomic_Op (void) :
-  ACE_Atomic_Op_GCC<int> ()
-{
-}
+  ACE_Atomic_Op_GCC<int> () { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, int>::ACE_Atomic_Op (int c) :
-  ACE_Atomic_Op_GCC<int>(c)
-{
-}
+  ACE_Atomic_Op_GCC<int>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, int>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, int> &c) :
-  ACE_Atomic_Op_GCC<int>(c)
-{
-}
+  ACE_Atomic_Op_GCC<int>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, int>&
@@ -449,21 +431,15 @@ ACE_Atomic_Op<ACE_Thread_Mutex, int>::operator= (int rhs)
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned int>::ACE_Atomic_Op (void) :
-  ACE_Atomic_Op_GCC<unsigned int>()
-{
-}
+  ACE_Atomic_Op_GCC<unsigned int>() { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned int>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, unsigned int> &c) :
-  ACE_Atomic_Op_GCC<unsigned int>(c)
-{
-}
+  ACE_Atomic_Op_GCC<unsigned int>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned int>::ACE_Atomic_Op (unsigned int c) :
-  ACE_Atomic_Op_GCC<unsigned int>(c)
-{
-}
+  ACE_Atomic_Op_GCC<unsigned int>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned int>&
@@ -475,21 +451,15 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned int>::operator= (unsigned int rhs)
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::ACE_Atomic_Op (void) :
-  ACE_Atomic_Op_GCC<long>()
-{
-}
+  ACE_Atomic_Op_GCC<long>() { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::ACE_Atomic_Op (long c) :
-  ACE_Atomic_Op_GCC<long>(c)
-{
-}
+  ACE_Atomic_Op_GCC<long>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, long> &c) :
-  ACE_Atomic_Op_GCC<long>(c)
-{
-}
+  ACE_Atomic_Op_GCC<long>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, long>&
@@ -501,21 +471,15 @@ ACE_Atomic_Op<ACE_Thread_Mutex, long>::operator= (long rhs)
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::ACE_Atomic_Op (void) :
-  ACE_Atomic_Op_GCC<unsigned long> ()
-{
-}
+  ACE_Atomic_Op_GCC<unsigned long> () { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::ACE_Atomic_Op (unsigned long c) :
-  ACE_Atomic_Op_GCC<unsigned long>(c)
-{
-}
+  ACE_Atomic_Op_GCC<unsigned long>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long> &c) :
-  ACE_Atomic_Op_GCC<unsigned long>(c)
-{
-}
+  ACE_Atomic_Op_GCC<unsigned long>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>&
@@ -528,21 +492,15 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::operator= (unsigned long rhs)
 #if !defined (ACE_LACKS_GCC_ATOMIC_BUILTINS_2)
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, short>::ACE_Atomic_Op (void) :
-  ACE_Atomic_Op_GCC<short>()
-{
-}
+  ACE_Atomic_Op_GCC<short>() { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, short>::ACE_Atomic_Op (short c) :
-  ACE_Atomic_Op_GCC<short>(c)
-{
-}
+  ACE_Atomic_Op_GCC<short>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, short>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, short> &c) :
-  ACE_Atomic_Op_GCC<short>(c)
-{
-}
+  ACE_Atomic_Op_GCC<short>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, short>&
@@ -554,21 +512,15 @@ ACE_Atomic_Op<ACE_Thread_Mutex, short>::operator= (short rhs)
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned short>::ACE_Atomic_Op (void) :
-  ACE_Atomic_Op_GCC<unsigned short> ()
-{
-}
+  ACE_Atomic_Op_GCC<unsigned short> () { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned short>::ACE_Atomic_Op (unsigned short c) :
-  ACE_Atomic_Op_GCC<unsigned short>(c)
-{
-}
+  ACE_Atomic_Op_GCC<unsigned short>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned short>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, unsigned short> &c) :
-  ACE_Atomic_Op_GCC<unsigned short>(c)
-{
-}
+  ACE_Atomic_Op_GCC<unsigned short>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned short>&
@@ -582,21 +534,15 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned short>::operator= (unsigned short rhs)
 #if !defined (ACE_LACKS_GCC_ATOMIC_BUILTINS_1)
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, bool>::ACE_Atomic_Op (void) :
-  ACE_Atomic_Op_GCC<bool> ()
-{
-}
+  ACE_Atomic_Op_GCC<bool> () { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, bool>::ACE_Atomic_Op (bool c) :
-  ACE_Atomic_Op_GCC<bool>(c)
-{
-}
+  ACE_Atomic_Op_GCC<bool>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, bool>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, bool> &c) :
-  ACE_Atomic_Op_GCC<bool>(c)
-{
-}
+  ACE_Atomic_Op_GCC<bool>(c) { }
 
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, bool>&

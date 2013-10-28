@@ -1976,9 +1976,7 @@ ACE_POSIX_Asynch_Timer::ACE_POSIX_Asynch_Timer
    int signal_number)
   : ACE_POSIX_Asynch_Result
      (handler_proxy, act, event, 0, 0, priority, signal_number),
-    time_ (tv)
-{
-}
+    time_ (tv) { }
 
 void
 ACE_POSIX_Asynch_Timer::complete (size_t       /* bytes_transferred */,
@@ -2007,13 +2005,9 @@ ACE_POSIX_Wakeup_Completion::ACE_POSIX_Wakeup_Completion
                              0,
                              0,
                              priority,
-                             signal_number)
-{
-}
+                             signal_number) { }
 
-ACE_POSIX_Wakeup_Completion::~ACE_POSIX_Wakeup_Completion (void)
-{
-}
+ACE_POSIX_Wakeup_Completion::~ACE_POSIX_Wakeup_Completion (void) { }
 
 void
 ACE_POSIX_Wakeup_Completion::complete (size_t       /* bytes_transferred */,

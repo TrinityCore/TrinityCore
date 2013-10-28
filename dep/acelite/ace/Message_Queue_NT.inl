@@ -122,9 +122,7 @@ ACE_Message_Queue_NT::notification_strategy (void)
 }
 
 ACE_INLINE void
-ACE_Message_Queue_NT::notification_strategy (ACE_Notification_Strategy *)
-{
-}
+ACE_Message_Queue_NT::notification_strategy (ACE_Notification_Strategy *) { }
 
 #endif /* ACE_HAS_WIN32_OVERLAPPED_IO */
 

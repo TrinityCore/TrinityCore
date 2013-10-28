@@ -32,13 +32,9 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 static const ACE_UINT32 UNI_MAX_LEGAL_UTF32 = 0x0010FFFF;
 
 ACE_UTF32_Encoding_Converter::ACE_UTF32_Encoding_Converter (bool swap)
- : ACE_UTF16_Encoding_Converter (swap)
-{
-}
+ : ACE_UTF16_Encoding_Converter (swap) { }
 
-ACE_UTF32_Encoding_Converter::~ACE_UTF32_Encoding_Converter (void)
-{
-}
+ACE_UTF32_Encoding_Converter::~ACE_UTF32_Encoding_Converter (void) { }
 
 ACE_UTF32_Encoding_Converter::Result
 ACE_UTF32_Encoding_Converter::to_utf8 (const void* source,

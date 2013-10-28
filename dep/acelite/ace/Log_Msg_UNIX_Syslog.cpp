@@ -24,9 +24,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 //   should not be too limiting, as the ACE_Log_Msg class itself can
 //   be used to control thread specific logging behavior.
 
-ACE_Log_Msg_UNIX_Syslog::ACE_Log_Msg_UNIX_Syslog (void)
-{
-}
+ACE_Log_Msg_UNIX_Syslog::ACE_Log_Msg_UNIX_Syslog (void) { }
 
 ACE_Log_Msg_UNIX_Syslog::~ACE_Log_Msg_UNIX_Syslog (void)
 {

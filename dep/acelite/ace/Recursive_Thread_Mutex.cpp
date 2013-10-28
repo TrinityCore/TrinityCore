@@ -103,9 +103,7 @@ ACE_Recursive_Thread_Mutex::get_nesting_level (void)
 #endif /* !ACE_HAS_WINCE */
 }
 
-ACE_Recursive_Thread_Mutex::ACE_Recursive_Thread_Mutex (const ACE_Recursive_Thread_Mutex &)
-{
-}
+ACE_Recursive_Thread_Mutex::ACE_Recursive_Thread_Mutex (const ACE_Recursive_Thread_Mutex &) { }
 
 void
 ACE_Recursive_Thread_Mutex::dump (void) const

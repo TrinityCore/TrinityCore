@@ -24,9 +24,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 template <class HANDLER>
 ACE_Asynch_Connector<HANDLER>::ACE_Asynch_Connector (void)
   : pass_addresses_ (false),
-    validate_new_connection_ (false)
-{
-}
+    validate_new_connection_ (false) { }
 
 template <class HANDLER>
 ACE_Asynch_Connector<HANDLER>::~ACE_Asynch_Connector (void)

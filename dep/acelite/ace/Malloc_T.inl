@@ -128,30 +128,22 @@ ACE_Malloc_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_CB>::base_addr (void)
 
 template <ACE_MEM_POOL_1, class ACE_LOCK> ACE_INLINE
 ACE_Malloc<ACE_MEM_POOL_2, ACE_LOCK>::ACE_Malloc (const ACE_TCHAR *pool_name)
-  : ACE_Malloc_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (pool_name)
-{
-}
+  : ACE_Malloc_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (pool_name) { }
 
 template <ACE_MEM_POOL_1, class ACE_LOCK> ACE_INLINE
 ACE_Malloc<ACE_MEM_POOL_2, ACE_LOCK>::ACE_Malloc (const ACE_TCHAR *pool_name,
                                                   const ACE_TCHAR *lock_name,
                                                   const ACE_MEM_POOL_OPTIONS *options)
-  : ACE_Malloc_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (pool_name, lock_name, options)
-{
-}
+  : ACE_Malloc_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (pool_name, lock_name, options) { }
 
 template <ACE_MEM_POOL_1, class ACE_LOCK> ACE_INLINE
 ACE_Malloc_LIFO_Iterator<ACE_MEM_POOL_2, ACE_LOCK>::ACE_Malloc_LIFO_Iterator (ACE_Malloc<ACE_MEM_POOL_2, ACE_LOCK> &malloc,
                                                                               const char *name)
-  : ACE_Malloc_LIFO_Iterator_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (malloc, name)
-{
-}
+  : ACE_Malloc_LIFO_Iterator_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (malloc, name) { }
 
 template <ACE_MEM_POOL_1, class ACE_LOCK> ACE_INLINE
 ACE_Malloc_FIFO_Iterator<ACE_MEM_POOL_2, ACE_LOCK>::ACE_Malloc_FIFO_Iterator (ACE_Malloc<ACE_MEM_POOL_2, ACE_LOCK> &malloc,
                                                                               const char *name)
-  : ACE_Malloc_FIFO_Iterator_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (malloc, name)
-{
-}
+  : ACE_Malloc_FIFO_Iterator_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_Control_Block> (malloc, name) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

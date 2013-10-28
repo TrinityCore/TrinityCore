@@ -713,9 +713,7 @@ ACE_TSS_Cleanup * TSS_Cleanup_Instance::instance_ = 0;
 ACE_Thread_Mutex* TSS_Cleanup_Instance::mutex_ = 0;
 ACE_Condition_Thread_Mutex* TSS_Cleanup_Instance::condition_ = 0;
 
-ACE_TSS_Cleanup::~ACE_TSS_Cleanup (void)
-{
-}
+ACE_TSS_Cleanup::~ACE_TSS_Cleanup (void) { }
 
 void
 ACE_TSS_Cleanup::thread_exit (void)

@@ -14,21 +14,15 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Msg_WFMO_Reactor::ACE_Msg_WFMO_Reactor (ACE_Sig_Handler *sh,
                                             ACE_Timer_Queue *tq)
-  : ACE_WFMO_Reactor (sh, tq)
-{
-}
+  : ACE_WFMO_Reactor (sh, tq) { }
 
 ACE_Msg_WFMO_Reactor::ACE_Msg_WFMO_Reactor (size_t size,
                                             int unused,
                                             ACE_Sig_Handler *sh,
                                             ACE_Timer_Queue *tq)
-  : ACE_WFMO_Reactor (size, unused, sh, tq)
-{
-}
+  : ACE_WFMO_Reactor (size, unused, sh, tq) { }
 
-ACE_Msg_WFMO_Reactor::~ACE_Msg_WFMO_Reactor (void)
-{
-}
+ACE_Msg_WFMO_Reactor::~ACE_Msg_WFMO_Reactor (void) { }
 
 DWORD
 ACE_Msg_WFMO_Reactor::wait_for_multiple_events (int timeout,

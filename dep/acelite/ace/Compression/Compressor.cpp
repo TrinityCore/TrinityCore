@@ -16,9 +16,7 @@ ACE_Compressor::ACE_Compressor( ACE_CompressorId compressor_id,
     , uncompressed_bytes_   (0)
 {}
 
-ACE_Compressor::~ACE_Compressor ()
-{
-}
+ACE_Compressor::~ACE_Compressor () { }
 
 ACE_UINT64
 ACE_Compressor::compressed_bytes(void) const

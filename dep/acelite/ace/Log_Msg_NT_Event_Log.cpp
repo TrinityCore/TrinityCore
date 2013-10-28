@@ -15,9 +15,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Log_Msg_NT_Event_Log::ACE_Log_Msg_NT_Event_Log (void)
-  : evlog_handle_(0)
-{
-}
+  : evlog_handle_(0) { }
 
 ACE_Log_Msg_NT_Event_Log::~ACE_Log_Msg_NT_Event_Log (void)
 {

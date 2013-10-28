@@ -40,9 +40,7 @@ ACE_SSL_Asynch_Write_Stream_Result::ACE_SSL_Asynch_Write_Stream_Result
                 event,
                 priority,
                 signal_number
-                )
-{
-}
+                ) { }
 
 ACE_SSL_Asynch_Read_Stream_Result::ACE_SSL_Asynch_Read_Stream_Result
   (ACE_Handler &        handler,
@@ -62,9 +60,7 @@ ACE_SSL_Asynch_Read_Stream_Result::ACE_SSL_Asynch_Read_Stream_Result
                 event,
                 priority,
                 signal_number
-                )
-{
-}
+                ) { }
 
 ACE_SSL_Asynch_Result::ACE_SSL_Asynch_Result (ACE_Handler & handler)
   : A_RESULT (handler.proxy (),
@@ -74,9 +70,7 @@ ACE_SSL_Asynch_Result::ACE_SSL_Asynch_Result (ACE_Handler & handler)
               0,           // OffsetHigh
               0,           // Priority
               ACE_SIGRTMIN //signal_number
-              )
-{
-}
+              ) { }
 
 void
 ACE_SSL_Asynch_Result::complete (size_t /* bytes_transferred */,

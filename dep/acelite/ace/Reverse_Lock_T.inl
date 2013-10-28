@@ -12,8 +12,6 @@ ACE_Reverse_Lock<ACE_LOCKING_MECHANISM>::ACE_Reverse_Lock (
   ACE_LOCKING_MECHANISM &lock,
   ACE_Acquire_Method::METHOD_TYPE acquire_method)
   : lock_ (lock),
-    acquire_method_ (acquire_method)
-{
-}
+    acquire_method_ (acquire_method) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

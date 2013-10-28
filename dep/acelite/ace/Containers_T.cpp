@@ -1419,14 +1419,10 @@ ACE_ALLOC_HOOK_DEFINE(ACE_DNode)
 
   template <class T>
 ACE_DNode<T>::ACE_DNode (const T &i, ACE_DNode<T> *n, ACE_DNode<T> *p)
-  : next_ (n), prev_ (p), item_ (i)
-{
-}
+  : next_ (n), prev_ (p), item_ (i) { }
 
 template <class T>
-ACE_DNode<T>::~ACE_DNode (void)
-{
-}
+ACE_DNode<T>::~ACE_DNode (void) { }
 
 // ****************************************************************
 

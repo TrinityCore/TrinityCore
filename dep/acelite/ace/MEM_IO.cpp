@@ -16,9 +16,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_ALLOC_HOOK_DEFINE(ACE_MEM_IO)
 
-ACE_Reactive_MEM_IO::~ACE_Reactive_MEM_IO (void)
-{
-}
+ACE_Reactive_MEM_IO::~ACE_Reactive_MEM_IO (void) { }
 
 int
 ACE_Reactive_MEM_IO::init (ACE_HANDLE handle,

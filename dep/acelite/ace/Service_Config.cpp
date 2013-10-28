@@ -69,18 +69,12 @@ ACE_Threading_Helper<ACE_Thread_Mutex>::get (void)
   return temp;
 }
 
-ACE_Threading_Helper<ACE_Null_Mutex>::~ACE_Threading_Helper ()
-{
-}
+ACE_Threading_Helper<ACE_Null_Mutex>::~ACE_Threading_Helper () { }
 
-ACE_Threading_Helper<ACE_Null_Mutex>::ACE_Threading_Helper ()
-{
-}
+ACE_Threading_Helper<ACE_Null_Mutex>::ACE_Threading_Helper () { }
 
 void
-ACE_Threading_Helper<ACE_Null_Mutex>::set (void*)
-{
-}
+ACE_Threading_Helper<ACE_Null_Mutex>::set (void*) { }
 
 void*
 ACE_Threading_Helper<ACE_Null_Mutex>::get (void)

@@ -531,13 +531,9 @@ ACE_ALLOC_HOOK_DEFINE(ACE_Select_Reactor_Handler_Repository_Iterator)
 
 ACE_Select_Reactor_Notify::ACE_Select_Reactor_Notify (void)
   : select_reactor_ (0)
-  , max_notify_iterations_ (-1)
-{
-}
+  , max_notify_iterations_ (-1) { }
 
-ACE_Select_Reactor_Notify::~ACE_Select_Reactor_Notify (void)
-{
-}
+ACE_Select_Reactor_Notify::~ACE_Select_Reactor_Notify (void) { }
 
 void
 ACE_Select_Reactor_Notify::max_notify_iterations (int iterations)

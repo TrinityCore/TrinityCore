@@ -5,9 +5,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
-ACE_SOCK_Dgram_Mcast_QoS::~ACE_SOCK_Dgram_Mcast_QoS (void)
-{
-}
+ACE_SOCK_Dgram_Mcast_QoS::~ACE_SOCK_Dgram_Mcast_QoS (void) { }
 
 ACE_INLINE ssize_t
 ACE_SOCK_Dgram_Mcast_QoS::send (const iovec buffers[],

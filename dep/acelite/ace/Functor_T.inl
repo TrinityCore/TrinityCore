@@ -8,15 +8,11 @@ template<class RECEIVER> ACE_INLINE
 ACE_Member_Function_Command<RECEIVER>::
 ACE_Member_Function_Command (RECEIVER &recvr, PTMF ptmf)
   : receiver_(recvr)
-  , ptmf_(ptmf)
-{
-}
+  , ptmf_(ptmf) { }
 
 template<class RECEIVER> ACE_INLINE
 ACE_Member_Function_Command<RECEIVER>::
-~ACE_Member_Function_Command (void)
-{
-}
+~ACE_Member_Function_Command (void) { }
 
 template<class RECEIVER> ACE_INLINE int
 ACE_Member_Function_Command<RECEIVER>::execute (void *)

@@ -53,14 +53,10 @@ ACE_TPQ_Entry::proxy (ACE_Token_Proxy *proxy)
 }
 
 ACE_INLINE
-ACE_TPQ_Iterator::~ACE_TPQ_Iterator (void)
-{
-}
+ACE_TPQ_Iterator::~ACE_TPQ_Iterator (void) { }
 
 ACE_INLINE
-ACE_Token_Proxy_Queue::~ACE_Token_Proxy_Queue (void)
-{
-}
+ACE_Token_Proxy_Queue::~ACE_Token_Proxy_Queue (void) { }
 
 ACE_INLINE void
 ACE_Tokens::remove (ACE_TPQ_Entry *caller)

@@ -83,8 +83,6 @@ ACE_Process_Mutex::ACE_Process_Mutex (const wchar_t *name,
 #endif /* _ACE_USE_SV_SEM */
 }
 #endif /* ACE_HAS_WCHAR */
-ACE_Process_Mutex::~ACE_Process_Mutex (void)
-{
-}
+ACE_Process_Mutex::~ACE_Process_Mutex (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

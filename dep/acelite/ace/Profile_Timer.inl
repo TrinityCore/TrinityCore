@@ -69,9 +69,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
-ACE_Profile_Timer::~ACE_Profile_Timer (void)
-{
-}
+ACE_Profile_Timer::~ACE_Profile_Timer (void) { }
 
 ACE_INLINE int
 ACE_Profile_Timer::start (void)
@@ -120,9 +118,7 @@ ACE_Profile_Timer::stop (void)
 }
 
 ACE_INLINE
-ACE_Profile_Timer::~ACE_Profile_Timer (void)
-{
-}
+ACE_Profile_Timer::~ACE_Profile_Timer (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

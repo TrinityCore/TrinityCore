@@ -94,9 +94,7 @@ protected:
 ACE_Proactor_Timer_Handler::ACE_Proactor_Timer_Handler (ACE_Proactor &proactor)
   : ACE_Task <ACE_NULL_SYNCH> (&proactor.thr_mgr_),
     proactor_ (proactor),
-    shutting_down_ (0)
-{
-}
+    shutting_down_ (0) { }
 
 ACE_Proactor_Timer_Handler::~ACE_Proactor_Timer_Handler (void)
 {
@@ -181,9 +179,7 @@ ACE_Proactor_Timer_Handler::svc (void)
 // *********************************************************************
 
 ACE_Proactor_Handle_Timeout_Upcall::ACE_Proactor_Handle_Timeout_Upcall (void)
-  : proactor_ (0)
-{
-}
+  : proactor_ (0) { }
 
 int
 ACE_Proactor_Handle_Timeout_Upcall::registration (ACE_Proactor_Timer_Queue &,
@@ -1139,9 +1135,7 @@ ACE_Proactor::instance (ACE_Proactor *)
 }
 
 void
-ACE_Proactor::close_singleton (void)
-{
-}
+ACE_Proactor::close_singleton (void) { }
 
 int
 ACE_Proactor::run_event_loop (void)

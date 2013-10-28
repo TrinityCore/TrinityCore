@@ -14,14 +14,10 @@ ACE_QoS_Decorator_Base::ACE_QoS_Decorator_Base (void)
 // Constructor.
 ACE_QoS_Decorator_Base::ACE_QoS_Decorator_Base (ACE_Event_Handler
                                                 *event_handler)
-  : event_handler_ (event_handler)
-{
-}
+  : event_handler_ (event_handler) { }
 
 // Destructor.
-ACE_QoS_Decorator_Base::~ACE_QoS_Decorator_Base (void)
-{
-}
+ACE_QoS_Decorator_Base::~ACE_QoS_Decorator_Base (void) { }
 
 // Forward the call to ACE_Event_Handler component.
 ACE_HANDLE
@@ -116,21 +112,15 @@ ACE_QoS_Decorator::init (void)
 }
 
 // Constructor.
-ACE_QoS_Event_Handler::ACE_QoS_Event_Handler (void)
-{
-}
+ACE_QoS_Event_Handler::ACE_QoS_Event_Handler (void) { }
 
 // Constructor.
 ACE_QoS_Event_Handler::ACE_QoS_Event_Handler (ACE_QoS_Decorator_Base
                                               *decorator_base)
-  : decorator_base_ (decorator_base)
-{
-}
+  : decorator_base_ (decorator_base) { }
 
 // Destructor.
-ACE_QoS_Event_Handler::~ACE_QoS_Event_Handler (void)
-{
-}
+ACE_QoS_Event_Handler::~ACE_QoS_Event_Handler (void) { }
 
 // Set the QoS session.
 void

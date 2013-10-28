@@ -25,15 +25,11 @@ ACE_Dynamic_Message_Strategy::ACE_Dynamic_Message_Strategy (unsigned long static
     dynamic_priority_offset_ (dynamic_priority_offset),
     max_late_ (0, dynamic_priority_offset - 1),
     min_pending_ (0, dynamic_priority_offset),
-    pending_shift_ (0, dynamic_priority_max)
-{
-}
+    pending_shift_ (0, dynamic_priority_max) { }
 
 // dtor
 
-ACE_Dynamic_Message_Strategy::~ACE_Dynamic_Message_Strategy (void)
-{
-}
+ACE_Dynamic_Message_Strategy::~ACE_Dynamic_Message_Strategy (void) { }
 
 ACE_Dynamic_Message_Strategy::Priority_Status
 ACE_Dynamic_Message_Strategy::priority_status (ACE_Message_Block & mb,
@@ -121,13 +117,9 @@ ACE_Deadline_Message_Strategy::ACE_Deadline_Message_Strategy (unsigned long stat
   : ACE_Dynamic_Message_Strategy (static_bit_field_mask,
                                   static_bit_field_shift,
                                   dynamic_priority_max,
-                                  dynamic_priority_offset)
-{
-}
+                                  dynamic_priority_offset) { }
 
-ACE_Deadline_Message_Strategy::~ACE_Deadline_Message_Strategy (void)
-{
-}
+ACE_Deadline_Message_Strategy::~ACE_Deadline_Message_Strategy (void) { }
 
 void
 ACE_Deadline_Message_Strategy::convert_priority (ACE_Time_Value & priority,
@@ -163,13 +155,9 @@ ACE_Laxity_Message_Strategy::ACE_Laxity_Message_Strategy (unsigned long static_b
   : ACE_Dynamic_Message_Strategy (static_bit_field_mask,
                                   static_bit_field_shift,
                                   dynamic_priority_max,
-                                  dynamic_priority_offset)
-{
-}
+                                  dynamic_priority_offset) { }
 
-ACE_Laxity_Message_Strategy::~ACE_Laxity_Message_Strategy (void)
-{
-}
+ACE_Laxity_Message_Strategy::~ACE_Laxity_Message_Strategy (void) { }
 
 void
 ACE_Laxity_Message_Strategy::convert_priority (ACE_Time_Value & priority,

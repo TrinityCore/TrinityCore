@@ -73,14 +73,10 @@ ACE_Refcounted_Auto_Ptr_Rep<X, ACE_LOCK>::detach (ACE_Refcounted_Auto_Ptr_Rep<X,
 template <class X, class ACE_LOCK> inline
 ACE_Refcounted_Auto_Ptr_Rep<X, ACE_LOCK>::ACE_Refcounted_Auto_Ptr_Rep (X *p)
   : ptr_ (p),
-    ref_count_ (0)
-{
-}
+    ref_count_ (0) { }
 
 template <class X, class ACE_LOCK> inline
-ACE_Refcounted_Auto_Ptr_Rep<X, ACE_LOCK>::~ACE_Refcounted_Auto_Ptr_Rep (void)
-{
-}
+ACE_Refcounted_Auto_Ptr_Rep<X, ACE_LOCK>::~ACE_Refcounted_Auto_Ptr_Rep (void) { }
 
 template <class X, class ACE_LOCK> inline X *
 ACE_Refcounted_Auto_Ptr_Rep<X, ACE_LOCK>::get (void) const
@@ -90,15 +86,11 @@ ACE_Refcounted_Auto_Ptr_Rep<X, ACE_LOCK>::get (void) const
 
 template <class X, class ACE_LOCK> inline
 ACE_Refcounted_Auto_Ptr<X, ACE_LOCK>::ACE_Refcounted_Auto_Ptr (X *p)
-  : rep_ (AUTO_REFCOUNTED_PTR_REP::create (p))
-{
-}
+  : rep_ (AUTO_REFCOUNTED_PTR_REP::create (p)) { }
 
 template <class X, class ACE_LOCK> inline
 ACE_Refcounted_Auto_Ptr<X, ACE_LOCK>::ACE_Refcounted_Auto_Ptr (const ACE_Refcounted_Auto_Ptr<X, ACE_LOCK> &r)
-  : rep_ (AUTO_REFCOUNTED_PTR_REP::attach (((ACE_Refcounted_Auto_Ptr<X, ACE_LOCK> &) r).rep_))
-{
-}
+  : rep_ (AUTO_REFCOUNTED_PTR_REP::attach (((ACE_Refcounted_Auto_Ptr<X, ACE_LOCK> &) r).rep_)) { }
 
 template <class X, class ACE_LOCK> inline bool
 ACE_Refcounted_Auto_Ptr<X, ACE_LOCK>::operator== (const ACE_Refcounted_Auto_Ptr<X, ACE_LOCK> &r) const

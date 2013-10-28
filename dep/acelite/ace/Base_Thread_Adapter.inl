@@ -12,9 +12,7 @@ ACE_OS_Thread_Descriptor::flags (void) const
 
 ACE_INLINE
 ACE_OS_Thread_Descriptor::ACE_OS_Thread_Descriptor (long flags)
-  : flags_ (flags)
-{
-}
+  : flags_ (flags) { }
 
 ACE_INLINE void
 ACE_Base_Thread_Adapter::set_log_msg_hooks (

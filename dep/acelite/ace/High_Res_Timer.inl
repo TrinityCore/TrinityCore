@@ -108,9 +108,7 @@ ACE_High_Res_Timer::elapsed_hrtime (const ACE_hrtime_t end,
 }
 
 ACE_INLINE
-ACE_High_Res_Timer::~ACE_High_Res_Timer (void)
-{
-}
+ACE_High_Res_Timer::~ACE_High_Res_Timer (void) { }
 
 ACE_INLINE void
 ACE_High_Res_Timer::start (const ACE_OS::ACE_HRTimer_Op op)

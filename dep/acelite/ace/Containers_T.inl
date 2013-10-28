@@ -271,25 +271,19 @@ ACE_Ordered_MultiSet<T>::size (void) const
 template <class T> ACE_INLINE
 ACE_Array<T>::ACE_Array (size_t size,
                          ACE_Allocator *alloc)
-  : ACE_Array_Base<T> (size, alloc)
-{
-}
+  : ACE_Array_Base<T> (size, alloc) { }
 
 template <class T> ACE_INLINE
 ACE_Array<T>::ACE_Array (size_t size,
                          const T &default_value,
                          ACE_Allocator *alloc)
-  : ACE_Array_Base<T> (size, default_value, alloc)
-{
-}
+  : ACE_Array_Base<T> (size, default_value, alloc) { }
 
 // The copy constructor (performs initialization).
 
 template <class T> ACE_INLINE
 ACE_Array<T>::ACE_Array (const ACE_Array<T> &s)
-   : ACE_Array_Base<T> (s)
-{
-}
+   : ACE_Array_Base<T> (s) { }
 
 // Assignment operator (performs assignment).
 
@@ -351,15 +345,11 @@ ACE_DLList<T>::remove (ACE_DLList_Node *n)
 
 template <class T> ACE_INLINE
 ACE_DLList<T>::ACE_DLList (ACE_Allocator *alloc)
-  : ACE_DLList_Base (alloc)
-{
-}
+  : ACE_DLList_Base (alloc) { }
 
 template <class T> ACE_INLINE
 ACE_DLList<T>::ACE_DLList (const ACE_DLList<T> &l)
-  : ACE_DLList_Base ((ACE_DLList<T> &) l)
-{
-}
+  : ACE_DLList_Base ((ACE_DLList<T> &) l) { }
 
 template <class T> ACE_INLINE
 ACE_DLList<T>::~ACE_DLList (void)
@@ -378,9 +368,7 @@ ACE_DLList_Iterator<T>::remove (void)
 template <class T> ACE_INLINE
 ACE_DLList_Iterator<T>::ACE_DLList_Iterator (ACE_DLList<T> &l)
   : ACE_Double_Linked_List_Iterator <ACE_DLList_Node> ((ACE_DLList_Base &)l),
-    list_ (&l)
-{
-}
+    list_ (&l) { }
 
 template <class T> ACE_INLINE void
 ACE_DLList_Iterator<T>::reset (ACE_DLList<T> &l)
@@ -432,9 +420,7 @@ ACE_DLList_Reverse_Iterator<T>::remove (void)
 template <class T> ACE_INLINE
 ACE_DLList_Reverse_Iterator<T>::ACE_DLList_Reverse_Iterator (ACE_DLList<T> &l)
   : ACE_Double_Linked_List_Reverse_Iterator <ACE_DLList_Node> ((ACE_DLList_Base &)l),
-    list_ (&l)
-{
-}
+    list_ (&l) { }
 
 template <class T> ACE_INLINE void
 ACE_DLList_Reverse_Iterator<T>::reset (ACE_DLList<T> &l)

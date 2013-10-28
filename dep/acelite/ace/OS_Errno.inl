@@ -24,9 +24,7 @@ ACE_Errno_Guard::ACE_Errno_Guard (ACE_ERRNO_TYPE &errno_ref)
 #if defined (ACE_MT_SAFE)
     errno_ptr_ (&errno_ref),
 #endif /* ACE_MT_SAFE */
-    error_ (errno_ref)
-{
-}
+    error_ (errno_ref) { }
 
 ACE_INLINE
 ACE_Errno_Guard::~ACE_Errno_Guard (void)

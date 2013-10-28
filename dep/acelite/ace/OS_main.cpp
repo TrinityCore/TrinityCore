@@ -109,9 +109,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_Main_Base::~ACE_Main_Base ()
-{
-}
+ACE_Main_Base::~ACE_Main_Base () { }
 
 int ACE_Main_Base::run (HINSTANCE,
                         HINSTANCE,

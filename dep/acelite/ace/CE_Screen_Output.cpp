@@ -9,15 +9,11 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_CE_Screen_Output::ACE_CE_Screen_Output(HWND hEdit)
 : handler_(hEdit)
-, pFile_(0)
-{
-}
+, pFile_(0) { }
 
 ACE_CE_Screen_Output::ACE_CE_Screen_Output()
 : handler_(0)
-, pFile_(0)
-{
-}
+, pFile_(0) { }
 
 ACE_CE_Screen_Output::~ACE_CE_Screen_Output()
 {

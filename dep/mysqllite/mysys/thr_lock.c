@@ -1514,18 +1514,12 @@ static ulong sum=0;
 /* The following functions is for WRITE_CONCURRENT_INSERT */
 
 static void test_get_status(void* param __attribute__((unused)),
-                            int concurrent_insert __attribute__((unused)))
-{
-}
+                            int concurrent_insert __attribute__((unused))) { }
 
-static void test_update_status(void* param __attribute__((unused)))
-{
-}
+static void test_update_status(void* param __attribute__((unused))) { }
 
 static void test_copy_status(void* to __attribute__((unused)) ,
-			     void *from __attribute__((unused)))
-{
-}
+			     void *from __attribute__((unused))) { }
 
 static my_bool test_check_status(void* param __attribute__((unused)))
 {

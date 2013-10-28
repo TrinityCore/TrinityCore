@@ -9,9 +9,7 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_Log_Msg_IPC::ACE_Log_Msg_IPC (void)
-{
-}
+ACE_Log_Msg_IPC::ACE_Log_Msg_IPC (void) { }
 
 ACE_Log_Msg_IPC::~ACE_Log_Msg_IPC (void)
 {

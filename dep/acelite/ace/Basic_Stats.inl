@@ -11,9 +11,7 @@ ACE_Basic_Stats::ACE_Basic_Stats (void)
   , min_at_ (0)
   , max_ (0)
   , max_at_ (0)
-  , sum_ (0)
-{
-}
+  , sum_ (0) { }
 
 ACE_INLINE ACE_UINT32
 ACE_Basic_Stats::samples_count (void) const

@@ -52,9 +52,7 @@ sig_atomic_t ACE_Sig_Handler::sig_pending_ = 0;
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Sig_Handler)
 
-ACE_Sig_Handler::~ACE_Sig_Handler (void)
-{
-}
+ACE_Sig_Handler::~ACE_Sig_Handler (void) { }
 
 void
 ACE_Sig_Handler::dump (void) const

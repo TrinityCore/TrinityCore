@@ -16,24 +16,16 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 template <class KEY, class VALUE>
-ACE_Map<KEY, VALUE>::~ACE_Map (void)
-{
-}
+ACE_Map<KEY, VALUE>::~ACE_Map (void) { }
 
 template <class T>
-ACE_Iterator_Impl<T>::~ACE_Iterator_Impl (void)
-{
-}
+ACE_Iterator_Impl<T>::~ACE_Iterator_Impl (void) { }
 
 template <class T>
-ACE_Reverse_Iterator_Impl<T>::~ACE_Reverse_Iterator_Impl (void)
-{
-}
+ACE_Reverse_Iterator_Impl<T>::~ACE_Reverse_Iterator_Impl (void) { }
 
 template <class T, class IMPLEMENTATION, class ENTRY>
-ACE_Map_Impl_Iterator_Adapter<T, IMPLEMENTATION, ENTRY>::~ACE_Map_Impl_Iterator_Adapter (void)
-{
-}
+ACE_Map_Impl_Iterator_Adapter<T, IMPLEMENTATION, ENTRY>::~ACE_Map_Impl_Iterator_Adapter (void) { }
 
 
 template <class T, class IMPLEMENTATION, class ENTRY> ACE_Iterator_Impl<T> *
@@ -76,9 +68,7 @@ ACE_Map_Impl_Iterator_Adapter<T, IMPLEMENTATION, ENTRY>::minus_minus (void)
 }
 
 template <class T, class IMPLEMENTATION, class ENTRY>
-ACE_Map_Impl_Reverse_Iterator_Adapter<T, IMPLEMENTATION, ENTRY>::~ACE_Map_Impl_Reverse_Iterator_Adapter (void)
-{
-}
+ACE_Map_Impl_Reverse_Iterator_Adapter<T, IMPLEMENTATION, ENTRY>::~ACE_Map_Impl_Reverse_Iterator_Adapter (void) { }
 
 template <class T, class IMPLEMENTATION, class ENTRY> ACE_Reverse_Iterator_Impl<T> *
 ACE_Map_Impl_Reverse_Iterator_Adapter<T, IMPLEMENTATION, ENTRY>::clone (void) const
@@ -122,9 +112,7 @@ ACE_Map_Impl_Reverse_Iterator_Adapter<T, IMPLEMENTATION, ENTRY>::minus_minus (vo
 
 
 template <class KEY, class VALUE, class IMPLEMENTATION, class ITERATOR, class REVERSE_ITERATOR, class ENTRY>
-ACE_Map_Impl<KEY, VALUE, IMPLEMENTATION, ITERATOR, REVERSE_ITERATOR, ENTRY>::~ACE_Map_Impl (void)
-{
-}
+ACE_Map_Impl<KEY, VALUE, IMPLEMENTATION, ITERATOR, REVERSE_ITERATOR, ENTRY>::~ACE_Map_Impl (void) { }
 
 template <class KEY, class VALUE, class IMPLEMENTATION, class ITERATOR, class REVERSE_ITERATOR, class ENTRY> int
 ACE_Map_Impl<KEY, VALUE, IMPLEMENTATION, ITERATOR, REVERSE_ITERATOR, ENTRY>::open (size_t length,
@@ -311,9 +299,7 @@ ACE_Map_Impl<KEY, VALUE, IMPLEMENTATION, ITERATOR, REVERSE_ITERATOR, ENTRY>::ren
 }
 
 template <class T, class VALUE>
-ACE_Active_Map_Manager_Iterator_Adapter<T, VALUE>::~ACE_Active_Map_Manager_Iterator_Adapter (void)
-{
-}
+ACE_Active_Map_Manager_Iterator_Adapter<T, VALUE>::~ACE_Active_Map_Manager_Iterator_Adapter (void) { }
 
 template <class T, class VALUE> ACE_Iterator_Impl<T> *
 ACE_Active_Map_Manager_Iterator_Adapter<T, VALUE>::clone (void) const
@@ -357,9 +343,7 @@ ACE_Active_Map_Manager_Iterator_Adapter<T, VALUE>::minus_minus (void)
 }
 
 template <class T, class VALUE>
-ACE_Active_Map_Manager_Reverse_Iterator_Adapter<T, VALUE>::~ACE_Active_Map_Manager_Reverse_Iterator_Adapter (void)
-{
-}
+ACE_Active_Map_Manager_Reverse_Iterator_Adapter<T, VALUE>::~ACE_Active_Map_Manager_Reverse_Iterator_Adapter (void) { }
 
 template <class T, class VALUE> ACE_Reverse_Iterator_Impl<T> *
 ACE_Active_Map_Manager_Reverse_Iterator_Adapter<T, VALUE>::clone (void) const
@@ -403,9 +387,7 @@ ACE_Active_Map_Manager_Reverse_Iterator_Adapter<T, VALUE>::minus_minus (void)
 }
 
 template <class KEY, class VALUE, class KEY_ADAPTER>
-ACE_Active_Map_Manager_Adapter<KEY, VALUE, KEY_ADAPTER>::~ACE_Active_Map_Manager_Adapter (void)
-{
-}
+ACE_Active_Map_Manager_Adapter<KEY, VALUE, KEY_ADAPTER>::~ACE_Active_Map_Manager_Adapter (void) { }
 
 template <class KEY, class VALUE, class KEY_ADAPTER> int
 ACE_Active_Map_Manager_Adapter<KEY, VALUE, KEY_ADAPTER>::open (size_t length,
@@ -753,9 +735,7 @@ ACE_Active_Map_Manager_Adapter<KEY, VALUE, KEY_ADAPTER>::rend_impl (void)
 }
 
 template <class T, class KEY, class VALUE, class HASH_KEY, class COMPARE_KEYS>
-ACE_Hash_Map_Manager_Ex_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPARE_KEYS>::~ACE_Hash_Map_Manager_Ex_Iterator_Adapter (void)
-{
-}
+ACE_Hash_Map_Manager_Ex_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPARE_KEYS>::~ACE_Hash_Map_Manager_Ex_Iterator_Adapter (void) { }
 
 template <class T, class KEY, class VALUE, class HASH_KEY, class COMPARE_KEYS> ACE_Iterator_Impl<T> *
 ACE_Hash_Map_Manager_Ex_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPARE_KEYS>::clone (void) const
@@ -799,9 +779,7 @@ ACE_Hash_Map_Manager_Ex_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPARE_KEYS>:
 }
 
 template <class T, class KEY, class VALUE, class HASH_KEY, class COMPARE_KEYS>
-ACE_Hash_Map_Manager_Ex_Reverse_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPARE_KEYS>::~ACE_Hash_Map_Manager_Ex_Reverse_Iterator_Adapter (void)
-{
-}
+ACE_Hash_Map_Manager_Ex_Reverse_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPARE_KEYS>::~ACE_Hash_Map_Manager_Ex_Reverse_Iterator_Adapter (void) { }
 
 template <class T, class KEY, class VALUE, class HASH_KEY, class COMPARE_KEYS> ACE_Reverse_Iterator_Impl<T> *
 ACE_Hash_Map_Manager_Ex_Reverse_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPARE_KEYS>::clone (void) const
@@ -845,9 +823,7 @@ ACE_Hash_Map_Manager_Ex_Reverse_Iterator_Adapter<T, KEY, VALUE, HASH_KEY, COMPAR
 }
 
 template <class KEY, class VALUE, class HASH_KEY, class COMPARE_KEYS, class KEY_GENERATOR>
-ACE_Hash_Map_Manager_Ex_Adapter<KEY, VALUE, HASH_KEY, COMPARE_KEYS, KEY_GENERATOR>::~ACE_Hash_Map_Manager_Ex_Adapter (void)
-{
-}
+ACE_Hash_Map_Manager_Ex_Adapter<KEY, VALUE, HASH_KEY, COMPARE_KEYS, KEY_GENERATOR>::~ACE_Hash_Map_Manager_Ex_Adapter (void) { }
 
 template <class KEY, class VALUE, class HASH_KEY, class COMPARE_KEYS, class KEY_GENERATOR> int
 ACE_Hash_Map_Manager_Ex_Adapter<KEY, VALUE, HASH_KEY, COMPARE_KEYS, KEY_GENERATOR>::open (size_t length,
@@ -1046,9 +1022,7 @@ ACE_Hash_Map_Manager_Ex_Adapter<KEY, VALUE, HASH_KEY, COMPARE_KEYS, KEY_GENERATO
 }
 
 template <class T, class KEY, class VALUE>
-ACE_Map_Manager_Iterator_Adapter<T, KEY, VALUE>::~ACE_Map_Manager_Iterator_Adapter (void)
-{
-}
+ACE_Map_Manager_Iterator_Adapter<T, KEY, VALUE>::~ACE_Map_Manager_Iterator_Adapter (void) { }
 
 template <class T, class KEY, class VALUE> ACE_Iterator_Impl<T> *
 ACE_Map_Manager_Iterator_Adapter<T, KEY, VALUE>::clone (void) const
@@ -1092,9 +1066,7 @@ ACE_Map_Manager_Iterator_Adapter<T, KEY, VALUE>::minus_minus (void)
 }
 
 template <class T, class KEY, class VALUE>
-ACE_Map_Manager_Reverse_Iterator_Adapter<T, KEY, VALUE>::~ACE_Map_Manager_Reverse_Iterator_Adapter (void)
-{
-}
+ACE_Map_Manager_Reverse_Iterator_Adapter<T, KEY, VALUE>::~ACE_Map_Manager_Reverse_Iterator_Adapter (void) { }
 
 template <class T, class KEY, class VALUE> ACE_Reverse_Iterator_Impl<T> *
 ACE_Map_Manager_Reverse_Iterator_Adapter<T, KEY, VALUE>::clone (void) const
@@ -1138,9 +1110,7 @@ ACE_Map_Manager_Reverse_Iterator_Adapter<T, KEY, VALUE>::minus_minus (void)
 }
 
 template <class KEY, class VALUE, class KEY_GENERATOR>
-ACE_Map_Manager_Adapter<KEY, VALUE, KEY_GENERATOR>::~ACE_Map_Manager_Adapter (void)
-{
-}
+ACE_Map_Manager_Adapter<KEY, VALUE, KEY_GENERATOR>::~ACE_Map_Manager_Adapter (void) { }
 
 template <class KEY, class VALUE, class KEY_GENERATOR> int
 ACE_Map_Manager_Adapter<KEY, VALUE, KEY_GENERATOR>::open (size_t length,

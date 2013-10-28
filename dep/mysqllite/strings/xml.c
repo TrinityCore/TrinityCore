@@ -431,9 +431,7 @@ void my_xml_parser_create(MY_XML_PARSER *p)
 }
 
 
-void my_xml_parser_free(MY_XML_PARSER *p  __attribute__((unused)))
-{
-}
+void my_xml_parser_free(MY_XML_PARSER *p  __attribute__((unused))) { }
 
 
 void my_xml_set_value_handler(MY_XML_PARSER *p,

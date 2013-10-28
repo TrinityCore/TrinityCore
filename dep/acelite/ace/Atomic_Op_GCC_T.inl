@@ -8,24 +8,18 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 template <typename T>
 ACE_INLINE
 ACE_Atomic_Op_GCC<T>::ACE_Atomic_Op_GCC (void)
-  : value_ (0)
-{
-}
+  : value_ (0) { }
 
 template <typename T>
 ACE_INLINE
 ACE_Atomic_Op_GCC<T>::ACE_Atomic_Op_GCC (T c)
-  : value_ (c)
-{
-}
+  : value_ (c) { }
 
 template <typename T>
 ACE_INLINE
 ACE_Atomic_Op_GCC<T>::ACE_Atomic_Op_GCC (
   const ACE_Atomic_Op_GCC<T> &rhs)
-  : value_ (rhs.value_)
-{
-}
+  : value_ (rhs.value_) { }
 
 template <typename T>
 ACE_INLINE T

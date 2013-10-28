@@ -40,9 +40,7 @@ ACE_Thread_Adapter::ACE_Thread_Adapter (ACE_THR_FUNC user_func,
   ACE_OS_TRACE ("ACE_Thread_Adapter::ACE_Thread_Adapter");
 }
 
-ACE_Thread_Adapter::~ACE_Thread_Adapter (void)
-{
-}
+ACE_Thread_Adapter::~ACE_Thread_Adapter (void) { }
 
 ACE_THR_FUNC_RETURN
 ACE_Thread_Adapter::invoke (void)

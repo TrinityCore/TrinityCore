@@ -5,9 +5,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
-ACE_Cleanup::ACE_Cleanup (void)
-{
-}
+ACE_Cleanup::ACE_Cleanup (void) { }
 
 ACE_INLINE void*
 ACE_Cleanup_Info_Node::object(void)

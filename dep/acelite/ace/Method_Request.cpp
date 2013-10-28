@@ -4,13 +4,9 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_Method_Request::ACE_Method_Request (unsigned long prio)
-  : priority_ (prio)
-{
-}
+  : priority_ (prio) { }
 
-ACE_Method_Request::~ACE_Method_Request (void)
-{
-}
+ACE_Method_Request::~ACE_Method_Request (void) { }
 
 unsigned long
 ACE_Method_Request::priority (void) const

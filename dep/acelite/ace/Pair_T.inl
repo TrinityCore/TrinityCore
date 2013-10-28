@@ -8,9 +8,7 @@ template <class T1, class T2> ACE_INLINE
 ACE_Reference_Pair<T1, T2>::ACE_Reference_Pair (T1 &t1,
                                                 T2 &t2)
   : first_ (t1),
-    second_ (t2)
-{
-}
+    second_ (t2) { }
 
 template <class T1, class T2> ACE_INLINE T1 &
 ACE_Reference_Pair<T1, T2>::first (void) const

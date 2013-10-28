@@ -77,13 +77,9 @@ static const ACE_UINT32 offsetsFromUTF8[6] = { 0x00000000, 0x00003080,
 
 
 ACE_UTF16_Encoding_Converter::ACE_UTF16_Encoding_Converter (bool swap)
- : swap_ (swap)
-{
-}
+ : swap_ (swap) { }
 
-ACE_UTF16_Encoding_Converter::~ACE_UTF16_Encoding_Converter (void)
-{
-}
+ACE_UTF16_Encoding_Converter::~ACE_UTF16_Encoding_Converter (void) { }
 
 ACE_UTF16_Encoding_Converter::Result
 ACE_UTF16_Encoding_Converter::to_utf8 (const void* source,

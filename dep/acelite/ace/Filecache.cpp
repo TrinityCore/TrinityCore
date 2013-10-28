@@ -156,9 +156,7 @@ ACE_Filecache_Hash_Entry::ACE_Hash_Map_Entry (
              : ACE_OS::strdup (ACE_TEXT (""))),
     int_id_ (int_id),
     next_ (next),
-    prev_ (prev)
-{
-}
+    prev_ (prev) { }
 
 template <>
 ACE_Filecache_Hash_Entry::ACE_Hash_Map_Entry (ACE_Filecache_Hash_Entry *next,
@@ -166,9 +164,7 @@ ACE_Filecache_Hash_Entry::ACE_Hash_Map_Entry (ACE_Filecache_Hash_Entry *next,
   : ext_id_ (0),
     int_id_ (0),
     next_ (next),
-    prev_ (prev)
-{
-}
+    prev_ (prev) { }
 
 template <>
 ACE_Filecache_Hash_Entry::~ACE_Hash_Map_Entry (void)
@@ -226,13 +222,9 @@ ACE_Filecache::instance (void)
 
 ACE_Filecache::ACE_Filecache (void)
   : size_ (ACE_DEFAULT_VIRTUAL_FILESYSTEM_TABLE_SIZE),
-    hash_ (size_)
-{
-}
+    hash_ (size_) { }
 
-ACE_Filecache::~ACE_Filecache (void)
-{
-}
+ACE_Filecache::~ACE_Filecache (void) { }
 
 ACE_Filecache_Object *
 ACE_Filecache::insert_i (const ACE_TCHAR *filename,

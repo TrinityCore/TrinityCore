@@ -680,9 +680,7 @@ void thr_alarm_info(ALARM_INFO *info)
   bzero((char*) info, sizeof(*info));
 }
 
-void resize_thr_alarm(uint max_alarms)
-{
-}
+void resize_thr_alarm(uint max_alarms) { }
 
 #endif /* __WIN__ */
 

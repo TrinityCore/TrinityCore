@@ -186,9 +186,7 @@ ACE_Refcounted_Hash_Recyclable<T>::ACE_Refcounted_Hash_Recyclable (void)
   : ACE_Refcountable_T<ACE_Null_Mutex> (0),
     ACE_Hashable (),
     ACE_Recyclable (ACE_RECYCLABLE_UNKNOWN),
-    t_ ()
-{
-}
+    t_ () { }
 
 template <class T> ACE_INLINE
 ACE_Refcounted_Hash_Recyclable<T>::ACE_Refcounted_Hash_Recyclable (const T &t,
@@ -197,9 +195,7 @@ ACE_Refcounted_Hash_Recyclable<T>::ACE_Refcounted_Hash_Recyclable (const T &t,
   : ACE_Refcountable_T<ACE_Null_Mutex> (refcount),
     ACE_Hashable (),
     ACE_Recyclable (state),
-    t_ (t)
-{
-}
+    t_ (t) { }
 
 template <class T> ACE_INLINE u_long
 ACE_Refcounted_Hash_Recyclable<T>::hash_i (void) const

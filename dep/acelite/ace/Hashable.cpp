@@ -8,9 +8,7 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_Hashable::~ACE_Hashable (void)
-{
-}
+ACE_Hashable::~ACE_Hashable (void) { }
 
 unsigned long
 ACE_Hashable::hash (void) const

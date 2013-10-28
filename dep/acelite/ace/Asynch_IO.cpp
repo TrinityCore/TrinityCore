@@ -75,9 +75,7 @@ ACE_Asynch_Result::signal_number (void) const
 }
 
 ACE_Asynch_Result::ACE_Asynch_Result (ACE_Asynch_Result_Impl *implementation)
-  : implementation_ (implementation)
-{
-}
+  : implementation_ (implementation) { }
 
 ACE_Asynch_Result::~ACE_Asynch_Result (void)
 {
@@ -126,13 +124,9 @@ ACE_Asynch_Operation::proactor (void) const
   return this->implementation ()->proactor ();
 }
 
-ACE_Asynch_Operation::ACE_Asynch_Operation (void)
-{
-}
+ACE_Asynch_Operation::ACE_Asynch_Operation (void) { }
 
-ACE_Asynch_Operation::~ACE_Asynch_Operation (void)
-{
-}
+ACE_Asynch_Operation::~ACE_Asynch_Operation (void) { }
 
 ACE_Proactor *
 ACE_Asynch_Operation::get_proactor (ACE_Proactor *user_proactor,
@@ -152,9 +146,7 @@ ACE_Asynch_Operation::get_proactor (ACE_Proactor *user_proactor,
 // ************************************************************
 
 ACE_Asynch_Read_Stream::ACE_Asynch_Read_Stream (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Read_Stream::~ACE_Asynch_Read_Stream (void)
 {
@@ -251,9 +243,7 @@ ACE_Asynch_Read_Stream::Result::handle (void) const
 
 ACE_Asynch_Read_Stream::Result::Result (ACE_Asynch_Read_Stream_Result_Impl *implementation)
   : ACE_Asynch_Result (implementation),
-    implementation_ (implementation)
-{
-}
+    implementation_ (implementation) { }
 
 ACE_Asynch_Read_Stream::Result::~Result (void)
 {
@@ -270,9 +260,7 @@ ACE_Asynch_Read_Stream::Result::implementation (void) const
 // ***************************************************
 
 ACE_Asynch_Write_Stream::ACE_Asynch_Write_Stream (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Write_Stream::~ACE_Asynch_Write_Stream (void)
 {
@@ -369,9 +357,7 @@ ACE_Asynch_Write_Stream::Result::handle (void) const
 
 ACE_Asynch_Write_Stream::Result::Result (ACE_Asynch_Write_Stream_Result_Impl *implementation)
   : ACE_Asynch_Result (implementation),
-    implementation_ (implementation)
-{
-}
+    implementation_ (implementation) { }
 
 ACE_Asynch_Write_Stream::Result::~Result (void)
 {
@@ -388,9 +374,7 @@ ACE_Asynch_Write_Stream::Result::implementation (void) const
 // ************************************************************
 
 ACE_Asynch_Read_File::ACE_Asynch_Read_File (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Read_File::~ACE_Asynch_Read_File (void)
 {
@@ -477,9 +461,7 @@ ACE_Asynch_Read_File::implementation (void) const
 
 ACE_Asynch_Read_File::Result::Result (ACE_Asynch_Read_File_Result_Impl *implementation)
   : ACE_Asynch_Read_Stream::Result (implementation),
-    implementation_ (implementation)
-{
-}
+    implementation_ (implementation) { }
 
 ACE_Asynch_Read_File::Result::~Result (void)
 {
@@ -496,9 +478,7 @@ ACE_Asynch_Read_File::Result::implementation (void) const
 // ************************************************************
 
 ACE_Asynch_Write_File::ACE_Asynch_Write_File (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Write_File::~ACE_Asynch_Write_File (void)
 {
@@ -585,9 +565,7 @@ ACE_Asynch_Write_File::implementation (void) const
 
 ACE_Asynch_Write_File::Result::Result (ACE_Asynch_Write_File_Result_Impl *implementation)
   : ACE_Asynch_Write_Stream::Result (implementation),
-    implementation_ (implementation)
-{
-}
+    implementation_ (implementation) { }
 
 ACE_Asynch_Write_File::Result::~Result (void)
 {
@@ -604,9 +582,7 @@ ACE_Asynch_Write_File::Result::implementation (void) const
 // *********************************************************************
 
 ACE_Asynch_Accept::ACE_Asynch_Accept (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Accept::~ACE_Asynch_Accept (void)
 {
@@ -692,9 +668,7 @@ ACE_Asynch_Accept::Result::accept_handle (void) const
 
 ACE_Asynch_Accept::Result::Result (ACE_Asynch_Accept_Result_Impl *implementation)
   : ACE_Asynch_Result (implementation),
-    implementation_ (implementation)
-{
-}
+    implementation_ (implementation) { }
 
 ACE_Asynch_Accept::Result::~Result (void)
 {
@@ -713,9 +687,7 @@ ACE_Asynch_Accept::Result::implementation (void) const
 // *********************************************************************
 
 ACE_Asynch_Connect::ACE_Asynch_Connect (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Connect::~ACE_Asynch_Connect (void)
 {
@@ -777,9 +749,7 @@ ACE_Asynch_Connect::implementation (void)  const
 
 ACE_Asynch_Connect::Result::Result (ACE_Asynch_Connect_Result_Impl *implementation)
   : ACE_Asynch_Result (implementation),
-    implementation_ (implementation)
-{
-}
+    implementation_ (implementation) { }
 
 ACE_Asynch_Connect::Result::~Result (void)
 {
@@ -803,9 +773,7 @@ ACE_Asynch_Connect::Result::implementation (void) const
 // ************************************************************
 
 ACE_Asynch_Transmit_File::ACE_Asynch_Transmit_File (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Transmit_File::~ACE_Asynch_Transmit_File (void)
 {
@@ -909,13 +877,9 @@ ACE_Asynch_Transmit_File::Result::flags (void) const
 
 ACE_Asynch_Transmit_File::Result::Result (ACE_Asynch_Transmit_File_Result_Impl *implementation)
   : ACE_Asynch_Result (implementation),
-    implementation_ (implementation)
-{
-}
+    implementation_ (implementation) { }
 
-ACE_Asynch_Transmit_File::Result::~Result (void)
-{
-}
+ACE_Asynch_Transmit_File::Result::~Result (void) { }
 
 ACE_Asynch_Transmit_File_Result_Impl *
 ACE_Asynch_Transmit_File::Result::implementation (void) const
@@ -932,13 +896,9 @@ ACE_Asynch_Transmit_File::Header_And_Trailer::Header_And_Trailer (ACE_Message_Bl
   : header_ (header),
     header_bytes_ (header_bytes),
     trailer_ (trailer),
-    trailer_bytes_ (trailer_bytes)
-{
-}
+    trailer_bytes_ (trailer_bytes) { }
 
-ACE_Asynch_Transmit_File::Header_And_Trailer::~Header_And_Trailer (void)
-{
-}
+ACE_Asynch_Transmit_File::Header_And_Trailer::~Header_And_Trailer (void) { }
 
 void
 ACE_Asynch_Transmit_File::Header_And_Trailer::header_and_trailer (ACE_Message_Block *header,
@@ -1077,60 +1037,38 @@ ACE_Handler::~ACE_Handler (void)
 }
 
 void
-ACE_Handler::handle_read_stream (const ACE_Asynch_Read_Stream::Result & /* result */)
-{
-}
+ACE_Handler::handle_read_stream (const ACE_Asynch_Read_Stream::Result & /* result */) { }
 
 void
-ACE_Handler::handle_write_stream (const ACE_Asynch_Write_Stream::Result & /* result */)
-{
-}
+ACE_Handler::handle_write_stream (const ACE_Asynch_Write_Stream::Result & /* result */) { }
 
 void
-ACE_Handler::handle_write_dgram (const ACE_Asynch_Write_Dgram::Result & /* result */)
-{
-}
+ACE_Handler::handle_write_dgram (const ACE_Asynch_Write_Dgram::Result & /* result */) { }
 
 void
-ACE_Handler::handle_read_dgram (const ACE_Asynch_Read_Dgram::Result & /* result */)
-{
-}
+ACE_Handler::handle_read_dgram (const ACE_Asynch_Read_Dgram::Result & /* result */) { }
 
 void
-ACE_Handler::handle_accept (const ACE_Asynch_Accept::Result & /* result */)
-{
-}
+ACE_Handler::handle_accept (const ACE_Asynch_Accept::Result & /* result */) { }
 
 void
-ACE_Handler::handle_connect (const ACE_Asynch_Connect::Result & /* result */)
-{
-}
+ACE_Handler::handle_connect (const ACE_Asynch_Connect::Result & /* result */) { }
 
 void
-ACE_Handler::handle_transmit_file (const ACE_Asynch_Transmit_File::Result & /* result */)
-{
-}
+ACE_Handler::handle_transmit_file (const ACE_Asynch_Transmit_File::Result & /* result */) { }
 
 void
-ACE_Handler::handle_read_file (const ACE_Asynch_Read_File::Result & /* result */)
-{
-}
+ACE_Handler::handle_read_file (const ACE_Asynch_Read_File::Result & /* result */) { }
 
 void
-ACE_Handler::handle_write_file (const ACE_Asynch_Write_File::Result & /* result */)
-{
-}
+ACE_Handler::handle_write_file (const ACE_Asynch_Write_File::Result & /* result */) { }
 
 void
 ACE_Handler::handle_time_out (const ACE_Time_Value & /* tv */,
-                              const void *           /* act */)
-{
-}
+                              const void *           /* act */) { }
 
 void
-ACE_Handler::handle_wakeup (void)
-{
-}
+ACE_Handler::handle_wakeup (void) { }
 
 ACE_Proactor *
 ACE_Handler::proactor (void)
@@ -1164,38 +1102,26 @@ ACE_Handler::proxy (void)
 
 // ************************************************************
 
-ACE_Service_Handler::ACE_Service_Handler (void)
-{
-}
+ACE_Service_Handler::ACE_Service_Handler (void) { }
 
-ACE_Service_Handler::~ACE_Service_Handler (void)
-{
-}
+ACE_Service_Handler::~ACE_Service_Handler (void) { }
 
 void
 ACE_Service_Handler::addresses (const ACE_INET_Addr & /* remote_address */,
-                                const ACE_INET_Addr & /* local_address */ )
-{
-}
+                                const ACE_INET_Addr & /* local_address */ ) { }
 
 void
-ACE_Service_Handler::act (const void *)
-{
-}
+ACE_Service_Handler::act (const void *) { }
 
 void
 ACE_Service_Handler::open (ACE_HANDLE,
-                           ACE_Message_Block &)
-{
-}
+                           ACE_Message_Block &) { }
 
 
 // ************************************************************
 
 ACE_Asynch_Read_Dgram::ACE_Asynch_Read_Dgram (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Read_Dgram::~ACE_Asynch_Read_Dgram (void)
 {
@@ -1287,13 +1213,9 @@ ACE_Asynch_Read_Dgram::Result::handle (void) const
 
 ACE_Asynch_Read_Dgram::Result::Result (ACE_Asynch_Read_Dgram_Result_Impl *implementation)
 : ACE_Asynch_Result (implementation),
-  implementation_ (implementation)
-{
-}
+  implementation_ (implementation) { }
 
-ACE_Asynch_Read_Dgram::Result::~Result (void)
-{
-}
+ACE_Asynch_Read_Dgram::Result::~Result (void) { }
 
 ACE_Asynch_Read_Dgram_Result_Impl *
 ACE_Asynch_Read_Dgram::Result::implementation (void) const
@@ -1305,9 +1227,7 @@ ACE_Asynch_Read_Dgram::Result::implementation (void) const
 
 
 ACE_Asynch_Write_Dgram::ACE_Asynch_Write_Dgram (void)
-  : implementation_ (0)
-{
-}
+  : implementation_ (0) { }
 
 ACE_Asynch_Write_Dgram::~ACE_Asynch_Write_Dgram (void)
 {
@@ -1399,13 +1319,9 @@ ACE_Asynch_Write_Dgram::Result::implementation (void) const
 
 ACE_Asynch_Write_Dgram::Result::Result (ACE_Asynch_Write_Dgram_Result_Impl *implementation)
 : ACE_Asynch_Result (implementation),
-  implementation_ (implementation)
-{
-}
+  implementation_ (implementation) { }
 
-ACE_Asynch_Write_Dgram::Result::~Result (void)
-{
-}
+ACE_Asynch_Write_Dgram::Result::~Result (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

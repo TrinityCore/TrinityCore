@@ -8,9 +8,7 @@ ACE_INLINE
 ACE_Stats_Value::ACE_Stats_Value (const u_int precision)
   : whole_ (0),
     fractional_ (0),
-    precision_ (precision)
-{
-}
+    precision_ (precision) { }
 
 ACE_INLINE
 u_int

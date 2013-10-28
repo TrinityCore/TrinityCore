@@ -757,9 +757,7 @@ ACE_WIN32_Asynch_Timer::ACE_WIN32_Asynch_Timer
   : ACE_Asynch_Result_Impl (),
     ACE_WIN32_Asynch_Result (handler_proxy, act, event, 0, 0, priority,
                              signal_number),
-    time_ (tv)
-{
-}
+    time_ (tv) { }
 
 void
 ACE_WIN32_Asynch_Timer::complete (size_t,
@@ -780,13 +778,9 @@ ACE_WIN32_Wakeup_Completion::ACE_WIN32_Wakeup_Completion
    int signal_number)
   : ACE_Asynch_Result_Impl (),
     ACE_WIN32_Asynch_Result
-     (handler_proxy, act, event, 0, 0, priority, signal_number)
-{
-}
+     (handler_proxy, act, event, 0, 0, priority, signal_number) { }
 
-ACE_WIN32_Wakeup_Completion::~ACE_WIN32_Wakeup_Completion (void)
-{
-}
+ACE_WIN32_Wakeup_Completion::~ACE_WIN32_Wakeup_Completion (void) { }
 
 void
 ACE_WIN32_Wakeup_Completion::complete (size_t       /* bytes_transferred */,

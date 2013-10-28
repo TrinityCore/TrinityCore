@@ -6,17 +6,13 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_INLINE
 ACE_SSL_Data_File::ACE_SSL_Data_File (void)
-  : type_ (-1)
-{
-}
+  : type_ (-1) { }
 
 ACE_INLINE
 ACE_SSL_Data_File::ACE_SSL_Data_File (const char *file_name,
                                       int type)
   : file_name_ (file_name),
-    type_ (type)
-{
-}
+    type_ (type) { }
 
 ACE_INLINE const char *
 ACE_SSL_Data_File::file_name (void) const

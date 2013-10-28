@@ -9,9 +9,7 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_Registry_Name_Space::ACE_Registry_Name_Space (void)
-{
-}
+ACE_Registry_Name_Space::ACE_Registry_Name_Space (void) { }
 
 ACE_Registry_Name_Space::ACE_Registry_Name_Space (ACE_Name_Options *name_options)
 {
@@ -21,9 +19,7 @@ ACE_Registry_Name_Space::ACE_Registry_Name_Space (ACE_Name_Options *name_options
 }
 
 
-ACE_Registry_Name_Space::~ACE_Registry_Name_Space (void)
-{
-}
+ACE_Registry_Name_Space::~ACE_Registry_Name_Space (void) { }
 
 
 int

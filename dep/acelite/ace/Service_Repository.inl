@@ -31,8 +31,6 @@ ACE_Service_Repository_Iterator::done (void) const
 }
 
 ACE_INLINE
-ACE_Service_Repository_Iterator::~ACE_Service_Repository_Iterator (void)
-{
-}
+ACE_Service_Repository_Iterator::~ACE_Service_Repository_Iterator (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

@@ -378,9 +378,7 @@ ACE_QoS_Params::ACE_QoS_Params (iovec *caller_data,
     callee_data_ (callee_data),
     socket_qos_ (socket_qos),
     group_socket_qos_ (group_socket_qos),
-    flags_ (flags)
-{
-}
+    flags_ (flags) { }
 
 iovec *
 ACE_QoS_Params::caller_data (void) const
@@ -445,9 +443,7 @@ ACE_QoS_Params::flags (unsigned long f)
 ACE_Accept_QoS_Params::ACE_Accept_QoS_Params (ACE_QOS_CONDITION_FUNC qos_condition_callback,
                                               unsigned long callback_data)
   : qos_condition_callback_ (qos_condition_callback),
-    callback_data_ (callback_data)
-{
-}
+    callback_data_ (callback_data) { }
 
 ACE_QOS_CONDITION_FUNC
 ACE_Accept_QoS_Params::qos_condition_callback (void) const

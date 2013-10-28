@@ -2235,15 +2235,11 @@ ACE_InputCDR::unregister_monitor (void)
 
 // --------------------------------------------------------------
 
-ACE_Char_Codeset_Translator::~ACE_Char_Codeset_Translator (void)
-{
-}
+ACE_Char_Codeset_Translator::~ACE_Char_Codeset_Translator (void) { }
 
 // --------------------------------------------------------------
 
-ACE_WChar_Codeset_Translator::~ACE_WChar_Codeset_Translator (void)
-{
-}
+ACE_WChar_Codeset_Translator::~ACE_WChar_Codeset_Translator (void) { }
 
 // --------------------------------------------------------------
 

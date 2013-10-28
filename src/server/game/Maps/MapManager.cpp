@@ -45,9 +45,7 @@ MapManager::MapManager()
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
 }
 
-MapManager::~MapManager()
-{
-}
+MapManager::~MapManager() { }
 
 void MapManager::Initialize()
 {
@@ -296,9 +294,7 @@ void MapManager::Update(uint32 diff)
     i_timer.SetCurrent(0);
 }
 
-void MapManager::DoDelayedMovesAndRemoves()
-{
-}
+void MapManager::DoDelayedMovesAndRemoves() { }
 
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x, float y)
 {

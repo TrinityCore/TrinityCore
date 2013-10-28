@@ -33,8 +33,6 @@ ACE_Condition_Attributes_T<ACE_Monotonic_Time_Policy>::ACE_Condition_Attributes_
 }
 
 ACE_INLINE
-ACE_Condition_Attributes_T<ACE_Monotonic_Time_Policy>::~ACE_Condition_Attributes_T (void)
-{
-}
+ACE_Condition_Attributes_T<ACE_Monotonic_Time_Policy>::~ACE_Condition_Attributes_T (void) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

@@ -157,9 +157,7 @@ ACE_Noop_Token::queueing_strategy (void)
 }
 
 ACE_INLINE void
-ACE_Noop_Token::queueing_strategy (int /* queueing_strategy */)
-{
-}
+ACE_Noop_Token::queueing_strategy (int /* queueing_strategy */) { }
 
 ACE_INLINE int
 ACE_Noop_Token::renew (int, ACE_Time_Value *)

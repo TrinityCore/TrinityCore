@@ -16,9 +16,7 @@ ACE_Tokenizer_T<ACE_CHAR_T>::ACE_Tokenizer_T (ACE_CHAR_T *buffer)
   : buffer_ (buffer),
     index_ (0),
     preserves_index_ (0),
-    delimiter_index_ (0)
-{
-}
+    delimiter_index_ (0) { }
 
 template <class ACE_CHAR_T>
 int

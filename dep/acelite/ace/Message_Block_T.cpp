@@ -14,9 +14,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 template<class L>
-ACE_Locked_Data_Block<L>::~ACE_Locked_Data_Block (void)
-{
-}
+ACE_Locked_Data_Block<L>::~ACE_Locked_Data_Block (void) { }
 
 template<class ACE_LOCK> ACE_Data_Block *
 ACE_Locked_Data_Block<ACE_LOCK>::clone_nocopy (ACE_Message_Block::Message_Flags mask,

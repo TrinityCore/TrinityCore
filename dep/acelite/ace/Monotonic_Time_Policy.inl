@@ -25,8 +25,6 @@ ACE_Monotonic_Time_Policy::operator()() const
 }
 
 ACE_INLINE void
-ACE_Monotonic_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void))
-{
-}
+ACE_Monotonic_Time_Policy::set_gettimeofday (ACE_Time_Value (*)(void)) { }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

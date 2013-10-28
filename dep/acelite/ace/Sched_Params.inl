@@ -22,13 +22,9 @@ ACE_Sched_Params::ACE_Sched_Params (
   : policy_ (policy),
     priority_ (priority),
     scope_ (scope),
-    quantum_ (quantum)
-{
-}
+    quantum_ (quantum) { }
 
-ACE_INLINE ACE_Sched_Params::~ACE_Sched_Params (void)
-{
-}
+ACE_INLINE ACE_Sched_Params::~ACE_Sched_Params (void) { }
 
 ACE_INLINE ACE_Sched_Params::Policy
 ACE_Sched_Params::policy (void) const
@@ -102,9 +98,7 @@ ACE_Sched_Priority_Iterator::ACE_Sched_Priority_Iterator (const ACE_Sched_Params
 }
 
 ACE_INLINE
-ACE_Sched_Priority_Iterator::~ACE_Sched_Priority_Iterator (void)
-{
-}
+ACE_Sched_Priority_Iterator::~ACE_Sched_Priority_Iterator (void) { }
 
 ACE_INLINE int
 ACE_Sched_Priority_Iterator::more (void) const

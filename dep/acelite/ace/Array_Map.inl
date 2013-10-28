@@ -10,9 +10,7 @@ ACE_Array_Map<Key, Value, EqualTo>::ACE_Array_Map (
   typename ACE_Array_Map<Key, Value, EqualTo>::size_type s)
   : size_ (0)
   , capacity_ (s)
-  , nodes_ (s == 0 ? 0 : new value_type[s])
-{
-}
+  , nodes_ (s == 0 ? 0 : new value_type[s]) { }
 
 template<typename Key, typename Value, class EqualTo>
 ACE_INLINE ACE_Array_Map<Key, Value, EqualTo> &
