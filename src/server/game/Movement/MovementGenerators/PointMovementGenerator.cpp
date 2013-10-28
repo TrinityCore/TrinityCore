@@ -102,9 +102,7 @@ void PointMovementGenerator<T>::DoReset(T* unit)
 }
 
 template<class T>
-void PointMovementGenerator<T>::MovementInform(T* /*unit*/)
-{
-}
+void PointMovementGenerator<T>::MovementInform(T* /*unit*/) { }
 
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit)
 {

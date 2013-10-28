@@ -33,13 +33,9 @@ std::string LogMessage::getTimeStr()
 }
 
 Appender::Appender(uint8 _id, std::string const& _name, AppenderType _type /* = APPENDER_NONE*/, LogLevel _level /* = LOG_LEVEL_DISABLED */, AppenderFlags _flags /* = APPENDER_FLAGS_NONE */):
-id(_id), name(_name), type(_type), level(_level), flags(_flags)
-{
-}
+id(_id), name(_name), type(_type), level(_level), flags(_flags) { }
 
-Appender::~Appender()
-{
-}
+Appender::~Appender() { }
 
 uint8 Appender::getId() const
 {

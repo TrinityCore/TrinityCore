@@ -525,22 +525,16 @@ void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 
 // Nothing to do for a child Pool
 template <>
-void PoolGroup<Pool>::ReSpawn1Object(PoolObject* /*obj*/)
-{
-}
+void PoolGroup<Pool>::ReSpawn1Object(PoolObject* /*obj*/) { }
 
 // Nothing to do for a quest
 template <>
-void PoolGroup<Quest>::ReSpawn1Object(PoolObject* /*obj*/)
-{
-}
+void PoolGroup<Quest>::ReSpawn1Object(PoolObject* /*obj*/) { }
 
 ////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
 
-PoolMgr::PoolMgr() : max_pool_id(0)
-{
-}
+PoolMgr::PoolMgr() : max_pool_id(0) { }
 
 void PoolMgr::Initialize()
 {
