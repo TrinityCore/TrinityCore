@@ -222,7 +222,7 @@ struct boss_hexlord_addAI : public ScriptedAI
         instance = creature->GetInstanceScript();
     }
 
-    void Reset() OVERRIDE {}
+    void Reset() OVERRIDE { }
 
     void EnterCombat(Unit* /*who*/) OVERRIDE
     {
@@ -670,7 +670,7 @@ class boss_alyson_antille : public CreatureScript
 
 struct boss_gazakrothAI : public boss_hexlord_addAI
 {
-    boss_gazakrothAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+    boss_gazakrothAI(Creature* creature) : boss_hexlord_addAI(creature)  { }
 
     uint32 firebolt_timer;
 
@@ -721,7 +721,7 @@ class boss_lord_raadan : public CreatureScript
 
         struct boss_lord_raadanAI : public boss_hexlord_addAI
         {
-            boss_lord_raadanAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+            boss_lord_raadanAI(Creature* creature) : boss_hexlord_addAI(creature)  { }
 
             uint32 flamebreath_timer;
             uint32 thunderclap_timer;
@@ -772,7 +772,7 @@ class boss_darkheart : public CreatureScript
 
         struct boss_darkheartAI : public boss_hexlord_addAI
         {
-            boss_darkheartAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+            boss_darkheartAI(Creature* creature) : boss_hexlord_addAI(creature)  { }
 
             uint32 psychicwail_timer;
 

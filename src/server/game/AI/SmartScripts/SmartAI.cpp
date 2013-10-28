@@ -933,7 +933,7 @@ class SmartTrigger : public AreaTriggerScript
 {
     public:
 
-        SmartTrigger() : AreaTriggerScript("SmartTrigger") {}
+        SmartTrigger() : AreaTriggerScript("SmartTrigger") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {

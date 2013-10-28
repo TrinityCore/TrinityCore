@@ -49,8 +49,8 @@ typedef std::vector<ScriptPointMove> ScriptPointVector;
 class SystemMgr
 {
         friend class ACE_Singleton<SystemMgr, ACE_Null_Mutex>;
-        SystemMgr() {}
-        ~SystemMgr() {}
+        SystemMgr() { }
+        ~SystemMgr() { }
 
     public:
         typedef UNORDERED_MAP<uint32, ScriptPointVector> PointMoveMap;

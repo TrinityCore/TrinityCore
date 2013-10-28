@@ -51,7 +51,7 @@ class ChannelMgr
         void MakeNotOnPacket(WorldPacket* data, std::string const& name);
 };
 
-class AllianceChannelMgr : public ChannelMgr {};
-class HordeChannelMgr    : public ChannelMgr {};
+class AllianceChannelMgr : public ChannelMgr { };
+class HordeChannelMgr    : public ChannelMgr { };
 
 #endif

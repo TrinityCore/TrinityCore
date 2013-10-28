@@ -37,10 +37,10 @@ struct SkillExtraItemEntry
     uint8 additionalMaxNum;
 
     SkillExtraItemEntry()
-        : requiredSpecialization(0), additionalCreateChance(0.0f), additionalMaxNum(0) {}
+        : requiredSpecialization(0), additionalCreateChance(0.0f), additionalMaxNum(0) { }
 
     SkillExtraItemEntry(uint32 rS, float aCC, uint8 aMN)
-        : requiredSpecialization(rS), additionalCreateChance(aCC), additionalMaxNum(aMN) {}
+        : requiredSpecialization(rS), additionalCreateChance(aCC), additionalMaxNum(aMN) { }
 };
 
 // map to store the extra item creation info, the key is the spellId of the creation spell, the mapped value is the assigned SkillExtraItemEntry

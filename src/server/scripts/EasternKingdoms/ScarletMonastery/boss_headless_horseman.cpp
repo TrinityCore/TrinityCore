@@ -162,8 +162,8 @@ public:
         uint32 delay;
         uint32 spell;
         uint32 spell2;
-        void Reset() OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void Reset() OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
         void SetType(uint32 _type)
         {
             switch (Creaturetype = _type)
@@ -254,7 +254,7 @@ public:
             laugh = urand(15000, 30000);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SaySound(uint8 textEntry, Unit* target = 0)
         {
@@ -821,7 +821,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
         {

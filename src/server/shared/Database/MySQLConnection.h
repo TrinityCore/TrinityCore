@@ -38,7 +38,7 @@ enum ConnectionFlags
 
 struct MySQLConnectionInfo
 {
-    MySQLConnectionInfo() {}
+    MySQLConnectionInfo() { }
     MySQLConnectionInfo(const std::string& infoString)
     {
         Tokenizer tokens(infoString, ';');
