@@ -204,8 +204,8 @@ class spell_warl_conflagrate : public SpellScriptLoader
 
             void HandleHit(SpellEffIndex /*effIndex*/)
             {
-                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
-                    SetHitDamage(CalculatePct(aurEff->GetAmount(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
+		if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
+                  SetHitDamage(CalculatePct(aurEff->GetAmount(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())) + (GetCaster()->ToPlayer()->GetBaseSpellPowerBonus() * 3.03f) + (GetCaster()->getLevel() * 4.42));
             }
 
             void Register() OVERRIDE
@@ -1497,6 +1497,41 @@ public:
 	  }
 };
 
+/// 71521 hand of Gul dan DREAM WOW 
+class spell_warl_hand_of_guldan : public SpellScriptLoader
+{
+    public:
+        spell_warl_hand_of_guldan() : SpellScriptLoader("spell_warl_hand_of_guldan") { }
+
+        class spell_warl_hand_of_guldan_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_hand_of_guldan_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+
+		   if (caster->HasAura(89604)) // Aura of Fooreboding
+                    		caster->CastSpell(target, 93975, true);
+		   if (caster->HasAura(89605)) 
+                    		caster->CastSpell(target, 93986, true);
+            } 
+
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_hand_of_guldan_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_hand_of_guldan_SpellScript();
+        }
+};
+
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1531,4 +1566,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_unstable_affliction();
     new spell_warl_drain_life();
     new spell_warl_dark_intent();
+    new spell_warl_hand_of_guldan();
 }

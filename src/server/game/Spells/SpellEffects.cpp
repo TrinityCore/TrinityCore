@@ -3649,6 +3649,23 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+		// agregado dream wow 
+		case 80863: // Blood in the water
+                    if (!unitTarget || !unitTarget->IsAlive())
+                        return;
+
+                    if (Aura* rip = unitTarget->GetAura(1079, m_caster->GetGUID()))
+                        rip->RefreshDuration();
+                    break;
+                case 97985: // Feral Swiftness
+                    if (unitTarget)
+                        unitTarget->RemoveMovementImpairingAuras();
+                    break;
+                // Relentless Strikes
+                case 14181:
+                    m_caster->CastSpell(m_caster, 98440, true);
+                    break;
+
                 // Glyph of Backstab
                 case 63975:
                 {
@@ -4256,6 +4273,27 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                }
            }
            break;
+        }
+	// agregado Dream wow para invigoration
+ 	case SPELLFAMILY_HUNTER:
+        {
+            switch (m_spellInfo->Id)
+            {
+                case 53412: // Invigoration
+                {
+                    if (!unitTarget || !unitTarget->IsAlive())
+                        return;
+
+                    if (AuraEffect* invigoration = unitTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 3487, EFFECT_0))
+                    {
+                        int32 basepoints0 = invigoration->GetAmount();
+                        unitTarget->CastCustomSpell(unitTarget, 53398, &basepoints0, NULL, NULL, true);
+                        return;
+                    }
+                    break;
+                }
+            }
+            break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {

@@ -7392,6 +7392,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+	 // agrega para invocation
+	 case 87098: // Invocation
+        {
+            if(procSpell->Id != 2139) // Proc only from counterspell
+                return false;
+            break;
+        }
         // Auras which should proc on area aura source (caster in this case):
         // Cast positive spell on enemy target
         case 7099:  // Curse of Mending

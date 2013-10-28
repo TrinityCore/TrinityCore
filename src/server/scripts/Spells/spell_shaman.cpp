@@ -65,6 +65,10 @@ enum ShamanSpells
     SPELL_SHAMAN_EARTHQUAKE_DAMAGE              = 77478,
     SPELL_SHAMAN_EARTHQUAKE_KNOCKDOWN           = 77505,
     SPELL_SHAMAN_UNLEASH_ELEMENTS               = 73680,
+    SPELL_SHAMAN_FULMINATION                    = 88766,
+    SPELL_SHAMAN_FULMINATION_TRIGGERED          = 88767,
+    SPELL_SHAMAN_FULMINATION_INFO               = 95774,
+    SPELL_SHAMAN_LIGHTNING_SHIELD_PROC          = 26364,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390
 };
 
@@ -1304,7 +1308,7 @@ public:
     }
 };
 
-// 73920 - Healing Rain
+// 73920 - Healing Rain DREAM WOW
 class spell_sha_healing_rain : public SpellScriptLoader
 {
 public:
@@ -1333,6 +1337,59 @@ public:
     }
 };
 
+//88766 Fulmination handled in 8042 Earth Shock dream wow 
+class spell_sha_fulmination: public SpellScriptLoader 
+{
+public:
+    spell_sha_fulmination() : SpellScriptLoader ("spell_sha_fulmination") {}
+
+    class spell_sha_fulmination_SpellScript: public SpellScript 
+	{
+        PrepareSpellScript(spell_sha_fulmination_SpellScript)
+
+        void HandleFulmination(SpellEffIndex effIndex) 
+        {
+            //make caster cast a spell on a unit target of effect
+            Unit *target = GetHitUnit();
+            Unit *caster = GetCaster();
+                if (!target || !caster)
+                    return;
+
+            AuraEffect *fulminationAura = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2010, 0);
+                if (!caster->HasAura(88766))
+                    return; 
+
+            Aura * lightningShield = caster->GetAura(324);
+                if (!lightningShield)
+                    return;
+
+            uint32 IsCharges = lightningShield->GetCharges();
+                if (IsCharges <= 3)
+                    return;
+
+            uint8 usedCharges = IsCharges - 3;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD_PROC);
+
+            int32 basePoints = (caster->CalculateSpellDamage(target, spellInfo, 0) * 1.2f);
+            int32 damage = usedCharges * (caster->SpellDamageBonusDone(target, spellInfo, basePoints, SPELL_DIRECT_DAMAGE,effIndex));
+
+            caster->CastCustomSpell(target, SPELL_SHAMAN_FULMINATION_TRIGGERED, &damage, NULL, NULL, true, NULL, fulminationAura);
+            lightningShield->SetCharges(IsCharges - usedCharges);
+        }
+
+        void Register() 
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_sha_fulmination_SpellScript::HandleFulmination,EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
+        }
+    };
+
+    SpellScript *GetSpellScript() const 
+	{
+        return new spell_sha_fulmination_SpellScript();
+    }
+};
+
 
 void AddSC_shaman_spell_scripts()
 {
@@ -1348,7 +1405,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_flame_shock();
     new spell_sha_focused_insight();
     new spell_sha_glyph_of_healing_wave();
-	new spell_sha_healing_rain();
+    new spell_sha_healing_rain();
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();
     new spell_sha_item_lightning_shield();
@@ -1365,4 +1422,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_tidal_waves();
     new spell_sha_earthquake();
     new spell_sha_unleash_elements();
+    new spell_sha_fulmination();
 }
