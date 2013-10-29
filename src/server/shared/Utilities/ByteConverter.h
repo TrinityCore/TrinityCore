@@ -35,8 +35,8 @@ namespace ByteConverter
         convert<T - 2>(val + 1);
     }
 
-    template<> inline void convert<0>(char *) {}
-    template<> inline void convert<1>(char *) {}            // ignore central byte
+    template<> inline void convert<0>(char *) { }
+    template<> inline void convert<1>(char *) { }           // ignore central byte
 
     template<typename T> inline void apply(T *val)
     {

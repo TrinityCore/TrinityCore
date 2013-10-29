@@ -39,13 +39,9 @@
 
 #include <cmath>
 
-ObjectAccessor::ObjectAccessor()
-{
-}
+ObjectAccessor::ObjectAccessor() { }
 
-ObjectAccessor::~ObjectAccessor()
-{
-}
+ObjectAccessor::~ObjectAccessor() { }
 
 template<class T> T* ObjectAccessor::GetObjectInWorld(uint32 mapid, float x, float y, uint64 guid, T* /*fake*/)
 {

@@ -83,7 +83,7 @@ class boss_nazan : public CreatureScript
                 Turn_Timer = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void IsSummonedBy(Unit* summoner) OVERRIDE
             {
@@ -463,7 +463,7 @@ class npc_hellfire_sentry : public CreatureScript
                 KidneyShot_Timer = urand(3000, 7000);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void JustDied(Unit* killer) OVERRIDE
             {

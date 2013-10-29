@@ -30,13 +30,9 @@
 #include "WardenMac.h"
 #include "WardenModuleMac.h"
 
-WardenMac::WardenMac() : Warden()
-{
-}
+WardenMac::WardenMac() : Warden() { }
 
-WardenMac::~WardenMac()
-{
-}
+WardenMac::~WardenMac() { }
 
 void WardenMac::Init(WorldSession* pClient, BigNumber* K)
 {

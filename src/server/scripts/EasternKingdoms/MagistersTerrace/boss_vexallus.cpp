@@ -222,7 +222,7 @@ public:
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void JustDied(Unit* slayer) OVERRIDE
         {
@@ -233,10 +233,10 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
     };
 };
 

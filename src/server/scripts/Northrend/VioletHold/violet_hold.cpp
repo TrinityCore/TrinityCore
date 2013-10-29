@@ -578,9 +578,9 @@ public:
             bPortalGuardianOrKeeperOrEliteSpawn = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -1342,7 +1342,7 @@ public:
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 
-        void EnterCombat(Unit * /*who*/) OVERRIDE {}
+        void EnterCombat(Unit * /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

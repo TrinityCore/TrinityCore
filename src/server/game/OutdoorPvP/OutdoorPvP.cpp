@@ -231,9 +231,7 @@ void OutdoorPvP::DeleteSpawns()
     m_capturePoints.clear();
 }
 
-OutdoorPvP::OutdoorPvP() : m_sendUpdate(true)
-{
-}
+OutdoorPvP::OutdoorPvP() : m_sendUpdate(true) { }
 
 OutdoorPvP::~OutdoorPvP()
 {
@@ -257,9 +255,7 @@ void OutdoorPvP::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
     TC_LOG_DEBUG(LOG_FILTER_OUTDOORPVP, "Player %s left an outdoorpvp zone", player->GetName().c_str());
 }
 
-void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, uint32 /*zone*/)
-{
-}
+void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, uint32 /*zone*/) { }
 
 bool OutdoorPvP::Update(uint32 diff)
 {

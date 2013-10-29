@@ -87,7 +87,7 @@ public:
                 instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 diff) OVERRIDE

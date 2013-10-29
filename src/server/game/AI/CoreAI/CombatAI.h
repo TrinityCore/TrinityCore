@@ -28,7 +28,7 @@ class Creature;
 class AggressorAI : public CreatureAI
 {
     public:
-        explicit AggressorAI(Creature* c) : CreatureAI(c) {}
+        explicit AggressorAI(Creature* c) : CreatureAI(c) { }
 
         void UpdateAI(uint32);
         static int Permissible(const Creature*);
@@ -39,7 +39,7 @@ typedef std::vector<uint32> SpellVct;
 class CombatAI : public CreatureAI
 {
     public:
-        explicit CombatAI(Creature* c) : CreatureAI(c) {}
+        explicit CombatAI(Creature* c) : CreatureAI(c) { }
 
         void InitializeAI();
         void Reset();
@@ -100,12 +100,11 @@ struct VehicleAI : public CreatureAI
         void UpdateAI(uint32 diff);
         static int Permissible(const Creature*);
         void Reset();
-        void MoveInLineOfSight(Unit*) {}
-        void AttackStart(Unit*) {}
+        void MoveInLineOfSight(Unit*) { }
+        void AttackStart(Unit*) { }
         void OnCharmed(bool apply);
 
     private:
-        Vehicle* m_vehicle;
         bool m_IsVehicleInUse;
         void LoadConditions();
         void CheckConditions(const uint32 diff);

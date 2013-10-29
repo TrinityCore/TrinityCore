@@ -33,10 +33,10 @@ struct SkillDiscoveryEntry
     float   chance;                                         // chance
 
     SkillDiscoveryEntry()
-        : spellId(0), reqSkillValue(0), chance(0) {}
+        : spellId(0), reqSkillValue(0), chance(0) { }
 
     SkillDiscoveryEntry(uint32 _spellId, uint32 req_skill_val, float _chance)
-        : spellId(_spellId), reqSkillValue(req_skill_val), chance(_chance) {}
+        : spellId(_spellId), reqSkillValue(req_skill_val), chance(_chance) { }
 };
 
 typedef std::list<SkillDiscoveryEntry> SkillDiscoveryList;

@@ -320,7 +320,7 @@ class boss_magtheridon : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
             void AttackStart(Unit* who) OVERRIDE

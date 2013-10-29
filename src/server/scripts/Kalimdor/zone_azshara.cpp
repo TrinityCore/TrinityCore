@@ -63,7 +63,7 @@ public:
             spellhit = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SpellHit(Unit* unit, const SpellInfo* spell) OVERRIDE
         {
@@ -443,7 +443,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
@@ -517,9 +517,9 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
     };
 };
 

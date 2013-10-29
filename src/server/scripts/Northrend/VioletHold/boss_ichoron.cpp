@@ -206,7 +206,7 @@ public:
             return 0;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 uiDiff) OVERRIDE

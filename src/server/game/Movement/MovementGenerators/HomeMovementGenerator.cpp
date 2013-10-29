@@ -39,9 +39,7 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
     }
 }
 
-void HomeMovementGenerator<Creature>::DoReset(Creature*)
-{
-}
+void HomeMovementGenerator<Creature>::DoReset(Creature*) { }
 
 void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
 {

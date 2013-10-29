@@ -45,7 +45,7 @@ enum SmartEscortVars
 class SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){}
+        ~SmartAI(){ }
         explicit SmartAI(Creature* c);
 
         // Start moving to the desired MovePoint
@@ -237,8 +237,8 @@ class SmartAI : public CreatureAI
 class SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) {}
-        ~SmartGameObjectAI() {}
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) { }
+        ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff);
         void InitializeAI();

@@ -491,7 +491,7 @@ class boss_twilight_halion : public CreatureScript
             }
 
             // Never evade
-            void EnterEvadeMode() OVERRIDE {}
+            void EnterEvadeMode() OVERRIDE { }
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
@@ -1025,8 +1025,8 @@ class npc_meteor_strike_initial : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
-            void EnterEvadeMode() OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
+            void EnterEvadeMode() OVERRIDE { }
         private:
             InstanceScript* _instance;
             std::list<Creature*> _meteorList;
@@ -1166,7 +1166,7 @@ class npc_combustion_consumption : public CreatureScript
                 summoner->CastCustomSpell(_explosionSpell, SPELLVALUE_BASE_POINT0, damage, summoner);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
         private:
             InstanceScript* _instance;

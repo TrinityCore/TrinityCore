@@ -466,7 +466,7 @@ class npc_xt002_heart : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {

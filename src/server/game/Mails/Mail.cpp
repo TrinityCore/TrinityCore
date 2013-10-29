@@ -62,9 +62,7 @@ MailSender::MailSender(CalendarEvent* sender)
 }
 
 MailSender::MailSender(AuctionEntry* sender)
-    : m_messageType(MAIL_AUCTION), m_senderId(sender->GetHouseId()), m_stationery(MAIL_STATIONERY_AUCTION)
-{
-}
+    : m_messageType(MAIL_AUCTION), m_senderId(sender->GetHouseId()), m_stationery(MAIL_STATIONERY_AUCTION) { }
 
 MailSender::MailSender(Player* sender)
 {
@@ -73,9 +71,7 @@ MailSender::MailSender(Player* sender)
     m_senderId = sender->GetGUIDLow();
 }
 
-MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow())
-{
-}
+MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow()) { }
 
 MailReceiver::MailReceiver(Player* receiver, uint32 receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
 {

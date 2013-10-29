@@ -55,7 +55,7 @@ typedef std::map<uint32 /*condition id*/, GameEventFinishCondition> GameEventCon
 
 struct GameEventData
 {
-    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL) {}
+    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL) { }
     time_t start;           // occurs after this time
     time_t end;             // occurs before this time
     time_t nextstart;       // after this time the follow-up events count this phase completed
@@ -98,7 +98,7 @@ class GameEventMgr
 
     private:
         GameEventMgr();
-        ~GameEventMgr() {};
+        ~GameEventMgr() { };
 
     public:
         typedef std::set<uint16> ActiveEvents;

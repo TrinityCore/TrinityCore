@@ -22,11 +22,9 @@ namespace lfg
 
 LfgPlayerData::LfgPlayerData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
     m_Team(0), m_Group(0), m_Roles(0), m_Comment("")
-{}
+{ }
 
-LfgPlayerData::~LfgPlayerData()
-{
-}
+LfgPlayerData::~LfgPlayerData() { }
 
 void LfgPlayerData::SetState(LfgState state)
 {

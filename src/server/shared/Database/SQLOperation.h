@@ -59,7 +59,7 @@ class MySQLConnection;
 class SQLOperation : public ACE_Method_Request
 {
     public:
-        SQLOperation(): m_conn(NULL) {}
+        SQLOperation(): m_conn(NULL) { }
         virtual int call()
         {
             Execute();

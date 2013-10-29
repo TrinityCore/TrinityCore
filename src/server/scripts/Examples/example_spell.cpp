@@ -442,7 +442,7 @@ class spell_ex : public SpellScriptLoader
 
             //bool Validate(SpellInfo const* spellEntry){return true;} OVERRIDE
             //bool Load(){return true;}
-            //void Unload(){}
+            //void Unload(){ }
 
             //void Function(SpellEffIndex effIndex) //OnEffect += SpellEffectFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_EFFECT_ANY);
             //void Function() //OnHit += SpellEffectFn(spell_ex_SpellScript::Function);
@@ -469,7 +469,7 @@ class spell_ex : public SpellScriptLoader
             PrepareAuraScript(spell_ex)
             //bool Validate(SpellInfo const* spellEntry){return true;} OVERRIDE
             //bool Load(){return true;}
-            //void Unload(){}
+            //void Unload(){ }
 
             //void spell_ex_SpellScript::Function(AuraEffect const* aurEff, AuraEffectHandleModes mode) //OnEffectApply += AuraEffectApplyFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
             //void spell_ex_SpellScript::Function(AuraEffect const* aurEff, AuraEffectHandleModes mode) //OnEffectRemove += AuraEffectRemoveFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);

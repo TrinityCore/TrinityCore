@@ -536,9 +536,7 @@ bool GlyphChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-LinkExtractor::LinkExtractor(const char* msg) : _iss(msg)
-{
-}
+LinkExtractor::LinkExtractor(const char* msg) : _iss(msg) { }
 
 LinkExtractor::~LinkExtractor()
 {
