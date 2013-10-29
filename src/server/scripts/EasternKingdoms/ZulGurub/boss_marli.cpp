@@ -71,11 +71,11 @@ enum ModelId
 
 class boss_marli : public CreatureScript
 {
-    public: boss_marli() : CreatureScript("boss_marli") {}
+    public: boss_marli() : CreatureScript("boss_marli") { }
 
         struct boss_marliAI : public BossAI
         {
-            boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) {}
+            boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) { }
 
             void Reset() OVERRIDE
             {
@@ -219,11 +219,11 @@ class boss_marli : public CreatureScript
 // Spawn of Marli
 class npc_spawn_of_marli : public CreatureScript
 {
-    public: npc_spawn_of_marli() : CreatureScript("npc_spawn_of_marli") {}
+    public: npc_spawn_of_marli() : CreatureScript("npc_spawn_of_marli") { }
 
         struct npc_spawn_of_marliAI : public ScriptedAI
         {
-            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 LevelUp_Timer;
 

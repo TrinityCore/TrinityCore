@@ -675,7 +675,7 @@ public:
 
     struct npc_shadow_imageAI : public ScriptedAI
     {
-        npc_shadow_imageAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shadow_imageAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;
@@ -689,7 +689,7 @@ public:
             KillTimer = 15000;
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {

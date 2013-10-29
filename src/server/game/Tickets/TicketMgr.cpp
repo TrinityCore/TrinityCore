@@ -240,9 +240,7 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
 TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0),
-    _lastChange(time(NULL))
-{
-}
+    _lastChange(time(NULL)) { }
 
 TicketMgr::~TicketMgr()
 {
@@ -257,9 +255,17 @@ void TicketMgr::Initialize()
 
 void TicketMgr::ResetTickets()
 {
-    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end();)
+    {
         if (itr->second->IsClosed())
-            sTicketMgr->RemoveTicket(itr->second->GetId());
+        {
+            uint32 ticketId = itr->second->GetId();
+            ++itr;
+            sTicketMgr->RemoveTicket(ticketId);
+        }
+        else
+            ++itr;
+    }
 
     _lastTicketId = 0;
 

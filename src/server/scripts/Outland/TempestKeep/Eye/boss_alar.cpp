@@ -157,7 +157,7 @@ class boss_alar : public CreatureScript
                         summon->AI()->AttackStart(target);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
             void AttackStart(Unit* who) OVERRIDE
             {
@@ -539,13 +539,13 @@ class npc_flame_patch_alar : public CreatureScript
 
         struct npc_flame_patch_alarAI : public ScriptedAI
         {
-            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
-            void Reset() OVERRIDE {}
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
-            void AttackStart(Unit* /*who*/) OVERRIDE {}
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) { }
+            void Reset() OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void AttackStart(Unit* /*who*/) OVERRIDE { }
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

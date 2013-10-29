@@ -64,7 +64,7 @@ public:
 
     struct npc_shenthulAI : public ScriptedAI
     {
-        npc_shenthulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shenthulAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool CanTalk;
         bool CanEmote;
@@ -81,7 +81,7 @@ public:
             PlayerGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -211,7 +211,7 @@ public:
 
     struct npc_thrall_warchiefAI : public ScriptedAI
     {
-        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ChainLightningTimer;
         uint32 ShockTimer;
@@ -222,7 +222,7 @@ public:
             ShockTimer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

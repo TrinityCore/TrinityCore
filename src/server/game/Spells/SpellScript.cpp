@@ -204,9 +204,7 @@ void SpellScript::HitHandler::Call(SpellScript* spellScript)
 }
 
 SpellScript::TargetHook::TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area)
-    : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area)
-{
-}
+    : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area) { }
 
 std::string SpellScript::TargetHook::ToString()
 {
@@ -727,9 +725,7 @@ void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* _di
 }
 
 AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
-    : _SpellScript::EffectAuraNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
-{
-}
+    : _SpellScript::EffectAuraNameCheck(_effName), _SpellScript::EffectHook(_effIndex) { }
 
 bool AuraScript::EffectBase::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
 {

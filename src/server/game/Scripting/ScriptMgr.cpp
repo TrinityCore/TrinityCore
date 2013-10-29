@@ -176,13 +176,9 @@ struct TSpellSummary
 } *SpellSummary;
 
 ScriptMgr::ScriptMgr()
-    : _scriptCount(0), _scheduledScripts(0)
-{
-}
+    : _scriptCount(0), _scheduledScripts(0) { }
 
-ScriptMgr::~ScriptMgr()
-{
-}
+ScriptMgr::~ScriptMgr() { }
 
 void ScriptMgr::Initialize()
 {
@@ -1363,12 +1359,12 @@ void ScriptMgr::OnGroupDisband(Group* group)
 }
 
 // Unit
-void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, uint32 gain)
+void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, uint32& gain)
 {
     FOREACH_SCRIPT(UnitScript)->OnHeal(healer, reciever, gain);
 }
 
-void ScriptMgr::OnDamage(Unit* attacker, Unit* victim, uint32 damage)
+void ScriptMgr::OnDamage(Unit* attacker, Unit* victim, uint32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->OnDamage(attacker, victim, damage);
 }

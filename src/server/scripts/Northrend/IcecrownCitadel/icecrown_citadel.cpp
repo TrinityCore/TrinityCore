@@ -288,7 +288,7 @@ enum MovementPoints
 class FrostwingVrykulSearcher
 {
     public:
-        FrostwingVrykulSearcher(Creature const* source, float range) : _source(source), _range(range) {}
+        FrostwingVrykulSearcher(Creature const* source, float range) : _source(source), _range(range) { }
 
         bool operator()(Unit* unit)
         {
@@ -1833,7 +1833,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 class DeathPlagueTargetSelector
 {
     public:
-        explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) {}
+        explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) { }
 
         bool operator()(WorldObject* object) const
         {

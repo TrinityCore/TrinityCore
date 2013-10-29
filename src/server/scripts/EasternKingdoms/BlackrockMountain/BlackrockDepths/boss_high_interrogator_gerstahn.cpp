@@ -39,7 +39,7 @@ public:
 
     struct boss_high_interrogator_gerstahnAI : public ScriptedAI
     {
-        boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowWordPain_Timer;
         uint32 ManaBurn_Timer;
@@ -54,7 +54,7 @@ public:
             ShadowShield_Timer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

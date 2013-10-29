@@ -296,7 +296,7 @@ class npc_infernal_volcano : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
             private:
                 SummonList _summons;
@@ -400,7 +400,7 @@ class npc_nether_portal : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
             private:
                 SummonList _summons;
@@ -553,7 +553,7 @@ class MistressKissTargetSelector
 class spell_mistress_kiss_area : public SpellScriptLoader
 {
     public:
-        spell_mistress_kiss_area() : SpellScriptLoader("spell_mistress_kiss_area") {}
+        spell_mistress_kiss_area() : SpellScriptLoader("spell_mistress_kiss_area") { }
 
         class spell_mistress_kiss_area_SpellScript : public SpellScript
         {

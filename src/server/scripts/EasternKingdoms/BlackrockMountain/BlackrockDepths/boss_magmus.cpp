@@ -42,7 +42,7 @@ public:
 
     struct boss_magmusAI : public ScriptedAI
     {
-        boss_magmusAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_magmusAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 FieryBurst_Timer;
         uint32 WarStomp_Timer;
@@ -53,7 +53,7 @@ public:
             WarStomp_Timer =0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -73,7 +73,7 @@ public:
 
     struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         void Initialize() OVERRIDE
         {

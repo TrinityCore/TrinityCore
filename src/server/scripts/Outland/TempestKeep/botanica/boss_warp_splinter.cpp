@@ -86,9 +86,9 @@ class npc_warp_splinter_treant : public CreatureScript
                 check_Timer = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
             void UpdateAI(uint32 diff) OVERRIDE

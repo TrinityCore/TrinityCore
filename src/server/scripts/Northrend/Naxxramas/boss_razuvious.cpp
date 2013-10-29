@@ -68,7 +68,7 @@ public:
 
     struct boss_razuviousAI : public BossAI
     {
-        boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) {}
+        boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) { }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
         {

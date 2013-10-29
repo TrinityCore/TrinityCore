@@ -33,7 +33,7 @@ namespace MMAP
     // dummy struct to hold map's mmap data
     struct MMapData
     {
-        MMapData(dtNavMesh* mesh) : navMesh(mesh) {}
+        MMapData(dtNavMesh* mesh) : navMesh(mesh) { }
         ~MMapData()
         {
             for (NavMeshQuerySet::iterator i = _navMeshQueries.begin(); i != _navMeshQueries.end(); ++i)
@@ -59,6 +59,7 @@ namespace MMAP
     {
         public:
             MMapManager() : _loadedTiles(0) {}
+
             ~MMapManager();
 
             bool LoadMapTile(uint32 mapId, int32 x, int32 y);

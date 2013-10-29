@@ -33,7 +33,7 @@ class SignalHandler : public ACE_Event_Handler
             HandleSignal(SigNum);
             return 0;
         }
-        virtual void HandleSignal(int /*SigNum*/) {};
+        virtual void HandleSignal(int /*SigNum*/) { };
 };
 
 }

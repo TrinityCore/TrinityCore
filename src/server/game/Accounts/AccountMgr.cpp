@@ -25,9 +25,7 @@
 #include "SHA1.h"
 #include "WorldSession.h"
 
-AccountMgr::AccountMgr()
-{
-}
+AccountMgr::AccountMgr() { }
 
 AccountMgr::~AccountMgr()
 {
@@ -466,7 +464,7 @@ void AccountMgr::LoadRBAC()
             secId = newId;
             permissions = &_defaultPermissions[secId];
         }
- 
+
         permissions->insert(field[1].GetUInt32());
         ++count3;
     }

@@ -65,9 +65,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
@@ -178,7 +178,7 @@ public:
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
-        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool freed;
 
@@ -250,7 +250,7 @@ public:
 
     struct npc_freed_protodrakeAI : public VehicleAI
     {
-        npc_freed_protodrakeAI(Creature* creature) : VehicleAI(creature) {}
+        npc_freed_protodrakeAI(Creature* creature) : VehicleAI(creature) { }
 
         EventMap events;
 
@@ -323,11 +323,11 @@ public:
 
     struct npc_icefangAI : public npc_escortAI
     {
-        npc_icefangAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void EnterEvadeMode() OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterEvadeMode() OVERRIDE { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
         {
@@ -378,7 +378,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
         class npc_hyldsmeet_protodrakeAI : public CreatureAI
         {
             public:
-                npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) {}
+                npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) { }
 
                 void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) OVERRIDE
                 {

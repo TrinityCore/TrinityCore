@@ -79,7 +79,7 @@ public:
 
     struct npc_cairne_bloodhoofAI : public ScriptedAI
     {
-        npc_cairne_bloodhoofAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_cairne_bloodhoofAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 BerserkerChargeTimer;
         uint32 CleaveTimer;
@@ -96,7 +96,7 @@ public:
             UppercutTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

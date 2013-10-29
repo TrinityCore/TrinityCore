@@ -115,7 +115,7 @@ public:
 
     struct npc_kaya_flathoofAI : public npc_escortAI
     {
-        npc_kaya_flathoofAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_kaya_flathoofAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -144,7 +144,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void Reset()OVERRIDE {}
+        void Reset()OVERRIDE { }
     };
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE

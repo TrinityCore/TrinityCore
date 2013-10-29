@@ -49,9 +49,9 @@ namespace VMAP
             bool iEnableHeightCalc;
 
         public:
-            IVMapManager() : iEnableLineOfSightCalc(true), iEnableHeightCalc(true) {}
+            IVMapManager() : iEnableLineOfSightCalc(true), iEnableHeightCalc(true) { }
 
-            virtual ~IVMapManager(void) {}
+            virtual ~IVMapManager(void) { }
 
             virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 

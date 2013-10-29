@@ -148,7 +148,7 @@ public:
 
     struct npc_demon_chainAI : public ScriptedAI
     {
-        npc_demon_chainAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_demon_chainAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 SacrificeGUID;
 
@@ -157,9 +157,9 @@ public:
             SacrificeGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void JustDied(Unit* /*killer*/) OVERRIDE
@@ -186,7 +186,7 @@ public:
 
     struct npc_fiendish_portalAI : public PassiveAI
     {
-        npc_fiendish_portalAI(Creature* creature) : PassiveAI(creature), summons(me){}
+        npc_fiendish_portalAI(Creature* creature) : PassiveAI(creature), summons(me){ }
 
         SummonList summons;
 
@@ -220,7 +220,7 @@ public:
 
     struct npc_fiendish_impAI : public ScriptedAI
     {
-        npc_fiendish_impAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fiendish_impAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 FireboltTimer;
 
@@ -231,7 +231,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

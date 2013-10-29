@@ -457,9 +457,9 @@ class npc_janalai_firebomb : public CreatureScript
 
         struct npc_janalai_firebombAI : public ScriptedAI
         {
-            npc_janalai_firebombAI(Creature* creature) : ScriptedAI(creature){}
+            npc_janalai_firebombAI(Creature* creature) : ScriptedAI(creature){ }
 
-            void Reset() OVERRIDE {}
+            void Reset() OVERRIDE { }
 
             void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
             {
@@ -467,14 +467,14 @@ class npc_janalai_firebomb : public CreatureScript
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-            void AttackStart(Unit* /*who*/) OVERRIDE {}
+            void AttackStart(Unit* /*who*/) OVERRIDE { }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -551,9 +551,9 @@ class npc_janalai_hatcher : public CreatureScript
                 return num == 0;   // if num == 0, no more templist
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
-            void AttackStart(Unit* /*who*/) OVERRIDE {}
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void AttackStart(Unit* /*who*/) OVERRIDE { }
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
             void MovementInform(uint32, uint32) OVERRIDE
             {
@@ -678,7 +678,7 @@ class npc_janalai_hatchling : public CreatureScript
 class npc_janalai_egg : public CreatureScript
 {
 public:
-    npc_janalai_egg(): CreatureScript("npc_janalai_egg") {}
+    npc_janalai_egg(): CreatureScript("npc_janalai_egg") { }
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
@@ -687,11 +687,11 @@ public:
 
     struct npc_janalai_eggAI : public ScriptedAI
     {
-        npc_janalai_eggAI(Creature* creature) : ScriptedAI(creature){}
+        npc_janalai_eggAI(Creature* creature) : ScriptedAI(creature){ }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+        void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
         {

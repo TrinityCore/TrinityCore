@@ -34,12 +34,12 @@ class ObjectGridLoader
     public:
         ObjectGridLoader(NGridType &grid, Map* map, const Cell &cell)
             : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses (0)
-            {}
+            { }
 
         void Visit(GameObjectMapType &m);
         void Visit(CreatureMapType &m);
-        void Visit(CorpseMapType &) const {}
-        void Visit(DynamicObjectMapType&) const {}
+        void Visit(CorpseMapType &) const { }
+        void Visit(DynamicObjectMapType&) const { }
 
         void LoadN(void);
 
@@ -59,7 +59,7 @@ class ObjectGridStoper
 {
     public:
         void Visit(CreatureMapType &m);
-        template<class T> void Visit(GridRefManager<T> &) {}
+        template<class T> void Visit(GridRefManager<T> &) { }
 };
 
 //Move the foreign creatures back to respawn positions before unloading the NGrid
@@ -67,7 +67,8 @@ class ObjectGridEvacuator
 {
     public:
         void Visit(CreatureMapType &m);
-        template<class T> void Visit(GridRefManager<T> &) {}
+        void Visit(GameObjectMapType &m);
+        template<class T> void Visit(GridRefManager<T> &) { }
 };
 
 //Clean up and remove from world

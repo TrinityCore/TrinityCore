@@ -991,7 +991,7 @@ public:
 
     struct npc_tenebronAI : public dummy_dragonAI
     {
-        npc_tenebronAI(Creature* creature) : dummy_dragonAI(creature) {}
+        npc_tenebronAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         uint32 m_uiShadowBreathTimer;
         uint32 m_uiShadowFissureTimer;
@@ -1082,7 +1082,7 @@ public:
 
     struct npc_shadronAI : public dummy_dragonAI
     {
-        npc_shadronAI(Creature* creature) : dummy_dragonAI(creature) {}
+        npc_shadronAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         uint32 m_uiShadowBreathTimer;
         uint32 m_uiShadowFissureTimer;
@@ -1188,7 +1188,7 @@ public:
 
     struct npc_vesperonAI : public dummy_dragonAI
     {
-        npc_vesperonAI(Creature* creature) : dummy_dragonAI(creature) {}
+        npc_vesperonAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         uint32 m_uiShadowBreathTimer;
         uint32 m_uiShadowFissureTimer;
@@ -1536,8 +1536,8 @@ public:
                 m_uiHatchEggTimer -= uiDiff;
         }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
     };
 

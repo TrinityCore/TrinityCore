@@ -25,9 +25,7 @@
 #include "World.h"
 #include "zlib.h"
 
-UpdateData::UpdateData() : m_blockCount(0)
-{
-}
+UpdateData::UpdateData() : m_blockCount(0) { }
 
 void UpdateData::AddOutOfRangeGUID(std::set<uint64>& guids)
 {

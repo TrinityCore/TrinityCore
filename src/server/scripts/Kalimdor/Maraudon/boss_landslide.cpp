@@ -45,7 +45,7 @@ public:
 
     struct boss_landslideAI : public ScriptedAI
     {
-        boss_landslideAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_landslideAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 KnockAwayTimer;
         uint32 TrampleTimer;

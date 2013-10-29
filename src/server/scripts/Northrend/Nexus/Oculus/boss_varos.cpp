@@ -293,7 +293,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
 class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 {
     public:
-        spell_varos_energize_core_area_enemy() : SpellScriptLoader("spell_varos_energize_core_area_enemy") {}
+        spell_varos_energize_core_area_enemy() : SpellScriptLoader("spell_varos_energize_core_area_enemy") { }
 
         class spell_varos_energize_core_area_enemySpellScript : public SpellScript
         {
@@ -340,7 +340,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 class spell_varos_energize_core_area_entry : public SpellScriptLoader
 {
     public:
-        spell_varos_energize_core_area_entry() : SpellScriptLoader("spell_varos_energize_core_area_entry") {}
+        spell_varos_energize_core_area_entry() : SpellScriptLoader("spell_varos_energize_core_area_entry") { }
 
         class spell_varos_energize_core_area_entrySpellScript : public SpellScript
         {

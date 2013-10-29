@@ -70,7 +70,7 @@ public:
 
     struct molten_flameAI : public NullCreatureAI
     {
-        molten_flameAI(Creature* creature) : NullCreatureAI(creature) {}
+        molten_flameAI(Creature* creature) : NullCreatureAI(creature) { }
 
         void InitializeAI() OVERRIDE
         {
@@ -283,9 +283,9 @@ public:
         }
         uint32 wait;
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void DoAction(int32 /*info*/) OVERRIDE

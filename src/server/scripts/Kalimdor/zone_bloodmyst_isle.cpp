@@ -52,11 +52,11 @@ public:
 
     struct npc_webbed_creatureAI : public ScriptedAI
     {
-        npc_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void JustDied(Unit* killer) OVERRIDE
         {
@@ -185,7 +185,7 @@ public:
 
     struct npc_princess_stillpineAI : public ScriptedAI
     {
-        npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
         {

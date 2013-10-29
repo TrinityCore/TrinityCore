@@ -48,7 +48,7 @@ class boss_illucia_barov : public CreatureScript
 
         struct boss_illuciabarovAI : public BossAI
         {
-            boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) {}
+            boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) { }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {

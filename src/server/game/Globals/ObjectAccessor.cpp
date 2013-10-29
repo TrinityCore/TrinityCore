@@ -39,13 +39,9 @@
 
 #include <cmath>
 
-ObjectAccessor::ObjectAccessor()
-{
-}
+ObjectAccessor::ObjectAccessor() { }
 
-ObjectAccessor::~ObjectAccessor()
-{
-}
+ObjectAccessor::~ObjectAccessor() { }
 
 template<class T> T* ObjectAccessor::GetObjectInWorld(uint32 mapid, float x, float y, uint64 guid, T* /*fake*/)
 {
@@ -145,6 +141,15 @@ Corpse* ObjectAccessor::GetCorpse(WorldObject const& u, uint64 guid)
 GameObject* ObjectAccessor::GetGameObject(WorldObject const& u, uint64 guid)
 {
     return GetObjectInMap(guid, u.GetMap(), (GameObject*)NULL);
+}
+
+Transport* ObjectAccessor::GetTransport(WorldObject const& u, uint64 guid)
+{
+    if (GUID_HIPART(guid) != HIGHGUID_MO_TRANSPORT)
+        return NULL;
+
+    GameObject* go = GetGameObject(u, guid);
+    return go ? go->ToTransport() : NULL;
 }
 
 DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, uint64 guid)

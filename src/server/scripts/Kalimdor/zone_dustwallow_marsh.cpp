@@ -568,7 +568,7 @@ public:
             Talk(SAY_ATTACKED_1, who->GetGUID());
         }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {

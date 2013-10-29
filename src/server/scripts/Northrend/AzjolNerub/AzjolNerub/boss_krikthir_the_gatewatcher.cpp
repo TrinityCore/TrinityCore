@@ -206,7 +206,7 @@ public:
 
     struct npc_skittering_infectorAI : public ScriptedAI
     {
-        npc_skittering_infectorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_skittering_infectorAI(Creature* creature) : ScriptedAI(creature) { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
@@ -228,7 +228,7 @@ public:
 
     struct npc_anub_ar_skirmisherAI : public ScriptedAI
     {
-        npc_anub_ar_skirmisherAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_anub_ar_skirmisherAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiChargeTimer;
         uint32 uiBackstabTimer;
@@ -279,7 +279,7 @@ public:
 
     struct npc_anub_ar_shadowcasterAI : public ScriptedAI
     {
-        npc_anub_ar_shadowcasterAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_anub_ar_shadowcasterAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiShadowBoltTimer;
         uint32 uiShadowNovaTimer;
@@ -325,7 +325,7 @@ public:
 
     struct npc_anub_ar_warriorAI : public ScriptedAI
     {
-        npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature){}
+        npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature){ }
 
         uint32 uiCleaveTimer;
         uint32 uiStrikeTimer;
@@ -370,7 +370,7 @@ public:
 
     struct npc_watcher_gashraAI : public ScriptedAI
     {
-        npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -421,7 +421,7 @@ public:
 
     struct npc_watcher_narjilAI : public ScriptedAI
     {
-        npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -475,7 +475,7 @@ public:
 
     struct npc_watcher_silthikAI : public ScriptedAI
     {
-        npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;

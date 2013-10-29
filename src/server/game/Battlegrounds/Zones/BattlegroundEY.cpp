@@ -50,9 +50,7 @@ BattlegroundEY::BattlegroundEY()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_EY_HAS_BEGUN;
 }
 
-BattlegroundEY::~BattlegroundEY()
-{
-}
+BattlegroundEY::~BattlegroundEY() { }
 
 void BattlegroundEY::PostUpdateImpl(uint32 diff)
 {

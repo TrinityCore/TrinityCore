@@ -90,7 +90,7 @@ public:
             ResetTimer = 2000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
@@ -126,7 +126,7 @@ public:
 
     struct boss_midnightAI : public ScriptedAI
     {
-        boss_midnightAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_midnightAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 Attumen;
         uint8 Phase;
@@ -142,7 +142,7 @@ public:
             me->SetVisible(true);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
         {

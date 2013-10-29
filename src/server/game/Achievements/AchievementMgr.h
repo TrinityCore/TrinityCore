@@ -202,7 +202,7 @@ struct AchievementCriteriaData
 
 struct AchievementCriteriaDataSet
 {
-        AchievementCriteriaDataSet() : criteria_id(0) {}
+        AchievementCriteriaDataSet() : criteria_id(0) { }
         typedef std::vector<AchievementCriteriaData> Storage;
         void Add(AchievementCriteriaData const& data) { storage.push_back(data); }
         bool Meets(Player const* source, Unit const* target, uint32 miscValue = 0) const;
@@ -293,8 +293,8 @@ class AchievementMgr
 class AchievementGlobalMgr
 {
         friend class ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>;
-        AchievementGlobalMgr() {}
-        ~AchievementGlobalMgr() {}
+        AchievementGlobalMgr() { }
+        ~AchievementGlobalMgr() { }
 
     public:
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type) const

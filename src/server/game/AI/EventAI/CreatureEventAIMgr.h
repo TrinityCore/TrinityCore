@@ -27,8 +27,8 @@ class CreatureEventAIMgr
     friend class ACE_Singleton<CreatureEventAIMgr, ACE_Null_Mutex>;
 
     private:
-        CreatureEventAIMgr(){}
-        ~CreatureEventAIMgr(){}
+        CreatureEventAIMgr(){ }
+        ~CreatureEventAIMgr(){ }
 
     public:
         void LoadCreatureEventAI_Texts();
