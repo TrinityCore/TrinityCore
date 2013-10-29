@@ -45,7 +45,7 @@ class boss_ironaya : public CreatureScript
 
         struct boss_ironayaAI : public ScriptedAI
         {
-            boss_ironayaAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_ironayaAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 uiArcingTimer;
             bool bHasCastedWstomp;

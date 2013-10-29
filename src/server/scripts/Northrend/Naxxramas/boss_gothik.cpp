@@ -145,7 +145,7 @@ float const PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 // Predicate function to check that the r   efzr unit is NOT on the same side as the source.
 struct NotOnSameSide : public std::unary_function<Unit*, bool>
 {
-    NotOnSameSide(Unit* source) : _onLiveSide(IN_LIVE_SIDE(source)) {}
+    NotOnSameSide(Unit* source) : _onLiveSide(IN_LIVE_SIDE(source)) { }
 
     bool operator() (Unit const* target)
     {
@@ -163,7 +163,7 @@ class boss_gothik : public CreatureScript
 
         struct boss_gothikAI : public BossAI
         {
-            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) {}
+            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) { }
 
             uint32 waveCount;
             typedef std::vector<Creature*> TriggerVct;

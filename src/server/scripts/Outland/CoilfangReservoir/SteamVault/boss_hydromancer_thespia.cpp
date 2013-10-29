@@ -146,7 +146,7 @@ public:
 
     struct npc_coilfang_waterelementalAI : public ScriptedAI
     {
-        npc_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WaterBoltVolley_Timer;
 
@@ -155,7 +155,7 @@ public:
             WaterBoltVolley_Timer = 3000+rand()%3000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

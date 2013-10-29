@@ -62,7 +62,7 @@ public:
 
     struct boss_herodAI : public ScriptedAI
     {
-        boss_herodAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_herodAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool Enrage;
 
@@ -148,9 +148,9 @@ public:
 
         uint32 Start_Timer;
 
-        void Reset() OVERRIDE {}
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void Reset() OVERRIDE { }
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -41,7 +41,7 @@ public:
 
     struct instance_oculus_InstanceMapScript : public InstanceScript
     {
-        instance_oculus_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_oculus_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         void Initialize() OVERRIDE
         {

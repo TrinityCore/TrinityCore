@@ -223,7 +223,7 @@ public:
 
     struct npc_prospector_remtravelAI : public npc_escortAI
     {
-        npc_prospector_remtravelAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_prospector_remtravelAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -286,7 +286,7 @@ public:
             }
         }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* who) OVERRIDE
         {
@@ -358,7 +358,7 @@ public:
     {
         npc_threshwackonatorAI(Creature* creature) : FollowerAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 

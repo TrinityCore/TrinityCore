@@ -1493,9 +1493,7 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
     }
 }
 
-GameEventMgr::GameEventMgr() : isSystemInit(false)
-{
-}
+GameEventMgr::GameEventMgr() : isSystemInit(false) { }
 
 void GameEventMgr::HandleQuestComplete(uint32 quest_id)
 {

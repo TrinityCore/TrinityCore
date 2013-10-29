@@ -196,7 +196,7 @@ public:
                         TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance The Black Morass: Starting event.");
                         InitWorldState();
                         m_auiEncounter[1] = IN_PROGRESS;
-                        Events.ScheduleEvent(EVENT_NEXT_PORTAL, 15000);
+                        ScheduleEventNextPortal(15000);
                     }
 
                     if (data == DONE)
@@ -228,7 +228,7 @@ public:
                 if (data == SPECIAL)
                 {
                     if (mRiftPortalCount < 7)
-                        Events.ScheduleEvent(EVENT_NEXT_PORTAL, 5000);
+                        ScheduleEventNextPortal(5000);
                 }
                 else
                     m_auiEncounter[1] = data;
@@ -336,8 +336,14 @@ public:
                 ++mRiftPortalCount;
                 DoUpdateWorldState(WORLD_STATE_BM_RIFT, mRiftPortalCount);
                 DoSpawnPortal();
-                Events.ScheduleEvent(EVENT_NEXT_PORTAL, RiftWaves[GetRiftWaveId()].NextPortalTime);
+                ScheduleEventNextPortal(RiftWaves[GetRiftWaveId()].NextPortalTime);
             }
+        }
+
+        void ScheduleEventNextPortal(uint32 nextPortalTime)
+        {
+            if (nextPortalTime > 0)
+                Events.RescheduleEvent(EVENT_NEXT_PORTAL, nextPortalTime);
         }
 
         protected:

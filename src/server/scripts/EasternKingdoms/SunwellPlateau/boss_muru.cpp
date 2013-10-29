@@ -464,7 +464,7 @@ public:
 
     struct npc_dark_fiendAI : public ScriptedAI
     {
-        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WaitTimer;
         bool InAction;
@@ -525,7 +525,7 @@ public:
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature){}
+        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature){ }
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;

@@ -328,11 +328,11 @@ public:
 
     struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
     {
-        npc_creditmarker_visit_with_ancestorsAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_creditmarker_visit_with_ancestorsAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -433,7 +433,7 @@ public:
 
   struct npc_corkiAI : public ScriptedAI
   {
-      npc_corkiAI(Creature* creature) : ScriptedAI(creature) {}
+      npc_corkiAI(Creature* creature) : ScriptedAI(creature) { }
 
       uint32 Say_Timer;
       bool ReleasedFromCage;

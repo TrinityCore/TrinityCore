@@ -45,7 +45,7 @@ public:
 
     struct boss_halyconAI : public BossAI
     {
-        boss_halyconAI(Creature* creature) : BossAI(creature, DATA_HALYCON) {}
+        boss_halyconAI(Creature* creature) : BossAI(creature, DATA_HALYCON) { }
 
         void Reset() OVERRIDE
         {

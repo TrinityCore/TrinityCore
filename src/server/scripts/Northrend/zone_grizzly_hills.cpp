@@ -217,9 +217,9 @@ public:
 
     struct npc_mrfloppyAI : public ScriptedAI
     {
-        npc_mrfloppyAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_mrfloppyAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* Who) OVERRIDE
         {
@@ -239,9 +239,9 @@ public:
             }
         }
 
-        void EnterEvadeMode() OVERRIDE {}
+        void EnterEvadeMode() OVERRIDE { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE
@@ -279,7 +279,7 @@ public:
 
     struct npc_outhouse_bunnyAI : public ScriptedAI
     {
-        npc_outhouse_bunnyAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_outhouse_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -341,7 +341,7 @@ public:
 
     struct npc_tallhorn_stagAI : public ScriptedAI
     {
-        npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -393,7 +393,7 @@ public:
 
     struct npc_amberpine_woodsmanAI : public ScriptedAI
     {
-        npc_amberpine_woodsmanAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_amberpine_woodsmanAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -459,7 +459,7 @@ public:
 
     struct npc_wounded_skirmisherAI : public ScriptedAI
     {
-        npc_wounded_skirmisherAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_wounded_skirmisherAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() OVERRIDE
         {

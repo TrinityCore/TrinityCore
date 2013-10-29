@@ -1026,7 +1026,7 @@ class boss_thaladred_the_darkener : public CreatureScript
         }
         struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         {
-            boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Gaze_Timer;
             uint32 Silence_Timer;
@@ -1124,7 +1124,7 @@ class boss_lord_sanguinar : public CreatureScript
         }
         struct boss_lord_sanguinarAI : public advisorbase_ai
         {
-            boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Fear_Timer;
 
@@ -1191,7 +1191,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
         }
         struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         {
-            boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Fireball_Timer;
             uint32 Conflagration_Timer;
@@ -1336,7 +1336,7 @@ class boss_master_engineer_telonicus : public CreatureScript
         }
         struct boss_master_engineer_telonicusAI : public advisorbase_ai
         {
-            boss_master_engineer_telonicusAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_master_engineer_telonicusAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Bomb_Timer;
             uint32 RemoteToy_Timer;
@@ -1438,10 +1438,10 @@ class npc_kael_flamestrike : public CreatureScript
                 me->setFaction(14);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
@@ -1487,7 +1487,7 @@ class npc_phoenix_tk : public CreatureScript
         }
         struct npc_phoenix_tkAI : public ScriptedAI
         {
-            npc_phoenix_tkAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_phoenix_tkAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Cycle_Timer;
 
@@ -1541,7 +1541,7 @@ class npc_phoenix_egg_tk : public CreatureScript
         }
         struct npc_phoenix_egg_tkAI : public ScriptedAI
         {
-            npc_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Rebirth_Timer;
 
@@ -1551,7 +1551,7 @@ class npc_phoenix_egg_tk : public CreatureScript
             }
 
             //ignore any
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
             void AttackStart(Unit* who) OVERRIDE

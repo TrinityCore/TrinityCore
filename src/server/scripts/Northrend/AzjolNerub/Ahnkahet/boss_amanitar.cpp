@@ -165,7 +165,7 @@ public:
 
     struct npc_amanitar_mushroomsAI : public ScriptedAI
     {
-        npc_amanitar_mushroomsAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_amanitar_mushroomsAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -189,8 +189,8 @@ public:
                 DoCast(me, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, true);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void AttackStart(Unit* /*victim*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*victim*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -40,7 +40,7 @@ public:
 
     struct boss_anubshiahAI : public ScriptedAI
     {
-        boss_anubshiahAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_anubshiahAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowBolt_Timer;
         uint32 CurseOfTongues_Timer;
@@ -57,7 +57,7 @@ public:
             EnvelopingWeb_Timer = 16000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

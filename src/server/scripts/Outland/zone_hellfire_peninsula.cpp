@@ -68,7 +68,7 @@ public:
 
     struct npc_aeranasAI : public ScriptedAI
     {
-        npc_aeranasAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_aeranasAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Faction_Timer;
         uint32 EnvelopingWinds_Timer;
@@ -388,7 +388,7 @@ public:
 
     struct npc_wounded_blood_elfAI : public npc_escortAI
     {
-        npc_wounded_blood_elfAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_wounded_blood_elfAI(Creature* creature) : npc_escortAI(creature) { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -424,7 +424,7 @@ public:
             }
         }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -462,7 +462,7 @@ public:
 
     struct npc_fel_guard_houndAI : public ScriptedAI
     {
-        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiCheckTimer;
         uint64 uiHelboarGUID;

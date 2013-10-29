@@ -99,7 +99,7 @@ public:
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
-        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 LamentEventTimer;
         bool LamentEvent;
@@ -124,7 +124,7 @@ public:
             MultiShotTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {
@@ -231,7 +231,7 @@ public:
 
     struct npc_highborne_lamenterAI : public ScriptedAI
     {
-        npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 EventMoveTimer;
         uint32 EventCastTimer;
@@ -246,7 +246,7 @@ public:
             EventCast = true;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

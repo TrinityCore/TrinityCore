@@ -116,7 +116,7 @@ public:
 
     struct npc_underbog_mushroomAI : public ScriptedAI
     {
-        npc_underbog_mushroomAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_underbog_mushroomAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool Stop;
         uint32 Grow_Timer;
@@ -132,12 +132,12 @@ public:
             DoCast(me, SPELL_SPORE_CLOUD, true);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

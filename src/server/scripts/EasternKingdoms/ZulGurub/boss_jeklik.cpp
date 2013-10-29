@@ -50,11 +50,11 @@ enum Spells
 
 class boss_jeklik : public CreatureScript //jeklik
 {
-    public: boss_jeklik() : CreatureScript("boss_jeklik") {}
+    public: boss_jeklik() : CreatureScript("boss_jeklik") { }
 
         struct boss_jeklikAI : public BossAI
         {
-            boss_jeklikAI(Creature* creature) : BossAI(creature, DATA_JEKLIK) {}
+            boss_jeklikAI(Creature* creature) : BossAI(creature, DATA_JEKLIK) { }
 
             uint32 Charge_Timer;
             uint32 SonicBurst_Timer;
@@ -247,7 +247,7 @@ class npc_batrider : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {

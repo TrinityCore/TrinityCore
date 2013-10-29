@@ -200,7 +200,7 @@ class Object
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
-        virtual void BuildUpdate(UpdateDataMapType&) {}
+        virtual void BuildUpdate(UpdateDataMapType&) { }
         void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
         void SetFieldNotifyFlag(uint16 flag) { _fieldNotifyFlags |= flag; }
@@ -275,13 +275,13 @@ struct Position
 {
     struct PositionXYZStreamer
     {
-        explicit PositionXYZStreamer(Position& pos) : m_pos(&pos) {}
+        explicit PositionXYZStreamer(Position& pos) : m_pos(&pos) { }
         Position* m_pos;
     };
 
     struct PositionXYZOStreamer
     {
-        explicit PositionXYZOStreamer(Position& pos) : m_pos(&pos) {}
+        explicit PositionXYZOStreamer(Position& pos) : m_pos(&pos) { }
         Position* m_pos;
     };
 
@@ -523,6 +523,35 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+enum MapObjectCellMoveState
+{
+    MAP_OBJECT_CELL_MOVE_NONE, //not in move list
+    MAP_OBJECT_CELL_MOVE_ACTIVE, //in move list
+    MAP_OBJECT_CELL_MOVE_INACTIVE, //in move list but should not move
+};
+
+class MapObject
+{
+        friend class Map; //map for moving creatures
+        friend class ObjectGridLoader; //grid loader for loading creatures
+
+    protected:
+        MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE) { }
+
+    private:
+        Cell _currentCell;
+        Cell const& GetCurrentCell() const { return _currentCell; }
+        void SetCurrentCell(Cell const& cell) { _currentCell = cell; }
+
+        MapObjectCellMoveState _moveState;
+        Position _newPosition;
+        void SetNewCellPosition(float x, float y, float z, float o)
+        {
+            _moveState = MAP_OBJECT_CELL_MOVE_ACTIVE;
+            _newPosition.Relocate(x, y, z, o);
+        }
+};
+
 class WorldObject : public Object, public WorldLocation
 {
     protected:
@@ -621,7 +650,7 @@ class WorldObject : public Object, public WorldLocation
 
         void SendObjectDeSpawnAnim(uint64 guid);
 
-        virtual void SaveRespawnTime() {}
+        virtual void SaveRespawnTime() { }
         void AddObjectToRemoveList();
 
         float GetGridActivationRange() const;
@@ -700,16 +729,22 @@ class WorldObject : public Object, public WorldLocation
 
         // Transports
         Transport* GetTransport() const { return m_transport; }
-        virtual float GetTransOffsetX() const { return 0; }
-        virtual float GetTransOffsetY() const { return 0; }
-        virtual float GetTransOffsetZ() const { return 0; }
-        virtual float GetTransOffsetO() const { return 0; }
-        virtual uint32 GetTransTime()   const { return 0; }
-        virtual int8 GetTransSeat()     const { return -1; }
+        float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
+        float GetTransOffsetY() const { return m_movementInfo.transport.pos.GetPositionY(); }
+        float GetTransOffsetZ() const { return m_movementInfo.transport.pos.GetPositionZ(); }
+        float GetTransOffsetO() const { return m_movementInfo.transport.pos.GetOrientation(); }
+        uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
+        int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual uint64 GetTransGUID()   const;
         void SetTransport(Transport* t) { m_transport = t; }
 
         MovementInfo m_movementInfo;
+
+        virtual float GetStationaryX() const { return GetPositionX(); }
+        virtual float GetStationaryY() const { return GetPositionY(); }
+        virtual float GetStationaryZ() const { return GetPositionZ(); }
+        virtual float GetStationaryO() const { return GetOrientation(); }
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -739,7 +774,6 @@ class WorldObject : public Object, public WorldLocation
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;
-
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
 
         bool CanNeverSee(WorldObject const* obj) const;
@@ -755,7 +789,7 @@ namespace Trinity
     class ObjectDistanceOrderPred
     {
         public:
-            ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending = true) : m_refObj(pRefObj), m_ascending(ascending) {}
+            ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending = true) : m_refObj(pRefObj), m_ascending(ascending) { }
             bool operator()(WorldObject const* pLeft, WorldObject const* pRight) const
             {
                 return m_ascending ? m_refObj->GetDistanceOrder(pLeft, pRight) : !m_refObj->GetDistanceOrder(pLeft, pRight);

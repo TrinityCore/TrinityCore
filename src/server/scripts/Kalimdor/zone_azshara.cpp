@@ -52,7 +52,7 @@ public:
 
     struct npc_spitelashesAI : public ScriptedAI
     {
-        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_spitelashesAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 morphtimer;
         bool spellhit;
@@ -63,7 +63,7 @@ public:
             spellhit = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SpellHit(Unit* unit, const SpellInfo* spell) OVERRIDE
         {
@@ -309,7 +309,7 @@ public:
 
     struct npc_rizzle_sprysprocketAI : public ScriptedAI
     {
-        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SpellEscapeTimer;
         uint32 TeleportTimer;
@@ -443,7 +443,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
@@ -477,7 +477,7 @@ public:
 
     struct npc_depth_chargeAI : public ScriptedAI
     {
-        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool WeMustDie;
         uint32 WeMustDieTimer;
@@ -517,9 +517,9 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
     };
 };
 

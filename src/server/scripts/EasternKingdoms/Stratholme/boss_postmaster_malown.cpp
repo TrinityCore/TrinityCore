@@ -59,9 +59,9 @@ class boss_postmaster_malown : public CreatureScript
 
         struct boss_postmaster_malownAI : public BossAI
         {
-            boss_postmaster_malownAI(Creature* creature) : BossAI(creature, TYPE_MALOWN) {}
+            boss_postmaster_malownAI(Creature* creature) : BossAI(creature, TYPE_MALOWN) { }
 
-            void Reset() OVERRIDE {}
+            void Reset() OVERRIDE { }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {

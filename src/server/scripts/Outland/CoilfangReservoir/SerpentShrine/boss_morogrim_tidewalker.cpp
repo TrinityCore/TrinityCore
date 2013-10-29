@@ -299,7 +299,7 @@ public:
 
     struct npc_water_globuleAI : public ScriptedAI
     {
-        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Check_Timer;
 
@@ -312,7 +312,7 @@ public:
             me->setFaction(14);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 

@@ -45,7 +45,7 @@ public:
 
     struct boss_azshir_the_sleeplessAI : public ScriptedAI
     {
-        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SoulSiphon_Timer;
         uint32 CallOftheGrave_Timer;
@@ -58,7 +58,7 @@ public:
             Terrify_Timer = 20000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

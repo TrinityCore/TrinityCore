@@ -57,7 +57,7 @@ public:
 
     struct npc_converted_sentryAI : public ScriptedAI
     {
-        npc_converted_sentryAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_converted_sentryAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool Credit;
         uint32 Timer;
@@ -68,9 +68,9 @@ public:
             Timer = 2500;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -111,7 +111,7 @@ public:
 
     struct npc_greengill_slaveAI : public ScriptedAI
     {
-        npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
 

@@ -570,11 +570,11 @@ class npc_zuljin_vortex : public CreatureScript
 
         struct npc_zuljin_vortexAI : public ScriptedAI
         {
-            npc_zuljin_vortexAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_zuljin_vortexAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE {}
+            void Reset() OVERRIDE { }
 
-            void EnterCombat(Unit* /*target*/) OVERRIDE {}
+            void EnterCombat(Unit* /*target*/) OVERRIDE { }
 
             void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
             {

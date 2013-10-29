@@ -72,7 +72,7 @@ class npc_torek : public CreatureScript
 
         struct npc_torekAI : public npc_escortAI
         {
-            npc_torekAI(Creature* creature) : npc_escortAI(creature) {}
+            npc_torekAI(Creature* creature) : npc_escortAI(creature) { }
 
             uint32 Rend_Timer;
             uint32 Thunderclap_Timer;
@@ -229,7 +229,7 @@ class npc_ruul_snowhoof : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void Reset() OVERRIDE
             {

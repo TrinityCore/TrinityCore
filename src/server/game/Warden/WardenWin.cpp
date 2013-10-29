@@ -34,13 +34,9 @@
 #include "WardenCheckMgr.h"
 #include "AccountMgr.h"
 
-WardenWin::WardenWin() : Warden()
-{
-}
+WardenWin::WardenWin() : Warden() { }
 
-WardenWin::~WardenWin()
-{
-}
+WardenWin::~WardenWin() { }
 
 void WardenWin::Init(WorldSession* session, BigNumber* k)
 {

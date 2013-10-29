@@ -48,7 +48,7 @@ public:
 
     struct boss_rasfrostAI : public ScriptedAI
     {
-        boss_rasfrostAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_rasfrostAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 IceArmor_Timer;
         uint32 Frostbolt_Timer;
@@ -69,7 +69,7 @@ public:
             DoCast(me, SPELL_ICEARMOR, true);
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

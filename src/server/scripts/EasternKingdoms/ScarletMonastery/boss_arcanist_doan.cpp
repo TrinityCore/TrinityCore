@@ -53,7 +53,7 @@ public:
 
     struct boss_arcanist_doanAI : public ScriptedAI
     {
-        boss_arcanist_doanAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_arcanist_doanAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Polymorph_Timer;
         uint32 AoESilence_Timer;
