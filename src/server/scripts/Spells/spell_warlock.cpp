@@ -295,9 +295,21 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
                     GetCaster()->CastSpell(GetTarget(), SPELL_WARLOCK_BANE_OF_DOOM_EFFECT, true, NULL, aurEff);
             }
 
+			void HandleDummyTick(AuraEffect const * /*aurEff*/)
+			{
+				if(GetCaster())
+				{
+					if(roll_chance_i(20))
+					{
+						GetCaster()->CastSpell(GetCaster(),18662);
+					}
+				}
+			}
+
             void Register() OVERRIDE
             {
                  AfterEffectRemove += AuraEffectRemoveFn(spell_warl_curse_of_doom_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+				 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_curse_of_doom_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
