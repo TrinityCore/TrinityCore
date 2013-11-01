@@ -33,7 +33,7 @@ class DatabaseWorker : protected ACE_Task_Base
         int wait() { return ACE_Task_Base::wait(); }
 
     private:
-        DatabaseWorker() : ACE_Task_Base() {}
+        DatabaseWorker() : ACE_Task_Base() { }
         ACE_Activation_Queue* m_queue;
         MySQLConnection* m_conn;
 };

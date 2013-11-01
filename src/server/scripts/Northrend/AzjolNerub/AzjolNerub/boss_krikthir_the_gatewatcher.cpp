@@ -325,7 +325,7 @@ public:
 
     struct npc_anub_ar_warriorAI : public ScriptedAI
     {
-        npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature){}
+        npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature){ }
 
         uint32 uiCleaveTimer;
         uint32 uiStrikeTimer;

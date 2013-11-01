@@ -101,7 +101,7 @@ struct MinionData
 
 struct BossInfo
 {
-    BossInfo() : state(TO_BE_DECIDED) {}
+    BossInfo() : state(TO_BE_DECIDED) { }
     EncounterState state;
     DoorSet door[MAX_DOOR_TYPES];
     MinionSet minion;
@@ -111,7 +111,7 @@ struct BossInfo
 struct DoorInfo
 {
     explicit DoorInfo(BossInfo* _bossInfo, DoorType _type, BoundaryType _boundary)
-        : bossInfo(_bossInfo), type(_type), boundary(_boundary) {}
+        : bossInfo(_bossInfo), type(_type), boundary(_boundary) { }
     BossInfo* bossInfo;
     DoorType type;
     BoundaryType boundary;
@@ -119,7 +119,7 @@ struct DoorInfo
 
 struct MinionInfo
 {
-    explicit MinionInfo(BossInfo* _bossInfo) : bossInfo(_bossInfo) {}
+    explicit MinionInfo(BossInfo* _bossInfo) : bossInfo(_bossInfo) { }
     BossInfo* bossInfo;
 };
 
@@ -131,14 +131,14 @@ typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 class InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) {}
+        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) { }
 
-        virtual ~InstanceScript() {}
+        virtual ~InstanceScript() { }
 
         Map* instance;
 
         //On creation, NOT load.
-        virtual void Initialize() {}
+        virtual void Initialize() { }
 
         //On load
         virtual void Load(char const* data) { LoadBossState(data); }
@@ -148,14 +148,14 @@ class InstanceScript : public ZoneScript
 
         void SaveToDB();
 
-        virtual void Update(uint32 /*diff*/) {}
+        virtual void Update(uint32 /*diff*/) { }
 
         //Used by the map's CanEnter function.
         //This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
         //Called when a player successfully enters the instance.
-        virtual void OnPlayerEnter(Player* /*player*/) {}
+        virtual void OnPlayerEnter(Player* /*player*/) { }
 
         //Handle open / close objects
         //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -212,7 +212,7 @@ class InstanceScript : public ZoneScript
 
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
 
     protected:
         void SetBossNumber(uint32 number) { bosses.resize(number); }

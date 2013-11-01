@@ -448,9 +448,7 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
     summons(creature),
     _boundary(instance ? instance->GetBossBoundary(bossId) : NULL),
-    _bossId(bossId)
-{
-}
+    _bossId(bossId) { }
 
 void BossAI::_Reset()
 {
@@ -584,9 +582,7 @@ void BossAI::UpdateAI(uint32 diff)
 
 WorldBossAI::WorldBossAI(Creature* creature) :
     ScriptedAI(creature),
-    summons(creature)
-{
-}
+    summons(creature) { }
 
 void WorldBossAI::_Reset()
 {

@@ -21,13 +21,9 @@
 
 PreparedStatement::PreparedStatement(uint32 index) :
 m_stmt(NULL),
-m_index(index)
-{
-}
+m_index(index) { }
 
-PreparedStatement::~PreparedStatement()
-{
-}
+PreparedStatement::~PreparedStatement() { }
 
 void PreparedStatement::BindParameters()
 {
@@ -451,16 +447,12 @@ std::string MySQLPreparedStatement::getQueryString(std::string const& sqlPattern
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatement* stmt) :
 m_stmt(stmt),
-m_has_result(false)
-{
-}
+m_has_result(false) { }
 
 PreparedStatementTask::PreparedStatementTask(PreparedStatement* stmt, PreparedQueryResultFuture result) :
 m_stmt(stmt),
 m_has_result(true),
-m_result(result)
-{
-}
+m_result(result) { }
 
 
 PreparedStatementTask::~PreparedStatementTask()

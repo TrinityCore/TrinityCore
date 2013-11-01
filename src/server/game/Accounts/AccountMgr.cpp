@@ -25,9 +25,7 @@
 #include "SHA1.h"
 #include "WorldSession.h"
 
-AccountMgr::AccountMgr()
-{
-}
+AccountMgr::AccountMgr() { }
 
 AccountMgr::~AccountMgr()
 {

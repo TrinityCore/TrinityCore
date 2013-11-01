@@ -65,8 +65,8 @@ class ReputationMgr
 {
     public:                                                 // constructors and global modifiers
         explicit ReputationMgr(Player* owner) : _player(owner),
-            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) {}
-        ~ReputationMgr() {}
+            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) { }
+        ~ReputationMgr() { }
 
         void SaveToDB(SQLTransaction& trans);
         void LoadFromDB(PreparedQueryResult result);

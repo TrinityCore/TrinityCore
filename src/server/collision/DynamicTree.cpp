@@ -107,9 +107,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
     int unbalanced_times;
 };
 
-DynamicMapTree::DynamicMapTree() : impl(new DynTreeImpl())
-{
-}
+DynamicMapTree::DynamicMapTree() : impl(new DynTreeImpl()) { }
 
 DynamicMapTree::~DynamicMapTree()
 {
@@ -150,7 +148,7 @@ struct DynamicTreeIntersectionCallback
 {
     bool did_hit;
     uint32 phase_mask;
-    DynamicTreeIntersectionCallback(uint32 phasemask) : did_hit(false), phase_mask(phasemask) {}
+    DynamicTreeIntersectionCallback(uint32 phasemask) : did_hit(false), phase_mask(phasemask) { }
     bool operator()(const G3D::Ray& r, const GameObjectModel& obj, float& distance)
     {
         did_hit = obj.intersectRay(r, distance, true, phase_mask);

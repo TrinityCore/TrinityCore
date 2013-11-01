@@ -42,7 +42,7 @@ class MapReference : public Reference<Map, Player>
             getTarget()->m_mapRefManager.decSize();
         }
     public:
-        MapReference() : Reference<Map, Player>() {}
+        MapReference() : Reference<Map, Player>() { }
         ~MapReference() { unlink(); }
         MapReference* next() { return (MapReference*)Reference<Map, Player>::next(); }
         MapReference const* next() const { return (MapReference const*)Reference<Map, Player>::next(); }
