@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,7 +43,7 @@ enum Quotes
     YELL_MADR_INTRO                     = 1,
     YELL_MADR_ICE_BLOCK                 = 2,
     YELL_MADR_TRAP                      = 3,
-    YELL_MADR_DEATH                     = 4,
+    YELL_MADR_DEATH                     = 4
 };
 
 enum Spells
@@ -61,17 +60,10 @@ enum Spells
     SPELL_INTRO_ENCAPSULATE_CHANELLING  = 45661
 };
 
-#define FELMYST 25038
-
 class boss_brutallus : public CreatureScript
 {
 public:
     boss_brutallus() : CreatureScript("boss_brutallus") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_brutallusAI(creature);
-    }
 
     struct boss_brutallusAI : public ScriptedAI
     {
@@ -113,7 +105,7 @@ public:
             DoCast(me, SPELL_DUAL_WIELD, true);
 
             if (instance)
-                instance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_BRUTALLUS, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -121,7 +113,7 @@ public:
             Talk(YELL_AGGRO);
 
             if (instance)
-                instance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_BRUTALLUS, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -135,10 +127,10 @@ public:
 
             if (instance)
             {
-                instance->SetData(DATA_BRUTALLUS_EVENT, DONE);
+                instance->SetBossState(DATA_BRUTALLUS, DONE);
                 float x, y, z;
                 me->GetPosition(x, y, z);
-                me->SummonCreature(FELMYST, x, y, z+30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+                me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
             }
         }
 
@@ -152,8 +144,8 @@ public:
         {
             if (!Intro || IsIntro)
                 return;
-            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0);
-            if (Madrigosa)
+
+            if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0))
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
@@ -166,7 +158,7 @@ public:
             }
             else
             {
-                //Madrigosa not found, end intro
+                // Madrigosa not found, end intro
                 TC_LOG_ERROR(LOG_FILTER_TSCR, "Madrigosa was not found");
                 EndIntro();
             }
@@ -188,7 +180,7 @@ public:
 
         void DoIntro()
         {
-            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0);
+            Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0);
             if (!Madrigosa)
                 return;
 
@@ -265,15 +257,16 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!me->IsValidAttackTarget(who))
                 return;
+
             if (instance && Intro)
-                instance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
+                instance->SetBossState(DATA_BRUTALLUS, SPECIAL);
 
             if (Intro && !IsIntro)
                 StartIntro();
+
             if (!Intro)
                 ScriptedAI::MoveInLineOfSight(who);
         }
@@ -290,15 +283,17 @@ public:
                 {
                     if (IntroFrostBoltTimer <= diff)
                     {
-                        if (Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0))
+                        if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0))
                         {
                             Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                             IntroFrostBoltTimer = 2000;
                         }
                     } else IntroFrostBoltTimer -= diff;
                 }
+
                 if (!UpdateVictim())
                     return;
+
                 DoMeleeAttackIfReady();
             }
 
@@ -341,6 +336,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new boss_brutallusAI(creature);
+    }
 };
 
 void AddSC_boss_brutallus()
