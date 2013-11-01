@@ -284,6 +284,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.208 - 23/09/2013: Mejorando el sistema de movimientos para evectos de charge y leap con GetFirstCollisionPosition por Eilo
 1.209 - 24/09/2013: Vehiculos: Ahora los personajes pueden canalizar spells como Drain Soul o Arcane Missiles cuando esten sobre vehiculos donde el seat se lo permita por jar
 1.210 - 02/10/2013: Mejorado el funcionamiento de SPELL_AURA_FORCE_REACTION por Jar
+1.211 - 28/10/2013: Pets: Previniendo exploit de dar loot automático (tipo emblemas o fragmentos) al morir la pet por Gildor
 
 
 ########################
@@ -481,6 +482,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.234 - 24/10/2013: TheLichKing ajustado el comportamiento del Harvested Soul para que no gane poder LK mientras no estan en Frostmourne Room por Eilo
 2.2.235 - 25/10/2013: TheLichKing los players afectados por Harvest Soul ya no serán objetivos inválidos por Saitama
 2.2.236 - 25/10/2013: Marrowgar los players empalados ya no serán objetivos inválidos por Saitama
+2.2.237 - 29/10/2013: Lana'thel: evitando crashes en el Frenzied Bloodthirst al generar bucle infinito en Uncontrollable Frenzy por Eilo
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -531,6 +533,21 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.41 - 22/10/2013: Ulduar: Flame Leviathan corregida la habilidad Freya's Ward, ahora se ejecuta de forma correcta, original de swerg modificado por jar
 2.6.42 - 26/10/2013: Ulduar: Thorim correciones en los targets de Lightning Release por Saitama
 2.6.43 - 26/10/2013: Ulduar: Thorim dado un aspecto más blizzlike al evento de fin del hardmode por Saitama
+2.6.44 - 27/10/2013: Ulduar: Auriaya la Feral Seeping Essence ahora causará daño correctamente por Saitama
+2.6.45 - 28/10/2013: Ulduar: Ignis ahora se podrá curar al jugador afectado por Slag Pot por Saitama
+2.6.46 - 28/10/2013: Ulduar: Ignis ahora Slag Pot causará daño al jugador afectado por Saitama
+2.6.47 - 28/10/2013: Ulduar: Auriaya corregidas las vidas del Feral Defender por Saitama
+2.6.48 - 28/10/2013: Ulduar: Auriaya corregido el radio de efecto de Seeping Feral Essence por Saitama
+2.6.49 - 28/10/2013: Ulduar: Auriaya corregido el tiempo de reactivación del Feral Defender por Saitama
+2.6.50 - 28/10/2013: Ulduar: Auriaya corregido el momento en que utiliza Sentinel Blast por Saitama
+2.6.51 - 28/10/2013: Ulduar: Auriaya corregido el model de arma que lleva equipada por Saitama
+2.6.52 - 28/10/2013: Ulduar: Auriaya añadida el arma a su versión de 25man por Saitama
+2.6.53 - 28/10/2013: Ulduar: Auriaya corregido el tiempo de re-utilización de Terrifying Screech por Saitama
+2.6.54 - 28/10/2013: Ulduar: AssemblyOfIron ahora Stormcaller Brundir no se alejará de su objetivo primario por Saitama
+2.6.55 - 29/10/2013: Ulduar: AssemblyOfIron la puerta de entrada al concilio se cerrará cuando el encuentro esté en progreso por Saitama
+2.6.56 - 29/10/2013: Ulduar: Archivum Door estará cerrada hasta que el encuentro contra Assembly of Iron sea completado por Saitama
+2.6.57 - 29/10/2013: Ulduar: Hodir las puertas que conectan la zona de encuentro con el Observation Ring se mantendrán abiertas una vez derrotado el boss por Saitama
+2.6.58 - 29/10/2013: Ulduar: Hodir la puerta de entrada a la zona del encuentro se cerrará mientras éste esté en progreso por Saitama
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -571,6 +588,12 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.9.34 - 14/10/2013: RubySanctum: Fix spell Soul Consumption, ahora funcionará el effecto de atraer a los jugadores por Gildor
 2.9.35 - 18/10/2013: RubySanctum: Ajustado el damage de Living Ember por Evef
 2.9.36 - 18/10/2013: RubySanctum: Añadido delay de 2s en el spawn de Living Ember por Evef.
+2.9.37 - 27/10/2013: RubySanctum: Combustion y Consumption escalará correctamente su radio de daño por Evef.
+2.9.38 - 27/10/2013: RubySanctum: Fiery Combustion y Soul Consumption escalará correctamente su radio de daño y efecturarán correctamente los effects por Evef.
+2.9.39 - 27/10/2013: RubySanctum: Ajustado el EffecMiscValue para evitar que el knock back los saque del ciruclo Evef.
+2.9.40 - 28/10/2013: RubySanctum: Damage ajustado de halion para más blizzlike por Evef.
+2.9.41 - 29/10/2013: RubySanctum: Evitando que intenten llevar a Halion al borde para resetearlo por Evef.
+2.9.42 - 29/10/2013: RubySanctum: Evitando que los adds queden spawneados en 25h por Evef.
 - Ahn'Kahet -
 2.10.1 - 03/08/2011: Ahn'Kahet: Taldaram combate en invisible por Greymane
 2.10.2 - 16/12/2011: Ahn'Kahet: Taldaram daño esferas ajustado por Eilo
@@ -603,6 +626,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 - PitOfSaron -
 2.17.1 - 24/12/2011: PitOfSaron: Correccion de varios mobs por Eilo
 2.17.3 - 16/08/2012: PitOfSaron: Krickandick ajuste de efectos visuales y timers en pursuit por Eilo
+2.17.4 - 31/10/2013: PitOfSaron: Arreglo del evento de las estalactitas de la cueva por Efreet
 - ForgeOfSouls -
 2.18.1 - 16/08/2012: ForgeOfSouls: Bronjahm ajuste de inmunidades por Eilo
 2.18.2 - 16/08/2012: ForgeOfSouls: Adding some texts by Eilo
@@ -645,6 +669,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.23.3 - 07/01/2013: HallsOfStone: Tribunalevent añadidos los AI a trash por Evef.
 - UtgardeKeep -
 2.24.1 - 01/10/2011: UtgardeKeep: Ingvar permitiendo que se le pueda atacar en el reseteo por Eilo
+2.24.2 - 30/10/2013: UtgardeKeep: Fixeado el exploit que permitia saltarse las forjas del Horno del Odio por Efreet
 - UtgardePinnacle -
 2.25.1 - 25/12/2011: UtgardePinnacle: Svala ahora es atacable con normalidad por Eilo
 2.25.3 - 16/08/2012: UtgardePinnacle: Skadi fixed encounter phase two by Eilo
@@ -1269,6 +1294,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.10.58 - 14/10/2013: Tormenta Abisal: Cohlien Tejescarcha por Trista
 4.10.59 - 14/10/2013: Tormenta Abisal: Mago de batalla Dathric por Trista
 4.10.60 - 19/10/2013: Nagrand: Confalones y prácticas por Lauja
+4.10.61 - 31/10/2013: Montañas Filospada: Reunir los orbes por Trista
+4.10.62 - 31/10/2013: Montañas Filospada: La marca del rey-nexo por Muzashi
 - Kalimdor y Reinos del Este -
 4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
 4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
@@ -1292,6 +1319,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.11.19 - 14/10/2013: Desolace: La mano de Iruxos por Muzashi
 4.11.20 - 22/10/2013: Tierras de la Peste Oeste: Profanar la tumba de Uther por Rincewind
 4.11.21 - 23/10/2013: Isla Bruma de Sangre: Salvar a la princesa Semprepino por Lauja
+4.11.22 - 31/10/2013: Desolace: Get Me Out of Here! por Lauja
 
 
 ################
@@ -1402,5 +1430,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 7.20 - 07/08/2013: Addons de migracion baneados por Crash
 7.21 - 08/08/2013: Nuevos textos para el Bg Queue ahora en una sola linea y mejorados por Eilo
 7.22 - 12/08/2013: Nuevos textos para el started! de bg por Eilo
+7.23 - 31/10/2013: Torneo PvP en Hyjal por Shorak
+7.24 - 31/10/2013: Disables de spells en zonas de eventos por Shorak y Muzashi
 
 
