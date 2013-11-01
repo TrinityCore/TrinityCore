@@ -691,10 +691,10 @@ class spell_mage_frostbolt : public SpellScriptLoader
                    }
                }
            }
-
+	    
            void Register()
            {
-               OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+		 OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
            }
        };
 
@@ -1528,6 +1528,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost();
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_water_elemental_freeze();
-	new spell_mage_arcane_missiles();
-	new spell_mage_offensive_state();
+    new spell_mage_arcane_missiles();
+    new spell_mage_offensive_state();
 }

@@ -1458,6 +1458,36 @@ class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
         }
 };
 
+// Solar Beam DREAM WOW
+class spell_dru_beam : public SpellScriptLoader
+{
+    public:
+        spell_dru_beam() : SpellScriptLoader("spell_dru_beam") { }
+
+        class spell_dru_beam_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_beam_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) { return true; }
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                if (DynamicObject* dyn = GetTarget()->GetDynObject(aurEff->GetId()))
+                    GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), 81261, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_beam_AuraScript::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_beam_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1488,5 +1518,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_mushroom();
     new spell_dru_wild_mushroom_detonate();
+    new spell_dru_beam();
 
 }

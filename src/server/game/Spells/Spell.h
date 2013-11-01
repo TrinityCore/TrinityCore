@@ -458,7 +458,7 @@ class Spell
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
 
-        UsedSpellMods m_appliedMods;
+	 UsedSpellMods m_appliedMods;
 
         int32 GetCastTime() const { return m_casttime; }
         bool IsAutoRepeat() const { return m_autoRepeat; }

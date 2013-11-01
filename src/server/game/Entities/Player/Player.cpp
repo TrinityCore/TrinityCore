@@ -5200,7 +5200,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     setDeathState(ALIVE);
 
-    SetWaterWalking(false);
+    SetWaterWalking(false, true);
     if (!HasUnitState(UNIT_STATE_STUNNED))
         SetRooted(false);
 
@@ -22283,7 +22283,9 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
                 if (catrec > 0)
                     catrec += categoryModifier;
             }
-        }
+
+         }
+
 
         // replace negative cooldowns by 0
         if (rec < 0)

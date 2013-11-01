@@ -6938,6 +6938,20 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
 
             switch (dummySpell->Id)
             {
+		// para DREAM WOW ORDEN PROFANA
+		// Unholy Command rank 2
+                case 49589:
+                    *handled = true;
+                    ToPlayer()->RemoveSpellCooldown(49576,true);
+                    return true;
+                    break;
+                // Unholy Command rank 1
+                case 49588:
+                    *handled = true;
+                    if(roll_chance_i(50))
+                        ToPlayer()->RemoveSpellCooldown(49576,true);
+                    return true;
+                    break;
                 // Bone Shield cooldown
                 case 49222:
                 {
@@ -8959,6 +8973,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 }
             }
             break;
+		
         case SPELLFAMILY_PRIEST:
             // Smite
             if (spellProto->SpellFamilyFlags[0] & 0x80)
@@ -8991,6 +9006,14 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 if (uint8 count = victim->GetDoTsByCaster(GetOwnerGUID()))
                     AddPct(DoneTotalMod, 30 * count);
             break;
+// para dream wow glifo y daño de steady shot
+       case SPELLFAMILY_HUNTER:
+			// Steady Shot
+			if (spellProto->SpellFamilyFlags[1] & 0x1)
+				if (AuraEffect * aurEff = GetAuraEffect(56826, 0))          // Glyph of Steady Shot
+					if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 0x00004000, 0, 0, GetGUID()))
+						AddPct(DoneTotalMod, aurEff->GetAmount());
+			break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Sigil of the Vengeful Heart
             if (spellProto->SpellFamilyFlags[0] & 0x2000)

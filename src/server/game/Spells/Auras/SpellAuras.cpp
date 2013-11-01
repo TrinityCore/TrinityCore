@@ -1343,6 +1343,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Remove the IGNORE_AURASTATE aura
                         target->RemoveAurasDueToSpell(44544);
                         break;
+		      // dream wow para escarcha temprana
+		      case 83239: // Early Frost
+                    case 83162: // Early Frost
+                        target->CastSpell(target, 94315, true);
+                        break;
                     case 44401: //Missile Barrage
                     case 48108: //Hot Streak
                     case 57761: //Fireball!

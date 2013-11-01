@@ -12,6 +12,7 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
 Custom/sistema_pve.cpp
 Custom/well_of_eternity_portal.cpp
+Custom/h_o_t_portal.cpp
 )
 
 message("  -> Prepared: Custom")
