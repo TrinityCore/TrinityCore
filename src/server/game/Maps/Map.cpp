@@ -2426,8 +2426,20 @@ void Map::RemoveAllObjectsInRemoveList()
         bool on = itr->second;
         i_objectsToSwitch.erase(itr);
 
-        if ((obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_GAMEOBJECT) && !obj->IsPermanentWorldObject())
-            SwitchGridContainers(obj, on);
+        if (!obj->IsPermanentWorldObject())
+        {
+            switch (obj->GetTypeId())
+            {
+                case TYPEID_UNIT:
+                    SwitchGridContainers<Creature>(obj->ToCreature(), on);
+                    break;
+                case TYPEID_GAMEOBJECT:
+                    SwitchGridContainers<GameObject>(obj->ToGameObject(), on);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     //TC_LOG_DEBUG(LOG_FILTER_MAPS, "Object remover 1 check.");
