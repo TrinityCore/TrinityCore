@@ -460,8 +460,8 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
                 {
                     GameObject* go = obj->ToGameObject();
                     go->GetMap()->RemoveFromMap(go, false);
-                    Relocate(destX, destY, destZ, destO);
-                    SetMap(newMap);
+                    go->Relocate(destX, destY, destZ, destO);
+                    go->SetMap(newMap);
                     newMap->AddToMap(go);
                     break;
                 }
