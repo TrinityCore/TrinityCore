@@ -2591,7 +2591,7 @@ public:
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 16)
         {
-			player->TeleportTo(940,3957.7559f,286.4167f,14.2837f,0.0f);
+			player->TeleportTo(940,3957.7559f,286.4167f,14.2837f,3.2042f);
         }
         return true;
     }
