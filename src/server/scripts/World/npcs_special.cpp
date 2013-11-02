@@ -2566,6 +2566,38 @@ public:
         }
 };
 
+
+
+/*###############################
+## npc_portal_hour_of_twilight
+###############################*/
+
+#define GOSSIP_PORTAL_TEXT   "Estoy listo para ir al Templo del Reposo del Dragón!"
+
+class npc_portal_hour_of_twilight : public CreatureScript
+{
+public:
+    npc_portal_hour_of_twilight() : CreatureScript("npc_portal_hour_of_twilight") { }
+
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    {
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PORTAL_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (action == GOSSIP_ACTION_INFO_DEF + 16)
+        {
+			player->TeleportTo(940,3957.7559f,286.4167f,14.2837f,0.0f);
+        }
+        return true;
+    }
+};
+
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2591,4 +2623,5 @@ void AddSC_npcs_special()
     new npc_spring_rabbit();
     new npc_shadowy_apparition();
     new npc_shadowfiend();
+	new npc_portal_hour_of_twilight();
 }
