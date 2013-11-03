@@ -210,7 +210,11 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
                     pPosition = WorldLocation(571, 3802.38f, 3585.95f, 49.5765f, 0.0f);
                     break;
                 case 5340:
-                    pPosition = WorldLocation(571, 3687.91f, 3577.28f, 473.342f, 0.0f);
+                    if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE)
+                        pPosition = WorldLocation(571, 3687.91f, 3577.28f, 473.342f);
+                    else
+                        pPosition = WorldLocation(571, 3739.38f, 3567.09f, 341.58f);
                     break;
                 default:
                     return false;
