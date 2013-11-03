@@ -40,6 +40,11 @@ enum RogueSpells
     SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
     SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
     SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
+	SPELL_ROGUE_SAP                                 = 6770,
+	SPELL_ROGUE_BLACKJACK_R1                        = 79123,
+	SPELL_ROGUE_BLACKJACK_R2                        = 79125,
+	SPELL_ROGUE_GROGGY_R1                           = 79124,
+	SPELL_ROGUE_GROGGY_R2                           = 79126,
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
     SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
@@ -856,6 +861,64 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
         }
 };
 
+//6770 - Sap
+//###########SQL####################################################
+//DELETE FROM `spell_script_names` WHERE `spell_id`=6770;
+//INSERT INTO `spell_script_names` VALUES (6770,'spell_rog_sap');
+//##################################################################
+class spell_rog_sap : public SpellScriptLoader
+{
+    public:
+        spell_rog_sap() : SpellScriptLoader("spell_rog_sap") { }
+
+        class spell_rog_sap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_sap_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_SAP) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_BLACKJACK_R1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_BLACKJACK_R2) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_GROGGY_R1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_GROGGY_R2))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes mod)
+            {
+				if(AuraApplication * app = GetCaster()->GetAuraApplicationOfRankedSpell(SPELL_ROGUE_BLACKJACK_R1))
+					{
+						switch(app->GetBase()->GetId())
+						{
+						case SPELL_ROGUE_BLACKJACK_R1:
+								GetCaster()->CastSpell(GetTarget(),SPELL_ROGUE_GROGGY_R1);
+								break;
+						case SPELL_ROGUE_BLACKJACK_R2:
+							    GetCaster()->CastSpell(GetTarget(),SPELL_ROGUE_GROGGY_R2);
+								break;
+						default:
+							break;
+						}
+					}
+
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_sap_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_STUN,AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_sap_AuraScript();
+        }
+};
+
+
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -870,6 +933,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_prey_on_the_weak();
     new spell_rog_recuperate();
     new spell_rog_rupture();
+	new spell_rog_sap();
     new spell_rog_shiv();
     new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
