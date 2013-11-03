@@ -28,6 +28,8 @@
 
 enum RogueSpells
 {
+	SPELL_ROGUE_ASSASINATION_MASTERY                  = 87496,
+	SPELL_ROGUE_POTENT_POISONS                        = 76803,
     SPELL_ROGUE_BLADE_FLURRY                        = 13877,
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
@@ -918,9 +920,43 @@ class spell_rog_sap : public SpellScriptLoader
 };
 
 
+// 87496 - Rogue Assasination Mastery
+class spell_rog_assasination_mastery : public SpellScriptLoader
+{
+    public:
+       spell_rog_assasination_mastery() : SpellScriptLoader("spell_rog_assasination_mastery") { }
+
+        class spell_rog_assasination_mastery_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_assasination_mastery_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_ASSASINATION_MASTERY))
+                    return false;
+                return true;
+            }
+
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+				GetCaster()->CastSpell(GetCaster(),SPELL_ROGUE_POTENT_POISONS);
+            }
+
+            void Register() OVERRIDE
+            {
+                 AfterEffectApply += AuraEffectApplyFn(spell_rog_assasination_mastery_AuraScript::Apply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_rog_assasination_mastery_AuraScript();
+        }
+};
 
 void AddSC_rogue_spell_scripts()
 {
+	new spell_rog_assasination_mastery();
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_crippling_poison();

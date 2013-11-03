@@ -122,7 +122,6 @@ class spell_mage_arcane_missiles : public SpellScriptLoader
 			void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-				std::cout << "Hizo proc" << std::endl;
             }
 
             void Register() OVERRIDE
