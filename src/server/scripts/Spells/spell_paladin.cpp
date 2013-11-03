@@ -573,7 +573,7 @@ class spell_pal_grand_crusader : public SpellScriptLoader
         }
 };
 
-// -9799 - Eye for an Eye
+// -9799 - Eye for an Eye dream wow 
 class spell_pal_eye_for_an_eye : public SpellScriptLoader
 {
     public:
@@ -583,27 +583,28 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_eye_for_an_eye_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE))
                     return false;
                 return true;
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+                // return damage % to attacker but < 50% own total health
+                int32 damage = int32(std::min(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()), GetTarget()->GetMaxHealth() / 2));
                 GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye_AuraScript::HandleEffectProc, EFFECT_0, m_scriptSpellId == SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1 ? SPELL_AURA_DUMMY : SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const
         {
             return new spell_pal_eye_for_an_eye_AuraScript();
         }
@@ -1340,6 +1341,124 @@ class spell_pal_judgements : public SpellScriptLoader
         }
 };
 
+// Light of Dawn dream wow 
+class spell_pal_light_of_dawn: public SpellScriptLoader
+{
+public:
+    spell_pal_light_of_dawn () :
+            SpellScriptLoader("spell_pal_light_of_dawn")
+    {
+    }
+
+    class spell_pal_light_of_dawn_SpellScript: public SpellScript
+    {
+        PrepareSpellScript(spell_pal_light_of_dawn_SpellScript)
+        ;
+
+        uint32 totalheal;
+
+        bool Load ()
+        {
+            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                return false;
+
+            return true;
+        }
+
+        void ChangeHeal (SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetHitUnit();
+
+            if (!target)
+                return;
+
+            if (target == caster)
+                return;
+
+            switch (caster->GetPower(POWER_HOLY_POWER))
+            {
+            case 0:          // 1 Holy Power
+            {
+                totalheal = GetHitHeal();
+                break;
+            }
+            case 1:          // 2 Holy Power
+            {
+                totalheal = GetHitHeal() * 2;
+                break;
+            }
+            case 2:          // 3 Holy Power
+            {
+                totalheal = GetHitHeal() * 3;
+                break;
+            }
+            }
+            SetHitHeal(totalheal);
+            caster->SetPower(POWER_HOLY_POWER, 0);
+        }
+
+        void Register ()
+        {
+            OnEffectLaunch += SpellEffectFn(spell_pal_light_of_dawn_SpellScript::ChangeHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript () const
+    {
+        return new spell_pal_light_of_dawn_SpellScript();
+    }
+};
+
+// 53600 - Shield of the Righteous DREAM WOW 
+/// Updated 4.3.4
+class spell_pal_shield_of_the_righteous : public SpellScriptLoader
+{
+    public:
+        spell_pal_shield_of_the_righteous() : SpellScriptLoader("spell_pal_shield_of_the_righteous") { }
+
+        class spell_pal_shield_of_the_righteous_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_shield_of_the_righteous_SpellScript);
+
+            bool Load()
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
+                if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
+                    return false;
+
+                return true;
+            }
+
+            void ChangeDamage(SpellEffIndex /*effIndex*/)
+            {
+                int32 damage = GetHitDamage();
+
+                // Because 1 Holy Power (HP) is consumed when casting spell,
+                // GetPower(POWER_HOLY_POWER) will return 0 when player has 1 HP,
+                // return 1 at 2 HP, and 2 at 3 HP
+                int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
+
+                // Holy Power Scaling: 3 times damage at 2 HP, 6 times at 3 HP
+                damage *= 0.5*hp*hp + 1.5*hp + 1;
+
+                SetHitDamage(damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_shield_of_the_righteous_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_shield_of_the_righteous_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1365,7 +1484,10 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sacred_shield();
     new spell_pal_templar_s_verdict();
     new spell_pal_seal_of_righteousness();
-	new spell_pal_guardian_ancient_kings();
-new spell_pal_judgement_of_command();
-new spell_pal_judgements();
+    new spell_pal_guardian_ancient_kings();
+    new spell_pal_judgement_of_command();
+    new spell_pal_judgements();
+	new spell_pal_light_of_dawn();
+	new spell_pal_shield_of_the_righteous();
+	
 }

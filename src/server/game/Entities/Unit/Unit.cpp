@@ -5047,6 +5047,21 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
+				// Eye for an Eye dream wow ojo por ojo
+                case 9799:  // Rank1 (http://www.wowhead.com/spell=9799)
+                case 25988: // Rank2 (http://www.wowhead.com/spell=25988) (these need checked and corrected for cata.)
+                {
+					// return damage % to attacker but < 50% own total health
+					basepoints0 = int32((triggerAmount * damage) / 100);
+
+					int32 halfMaxHealth = int32(CountPctFromMaxHealth(50));
+					if (basepoints0 > halfMaxHealth) basepoints0 =
+							halfMaxHealth;
+
+					triggered_spell_id = 25997;
+
+					break;
+                }
                 // Unstable Power
                 case 24658:
                 {
@@ -5285,17 +5300,17 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return true;
                 }
                 // Divine purpose
-                case 31871:
-                case 31872:
-                {
-                    // Roll chane
-                    if (!victim || !victim->IsAlive() || !roll_chance_i(triggerAmount))
-                        return false;
-
-                    // Remove any stun effect on target
-                    victim->RemoveAurasWithMechanic(1<<MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
-                    return true;
-                }
+                 case 85117:
+                 case 86172:
+                 {
+                    if (roll_chance_i(triggerAmount))
+                     {
+                         target = this;
+                         triggered_spell_id = 90174;
+                         break;
+                     }
+                   break;
+                 }
                 // Purified Shard of the Scale - Onyxia 10 Caster Trinket
                 case 69755:
                 {
@@ -6047,6 +6062,76 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_PALADIN:
         {
+		// beacon o light & holy power
+		// Light's Beacon - Beacon of Light
+            if (dummySpell->Id == 53651)
+            {
+                if (!victim)
+                    return false;
+                triggered_spell_id = 0;
+                Unit* beaconTarget = NULL;
+                if (GetTypeId() != TYPEID_PLAYER)
+                {
+                    beaconTarget = triggeredByAura->GetBase()->GetCaster();
+                    if (!beaconTarget || beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
+                        return false;
+                    basepoints0 = int32(damage);
+                    triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
+                }
+                else
+                {    // Check Party/Raid Group
+                    if (Group* group = ToPlayer()->GetGroup())
+                    {
+                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        {
+                            if (Player* member = itr->GetSource())
+                            {
+                                // check if it was heal by paladin which casted this beacon of light
+                                if (member->GetAura(53563, victim->GetGUID()))
+                                {
+                                    // do not proc when target of beacon of light is healed
+                                    if (member == this)
+                                        return false;
+
+                                    beaconTarget = member;
+                                    basepoints0 = int32(damage);
+                                    triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (triggered_spell_id && beaconTarget)
+                {
+                    int32 percent = 0;
+                    switch (procSpell->Id)
+                    {
+                        case 85673: // Word of Glory
+                        case 20473: // Holy Shock
+                        case 19750: // Flash of Light
+                        case 82326: // Divine Light
+                        case 85222: // Light of Dawn
+                            percent = triggerAmount; // 50% heal from these spells
+                            break;
+                        case 635:   // Holy Light
+                            percent = triggerAmount * 2; // 100% heal from Holy Light
+                            break;
+                    }
+                    basepoints0 = CalculatePct(damage, percent);
+                    victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
+                    return true;
+                }
+                return false;
+
+                // Item - Paladin T8 Holy 4P Bonus
+                if (Unit* caster = triggeredByAura->GetCaster())
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
+                        cooldown = aurEff->GetAmount();
+
+                target = this;
+                break;
+             }		
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
@@ -7280,7 +7365,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        // Deep Wounds
+		// Deep Wounds
         case 12834:
         case 12849:
         case 12867:

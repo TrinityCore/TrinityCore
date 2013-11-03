@@ -2881,6 +2881,27 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
         return;
 
     Unit* target = aurApp->GetTarget();
+	// agregado para colera sagrada 
+	Unit* caster = GetCaster();
+
+	if(GetSpellInfo()->Id == 2812) // Holy Wrath
+    {
+        if(caster->HasAura(56420)) // Glyph of Holy Wrath
+        {
+            if((target->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_ELEMENTAL-1))) == 0 && (target->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_DRAGONKIN-1))) == 0 && ((target->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD)) == 0 || target->GetTypeId() == TYPEID_PLAYER) // ToDo: find a better way to check
+            {
+                if(apply)
+                    target->RemoveAurasDueToSpell(2812);
+                return;
+            }
+        }
+        if (((target->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD) == 0) || target->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(apply)
+                target->RemoveAurasDueToSpell(2812);
+            return;
+        }
+    }	
 
     target->SetControlled(apply, UNIT_STATE_STUNNED);
 }

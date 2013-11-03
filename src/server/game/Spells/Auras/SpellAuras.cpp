@@ -1198,6 +1198,63 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                 }
                 break;
+// para seccionar mejorado DReam wow
+case SPELLFAMILY_WARRIOR:
+				{
+					if (!caster)
+						break;
+					if(GetId() == 1715) // Hamstring
+					{
+						if(caster->HasAura(12668)) // Improved Hamstring rank 2
+						{
+							if(target->HasAura(1715)) // If he already has hamstring
+							{
+								caster->CastSpell(target,23694,false); // Not triggered
+								if(!caster->ToPlayer()->HasSpellCooldown(23694))
+									caster->ToPlayer()->AddSpellCooldown(23694,0,uint32(time(NULL) + 30000)); // Add 30 seconds cooldown
+							}
+						}
+						if(caster->HasAura(12289)) // Improved Hamstring rank 1
+						{
+							if(target->HasAura(1715)) // If he already has hamstring
+							{
+								caster->CastSpell(target,23694,false); // Not triggered
+								if(!caster->ToPlayer()->HasSpellCooldown(23694))
+									caster->ToPlayer()->AddSpellCooldown(23694,0,uint32(time(NULL) + 60000)); // Add 60 seconds cooldown
+							}
+						}
+					}
+					if(GetId() == 2565) //shield block
+					{
+						int32 bp0 = 0;
+						if(caster->HasAura(84608))
+						{
+							bp0 = -20;
+							caster->CastCustomSpell(caster, 97954, &bp0, NULL, NULL, true);
+						}
+						else if(caster->HasAura(84607))
+						{
+							bp0 = -14;
+							caster->CastCustomSpell(caster, 97954, &bp0, NULL, NULL, true);
+						}
+						else if(caster->HasAura(29598)) // shield mastery
+						{
+							bp0 = -7;
+							caster->CastCustomSpell(caster, 97954, &bp0, NULL, NULL, true);
+						}
+					}
+
+					switch (GetId())
+					{
+					case 50227: // Warrior - Sword and Board
+						{
+							// Reset cooldown on shield slam if needed
+							caster->ToPlayer()->RemoveSpellCooldown(23922, true);
+							break;
+						}
+					}
+					break;
+				}
             case SPELLFAMILY_DRUID:
                 if (!caster)
                     break;
@@ -1329,6 +1386,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                 }
                 break;
+
             case SPELLFAMILY_MAGE:
                 switch (GetId())
                 {

@@ -1300,6 +1300,19 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         ++itr;
                 }
                 break;
+				// agregado para colera sagrada
+				case SPELLFAMILY_PALADIN:
+                if (m_spellInfo->Id == 2812) // Holy Wrath id spellu
+                {
+                    for (std::list<Unit*>::iterator itr = unitTargets.begin() ; itr != unitTargets.end();)
+                    {
+                         if ((*itr)->GetTypeId() == TYPEID_PLAYER || (*itr)->GetCreatureType() == CREATURE_TYPE_DEMON || (*itr)->GetCreatureType() == CREATURE_TYPE_UNDEAD) // cast iba na demon/undead 
+                               itr++;
+                         else
+                             itr = unitTargets.erase(itr);
+                        }
+                    }
+               break;
             case SPELLFAMILY_DRUID:
                 if (m_spellInfo->SpellFamilyFlags[1] == 0x04000000) // Wild Growth
                 {
@@ -4787,6 +4800,12 @@ void Spell::HandleHolyPower(Player* caster)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, m_powerCost);
             m_caster->ModifyPower(POWER_HOLY_POWER, -m_powerCost);
         }
+		// agregado para inquisision y lus del alba
+		else if (m_spellInfo->Id == 84963 || m_spellInfo->Id == 85222)  // Inquisition and Light of Dawn didn't have target
+		{
+			modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, m_powerCost);
+			m_caster->ModifyPower(POWER_HOLY_POWER, -m_powerCost);
+		}
     }
 }
 
