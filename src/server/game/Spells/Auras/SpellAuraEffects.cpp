@@ -4987,13 +4987,13 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             switch(GetId())
             {
 
-				 case 79808: //Arcane Missiles Aura state
-                	if (apply)
-                	{
-                    	aurApp->GetBase()->SetMaxDuration(20000);
-                    	aurApp->GetBase()->SetDuration(20000);
-                	}
-                	break;
+				 //case 79808: //Arcane Missiles Aura state
+     //           	if (apply)
+     //           	{
+     //               	aurApp->GetBase()->SetMaxDuration(20000);
+     //               	aurApp->GetBase()->SetDuration(20000);
+     //           	}
+     //           	break;
 
                 case 79683: // Arcane Missiles!
                 {
