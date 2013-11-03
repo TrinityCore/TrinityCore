@@ -962,7 +962,6 @@ void AddEasternKingdomsScripts()
     AddSC_isle_of_queldanas();
     AddSC_loch_modan();
     AddSC_redridge_mountains();
-    AddSC_silvermoon_city();
     AddSC_silverpine_forest();
     AddSC_stormwind_city();
     AddSC_stranglethorn_vale();
