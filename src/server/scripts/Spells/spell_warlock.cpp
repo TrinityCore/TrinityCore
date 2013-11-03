@@ -299,7 +299,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
 			{
 				if(GetCaster())
 				{
-					if(roll_chance_i(20))
+					if(roll_chance_i(35))
 					{
 						GetCaster()->CastSpell(GetCaster(),18662,true);
 					}
