@@ -1431,45 +1431,6 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
-// 77799 - Fel Flame
-// Updated 4.3.4
-class spell_warl_fel_flame : public SpellScriptLoader
-{
-public:
-    spell_warl_fel_flame() : SpellScriptLoader("spell_warl_fel_flame") { }
-
-    class spell_warl_fel_flame_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_fel_flame_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-        {
-            return sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMMOLATE) && sSpellMgr->GetSpellInfo(SPELL_WARLOCK_UNSTABLE_AFFLICTION);
-        }
-
-        void ScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            uint32 bonus = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster()) * IN_MILLISECONDS;
-            // Increase Immolate duration
-            if (Aura const* aura = GetHitUnit()->GetAura(SPELL_WARLOCK_IMMOLATE, GetCaster()->GetGUID()))
-                aura->SetDuration(aura->GetDuration() + bonus);
-            // Increase Unstable Affliction duration
-            if (Aura const* aura = GetHitUnit()->GetAura(SPELL_WARLOCK_UNSTABLE_AFFLICTION, GetCaster()->GetGUID()))
-                aura->SetDuration(aura->GetDuration() + bonus);
-        }
-
-        void Register() OVERRIDE
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_warl_fel_flame_SpellScript::ScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const OVERRIDE
-    {
-        return new spell_warl_fel_flame_SpellScript();
-    }
-};
-
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1502,5 +1463,4 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_swap_override();
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
-    new spell_warl_fel_flame();
 }
