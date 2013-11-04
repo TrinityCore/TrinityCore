@@ -31,10 +31,13 @@
 
 DoorData const doorData[] =
 {
-    { GO_FIRE_BARRIER, DATA_FELMYST, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_MURUS_GATE_1, DATA_MURU,    DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_MURUS_GATE_2, DATA_MURU,    DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { 0,               0,            DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_FIRE_BARRIER,     DATA_FELMYST,  DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_MURUS_GATE_1,     DATA_MURU,     DOOR_TYPE_ROOM,    BOUNDARY_NONE },
+    { GO_MURUS_GATE_2,     DATA_MURU,     DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_BOSS_COLLISION_1, DATA_KALECGOS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_BOSS_COLLISION_2, DATA_KALECGOS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_FORCE_FIELD,      DATA_KALECGOS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { 0,                   0,             DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
 };
 
 class instance_sunwell_plateau : public InstanceMapScript
@@ -64,8 +67,6 @@ class instance_sunwell_plateau : public InstanceMapScript
                 KalecgosKjGUID              = 0;
                 SpectralPlayers             = 0;
 
-                ForceField                  = 0;
-                FireBarrier                 = 0;
                 SpectralRealmTimer          = 5000;
 
                 memset(MurusGate, 0, 2 * sizeof(uint64));
@@ -144,24 +145,11 @@ class instance_sunwell_plateau : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_FORCE_FIELD:
-                        ForceField = go->GetGUID();
-                        break;
                     case GO_BOSS_COLLISION_1:
-                        KalecgosWall[0] = go->GetGUID();
-                        break;
                     case GO_BOSS_COLLISION_2:
-                        KalecgosWall[0] = go->GetGUID();
-                        break;
                     case GO_FIRE_BARRIER:
-                        FireBarrier = go->GetGUID();
-                        AddDoor(go, true);
-                        break;
                     case GO_MURUS_GATE_1:
-                        MurusGate[0] = go->GetGUID();
-                        AddDoor(go, true);
-                        break;
                     case GO_MURUS_GATE_2:
-                        MurusGate[1] = go->GetGUID();
                         AddDoor(go, true);
                         break;
                     default:
@@ -176,6 +164,9 @@ class instance_sunwell_plateau : public InstanceMapScript
                     case GO_FIRE_BARRIER:
                     case GO_MURUS_GATE_1:
                     case GO_MURUS_GATE_2:
+                    case GO_BOSS_COLLISION_1:
+                    case GO_BOSS_COLLISION_2:
+                    case GO_FORCE_FIELD:
                         AddDoor(go, false);
                         break;
                     default:
@@ -193,8 +184,6 @@ class instance_sunwell_plateau : public InstanceMapScript
                         return KalecgosHumanGUID;
                     case DATA_SATHROVARR:
                         return SathrovarrGUID;
-                    case DATA_GO_FORCEFIELD:
-                        return ForceField;
                     case DATA_BRUTALLUS:
                         return BrutallusGUID;
                     case DATA_MADRIGOSA:
@@ -224,47 +213,6 @@ class instance_sunwell_plateau : public InstanceMapScript
                         break;
                 }
                 return 0;
-            }
-
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
-            {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
-                {
-                    case DATA_KALECGOS:
-                    {
-                        if (state == NOT_STARTED || state == DONE)
-                        {
-                            HandleGameObject(ForceField, true);
-                            HandleGameObject(KalecgosWall[0], true);
-                            HandleGameObject(KalecgosWall[1], true);
-                        }
-                        else if (state == IN_PROGRESS)
-                        {
-                            HandleGameObject(ForceField, false);
-                            HandleGameObject(KalecgosWall[0], false);
-                            HandleGameObject(KalecgosWall[1], false);
-                        }
-                        break;
-                    }
-                    case DATA_MURU:
-                        switch (state)
-                        {
-                            case IN_PROGRESS:
-                                HandleGameObject(MurusGate[0], false);
-                                HandleGameObject(MurusGate[1], false);
-                                break;
-                            case NOT_STARTED:
-                                HandleGameObject(MurusGate[0], true);
-                                HandleGameObject(MurusGate[1], false);
-                                break;
-                        }
-                    default:
-                        break;
-                }
-                return true;
             }
 
             std::string GetSaveData() OVERRIDE
@@ -325,11 +273,6 @@ class instance_sunwell_plateau : public InstanceMapScript
                 uint64 AnveenaGUID;
                 uint64 KalecgosKjGUID;
                 uint32 SpectralPlayers;
-
-                uint64 ForceField;              // Kalecgos Encounter
-                uint64 KalecgosWall[2];
-                uint64 FireBarrier;             // Felmysts Encounter
-                uint64 MurusGate[2];            // Murus Encounter
 
                 uint32 SpectralRealmTimer;
                 std::vector<uint64> SpectralRealmList;
