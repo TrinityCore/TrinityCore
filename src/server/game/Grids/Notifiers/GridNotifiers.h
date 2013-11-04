@@ -164,7 +164,6 @@ namespace Trinity
         template<class T> void Visit(GridRefManager<T> &m);
         void Visit(PlayerMapType &) { }
         void Visit(CorpseMapType &) { }
-        void Visit(CreatureMapType &);
     };
 
     // SEARCHERS & LIST SEARCHERS & WORKERS
