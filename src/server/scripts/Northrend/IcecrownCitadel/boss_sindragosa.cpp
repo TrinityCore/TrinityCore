@@ -606,6 +606,7 @@ class npc_ice_tomb : public CreatureScript
                     
                     
                 if (!_asphyxiationTriggered)
+                {
                     if (_asphyxiationTimer <= diff)
                     {
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
@@ -614,6 +615,7 @@ class npc_ice_tomb : public CreatureScript
                     }
                     else
                         _asphyxiationTimer -= diff;
+                }
 
                 if (_existenceCheckTimer <= diff)
                 {
