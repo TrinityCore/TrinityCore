@@ -2303,7 +2303,7 @@ void AuraEffect::HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, 
     if (apply)
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
-        target->AttackStop();
+        //target->AttackStop();
     }
     else
     {
