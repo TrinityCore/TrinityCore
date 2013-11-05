@@ -4777,7 +4777,7 @@ void Spell::HandleHolyPower(Player* caster)
     Player* modOwner = caster->GetSpellModOwner();
 
     m_powerCost = caster->GetPower(POWER_HOLY_POWER); // Always use all the holy power we have
-
+		
     if (!m_powerCost || !modOwner)
         return;
 
