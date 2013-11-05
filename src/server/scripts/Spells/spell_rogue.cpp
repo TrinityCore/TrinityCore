@@ -954,6 +954,84 @@ class spell_rog_assasination_mastery : public SpellScriptLoader
         }
 };
 
+/// Updated 4.3.4
+///  SQL
+/// INSERT INTO `spell_script_names` VALUES (2098,'spell_rog_eviscerate');
+
+class spell_rog_eviscerate : public SpellScriptLoader
+{
+    public:
+        spell_rog_eviscerate() : SpellScriptLoader("spell_rog_eviscerate") { }
+
+        class spell_rog_eviscerate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_eviscerate_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+				int32 ap=0;
+                int32 damage = 0;
+				int8 combopoints = 0;
+				int8 prob = 0;
+
+				if(Player * p = GetCaster()->ToPlayer())
+				{
+					if (Unit* target = GetHitUnit())
+					{
+
+					combopoints = GetCaster()->ToPlayer()->GetComboPoints();
+
+					if(AuraApplication * appcaster = GetCaster()->GetAuraApplicationOfRankedSpell(14171))
+					{
+						prob = appcaster->GetBase()->GetEffect(EFFECT_0)->GetAmount();
+
+						if(AuraApplication * apptarget = target->GetAuraApplicationOfRankedSpell(1943))
+						{
+							if(roll_chance_i(prob*combopoints))
+							{
+								
+								apptarget->GetBase()->RefreshDuration();
+							}
+						}
+					}
+
+					switch(combopoints)
+					{
+					case 1:
+						damage = int32(177+((536*1)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.091)*1-529+((536*1)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.091)*1);
+						break;
+					case 2:
+						damage = int32(177+((536*2)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.182)*1-529+((536*2)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.182)*1);
+					    break;
+					case 3:
+						damage = int32(177+((536*3)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.273)*1-529+((536*3)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.273)*1);
+						break;
+					case 4:
+						damage = int32(177+((536*4)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.364)*1-529+((536*4)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.364)*1);
+						break;
+					case 5:
+						damage = int32(177+((536*5)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.455)*1-529+((536*5)+p->GetTotalAttackPowerValue(BASE_ATTACK)*0.455)*1);
+						break;
+					default:
+						break;
+					}
+				SetHitDamage(damage);
+                }
+			}
+        }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_eviscerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_rog_eviscerate_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
 	new spell_rog_assasination_mastery();
@@ -974,4 +1052,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
+	new spell_rog_eviscerate();
 }
