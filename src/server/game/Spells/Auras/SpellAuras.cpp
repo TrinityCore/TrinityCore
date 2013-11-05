@@ -750,7 +750,7 @@ void Aura::SetDuration(int32 duration, bool withMods)
             if (Player* modOwner = caster->GetSpellModOwner())
                 modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, duration);
     }
-    m_duration = duration;
+	m_duration = duration;
     SetNeedClientUpdateForTargets();
 }
 
@@ -1192,14 +1192,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (GetStackAmount() >= 5 && !target->HasAura(50812))
                             target->CastSpell(target, 50812, true);
                         break;
-                    case 60970: // Heroic Fury (remove Intercept cooldown)
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            target->ToPlayer()->RemoveSpellCooldown(20252, true);
-                        break;
                 }
                 break;
-// para seccionar mejorado DReam wow
-case SPELLFAMILY_WARRIOR:
+				
+				// para seccionar mejorado Dream wow
+				case SPELLFAMILY_WARRIOR:
 				{
 					if (!caster)
 						break;
@@ -1246,6 +1243,11 @@ case SPELLFAMILY_WARRIOR:
 
 					switch (GetId())
 					{
+					case 60970: // Heroic Fury (remove Intercept cooldown)
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                            target->ToPlayer()->RemoveSpellCooldown(20252, true);
+                        break;
+						
 					case 50227: // Warrior - Sword and Board
 						{
 							// Reset cooldown on shield slam if needed

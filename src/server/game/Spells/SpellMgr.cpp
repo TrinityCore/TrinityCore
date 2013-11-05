@@ -3113,7 +3113,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
-	
+	case 87934: // Serpent Spread Propagación serpentina hunter DREAM WOW
+    case 87935:
+                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
  	 case 26573: // Consecration Dream wow 
                 spellInfo->Effects[1].TriggerSpell = 82366;
                 spellInfo->Effects[2].TriggerSpell = 36946;
@@ -3357,7 +3359,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
-	     case 53244: // Marked for Death (Rank 3)
+			case 53244: // Marked for Death (Rank 3)
             case 53245: // Marked for Death (Rank 4)
             case 53246: // Marked for Death (Rank 5)
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00067801, 0x10820001, 0x00000801);

@@ -128,7 +128,7 @@ class Aura
         int32 CalcMaxDuration() const { return CalcMaxDuration(GetCaster()); }
         int32 CalcMaxDuration(Unit* caster) const;
         int32 GetDuration() const { return m_duration; }
-        void SetDuration(int32 duration, bool withMods = false);
+		void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration();
         void RefreshTimers();
         bool IsExpired() const { return !GetDuration();}

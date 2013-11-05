@@ -5041,7 +5041,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
     int32 basepoints0 = 0;
     uint64 originalCaster = 0;
 
-    switch (dummySpell->SpellFamilyName)
+	switch (dummySpell->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
         {
@@ -5478,6 +5478,45 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 break;
             }
         }
+		// agregado para dream wow 
+		case SPELLFAMILY_WARRIOR:
+			{
+				switch (dummySpell->Id)
+				{
+					// Hold The Line
+				case 84604:
+					{
+						if (procSpell == 0 || !(procEx & (PROC_EX_PARRY)) || this == victim)
+							return false;
+
+						triggered_spell_id = 84619;
+						break;
+					}
+				case 84621:
+					{
+						if (procSpell == 0 || !(procEx & (PROC_EX_PARRY)) || this == victim)
+							return false;
+
+						triggered_spell_id = 84620;
+						break;
+					}
+					
+				}	
+				// Glyph of Sunder Armor
+				if (dummySpell->Id == 58387)
+					{
+						if (!victim || !victim->IsAlive() || !procSpell)
+						return false;
+
+						target = SelectNearbyTarget(victim);
+						if (!target)
+						return false;
+
+						triggered_spell_id = 58567;
+						break;
+					}
+					break;
+			}
         case SPELLFAMILY_WARLOCK:
         {
             // Seed of Corruption
@@ -5969,7 +6008,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     target = this;
                     break;
                 }
-  		  case 5094: // Posthaste
+				case 5094: // Posthaste
                {
                    triggered_spell_id = 83559;
                    basepoints0 = triggerAmount;
@@ -6012,7 +6051,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
  	     switch (dummySpell->Id)
             {
-                case 82897: // Resistance is Futile kill command refund proc
+			
+				case 82897: // Resistance is Futile kill command refund proc
                 {
                     // Proc only on the damage spell
                     if (procSpell->Id != 34026)
@@ -6043,6 +6083,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     victim->CastSpell(victim, 57894, true, NULL, NULL, GetGUID());
                     return true;
                 }
+				
                 // Sic 'Em! rank 1
                 case 83340:
                 {
@@ -7491,6 +7532,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+	
 	 // agrega para invocation
 	 case 87098: // Invocation
         {

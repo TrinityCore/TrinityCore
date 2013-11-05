@@ -756,10 +756,23 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 			{
 				switch (m_spellInfo->Id)
 				{
-				case 92315: // Pyroblast!
-					m_caster->RemoveAurasDueToSpell(48108); // Remove hot streak
-					break;
-				
+					case 92315: // Pyroblast!
+						m_caster->RemoveAurasDueToSpell(48108); // Remove hot streak
+						break;
+					
+					case 61316: // Dalaran Brilliance DREAM WOW 
+					{
+						if (m_caster->GetTypeId() == TYPEID_PLAYER)
+						{
+							std::list<Unit*> PartyMembers;
+							m_caster->GetPartyMembers(PartyMembers);
+							if(PartyMembers.size() > 1)
+								m_caster->CastSpell(unitTarget, 79039, true); // Dalaran Brilliance (For all)
+							else
+								m_caster->CastSpell(unitTarget, 79038, true); // Dalaran Brilliance (Only for caster)
+						}
+						break;
+					}
 				}
 				break;
 			}
@@ -3565,6 +3578,21 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                 }
                 ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
+				//agregado para interrupcion brusca DREAM WOW
+				if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
+                {
+                    //Rude Interruption (Rank 1)
+                    if (m_caster->HasAura(61216))
+                    {
+                        m_caster->CastSpell(m_caster,86662,true);
+                    }
+                    //Rude Interruption (Rank 2)
+                    if (m_caster->HasAura(61221))
+                    {
+                        m_caster->CastSpell(m_caster,86663,true);
+                    }
+                }
+			// hasta aqui
             }
         }
     }

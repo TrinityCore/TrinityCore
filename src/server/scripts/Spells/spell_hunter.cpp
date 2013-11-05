@@ -33,7 +33,9 @@
 enum HunterSpells
 {
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
-    SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
+    SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
+    SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
+    SPELL_HUNTER_CHIMERA_SHOT_SCORPID               = 53359,
     SPELL_HUNTER_FIRE                               = 82926,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
@@ -69,34 +71,26 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_chimera_shot_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_HEAL) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SERPENT_STING))
-                    return false;
-                return true;
-            }
-
-            bool Load() OVERRIDE
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_CHIMERA_SHOT_HEAL, true);
-
-                if (Aura* aur = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, GetCaster()->GetGUID()))
-                    aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+                Unit* caster = GetCaster();
+                if (Unit* unitTarget = GetHitUnit())
+                {
+                    // Chimera shot heal
+                    caster->CastSpell(caster, 53353, true);
+                    // Refresh serpent sting
+                    if (Aura* aura = unitTarget->GetAura(1978, caster->GetGUID()))
+                        aura->RefreshDuration();
+                }
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const
         {
             return new spell_hun_chimera_shot_SpellScript();
         }
@@ -767,7 +761,7 @@ class spell_hun_scatter_shot : public SpellScriptLoader
         }
 };
 
-// -53302 - Sniper Training
+// -53302 - Sniper Training dream wow 
 class spell_hun_sniper_training : public SpellScriptLoader
 {
     public:
@@ -779,8 +773,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_R1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_R1) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1))
                     return false;
                 return true;
             }
@@ -790,15 +783,10 @@ class spell_hun_sniper_training : public SpellScriptLoader
                 PreventDefaultAction();
                 if (aurEff->GetAmount() <= 0)
                 {
-                    Unit* caster = GetCaster();
+                    Unit* target = GetTarget();
                     uint32 spellId = SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_HUNTER_SNIPER_TRAINING_R1;
-                    if (Unit* target = GetTarget())
-                        if (!target->HasAura(spellId))
-                        {
-                            SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(spellId);
-                            Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(GetSpellInfo()) ? caster : target;
-                            triggerCaster->CastSpell(target, triggeredSpellInfo, true, 0, aurEff);
-                        }
+                    if (!target->HasAura(spellId))
+                        target->CastSpell(target, spellId, true, 0, aurEff);
                 }
             }
 
@@ -1166,6 +1154,7 @@ public:
         return new spell_hun_focus_fire_SpellScript();
     }
 };
+
 
 void AddSC_hunter_spell_scripts()
 {
