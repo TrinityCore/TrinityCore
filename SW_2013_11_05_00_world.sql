@@ -1,64 +1,19 @@
 -- Rotface's Slime Spray scriptname
- DELETE FROM `spell_script_names` WHERE `Spell_id` IN (69507, 71213, 73189, 73190);
- INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
- (69507, 'spell_rotface_slime_spray'),
- (71213, 'spell_rotface_slime_spray'),
- (73189, 'spell_rotface_slime_spray'),
- (73190, 'spell_rotface_slime_spray');
+DELETE FROM `spell_script_names` WHERE `Spell_id` IN (69507, 71213, 73189, 73190);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(69507, 'spell_rotface_slime_spray'),
+(71213, 'spell_rotface_slime_spray'),
+(73189, 'spell_rotface_slime_spray'),
+(73190, 'spell_rotface_slime_spray');
 
- -- Adds Forbearance effect to Captain Brandon's Divine Shield
- DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 71550 AND `spell_effect` = 25771;
- INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (71550, 25771, 0, 'Captain Brandon - Divine Shield - Forbearance');
+-- Adds Forbearance effect to Captain Brandon's Divine Shield
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 71550 AND `spell_effect` = 25771;
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (71550, 25771, 0, 'Captain Brandon - Divine Shield - Forbearance');
 
- -- DB/String: Add trinity strings for the lookup online commands.
- INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES (364, 'Player not online!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
- INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES (365, 'Online characters at account %s (Id: %u)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+-- DB/String: Add trinity strings for the lookup online commands.
+INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES (364, 'Player not online!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES (365, 'Online characters at account %s (Id: %u)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
- 
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
 SET @CGUID := 210018;
 
 -- Spawn the Infinite Corruptor
