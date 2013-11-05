@@ -742,8 +742,7 @@ void Battleground::EndBattleground(uint32 winner)
     uint32 winnerMatchmakerRating = 0;
     int32  winnerChange = 0;
     int32  winnerMatchmakerChange = 0;
-    uint8 uniqueIdentifier[16]; // generate unique hash
-    uint32 duration = GetStartTime() - time(NULL); // match duration
+    uint32 duration = GetStartTime()/IN_MILLISECONDS; // match duration
 
     int32 winmsg_id = 0;
 
@@ -796,13 +795,8 @@ void Battleground::EndBattleground(uint32 winner)
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loserChange);
 
                 // arena SQL logging
-                char str[32];
-                sprintf(str, UI64FMTD "%u%u", time(NULL), winnerArenaTeam->GetId(), loserArenaTeam->GetId());
-                MD5_CTX ctx;
-                MD5_Init(&ctx);
-                MD5_Update(&ctx, str, strlen(str));
-                MD5_Final(uniqueIdentifier, &ctx);
-
+                char uniqueIdentifier[32];
+                sprintf(uniqueIdentifier, UI64FMTD "%u%u", time(NULL), winnerArenaTeam->GetId(), loserArenaTeam->GetId());
                 TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
                 LoginDatabase.DirectPExecute("INSERT INTO arena_log VALUES (NULL, '%s', '%u', '%u', '%u', '%d', '%u', '%d', '%u', '%u', '%d', '%u', '%d', '%u')", uniqueIdentifier, m_ArenaType, winnerArenaTeam->GetId(), winnerTeamRating, winnerChange, winnerMatchmakerRating,
                     winnerMatchmakerChange, loserArenaTeam->GetId(), loserTeamRating, loserChange, loserMatchmakerRating, loserMatchmakerChange, (uint32)duration);
