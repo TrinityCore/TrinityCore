@@ -167,8 +167,7 @@ class npc_coren_direbrew : public CreatureScript
             {
                 _summons.DespawnAll();
 
-                // TODO: unhack
-                Map::PlayerList const& players = map->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
                 {
                     if (Group* group = players.begin()->GetSource()->GetGroup())
