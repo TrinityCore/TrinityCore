@@ -390,7 +390,7 @@ void AccountMgr::LoadRBAC()
 {
     ClearRBAC();
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "AccountMgr::LoadRBAC");
+    TC_LOG_DEBUG(LOG_FILTER_RBAC, "AccountMgr::LoadRBAC");
     uint32 oldMSTime = getMSTime();
     uint32 count1 = 0;
     uint32 count2 = 0;
