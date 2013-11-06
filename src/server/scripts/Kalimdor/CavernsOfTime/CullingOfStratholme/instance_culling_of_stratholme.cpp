@@ -23,6 +23,10 @@
 #include "TemporarySummon.h"
 #include "SpellInfo.h"
 
+#ifdef __APPLE__
+#include "ScriptPCH.h"
+#endif
+
 #define MAX_ENCOUNTER 5
 
 /* Culling of Stratholme encounters:
@@ -386,6 +390,7 @@ public:
         }
     private:
         EventMap Events;
+        
         uint64 _arthasGUID;
         uint64 _meathookGUID;
         uint64 _salrammGUID;

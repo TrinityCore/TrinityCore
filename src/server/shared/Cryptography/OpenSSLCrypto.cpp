@@ -33,11 +33,14 @@ static void lockingCallback(int mode, int type, const char* /*file*/, int /*line
 
 static void threadIdCallback(CRYPTO_THREADID * id)
 {
+#ifdef _WIN32 || _WIN64 || __linux__
     CRYPTO_THREADID_set_numeric(id, ACE_Thread::self());
+#endif
 }
 
 void OpenSSLCrypto::threadsSetup()
 {
+#ifdef _WIN32 || _WIN64 || __linux__
     cryptoLocks.resize(CRYPTO_num_locks());
     for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
     {
@@ -45,10 +48,12 @@ void OpenSSLCrypto::threadsSetup()
     }
     CRYPTO_THREADID_set_callback(threadIdCallback);
     CRYPTO_set_locking_callback(lockingCallback);
+#endif
 }
 
 void OpenSSLCrypto::threadsCleanup()
 {
+#ifdef _WIN32 || _WIN64 || __linux__
     CRYPTO_set_locking_callback(NULL);
     CRYPTO_THREADID_set_callback(NULL);
     for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
@@ -56,4 +61,5 @@ void OpenSSLCrypto::threadsCleanup()
         delete cryptoLocks[i];
     }
     cryptoLocks.resize(0);
+#endif
 }
