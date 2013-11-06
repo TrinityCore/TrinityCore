@@ -1468,6 +1468,84 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 ++itr;
         }
     }
+// Disentanglement Desenredo para Dream wow Druida
+   if (target->HasAura(96429))
+       target->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
+
+    // At Apply & Remove
+    switch (GetMiscValue())
+    {
+       case FORM_MOONKIN:
+       {
+           // Master Shapeshifter - Moonkin
+           if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, 0))
+           {
+               if (apply)
+               {
+                   int32 bp = aurEff->GetAmount();
+                   target->CastCustomSpell(target, 48421, &bp, NULL, NULL, true);
+               }
+               else if (target->HasAura(48421))
+                   target->RemoveAurasDueToSpell(48421);
+           }
+           break;
+       }
+        case FORM_BEAR:
+        {
+           // Master Shapeshifter - Bear
+           if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, 0))
+           {
+               if (apply)
+               {
+                   int32 bp = aurEff->GetAmount();
+                   target->CastCustomSpell(target, 48418, &bp, NULL, NULL, true);
+               }
+               else if (target->HasAura(48418))
+                   target->RemoveAurasDueToSpell(48418);
+           }
+           //Thick Hide
+           if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, 1558, 1))
+           {
+               if (apply)
+               {
+                   int32 bp = aurEff->GetAmount();
+                   target->CastCustomSpell(target, 62069, &bp, NULL, NULL, true);
+               }
+               else if (target->HasAura(62069))
+                   target->RemoveAurasDueToSpell(62069);
+           }
+           break;
+       }
+        case FORM_CAT:
+        {
+           //Heart of the wild - cat
+            if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_GENERIC, 240, 0))
+           {
+               if (apply)
+               {
+                   int32 bp = 0;
+                   if (target->HasAura(17003)) bp = 3;
+                   else if (target->HasAura(17004)) bp = 7;
+                   else if (target->HasAura(17005)) bp = 10;
+                   target->CastCustomSpell(target,24694, &bp, NULL, NULL, true);
+               }
+               else if (target->HasAura(24694))
+                   target->RemoveAurasDueToSpell(24694);
+           }
+           // Master Shapeshifter - Cat
+           if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, 0))
+           {
+               if (apply)
+               {
+                   int32 bp = aurEff->GetAmount();
+                   target->CastCustomSpell(target, 48420, &bp, NULL, NULL, true);
+               }
+               else if (target->HasAura(48420))
+                   target->RemoveAurasDueToSpell(48420);
+           }
+            break;
+       }
+   }
 }
 
 /*********************************************************/

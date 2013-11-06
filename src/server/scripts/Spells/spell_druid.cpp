@@ -995,7 +995,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_dru_survival_instincts_SpellScript::CheckCast);
             }
@@ -1005,7 +1005,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_survival_instincts_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_SURVIVAL_INSTINCTS))
                     return false;
@@ -1014,29 +1014,22 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
             void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                Unit* target = GetTarget();
-                int32 bp0 = target->CountPctFromMaxHealth(aurEff->GetAmount());
-                target->CastCustomSpell(target, SPELL_DRUID_SURVIVAL_INSTINCTS, &bp0, NULL, NULL, true);
+                Unit* target = GetTarget();	
+                target->CastSpell(target, SPELL_DRUID_SURVIVAL_INSTINCTS, true);
             }
 
-            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_SURVIVAL_INSTINCTS);
-            }
-
-            void Register() OVERRIDE
+            void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_dru_survival_instincts_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_survival_instincts_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const
         {
             return new spell_dru_survival_instincts_SpellScript();
         }
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_survival_instincts_AuraScript();
         }
@@ -1488,6 +1481,243 @@ class spell_dru_beam : public SpellScriptLoader
         }
 };
 
+// Feral aggression para DREAM WOW
+class spell_dru_feral_aggression : public SpellScriptLoader
+{
+    public:
+        spell_dru_feral_aggression() : SpellScriptLoader("spell_dru_feral_aggression") { }
+
+        class spell_dru_feral_aggression_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_feral_aggression_SpellScript);
+
+            void OnHitTarget(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect const* feralSwiftness = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 960, EFFECT_0))
+                    {
+                        PreventHitDefaultEffect(effIndex);
+                        caster->CastCustomSpell(91565, SPELLVALUE_AURA_STACK, feralSwiftness->GetAmount(), GetHitUnit(), true);
+                    }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_feral_aggression_SpellScript::OnHitTarget, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_feral_aggression_SpellScript();
+        }
+};
+
+// Rejuvenation DREAM WOW rejuvenacion + don de la madre tierra
+class spell_dru_rejuv : public SpellScriptLoader
+{
+    public:
+        spell_dru_rejuv() : SpellScriptLoader("spell_dru_rejuv") { }
+
+        class spell_dru_rejuv_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_rejuv_AuraScript);
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    uint32 rejuvCount = 0;
+                    Player::appliedAurasList const& auras = caster->ToPlayer()->appliedAuras;
+
+                    if (auras.empty())
+                        return;
+                    
+                    for (Player::appliedAurasList::const_iterator itr = auras.begin(); itr != auras.end(); itr++)
+                    {
+                        Aura* aura = (*itr);
+                        if (aura->GetId() == GetSpellInfo()->Id)
+                            rejuvCount++;
+                    }
+                    if (rejuvCount < 3)
+                        caster->RemoveAurasDueToSpell(96206);
+                }
+            }
+
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (AuraEffect* naturesBounty = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, 197, EFFECT_0))
+                    {
+                        uint32 rejuvCount = 0;
+                        Player::appliedAurasList const& auras = caster->ToPlayer()->appliedAuras;
+                        for (Player::appliedAurasList::const_iterator itr = auras.begin(); itr != auras.end(); itr++)
+                        {
+                            Aura* aura = (*itr);
+                            if (aura->GetId() == GetSpellInfo()->Id)
+                                rejuvCount++;
+                        }
+                        if (rejuvCount >= 3)
+                        {
+                            int32 bp0 = -naturesBounty->GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                            caster->CastCustomSpell(caster, 96206, &bp0, NULL, NULL, true);
+                        }
+                    }
+
+                    // Gift of the earthmother
+                    if (AuraEffect* earthMother = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 3186, EFFECT_0))
+                    {
+                        int32 bp0 = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), aurEff->GetAmount(), DOT);
+                        bp0 = (bp0 * aurEff->GetTotalTicks()) * (earthMother->GetAmount() / 100.0f);
+                        caster->CastCustomSpell(GetUnitOwner(), 64801, &bp0, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_rejuv_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_rejuv_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_rejuv_AuraScript();
+        }
+};
+
+// Empowered touch DREAM WOW toque potenciado
+class spell_dru_emp_touch : public SpellScriptLoader
+{
+    public:
+        spell_dru_emp_touch() : SpellScriptLoader("spell_dru_emp_touch") { }
+
+        class spell_dru_emp_touch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_emp_touch_SpellScript);
+
+            void OnHit()
+            {
+                if (AuraEffect const* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_DRUID, 2251, EFFECT_1))
+                    if (roll_chance_i(aurEff->GetAmount()))
+                        GetCaster()->CastSpell(GetHitUnit(), 88433, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dru_emp_touch_SpellScript::OnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_emp_touch_SpellScript();
+        }
+};
+
+// Empowered touch DREAM WOW toque potenciado
+class spell_dru_emp_touch_triggered : public SpellScriptLoader
+{
+    public:
+        spell_dru_emp_touch_triggered() : SpellScriptLoader("spell_dru_emp_touch_triggered") { }
+
+        class spell_dru_emp_touch_triggered_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_emp_touch_triggered_SpellScript);
+
+            void OnHit()
+            {
+                if (GetCaster())
+                    if (Aura* aura = GetCaster()->GetAura(33763, GetCaster()->GetGUID()))
+                        aura->RefreshDuration();
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dru_emp_touch_triggered_SpellScript::OnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_emp_touch_triggered_SpellScript();
+        }
+};
+
+// Efflorescence DREAM WOW floracion 
+class spell_dru_efflorescence : public SpellScriptLoader
+{
+    public:
+        spell_dru_efflorescence() : SpellScriptLoader("spell_dru_efflorescence") { }
+
+        class spell_dru_efflorescence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_efflorescence_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                if (DynamicObject* dyn = GetTarget()->GetDynObject(aurEff->GetId()))
+                    GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), 81269, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_efflorescence_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_efflorescence_AuraScript();
+        }
+};
+
+// Efflorescence heal DREAM WOW floracion
+class spell_dru_efflorescence_heal : public SpellScriptLoader
+{
+    public:
+        spell_dru_efflorescence_heal() : SpellScriptLoader("spell_dru_efflorescence_heal") { }
+
+        class spell_dru_efflorescence_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_efflorescence_heal_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                std::list<Unit*> temp;
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); itr++)
+                    if (Unit* unit = (*itr)->ToUnit())
+                        temp.push_back(unit);
+
+                targets.clear();
+                temp.sort(Trinity::HealthPctOrderPred());
+                if (temp.size() > 3)
+                    temp.resize(3);                
+                for (std::list<Unit*>::iterator itr = temp.begin(); itr != temp.end(); itr++)
+                    targets.push_back((WorldObject*)(*itr));
+            }
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(81262, EFFECT_1, GetCaster()->GetGUID()))
+                    SetHitHeal(aurEff->GetAmount());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_efflorescence_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_efflorescence_heal_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1519,5 +1749,12 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_mushroom();
     new spell_dru_wild_mushroom_detonate();
     new spell_dru_beam();
+    new spell_dru_feral_aggression();
+    new spell_dru_rejuv();
+    new spell_dru_emp_touch();
+    new spell_dru_emp_touch_triggered();
+    new spell_dru_efflorescence();
+    new spell_dru_efflorescence_heal();
+	
 
 }

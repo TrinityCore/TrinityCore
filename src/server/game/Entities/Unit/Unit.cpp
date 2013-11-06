@@ -3661,6 +3661,20 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
         else
             ++iter;
     }
+	//agregado dream wow para druida 
+	//special treatment auras at other targets
+    appliedAurasList& auras = appliedAuras;
+    for (appliedAurasList::iterator iter = auras.begin(); iter != auras.end();)
+    {
+        Aura* aura = *iter;
+        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
+        {
+            aura->Remove();
+            iter = auras.begin();
+        }
+        else
+            ++iter;
+    }
 }
 
 void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)

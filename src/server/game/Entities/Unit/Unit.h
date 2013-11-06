@@ -1744,7 +1744,12 @@ class Unit : public WorldObject
         // m_appliedAuras container management
         AuraApplicationMap      & GetAppliedAuras()       { return m_appliedAuras; }
         AuraApplicationMap const& GetAppliedAuras() const { return m_appliedAuras; }
-        
+		//agregado por dream wow para druida 
+		mutable ACE_Recursive_Thread_Mutex m_appliedAuraMutex;
+
+        typedef std::list<Aura*> appliedAurasList;
+        appliedAurasList appliedAuras;
+        //hasta aqui 
         void RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(uint32 spellId, uint64 casterGUID = 0, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
