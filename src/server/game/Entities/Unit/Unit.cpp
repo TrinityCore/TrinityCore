@@ -6120,13 +6120,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
                 }
                 else
-                {    // Check Party/Raid Group
+                {   // Check Party/Raid Group
                     if (Group* group = ToPlayer()->GetGroup())
                     {
                         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                         {
-                            if (Player* member = itr->GetSource())
-                            {
+							Player* member = itr->GetSource();
+
+                            if (!member || !member->GetSession())
+                            continue;
                                 // check if it was heal by paladin which casted this beacon of light
                                 if (member->GetAura(53563, victim->GetGUID()))
                                 {
@@ -6140,7 +6142,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                                     break;
                                 }
                             }
-                        }
                     }
                 }
                 if (triggered_spell_id && beaconTarget)
