@@ -93,7 +93,7 @@ class TW_item_water_bucket : public ItemScript
 
         TW_item_water_bucket() : ItemScript("TW_item_water_bucket") { }
 
-        bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
+        bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets)
         {
             if (Creature* dummy = player->SummonCreature(NPC_FIRE_DUMMY, targets.GetDst()->_position.GetPositionX(), targets.GetDst()->_position.GetPositionY(), targets.GetDst()->_position.GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 500))
             {
@@ -147,7 +147,7 @@ public:
             _playerGUID = 0;
             events.Reset();
             // Mark the npc if is for handling effigy instead of horseman fires
-            if(GameObject* effigy = me->FindNearestGameObject(GO_FIRE_EFFIGY, 0.5f))
+            if (me->FindNearestGameObject(GO_FIRE_EFFIGY, 0.5f))
                 fireEffigy = true;
             me->CastSpell(me, SPELL_FIRE_STARTING_SIZE, true);
             events.ScheduleEvent(EVENT_FIRE_GROW_FIRE, 1000);
@@ -499,7 +499,7 @@ public:
     {
         player->PrepareQuestMenu(me->GetGUID());
 
-        if (Creature* horseman = me->GetCreature(*me, _headlessHoresemanGUID))
+        if (me->GetCreature(*me, _headlessHoresemanGUID))
         {
             QuestMenu &qm = player->PlayerTalkClass->GetQuestMenu();
             QuestMenu qm2;
@@ -548,7 +548,7 @@ public:
 
             if (!horseman)
             {
-                sLog->outInfo(LOG_FILTER_TSCR, "HEADLESS HORSEMAN BUG TRACKING. SUMMON: GUID Player: %u. Area %u.", player->GetGUID(), player->GetAreaId());
+                sLog->outInfo(LOG_FILTER_TSCR, "HEADLESS HORSEMAN BUG TRACKING. SUMMON: GUID Player: (" UI64FMTD "). Area %u.", player->GetGUID(), player->GetAreaId());
                 if (Creature* newHorseman = player->SummonCreature(NPC_SHADE_HORSEMAN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 20.0f, 0, TEMPSUMMON_DEAD_DESPAWN, 180000))
                     _headlessHoresemanGUID = newHorseman->GetGUID();
             }

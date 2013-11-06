@@ -133,9 +133,9 @@ enum Phases
 Position const SummonPositions[4] =
 {
         {-88.495071f, -254.462997f, -1.077302f, 1.84f}, // Ahune / Frozen-Core
-        {-90.891891f, -243.488068f, -1.116222f}, // Hailstone
-        {-97.389175f, -239.780701f, -1.264044f}, // Coldweave #1
-        {-85.160637f, -236.127808f, -1.572418f}, // Coldweave #2
+        {-90.891891f, -243.488068f, -1.116222f, 1.84f}, // Hailstone
+        {-97.389175f, -239.780701f, -1.264044f, 1.84f}, // Coldweave #1
+        {-85.160637f, -236.127808f, -1.572418f, 1.84f}, // Coldweave #2
 };
 
 class boss_ahune : public CreatureScript
@@ -178,7 +178,7 @@ class boss_ahune : public CreatureScript
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 //DoZoneInCombat();
                 me->SetInCombatWithZone();
@@ -193,7 +193,7 @@ class boss_ahune : public CreatureScript
                 events.ScheduleEvent(EVENT_EARTHEN_RING_ATTACK, 10000, 0, PHASE_ONE); // every 10 seconds in phase 1 totem attack visual
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
                 if (!playerList.isEmpty())
