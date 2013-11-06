@@ -1019,7 +1019,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     // wolf attack speed is 1.5s
                     SetAttackTime(BASE_ATTACK, cinfo->baseattacktime);
                     
-                    m_modMeleeHitChance = m_owner->m_modMeleelHitChance;
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
                     m_modSpellHitChance = m_owner->m_modSpellHitChance;
 
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel)));

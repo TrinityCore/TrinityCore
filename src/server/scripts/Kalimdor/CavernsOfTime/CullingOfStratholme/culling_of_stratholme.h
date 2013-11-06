@@ -26,7 +26,8 @@ enum Data
     DATA_MAL_GANIS_EVENT,
     DATA_INFINITE_EVENT,
     DATA_ARTHAS_EVENT,
-    DATA_CRATE_COUNT
+    DATA_CRATE_COUNT,
+    DATA_INFINITE_COUNTER
 };
 
 enum Data64
@@ -46,16 +47,19 @@ enum Data64
 
 enum Creatures
 {
-    NPC_MEATHOOK        = 26529,
-    NPC_SALRAMM         = 26530,
-    NPC_EPOCH           = 26532,
-    NPC_MAL_GANIS       = 26533,
-    NPC_INFINITE        = 32273,
-    NPC_ARTHAS          = 26499,
-    NPC_JAINA           = 26497,
-    NPC_UTHER           = 26528,
-    NPC_CHROMIE_2       = 27915,
-    NPC_GENERIC_BUNNY   = 28960,
+    NPC_MEATHOOK         = 26529,
+    NPC_SALRAMM          = 26530,
+    NPC_EPOCH            = 26532,
+    NPC_MAL_GANIS        = 26533,
+    NPC_INFINITE         = 32273,
+    NPC_ARTHAS           = 26499,
+    NPC_JAINA            = 26497,
+    NPC_UTHER            = 26528,
+    NPC_CHROMIE          = 26527,
+    NPC_CHROMIE_2        = 27915,
+    NPC_CHROMIE_3        = 30997,
+    NPC_GENERIC_BUNNY    = 28960,
+    NPC_TIME_RIFT        = 28409,
     NPC_GUARDIAN_OF_TIME = 32281
 };
 
