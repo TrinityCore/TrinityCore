@@ -270,6 +270,8 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
                 Unit::AuraList const& auras = GetCaster()->GetSingleCastAuras();
                 for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                 {
+           if(!(*itr))
+           continue;
                     if ((*itr)->GetId() == SPELL_PALADIN_BEACON_OF_LIGHT_MARKER)
                     {
                         std::list<AuraApplication*> applications;

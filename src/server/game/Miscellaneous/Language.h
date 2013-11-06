@@ -637,6 +637,23 @@ enum TrinityStrings
     LANG_BG_WS_ALLIANCE_FLAG_RESPAWNED  = 614,
     LANG_BG_WS_HORDE_FLAG_RESPAWNED     = 615,
 
+	LANG_BG_TP_START_TWO_MINUTES        = 756,
+    LANG_BG_TP_START_ONE_MINUTE         = 763,
+    LANG_BG_TP_START_HALF_MINUTE        = 764,
+    LANG_BG_TP_HAS_BEGUN                = 765,
+ 
+    LANG_BG_TP_CAPTURED_HF              = 605,
+    LANG_BG_TP_CAPTURED_AF              = 606,
+    LANG_BG_TP_DROPPED_HF               = 607,
+    LANG_BG_TP_DROPPED_AF               = 608,
+    LANG_BG_TP_RETURNED_AF              = 609,
+    LANG_BG_TP_RETURNED_HF              = 610,
+    LANG_BG_TP_PICKEDUP_HF              = 611,
+    LANG_BG_TP_PICKEDUP_AF              = 612,
+    LANG_BG_TP_F_PLACED                 = 613,
+    LANG_BG_TP_ALLIANCE_FLAG_RESPAWNED  = 614,
+    LANG_BG_TP_HORDE_FLAG_RESPAWNED     = 615,
+	 
     LANG_BG_EY_START_TWO_MINUTES        = 755,
     LANG_BG_EY_START_ONE_MINUTE         = 636,
     LANG_BG_EY_START_HALF_MINUTE        = 637,
@@ -662,6 +679,23 @@ enum TrinityStrings
     LANG_BG_AB_H_NEAR_VICTORY           = 665,
     LANG_BG_MARK_BY_MAIL                = 666,
 
+	LANG_BG_BG_ALLY                     = 650,
+    LANG_BG_BG_HORDE                    = 651,
+    LANG_BG_BG_NODE_WATERWORKS          = 766,
+    LANG_BG_BG_NODE_LIGHTHOUSE          = 767,
+    LANG_BG_BG_NODE_MINE                = 768,
+    LANG_BG_BG_NODE_TAKEN               = 657,
+    LANG_BG_BG_NODE_DEFENDED            = 658,
+    LANG_BG_BG_NODE_ASSAULTED           = 659,
+    LANG_BG_BG_NODE_CLAIMED             = 660,
+ 
+    LANG_BG_BG_START_TWO_MINUTES        = 757,
+    LANG_BG_BG_START_ONE_MINUTE         = 758,
+    LANG_BG_BG_START_HALF_MINUTE        = 759,
+    LANG_BG_BG_HAS_BEGUN                = 760,
+    LANG_BG_BG_A_NEAR_VICTORY           = 761,
+    LANG_BG_BG_H_NEAR_VICTORY           = 762,
+	
     LANG_BG_EY_HAS_TAKEN_A_M_TOWER      = 667,
     LANG_BG_EY_HAS_TAKEN_H_M_TOWER      = 668,
     LANG_BG_EY_HAS_TAKEN_A_D_RUINS      = 669,
@@ -744,8 +778,14 @@ enum TrinityStrings
 //  LANG_BG_WS_START_TWO_MINUTES        = 753, - defined above
 //  LANG_BG_AB_START_TWO_MINUTES        = 754, - defined above
 //  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
+//  LANG_BG_BG_START_TWO_MINUTES        = 756, - defined above
+//  LANG_BG_TP_START_TWO_MINUTES        = 757, - defined above
 
     // Room for BG/ARENA                = 773-784, 788-799 not used
+	LANG_BG_RB_START_TWO_MINUTE         = 769,
+    LANG_BG_RB_START_ONE_MINUTE         = 770,
+    LANG_BG_RB_START_HALF_MINUTE        = 771,
+    LANG_BG_RB_HAS_BEGUN                = 772,
     LANG_ARENA_TESTING                  = 785,
     LANG_AUTO_ANN                       = 786,
     LANG_ANNOUNCE_COLOR                 = 787,
@@ -950,7 +990,7 @@ enum TrinityStrings
     LANG_DEBUG_AREATRIGGER_ON           = 1202,
     LANG_DEBUG_AREATRIGGER_OFF          = 1203,
     LANG_DEBUG_AREATRIGGER_REACHED      = 1204,
-    // Room for more debug                1205-1299 not used
+    // Room for more debug                1225-1299 not used
 
     // Isle of Conquest
     LANG_BG_IC_START_TWO_MINUTES        = 1205,
@@ -975,8 +1015,6 @@ enum TrinityStrings
     LANG_BG_IC_HANGAR                   = 1224,
     LANG_BG_IC_ALLIANCE                 = 1300,
     LANG_BG_IC_HORDE                    = 1301,
-
-    // FREE IDS                           1228-9999
 
     // AV
     LANG_BG_AV_ALLY                     = 1300,
@@ -1016,8 +1054,9 @@ enum TrinityStrings
     LANG_BG_AV_H_CAPTAIN_DEAD           = 1331,
     LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
-    // FREE IDS                           1334-1999
 
+	// Room for more Trinity strings      1334-1999
+	
     // Ticket Strings 2000-2029
     LANG_COMMAND_TICKETNEW              = 2000,
     LANG_COMMAND_TICKETUPDATED          = 2001,
@@ -1049,7 +1088,9 @@ enum TrinityStrings
     LANG_COMMAND_TICKETPENDING          = 2027,
     LANG_COMMAND_TICKETRESET            = 2028,
     LANG_COMMAND_TICKETLISTRESPONSE     = 2029,
-
+	
+	// Room for more Trinity strings      2030-4999
+	
     // Trinity strings                    5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
     LANG_COMMAND_FREEZE_ERROR           = 5001,
@@ -1091,7 +1132,8 @@ enum TrinityStrings
     LANG_NPCINFO_EQUIPMENT              = 5036,
     LANG_NPCINFO_MECHANIC_IMMUNE        = 5037,
     LANG_NPCINFO_UNIT_FIELD_FLAGS       = 5038,
-    // Room for more Trinity strings      5039-9999
+	
+    // Room for more Trinity strings      5037-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
@@ -1108,11 +1150,14 @@ enum TrinityStrings
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
     LANG_GM_ANNOUNCE_COLOR               = 6615,
+	LANG_GM_SILENCE                      = 6616,              // "Silence is ON for %s" - Spell 1852
 
-    LANG_GM_SILENCE                      = 6616,              // "Silence is ON for %s" - Spell 1852
-
+	// Room for more Trinity strings      6617-7522
+	
     LANG_WORLD_CLOSED                    = 7523,
     LANG_WORLD_OPENED                    = 7524,
+	
+	// Room for more Trinity strings      7525-9979
 
     LANG_LFG_PLAYER_INFO                = 9980,
     LANG_LFG_GROUP_INFO                 = 9981,
