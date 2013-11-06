@@ -2,11 +2,12 @@
 #include "GameObjectAI.h"
 #include "Player.h"
 #include "Transport.h" 
+#include "Common.h"
 
 enum gObjectId
 {
-	GO_ALLIANCE_GUNSHIP = 195121,
-	GO_HORDE_GUNSHIP = 195276
+	GO_ALLIANCE_GUNSHIP = 201580,
+	GO_HORDE_GUNSHIP = 201812
 };
 
 enum Spells
@@ -15,9 +16,14 @@ enum Spells
 	SPELL_HORDE = 70121
 };
 
+enum Transports
+{
+	TRANSPORT_SKYBREAKER = 21,
+	TRANSPORT_ORGRIM = 22
+};
+
 class GunshipStairs : public GameObjectScript
 {
-
 public:
 	GunshipStairs() : GameObjectScript("icc_gunship_stairs") { }
 
@@ -33,10 +39,21 @@ public:
 			{
 				// Alliance
 				GameObject* gunship = plr->SummonGameObject(gObjectId::GO_ALLIANCE_GUNSHIP, -448.0f, 1923.0f, 193.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 600);
-				TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Alliance: use of gunship stairs");
-				Creature* temp = gunship->SummonCreature(37200, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), 3.10672f);
-				gunship->ToTransport()->AddPassenger(plr);
-			}
+				Creature* temp = gunship->SummonCreature(37200, gunship->GetPositionX() + 13.51547f, gunship->GetPositionY() - 0.160213f, gunship->GetPositionZ() + 20.87252f, 3.10672f);
+
+				
+				if(gunship->ToTransport()->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT), GO_ALLIANCE_GUNSHIP, gunship->GetMapId(), gunship->GetPositionX(), gunship->GetPositionY(), gunship->GetPositionY(), 0, 255))
+				{
+					TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Alliance: gunship transport created");
+					TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Alliance: setting map");
+					//gunship->ToTransport()->SetMap(gunship->GetMap());
+					TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Alliance: map set, adding to world");
+					gunship->ToTransport()->GetMap()->AddToMap<Transport>(gunship->ToTransport());
+					TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Alliance: added to world");
+				}else{
+					TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "Alliance: gunship is no transport");
+				}
+			} 
 		}else{
 			// Horde
 			if(go->FindNearestGameObject(gObjectId::GO_HORDE_GUNSHIP, 10000.0f) == NULL)
@@ -50,11 +67,11 @@ public:
 	} 
 };
 
-class AllianceGunship : public TransportScript
+class Gunship : public TransportScript
 {
 
 public:
-	AllianceGunship() : TransportScript("gunship_transport") { }
+	Gunship() : TransportScript("gunship_transport") { }
 
 	void OnAddPassenger(Transport* transport, Player* player) 
 	{ 
@@ -77,14 +94,10 @@ public:
 	}
 };
 
-class HordeGunship : public GameObjectScript
-{
-public:
-	HordeGunship() : GameObjectScript("horde_gunship") { }
-};
 
 
 void AddSC_icc_gunship_battle()
 {
 		new GunshipStairs();
+		new Gunship();
 }
