@@ -45,7 +45,7 @@ enum Texts
     
 };
 
-enum Events
+enum TimedEvents
 {
     EVENT_INFINITE_TIMER   = 1
 };
@@ -202,7 +202,7 @@ public:
                     if(data == DONE)
                     {
                         DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
-                        events.CancelEvent(EVENT_INFINITE_TIMER);
+                        Events.CancelEvent(EVENT_INFINITE_TIMER);
                     }
                     break;
                 case DATA_CRATE_COUNT:
@@ -225,7 +225,7 @@ public:
                     if (data == IN_PROGRESS)
                         if (_infiniteGUID != 0)
                         {
-                            events.ScheduleEvent(EVENT_INFINITE_TIMER, 1);
+                            Events.ScheduleEvent(EVENT_INFINITE_TIMER, 1);
                             _eventMinute = 25;
                         }
             }
@@ -335,16 +335,16 @@ public:
         
         void Update(uint32 diff) OVERRIDE
         {
-            events.Update(diff);
+            Events.Update(diff);
             
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = Events.ExecuteEvent())
             {
                 switch(eventId)
                 {
                     case EVENT_INFINITE_TIMER:
                         DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1);
                         DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, _eventMinute);
-                        events.ScheduleEvent(EVENT_INFINITE_TIMER, MINUTE*IN_MILLISECONDS);
+                        Events.ScheduleEvent(EVENT_INFINITE_TIMER, MINUTE*IN_MILLISECONDS);
                         
                         switch(_eventMinute)
                     {
@@ -374,7 +374,7 @@ public:
                                     infinite->AI()->Talk(SAY_FAIL);
                                     rift->DespawnOrUnsummon();
                                     infinite->DespawnOrUnsummon(3*IN_MILLISECONDS);
-                                    events.CancelEvent(EVENT_INFINITE_TIMER);
+                                    Events.CancelEvent(EVENT_INFINITE_TIMER);
                                     DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
                                 }
                             break;
@@ -385,6 +385,7 @@ public:
             
         }
     private:
+        EventMap Events;
         uint64 _arthasGUID;
         uint64 _meathookGUID;
         uint64 _salrammGUID;
@@ -402,8 +403,6 @@ public:
         uint32 _eventCounterState;
         uint32 _crateCount;
         uint32 _eventMinute;
-        
-        EventMap events;
     };
 };
 
