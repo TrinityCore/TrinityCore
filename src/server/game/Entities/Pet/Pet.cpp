@@ -989,7 +989,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     }
                     
                     float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_SPELL);
-                    ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
+                    ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME, ownerHaste, false);
                     m_modSpellHitChance = m_owner->m_modSpellHitChance;
                     m_modMeleeHitChance = m_owner->m_modSpellHitChance;
                     
