@@ -3113,18 +3113,24 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
-	case 87934: // Serpent Spread Propagación serpentina hunter DREAM WOW
-    case 87935:
+		case 87934: // Serpent Spread Propagación serpentina hunter DREAM WOW
+		case 87935:
                  spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
- 	 case 26573: // Consecration Dream wow 
+		case 26573: // Consecration Dream wow 
                 spellInfo->Effects[1].TriggerSpell = 82366;
                 spellInfo->Effects[2].TriggerSpell = 36946;
                 break;
 
-	  case 80353:  // Time Warp DREAM WOW 
-                spellInfo->Effects[0].TriggerSpell = 80354; // Temporal Displacement
+		case 80353:  // Time Warp DREAM WOW no casteable con desplazamiento temporal
+                spellInfo->ExcludeCasterAuraSpell =  80354; // Temporal Displacement
                 break;
-	 case 79268: // soul harvest DREAM WOW
+		case 642:  // escudo divino DREAM WOW no casteable con abstinencia
+                spellInfo->ExcludeCasterAuraSpell =  25771; // abstinencia pala
+                break;
+		case 1022:  // mano de proteccion DREAM WOW no casteable con abstinencia
+                spellInfo->ExcludeCasterAuraSpell =  25771; // abstinencia pala
+                break;
+		case 79268: // soul harvest DREAM WOW
 			 spellInfo->Effects[0].Amplitude = 3000;
 			 break;
             case 42730: // Woe Strike
