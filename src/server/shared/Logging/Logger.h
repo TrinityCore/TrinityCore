@@ -26,19 +26,17 @@ class Logger
         Logger();
         ~Logger();
 
-        void Create(std::string const& name, LogFilterType type, LogLevel level);
+        void Create(std::string const& name, LogLevel level);
         void addAppender(uint8 type, Appender *);
         void delAppender(uint8 type);
 
         std::string const& getName() const;
-        LogFilterType getType() const;
         LogLevel getLogLevel() const;
         void setLogLevel(LogLevel level);
-        void write(LogMessage& message);
+        void write(LogMessage& message) const;
 
     private:
         std::string name;
-        LogFilterType type;
         LogLevel level;
         AppenderMap appenders;
 };

@@ -25,25 +25,17 @@ AppenderDB::~AppenderDB() { }
 
 void AppenderDB::_write(LogMessage const& message)
 {
-    if (!enabled)
+    // Avoid infinite loop, PExecute triggers Logging with LOG_FILTER_SQL type
+    if (!enabled || !message.type.find("sql"))
         return;
 
-    switch (message.type)
-    {
-        case LOG_FILTER_SQL:
-        case LOG_FILTER_SQL_DRIVER:
-        case LOG_FILTER_SQL_DEV:
-            break; // Avoid infinite loop, PExecute triggers Logging with LOG_FILTER_SQL type
-        default:
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
-            stmt->setUInt64(0, message.mtime);
-            stmt->setUInt32(1, realmId);
-            stmt->setUInt8(2, uint8(message.type));
-            stmt->setUInt8(3, uint8(message.level));
-            stmt->setString(4, message.text);
-            LoginDatabase.Execute(stmt);
-            break;
-    }
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
+    stmt->setUInt64(0, message.mtime);
+    stmt->setUInt32(1, realmId);
+    stmt->setString(2, message.type);
+    stmt->setUInt8(3, uint8(message.level));
+    stmt->setString(4, message.text);
+    LoginDatabase.Execute(stmt);
 }
 
 void AppenderDB::setRealmId(uint32 _realmId)
