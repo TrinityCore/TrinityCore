@@ -80,7 +80,7 @@ void FormationMgr::LoadCreatureFormations()
     CreatureGroupMap.clear();
 
     //Get group data
-    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI FROM creature_formations ORDER BY leaderGUID");
+    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
 
     if (!result)
     {
@@ -101,6 +101,8 @@ void FormationMgr::LoadCreatureFormations()
         group_member->leaderGUID            = fields[0].GetUInt32();
         uint32 memberGUID                   = fields[1].GetUInt32();
         group_member->groupAI               = fields[4].GetUInt32();
+        group_member->point_1               = fields[5].GetUInt16();
+        group_member->point_2               = fields[6].GetUInt16();
         //If creature is group leader we may skip loading of dist/angle
         if (group_member->leaderGUID != memberGUID)
         {
@@ -223,6 +225,14 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         Creature* member = itr->first;
         if (member == m_leader || !member->IsAlive() || member->GetVictim())
             continue;
+
+        if (itr->second->point_1)
+        {
+            if (m_leader->GetCurrentWaypointID() == itr->second->point_1)
+                itr->second->follow_angle = itr->second->follow_angle + M_PI;
+            if (m_leader->GetCurrentWaypointID() == itr->second->point_2)
+                itr->second->follow_angle = itr->second->follow_angle - M_PI;
+        }
 
         float angle = itr->second->follow_angle;
         float dist = itr->second->follow_dist;
