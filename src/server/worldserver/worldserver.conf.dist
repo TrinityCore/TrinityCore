@@ -2703,79 +2703,13 @@ UI.ShowQuestLevelsInDialogs = 0
 
 Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
-Appender.GM=2,2,0,GM.log
+Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
-Appender.Char=2,2,0,Char.log,w
-Appender.RA=2,2,0,RA.log
-Appender.Warden=2,4,0,Warden.log
-Appender.Chat=2,2,0,Chat.log
-Appender.CharDump=2,2,0,%s.log
-Appender.Arenas=2,2,0,Arena.log
-Appender.SQLDev=2,2,0,SQLDev.log
-Appender.SQLDriver=2,2,0,SQLDriver.log
-
-#    Appenders
-#        Description: List of Appenders to read from config
-#                     (Using spaces as separator).
-#        Default:     "Console Server GM DBErrors Char RA Warden Chat"
-
-Appenders=Console Server GM DBErrors Char RA Warden Chat
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
 #        Description: Defines 'What to log'
-#        Format:      Type,LogLevel,AppenderList
-#                     Type
-#                         0 - Default. Each type that has no config will
-#                             rely on this one. Core will create this logger
-#                             (disabled) if it's not configured
-#                         1 - Units that doesn't fit in other categories
-#                         2 - Pets
-#                         3 - Vehicles
-#                         4 - C++ AI, instance scripts, etc.
-#                         5 - DB AI, such as SAI, EAI, CreatureAI
-#                         6 - DB map scripts
-#                         7 - Network input/output,
-#                             such as packet handlers and netcode logs
-#                         8 - Spellsystem and aurasystem
-#                         9 - Achievement system
-#                        10 - Condition system
-#                        11 - Pool system
-#                        12 - Auction house
-#                        13 - Arena's and battlegrounds
-#                        14 - Outdoor PVP
-#                        15 - Chat system
-#                        16 - LFG system
-#                        17 - Maps, instances (not scripts),
-#                             grids, cells, visibility, etc.
-#                        18 - Player that doesn't fit in other categories.
-#                        19 - Player loading from DB
-#                             (Player::_LoadXXX functions)
-#                        20 - Items
-#                        21 - Player skills (do not confuse with spells)
-#                        22 - Player chat logs
-#                        23 - loot
-#                        24 - guilds
-#                        25 - transports
-#                        26 - SQL. DB errors
-#                        27 - GM Commands
-#                        28 - Remote Access Commands
-#                        29 - Warden
-#                        30 - Authserver
-#                        31 - Worldserver
-#                        32 - Game Events
-#                        33 - Calendar
-#                        34 - Character (Exclusive to log login, logout, create, rename)
-#                        35 - Arenas
-#                        36 - SQL Driver
-#                        37 - SQL Dev
-#                        38 - Player Dump
-#                        39 - Battlefield
-#                        40 - Server Loading
-#                        41 - Opcodes (just id and name sent / received)
-#                        42 - SOAP
-#                        43 - RBAC (Role Based Access Control)
-#                        44 - Cheat (used to log cheat attempts)
+#        Format:      LogLevel,AppenderList
 #
 #                     LogLevel
 #                         0 - (Disabled)
@@ -2790,28 +2724,52 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                     (Using spaces as separator).
 #
 
-Logger.Root=0,5,Console Server
-Logger.Chat=22,2,Chat
-Logger.DBErrors=26,5,Console Server DBErrors
-Logger.GM=27,3,Console Server GM
-Logger.RA=28,3,RA
-Logger.Warden=29,4,Warden
-Logger.WorldServer=31,3,Console Server
-Logger.Character=34,3,Char
-Logger.Arenas=35,3,Arenas
-Logger.SQLDriver=36,5,SQLDriver
-Logger.SQLDev=37,3,SQLDev
-Logger.CharDump=38,3,CharDump
-Logger.Load=40,3,Console Server
-Logger.Opcodes=41,6,Console Server
+Logger.root=5,Console Server
+Logger.server=3,Console Server
+Logger.commands.gm=3,Console GM
+Logger.sql.sql=5,Console DBErrors
 
-#
-#    Loggers
-#        Description: List of Loggers to read from config
-#                     (Using spaces as separator).
-#        Default:     "Root Chat DBErrors GM RA Warden Character Load"
-
-Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
+#Logger.achievement=3,Console Server
+#Logger.auctionHouse=3,Console Server
+#Logger.bg.arena=3,Console Server
+#Logger.bg.battlefield=3,Console Server
+#Logger.bg.battleground=3,Console Server
+#Logger.chat.log=3,Console Server
+#Logger.calendar=3,Console Server
+#Logger.chat.system=3,Console Server
+#Logger.cheat=3,Console Server
+#Logger.commands.ra=3,Console Server
+#Logger.condition=3,Console Server
+#Logger.entities.pet=3,Console Server
+#Logger.entities.player.character=3,Console Server
+#Logger.entities.player.dump=3,Console Server
+#Logger.entities.player=3,Console Server
+#Logger.entities.player.items=3,Console Server
+#Logger.entities.player.loading=3,Console Server
+#Logger.entities.player.skills=3,Console Server
+#Logger.entities.transport=3,Console Server
+#Logger.entities.unit=3,Console Server
+#Logger.entities.vehicle=3,Console Server
+#Logger.gameevent=3,Console Server
+#Logger.guild=3,Console Server
+#Logger.lfg=3,Console Server
+#Logger.loot=3,Console Server
+#Logger.maps.script=3,Console Server
+#Logger.maps=3,Console Server
+#Logger.misc=3,Console Server
+#Logger.network=3,Console Server
+#Logger.network.opcode=3,Console Server
+#Logger.network.soap=3,Console Server
+#Logger.outdoorpvp=3,Console Server
+#Logger.pool=3,Console Server
+#Logger.rbac=3,Console Server
+#Logger.scripts=3,Console Server
+#Logger.scripts.ai=3,Console Server
+#Logger.server.authserver=3,Console Server
+#Logger.spells=3,Console Server
+#Logger.sql.dev=3,Console Server
+#Logger.sql.driver=3,Console Server
+#Logger.warden=3,Console Server
 
 #
 #    Log.Async.Enable
