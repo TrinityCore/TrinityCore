@@ -237,11 +237,24 @@ void Log::ReadLoggersFromConfig()
         keys.pop_front();
     }
 
-    // root logger must exist. Marking as disabled as its not configured
+    // Bad config configuration, creating default config
     if (loggers.find(LOGGER_ROOT) == loggers.end())
     {
-        fprintf(stdout, "Wrong Loggers configuration, Logger.root needs to exist, nothing will be logged.\n");
-        loggers[LOGGER_ROOT].Create(LOGGER_ROOT, LOG_LEVEL_DISABLED);
+        fprintf(stderr, "Wrong Loggers configuration. Review your Logger config section.\n"
+                        "Creating default loggers [root (Error), server (Info)] to console\n");
+
+        Close(); // Clean any Logger or Appender created
+
+        AppenderConsole* appender = new AppenderConsole(NextAppenderId(), "Console", LOG_LEVEL_DEBUG, APPENDER_FLAGS_NONE);
+        appenders[appender->getId()] = appender;
+
+        Logger& logger = loggers[LOGGER_ROOT];
+        logger.Create(LOGGER_ROOT, LOG_LEVEL_ERROR);
+        logger.addAppender(appender->getId(), appender);
+
+        logger = loggers["server"];
+        logger.Create("server", LOG_LEVEL_ERROR);
+        logger.addAppender(appender->getId(), appender);
     }
 }
 
