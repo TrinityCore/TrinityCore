@@ -264,7 +264,7 @@ public:
                         }
                         else
                         {
-                            TC_LOG_ERROR(LOG_FILTER_TSCR, "Didn't find Shathrowar. Kalecgos event reseted.");
+                            TC_LOG_ERROR("scripts", "Didn't find Shathrowar. Kalecgos event reseted.");
                             EnterEvadeMode();
                             return;
                         }
