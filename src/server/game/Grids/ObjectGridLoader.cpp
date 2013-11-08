@@ -65,7 +65,7 @@ class ObjectWorldLoader
     public:
         explicit ObjectWorldLoader(ObjectGridLoader& gloader)
             : i_cell(gloader.i_cell), i_map(gloader.i_map), i_corpses (0)
-            {}
+            { }
 
         void Visit(CorpseMapType &m);
 
@@ -78,9 +78,7 @@ class ObjectWorldLoader
         uint32 i_corpses;
 };
 
-template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellCoord const& /*cellCoord*/)
-{
-}
+template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellCoord const& /*cellCoord*/) { }
 
 template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellCoord const& cellCoord)
 {

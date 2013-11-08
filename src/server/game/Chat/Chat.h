@@ -50,8 +50,8 @@ class ChatHandler
 {
     public:
         WorldSession* GetSession() { return m_session; }
-        explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) {}
-        virtual ~ChatHandler() {}
+        explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
+        virtual ~ChatHandler() { }
 
         static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker, const char* addonPrefix = NULL);
 
@@ -129,7 +129,7 @@ class ChatHandler
 
         bool ShowHelpForCommand(ChatCommand* table, const char* cmd);
     protected:
-        explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) {}      // for CLI subclass
+        explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }     // for CLI subclass
         static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
@@ -146,7 +146,7 @@ class CliHandler : public ChatHandler
 {
     public:
         typedef void Print(void*, char const*);
-        explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) {}
+        explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
 
         // overwrite functions
         const char *GetTrinityString(int32 entry) const;

@@ -71,7 +71,7 @@ struct LfgQueueData
 
 struct LfgWaitTime
 {
-    LfgWaitTime(): time(-1), number(0) {}
+    LfgWaitTime(): time(-1), number(0) { }
     int32 time;                                            ///< Wait time
     uint32 number;                                         ///< Number of people used to get that wait time
 };

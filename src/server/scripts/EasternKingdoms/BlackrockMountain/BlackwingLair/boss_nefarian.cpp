@@ -218,7 +218,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* /*summon*/) OVERRIDE {}
+        void JustSummoned(Creature* /*summon*/) OVERRIDE { }
 
         void SetData(uint32 type, uint32 data) OVERRIDE
         {

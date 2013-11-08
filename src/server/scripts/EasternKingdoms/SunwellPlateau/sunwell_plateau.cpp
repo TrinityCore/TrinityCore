@@ -62,6 +62,4 @@ enum LiadrinnSpeeches
 #define CS_GOSSIP3 "Why did they stop?"
 #define CS_GOSSIP4 "Your insight is appreciated."
 
-void AddSC_sunwell_plateau()
-{
-}
+void AddSC_sunwell_plateau() { }

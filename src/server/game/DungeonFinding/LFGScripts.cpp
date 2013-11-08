@@ -32,9 +32,7 @@
 namespace lfg
 {
 
-LFGPlayerScript::LFGPlayerScript() : PlayerScript("LFGPlayerScript")
-{
-}
+LFGPlayerScript::LFGPlayerScript() : PlayerScript("LFGPlayerScript") { }
 
 void LFGPlayerScript::OnLevelChanged(Player* player, uint8 /*oldLevel*/)
 {
@@ -120,9 +118,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
         player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
 }
 
-LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript")
-{
-}
+LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript") { }
 
 void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
 {

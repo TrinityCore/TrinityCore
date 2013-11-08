@@ -266,7 +266,7 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
-        void Reset() {}
+        void Reset() OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -398,7 +398,7 @@ public:
             }
         }
 
-        void Reset(){}
+        void Reset()OVERRIDE { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {

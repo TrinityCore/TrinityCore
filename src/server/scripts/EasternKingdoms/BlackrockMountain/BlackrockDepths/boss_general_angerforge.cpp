@@ -55,7 +55,7 @@ public:
             Medics = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SummonAdds(Unit* victim)
         {

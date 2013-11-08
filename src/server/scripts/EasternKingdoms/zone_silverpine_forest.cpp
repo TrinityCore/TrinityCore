@@ -107,7 +107,7 @@ public:
             }
         }
 
-        void Reset() {}
+        void Reset() OVERRIDE { }
 
         void EnterCombat(Unit* who)
         {

@@ -17,14 +17,11 @@
 
 #include "Logger.h"
 
-Logger::Logger(): name(""), type(LOG_FILTER_GENERAL), level(LOG_LEVEL_DISABLED)
-{
-}
+Logger::Logger(): name(""), level(LOG_LEVEL_DISABLED) { }
 
-void Logger::Create(std::string const& _name, LogFilterType _type, LogLevel _level)
+void Logger::Create(std::string const& _name, LogLevel _level)
 {
     name = _name;
-    type = _type;
     level = _level;
 }
 
@@ -38,11 +35,6 @@ Logger::~Logger()
 std::string const& Logger::getName() const
 {
     return name;
-}
-
-LogFilterType Logger::getType() const
-{
-    return type;
 }
 
 LogLevel Logger::getLogLevel() const
@@ -70,7 +62,7 @@ void Logger::setLogLevel(LogLevel _level)
     level = _level;
 }
 
-void Logger::write(LogMessage& message)
+void Logger::write(LogMessage& message) const
 {
     if (!level || level > message.level || message.text.empty())
     {
@@ -78,7 +70,7 @@ void Logger::write(LogMessage& message)
         return;
     }
 
-    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
+    for (AppenderMap::const_iterator it = appenders.begin(); it != appenders.end(); ++it)
         if (it->second)
             it->second->write(message);
 }

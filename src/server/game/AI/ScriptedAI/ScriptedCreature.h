@@ -116,7 +116,7 @@ private:
 class EntryCheckPredicate
 {
     public:
-        EntryCheckPredicate(uint32 entry) : _entry(entry) {}
+        EntryCheckPredicate(uint32 entry) : _entry(entry) { }
         bool operator()(uint64 guid) { return GUID_ENPART(guid) == _entry; }
 
     private:
@@ -132,7 +132,7 @@ class DummyEntryCheckPredicate
 struct ScriptedAI : public CreatureAI
 {
     explicit ScriptedAI(Creature* creature);
-    virtual ~ScriptedAI() {}
+    virtual ~ScriptedAI() { }
 
     // *************
     //CreatureAI Functions
@@ -141,34 +141,34 @@ struct ScriptedAI : public CreatureAI
     void AttackStartNoMove(Unit* target);
 
     // Called at any Damage from any attacker (before damage apply)
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }
 
     //Called at World update tick
     virtual void UpdateAI(uint32 diff);
 
     //Called at creature death
-    void JustDied(Unit* /*killer*/) {}
+    void JustDied(Unit* /*killer*/) { }
 
     //Called at creature killing another unit
-    void KilledUnit(Unit* /*victim*/) {}
+    void KilledUnit(Unit* /*victim*/) { }
 
     // Called when the creature summon successfully other creature
-    void JustSummoned(Creature* /*summon*/) {}
+    void JustSummoned(Creature* /*summon*/) { }
 
     // Called when a summoned creature is despawned
-    void SummonedCreatureDespawn(Creature* /*summon*/) {}
+    void SummonedCreatureDespawn(Creature* /*summon*/) { }
 
     // Called when hit by a spell
-    void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}
+    void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) { }
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
 
     //Called at waypoint reached or PointMovement end
-    void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
+    void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
-    void OnPossess(bool /*apply*/) {}
+    void OnPossess(bool /*apply*/) { }
 
     // *************
     // Variables
@@ -185,10 +185,10 @@ struct ScriptedAI : public CreatureAI
     // *************
 
     //Called at creature reset either by death or evade
-    void Reset() {}
+    void Reset() { }
 
     //Called at creature aggro either by MoveInLOS or Attack Start
-    void EnterCombat(Unit* /*victim*/) {}
+    void EnterCombat(Unit* /*victim*/) { }
 
     // Called before EnterCombat even before the creature is in combat.
     void AttackStart(Unit* /*target*/);
@@ -334,7 +334,7 @@ class BossAI : public ScriptedAI
 {
     public:
         BossAI(Creature* creature, uint32 bossId);
-        virtual ~BossAI() {}
+        virtual ~BossAI() { }
 
         InstanceScript* const instance;
         BossBoundaryMap const* GetBoundary() const { return _boundary; }
@@ -386,7 +386,7 @@ class WorldBossAI : public ScriptedAI
 {
     public:
         WorldBossAI(Creature* creature);
-        virtual ~WorldBossAI() {}
+        virtual ~WorldBossAI() { }
 
         void JustSummoned(Creature* summon);
         void SummonedCreatureDespawn(Creature* summon);

@@ -858,7 +858,7 @@ class npc_pool_of_tar : public CreatureScript
                     me->CastSpell(me, SPELL_BLAZE, true);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

@@ -34,9 +34,7 @@ CalendarEvent::~CalendarEvent()
     sCalendarMgr->FreeEventId(_eventId);
 }
 
-CalendarMgr::CalendarMgr()
-{
-}
+CalendarMgr::CalendarMgr() { }
 
 CalendarMgr::~CalendarMgr()
 {

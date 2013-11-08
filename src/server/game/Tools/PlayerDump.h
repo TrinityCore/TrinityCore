@@ -65,13 +65,13 @@ enum DumpReturn
 class PlayerDump
 {
     protected:
-        PlayerDump() {}
+        PlayerDump() { }
 };
 
 class PlayerDumpWriter : public PlayerDump
 {
     public:
-        PlayerDumpWriter() {}
+        PlayerDumpWriter() { }
 
         bool GetDump(uint32 guid, std::string& dump);
         DumpReturn WriteDump(std::string const& file, uint32 guid);
@@ -90,7 +90,7 @@ class PlayerDumpWriter : public PlayerDump
 class PlayerDumpReader : public PlayerDump
 {
     public:
-        PlayerDumpReader() {}
+        PlayerDumpReader() { }
 
         DumpReturn LoadDump(std::string const& file, uint32 account, std::string name, uint32 guid);
 };

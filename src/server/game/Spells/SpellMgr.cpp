@@ -350,9 +350,7 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
     }
 }
 
-SpellMgr::SpellMgr()
-{
-}
+SpellMgr::SpellMgr() { }
 
 SpellMgr::~SpellMgr()
 {

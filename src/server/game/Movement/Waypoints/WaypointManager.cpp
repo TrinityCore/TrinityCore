@@ -22,9 +22,7 @@
 #include "MapManager.h"
 #include "Log.h"
 
-WaypointMgr::WaypointMgr()
-{
-}
+WaypointMgr::WaypointMgr() { }
 
 WaypointMgr::~WaypointMgr()
 {

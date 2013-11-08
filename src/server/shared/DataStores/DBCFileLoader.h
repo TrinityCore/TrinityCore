@@ -62,7 +62,7 @@ class DBCFileLoader
                 }
 
             private:
-                Record(DBCFileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) {}
+                Record(DBCFileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) { }
                 unsigned char *offset;
                 DBCFileLoader &file;
 

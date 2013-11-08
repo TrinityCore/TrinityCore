@@ -48,7 +48,7 @@ namespace Trinity
     {
         public:
             AchievementChatBuilder(Player const& player, ChatMsg msgtype, int32 textId, uint32 ach_id)
-                : i_player(player), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) {}
+                : i_player(player), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) { }
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
@@ -388,17 +388,13 @@ bool AchievementCriteriaDataSet::Meets(Player const* source, Unit const* target,
 }
 
 template<class T>
-AchievementMgr<T>::AchievementMgr(T* owner): _owner(owner), _achievementPoints(0) {}
+AchievementMgr<T>::AchievementMgr(T* owner): _owner(owner), _achievementPoints(0) { }
 
 template<class T>
-AchievementMgr<T>::~AchievementMgr()
-{
-}
+AchievementMgr<T>::~AchievementMgr() { }
 
 template<class T>
-void AchievementMgr<T>::SendPacket(WorldPacket* data) const
-{
-}
+void AchievementMgr<T>::SendPacket(WorldPacket* data) const { }
 
 template<>
 void AchievementMgr<Guild>::SendPacket(WorldPacket* data) const

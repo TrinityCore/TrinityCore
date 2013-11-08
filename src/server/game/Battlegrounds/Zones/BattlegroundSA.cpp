@@ -44,9 +44,7 @@ BattlegroundSA::BattlegroundSA()
     memset(&GraveyardStatus, 0, sizeof(GraveyardStatus));
 }
 
-BattlegroundSA::~BattlegroundSA()
-{
-}
+BattlegroundSA::~BattlegroundSA() { }
 
 void BattlegroundSA::Reset()
 {
@@ -392,13 +390,9 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundSA::StartingEventCloseDoors()
-{
-}
+void BattlegroundSA::StartingEventCloseDoors() { }
 
-void BattlegroundSA::StartingEventOpenDoors()
-{
-}
+void BattlegroundSA::StartingEventOpenDoors() { }
 
 void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
 {
@@ -472,9 +466,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
-{
-}
+void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/) { }
 
 void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 {

@@ -39,9 +39,7 @@ BattlegroundAV::BattlegroundAV()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AV_HAS_BEGUN;
 }
 
-BattlegroundAV::~BattlegroundAV()
-{
-}
+BattlegroundAV::~BattlegroundAV() { }
 
 uint16 BattlegroundAV::GetBonusHonor(uint8 kills) /// @todo move this function to Battleground.cpp (needs to find a way to get m_MaxLevel)
 {

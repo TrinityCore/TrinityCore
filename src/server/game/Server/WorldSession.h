@@ -89,7 +89,7 @@ enum AccountDataType
 
 struct AccountData
 {
-    AccountData() : Time(0), Data("") {}
+    AccountData() : Time(0), Data("") { }
 
     time_t Time;
     std::string Data;
@@ -136,8 +136,8 @@ enum CharterTypes
 class PacketFilter
 {
 public:
-    explicit PacketFilter(WorldSession* pSession) : m_pSession(pSession) {}
-    virtual ~PacketFilter() {}
+    explicit PacketFilter(WorldSession* pSession) : m_pSession(pSession) { }
+    virtual ~PacketFilter() { }
 
     virtual bool Process(WorldPacket* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
@@ -150,8 +150,8 @@ protected:
 class MapSessionFilter : public PacketFilter
 {
 public:
-    explicit MapSessionFilter(WorldSession* pSession) : PacketFilter(pSession) {}
-    ~MapSessionFilter() {}
+    explicit MapSessionFilter(WorldSession* pSession) : PacketFilter(pSession) { }
+    ~MapSessionFilter() { }
 
     virtual bool Process(WorldPacket* packet);
     //in Map::Update() we do not process player logout!
@@ -163,8 +163,8 @@ public:
 class WorldSessionFilter : public PacketFilter
 {
 public:
-    explicit WorldSessionFilter(WorldSession* pSession) : PacketFilter(pSession) {}
-    ~WorldSessionFilter() {}
+    explicit WorldSessionFilter(WorldSession* pSession) : PacketFilter(pSession) { }
+    ~WorldSessionFilter() { }
 
     virtual bool Process(WorldPacket* packet);
 };
@@ -180,7 +180,7 @@ class CharacterCreateInfo
         CharacterCreateInfo(std::string const& name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId,
         WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair),
         OutfitId(outfitId), Data(data), CharCount(0)
-        {}
+        { }
 
         /// User specified variables
         std::string Name;
@@ -365,10 +365,10 @@ class WorldSession
         void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
         uint32 getDialogStatus(Player* player, Object* questgiver, uint32 defstatus);
 
-        time_t m_timeOutTime;
+        ACE_Atomic_Op<ACE_Thread_Mutex, time_t> m_timeOutTime;
         void UpdateTimeOutTime(uint32 diff)
         {
-            if (time_t(diff) > m_timeOutTime)
+            if (time_t(diff) > m_timeOutTime.value())
                 m_timeOutTime = 0;
             else
                 m_timeOutTime -= diff;
@@ -978,7 +978,7 @@ class WorldSession
         {
             friend class World;
             public:
-                DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) {}
+                DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) { }
                 bool EvaluateOpcode(WorldPacket& p) const;
                 void AllowOpcode(uint16 opcode, bool allow) { _isOpcodeAllowed[opcode] = allow; }
             protected:

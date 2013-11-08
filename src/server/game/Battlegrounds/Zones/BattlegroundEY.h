@@ -249,7 +249,7 @@ enum BG_EY_Objectives
 struct BattlegroundEYPointIconsStruct
 {
     BattlegroundEYPointIconsStruct(uint32 _WorldStateControlIndex, uint32 _WorldStateAllianceControlledIndex, uint32 _WorldStateHordeControlledIndex)
-        : WorldStateControlIndex(_WorldStateControlIndex), WorldStateAllianceControlledIndex(_WorldStateAllianceControlledIndex), WorldStateHordeControlledIndex(_WorldStateHordeControlledIndex) {}
+        : WorldStateControlIndex(_WorldStateControlIndex), WorldStateAllianceControlledIndex(_WorldStateAllianceControlledIndex), WorldStateHordeControlledIndex(_WorldStateHordeControlledIndex) { }
     uint32 WorldStateControlIndex;
     uint32 WorldStateAllianceControlledIndex;
     uint32 WorldStateHordeControlledIndex;
@@ -270,7 +270,7 @@ struct BattlegroundEYLosingPointStruct
         : SpawnNeutralObjectType(_SpawnNeutralObjectType),
         DespawnObjectTypeAlliance(_DespawnObjectTypeAlliance), MessageIdAlliance(_MessageIdAlliance),
         DespawnObjectTypeHorde(_DespawnObjectTypeHorde), MessageIdHorde(_MessageIdHorde)
-    {}
+    { }
 
     uint32 SpawnNeutralObjectType;
     uint32 DespawnObjectTypeAlliance;
@@ -286,7 +286,7 @@ struct BattlegroundEYCapturingPointStruct
         SpawnObjectTypeAlliance(_SpawnObjectTypeAlliance), MessageIdAlliance(_MessageIdAlliance),
         SpawnObjectTypeHorde(_SpawnObjectTypeHorde), MessageIdHorde(_MessageIdHorde),
         GraveYardId(_GraveYardId)
-    {}
+    { }
 
     uint32 DespawnNeutralObjectType;
     uint32 SpawnObjectTypeAlliance;
