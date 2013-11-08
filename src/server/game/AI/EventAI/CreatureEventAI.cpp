@@ -40,7 +40,7 @@ bool CreatureEventAIHolder::UpdateRepeatTimer(Creature* creature, uint32 repeatM
         Time = urand(repeatMin, repeatMax);
     else
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", creature->GetEntry(), Event.event_id, Event.event_type);
+        TC_LOG_ERROR("sql.sql", "CreatureEventAI: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", creature->GetEntry(), Event.event_id, Event.event_type);
         Enabled = false;
         return false;
     }
@@ -82,10 +82,10 @@ CreatureEventAI::CreatureEventAI(Creature* c) : CreatureAI(c)
         }
         //EventMap had events but they were not added because they must be for instance
         if (m_CreatureEventAIList.empty())
-            TC_LOG_ERROR(LOG_FILTER_GENERAL, "CreatureEventAI: Creature %u has events but no events added to list because of instance flags.", me->GetEntry());
+            TC_LOG_ERROR("misc", "CreatureEventAI: Creature %u has events but no events added to list because of instance flags.", me->GetEntry());
     }
     else
-        TC_LOG_ERROR(LOG_FILTER_GENERAL, "CreatureEventAI: EventMap for Creature %u is empty but creature is using CreatureEventAI.", me->GetEntry());
+        TC_LOG_ERROR("misc", "CreatureEventAI: EventMap for Creature %u is empty but creature is using CreatureEventAI.", me->GetEntry());
 
     m_bEmptyList = m_CreatureEventAIList.empty();
     m_Phase = 0;
@@ -318,7 +318,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& holder, Unit* actionIn
             break;
         }
         default:
-            TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Creature %u using Event %u has invalid Event Type(%u), missing from ProcessEvent() Switch.", me->GetEntry(), holder.Event.event_id, holder.Event.event_type);
+            TC_LOG_ERROR("sql.sql", "CreatureEventAI: Creature %u using Event %u has invalid Event Type(%u), missing from ProcessEvent() Switch.", me->GetEntry(), holder.Event.event_id, holder.Event.event_type);
             break;
     }
 
@@ -490,7 +490,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     }
                 }
                 else
-                    TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: event %d creature %d attempt to cast spell that doesn't exist %d", eventId, me->GetEntry(), action.cast.spellId);
+                    TC_LOG_ERROR("sql.sql", "CreatureEventAI: event %d creature %d attempt to cast spell that doesn't exist %d", eventId, me->GetEntry(), action.cast.spellId);
             }
             break;
         }
@@ -580,12 +580,12 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             int32 new_phase = int32(m_Phase)+action.set_inc_phase.step;
             if (new_phase < 0)
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Event %d decrease m_Phase under 0. CreatureEntry = %d", eventId, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: Event %d decrease m_Phase under 0. CreatureEntry = %d", eventId, me->GetEntry());
                 m_Phase = 0;
             }
             else if (new_phase >= MAX_PHASE)
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Event %d incremented m_Phase above %u. m_Phase mask cannot be used with phases past %u. CreatureEntry = %d", eventId, MAX_PHASE-1, MAX_PHASE-1, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: Event %d incremented m_Phase above %u. m_Phase mask cannot be used with phases past %u. CreatureEntry = %d", eventId, MAX_PHASE-1, MAX_PHASE-1, me->GetEntry());
                 m_Phase = MAX_PHASE-1;
             }
             else
@@ -627,7 +627,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             if (action.random_phase_range.phaseMin <= action.random_phase_range.phaseMax)
                 m_Phase = urand(action.random_phase_range.phaseMin, action.random_phase_range.phaseMax);
             else
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: ACTION_T_RANDOM_PHASE_RANGE cannot have Param2 < Param1. Event = %d. CreatureEntry = %d", eventId, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: ACTION_T_RANDOM_PHASE_RANGE cannot have Param2 < Param1. Event = %d. CreatureEntry = %d", eventId, me->GetEntry());
             break;
         case ACTION_T_KILLED_MONSTER:
             //first attempt player who tapped creature
@@ -646,7 +646,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             InstanceScript* instance = me->GetInstanceScript();
             if (!instance)
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Event %d attempt to set instance data without instance script. Creature %d", eventId, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: Event %d attempt to set instance data without instance script. Creature %d", eventId, me->GetEntry());
                 return;
             }
 
@@ -658,14 +658,14 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             Unit* target = GetTargetByType(action.set_inst_data64.target, actionInvoker);
             if (!target)
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Event %d attempt to set instance data64 but Target == NULL. Creature %d", eventId, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: Event %d attempt to set instance data64 but Target == NULL. Creature %d", eventId, me->GetEntry());
                 return;
             }
 
             InstanceScript* instance = me->GetInstanceScript();
             if (!instance)
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Event %d attempt to set instance data64 without instance script. Creature %d", eventId, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: Event %d attempt to set instance data64 without instance script. Creature %d", eventId, me->GetEntry());
                 return;
             }
 
@@ -675,7 +675,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_UPDATE_TEMPLATE:
             if (me->GetEntry() == action.update_template.creatureId)
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Event %d ACTION_T_UPDATE_TEMPLATE call with param1 == current entry. Creature %d", eventId, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: Event %d ACTION_T_UPDATE_TEMPLATE call with param1 == current entry. Creature %d", eventId, me->GetEntry());
                 return;
             }
 
@@ -684,7 +684,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_DIE:
             if (me->isDead())
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: Event %d ACTION_T_DIE on dead creature. Creature %d", eventId, me->GetEntry());
+                TC_LOG_ERROR("sql.sql", "CreatureEventAI: Event %d ACTION_T_DIE on dead creature. Creature %d", eventId, me->GetEntry());
                 return;
             }
             me->Kill(me);
@@ -733,7 +733,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             me->GetPosition(x, y, z);
             GameObject* object = me->SummonGameObject(action.raw.param1, x, y, z, 0, 0, 0, 0, 0, action.raw.param2);
             if (!object)
-                TC_LOG_ERROR(LOG_FILTER_TSCR, "EventAI failed to spawn object %u. Spawn event %d is on creature %d", action.raw.param1, eventId, me->GetEntry());
+                TC_LOG_ERROR("scripts", "EventAI failed to spawn object %u. Spawn event %d is on creature %d", action.raw.param1, eventId, me->GetEntry());
 
             break;
         }
@@ -1166,13 +1166,13 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* source, Unit* t
 {
     if (!source)
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: DoScriptText entry %i, invalid Source pointer.", textEntry);
+        TC_LOG_ERROR("sql.sql", "CreatureEventAI: DoScriptText entry %i, invalid Source pointer.", textEntry);
         return;
     }
 
     if (textEntry >= 0)
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: DoScriptText with source entry %u (TypeId=%u, guid=%u) attempts to process text entry %i, but text entry must be negative.", source->GetEntry(), source->GetTypeId(), source->GetGUIDLow(), textEntry);
+        TC_LOG_ERROR("sql.sql", "CreatureEventAI: DoScriptText with source entry %u (TypeId=%u, guid=%u) attempts to process text entry %i, but text entry must be negative.", source->GetEntry(), source->GetTypeId(), source->GetGUIDLow(), textEntry);
         return;
     }
 
@@ -1180,18 +1180,18 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* source, Unit* t
 
     if (i == sEventAIMgr->GetCreatureEventAITextMap().end())
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.", source->GetEntry(), source->GetTypeId(), source->GetGUIDLow(), textEntry);
+        TC_LOG_ERROR("sql.sql", "CreatureEventAI: DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.", source->GetEntry(), source->GetTypeId(), source->GetGUIDLow(), textEntry);
         return;
     }
 
-    TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "CreatureEventAI: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u", textEntry, (*i).second.SoundId, (*i).second.Type, (*i).second.Language, (*i).second.Emote);
+    TC_LOG_DEBUG("scripts.ai", "CreatureEventAI: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u", textEntry, (*i).second.SoundId, (*i).second.Type, (*i).second.Language, (*i).second.Emote);
 
     if ((*i).second.SoundId)
     {
         if (sSoundEntriesStore.LookupEntry((*i).second.SoundId))
             source->PlayDirectSound((*i).second.SoundId);
         else
-            TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: DoScriptText entry %i tried to process invalid sound id %u.", textEntry, (*i).second.SoundId);
+            TC_LOG_ERROR("sql.sql", "CreatureEventAI: DoScriptText entry %i tried to process invalid sound id %u.", textEntry, (*i).second.SoundId);
     }
 
     if ((*i).second.Emote)
@@ -1201,7 +1201,7 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* source, Unit* t
             ((Unit*)source)->HandleEmoteCommand((*i).second.Emote);
         }
         else
-            TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: DoScriptText entry %i tried to process emote for invalid TypeId (%u).", textEntry, source->GetTypeId());
+            TC_LOG_ERROR("sql.sql", "CreatureEventAI: DoScriptText entry %i tried to process emote for invalid TypeId (%u).", textEntry, source->GetTypeId());
     }
 
     switch ((*i).second.Type)
@@ -1222,13 +1222,13 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* source, Unit* t
         {
             if (target && target->GetTypeId() == TYPEID_PLAYER)
                 source->MonsterWhisper(textEntry, target->GetGUID());
-            else TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", textEntry);
+            else TC_LOG_ERROR("sql.sql", "CreatureEventAI: DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", textEntry);
         }break;
         case CHAT_TYPE_BOSS_WHISPER:
         {
             if (target && target->GetTypeId() == TYPEID_PLAYER)
                 source->MonsterWhisper(textEntry, target->GetGUID(), true);
-            else TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI: DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", textEntry);
+            else TC_LOG_ERROR("sql.sql", "CreatureEventAI: DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", textEntry);
         }break;
         case CHAT_TYPE_ZONE_YELL:
             source->MonsterYellToZone(textEntry, (*i).second.Language, target ? target->GetGUID() : 0);
@@ -1281,7 +1281,7 @@ void CreatureEventAI::ReceiveEmote(Player* player, uint32 textEmote)
             ConditionSourceInfo srcInfo = ConditionSourceInfo(player);
             if (cond.Meets(srcInfo))
             {
-                TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
+                TC_LOG_DEBUG("scripts.ai", "CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
                 ProcessEvent(*itr, player);
             }
         }
