@@ -237,15 +237,7 @@ Appender.Auth=2,2,0,Auth.log,w
 #                     (Using spaces as separator).
 #
 
-Logger.Root=0,3,Console Auth
-
-#
-#    Loggers
-#        Description: List of Loggers to read from config
-#                     (Using spaces as separator).
-#        Default:     "root"
-
-Loggers=Root
+Logger.root=3,Console Auth
 
 #
 ###################################################################################################
