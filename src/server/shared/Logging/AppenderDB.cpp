@@ -25,7 +25,7 @@ AppenderDB::~AppenderDB() { }
 
 void AppenderDB::_write(LogMessage const& message)
 {
-    // Avoid infinite loop, PExecute triggers Logging with LOG_FILTER_SQL type
+    // Avoid infinite loop, PExecute triggers Logging with "sql.sql" type
     if (!enabled || !message.type.find("sql"))
         return;
 
