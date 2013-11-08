@@ -167,14 +167,12 @@ class npc_coren_direbrew : public CreatureScript
             {
                 _summons.DespawnAll();
 
-                // TODO: unhack
-                Map* map = me->GetMap();
-                if (map && map->IsDungeon())
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                if (!players.isEmpty())
                 {
-                    Map::PlayerList const& players = map->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Group* group = players.begin()->GetSource()->GetGroup())
-                            sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), 287);
+                    if (Group* group = players.begin()->GetSource()->GetGroup())
+                        if (group->isLFGGroup())
+                            sLFGMgr->FinishDungeon(group->GetGUID(), 287);
                 }
             }
 
