@@ -25,7 +25,7 @@ bool GridState::checkMagic()
 {
     if (i_Magic != MAGIC_TESTVAL)
     {
-        TC_LOG_ERROR(LOG_FILTER_GENERAL, "!!! GridState: Magic value gone !!!");
+        TC_LOG_ERROR("misc", "!!! GridState: Magic value gone !!!");
         return false;
     }
     return true;
@@ -47,7 +47,7 @@ void ActiveState::Update(Map& map, NGridType& grid, GridInfo&  info, uint32 diff
             TypeContainerVisitor<ObjectGridStoper, GridTypeMapContainer> visitor(worker);
             grid.VisitAllGrids(visitor);
             grid.SetGridState(GRID_STATE_IDLE);
-            TC_LOG_DEBUG(LOG_FILTER_MAPS, "Grid[%u, %u] on map %u moved to IDLE state", grid.getX(), grid.getY(), map.GetId());
+            TC_LOG_DEBUG("maps", "Grid[%u, %u] on map %u moved to IDLE state", grid.getX(), grid.getY(), map.GetId());
         }
         else
             map.ResetGridExpiry(grid, 0.1f);
@@ -58,7 +58,7 @@ void IdleState::Update(Map& map, NGridType& grid, GridInfo&, uint32) const
 {
     map.ResetGridExpiry(grid);
     grid.SetGridState(GRID_STATE_REMOVAL);
-    TC_LOG_DEBUG(LOG_FILTER_MAPS, "Grid[%u, %u] on map %u moved to REMOVAL state", grid.getX(), grid.getY(), map.GetId());
+    TC_LOG_DEBUG("maps", "Grid[%u, %u] on map %u moved to REMOVAL state", grid.getX(), grid.getY(), map.GetId());
 }
 
 void RemovalState::Update(Map& map, NGridType& grid, GridInfo& info, uint32 diff) const
@@ -68,7 +68,7 @@ void RemovalState::Update(Map& map, NGridType& grid, GridInfo& info, uint32 diff
         info.UpdateTimeTracker(diff);
         if (info.getTimeTracker().Passed() && !map.UnloadGrid(grid, false))
         {
-            TC_LOG_DEBUG(LOG_FILTER_MAPS, "Grid[%u, %u] for map %u differed unloading due to players or active objects nearby", grid.getX(), grid.getY(), map.GetId());
+            TC_LOG_DEBUG("maps", "Grid[%u, %u] for map %u differed unloading due to players or active objects nearby", grid.getX(), grid.getY(), map.GetId());
             map.ResetGridExpiry(grid);
         }
     }

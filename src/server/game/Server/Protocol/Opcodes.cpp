@@ -32,7 +32,7 @@ void OpcodeTable::ValidateAndSetOpcode<true, true>(uint16 opcode, char const* na
 {
     if (_internalTable[opcode] != NULL)
     {
-        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        TC_LOG_ERROR("network", "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;
     }
 
@@ -42,13 +42,13 @@ void OpcodeTable::ValidateAndSetOpcode<true, true>(uint16 opcode, char const* na
 template<>
 void OpcodeTable::ValidateAndSetOpcode<false, true>(uint16 opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
-    TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Tried to set handler for an invalid opcode %d", opcode);
+    TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode %d", opcode);
 }
 
 template<>
 void OpcodeTable::ValidateAndSetOpcode<true, false>(uint16 /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
-    TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", name);
+    TC_LOG_ERROR("network", "Opcode %s got value 0", name);
 }
 
 /// Correspondence between opcodes and their names

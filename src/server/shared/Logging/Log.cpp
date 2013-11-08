@@ -385,14 +385,14 @@ void Log::outFatal(std::string const& filter, const char * str, ...)
 
 void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const* name)
 {
-    if (!str || !ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO))
+    if (!str || !ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
         return;
 
     std::ostringstream ss;
     ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
        << ")\n" << str << "\n== END DUMP ==\n";
 
-    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, ss.str());
+    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, "entities.player.dump", ss.str());
     std::ostringstream param;
     param << guid << '_' << name;
 
@@ -403,7 +403,7 @@ void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const
 
 void Log::outCommand(uint32 account, const char * str, ...)
 {
-    if (!str || !ShouldLog(LOG_FILTER_GMCOMMAND, LOG_LEVEL_INFO))
+    if (!str || !ShouldLog("commands.gm", LOG_LEVEL_INFO))
         return;
 
     va_list ap;
@@ -412,7 +412,7 @@ void Log::outCommand(uint32 account, const char * str, ...)
     vsnprintf(text, MAX_QUERY_LEN, str, ap);
     va_end(ap);
 
-    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_GMCOMMAND, text);
+    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, "commands.gm", text);
 
     std::ostringstream ss;
     ss << account;

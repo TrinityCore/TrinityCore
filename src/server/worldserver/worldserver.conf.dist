@@ -2902,7 +2902,7 @@ Currency.ConquestPointsArenaReward = 180
 #    PacketSpoof.Policy
 #        Description: Determines the course of action when packet spoofing is detected.
 #        Default:    1 - Log + kick
-#                    0 - Log only (LOG_FILTER_NETWORKIO)
+#                    0 - Log only ("network")
 #                    2 - Log + kick + ban
 
 PacketSpoof.Policy = 1

@@ -120,7 +120,7 @@ class DBCStorage
                     // Check if sql index pos is valid
                     if (int32(result->GetFieldCount() - 1) < sql->sqlIndexPos)
                     {
-                        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
+                        TC_LOG_ERROR("server.loading", "Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
                         return false;
                     }
                 }
@@ -151,7 +151,7 @@ class DBCStorage
                             uint32 id = fields[sql->sqlIndexPos].GetUInt32();
                             if (indexTable.asT[id])
                             {
-                                TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Index %d already exists in dbc:'%s'", id, sql->sqlTableName.c_str());
+                                TC_LOG_ERROR("server.loading", "Index %d already exists in dbc:'%s'", id, sql->sqlTableName.c_str());
                                 return false;
                             }
 
@@ -208,7 +208,7 @@ class DBCStorage
                                         offset += 1;
                                         break;
                                     case FT_STRING:
-                                        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
+                                        TC_LOG_ERROR("server.loading", "Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
                                         return false;
                                     case FT_SORT:
                                         break;
@@ -221,14 +221,14 @@ class DBCStorage
                             }
                             else
                             {
-                                TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
+                                TC_LOG_ERROR("server.loading", "Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
                                 return false;
                             }
                         }
 
                         if (sqlColumnNumber != (result->GetFieldCount() - 1))
                         {
-                            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "SQL and DBC format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
+                            TC_LOG_ERROR("server.loading", "SQL and DBC format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
                             return false;
                         }
 
