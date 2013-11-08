@@ -135,7 +135,7 @@ TCHAR const* LocalesT[] =
 
 void CreateDir(std::string const& path)
 {
-    if (chdir(Path.c_str()) == 0)
+    if (chdir(path.c_str()) == 0)
     {
             chdir("../");
             return;

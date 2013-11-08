@@ -52,7 +52,7 @@ ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
 
 void ByteBuffer::print_storage() const
 {
-    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
@@ -61,12 +61,12 @@ void ByteBuffer::print_storage() const
         o << read<uint8>(i) << " - ";
     o << " ";
 
-    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "%s", o.str().c_str());
 }
 
 void ByteBuffer::textlike() const
 {
-    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
@@ -78,12 +78,12 @@ void ByteBuffer::textlike() const
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "%s", o.str().c_str());
 }
 
 void ByteBuffer::hexlike() const
 {
-    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     uint32 j = 1, k = 1;
@@ -110,5 +110,5 @@ void ByteBuffer::hexlike() const
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "%s", o.str().c_str());
 }
