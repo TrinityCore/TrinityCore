@@ -300,7 +300,7 @@ class npc_shadowmoon_channeler : public CreatureScript
 
         struct npc_shadowmoon_channelerAI : public ScriptedAI
         {
-            npc_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature){}
+            npc_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature){ }
 
             uint32 ShadowBolt_Timer;
             uint32 MarkOfShadow_Timer;

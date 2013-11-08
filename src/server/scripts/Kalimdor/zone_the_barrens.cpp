@@ -121,7 +121,7 @@ public:
     {
         npc_giltharesAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -235,7 +235,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -340,7 +340,7 @@ public:
             BigWill = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -357,7 +357,7 @@ public:
                     }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE {}
+        void KilledUnit(Unit* /*victim*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

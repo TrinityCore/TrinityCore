@@ -36,7 +36,7 @@ namespace VMAP
     class MapRayCallback
     {
         public:
-            MapRayCallback(ModelInstance* val): prims(val), hit(false) {}
+            MapRayCallback(ModelInstance* val): prims(val), hit(false) { }
             bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool pStopAtFirstHit=true)
             {
                 bool result = prims[entry].intersectRay(ray, distance, pStopAtFirstHit);
@@ -53,7 +53,7 @@ namespace VMAP
     class AreaInfoCallback
     {
         public:
-            AreaInfoCallback(ModelInstance* val): prims(val) {}
+            AreaInfoCallback(ModelInstance* val): prims(val) { }
             void operator()(const Vector3& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
@@ -69,7 +69,7 @@ namespace VMAP
     class LocationInfoCallback
     {
         public:
-            LocationInfoCallback(ModelInstance* val, LocationInfo &info): prims(val), locInfo(info), result(false) {}
+            LocationInfoCallback(ModelInstance* val, LocationInfo &info): prims(val), locInfo(info), result(false) { }
             void operator()(const Vector3& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG

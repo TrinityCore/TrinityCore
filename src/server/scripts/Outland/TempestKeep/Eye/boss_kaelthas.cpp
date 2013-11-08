@@ -1438,10 +1438,10 @@ class npc_kael_flamestrike : public CreatureScript
                 me->setFaction(14);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
@@ -1551,7 +1551,7 @@ class npc_phoenix_egg_tk : public CreatureScript
             }
 
             //ignore any
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
             void AttackStart(Unit* who) OVERRIDE

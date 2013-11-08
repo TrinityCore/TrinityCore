@@ -35,7 +35,7 @@ template <typename Result, typename ParamType, bool chain = false>
 class QueryCallback
 {
     public:
-        QueryCallback() : _param(), _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  {}
+        QueryCallback() : _param(), _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)
@@ -115,7 +115,7 @@ template <typename Result, typename ParamType1, typename ParamType2, bool chain 
 class QueryCallback_2
 {
     public:
-        QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) {}
+        QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)

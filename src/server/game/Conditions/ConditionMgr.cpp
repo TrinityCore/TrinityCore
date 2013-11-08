@@ -520,9 +520,7 @@ uint32 Condition::GetMaxAvailableConditionTargets()
     }
 }
 
-ConditionMgr::ConditionMgr()
-{
-}
+ConditionMgr::ConditionMgr() { }
 
 ConditionMgr::~ConditionMgr()
 {

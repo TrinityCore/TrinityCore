@@ -34,7 +34,7 @@ struct ObjectPosSelector
 {
     struct UsedPos
     {
-        UsedPos(float sign_, float size_, float dist_) : sign(sign_), size(size_), dist(dist_) {}
+        UsedPos(float sign_, float size_, float dist_) : sign(sign_), size(size_), dist(dist_) { }
 
         float sign;
 

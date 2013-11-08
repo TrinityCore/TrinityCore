@@ -840,7 +840,7 @@ public:
             hasTarget = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
         void JustDied(Unit* /*slayer*/) OVERRIDE;
 
         void UpdateAI(uint32 diff) OVERRIDE

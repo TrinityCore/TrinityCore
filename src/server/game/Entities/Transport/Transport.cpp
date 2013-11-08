@@ -163,13 +163,14 @@ void Transport::Update(uint32 diff)
         if (GetGOInfo()->moTransport.canBeStopped)
             SetGoState(GO_STATE_ACTIVE);
 
-        // Departure event
-        if (_currentFrame->IsTeleportFrame())
-            TeleportTransport(_nextFrame->Node->mapid, _nextFrame->Node->x, _nextFrame->Node->y, _nextFrame->Node->z);
-
         sScriptMgr->OnRelocate(this, _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
 
         TC_LOG_DEBUG(LOG_FILTER_TRANSPORTS, "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName().c_str(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
+
+        // Departure event
+        if (_currentFrame->IsTeleportFrame())
+            if (TeleportTransport(_nextFrame->Node->mapid, _nextFrame->Node->x, _nextFrame->Node->y, _nextFrame->Node->z))
+                return; // Update more in new map thread
     }
 
     // Set position
@@ -236,6 +237,10 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
     creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
     creature->SetTransportHomePosition(creature->m_movementInfo.transport.pos);
 
+    /// @HACK - transport models are not added to map's dynamic LoS calculations
+    ///         because the current GameObjectModel cannot be moved without recreating
+    creature->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+
     if (!creature->IsPositionValid())
     {
         TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)",creature->GetGUIDLow(),creature->GetEntry(),creature->GetPositionX(),creature->GetPositionY());
@@ -291,30 +296,6 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
 
     _staticPassengers.insert(go);
     return go;
-}
-
-void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const
-{
-    float inx = x, iny = y, inz = z;
-    if (o)
-        *o = Position::NormalizeOrientation(GetOrientation() + *o);
-
-    x = GetPositionX() + inx * std::cos(GetOrientation()) - iny * std::sin(GetOrientation());
-    y = GetPositionY() + iny * std::cos(GetOrientation()) + inx * std::sin(GetOrientation());
-    z = GetPositionZ() + inz;
-}
-
-void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const
-{
-    if (o)
-        *o = Position::NormalizeOrientation(*o - GetOrientation());
-
-    z -= GetPositionZ();
-    y -= GetPositionY();    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
-    x -= GetPositionX();    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
-    float inx = x, iny = y;
-    y = (iny - inx * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
-    x = (inx + iny * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
 }
 
 void Transport::UpdatePosition(float x, float y, float z, float o)
@@ -421,7 +402,7 @@ float Transport::CalculateSegmentPos(float now)
     return segmentPos / frame.NextDistFromPrev;
 }
 
-void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
+bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 {
     Map const* oldMap = GetMap();
 
@@ -464,23 +445,27 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         {
             WorldObject* obj = (*itr++);
 
+            float destX, destY, destZ, destO;
+            obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+            TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, GetOrientation());
+
             switch (obj->GetTypeId())
             {
                 case TYPEID_UNIT:
                     if (!IS_PLAYER_GUID(obj->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
-                        obj->ToCreature()->FarTeleportTo(newMap, x, y, z, obj->GetOrientation());
+                        obj->ToCreature()->FarTeleportTo(newMap, destX, destY, destZ, destO);
                     break;
                 case TYPEID_GAMEOBJECT:
                 {
                     GameObject* go = obj->ToGameObject();
                     go->GetMap()->RemoveFromMap(go, false);
-                    Relocate(x, y, z, go->GetOrientation());
-                    SetMap(newMap);
+                    go->Relocate(destX, destY, destZ, destO);
+                    go->SetMap(newMap);
                     newMap->AddToMap(go);
                     break;
                 }
                 case TYPEID_PLAYER:
-                    if (!obj->ToPlayer()->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT))
+                    if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                         _passengers.erase(obj);
                     break;
                 default:
@@ -488,17 +473,28 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
             }
         }
 
+        Relocate(x, y, z, GetOrientation());
         GetMap()->AddToMap<Transport>(this);
+        return true;
     }
     else
     {
         // Teleport players, they need to know it
         for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
+        {
             if ((*itr)->GetTypeId() == TYPEID_PLAYER)
-                (*itr)->ToUnit()->NearTeleportTo(x, y, z, GetOrientation());
-    }
+            {
+                float destX, destY, destZ, destO;
+                (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+                TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, GetOrientation());
 
-    UpdatePosition(x, y, z, GetOrientation());
+                (*itr)->ToUnit()->NearTeleportTo(destX, destY, destZ, destO);
+            }
+        }
+
+        UpdatePosition(x, y, z, GetOrientation());
+        return false;
+    }
 }
 
 void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)

@@ -89,10 +89,20 @@ class Vehicle : public TransportBase
         void InitMovementInfoForBase();
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = NULL) const;
+        void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const
+        {
+            TransportBase::CalculatePassengerPosition(x, y, z, o,
+                GetBase()->GetPositionX(), GetBase()->GetPositionY(),
+                GetBase()->GetPositionZ(), GetBase()->GetOrientation());
+        }
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = NULL) const;
+        void CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const
+        {
+            TransportBase::CalculatePassengerOffset(x, y, z, o,
+                GetBase()->GetPositionX(), GetBase()->GetPositionY(),
+                GetBase()->GetPositionZ(), GetBase()->GetOrientation());
+        }
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);
@@ -114,7 +124,7 @@ class VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:
-        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) {}
+        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
         ~VehicleJoinEvent();
         bool Execute(uint64, uint32);
         void Abort(uint64);

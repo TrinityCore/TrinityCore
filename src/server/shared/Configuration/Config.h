@@ -20,7 +20,7 @@
 #define CONFIG_H
 
 #include <string>
-#include <map>
+#include <list>
 #include <ace/Singleton.h>
 #include <ace/Configuration_Import_Export.h>
 #include <ace/Thread_Mutex.h>
@@ -56,6 +56,7 @@ public:
     float GetFloatDefault(const char* name, float def);
 
     std::string const& GetFilename();
+    std::list<std::string> GetKeysByString(std::string const& name);
 
 private:
     bool GetValueHelper(const char* name, ACE_TString &result);

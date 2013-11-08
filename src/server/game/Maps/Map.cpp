@@ -295,9 +295,7 @@ void Map::AddToGrid(GameObject* obj, Cell const& cell)
 }
 
 template<class T>
-void Map::SwitchGridContainers(T* /*obj*/, bool /*on*/)
-{
-}
+void Map::SwitchGridContainers(T* /*obj*/, bool /*on*/) { }
 
 template<>
 void Map::SwitchGridContainers(Creature* obj, bool on)
@@ -492,9 +490,7 @@ bool Map::AddPlayerToMap(Player* player)
 }
 
 template<class T>
-void Map::InitializeObject(T* /*obj*/)
-{
-}
+void Map::InitializeObject(T* /*obj*/) { }
 
 template<>
 void Map::InitializeObject(Creature* obj)
@@ -693,7 +689,7 @@ struct ResetNotifier
         for (typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
             iter->GetSource()->ResetAllNotifies();
     }
-    template<class T> void Visit(GridRefManager<T> &) {}
+    template<class T> void Visit(GridRefManager<T> &) { }
     void Visit(CreatureMapType &m) { resetNotify<Creature>(m);}
     void Visit(PlayerMapType &m) { resetNotify<Player>(m);}
 };
@@ -2430,8 +2426,20 @@ void Map::RemoveAllObjectsInRemoveList()
         bool on = itr->second;
         i_objectsToSwitch.erase(itr);
 
-        if ((obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_GAMEOBJECT) && !obj->IsPermanentWorldObject())
-            SwitchGridContainers(obj, on);
+        if (!obj->IsPermanentWorldObject())
+        {
+            switch (obj->GetTypeId())
+            {
+                case TYPEID_UNIT:
+                    SwitchGridContainers<Creature>(obj->ToCreature(), on);
+                    break;
+                case TYPEID_GAMEOBJECT:
+                    SwitchGridContainers<GameObject>(obj->ToGameObject(), on);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     //TC_LOG_DEBUG(LOG_FILTER_MAPS, "Object remover 1 check.");
@@ -2564,9 +2572,7 @@ void Map::AddToActive(DynamicObject* d)
 }
 
 template<class T>
-void Map::RemoveFromActive(T* /*obj*/)
-{
-}
+void Map::RemoveFromActive(T* /*obj*/) { }
 
 template <>
 void Map::RemoveFromActive(Creature* c)

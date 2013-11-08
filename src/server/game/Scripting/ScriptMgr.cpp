@@ -176,13 +176,9 @@ struct TSpellSummary
 } *SpellSummary;
 
 ScriptMgr::ScriptMgr()
-    : _scriptCount(0), _scheduledScripts(0)
-{
-}
+    : _scriptCount(0), _scheduledScripts(0) { }
 
-ScriptMgr::~ScriptMgr()
-{
-}
+ScriptMgr::~ScriptMgr() { }
 
 void ScriptMgr::Initialize()
 {

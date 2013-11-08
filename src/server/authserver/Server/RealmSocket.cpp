@@ -23,7 +23,7 @@
 #include "RealmSocket.h"
 #include "Log.h"
 
-RealmSocket::Session::Session(void) {}
+RealmSocket::Session::Session(void) { }
 
 RealmSocket::Session::~Session(void) { }
 

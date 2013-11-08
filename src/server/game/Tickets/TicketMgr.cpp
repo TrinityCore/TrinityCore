@@ -245,9 +245,7 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
 TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0),
-    _lastChange(time(NULL))
-{
-}
+    _lastChange(time(NULL)) { }
 
 TicketMgr::~TicketMgr()
 {

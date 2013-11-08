@@ -169,6 +169,9 @@ void SQLQueryHolder::SetSize(size_t size)
 
 bool SQLQueryHolderTask::Execute()
 {
+    //the result can't be ready as we are processing it right now
+    ASSERT(!m_result.ready());
+
     if (!m_holder)
         return false;
 

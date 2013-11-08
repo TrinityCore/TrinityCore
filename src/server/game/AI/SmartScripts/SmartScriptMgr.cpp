@@ -785,7 +785,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         uint32 creatureSummonEntry = spellInfo->Effects[j].MiscValue;
 
                         if (e.action.summonCreature.creature == creatureSummonEntry)
-                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u creature summon: %u has already summon spell (SpellId: %u effect: %u)",
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u creature summon: There is a summon spell for creature entry %u (SpellId: %u, effect: %u)",
                                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.creature, spellInfo->Id, j);
                     }
                 }
@@ -862,7 +862,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         uint32 goSummonEntry = spellInfo->Effects[j].MiscValue;
 
                         if (e.action.summonGO.entry == goSummonEntry)
-                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u gameobject summon: %u has already summon spell (SpellId: %u effect: %u)",
+                            TC_LOG_ERROR(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u gameobject summon: There is a summon spell for gameobject entry %u (SpellId: %u, effect: %u)",
                                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonGO.entry, spellInfo->Id, j);
                     }
                 }

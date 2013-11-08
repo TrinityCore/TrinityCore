@@ -229,7 +229,7 @@ class npc_ruul_snowhoof : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void Reset() OVERRIDE
             {

@@ -38,13 +38,6 @@ inline void Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
     }
 }
 
-inline void Trinity::ObjectUpdater::Visit(CreatureMapType &m)
-{
-    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->GetSource()->IsInWorld())
-            iter->GetSource()->Update(i_timeDiff);
-}
-
 // SEARCHERS & LIST SEARCHERS & WORKERS
 
 // WorldObject searchers & workers

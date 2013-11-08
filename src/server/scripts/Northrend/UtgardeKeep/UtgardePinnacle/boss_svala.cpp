@@ -514,7 +514,7 @@ public:
     {
         npc_spectatorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void MovementInform(uint32 motionType, uint32 pointId) OVERRIDE
         {

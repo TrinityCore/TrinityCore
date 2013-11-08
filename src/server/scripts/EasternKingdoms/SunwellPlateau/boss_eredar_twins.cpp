@@ -689,7 +689,7 @@ public:
             KillTimer = 15000;
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE {}
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
