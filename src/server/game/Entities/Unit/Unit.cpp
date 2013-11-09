@@ -9325,6 +9325,9 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
     if (GetTypeId() == TYPEID_PLAYER)
     {
 
+		        // Base value
+        DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
@@ -9845,6 +9848,10 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
     // Healing bonus of spirit, intellect and strength
     if (GetTypeId() == TYPEID_PLAYER)
     {
+
+		// Base value
+        advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
             advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect

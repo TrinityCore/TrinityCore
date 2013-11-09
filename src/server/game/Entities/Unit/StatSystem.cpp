@@ -134,7 +134,6 @@ void Player::UpdateSpellDamageAndHealingBonus()
     SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
     // Get damage bonus for all schools
     for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i){
-		printf("PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i = %d y SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) = %d",PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i,SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)));
         SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)));
 	}
 }
