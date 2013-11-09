@@ -26,6 +26,11 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Transport.h"
+#include "MapManager.h"
+#include "Object.h"
+#include "ObjectMgr.h"
+#include "Vehicle.h"
 
 enum EventIds
 {
@@ -40,6 +45,8 @@ enum TimedEvents
     EVENT_QUAKE_SHATTER         = 2,
     EVENT_REBUILD_PLATFORM      = 3,
 };
+
+Position const MuradinSpawnPos = {-471.8850f, 2467.5983f, 191.1200f, 6.244189f};
 
 DoorData const doorData[] =
 {
@@ -149,6 +156,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 ColdflameJetsState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                MuradinBronzebeardGbGUID = 0;
             }
 
             void FillInitialWorldStates(WorldPacket& data) OVERRIDE
@@ -164,6 +172,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
+                                        LoadGunshipEvent(player);
             }
 
             void OnCreatureCreate(Creature* creature) OVERRIDE
@@ -303,6 +312,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                         // Remove corpse as soon as it dies (and respawn 10 seconds later)
                         creature->SetCorpseDelay(0);
                         creature->SetReactState(REACT_PASSIVE);
+                        break;
+                        
+                    //Gunship Test
+                    //case NPC_GB_MURADIN_BRONZEBEARD:
+                        //MuradinBronzebeardGbGUID = creature->GetGUID();
+                        //creature->SetDisplayId(30508);
+                        //break;
+                    case NPC_GB_MURADIN_BRONZEBEARD_TRIGGER:
+                        MuradinBronzebeardTriggerGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -1257,9 +1275,48 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                 }
             }
+            
+            void LoadGunshipEvent(Player* player)
+            {
+                if(TeamInInstance == ALLIANCE)
+                {
+                    player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
+                    
+                    Transport* gunshipAlliance;
+                    gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap());
+                    
+                    Map* map = player->GetMap();
+                     for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+                         map->SendInitTransports(player);
+                    
+                    if(gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap()))
+                    {
+                        //if (Creature* Muradin = instance->SummonCreature(NPC_GB_MURADIN_BRONZEBEARD, MuradinSpawnPos))
+                        //    Muradin->SetDisplayId(30508);
+                        
+                        //TO DO: Find a way to add NPCs to the transport... so far you can spawn them manually, but after instance reset they spawn away from the ship and fall down. Perhaps UpdatePassengerPosition()?
+                        //Supposedly there's a way to load NPCs from the DB straight on the Transport using go_template.data6 (LoadStaticPassenger)
+                        //Or perhaps it is done with CreateNPCPassenger();
+                        player->Say("Muradin spawned!", LANG_UNIVERSAL);
+                    }
+                }
+                
+                if(TeamInInstance == HORDE)
+                {
+                    player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
+                    
+                    Transport* gunshipHorde;
+                    gunshipHorde = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, 0, player->GetMap());
+                    
+                    Map* map = player->GetMap();
+                    for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+                        map->SendInitTransports(player);
+                }
+            }
 
         protected:
             EventMap Events;
+            Transport* gunshipAlliance;
             uint64 LadyDeathwisperElevatorGUID;
             uint64 DeathbringerSaurfangGUID;
             uint64 DeathbringerSaurfangDoorGUID;
@@ -1300,6 +1357,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 FrozenBolvarGUID;
             uint64 PillarsChainedGUID;
             uint64 PillarsUnchainedGUID;
+            uint64 MuradinBronzebeardGbGUID;
+            uint64 MuradinBronzebeardTriggerGUID;
             uint32 TeamInInstance;
             uint32 ColdflameJetsState;
             std::set<uint32> FrostwyrmGUIDs;

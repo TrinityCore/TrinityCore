@@ -38,6 +38,8 @@ extern Position const TerenasSpawn;
 extern Position const TerenasSpawnHeroic;
 extern Position const SpiritWardenSpawn;
 
+extern Position const MuradinSpawnPos;
+
 // Shared spells used by more than one script
 enum SharedSpells
 {
@@ -286,6 +288,11 @@ enum CreaturesIds
 
     // Generic
     NPC_INVISIBLE_STALKER                       = 30298,
+    
+    //Gunship ID
+    NPC_GB_MURADIN_BRONZEBEARD                  = 50000,
+    NPC_GB_MURADIN_BRONZEBEARD_TRIGGER          = 50001,
+
 };
 
 enum GameObjectsIds
@@ -369,6 +376,10 @@ enum GameObjectsIds
     GO_FROZEN_LAVAMAN                       = 202436,
     GO_LAVAMAN_PILLARS_CHAINED              = 202437,
     GO_LAVAMAN_PILLARS_UNCHAINED            = 202438,
+    
+    // Gunship Event
+    GO_ALLIANCE_GUNSHIP = 201580,
+    GO_HORDE_GUNSHIP = 201812,
 };
 
 enum AchievementCriteriaIds

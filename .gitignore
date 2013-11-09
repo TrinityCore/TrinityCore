@@ -16,3 +16,13 @@ CMakeLists.txt.user
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
+
+src/server/scripts/Custom/custom_transport_instances.h
+
+src/server/scripts/Custom/custom_transport_instances.h
+
+SW_2013_11_05_00_world.sql
+
+cmakething
+
+src/server/scripts/Custom/custom_transport_instances.cpp

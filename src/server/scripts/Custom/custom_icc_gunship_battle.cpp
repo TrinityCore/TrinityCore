@@ -1,20 +1,42 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#include "GameObject.h"
 #include "Player.h"
 #include "Transport.h"
+#include "TransportMgr.h"
 #include "Common.h"
+#include "ScriptedGossip.h"
+#include "ScriptedCreature.h"
+#include "/Users/eddiem/TrinityCore/src/server/scripts/Northrend/IcecrownCitadel/icecrown_citadel.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "Path.h"
+#include "Map.h"
+#include "ScriptMgr.h"
+#include "WorldPacket.h"
+
 #ifdef __APPLE__
 #include "UpdateData.h"
 #include "WorldPacket.h"
+#include "ObjectMgr.h"
+
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+
+#include "MapManager.h"
+#include "Vehicle.h"
+#include "Group.h"
+#include "Object.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "ScriptedEscortAI.h"
+#include "CreatureTextMgr.h"
 #endif
 
-const std::string MURADIN_BUTTON_TEXT = "My companinos are all accounted for, Muradin. Let's go!";
+//TO DO: ^ Remove unnecessary headers
 
-enum gObjectId
-{
-	GO_ALLIANCE_GUNSHIP = 201580,
-	GO_HORDE_GUNSHIP = 201812
-};
+const std::string MURADIN_BUTTON_TEXT = "My companinos are all accounted for, Muradin. Let's go!";
 
 enum TextIds
 {
@@ -33,16 +55,32 @@ enum Transports
 	TRANSPORT_ORGRIM = 22
 };
 
-
-void StartFlyShip(Transport* t)
+enum Events
 {
-	t->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+	EVENT_START_FLY
+};
+
+enum Actions
+{
+    ACTION_START_FLIGHT             = 1
+};
+
+
+const Position TransportMovementInfo = {-721.214294f, 2439.363037f, 161.205154, 0.0f};
+
+
+void InitTransport(Transport* t)
+{
+
+	t->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_TRANSPORT);
 	t->SetGoState(GO_STATE_ACTIVE);
 	t->SetUInt32Value(GAMEOBJECT_DYNAMIC, 0x10830010);
 	t->SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, 1.0f);
     
 	Map* map = t->GetMap();
-	
+    
+    //GameObject* gs = ObjectAccessor::GetGameObject(GameObject* go, 164835);
+    
 	for(Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
 	{
 		if(Player* player = itr->GetSource())
@@ -57,77 +95,35 @@ void StartFlyShip(Transport* t)
 	}
 };
 
-void ShowToPlayer(Transport* trans, Player* plr)
-{
-	UpdateData transData;
-	trans->BuildCreateUpdateBlockForPlayer(&transData, plr);
-    
-	WorldPacket packet;
-	transData.BuildPacket(&packet);
-	plr->SendDirectMessage(&packet);
-};
-
-Creature* AddNPCToTransport(Transport* trans, uint32 entry, float x, float y, float z, float o)
-{
-	Creature* creature = new Creature;
-	if(creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), trans->GetMap(), trans->GetPhaseMask(), entry, 0, trans->GetGOInfo()->faction, 0, 0, 0, 0))
-	{
-		creature->SetTransport(trans);
-		creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-		creature->m_movementInfo.guid = trans->GetGUID();
-		creature->m_movementInfo.pos.Relocate(x, y, z, o);
-        
-		o += trans->GetOrientation();
-		o = trans->NormalizeOrientation(o);
-        
-		creature->Relocate(trans->GetPositionX() + (x * cos(trans->GetOrientation()) + y * sin(trans->GetOrientation()) + float(M_PI)),
-                           trans->GetPositionY() + (y * cos(trans->GetOrientation()) + x * sin(trans->GetOrientation())),
-                           z + trans->GetPositionZ(),
-                           o);
-		creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
-        
-		trans->GetMap()->AddToMap(creature);
-		trans->AddPassenger(creature);
-		creature->setActive(true);
-		sScriptMgr->OnAddCreaturePassenger(trans, creature);
-        
-		return creature;
-	}
-	return NULL;
-};
-
 class GunshipStairs : public GameObjectScript
 {
 public:
 	GunshipStairs() : GameObjectScript("icc_gunship_stairs") { }
     
-	bool OnGossipHello(Player* plr, GameObject* go)
+	bool OnGossipHello(Player* player, GameObject* go)
 	{
-		if(plr->GetTeamId() == 0)
+        player->Say("I clicked the stairs!", LANG_UNIVERSAL);
+		if(player->GetTeamId() == 0)
 		{
-			// Alliance
-			if(go->FindNearestGameObject(GO_ALLIANCE_GUNSHIP, 10000.0f) == NULL)
-			{
-				Transport* trans = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, plr->GetMap());
-				AddNPCToTransport(trans, 36948, 13.51547f, -0.160213f, 20.87252f, 3.10672f);
-                
-                
-				ShowToPlayer(trans, plr);
-				//Creature* muradin = plr->SummonCreature(36948, trans->GetPositionX() + 13.51547f, trans->GetPositionY() - 0.160213f, trans->GetPositionZ() + 20.87252f, 3.10672f);
-                
-				//trans->AddPassenger(muradin);
-				trans->AddPassenger(plr);
-				plr->SetTransport(trans);
-			}
+                player->Say("Alliance Gunship spawned from Stairs!", LANG_UNIVERSAL);
+            
+                Transport* gunshipAlliance;
+                gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap());
+            
+            
+            //Multipurpose function, best used to update ship visibility, can also be used to start the event, if there are 2 transports active at the same time.
+            /*Map* map = player->GetMap();
+            for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+                map->SendInitTransports(player);*/
+            
+            
+                    
+            TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "====== GUNSHIP SPAWNED! ======");
+            
 		}else{
-			// Horde
-			if(go->FindNearestGameObject(gObjectId::GO_HORDE_GUNSHIP, 10000.0f) == NULL)
-			{
-				Transport* trans = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, 0, plr->GetMap());
-				trans->AddPassenger(plr);
-                
-				ShowToPlayer(trans, plr);
-			}
+            player->Say("Horde Gunship spawned from Stairs!", LANG_UNIVERSAL);
+
+            
 		}
         
 		return true;
@@ -149,6 +145,7 @@ public:
 		{
             case GO_ALLIANCE_GUNSHIP:
                 player->AddAura(SPELL_ALLIANCE, player);
+                player->Say("Aura on me!", LANG_UNIVERSAL);
                 break;
                 
             case GO_HORDE_GUNSHIP:
@@ -164,24 +161,33 @@ public:
 class npc_muradin_bronzebeard : public CreatureScript
 {
 public:
-	npc_muradin_bronzebeard() : CreatureScript("npc_muradin_bronzebeard" )  { }
+	npc_muradin_bronzebeard() : CreatureScript("npc_muradin_bronzebeard_gunship" )  { }
     
-    
-	bool OnGossipHello(Player* plr, Creature* npc)
+	bool OnGossipHello(Player* pPlayer, Creature* npc)
 	{
-		plr->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, GOSSIP_ICON_CHAT, MURADIN_BUTTON_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1,"", 0);
+		pPlayer->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, GOSSIP_ICON_CHAT, MURADIN_BUTTON_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1,"", 0);
         
-		plr->PlayerTalkClass->SendGossipMenu(TEXT_MURADIN_MENU_TEXT, npc->GetGUID());
+		pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_MURADIN_MENU_TEXT, npc->GetGUID());
+        
+        /*Map* map = pPlayer->GetMap();
+        for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+            map->SendInitTransports(pPlayer);*/
+        
+        Transport* skybreaker = npc->GetTransport();
+        InitTransport(skybreaker);
+        
+        
 		return true;
 	}
     
-	bool OnGossipSelect(Player* plr, Creature* npc, uint32 sender, uint32 action)
+	bool OnGossipSelect(Player* pPlayer, Creature* npc, uint32 sender, uint32 action)
 	{
+        pPlayer->PlayerTalkClass->ClearMenus();
 		switch(action)
 		{
             case GOSSIP_ACTION_INFO_DEF + 1:
-                plr->PlayerTalkClass->SendCloseGossip();
-                StartFlyShip(plr->GetTransport());
+                pPlayer->PlayerTalkClass->SendCloseGossip();
+                npc->AI()->DoAction(ACTION_START_FLIGHT);
 		}
         
 		return true;
@@ -195,17 +201,40 @@ public:
         
 		void Reset()
 		{
+            //if (_instance->GetBossState(DATA_GUNSHIP_EVENT) == IN_PROGRESS)
+                //return;
 			me->SetReactState(REACT_PASSIVE);
 			me->setFaction(1802);
 			me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            
+            //Transport* skybreaker = ObjectAccessor::GetTransport()
+            //StartFlyShip(me->GetTransport());//Works only if the NPC is on the transport
 			TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "AI Reset creature: %u", me->GetGUID());
 		}
-	};
+        
+        void DoAction(int32 action)
+        {
+            switch (action)
+            {
+                case ACTION_START_FLIGHT:
+                    me->MonsterSay("Gonna crash soon!",LANG_UNIVERSAL, 0);
+                    events.ScheduleEvent(EVENT_START_FLY, 10000);
+                    break;
+            }
+        }
+        
+    private:
+        Transport* skybreaker;
+        Map* map;
+        EventMap events;
+        
+    };
     
-	CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
 	{
 		return new npc_muradin_bronzebeardAI(creature);
 	}
+    
 };
 
 
