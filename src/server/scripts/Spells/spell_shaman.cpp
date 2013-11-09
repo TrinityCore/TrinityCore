@@ -78,6 +78,44 @@ enum ShamanSpellIcons
     SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW             = 3087
 };
 
+
+// 52109 Flametongue Totem
+// INSERT INTO `spell_script_names` VALUES (52109,'spell_sha_flametongue_totem');
+class spell_sha_flametongue_totem : public SpellScriptLoader
+{
+public:
+    spell_sha_flametongue_totem() : SpellScriptLoader("spell_sha_flametongue_totem") { }
+
+    class spell_sha_flametongue_totem_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_flametongue_totem_AuraScript)
+
+        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        {
+			Player* caster = GetCaster()->ToPlayer();
+
+            if (!caster)
+                return;
+
+			 int32 basepoints0 = aurEff->GetAmount();
+			 caster->UpdateSpellDamageAndHealingBonus();
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_sha_flametongue_totem_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SPELL_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_flametongue_totem_AuraScript();
+    }
+};
+
+
+
+
 // -51556 - Ancestral Awakening
 class spell_sha_ancestral_awakening : public SpellScriptLoader
 {
@@ -1423,4 +1461,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthquake();
     new spell_sha_unleash_elements();
     new spell_sha_fulmination();
+	new spell_sha_flametongue_totem();
 }

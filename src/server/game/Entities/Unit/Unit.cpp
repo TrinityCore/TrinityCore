@@ -3661,20 +3661,6 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
         else
             ++iter;
     }
-	//agregado dream wow para druida 
-	//special treatment auras at other targets
-    appliedAurasList& auras = appliedAuras;
-    for (appliedAurasList::iterator iter = auras.begin(); iter != auras.end();)
-    {
-        Aura* aura = *iter;
-        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
-        {
-            aura->Remove();
-            iter = auras.begin();
-        }
-        else
-            ++iter;
-    }
 }
 
 void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
@@ -9338,8 +9324,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        // Base value
-        DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
@@ -9362,7 +9346,15 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             if ((*i)->GetMiscValue() & schoolMask)
                 DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
 
+		// Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+         AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+         for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
+         {
+             AddPct(DoneAdvertisedBenefit, (*i)->GetAmount());
+         }
+
     }
+
     return DoneAdvertisedBenefit;
 }
 
@@ -9853,9 +9845,6 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
     // Healing bonus of spirit, intellect and strength
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        // Base value
-        advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
-
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
             advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
@@ -9874,6 +9863,14 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         for (AuraEffectList::const_iterator i = mHealingDonebyAP.begin(); i != mHealingDonebyAP.end(); ++i)
             if ((*i)->GetMiscValue() & schoolMask)
                 advertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
+
+		// Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+         AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+         for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
+         {
+             AddPct(advertisedBenefit, (*i)->GetAmount());
+         }
+
     }
     return advertisedBenefit;
 }
