@@ -118,6 +118,10 @@ enum DataTypes
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
     DATA_ARTHAS_PLATFORM            = 38,
     DATA_TERENAS_MENETHIL           = 39,
+    
+    //Gunship
+    DATA_GB_MURADIN_BRONZEBEARD_NOT_VISUAL     = 109,
+    DATA_GB_MURADIN_BRONZEBEARD                = 110,
 };
 
 enum CreaturesIds

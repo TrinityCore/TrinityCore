@@ -156,7 +156,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                 ColdflameJetsState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                
+                //Gunship
                 MuradinBronzebeardGbGUID = 0;
+                isLoaded = false;
             }
 
             void FillInitialWorldStates(WorldPacket& data) OVERRIDE
@@ -315,10 +318,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                         
                     //Gunship Test
-                    //case NPC_GB_MURADIN_BRONZEBEARD:
-                        //MuradinBronzebeardGbGUID = creature->GetGUID();
+                    case NPC_GB_MURADIN_BRONZEBEARD:
+                        MuradinBronzebeardGbGUID = creature->GetGUID();
                         //creature->SetDisplayId(30508);
-                        //break;
+                        ///creature->GetCreatureData();
+                        break;
                     case NPC_GB_MURADIN_BRONZEBEARD_TRIGGER:
                         MuradinBronzebeardTriggerGUID = creature->GetGUID();
                         break;
@@ -571,6 +575,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GetBossState(DATA_THE_LICH_KING) == DONE)
                             go->SetRespawnTime(7 * DAY);
                         break;
+                    
+                        //Gunship
+                    case NPC_GB_MURADIN_BRONZEBEARD:
+                        MuradinBronzebeardGbGUID = go->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -634,7 +643,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 return 0;
             }
-
+            
             uint64 GetData64(uint32 type) const OVERRIDE
             {
                 switch (type)
@@ -694,6 +703,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ArthasPlatformGUID;
                     case DATA_TERENAS_MENETHIL:
                         return TerenasMenethilGUID;
+                        
+                        //Gunship
+                    case DATA_GB_MURADIN_BRONZEBEARD:
+                        return MuradinBronzebeardGbGUID;
                     default:
                         break;
                 }
@@ -709,7 +722,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_LADY_DEATHWHISPER:
-                        SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
+                        //SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
                         if (state == DONE)
                         {
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
@@ -1276,38 +1289,82 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
             
+            void CreatePassenger(Transport* t, uint32 entry, uint32 displayID /*= NULL*/, float x, float y, float z, float o, uint32 spawntimesec = NULL, uint32 currentwaypoint = NULL, uint8 movemenType = NULL, uint8 spawnMask = NULL, uint32 npcflag = NULL, uint32 unit_flags = NULL, uint32 dynamicflags = NULL)
+            {
+                uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+                CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
+                data.id = entry;
+                data.displayid = displayID;
+                data.posX = x;
+                data.posY = y;
+                data.posZ = z;
+                data.orientation = o;
+                data.spawntimesecs = spawntimesec;
+                data.currentwaypoint = currentwaypoint;
+                data.movementType = movemenType;
+                data.spawnMask = spawnMask;
+                data.npcflag = npcflag;
+                data.unit_flags = unit_flags;
+                data.dynamicflags = dynamicflags;
+                
+                t->CreateNPCPassenger(guid, &data);
+            }
+            
             void LoadGunshipEvent(Player* player)
             {
-                if(TeamInInstance == ALLIANCE)
-                {
-                    player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
-                    
-                    Transport* gunshipAlliance;
-                    gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap());
-                    
-                    Map* map = player->GetMap();
-                     for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
-                         map->SendInitTransports(player);
-                    
-                    if(gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap()))
-                    {
-                        //if (Creature* Muradin = instance->SummonCreature(NPC_GB_MURADIN_BRONZEBEARD, MuradinSpawnPos))
-                        //    Muradin->SetDisplayId(30508);
-                        
-                        //TO DO: Find a way to add NPCs to the transport... so far you can spawn them manually, but after instance reset they spawn away from the ship and fall down. Perhaps UpdatePassengerPosition()?
-                        //Supposedly there's a way to load NPCs from the DB straight on the Transport using go_template.data6 (LoadStaticPassenger)
-                        //Or perhaps it is done with CreateNPCPassenger();
-                        player->Say("Muradin spawned!", LANG_UNIVERSAL);
-                    }
-                }
                 
-                if(TeamInInstance == HORDE)
+                Transport* gunshipAlliance;
+                
+                if (GetBossState(DATA_GUNSHIP_EVENT) == DONE)
+                    return;
+                
+                if(!isLoaded)
                 {
-                    player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
                     
-                    Transport* gunshipHorde;
-                    gunshipHorde = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, 0, player->GetMap());
+                    if(TeamInInstance == ALLIANCE)
+                    {
+                        player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
+                        
+                        if(gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap()))
+                        {
+                            //Creature* Muradin = instance->SummonCreature(NPC_GB_MURADIN_BRONZEBEARD, MuradinSpawnPos);
+                            //Muradin->SetDisplayId(30508);
+                            
+                            //TO DO: Find a way to add NPCs to the transport... so far you can spawn them manually, but after instance reset they spawn away from the ship and fall down. Perhaps UpdatePassengerPosition()?
+                            //Supposedly there's a way to load NPCs from the DB straight on the Transport using go_template.data6 (LoadStaticPassenger)
+                            //Or perhaps it is done with CreateNPCPassenger();
+                            // Manually spawning NPCs is also an option now, decide in what way to continue implementing the script.
+                            
+                            //This works too, but it can't possibly be the correct implementation... or can it?
+                            /*uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+                            CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
+                                          data.id = 50000;
+                                          data.posX = 13.51547f;
+                                          data.posY = -0.160213f;
+                                          data.posZ = 20.87252f;
+                                          data.orientation = 3.10672f;
+                            gunshipAlliance->CreateNPCPassenger(guid, &data);*/
+                            
+                            CreatePassenger(gunshipAlliance, NPC_GB_MURADIN_BRONZEBEARD, 30508, 13.51547f, 0.160213f, 20.87252f, 3.10672f);
+                            
+                            //SummonPassenger(gunshipAlliance, NPC_GB_MURADIN_BRONZEBEARD, 13.51547f, -0.160213f, 20.87252f, 3.10672f);
+                            player->Say("Muradin spawned!", LANG_UNIVERSAL);
+                        }
+                    }
                     
+                    if(TeamInInstance == HORDE)
+                    {
+                        player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
+                        
+                        Transport* gunshipHorde;
+                        gunshipHorde = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, 0, player->GetMap());
+                    }
+                    isLoaded = true;
+                }
+                else
+                {
+                    //debug
+                    player->Say("isLoaded = TRUE!", LANG_UNIVERSAL);
                     Map* map = player->GetMap();
                     for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
                         map->SendInitTransports(player);
@@ -1316,7 +1373,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
         protected:
             EventMap Events;
-            Transport* gunshipAlliance;
             uint64 LadyDeathwisperElevatorGUID;
             uint64 DeathbringerSaurfangGUID;
             uint64 DeathbringerSaurfangDoorGUID;
@@ -1357,8 +1413,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 FrozenBolvarGUID;
             uint64 PillarsChainedGUID;
             uint64 PillarsUnchainedGUID;
-            uint64 MuradinBronzebeardGbGUID;
-            uint64 MuradinBronzebeardTriggerGUID;
             uint32 TeamInInstance;
             uint32 ColdflameJetsState;
             std::set<uint32> FrostwyrmGUIDs;
@@ -1371,6 +1425,11 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
+            
+            //Gunship
+            bool isLoaded;
+            uint64 MuradinBronzebeardGbGUID;
+            uint64 MuradinBronzebeardTriggerGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE

@@ -57,12 +57,14 @@ enum Transports
 
 enum Events
 {
-	EVENT_START_FLY
+	EVENT_START_FLIGHT,
+    EVENT_DUMMY
 };
 
 enum Actions
 {
-    ACTION_START_FLIGHT             = 1
+    ACTION_START_FLIGHT             = 1,
+    ACTION_DUMMY             = 1
 };
 
 
@@ -146,6 +148,7 @@ public:
             case GO_ALLIANCE_GUNSHIP:
                 player->AddAura(SPELL_ALLIANCE, player);
                 player->Say("Aura on me!", LANG_UNIVERSAL);
+                TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "====== GUNSHIP AURA ADDED! ======");
                 break;
                 
             case GO_HORDE_GUNSHIP:
@@ -163,32 +166,28 @@ class npc_muradin_bronzebeard : public CreatureScript
 public:
 	npc_muradin_bronzebeard() : CreatureScript("npc_muradin_bronzebeard_gunship" )  { }
     
-	bool OnGossipHello(Player* pPlayer, Creature* npc)
+	bool OnGossipHello(Player* plr, Creature* npc)
 	{
-		pPlayer->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, GOSSIP_ICON_CHAT, MURADIN_BUTTON_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1,"", 0);
+		plr->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, GOSSIP_ICON_CHAT, MURADIN_BUTTON_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1,"", 0);
         
-		pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_MURADIN_MENU_TEXT, npc->GetGUID());
+		plr->PlayerTalkClass->SendGossipMenu(TEXT_MURADIN_MENU_TEXT, npc->GetGUID());
         
-        /*Map* map = pPlayer->GetMap();
+        /*Map* map = plr->GetMap();
         for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
-            map->SendInitTransports(pPlayer);*/
-        
-        Transport* skybreaker = npc->GetTransport();
-        InitTransport(skybreaker);
-        
-        
+            map->SendInitTransports(plr);*/
 		return true;
 	}
     
-	bool OnGossipSelect(Player* pPlayer, Creature* npc, uint32 sender, uint32 action)
+	bool OnGossipSelect(Player* plr, Creature* npc, uint32 sender, uint32 action)
 	{
-        pPlayer->PlayerTalkClass->ClearMenus();
-		switch(action)
-		{
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                pPlayer->PlayerTalkClass->SendCloseGossip();
-                npc->AI()->DoAction(ACTION_START_FLIGHT);
-		}
+        plr->PlayerTalkClass->ClearMenus();
+        
+        if (action == GOSSIP_ACTION_INFO_DEF + 2)
+            npc->MonsterSay("I'll wait for the raid leader", LANG_UNIVERSAL, plr->GetGUID());
+        
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            plr->PlayerTalkClass->SendCloseGossip();
+            npc->AI()->DoAction(ACTION_START_FLIGHT);
         
 		return true;
 	}
@@ -197,36 +196,70 @@ public:
 	{
 		npc_muradin_bronzebeardAI(Creature* creature) : ScriptedAI(creature)
 		{
+            instance = creature->GetInstanceScript();
 		}
         
-		void Reset()
+		void Reset() OVERRIDE
 		{
-            //if (_instance->GetBossState(DATA_GUNSHIP_EVENT) == IN_PROGRESS)
-                //return;
+            if (instance->GetBossState(DATA_GUNSHIP_EVENT) == IN_PROGRESS)
+                return;
 			me->SetReactState(REACT_PASSIVE);
 			me->setFaction(1802);
 			me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            events.Reset();
+            EventScheduled = false;
             
-            //Transport* skybreaker = ObjectAccessor::GetTransport()
-            //StartFlyShip(me->GetTransport());//Works only if the NPC is on the transport
+            Map* map = me->GetMap();
+            for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+                map->SendInitTransports(plr = itr->GetSource());
+            
 			TC_LOG_ERROR(LOG_FILTER_WORLDSERVER, "AI Reset creature: %u", me->GetGUID());
 		}
         
-        void DoAction(int32 action)
+        
+        // Timers are broken... i think.
+        void DoAction(int32 action) OVERRIDE
         {
             switch (action)
             {
                 case ACTION_START_FLIGHT:
-                    me->MonsterSay("Gonna crash soon!",LANG_UNIVERSAL, 0);
-                    events.ScheduleEvent(EVENT_START_FLY, 10000);
+                    me->MonsterSay("ACTION_START_FLIGHT!",LANG_UNIVERSAL, 0);
+                    events.ScheduleEvent(EVENT_START_FLIGHT, 5000);
+                    break;
+                default:
                     break;
             }
         }
         
+        
+        //Further testing sugests this is the problem.
+        void UpdateAI(uint32 uDiff) OVERRIDE
+        {
+            
+            events.Update(uDiff);
+            
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_START_FLIGHT:
+                        me->MonsterSay("EVENT_START_FLIGHT",LANG_UNIVERSAL, 0);
+                        Transport* skybreaker = me->GetTransport();
+                        InitTransport(skybreaker);
+                        break;
+                }
+            }
+            
+            DoMeleeAttackIfReady();
+        }
+        
     private:
-        Transport* skybreaker;
-        Map* map;
+        //Transport* skybreaker;
+        //Map* map;
+        InstanceScript* instance;
+        Player* plr;
         EventMap events;
+        bool EventScheduled;
         
     };
     
