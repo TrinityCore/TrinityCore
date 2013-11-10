@@ -61,20 +61,14 @@ enum Spells
 class boss_harbinger_skyriss : public CreatureScript
 {
     public:
+        boss_harbinger_skyriss() : CreatureScript("boss_harbinger_skyriss") { }
 
-        boss_harbinger_skyriss()
-            : CreatureScript("boss_harbinger_skyriss")
+        struct boss_harbinger_skyrissAI : public BossAI
         {
-        }
-        struct boss_harbinger_skyrissAI : public ScriptedAI
-        {
-            boss_harbinger_skyrissAI(Creature* creature) : ScriptedAI(creature)
+            boss_harbinger_skyrissAI(Creature* creature) : BossAI(creature, DATA_HARBINGERSKYRISS)
             {
-                instance = creature->GetInstanceScript();
                 Intro = false;
             }
-
-            InstanceScript* instance;
 
             bool Intro;
             bool IsImage33;
@@ -117,8 +111,7 @@ class boss_harbinger_skyriss : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(TYPE_HARBINGERSKYRISS, DONE);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
@@ -137,7 +130,7 @@ class boss_harbinger_skyriss : public CreatureScript
             void KilledUnit(Unit* victim) OVERRIDE
             {
                 //won't yell killing pet/other unit
-                if (victim->GetEntry() == 21436)
+                if (victim->GetEntry() == NPC_ALPHA_POD_TARGET)
                     return;
 
                 Talk(SAY_KILL);
@@ -180,7 +173,7 @@ class boss_harbinger_skyriss : public CreatureScript
                                 //should have a better way to do this. possibly spell exist.
                                 mellic->setDeathState(JUST_DIED);
                                 mellic->SetHealth(0);
-                                instance->SetData(TYPE_SHIELD_OPEN, IN_PROGRESS);
+                                instance->SetData(DATA_SHIELD_OPEN, IN_PROGRESS);
                             }
                             ++Intro_Phase;
                             Intro_Timer = 3000;

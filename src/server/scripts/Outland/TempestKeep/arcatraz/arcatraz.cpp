@@ -103,10 +103,10 @@ class npc_millhouse_manastorm : public CreatureScript
 
                 if (instance)
                 {
-                    if (instance->GetData(TYPE_WARDEN_2) == DONE)
+                    if (instance->GetData(DATA_WARDEN_2) == DONE)
                         Init = true;
 
-                    if (instance->GetData(TYPE_HARBINGERSKYRISS) == DONE)
+                    if (instance->GetData(DATA_HARBINGERSKYRISS) == DONE)
                         Talk(SAY_COMPLETE);
                 }
             }
@@ -177,7 +177,7 @@ class npc_millhouse_manastorm : public CreatureScript
                                 break;
                             case 7:
                                 if (instance)
-                                    instance->SetData(TYPE_WARDEN_2, DONE);
+                                    instance->SetData(DATA_WARDEN_2, DONE);
                                 Init = true;
                                 break;
                             }
@@ -305,7 +305,7 @@ class npc_warden_mellichar : public CreatureScript
                 DoCast(me, SPELL_TARGET_OMEGA);
 
                 if (instance)
-                    instance->SetData(TYPE_HARBINGERSKYRISS, NOT_STARTED);
+                    instance->SetData(DATA_HARBINGERSKYRISS, NOT_STARTED);
             }
 
             void AttackStart(Unit* /*who*/) OVERRIDE { }
@@ -336,7 +336,7 @@ class npc_warden_mellichar : public CreatureScript
 
                 if (instance)
                 {
-                    instance->SetData(TYPE_HARBINGERSKYRISS, IN_PROGRESS);
+                    instance->SetData(DATA_HARBINGERSKYRISS, IN_PROGRESS);
                     instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), false);
                     IsRunning = true;
                 }
@@ -346,19 +346,19 @@ class npc_warden_mellichar : public CreatureScript
             {
                 if (instance)
                 {
-                    if (Phase == 7 && instance->GetData(TYPE_WARDEN_4) == DONE)
+                    if (Phase == 7 && instance->GetData(DATA_WARDEN_4) == DONE)
                         return true;
-                    if (Phase == 6 && instance->GetData(TYPE_WARDEN_3) == DONE)
+                    if (Phase == 6 && instance->GetData(DATA_WARDEN_3) == DONE)
                         return true;
-                    if (Phase == 5 && instance->GetData(TYPE_WARDEN_2) == DONE)
+                    if (Phase == 5 && instance->GetData(DATA_WARDEN_2) == DONE)
                         return true;
                     if (Phase == 4)
                         return true;
-                    if (Phase == 3 && instance->GetData(TYPE_WARDEN_1) == DONE)
+                    if (Phase == 3 && instance->GetData(DATA_WARDEN_1) == DONE)
                         return true;
-                    if (Phase == 2 && instance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
+                    if (Phase == 2 && instance->GetData(DATA_HARBINGERSKYRISS) == IN_PROGRESS)
                         return true;
-                    if (Phase == 1 && instance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
+                    if (Phase == 1 && instance->GetData(DATA_HARBINGERSKYRISS) == IN_PROGRESS)
                         return true;
                     return false;
                 }
@@ -376,23 +376,23 @@ class npc_warden_mellichar : public CreatureScript
                     {
                     case 2:
                         DoCast(me, SPELL_TARGET_ALPHA);
-                        instance->SetData(TYPE_WARDEN_1, IN_PROGRESS);
+                        instance->SetData(DATA_WARDEN_1, IN_PROGRESS);
                         instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), false);
                         break;
                     case 3:
                         DoCast(me, SPELL_TARGET_BETA);
-                        instance->SetData(TYPE_WARDEN_2, IN_PROGRESS);
+                        instance->SetData(DATA_WARDEN_2, IN_PROGRESS);
                         break;
                     case 5:
                         DoCast(me, SPELL_TARGET_DELTA);
-                        instance->SetData(TYPE_WARDEN_3, IN_PROGRESS);
+                        instance->SetData(DATA_WARDEN_3, IN_PROGRESS);
                         break;
                     case 6:
                         DoCast(me, SPELL_TARGET_GAMMA);
-                        instance->SetData(TYPE_WARDEN_4, IN_PROGRESS);
+                        instance->SetData(DATA_WARDEN_4, IN_PROGRESS);
                         break;
                     case 7:
-                        instance->SetData(TYPE_WARDEN_5, IN_PROGRESS);
+                        instance->SetData(DATA_WARDEN_5, IN_PROGRESS);
                         break;
                     }
                     CanSpawn = true;
@@ -408,7 +408,7 @@ class npc_warden_mellichar : public CreatureScript
                 {
                     if (instance)
                     {
-                        if (instance->GetData(TYPE_HARBINGERSKYRISS) == FAIL)
+                        if (instance->GetData(DATA_HARBINGERSKYRISS) == FAIL)
                         {
                             Reset();
                             return;
