@@ -323,7 +323,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         //creature->SetDisplayId(30508);
                         ///creature->GetCreatureData();
                         break;
-                    case NPC_GB_MURADIN_BRONZEBEARD_TRIGGER:
+                    case NPC_GB_MURADIN_BRONZEBEARD_NOT_VISUAL:
                         MuradinBronzebeardTriggerGUID = creature->GetGUID();
                         break;
                     default:
@@ -1292,11 +1292,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
             
-            void CreatePassenger(Transport* t, uint32 entry, uint32 displayID /*= NULL*/, float x, float y, float z, float o, uint32 phaseMask, uint32 spawntimesec = NULL, uint32 currentwaypoint = NULL, uint8 movemenType = NULL, uint8 spawnMask = NULL, uint32 npcflag = NULL, uint32 unit_flags = NULL, uint32 dynamicflags = NULL)
+            void CreatePassenger(Transport* t, uint32 entry,  uint32 phaseMask, uint32 displayID /*= NULL*/, float x, float y, float z, float o, uint32 spawntimesec = NULL, uint32 currentwaypoint = NULL, uint8 movemenType = NULL, uint8 spawnMask = NULL, uint32 npcflag = NULL, uint32 unit_flags = NULL, uint32 dynamicflags = NULL)
             {
                 uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
                 CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
                 data.id = entry;
+                data.phaseMask = phaseMask;
                 data.displayid = displayID;
                 data.posX = x;
                 data.posY = y;
@@ -1306,7 +1307,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data.currentwaypoint = currentwaypoint;
                 data.movementType = movemenType;
                 data.spawnMask = spawnMask;
-				data.phaseMask = phaseMask;
                 data.npcflag = npcflag;
                 data.unit_flags = unit_flags;
                 data.dynamicflags = dynamicflags;
@@ -1328,38 +1328,104 @@ class instance_icecrown_citadel : public InstanceMapScript
                     
                     if(TeamInInstance == ALLIANCE)
                     {
-                        player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
-                        
-						if((gunship = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap())) && (enemyShip = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP_ENEMY, 0, player->GetMap())))
+                        if((gunship = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap())) && (enemyShip = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP_ENEMY, 0, player->GetMap())))
                         {
-							EnemyShipGUID = enemyShip->GetGUID();
-
-                            //Creature* Muradin = instance->SummonCreature(NPC_GB_MURADIN_BRONZEBEARD, MuradinSpawnPos);
-                            //Muradin->SetDisplayId(30508);
+                            player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
+                            player->Say("Alliance Gunship's Enemy spawned at Instance start!", LANG_UNIVERSAL);
                             
-                            //TO DO: Find a way to add NPCs to the transport... so far you can spawn them manually, but after instance reset they spawn away from the ship and fall down. Perhaps UpdatePassengerPosition()?
-                            //Supposedly there's a way to load NPCs from the DB straight on the Transport using go_template.data6 (LoadStaticPassenger)
-                            //Or perhaps it is done with CreateNPCPassenger();
-                            // Manually spawning NPCs is also an option now, decide in what way to continue implementing the script.
+                            EnemyShipGUID = enemyShip->GetGUID();
                             
-                            //This works too, but it can't possibly be the correct implementation... or can it?
-                            /*uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
-                            CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
-                                          data.id = 50000;
-                                          data.posX = 13.51547f;
-                                          data.posY = -0.160213f;
-                                          data.posZ = 20.87252f;
-                                          data.orientation = 3.10672f;
-                            gunshipAlliance->CreateNPCPassenger(guid, &data);*/
+                            //Ally ship
+                            CreatePassenger(gunship, NPC_GB_MURADIN_BRONZEBEARD, 1, 30508, 13.51547f, 0.160213f, 20.87252f, 3.10672f);
+                            CreatePassenger(gunship, NPC_GB_SKYBREAKER, 1, 1126, -17.156807f, -1.633260f, 20.81273f, 4.52672f);
+                            CreatePassenger(gunship, NPC_GB_HIGH_CAPTAIN_JUSTIN_BARTLETT, 1, 26982, 42.78902f, -0.010491f, 25.24052f, 3.00672f);
+                            CreatePassenger(gunship, NPC_GB_HIGH_OVERLORD_SAURFANG_NOT_VISUAL, 1, 11686, -12.9806f, -22.9462f, 21.659f, 4.72416f);
+                            CreatePassenger(gunship, NPC_GB_ZAFOD_BOOMBOX, 1, 19000, 18.8042f, 9.907914f, 20.33559f, 3.10672f);
+                            CreatePassenger(gunship, NPC_GB_SKYBREAKER_DECKHAND, 1, 26989, -64.8423f, 4.4658f, 23.4352f, 2.698897f);
+                            CreatePassenger(gunship, NPC_GB_SKYBREAKER_DECKHAND, 1, 26989, 35.54972f, 19.93269f, 25.0333f, 4.71242f);
+                            CreatePassenger(gunship, NPC_GB_SKYBREAKER_DECKHAND, 1, 26989, -36.39837f, 3.13127f, 20.4496f, 1.5708f);
+                            CreatePassenger(gunship, NPC_GB_SKYBREAKER_DECKHAND, 1, 26989, -36.23974f, -2.75767f, 20.4506f, 4.69496f);
+                            CreatePassenger(gunship, NPC_GB_SKYBREAKER_DECKHAND, 1, 26989, 41.94677f, 44.08411f, 24.66587f, 1.62032f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 13.51547f, -0.160213f, 20.87252f, 3.10672f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 42.78902f, -0.010491f, 25.24052f, 3.00672f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 14.0551f, 3.65014f, 20.7935f, 3.16073f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 14.0551f, -4.65034f, 20.7915f, 3.04292f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, -17.8356f, 0.031688f, 20.823f, 4.73231f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, -34.2702f, -26.18966f, 21.37483f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, -11.64459f, -19.85176f, 20.88428f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, -19.88223f, -6.578763f, 20.57444f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, -41.4456f, -7.647498f, 20.49746f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 0.554884f, -1.232897f, 20.53705f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, -50.16516f, 9.716236f, 23.58709f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 11.45844f, 16.36624f, 20.54192f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 19.72286f, -2.193787f, 33.06982f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 19.72286f, -2.193787f, 33.06982f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 8.599396f, -28.55855f, 24.79919f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 38.94339f, -33.808f,  25.39618f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 58.15474f, 0.748094f, 41.87663f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 5.607554f, -6.350654f, 34.00357f, 1.6f);
+                            CreatePassenger(gunship, NPC_GB_GUNSHIP_HULL, 1, 1126, 4.780305f, -29.05227f, 35.09634f, 1.6f);
                             
-							// Add muradin to the gunship
-                            CreatePassenger(gunship, NPC_GB_MURADIN_BRONZEBEARD, 30508, 13.51547f, 0.160213f, 20.87252f, 3.10672f, 1);
-							CreatePassenger(gunship, 4359, 652, 5.0f, 0.0f, 21.0f, 3.1f, 1);
+                            //Ally Enemy ship
+                            CreatePassenger(enemyShip, NPC_GB_HIGH_OVERLORD_SAURFANG, 1, 30416, 37.18615f, 0.00016f, 36.78849f, 3.13683f);
+                            CreatePassenger(enemyShip, NPC_GB_ORGRIMS_HAMMER, 1, 1126, 1.845810f, 1.268872f, 34.526218f, 1.5890f);
+                            CreatePassenger(enemyShip, NPC_GB_INVISIBLE_STALKER, 1, 1126, 37.18615f, 0.00016f, 36.78849f, 3.13683f);
+                            CreatePassenger(enemyShip, NPC_GB_KORKRON_BATTLE_MAGE, 1, 30741, 47.2929f, -4.308941f, 37.5555f, 3.05033f);
+                            CreatePassenger(enemyShip, NPC_GB_KORKRON_BATTLE_MAGE, 1, 30742, 47.34621f, 4.032004f, 37.70952f, 3.05033f);
+                            CreatePassenger(enemyShip, NPC_GB_KORKRON_BATTLE_MAGE, 1, 30743, 15.03016f, 0.00016f, 37.70952f, 1.55138f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -19.88223f, -6.578763f, 20.57444f, 1.6f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -13.19547f, -27.160213f, 35.47252f, 3.10672f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -18.33902f, -25.230491f, 33.04052f, 3.00672f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -60.1251f, -1.27014f, 42.8335f, 5.16073f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -48.2651f, 16.78034f, 34.2515f, 0.04292f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -14.8356f, 27.931688f, 33.363f, 1.73231f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, 10.2702f, 20.62966f, 35.37483f, 1.6f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, 39.32459f, 14.50176f, 36.88428f, 1.6f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, 46.17223f, -6.638763f, 37.35444f, 1.32f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, 27.4456f, -13.397498f, 36.34746f, 1.6f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, 18.16184f, 1.37897f, 35.31705f, 1.6f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -18.11516f, -0.196236f, 45.15709f, 2.9f);
+                            CreatePassenger(enemyShip, NPC_GB_GUNSHIP_HULL, 1, 1126, -18.11844f, -0.19624f, 49.18192f, 1.6f);
                             
+                            if (instance->ToInstanceMap()->GetMaxPlayers() == 10)
+                            {
+                                CreatePassenger(gunship, NPC_GB_ALLIANCE_CANON, 1, 29488, -5.15231f, -22.9462f, 21.659f, 4.72416f);
+                                CreatePassenger(gunship, NPC_GB_ALLIANCE_CANON, 1, 29488, -28.0876f, -22.9462f, 21.659f, 4.72416f);
+                                
+                                //Ally Enemy ship
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30739, -3.170555f, 28.30652f, 34.21082f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30740, -12.0928f, 27.65942f, 33.58557f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30739, 14.92804f, 26.18018f, 35.47803f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30740, 24.70331f, 25.36584f, 35.97845f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_ROCKETEER, 1, 30748, -11.44849f, -25.71838f, 33.64343f, 1.49248f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_ROCKETEER, 1, 30749, 12.30336f, -25.69653f, 35.32373f, 1.49248f);
+                            }
+                            else
+                            {
+                                CreatePassenger(gunship, NPC_GB_ALLIANCE_CANON, 1, 29488, -5.15231f, -22.9462f, 21.659f, 4.72416f);
+                                CreatePassenger(gunship, NPC_GB_ALLIANCE_CANON, 1, 29488, -14.9806f, -22.9462f, 21.659f, 4.72416f);
+                                CreatePassenger(gunship, NPC_GB_ALLIANCE_CANON, 1, 29488, -21.7406f, -22.9462f, 21.659f, 4.72416f);
+                                CreatePassenger(gunship, NPC_GB_ALLIANCE_CANON, 1, 29488, -28.0876f, -22.9462f, 21.659f, 4.72416f);
+                                
+                                //Ally Enemy ship
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30739, -3.170555f, 28.30652f, 34.21082f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30740, -12.0928f, 27.65942f, 33.58557f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30739, 14.92804f, 26.18018f, 35.47803f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30740, 24.70331f, 25.36584f, 35.97845f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30739, 19.92804f, 27.18018f, 35.47803f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_AXETHROWER, 1, 30740, -7.70331f, 28.36584f, 33.88557f, 1.66527f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_ROCKETEER, 1, 30748, -11.44849f, -25.71838f, 33.64343f, 1.49248f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_ROCKETEER, 1, 30749, 12.30336f, -25.69653f, 35.32373f, 1.49248f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_ROCKETEER, 1, 30748, -3.44849f, -25.71838f, 34.21082f, 1.49248f);
+                                CreatePassenger(enemyShip, NPC_GB_KORKRON_ROCKETEER, 1, 30749, 3.30336f, -25.69653f, 35.32373f, 1.49248f);
+                            }
+                            
+                            //SummonPassenger(gunshipAlliance, NPC_GB_MURADIN_BRONZEBEARD, 13.51547f, -0.160213f, 20.87252f, 3.10672f);
                             player->Say("Muradin spawned!", LANG_UNIVERSAL);
+                            player->Say("Overlord Saurfang spawned!", LANG_UNIVERSAL);
                         }
                     }
-                    
+                                    
                     if(TeamInInstance == HORDE)
                     {
                         player->Say("Horde Gunship spawned at Instance start!", LANG_UNIVERSAL);
