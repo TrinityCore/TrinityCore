@@ -17,7 +17,7 @@
 
 /* ScriptData
 SDName: boss_mennu_the_betrayer
-SD%Complete: 100%
+SD%Complete: 95%
 SDComment:
 SDCategory: Coilfang Reservoir, The Slave Pens
 EndScriptData */
@@ -35,11 +35,11 @@ enum Say
 
 enum Spells
 {
-    SPELL_TAINTED_STONESKIN_TOTEM   = 31985,
-    SPELL_TAINTED_EARTHGRAB_TOTEM   = 31981,
-    SPELL_CORRUPTED_NOVA_TOTEM      = 31991,
-    SPELL_MENNUS_HEALING_WARD       = 34980,
-    SPELL_LIGHTNING_BOLT            = 35010
+    SPELL_TAINTED_STONESKIN_TOTEM   = 31985, // every 30 sec if health below 100%
+    SPELL_TAINTED_EARTHGRAB_TOTEM   = 31981, // ?
+    SPELL_CORRUPTED_NOVA_TOTEM      = 31991, // ?
+    SPELL_MENNUS_HEALING_WARD       = 34980, // every 14 - 25 sec
+    SPELL_LIGHTNING_BOLT            = 35010  // every 14 - 19 sec
 };
 
 enum Events
@@ -47,7 +47,8 @@ enum Events
     EVENT_TAINTED_STONESKIN_TOTEM   = 1,
     EVENT_TAINTED_EARTHGRAB_TOTEM   = 2,
     EVENT_CORRUPTED_NOVA_TOTEM      = 3,
-    EVENT_LIGHTNING_BOLT            = 4
+    EVENT_MENNUS_HEALING_WARD       = 4,
+    EVENT_LIGHTNING_BOLT            = 5
 };
 
 class boss_mennu_the_betrayer : public CreatureScript
@@ -62,7 +63,6 @@ class boss_mennu_the_betrayer : public CreatureScript
             void Reset() OVERRIDE
             {
                 _Reset();
-                healingWardDropped = false;
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
@@ -74,10 +74,11 @@ class boss_mennu_the_betrayer : public CreatureScript
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
-                events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 18000);
-                events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 19000);
-                events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 20000);
-                events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(5000, 8000));
+                events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30000);
+                events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 20000);
+                events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 60000);
+                events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, urand(14000, 25000));
+                events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(14000, 19000));
                 Talk(SAY_AGGRO);
             }
 
@@ -101,7 +102,9 @@ class boss_mennu_the_betrayer : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TAINTED_STONESKIN_TOTEM:
-                            DoCast(me, SPELL_TAINTED_STONESKIN_TOTEM);
+                            if (HealthBelowPct(100))
+                                DoCast(me, SPELL_TAINTED_STONESKIN_TOTEM);
+                            events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30000);
                             break;
                         case EVENT_TAINTED_EARTHGRAB_TOTEM:
                             DoCast(me, SPELL_TAINTED_EARTHGRAB_TOTEM);
@@ -109,26 +112,21 @@ class boss_mennu_the_betrayer : public CreatureScript
                         case EVENT_CORRUPTED_NOVA_TOTEM:
                             DoCast(me, SPELL_CORRUPTED_NOVA_TOTEM);
                             break;
+                        case EVENT_MENNUS_HEALING_WARD:
+                            DoCast(me, SPELL_MENNUS_HEALING_WARD);
+                            events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, urand(14000, 25000));
+                            break;
                         case EVENT_LIGHTNING_BOLT:
                             DoCastVictim(SPELL_LIGHTNING_BOLT, true);
-                            events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(7000, 11000));
+                            events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(14000, 25000));
                             break;
                         default:
                             break;
                     }
                 }
 
-                if (HealthBelowPct(60) && !healingWardDropped)
-                {
-                    DoCast(me, SPELL_MENNUS_HEALING_WARD);
-                    healingWardDropped = true;
-                }
-
                 DoMeleeAttackIfReady();
             }
-
-            private:
-                bool   healingWardDropped;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
