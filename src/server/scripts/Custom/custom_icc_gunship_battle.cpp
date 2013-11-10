@@ -7,7 +7,7 @@
 #include "Common.h"
 #include "ScriptedGossip.h"
 #include "ScriptedCreature.h"
-#include "/Users/eddiem/TrinityCore/src/server/scripts/Northrend/IcecrownCitadel/icecrown_citadel.h"
+#include "../Northrend/IcecrownCitadel/icecrown_citadel.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Path.h"
@@ -66,9 +66,6 @@ enum Actions
     ACTION_START_FLIGHT             = 1,
     ACTION_DUMMY             = 1
 };
-
-
-const Position TransportMovementInfo = {-721.214294f, 2439.363037f, 161.205154, 0.0f};
 
 
 void InitTransport(Transport* t)
@@ -168,10 +165,44 @@ public:
     
 	bool OnGossipHello(Player* plr, Creature* npc)
 	{
+		Map* map = npc->GetMap();
+
 		plr->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, GOSSIP_ICON_CHAT, MURADIN_BUTTON_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1,"", 0);
         
 		plr->PlayerTalkClass->SendGossipMenu(TEXT_MURADIN_MENU_TEXT, npc->GetGUID());
+
+		Transport* gunshipAlliance = npc->GetTransport();
+		uint64 guid = npc->GetInstanceScript()->GetData64(DATA_ENEMY_SHIP);
+		Transport* gunshipAllianceEnemy = NULL;
+
+		if(guid)
+		{
+			gunshipAllianceEnemy = map->GetGameObject(guid)->ToTransport();
+			plr->Say("custom_icc_gunship_battle: guid is set ", LANG_UNIVERSAL);
+
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: guid gunshipAllianceEnemy = %u", guid);
+		}else{
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: guid gunshipAllianceEnemy not set");
+			delete gunshipAllianceEnemy;
+		}
         
+		if(gunshipAlliance)
+		{
+			plr->Say("custom_icc_gunship_battle: spawned gunshipAlliance", LANG_UNIVERSAL);
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: gunshipAlliance = spawned", guid);
+			InitTransport(gunshipAlliance);
+		}else{
+			delete gunshipAlliance;
+		}
+
+		if(gunshipAllianceEnemy)
+		{
+			plr->Say("custiom_icc_gunship_battle: spawned gunshipAllianceEnemy", LANG_UNIVERSAL);
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: gunshipAllianceEnemy = spawned", guid);
+			InitTransport(gunshipAllianceEnemy);
+		}else{
+			delete gunshipAllianceEnemy;
+		}
         /*Map* map = plr->GetMap();
         for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
             map->SendInitTransports(plr);*/

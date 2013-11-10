@@ -120,8 +120,9 @@ enum DataTypes
     DATA_TERENAS_MENETHIL           = 39,
     
     //Gunship
-    DATA_GB_MURADIN_BRONZEBEARD_NOT_VISUAL     = 109,
-    DATA_GB_MURADIN_BRONZEBEARD                = 110,
+    DATA_GB_MURADIN_BRONZEBEARD_NOT_VISUAL		= 109,
+    DATA_GB_MURADIN_BRONZEBEARD					= 110,
+	DATA_ENEMY_SHIP								= 111,
 };
 
 enum CreaturesIds
@@ -407,10 +408,18 @@ enum GameObjectsIds
     GO_LAVAMAN_PILLARS_UNCHAINED            = 202438,
     
     // Gunship Event
+<<<<<<< HEAD
     GO_ALLIANCE_GUNSHIP = 201580, //Alliance Ship
     GO_HORDE_GUNSHIP = 201812, //Horde Ship
     GO_ALLIANCE_GUNSHIP_ENEMY = 201581,
     GO_HORDE_GUNSHIP_ENEMY = 201811
+=======
+    GO_ALLIANCE_GUNSHIP = 201580,
+	GO_ALLIANCE_GUNSHIP_ENEMY = 201581,
+
+	GO_HORDE_GUNSHIP_ENEMY = 201811,
+    GO_HORDE_GUNSHIP = 201812,
+>>>>>>> ae7aad62a3681e271c1954c18364ad8c6b12dfa3
 };
 
 enum AchievementCriteriaIds
