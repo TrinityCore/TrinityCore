@@ -17,8 +17,8 @@
 
 /* ScriptData
 SDName: boss_wrath_scryer_soccothrates
-SD%Complete: 85%
-SDComment: charge and dalliah death left to script
+SD%Complete: 95%
+SDComment: charge left to script
 SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 
@@ -33,7 +33,7 @@ enum Say
     SAY_SLAY                        = 2,
     SAY_KNOCK_AWAY                  = 3,
     SAY_DEATH                       = 4,
-    SAY_DALLIAH_DEATH               = 6, // To be scripted
+    SAY_DALLIAH_DEATH               = 6,
     SAY_SOCCOTHRATES_CONVO_1        = 7,
     SAY_SOCCOTHRATES_CONVO_2        = 8,
     SAY_SOCCOTHRATES_CONVO_3        = 9,
@@ -72,6 +72,7 @@ enum Events
     EVENT_PREFIGHT_8                = 10,
     EVENT_PREFIGHT_9                = 11,
     EVENT_ME_FIRST                  = 12,
+    EVENT_DALLIAH_DEATH             = 13
 };
 
 class boss_wrath_scryer_soccothrates : public CreatureScript
@@ -88,6 +89,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 _Reset();
                 preFight = false;
                 dalliahTaunt = false;
+                dalliahDeath = false;
                 DoCast(me, SPELL_FEL_IMMOLATION);
             }
 
@@ -95,6 +97,10 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+
+                if (Creature* dalliah = me->GetCreature(*me, dalliahGUID))
+                    if (dalliah->IsAlive() && !dalliah->IsInCombat())
+                        dalliah->AI()->SetData(1, 1);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -128,6 +134,20 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                             events.ScheduleEvent(EVENT_PREFIGHT_1, 2000);
                         }
                     }
+                }
+            }
+
+            void SetData(uint32 /*type*/, uint32 data) OVERRIDE
+            {
+                switch (data)
+                {
+                    case 1:
+                        events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6000);
+                        dalliahDeath = true;
+                        break;
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -195,6 +215,23 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                         }
                     }
 
+                    if (dalliahDeath)
+                    {
+                        events.Update(diff);
+
+                        while (uint32 eventId = events.ExecuteEvent())
+                        {
+                            switch (eventId)
+                            {
+                                case EVENT_DALLIAH_DEATH:
+                                    Talk(SAY_DALLIAH_DEATH);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+
                     return;
                 }
 
@@ -239,6 +276,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
             private:
                 bool   preFight;
                 bool   dalliahTaunt;
+                bool   dalliahDeath;
                 uint64 dalliahGUID;
         };
 
