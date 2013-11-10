@@ -575,7 +575,8 @@ void AddSC_boss_grandmaster_vorpil();
 void AddSC_boss_murmur();
 void AddSC_instance_shadow_labyrinth();
 
-void AddSC_black_temple();                   //Black Temple
+//Black Temple
+void AddSC_black_temple();
 void AddSC_boss_illidan();
 void AddSC_boss_shade_of_akama();
 void AddSC_boss_supremus();
@@ -586,22 +587,33 @@ void AddSC_boss_teron_gorefiend();
 void AddSC_boss_najentus();
 void AddSC_boss_illidari_council();
 void AddSC_instance_black_temple();
-void AddSC_boss_fathomlord_karathress();     //CR Serpent Shrine Cavern
+
+//Coilfang Reservoir - Serpent Shrine Cavern
+void AddSC_boss_fathomlord_karathress();
 void AddSC_boss_hydross_the_unstable();
 void AddSC_boss_lady_vashj();
 void AddSC_boss_leotheras_the_blind();
 void AddSC_boss_morogrim_tidewalker();
 void AddSC_instance_serpentshrine_cavern();
 void AddSC_boss_the_lurker_below();
-void AddSC_boss_hydromancer_thespia();       //CR Steam Vault
+
+//Coilfang Reservoir - The Steam Vault
+void AddSC_boss_hydromancer_thespia();
 void AddSC_boss_mekgineer_steamrigger();
 void AddSC_boss_warlord_kalithresh();
 void AddSC_instance_steam_vault();
-void AddSC_instance_the_slave_pens();            //The Slave Pens
-void AddSC_boss_hungarfen();                 //CR Underbog
-void AddSC_boss_the_black_stalker();
+
+//Coilfang Reservoir - The Slave Pens
+void AddSC_instance_the_slave_pens();
+void AddSC_boss_mennu_the_betrayer();
+
+//Coilfang Reservoir - The Underbog
 void AddSC_instance_the_underbog();
-void AddSC_boss_gruul();                     //Gruul's Lair
+void AddSC_boss_hungarfen();
+void AddSC_boss_the_black_stalker();
+
+//Gruul's Lair
+void AddSC_boss_gruul();
 void AddSC_boss_high_king_maulgar();
 void AddSC_instance_gruuls_lair();
 void AddSC_boss_broggok();                   //HC Blood Furnace
@@ -1122,6 +1134,7 @@ void AddOutlandScripts()
     AddSC_boss_warlord_kalithresh();
     AddSC_instance_steam_vault();
     AddSC_instance_the_slave_pens();            //The Slave Pens
+    AddSC_boss_mennu_the_betrayer();
     AddSC_boss_hungarfen();                 //CR Underbog
     AddSC_boss_the_black_stalker();
     AddSC_instance_the_underbog();
