@@ -385,8 +385,6 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
 {
-    uint32 const positionUpdateDelay = 400;
-
     if (movespline->Finalized())
         return;
 
@@ -398,27 +396,32 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
     m_movesplineTimer.Update(t_diff);
     if (m_movesplineTimer.Passed() || arrived)
+        UpdateSplinePosition();
+}
+
+void Unit::UpdateSplinePosition()
+{
+    static uint32 const positionUpdateDelay = 400;
+
+    m_movesplineTimer.Reset(positionUpdateDelay);
+    Movement::Location loc = movespline->ComputePosition();
+
+    if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
-        m_movesplineTimer.Reset(positionUpdateDelay);
-        Movement::Location loc = movespline->ComputePosition();
+        Position& pos = m_movementInfo.transport.pos;
+        pos.m_positionX = loc.x;
+        pos.m_positionY = loc.y;
+        pos.m_positionZ = loc.z;
+        pos.m_orientation = loc.orientation;
 
-        if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
-        {
-            Position& pos = m_movementInfo.transport.pos;
-            pos.m_positionX = loc.x;
-            pos.m_positionY = loc.y;
-            pos.m_positionZ = loc.z;
-            pos.m_orientation = loc.orientation;
-
-            if (TransportBase* transport = GetDirectTransport())
-                transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, &loc.orientation);
-        }
-
-        if (HasUnitState(UNIT_STATE_CANNOT_TURN))
-            loc.orientation = GetOrientation();
-
-        UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
+        if (TransportBase* transport = GetDirectTransport())
+            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, &loc.orientation);
     }
+
+    if (HasUnitState(UNIT_STATE_CANNOT_TURN))
+        loc.orientation = GetOrientation();
+
+    UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
 }
 
 void Unit::DisableSpline()
@@ -14413,14 +14416,14 @@ void Unit::StopMoving()
 {
     ClearUnitState(UNIT_STATE_MOVING);
 
-    // not need send any packets if not in world
-    if (!IsInWorld())
+    // not need send any packets if not in world or not moving
+    if (!IsInWorld() || movespline->Finalized())
         return;
 
+    // Update position now since Stop does not start a new movement that can be updated later
+    UpdateSplinePosition();
     Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), false);
-    init.SetFacing(GetOrientation());
-    init.Launch();
+    init.Stop();
 }
 
 void Unit::SendMovementFlagUpdate(bool self /* = false */)
