@@ -575,7 +575,7 @@ void AddSC_boss_grandmaster_vorpil();
 void AddSC_boss_murmur();
 void AddSC_instance_shadow_labyrinth();
 
-//Black Temple
+// Black Temple
 void AddSC_black_temple();
 void AddSC_boss_illidan();
 void AddSC_boss_shade_of_akama();
@@ -588,7 +588,7 @@ void AddSC_boss_najentus();
 void AddSC_boss_illidari_council();
 void AddSC_instance_black_temple();
 
-//Coilfang Reservoir - Serpent Shrine Cavern
+// Coilfang Reservoir - Serpent Shrine Cavern
 void AddSC_boss_fathomlord_karathress();
 void AddSC_boss_hydross_the_unstable();
 void AddSC_boss_lady_vashj();
@@ -597,22 +597,24 @@ void AddSC_boss_morogrim_tidewalker();
 void AddSC_instance_serpentshrine_cavern();
 void AddSC_boss_the_lurker_below();
 
-//Coilfang Reservoir - The Steam Vault
+// Coilfang Reservoir - The Steam Vault
 void AddSC_boss_hydromancer_thespia();
 void AddSC_boss_mekgineer_steamrigger();
 void AddSC_boss_warlord_kalithresh();
 void AddSC_instance_steam_vault();
 
-//Coilfang Reservoir - The Slave Pens
+// Coilfang Reservoir - The Slave Pens
 void AddSC_instance_the_slave_pens();
 void AddSC_boss_mennu_the_betrayer();
+void AddSC_boss_rokmar_the_crackler();
+void AddSC_boss_quagmirran();
 
-//Coilfang Reservoir - The Underbog
+// Coilfang Reservoir - The Underbog
 void AddSC_instance_the_underbog();
 void AddSC_boss_hungarfen();
 void AddSC_boss_the_black_stalker();
 
-//Gruul's Lair
+// Gruul's Lair
 void AddSC_boss_gruul();
 void AddSC_boss_high_king_maulgar();
 void AddSC_instance_gruuls_lair();
@@ -1111,7 +1113,8 @@ void AddOutlandScripts()
     AddSC_boss_murmur();
     AddSC_instance_shadow_labyrinth();
 
-    AddSC_black_temple();                   //Black Temple
+    // Black Temple
+    AddSC_black_temple();
     AddSC_boss_illidan();
     AddSC_boss_shade_of_akama();
     AddSC_boss_supremus();
@@ -1122,23 +1125,35 @@ void AddOutlandScripts()
     AddSC_boss_najentus();
     AddSC_boss_illidari_council();
     AddSC_instance_black_temple();
-    AddSC_boss_fathomlord_karathress();     //CR Serpent Shrine Cavern
+
+    // Coilfang Reservoir - Serpent Shrine Cavern
+    AddSC_boss_fathomlord_karathress();
     AddSC_boss_hydross_the_unstable();
     AddSC_boss_lady_vashj();
     AddSC_boss_leotheras_the_blind();
     AddSC_boss_morogrim_tidewalker();
     AddSC_instance_serpentshrine_cavern();
     AddSC_boss_the_lurker_below();
-    AddSC_boss_hydromancer_thespia();       //CR Steam Vault
+
+    // Coilfang Reservoir - The Steam Vault
+    AddSC_instance_steam_vault();
+    AddSC_boss_hydromancer_thespia();
     AddSC_boss_mekgineer_steamrigger();
     AddSC_boss_warlord_kalithresh();
-    AddSC_instance_steam_vault();
-    AddSC_instance_the_slave_pens();            //The Slave Pens
+
+    // Coilfang Reservoir - The Slave Pens
+    AddSC_instance_the_slave_pens();
     AddSC_boss_mennu_the_betrayer();
-    AddSC_boss_hungarfen();                 //CR Underbog
-    AddSC_boss_the_black_stalker();
+    AddSC_boss_rokmar_the_crackler();
+    AddSC_boss_quagmirran();
+
+    // Coilfang Reservoir - The Underbog
     AddSC_instance_the_underbog();
-    AddSC_boss_gruul();                     //Gruul's Lair
+    AddSC_boss_hungarfen();
+    AddSC_boss_the_black_stalker();
+
+    // Gruul's Lair
+    AddSC_boss_gruul();
     AddSC_boss_high_king_maulgar();
     AddSC_instance_gruuls_lair();
     AddSC_boss_broggok();                   //HC Blood Furnace
