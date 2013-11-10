@@ -68,9 +68,6 @@ enum Actions
 };
 
 
-const Position TransportMovementInfo = {-721.214294f, 2439.363037f, 161.205154, 0.0f};
-
-
 void InitTransport(Transport* t)
 {
 
@@ -175,17 +172,36 @@ public:
 		plr->PlayerTalkClass->SendGossipMenu(TEXT_MURADIN_MENU_TEXT, npc->GetGUID());
 
 		Transport* gunshipAlliance = npc->GetTransport();
-		Transport* gunshipAllianceEnemy = map->GetGameObject(npc->GetInstanceScript()->GetData64(DATA_ENEMY_SHIP))->ToTransport();
+		uint64 guid = npc->GetInstanceScript()->GetData64(DATA_ENEMY_SHIP);
+		Transport* gunshipAllianceEnemy = NULL;
+
+		if(guid)
+		{
+			gunshipAllianceEnemy = map->GetGameObject(guid)->ToTransport();
+			plr->Say("custom_icc_gunship_battle: guid is set ", LANG_UNIVERSAL);
+
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: guid gunshipAllianceEnemy = %u", guid);
+		}else{
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: guid gunshipAllianceEnemy not set");
+			delete gunshipAllianceEnemy;
+		}
         
 		if(gunshipAlliance)
 		{
 			plr->Say("custom_icc_gunship_battle: spawned gunshipAlliance", LANG_UNIVERSAL);
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: gunshipAlliance = spawned", guid);
 			InitTransport(gunshipAlliance);
+		}else{
+			delete gunshipAlliance;
 		}
+
 		if(gunshipAllianceEnemy)
 		{
 			plr->Say("custiom_icc_gunship_battle: spawned gunshipAllianceEnemy", LANG_UNIVERSAL);
+			TC_LOG_ERROR(LOG_FILTER_TRANSPORTS, "custom_icc_gunship_battle: gunshipAllianceEnemy = spawned", guid);
 			InitTransport(gunshipAllianceEnemy);
+		}else{
+			delete gunshipAllianceEnemy;
 		}
         /*Map* map = plr->GetMap();
         for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
