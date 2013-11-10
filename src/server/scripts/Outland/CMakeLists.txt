@@ -68,6 +68,9 @@ set(scripts_STAT_SRCS
   Outland/TempestKeep/botanica/boss_high_botanist_freywinn.cpp
   Outland/TempestKeep/botanica/boss_warp_splinter.cpp
   Outland/TempestKeep/botanica/boss_laj.cpp
+  Outland/TempestKeep/arcatraz/boss_zereketh_the_unbound.cpp
+  Outland/TempestKeep/arcatraz/boss_dalliah_the_doomsayer.cpp
+  Outland/TempestKeep/arcatraz/boss_wrath_scryer_soccothrates.cpp
   Outland/TempestKeep/arcatraz/boss_harbinger_skyriss.cpp
   Outland/TempestKeep/arcatraz/instance_arcatraz.cpp
   Outland/TempestKeep/arcatraz/arcatraz.h
