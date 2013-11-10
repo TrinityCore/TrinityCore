@@ -17,8 +17,8 @@
 
 /* ScriptData
 SDName: boss_dalliah_the_doomsayer
-SD%Complete: 95%
-SDComment: soccothrates death left to script
+SD%Complete: 100%
+SDComment:
 SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 
@@ -33,7 +33,7 @@ enum Say
     SAY_WHIRLWIND                   = 3,
     SAY_HEAL                        = 4,
     SAY_DEATH                       = 5,
-    SAY_SOCCOTHRATES_DEATH          = 7, // To be scripted
+    SAY_SOCCOTHRATES_DEATH          = 7,
 
     // boss_wrath_scryer_soccothrates
     SAY_AGGRO_DALLIAH_FIRST         = 0,
@@ -54,7 +54,8 @@ enum Events
     EVENT_WHIRLWIND                 = 2,
     EVENT_HEAL                      = 3,
     EVENT_SHADOW_WAVE               = 4, // Heroic only
-    EVENT_ME_FIRST                  = 5
+    EVENT_ME_FIRST                  = 5,
+    EVENT_SOCCOTHRATES_DEATH        = 6
 };
 
 class boss_dalliah_the_doomsayer : public CreatureScript
@@ -69,12 +70,17 @@ class boss_dalliah_the_doomsayer : public CreatureScript
             void Reset() OVERRIDE
             {
                 _Reset();
+                soccothratesDeath = false;
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+
+                if (Creature* soccothrates = me->GetCreature(*me, soccothratesGUID))
+                    if (soccothrates->IsAlive() && !soccothrates->IsInCombat())
+                        soccothrates->AI()->SetData(1, 1);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -96,10 +102,43 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
+            void SetData(uint32 /*type*/, uint32 data) OVERRIDE
+            {
+                switch (data)
+                {
+                    case 1:
+                        events.ScheduleEvent(EVENT_SOCCOTHRATES_DEATH, 6000);
+                        soccothratesDeath = true;
+                        break;
+                    break;
+                default:
+                    break;
+                }
+            }
+
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
+                {
+                    if (soccothratesDeath)
+                    {
+                        events.Update(diff);
+
+                        while (uint32 eventId = events.ExecuteEvent())
+                        {
+                            switch (eventId)
+                            {
+                                case EVENT_SOCCOTHRATES_DEATH:
+                                    Talk(SAY_SOCCOTHRATES_DEATH);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+
                     return;
+                }
 
                 events.Update(diff);
 
@@ -150,6 +189,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
 
             private:
                 bool   soccothratesTaunt;
+                bool   soccothratesDeath;
                 uint64 soccothratesGUID;
         };
 
