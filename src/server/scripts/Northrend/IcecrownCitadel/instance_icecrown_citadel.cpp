@@ -160,6 +160,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 //Gunship
                 MuradinBronzebeardGbGUID = 0;
                 isLoaded = false;
+				enemyShip = NULL;
             }
 
             void FillInitialWorldStates(WorldPacket& data) OVERRIDE
@@ -1289,7 +1290,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
             
-            void CreatePassenger(Transport* t, uint32 entry, uint32 displayID /*= NULL*/, float x, float y, float z, float o, uint32 spawntimesec = NULL, uint32 currentwaypoint = NULL, uint8 movemenType = NULL, uint8 spawnMask = NULL, uint32 npcflag = NULL, uint32 unit_flags = NULL, uint32 dynamicflags = NULL)
+            void CreatePassenger(Transport* t, uint32 entry, uint32 displayID /*= NULL*/, float x, float y, float z, float o, uint32 phaseMask, uint32 spawntimesec = NULL, uint32 currentwaypoint = NULL, uint8 movemenType = NULL, uint8 spawnMask = NULL, uint32 npcflag = NULL, uint32 unit_flags = NULL, uint32 dynamicflags = NULL)
             {
                 uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
                 CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
@@ -1303,6 +1304,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data.currentwaypoint = currentwaypoint;
                 data.movementType = movemenType;
                 data.spawnMask = spawnMask;
+				data.phaseMask = phaseMask;
                 data.npcflag = npcflag;
                 data.unit_flags = unit_flags;
                 data.dynamicflags = dynamicflags;
@@ -1314,6 +1316,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 
                 Transport* gunshipAlliance;
+				Transport* gunshipAllianceEnemy;
                 
                 if (GetBossState(DATA_GUNSHIP_EVENT) == DONE)
                     return;
@@ -1325,7 +1328,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     {
                         player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
                         
-                        if(gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap()))
+						if((gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap())) && (enemyShip = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP_ENEMY, 0, player->GetMap())))
                         {
                             //Creature* Muradin = instance->SummonCreature(NPC_GB_MURADIN_BRONZEBEARD, MuradinSpawnPos);
                             //Muradin->SetDisplayId(30508);
@@ -1345,7 +1348,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                           data.orientation = 3.10672f;
                             gunshipAlliance->CreateNPCPassenger(guid, &data);*/
                             
-                            CreatePassenger(gunshipAlliance, NPC_GB_MURADIN_BRONZEBEARD, 30508, 13.51547f, 0.160213f, 20.87252f, 3.10672f);
+                            CreatePassenger(gunshipAlliance, NPC_GB_MURADIN_BRONZEBEARD, 30508, 13.51547f, 0.160213f, 20.87252f, 3.10672f, 1);
                             
                             //SummonPassenger(gunshipAlliance, NPC_GB_MURADIN_BRONZEBEARD, 13.51547f, -0.160213f, 20.87252f, 3.10672f);
                             player->Say("Muradin spawned!", LANG_UNIVERSAL);
@@ -1354,7 +1357,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     
                     if(TeamInInstance == HORDE)
                     {
-                        player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
+                        player->Say("Horde Gunship spawned at Instance start!", LANG_UNIVERSAL);
                         
                         Transport* gunshipHorde;
                         gunshipHorde = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, 0, player->GetMap());
@@ -1430,6 +1433,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool isLoaded;
             uint64 MuradinBronzebeardGbGUID;
             uint64 MuradinBronzebeardTriggerGUID;
+		
+		public:
+			Transport* enemyShip;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
