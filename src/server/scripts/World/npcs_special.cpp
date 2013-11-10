@@ -1704,7 +1704,7 @@ public:
 
         uint64 targetGuid;
 
-        void InitializeAI ()
+        void InitializeAI () OVERRIDE
         {
             Unit * owner = me->GetOwner();
 
@@ -1721,12 +1721,12 @@ public:
             }
         }
 
-        void Reset ()
+        void Reset () OVERRIDE
         {
             me->CastSpell(me, 87427, true);
         }
 
-        void MoveInLineOfSight (Unit* who)
+        void MoveInLineOfSight (Unit* who) OVERRIDE
         {
             if (who->IsHostileTo(me) && me->GetDistance(who) <= 2.0f)
             {
@@ -1736,7 +1736,7 @@ public:
             }
         }
 
-        void UpdateAI (const uint32 diff)
+        void UpdateAI (uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
             {
@@ -1756,7 +1756,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI (Creature* creature) const
+    CreatureAI* GetAI (Creature* creature) const OVERRIDE
     {
         return new npc_shadowy_apparitionAI(creature);
     }

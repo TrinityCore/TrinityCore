@@ -1028,7 +1028,7 @@ class spell_hun_aspect_of_the_hawk: public SpellScriptLoader
 
        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount,  bool & /*canBeRecalculated*/) 
       {
-           amount = 23.52f * GetCaster()->getLevel();
+           amount += 23.52f * GetCaster()->getLevel();
        }
 
        void Register()OVERRIDE
