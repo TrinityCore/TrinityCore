@@ -708,6 +708,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         //Gunship
                     case DATA_GB_MURADIN_BRONZEBEARD:
                         return MuradinBronzebeardGbGUID;
+					case DATA_ENEMY_SHIP:
+						return EnemyShipGUID;
+
                     default:
                         break;
                 }
@@ -1328,8 +1331,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                     {
                         player->Say("Alliance Gunship spawned at Instance start!", LANG_UNIVERSAL);
                         
-						if((gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap())) && (enemyShip = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP_ENEMY, 0, player->GetMap())))
+						if((gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, player->GetMap())) && (gunshipAllianceEnemy = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP_ENEMY, 0, player->GetMap())))
                         {
+							EnemyShipGUID = gunshipAllianceEnemy->GetGUID();
+
                             //Creature* Muradin = instance->SummonCreature(NPC_GB_MURADIN_BRONZEBEARD, MuradinSpawnPos);
                             //Muradin->SetDisplayId(30508);
                             
@@ -1433,9 +1438,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool isLoaded;
             uint64 MuradinBronzebeardGbGUID;
             uint64 MuradinBronzebeardTriggerGUID;
-		
-		public:
-			Transport* enemyShip;
+			uint64 EnemyShipGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE

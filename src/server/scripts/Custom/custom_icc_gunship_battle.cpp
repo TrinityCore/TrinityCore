@@ -7,7 +7,7 @@
 #include "Common.h"
 #include "ScriptedGossip.h"
 #include "ScriptedCreature.h"
-#include "/Users/eddiem/TrinityCore/src/server/scripts/Northrend/IcecrownCitadel/icecrown_citadel.h"
+#include "../Northrend/IcecrownCitadel/icecrown_citadel.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Path.h"
@@ -168,10 +168,25 @@ public:
     
 	bool OnGossipHello(Player* plr, Creature* npc)
 	{
+		Map* map = npc->GetMap();
+
 		plr->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, GOSSIP_ICON_CHAT, MURADIN_BUTTON_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1,"", 0);
         
 		plr->PlayerTalkClass->SendGossipMenu(TEXT_MURADIN_MENU_TEXT, npc->GetGUID());
+
+		Transport* gunshipAlliance = npc->GetTransport();
+		Transport* gunshipAllianceEnemy = map->GetGameObject(npc->GetInstanceScript()->GetData64(DATA_ENEMY_SHIP))->ToTransport();
         
+		if(gunshipAlliance)
+		{
+			plr->Say("custom_icc_gunship_battle: spawned gunshipAlliance", LANG_UNIVERSAL);
+			InitTransport(gunshipAlliance);
+		}
+		if(gunshipAllianceEnemy)
+		{
+			plr->Say("custiom_icc_gunship_battle: spawned gunshipAllianceEnemy", LANG_UNIVERSAL);
+			InitTransport(gunshipAllianceEnemy);
+		}
         /*Map* map = plr->GetMap();
         for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
             map->SendInitTransports(plr);*/

@@ -120,8 +120,9 @@ enum DataTypes
     DATA_TERENAS_MENETHIL           = 39,
     
     //Gunship
-    DATA_GB_MURADIN_BRONZEBEARD_NOT_VISUAL     = 109,
-    DATA_GB_MURADIN_BRONZEBEARD                = 110,
+    DATA_GB_MURADIN_BRONZEBEARD_NOT_VISUAL		= 109,
+    DATA_GB_MURADIN_BRONZEBEARD					= 110,
+	DATA_ENEMY_SHIP								= 111,
 };
 
 enum CreaturesIds
