@@ -100,6 +100,7 @@ class Transport : public GameObject, public TransportBase
         bool _triggeredDepartureEvent;
 
         std::set<WorldObject*> _passengers;
+public:
         std::set<WorldObject*> _staticPassengers;
 };
 

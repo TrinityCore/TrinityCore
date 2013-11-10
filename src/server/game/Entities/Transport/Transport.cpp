@@ -240,7 +240,7 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
 
     /// @HACK - transport models are not added to map's dynamic LoS calculations
     ///         because the current GameObjectModel cannot be moved without recreating
-    creature->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+	//creature->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
 
     if (!creature->IsPositionValid())
     {
@@ -255,6 +255,7 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
         return NULL;
     }
 
+	//creature->setActive(true);
     _staticPassengers.insert(creature);
     sScriptMgr->OnAddCreaturePassenger(this, creature);
     return creature;
@@ -518,15 +519,20 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
         float x, y, z, o;
         passenger->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
         CalculatePassengerPosition(x, y, z, &o);
+
         switch (passenger->GetTypeId())
         {
             case TYPEID_UNIT:
             {
+				
                 Creature* creature = passenger->ToCreature();
+				// Relocate creature in map
                 GetMap()->CreatureRelocation(creature, x, y, z, o, false);
                 creature->GetTransportHomePosition(x, y, z, o);
+				// Recalc home position
                 CalculatePassengerPosition(x, y, z, &o);
                 creature->SetHomePosition(x, y, z, o);
+				
                 break;
             }
             case TYPEID_PLAYER:
