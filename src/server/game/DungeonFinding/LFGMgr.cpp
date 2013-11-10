@@ -1883,8 +1883,12 @@ bool LFGMgr::AllQueued(LfgGuidList const& check)
 
 time_t LFGMgr::GetQueueJoinTime(uint64 guid)
 {
-    LFGQueue& queue = GetQueue(guid);
-    return queue.GetJoinTime(guid);
+    uint8 queueId = GetQueueId(guid);
+    LfgQueueContainer::const_iterator itr = QueuesStore.find(queueId);
+    if (itr != QueuesStore.end())
+        return itr->second.GetJoinTime(guid);
+
+    return 0;
 }
 
 // Only for debugging purposes

@@ -101,7 +101,7 @@ class LFGQueue
 
         // Update Queue timers
         void UpdateQueueTimers(uint8 queueId, time_t currTime);
-        time_t GetJoinTime(uint64 guid);
+        time_t GetJoinTime(uint64 guid) const;
 
         // Find new group
         uint8 FindGroups();
