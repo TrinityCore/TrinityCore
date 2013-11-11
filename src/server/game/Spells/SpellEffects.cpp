@@ -5055,28 +5055,36 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    Player* player = m_caster->ToPlayer();
-    if (!player)
-        return;
-
-    Pet* pet = player->GetPet();
-    if (pet && pet->IsAlive())
-        return;
-
     if (damage < 0)
         return;
 
-    float x, y, z;
-    player->GetPosition(x, y, z);
+    Player* player = m_caster->ToPlayer();
+    if (!player)
+        return;
+   
+    float x, y, z; // Will be used later to reposition the pet if we have one
+    Pet* pet = player->GetPet(); // Attempt to get current pet
+
+    // Maybe player dismissed dead pet or pet despawned?
     if (!pet)
     {
+        player->GetClosePoint(x, y, z, player->GetObjectSize());
         player->SummonPet(0, x, y, z, player->GetOrientation(), SUMMON_PET, 0);
-        pet = player->GetPet();
     }
+
+    // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
     if (!pet)
         return;
+    
+    // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
+    if (pet->IsAlive())
+        return;
 
-    player->GetMap()->CreatureRelocation(pet, x, y, z, player->GetOrientation());
+    // Reposition the pet's corpse before reviving so as not to grab aggro
+    // We can use a different, more accurate version of GetClosePoint() since we have a pet
+    player->GetClosePoint(x, y, z, pet->GetObjectSize(), PET_FOLLOW_DIST, pet->GetFollowAngle());
+    pet->NearTeleportTo(x, y, z, player->GetOrientation());
+    pet->Relocate(x, y, z, player->GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
 
     pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
     pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
@@ -5084,8 +5092,20 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     pet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
     pet->SetHealth(pet->CountPctFromMaxHealth(damage));
 
-    //pet->AIM_Initialize();
-    //player->PetSpellInitialize();
+    // Reset things for when the AI to takes over
+    CharmInfo *ci = pet->GetCharmInfo();
+    if (ci)
+    {
+        // In case the pet was at stay, we don't want it running back
+        ci->SaveStayPosition();
+        ci->SetIsAtStay(ci->HasCommandState(COMMAND_STAY));
+
+        ci->SetIsFollowing(false);
+        ci->SetIsCommandAttack(false);
+        ci->SetIsCommandFollow(false);
+        ci->SetIsReturning(false);
+    }
+
     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
 }
 
