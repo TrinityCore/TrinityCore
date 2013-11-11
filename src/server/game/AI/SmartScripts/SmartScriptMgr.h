@@ -735,7 +735,7 @@ struct SmartAction
         } summonGO;
 
         struct
-         {
+        {
             uint32 state;
         } active;
 
@@ -1280,9 +1280,9 @@ enum SmartCastFlags
 {
     SMARTCAST_INTERRUPT_PREVIOUS     = 0x01,                     //Interrupt any spell casting
     SMARTCAST_TRIGGERED              = 0x02,                     //Triggered (this makes spell cost zero mana and have no cast time)
-    //CAST_FORCE_CAST             = 0x04,                     //Forces cast even if creature is out of mana or out of range
-    //CAST_NO_MELEE_IF_OOM        = 0x08,                     //Prevents creature from entering melee if out of mana or out of range
-    //CAST_FORCE_TARGET_SELF      = 0x10,                     //Forces the target to cast this spell on itself
+    //SMARTCAST_FORCE_CAST             = 0x04,                     //Forces cast even if creature is out of mana or out of range
+    //SMARTCAST_NO_MELEE_IF_OOM        = 0x08,                     //Prevents creature from entering melee if out of mana or out of range
+    //SMARTCAST_FORCE_TARGET_SELF      = 0x10,                     //Forces the target to cast this spell on itself
     SMARTCAST_AURA_NOT_PRESENT       = 0x20                      //Only casts the spell if the target does not have an aura from the spell
 };
 
@@ -1302,11 +1302,10 @@ struct SmartScriptHolder
     SmartAction action;
     SmartTarget target;
 
-    public:
-        uint32 GetScriptType() const { return (uint32)source_type; }
-        uint32 GetEventType() const { return (uint32)event.type; }
-        uint32 GetActionType() const { return (uint32)action.type; }
-        uint32 GetTargetType() const { return (uint32)target.type; }
+    uint32 GetScriptType() const { return (uint32)source_type; }
+    uint32 GetEventType() const { return (uint32)event.type; }
+    uint32 GetActionType() const { return (uint32)action.type; }
+    uint32 GetTargetType() const { return (uint32)target.type; }
 
     uint32 timer;
     bool active;

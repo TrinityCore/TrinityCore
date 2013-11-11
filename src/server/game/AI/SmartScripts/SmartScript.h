@@ -244,7 +244,7 @@ class SmartScript
         SMARTAI_TEMPLATE mTemplate;
         void InstallEvents();
 
-        void RemoveStoredEvent (uint32 id)
+        void RemoveStoredEvent(uint32 id)
         {
             if (!mStoredEvents.empty())
             {
@@ -258,7 +258,7 @@ class SmartScript
                 }
             }
         }
-        SmartScriptHolder FindLinkedEvent (uint32 link)
+        SmartScriptHolder FindLinkedEvent(uint32 link)
         {
             if (!mEvents.empty())
             {
