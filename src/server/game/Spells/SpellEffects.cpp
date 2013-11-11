@@ -760,7 +760,23 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 					case 92315: // Pyroblast!
 						m_caster->RemoveAurasDueToSpell(48108); // Remove hot streak
 						break;
-					
+					case 30455: // Ice lance
+					if (Aura* fof = m_caster->GetAura(44544))
+						AddPct(damage, 25*fof->GetCharges()); 
+					m_caster->RemoveAurasDueToSpell(44544); 
+					break;
+					case 82731: // Flame Orb
+					{
+						if (m_caster->GetTypeId() == TYPEID_PLAYER)                         
+							m_caster->CastSpell(m_caster, 84765, true); // Summon Flame Orb
+						break;
+					}
+					case 92283: // Frostfire Orb
+					{
+						if (m_caster->GetTypeId() == TYPEID_PLAYER)                         
+							m_caster->CastSpell(m_caster, 84714, true); // Summon Frostfire Orb
+						break;
+					}
 					case 61316: // Dalaran Brilliance DREAM WOW 
 					{
 						if (m_caster->GetTypeId() == TYPEID_PLAYER)
