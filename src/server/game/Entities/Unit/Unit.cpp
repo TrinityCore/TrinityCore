@@ -3952,6 +3952,7 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 ico
         if (effIndex != (*itr)->GetEffIndex())
             continue;
         SpellInfo const* spell = (*itr)->GetSpellInfo();
+
         if (spell->SpellIconID == iconId && spell->SpellFamilyName == uint32(name) && !spell->SpellFamilyFlags)
             return *itr;
     }
@@ -5614,6 +5615,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     target = this;
                     break;
                 }
+		  case 81781: // Power word: Barrier Buff Check Target
+		  {
+		   if (!target->IsFriendlyTo(this))
+			return false;
+
+		   break;
+		  }
                 // Oracle Healing Bonus ("Garments of the Oracle" set)
                 case 26169:
                 {
@@ -6733,6 +6741,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (pPet && pPet->GetVictim() && damage && procSpell)
                 {
                     uint32 procDmg = damage / 2;
+
                     pPet->SendSpellNonMeleeDamageLog(pPet->GetVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
                     pPet->DealDamage(pPet->GetVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
                     break;
@@ -10731,6 +10740,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
             Player const* player = target->GetTypeId() == TYPEID_PLAYER ? target->ToPlayer() : ToPlayer();
             Unit const* creature = target->GetTypeId() == TYPEID_UNIT ? target : this;
 
+
             if (FactionTemplateEntry const* factionTemplate = creature->GetFactionTemplateEntry())
             {
                 if (!(player->GetReputationMgr().GetForcedRankIfAny(factionTemplate)))
@@ -13624,6 +13634,7 @@ void Unit::SetCantProc(bool apply)
     if (apply)
         ++m_procDeep;
     else
+
     {
         ASSERT(m_procDeep);
         --m_procDeep;
