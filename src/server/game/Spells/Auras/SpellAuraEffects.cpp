@@ -1053,7 +1053,7 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
 			{
 				SendTickImmune(target, caster);
 			return;
-		    }
+		    	}
 			// Dark Evangelism
 			if (target->HasAura(15407)) // Mind Flay
 			{
@@ -3199,6 +3199,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
 
             if (!apply && target->GetTypeId() == TYPEID_UNIT && !target->IsLevitating())
                 target->GetMotionMaster()->MoveFall();
+
         }
 
         //! Someone should clean up these hacks and remove it from this function. It doesn't even belong here.

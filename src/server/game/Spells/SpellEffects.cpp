@@ -508,6 +508,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                                         m_caster->CastSpell(m_caster, 81661, true);
                                                         m_caster->RemoveAurasDueToSpell(87118);
                                                         m_caster->RemoveAurasDueToSpell(87117);
+								m_caster->CastSpell(m_caster, 87154, true);
                                                 }
                                         }
                                         if (m_spellInfo->Id == 73510 || m_spellInfo->Id == 8092)
@@ -4265,16 +4266,15 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
    	 case SPELLFAMILY_PRIEST:
         {			
 		  // Archangel(87151)
-                if (m_spellInfo->Id == 87151)
+		  if (m_spellInfo->Id == 87151)
                 {
                     // holy
                     if (Aura* holy = m_caster->GetAura(81661))
                     {
                         int32 bp = holy->GetStackAmount() * 3;
-                        //Give mana
-                        m_caster->CastSpell(m_caster,87152,true);
-                        //Cast visual & mod healing
-                        m_caster->CastCustomSpell(m_caster, 81700,&bp,NULL,NULL, true);
+			   int32 bp_ = 5;
+                        m_caster->CastCustomSpell(m_caster, 87152, &bp_, NULL, NULL, true);
+                        m_caster->CastCustomSpell(m_caster, 81700,&bp,&bp,NULL, true);
                         m_caster->RemoveAurasDueToSpell(81661);
                     }
                     // dark
