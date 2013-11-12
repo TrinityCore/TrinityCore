@@ -483,21 +483,17 @@ class spell_warr_last_stand : public SpellScriptLoader
                 return true;
             }
 
-            bool Load() OVERRIDE
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                return GetCaster()->GetTypeId() ==  TYPEID_PLAYER;
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                int32 basePoints0 = int32(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue()));
-
-                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_LAST_STAND_TRIGGERED, &basePoints0, NULL, NULL, true);
+                Unit* caster = GetCaster();
+                int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
+                caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
             }
 
             void Register() OVERRIDE
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // add dummy effect spell handler to Last Stand
+                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
