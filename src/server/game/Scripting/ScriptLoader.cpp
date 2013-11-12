@@ -1415,6 +1415,8 @@ void AddBattlegroundScripts()
 /* This is where custom scripts' loading functions should be declared. */
 void AddSC_sistema_pve();
 void AddSC_well_of_eternity_portal();
+void AddSC_dk_up();
+void AddSC_dk_down();
 #endif
 
 void AddCustomScripts()
@@ -1423,5 +1425,7 @@ void AddCustomScripts()
     /* This is where custom scripts should be added. */
     AddSC_sistema_pve();
     AddSC_well_of_eternity_portal();
+    AddSC_dk_up();
+    AddSC_dk_down();
 #endif
 }
