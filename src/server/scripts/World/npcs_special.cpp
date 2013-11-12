@@ -2848,6 +2848,72 @@ public:
     }
 };
 
+/*###########################
+## Pozo de Luz   dream wow ##
+###########################*/
+
+
+class npc_lightwell : public CreatureScript
+{
+public:
+    npc_lightwell() : CreatureScript("npc_lightwell") { }
+
+    struct npc_lightwellAI : public PassiveAI
+    {
+        npc_lightwellAI(Creature* creature) : PassiveAI(creature) 
+	  {
+            DoCast(me, 59907, false); // Spell for Lightwell Charges
+	     me->SetDisplayId(27769);
+         }
+
+        void EnterEvadeMode() OVERRIDE
+        {
+            if (!me->IsAlive())
+                return;
+
+            me->DeleteThreatList();
+            me->CombatStop(true);
+            me->ResetPlayerDamageReq();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_lightwellAI(creature);
+    }
+};
+
+
+class npc_ring_of_frost : public CreatureScript
+{
+public:
+    npc_ring_of_frost() : CreatureScript("npc_ring_of_frost") { }
+
+    struct npc_ring_of_frostAI : public PassiveAI
+    {
+        npc_ring_of_frostAI(Creature* creature) : PassiveAI(creature) 
+	  {
+            me->SetDisplayId(34997);
+         }
+	
+	 void EnterEvadeMode() OVERRIDE
+        {
+            if (!me->IsAlive())
+                return;
+
+            me->DeleteThreatList();
+            me->CombatStop(true);
+            me->ResetPlayerDamageReq();
+        }
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_ring_of_frostAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2877,4 +2943,6 @@ void AddSC_npcs_special()
     new npc_power_word_barrier;
     new npc_flame_orb();
     new npc_frostfire_orb();
+    new npc_lightwell();
+    new npc_ring_of_frost;
 }
