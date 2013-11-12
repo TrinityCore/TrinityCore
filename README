@@ -140,6 +140,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.106 - 23/10/2013: IsSapped funcion añadida al nucleo por Sonneh
 0.107 - 23/10/2013: IsIncapacited funcion añadida al nucleo por Sonneh
 0.108 - 23/10/2013: Implementado sistema de Fade Out Sigilo por Sonneh
+0.109 - 05/11/2013: SMART_ACTION_SET_MOVEMENT_SPEED implementada por Lauja
 
 
 ###############
@@ -483,6 +484,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.235 - 25/10/2013: TheLichKing los players afectados por Harvest Soul ya no serán objetivos inválidos por Saitama
 2.2.236 - 25/10/2013: Marrowgar los players empalados ya no serán objetivos inválidos por Saitama
 2.2.237 - 29/10/2013: Lana'thel: evitando crashes en el Frenzied Bloodthirst al generar bucle infinito en Uncontrollable Frenzy por Eilo
+2.2.238 - 03/11/2013: Valithria: añadido texto faltante de introducción al encuentro por Lauja
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
@@ -548,6 +550,19 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.56 - 29/10/2013: Ulduar: Archivum Door estará cerrada hasta que el encuentro contra Assembly of Iron sea completado por Saitama
 2.6.57 - 29/10/2013: Ulduar: Hodir las puertas que conectan la zona de encuentro con el Observation Ring se mantendrán abiertas una vez derrotado el boss por Saitama
 2.6.58 - 29/10/2013: Ulduar: Hodir la puerta de entrada a la zona del encuentro se cerrará mientras éste esté en progreso por Saitama
+2.6.59 - 02/11/2013: Ulduar: Hodir corregido el comportamiento de los Flash Freeze invocados por la spell Flash Freeze por Saitama
+2.6.60 - 02/11/2013: Ulduar: Hodir corregido el comportamiento de los Flash Freeze iniciales por Saitama
+2.6.61 - 02/11/2013: Ulduar: Hodir arreglado el exploit que dejaba a Hodir en reacción pasiva por Saitama
+2.6.62 - 02/11/2013: Ulduar: Hodir ahora el logro I Could Say That This Cache Was Rare será entregado correctamente por Saitama
+2.6.63 - 02/11/2013: Ulduar: Hodir ahora el logro Cheese The Freeze será entregado correctamente por Saitama
+2.6.64 - 02/11/2013: Ulduar: Hodir ahora el logro Getting Cold In Here será entregado correctamente por Saitama
+2.6.65 - 02/11/2013: Ulduar: Hodir ahora el logro I Have The Coolest Friends será entregado correctamente por Saitama
+2.6.66 - 02/11/2013: Ulduar: Hodir ahora dará crédito por su derrota por Saitama
+2.6.67 - 02/11/2013: Ulduar: Hodir ajustados los objetivos válidos para Flash Freeze por Saitama
+2.2.68 - 02/11/2013: Ulduar: Hodir los Toasty Fire deben desaparecer únicamente con el Flash Freeze por Saitama
+2.6.69 - 02/11/2013: Ulduar: Hodir corregido el tiempo de cooldown de Flash Freeze por Saitama
+2.6.70 - 03/11/2013: Ulduar: Hodir equipada su arma en dificultad 25 jugadores por Saitama
+2.6.71 - 03/11/2013: Ulduar: Auriaya ahora spawnearán 4 Sanctum Sentry en dificultad 25 jugadores por Saitama
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -561,7 +576,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.9.7  - 15/08/2012: RubySanctum: Ajuste de damage & inmunidades por Eilo
 2.9.8  - 01/11/2012: RubySanctum: Twilight Halion inmune a knockback por Xanvial
 2.9.9  - 16/01/2012: RubySanctum: Halion y TwilightHalion inmune a grip por Eilo
-2.9.10 - 19/01/2013: RubySanctum: Circulo de fuego de Halion al inicio del combate y si el boss sale de el se reinicia el evento by Dolanpls
 2.9.11 - 21/01/2013: RubySanctum: Halion lanzará correctamente la spell Soul Consumption en el reino de las sombras by Evef
 2.9.12 - 26/01/2013: RubySanctum: El daño de los Halion ya no los compartiran y arreglos de las diferentes vidas entre fases por Dolanpls y Evef
 2.9.13 - 28/01/2013: RubySanctum: Halion corregido agro de inicio, la fase 2 empezara al 70%, corregida vida de twilight_halion para el inicio de la fase 2 e interfase de la 2 a 3 by Evef y Dolanpls
@@ -592,8 +606,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.9.38 - 27/10/2013: RubySanctum: Fiery Combustion y Soul Consumption escalará correctamente su radio de daño y efecturarán correctamente los effects por Evef.
 2.9.39 - 27/10/2013: RubySanctum: Ajustado el EffecMiscValue para evitar que el knock back los saque del ciruclo Evef.
 2.9.40 - 28/10/2013: RubySanctum: Damage ajustado de halion para más blizzlike por Evef.
-2.9.41 - 29/10/2013: RubySanctum: Evitando que intenten llevar a Halion al borde para resetearlo por Evef.
 2.9.42 - 29/10/2013: RubySanctum: Evitando que los adds queden spawneados en 25h por Evef.
+2.9.43 - 19/01/2013: RubySanctum: Evitando que intenten llevar a Halion al borde para resetearlo por Dolanpls
+2.9.44 - 06/11/2013: RubySanctum: Ajustado los Effect para que solo actue dentro del area por Evef
 - Ahn'Kahet -
 2.10.1 - 03/08/2011: Ahn'Kahet: Taldaram combate en invisible por Greymane
 2.10.2 - 16/12/2011: Ahn'Kahet: Taldaram daño esferas ajustado por Eilo
@@ -831,6 +846,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.215 - 23/10/2013: Mago: Fix spell Glyph of Molten Armor, ahora se actualizará su efecto al loguear el player por Gildor
 3.216 - 23/10/2013: Mago: Fix spell Glyph of Molten Armor, previniendo exploit de mantener el efecto sin el glifo por Gildor
 3.218 - 24/10/2013: Fix spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
+3.219 - 04/11/2013: Fix spells Resurrection Sickness, Deserter (BG), Dungeon Deserter, ahora no se podrán disipar por Gildor
 
 
 #################
@@ -1296,6 +1312,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.10.60 - 19/10/2013: Nagrand: Confalones y prácticas por Lauja
 4.10.61 - 31/10/2013: Montañas Filospada: Reunir los orbes por Trista
 4.10.62 - 31/10/2013: Montañas Filospada: La marca del rey-nexo por Muzashi
+4.10.63 - 01/11/2013: Montañas Filospada: Proteger a los nuestros por Muzashi
+4.10.64 - 04/11/2013: Montañas Filospada: ¡Una maldición para ambos clanes! por Muzashi
 - Kalimdor y Reinos del Este -
 4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
 4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
@@ -1408,6 +1426,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.75 - 23/10/2013: Halloween: Misiones autocompletables para conseguir el logro El Salvador de Halloween por Muzashi
 6.76 - 27/10/2013: Zulgurub: Arlokk ahora si se invoca cuando se interactua con su gameObject por Sothu y Efreet
 6.77 - 27/10/2013: Zulgurub: Arlokk mejorada la respuesta del gameObject que lo invoca cuando el boss entra en EvadeMode o derrota al grupo, reactivando el GO para re-invocar el boss por Efreet
+6.78 - 03/11/2013: Thulrin corregidas warnings por Muzashi
 
 
 ##########
