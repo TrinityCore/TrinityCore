@@ -438,11 +438,13 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+
         Creature* creature = unit->ToCreature();
         if (creature->UpdateEntry(newEntryNum))
             handler->SendSysMessage(LANG_DONE);
         else
             handler->SendSysMessage(LANG_ERROR);
+
         return true;
     }
 
@@ -559,6 +561,7 @@ public:
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
         handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, itemTemplate->Name1.c_str());
+
         return true;
     }
 
@@ -670,6 +673,7 @@ public:
         creature->AI()->SetData(data_1, data_2);
         std::string AIorScript = creature->GetAIName() != "" ? "AI type: " + creature->GetAIName() : (creature->GetScriptName() != "" ? "Script Name: " + creature->GetScriptName() : "No AI or Script Name Set");
         handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID(), creature->GetEntry(), creature->GetName().c_str(), data_1, data_2, AIorScript.c_str());
+
         return true;
     }
 
@@ -690,6 +694,7 @@ public:
         creature->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, creature->GetFollowAngle());
 
         handler->PSendSysMessage(LANG_CREATURE_FOLLOW_YOU_NOW, creature->GetName().c_str());
+
         return true;
     }
 
@@ -881,6 +886,7 @@ public:
         WorldDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
+
         return true;
     }
 
@@ -1147,6 +1153,7 @@ public:
         WorldDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_COMMAND_SPAWNDIST, option);
+
         return true;
     }
 
@@ -1272,6 +1279,7 @@ public:
         creature->GetMotionMaster()->MovementExpired(true);
 
         handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName().c_str());
+
         return true;
     }
 
@@ -1295,6 +1303,7 @@ public:
             return false;
 
         creature->MonsterWhisper(text, receiver_guid);
+
         return true;
     }
 
@@ -1493,6 +1502,7 @@ public:
         }
 
         handler->PSendSysMessage("LinkGUID '%u' added to creature with DBTableGUID: '%u'", linkguid, creature->GetDBTableGUIDLow());
+
         return true;
     }
 
@@ -1562,6 +1572,7 @@ public:
             return true;
         }
         */
+
         return true;
     }
 
@@ -1654,6 +1665,7 @@ public:
 
         creature->SaveToDB();
         */
+
         return true;
     }
 };
