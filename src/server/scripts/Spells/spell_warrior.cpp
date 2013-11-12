@@ -466,6 +466,7 @@ class spell_warr_lambs_to_the_slaughter : public SpellScriptLoader
 
 /// Updated 4.3.4
 // 12975 - Last Stand
+
 class spell_warr_last_stand : public SpellScriptLoader
 {
     public:
@@ -482,17 +483,21 @@ class spell_warr_last_stand : public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            bool Load() OVERRIDE
             {
-                Unit* caster = GetCaster();
-                int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
-                caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                return GetCaster()->GetTypeId() ==  TYPEID_PLAYER;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                int32 basePoints0 = int32(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue()));
+
+                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_LAST_STAND_TRIGGERED, &basePoints0, NULL, NULL, true);
             }
 
             void Register() OVERRIDE
             {
-                // add dummy effect spell handler to Last Stand
-                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

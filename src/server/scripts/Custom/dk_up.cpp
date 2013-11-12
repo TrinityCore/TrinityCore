@@ -1,21 +1,20 @@
 #include "ScriptMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 
-class dk_up : public CreatureScript
+class dk_up : public GameObjectScript
 {
     public:
 
-        dk_up(): CreatureScript("dk_up"){}
+        dk_up(): GameObjectScript("dk_up"){}
 
-        bool OnGossipHello(Player* player, Creature* go) OVERRIDE
+        bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
         {
             player->ADD_GOSSIP_ITEM(0, "Ir arriba", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+13);
 			player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, go->GetGUID());
             return true;
         }
 
-		bool OnGossipSelect(Player* player, Creature* go, uint32 sender, uint32 action) OVERRIDE
+		bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) OVERRIDE
 		{
 			player->PlayerTalkClass->ClearMenus();
 			switch(action)
