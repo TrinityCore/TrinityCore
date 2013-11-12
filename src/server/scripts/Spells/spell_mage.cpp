@@ -82,8 +82,12 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_DUMMY               = 91264,
 
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
-	SPELL_MAGE_ARCANE_MISSILES                   = 79683,
-	SPELL_MAGE_OFFENSIVE_STATE                   = 79684
+    SPELL_MAGE_ARCANE_MISSILES                   = 79683,
+    SPELL_MAGE_OFFENSIVE_STATE                   = 79684,
+    
+    SPELL_MAGE_CAUTERIZE_R2                      = 86949,
+    SPELL_MAGE_CAUTERIZE_R1                      = 86948,
+    SPELL_MAGE_CAUTERIZE_DOT                     = 87023
 };
 
 enum MageIcons
@@ -1498,6 +1502,65 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
        }
 };
 
+// Cauterize
+/// Updated 4.3.4
+class spell_mage_cauterize : public SpellScriptLoader
+{
+    public:
+        spell_mage_cauterize() : SpellScriptLoader("spell_mage_cauterize") { }
+
+        class spell_mage_cauterize_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_cauterize_AuraScript);
+
+            uint32 Cauterize;
+
+            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE_R1) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE_R2))
+                    return false;
+                return true;
+            }
+
+           bool Load() OVERRIDE
+            {
+                Cauterize = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                return GetUnitOwner()->ToPlayer();
+            }
+
+            void CauterizeAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                // Set absorbtion amount to unlimited
+                amount = -1;
+            }
+
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & Cauterize)
+            {
+                Player* target = GetTarget()->ToPlayer();
+                if (dmgInfo.GetDamage() < target->GetHealth() || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R1) || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R2))
+                    return;    
+
+                target->CastSpell(target, SPELL_MAGE_CAUTERIZE_DOT, true);
+                target->SetHealth(target->CountPctFromMaxHealth(40));
+                target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_DOT, 0, time(NULL) + 60);
+                target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R1, 0, time(NULL) + 60);
+                target->ToPlayer()->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R2, 0, time(NULL) + 60);
+
+            }
+
+            void Register() OVERRIDE
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_cauterize_AuraScript::CauterizeAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_cauterize_AuraScript::Absorb, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_mage_cauterize_AuraScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -1529,4 +1592,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_water_elemental_freeze();
     new spell_mage_arcane_missiles();
     new spell_mage_offensive_state();
+    new spell_mage_cauterize();
 }
