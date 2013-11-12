@@ -13,6 +13,8 @@ set(scripts_STAT_SRCS
 Custom/sistema_pve.cpp
 Custom/well_of_eternity_portal.cpp
 Custom/h_o_t_portal.cpp
+Custom/dk_up.cpp
+Custom/dk_down.cpp
 )
 
 message("  -> Prepared: Custom")
