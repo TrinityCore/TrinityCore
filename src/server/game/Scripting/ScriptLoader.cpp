@@ -1419,6 +1419,7 @@ void AddSC_dk_up();
 void AddSC_dk_down();
 void AddSC_dk_up_map1();
 void AddSC_dk_down_map1();
+void AddSC_firelands_volcanus();
 #endif
 
 void AddCustomScripts()
@@ -1431,5 +1432,6 @@ void AddCustomScripts()
     AddSC_dk_down();
     AddSC_dk_up_map1();
     AddSC_dk_down_map1();
+    AddSC_firelands_volcanus();
 #endif
 }
