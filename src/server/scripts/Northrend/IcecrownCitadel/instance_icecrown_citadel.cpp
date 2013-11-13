@@ -31,6 +31,7 @@
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Vehicle.h"
+#include "Unit.h"
 
 enum EventIds
 {
@@ -158,7 +159,16 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningMinutes = 0;
                 
                 //Gunship
+                FirstSquadState = 0;
+                SecondSquadState = 0;
+                SpireSquadState = 0;
+                SkybreakerBossGUID = 0;
+                OrgrimmarBossGUID = 0;
+                DeathbringerSaurfangGbGUID = 0;
                 MuradinBronzebeardGbGUID = 0;
+                DeathbringerSaurfangNotVisualGUID = 0;
+                MuradinBronzebeardNotVisualGUID = 0;
+                GbBattleMageGUID = 0;
                 isLoaded = false;
             }
 
@@ -318,13 +328,27 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                         
                     //Gunship Test
+                    case NPC_GB_SKYBREAKER:
+                        SkybreakerBossGUID = creature->GetGUID();
+                        break;
+                    case NPC_GB_ORGRIMS_HAMMER:
+                        OrgrimmarBossGUID = creature->GetGUID();
+                        break;
+                    case NPC_GB_HIGH_OVERLORD_SAURFANG:
+                        DeathbringerSaurfangGbGUID = creature->GetGUID();
+                        break;
                     case NPC_GB_MURADIN_BRONZEBEARD:
                         MuradinBronzebeardGbGUID = creature->GetGUID();
-                        //creature->SetDisplayId(30508);
-                        ///creature->GetCreatureData();
+                        break;
+                    case NPC_GB_HIGH_OVERLORD_SAURFANG_NOT_VISUAL:
+                        DeathbringerSaurfangNotVisualGUID = creature->GetGUID();
                         break;
                     case NPC_GB_MURADIN_BRONZEBEARD_NOT_VISUAL:
-                        MuradinBronzebeardTriggerGUID = creature->GetGUID();
+                        MuradinBronzebeardNotVisualGUID = creature->GetGUID();
+                        break;
+                    case NPC_GB_SKYBREAKER_SORCERERS:
+                    case NPC_GB_KORKRON_BATTLE_MAGE:
+                        GbBattleMageGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -705,11 +729,20 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return TerenasMenethilGUID;
                         
                         //Gunship
+                    case DATA_SKYBREAKER_BOSS:
+                        return SkybreakerBossGUID;
+                    case DATA_ORGRIMMAR_HAMMER_BOSS:
+                        return OrgrimmarBossGUID;
+                    case DATA_GB_HIGH_OVERLORD_SAURFANG:
+                        return DeathbringerSaurfangGbGUID;
                     case DATA_GB_MURADIN_BRONZEBEARD:
                         return MuradinBronzebeardGbGUID;
-					case DATA_ENEMY_SHIP:
-						return EnemyShipGUID;
-
+                    case DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL:
+                        return DeathbringerSaurfangNotVisualGUID;
+                    case DATA_MURADIN_BRONZEBEARD_NOT_VISUAL:
+                        return MuradinBronzebeardNotVisualGUID;
+                    case DATA_GB_BATTLE_MAGE:
+                        return GbBattleMageGUID;
                     default:
                         break;
                 }
@@ -725,7 +758,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_LADY_DEATHWHISPER:
-                        //SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
+                        SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
                         if (state == DONE)
                         {
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
@@ -1292,7 +1325,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
             
-            void CreatePassenger(Transport* t, uint32 entry,  uint32 phaseMask, uint32 displayID /*= NULL*/, float x, float y, float z, float o, uint32 spawntimesec = NULL, uint32 currentwaypoint = NULL, uint8 movemenType = NULL, uint8 spawnMask = NULL, uint32 npcflag = NULL, uint32 unit_flags = NULL, uint32 dynamicflags = NULL)
+            void CreatePassenger(Transport* t, uint32 entry,  uint32 phaseMask, uint32 displayID /*= NULL*/, float x, float y, float z, float o, uint32 unit_flags = NULL, uint32 spawntimesec = NULL, uint32 currentwaypoint = NULL, uint8 movemenType = NULL, uint8 spawnMask = NULL, uint32 npcflag = NULL, uint32 dynamicflags = NULL)
             {
                 uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
                 CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
@@ -1311,9 +1344,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data.unit_flags = unit_flags;
                 data.dynamicflags = dynamicflags;
                 
-                t->CreateNPCPassenger(guid, &data);
+                Creature* creature = t->CreateNPCPassenger(guid, &data);
+                sObjectMgr->AddCreatureToGrid(guid, &data);
+                creature->setActive(true);
             }
-            
             void LoadGunshipEvent(Player* player)
             {
                 
@@ -1336,7 +1370,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             EnemyShipGUID = enemyShip->GetGUID();
                             
                             //Ally ship
-                            CreatePassenger(gunship, NPC_GB_MURADIN_BRONZEBEARD, 1, 30508, 13.51547f, 0.160213f, 20.87252f, 3.10672f);
+                            CreatePassenger(gunship, NPC_GB_MURADIN_BRONZEBEARD, 1, 30508, 13.51547f, 0.160213f, 20.87252f, 3.10672f/*, 2*/);
                             CreatePassenger(gunship, NPC_GB_SKYBREAKER, 1, 1126, -17.156807f, -1.633260f, 20.81273f, 4.52672f);
                             CreatePassenger(gunship, NPC_GB_HIGH_CAPTAIN_JUSTIN_BARTLETT, 1, 26982, 42.78902f, -0.010491f, 25.24052f, 3.00672f);
                             CreatePassenger(gunship, NPC_GB_HIGH_OVERLORD_SAURFANG_NOT_VISUAL, 1, 11686, -12.9806f, -22.9462f, 21.659f, 4.72416f);
@@ -1505,8 +1539,23 @@ class instance_icecrown_citadel : public InstanceMapScript
             
             //Gunship
             bool isLoaded;
+            
+            uint32 FirstSquadState;
+            uint32 SecondSquadState;
+            uint32 SpireSquadState;
+            uint64 SkybreakerBossGUID;
+            uint64 OrgrimmarBossGUID;
+            uint64 DeathbringerSaurfangGbGUID;
             uint64 MuradinBronzebeardGbGUID;
-            uint64 MuradinBronzebeardTriggerGUID;
+            uint64 DeathbringerSaurfangNotVisualGUID;
+            uint64 MuradinBronzebeardNotVisualGUID;
+            uint64 GbBattleMageGUID;
+            uint64 GunShipControllerGUID;
+            uint64 GBMuradinGUID;
+            uint64 GBSaurfangGUID;
+            uint64 GBSkybreakerGUID;
+            uint64 GBOgrimsHammerGUID;
+            uint64 SindragosasWardGUID;
 			uint64 EnemyShipGUID;
         };
 

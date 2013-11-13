@@ -307,6 +307,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 {
                     plrMover->m_transport = transport;
                     transport->AddPassenger(plrMover);
+                    //This seems to reverse gravity for moving targets...erhm. It needs confirmation, may be independent of this.
+                    //Try spawning th Passengers 35 yards below the current value
+                    //Z position is calculated based on the Transport's lowest point...
+                    
+                    //This seems to be good enough... Z pos is correct, X,Y meh.
+                    transport->UpdatePosition((plrMover->GetPositionX()-movementInfo.transport.pos.m_positionY)-1, (plrMover->GetPositionY()-movementInfo.transport.pos.m_positionX)-5, plrMover->GetPositionZ()-movementInfo.transport.pos.m_positionZ, plrMover->GetOrientation()-movementInfo.transport.pos.m_orientation);
+                    
+                    //X axis is Y axis, I go X+ they go Y+ and so on
+                    //transport->UpdatePosition(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), plrMover->GetPositionZ()-movementInfo.transport.pos.m_positionZ, plrMover->GetOrientation());
+                    plrMover->Say("ON transport", LANG_UNIVERSAL);
                 }
             }
             else if (plrMover->GetTransport()->GetGUID() != movementInfo.transport.guid)
@@ -318,6 +328,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                     foundNewTransport = true;
                     plrMover->m_transport = transport;
                     transport->AddPassenger(plrMover);
+                    //This does not affect transports... why? Needs more testing
+                    //transport->UpdatePosition(plrMover->GetPositionX(), plrMover->GetPositionY(), plrMover->GetPositionZ()-35, plrMover->GetOrientation());
+                    plrMover->Say("NOT on transport", LANG_UNIVERSAL);
                 }
 
                 if (!foundNewTransport)

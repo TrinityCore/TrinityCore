@@ -120,9 +120,20 @@ enum DataTypes
     DATA_TERENAS_MENETHIL           = 39,
     
     //Gunship
-    DATA_GB_MURADIN_BRONZEBEARD_NOT_VISUAL		= 109,
-    DATA_GB_MURADIN_BRONZEBEARD					= 110,
-	DATA_ENEMY_SHIP								= 111,
+    DATA_FIRST_SQUAD_STATE                  = 100,
+    DATA_SECOND_SQUAD_STATE                 = 101,
+    DATA_SPIRE_FROSTWYRM_STATE              = 102,
+    DATA_GB_HIGH_OVERLORD_SAURFANG          = 103,
+    DATA_GB_MURADIN_BRONZEBEARD             = 104,
+    DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL  = 105,
+    DATA_GB_BATTLE_MAGE                     = 106,
+    DATA_SKYBREAKER_BOSS                    = 107,
+    DATA_ORGRIMMAR_HAMMER_BOSS              = 108,
+    DATA_MURADIN_BRONZEBEARD_NOT_VISUAL     = 109,
+    DATA_MURADIN_BRONZEBEARD                = 110,
+    DATA_GUNSHIP_BATTLE                     = 111,
+    GUID_PLAYER_LOCATION                    = 112,
+	DATA_ENEMY_SHIP							= 113,
 };
 
 enum CreaturesIds
