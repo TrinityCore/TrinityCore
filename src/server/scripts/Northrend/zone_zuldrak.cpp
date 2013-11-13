@@ -141,8 +141,7 @@ public:
             DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 
-        void MoveInLineOfSight(Unit* /*who*/)OVERRIDE { }
-
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
         {

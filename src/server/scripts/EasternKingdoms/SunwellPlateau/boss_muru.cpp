@@ -293,6 +293,8 @@ public:
                             Phase = 4;
                             me->DisappearAndDie();
                             break;
+                        default:
+                            break;
                     }
                     Timer[TIMER_PHASE] = 3000;
                 } else Timer[TIMER_PHASE] -= diff;
