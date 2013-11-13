@@ -9,7 +9,7 @@ class firelands_volcanus : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
         {
-            player->ADD_GOSSIP_ITEM(0, "Ir abajo", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+13);
+            player->ADD_GOSSIP_ITEM(0, "Ir al Yunque de la Conflagracion", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+13);
 			player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, go->GetGUID());
             return true;
         }
