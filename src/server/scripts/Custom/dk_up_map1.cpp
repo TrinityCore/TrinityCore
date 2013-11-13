@@ -20,7 +20,7 @@ class dk_up_map1 : public GameObjectScript
 			switch(action)
 			{
 			case GOSSIP_ACTION_INFO_DEF+13:
-				player->TeleportTo(609,2399.383057f,-5634.744141f,420.671052f,0.618091f);
+				player->TeleportTo(0,2399.383057f,-5634.744141f,420.671052f,0.618091f);
 			default:
 				player->CLOSE_GOSSIP_MENU();
 			}
