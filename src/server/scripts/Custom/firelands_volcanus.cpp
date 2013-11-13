@@ -20,7 +20,7 @@ class firelands_volcanus : public GameObjectScript
 			switch(action)
 			{
 			case GOSSIP_ACTION_INFO_DEF+13:
-				player->TeleportTo(720,450.751007f,-512.153992f,244.675999f,4.325960f);
+				player->TeleportTo(720,506.415955f,473.274536f,246.745899f,2.358165f);
 			default:
 				player->CLOSE_GOSSIP_MENU();
 			}
