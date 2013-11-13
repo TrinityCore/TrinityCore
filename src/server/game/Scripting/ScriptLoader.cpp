@@ -1417,6 +1417,8 @@ void AddSC_sistema_pve();
 void AddSC_well_of_eternity_portal();
 void AddSC_dk_up();
 void AddSC_dk_down();
+void AddSC_dk_up_map1();
+void AddSC_dk_down_map1();
 #endif
 
 void AddCustomScripts()
@@ -1427,5 +1429,7 @@ void AddCustomScripts()
     AddSC_well_of_eternity_portal();
     AddSC_dk_up();
     AddSC_dk_down();
+    AddSC_dk_up_map1();
+    AddSC_dk_down_map1();
 #endif
 }

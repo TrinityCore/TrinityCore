@@ -58,7 +58,17 @@ enum HunterSpells
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
     SPELL_HUNTER_SPELL_KILL_COMMAND                 = 34026,
     SPELL_HUNTER_SPELL_KILL_COMMAND_TRIGGER         = 83381,
+    SPELL_HUNTER_INSTANT_SERPENT_STING              = 83077,
+    SPELL_HUNTER_IMPROVED_SERPENT_STING_R1          = 19464,
+    SPELL_HUNTER_IMPROVED_SERPENT_STING_R2          = 82834,
+    SPELL_HUNTER_IMPROVED_STEADY_SHOT               = 53220,
+    SPELL_HUNTER_STEADY_SHOT                        = 56641,
 
+};
+
+enum HunterSpellIcons
+{
+    HUNTER_ICON_ID_IMPROVED_SERPENT_STING           = 536,
 };
 
 // 53209 - Chimera Shot
@@ -260,27 +270,37 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
 
-            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+      bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!spellMod)
-                {
-                    spellMod = new SpellModifier(GetAura());
-                    spellMod->op = SpellModOp(aurEff->GetMiscValue());
-                    spellMod->type = SPELLMOD_PCT;
-                    spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
-                }
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_SERPENT_STING_R1)||!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_SERPENT_STING_R2))
+                    return false;
+                return true;
+            }                
 
-                spellMod->value = aurEff->GetAmount();
-            }
+      void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+          {
+            Unit* caster = GetCaster();
+            
+            if (!caster)
+                return;
+            
+        if (Unit* target = GetTarget())
+                {
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, HUNTER_ICON_ID_IMPROVED_SERPENT_STING, EFFECT_0))
+                    {
+                    int32 basepoints0 = aurEff->GetAmount() * GetAura()->GetEffect(EFFECT_0)->GetTotalTicks() * caster->SpellDamageBonusDone(target, GetSpellInfo(), GetAura()->GetEffect(0)->GetAmount(), DOT) / 100;
+                    caster->CastCustomSpell(target, SPELL_HUNTER_INSTANT_SERPENT_STING, &basepoints0, NULL, NULL, true, NULL, GetAura()->GetEffect(0));
+                    }
+          }
+      }
 
             void Register() OVERRIDE
             {
-                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_hun_improved_serpent_sting_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_improved_serpent_sting_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+    AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_hun_improved_serpent_sting_AuraScript();
         }
@@ -1155,6 +1175,53 @@ public:
     }
 };
 
+// Improved Steady Shot dream wow 
+class spell_hun_improved_steady_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_improved_steady_shot() : SpellScriptLoader("spell_hun_improved_steady_shot") { }
+
+        class spell_hun_improved_steady_shot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_improved_steady_shot_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_STEADY_SHOT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 basepoint = aurEff->GetAmount();
+
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_HUNTER_STEADY_SHOT)
+                {
+                    aurEff->GetBase()->SetCharges(aurEff->GetBase()->GetCharges() + 1);
+
+                    if (aurEff->GetBase()->GetCharges() == 2)
+                    {
+                        GetTarget()->CastCustomSpell(GetTarget(), SPELL_HUNTER_IMPROVED_STEADY_SHOT, &basepoint, NULL, NULL, true, NULL, aurEff);
+                        aurEff->GetBase()->SetCharges(0);
+                    }
+                }
+                else
+                    aurEff->GetBase()->SetCharges(0);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_improved_steady_shot_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_hun_improved_steady_shot_AuraScript();
+        }
+};
 
 void AddSC_hunter_spell_scripts()
 {
@@ -1184,4 +1251,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_aspect_of_the_hawk();
     new spell_hun_kill_command();
     new spell_hun_focus_fire();
+    new spell_hun_improved_steady_shot();
 }

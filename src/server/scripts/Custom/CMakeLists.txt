@@ -15,6 +15,8 @@ Custom/well_of_eternity_portal.cpp
 Custom/h_o_t_portal.cpp
 Custom/dk_up.cpp
 Custom/dk_down.cpp
+Custom/dk_up_map1.cpp
+Custom/dk_down_map1.cpp
 )
 
 message("  -> Prepared: Custom")
