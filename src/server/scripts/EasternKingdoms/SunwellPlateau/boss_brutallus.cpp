@@ -141,7 +141,7 @@ public:
             if (!Intro || IsIntro)
                 return;
 
-            if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MADRIGOSA))
+            if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MADRIGOSA)))
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
@@ -279,12 +279,14 @@ public:
                 {
                     if (IntroFrostBoltTimer <= diff)
                     {
-                        if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MADRIGOSA))
+                        if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MADRIGOSA)))
                         {
                             Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                             IntroFrostBoltTimer = 2000;
                         }
-                    } else IntroFrostBoltTimer -= diff;
+                    }
+                    else
+                        IntroFrostBoltTimer -= diff;
                 }
 
                 if (!UpdateVictim())

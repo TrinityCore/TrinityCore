@@ -340,7 +340,7 @@ void GameObject::Update(uint32 diff)
 
                             G3D::Vector3 src(GetPositionX(), GetPositionY(), GetPositionZ());
 
-                            sLog->outInfo("misc", "Src: %s Dest: %s", src.toString().c_str(), pos.toString().c_str());
+                            TC_LOG_INFO("misc", "Src: %s Dest: %s", src.toString().c_str(), pos.toString().c_str());
 
                             GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
                         }

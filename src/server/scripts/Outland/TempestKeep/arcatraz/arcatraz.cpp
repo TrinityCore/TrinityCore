@@ -122,7 +122,7 @@ class npc_millhouse_manastorm : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
