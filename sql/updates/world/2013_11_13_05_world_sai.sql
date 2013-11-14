@@ -8,7 +8,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,1,0,6,0,100,1,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Prophet of Sseratus - On Death - Say Line 1"),
 (@ENTRY,0,2,0,0,0,100,0,6000,10000,10000,15000,11,48287,0,0,0,0,0,2,0,0,0,0,0,0,0,"Prophet of Sseratus - In Combat - Cast 48287"),
 (@ENTRY,0,3,0,0,0,100,0,1000,4000,10000,10000,11,54483,32,0,0,0,0,1,0,0,0,0,0,0,0,"Prophet of Sseratus - In Combat - Cast 54483"),
-(@ENTRY,0,4,0,8,0,100,1,50706,-1,0,0,36,28151,0,0,0,0,0,1,0,0,0,0,0,0,0,"Prophet of Sseratus - On Spellhit By 50706 - Update Template To Muddled Prophet of Sseratus"),
+(@ENTRY,0,4,0,8,0,100,1,50706,0,0,0,36,28151,0,0,0,0,0,1,0,0,0,0,0,0,0,"Prophet of Sseratus - On Spellhit By 50706 - Update Template To Muddled Prophet of Sseratus"),
 (@ENTRY,0,5,0,1,0,100,0,65000,95000,65000,95000,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Prophet of Sseratus - Out Of Combat - Say Line 2");
 
 -- Texts for Prophet of Sseratus
@@ -282,7 +282,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,8,0,100,1,61832,-1,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dead Mage Hunter - On Spellhit By 61832 - Forced Despawn");
+(@ENTRY,0,0,0,8,0,100,1,61832,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dead Mage Hunter - On Spellhit By 61832 - Forced Despawn");
 
 -- Dragonbone Condor SAI
 SET @ENTRY := 26483;
@@ -307,7 +307,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,1,8,0,100,1,49319,-1,0,0,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highland Mustang - On Spellhit By 49319 - Flee For Assist"),
+(@ENTRY,0,0,1,8,0,100,1,49319,0,0,0,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highland Mustang - On Spellhit By 49319 - Flee For Assist"),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,11,49323,0,0,0,0,0,7,0,0,0,0,0,0,0,"Highland Mustang - On Spellhit By 49319 - Cast 49323"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,41,5000,0,0,0,0,0,1,0,0,0,0,0,0,0,"Highland Mustang - On Spellhit By 49319 - Forced Despawn In 5000 Ms");
 
@@ -601,8 +601,8 @@ DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,0,0,100,0,5000,9000,10000,18000,11,52628,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rune Reaver - In Combat - Cast 52628"),
-(@ENTRY,0,1,0,8,0,100,1,47005,-1,0,0,33,26264,0,0,0,0,0,7,0,0,0,0,0,0,0,"Rune Reaver - On Spellhit By 47005 - Quest Credit"),
-(@ENTRY,0,2,0,8,0,100,1,47005,-1,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rune Reaver - On Spellhit By 47005 - Forced Despawn");
+(@ENTRY,0,1,0,8,0,100,1,47005,0,0,0,33,26264,0,0,0,0,0,7,0,0,0,0,0,0,0,"Rune Reaver - On Spellhit By 47005 - Quest Credit"),
+(@ENTRY,0,2,0,8,0,100,1,47005,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rune Reaver - On Spellhit By 47005 - Forced Despawn");
 
 -- Emaciated Mammoth Bull SAI
 SET @ENTRY := 26271;
@@ -688,7 +688,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,8,0,100,0,46574,-1,0,0,33,26161,0,0,0,0,0,7,0,0,0,0,0,0,0,"Farshire Grain Credit - On Spellhit By 46574 - Quest Credit");
+(@ENTRY,0,0,0,8,0,100,0,46574,0,0,0,33,26161,0,0,0,0,0,7,0,0,0,0,0,0,0,"Farshire Grain Credit - On Spellhit By 46574 - Quest Credit");
 
 -- Loot Crazed Diver SAI
 SET @ENTRY := 25836;
@@ -752,7 +752,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,8,0,100,1,46368,-1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Harold Lane - On Spellhit By 46368 - Say Line 0"),
+(@ENTRY,0,0,0,8,0,100,1,46368,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Harold Lane - On Spellhit By 46368 - Say Line 0"),
 (@ENTRY,0,1,0,0,0,100,0,1100,10100,16400,28300,11,53432,0,0,0,0,0,1,0,0,0,0,0,0,0,"Harold Lane - In Combat - Cast 53432"),
 (@ENTRY,0,2,0,9,0,100,0,8,40,9200,12400,11,53425,0,0,0,0,0,2,0,0,0,0,0,0,0,"Harold Lane - Between 8-40 Range - Cast 53425");
 
