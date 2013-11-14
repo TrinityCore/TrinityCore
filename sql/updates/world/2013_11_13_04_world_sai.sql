@@ -45,7 +45,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,9,0,100,0,0,5,5000,8000,11,14517,0,0,0,0,0,2,0,0,0,0,0,0,0,"Argent Crusader - Between 0-5 Range - Cast 14517"),
 (@ENTRY,0,1,0,0,0,100,0,7000,11000,20000,24000,11,10326,1,0,0,0,0,6,0,0,0,0,0,0,0,"Argent Crusader - In Combat - Cast 10326"),
-(@ENTRY,0,2,3,8,0,100,1,53031,-1,0,0,11,53039,1,0,0,0,0,1,0,0,0,0,0,0,0,"Argent Crusader - On Spellhit By 53031 - Cast 53039"),
+(@ENTRY,0,2,3,8,0,100,1,53031,0,0,0,11,53039,1,0,0,0,0,1,0,0,0,0,0,0,0,"Argent Crusader - On Spellhit By 53031 - Cast 53039"),
 (@ENTRY,0,3,0,61,0,100,0,0,0,0,0,33,29060,0,0,0,0,0,7,0,0,0,0,0,0,0,"Argent Crusader - On Spellhit By 53031 - Quest Credit");
 
 -- Priest of Sseratus SAI
@@ -83,7 +83,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,0,0,100,0,5000,8000,7000,11000,11,11977,32,0,0,0,0,2,0,0,0,0,0,0,0,"Argent Shieldman - In Combat - Cast 11977"),
 (@ENTRY,0,1,0,0,0,100,1,2000,4000,8000,12000,11,32587,1,0,0,0,0,1,0,0,0,0,0,0,0,"Argent Shieldman - In Combat - Cast 32587"),
-(@ENTRY,0,2,3,8,0,100,1,53031,-1,0,0,11,53039,1,0,0,0,0,1,0,0,0,0,0,0,0,"Argent Shieldman - On Spellhit By 53031 - Cast 53039"),
+(@ENTRY,0,2,3,8,0,100,1,53031,0,0,0,11,53039,1,0,0,0,0,1,0,0,0,0,0,0,0,"Argent Shieldman - On Spellhit By 53031 - Cast 53039"),
 (@ENTRY,0,3,0,61,0,100,0,0,0,0,0,33,29060,0,0,0,0,0,7,0,0,0,0,0,0,0,"Argent Shieldman - On Spellhit By 53031 - Quest Credit");
 
 -- Rainspeaker Warrior SAI
@@ -1053,7 +1053,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,8,0,100,1,47634,-1,0,0,11,47635,22,0,0,0,0,7,0,0,0,0,0,0,0,"The End of the Line Ley Line Focus Kill Credit Bunny - On Spellhit By 47634 - Cast 47635");
+(@ENTRY,0,0,0,8,0,100,1,47634,0,0,0,11,47635,22,0,0,0,0,7,0,0,0,0,0,0,0,"The End of the Line Ley Line Focus Kill Credit Bunny - On Spellhit By 47634 - Cast 47635");
 
 -- Undead Miner SAI
 SET @ENTRY := 26891;
