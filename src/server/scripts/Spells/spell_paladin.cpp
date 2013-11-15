@@ -66,10 +66,10 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
     SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
-    SPELL_PALADIN_SEAL_OF_INSIGHT                = 20165,
     SPELL_PALADIN_SEAL_OF_JUSTICE                = 20164, 
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
-    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379
+    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
+	SPELL_PALADIN_SEAL_OF_INSIGHT                = 20167
 };
 
 enum MiscSpells
@@ -1461,6 +1461,51 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
         }
 };
 
+
+//  20165 Seal of Insight
+//DELETE FROM spell_script_names WHERE spell_id = 20165;
+//INSERT INTO spell_script_names VALUES (20165,'spell_pal_seal_of_insight');
+
+class spell_pal_seal_of_insight : public SpellScriptLoader
+{
+    public:
+        spell_pal_seal_of_insight() : SpellScriptLoader("spell_pal_seal_of_insight") { }
+
+        class spell_pal_seal_of_insight_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_seal_of_insight_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SEAL_OF_INSIGHT))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+				if(Player* p = GetCaster()->ToPlayer())
+				{
+					int32 heal_amount = int32(0.15*p->GetTotalAttackPowerValue(BASE_ATTACK)+0.15*p->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
+					int32 mana_amount = p->GetMaxPower(POWER_MANA) * 0.04;
+					p->CastCustomSpell(p,SPELL_PALADIN_SEAL_OF_INSIGHT,&heal_amount,&mana_amount,NULL,true);
+				}
+
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_insight_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_seal_of_insight_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1491,5 +1536,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgements();
 	new spell_pal_light_of_dawn();
 	new spell_pal_shield_of_the_righteous();
+	new spell_pal_seal_of_insight();
 	
 }
