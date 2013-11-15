@@ -185,7 +185,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,2,0,0,2,100,4,2000,11700,6000,11700,11,15496,0,0,0,0,0,2,0,0,0,0,0,0,0,"Infinite Executioner - In Combat - Cast 15496 (Heroic Dungeon) (Phase 2)"),
 (@ENTRY,0,3,0,0,2,100,4,600,10200,10800,15800,11,9080,0,0,0,0,0,2,0,0,0,0,0,0,0,"Infinite Executioner - In Combat - Cast 9080 (Heroic Dungeon) (Phase 2)"),
 (@ENTRY,0,4,0,0,0,100,2,7200,7200,9700,20300,11,15580,0,0,0,0,0,2,0,0,0,0,0,0,0,"Infinite Executioner - In Combat - Cast 15580 (Normal Dungeon)"),
-(@ENTRY,0,5,0,0,0,100,4,2000,3900,9700,13700,11,34920,0,0,0,0,0,2,0,0,0,0,0,0,0,"Infinite Executioner - In Combat - Cast 34920 (Heroic Dungeon)"),
+(@ENTRY,0,5,0,0,0,100,4,2000,3900,9700,13700,11,34920,0,0,0,0,0,2,0,0,0,0,0,0,0,"Infinite Executioner - In Combat - Cast 34920 (Heroic Dungeon)");
 
 -- Skettis Outcast SAI
 SET @ENTRY := 19075;
