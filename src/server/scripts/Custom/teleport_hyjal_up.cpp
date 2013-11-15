@@ -1,15 +1,15 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 
-class teleport_hyjal : public GameObjectScript
+class teleport_hyjal_up : public GameObjectScript
 {
     public:
 
-        teleport_hyjal(): GameObjectScript("teleport_hyjal"){}
+        teleport_hyjal_up(): GameObjectScript("teleport_hyjal_up"){}
 
         bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
         {
-            player->ADD_GOSSIP_ITEM(0, "Descender al Yunque de la Llama", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+13);
+            player->ADD_GOSSIP_ITEM(0, "volver al saliente de relampagos", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+13);
 			player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, go->GetGUID());
             return true;
         }
@@ -20,7 +20,7 @@ class teleport_hyjal : public GameObjectScript
 			switch(action)
 			{
 			case GOSSIP_ACTION_INFO_DEF+13:
-				player->TeleportTo(1,5029.450195f,-2029.359986f,1148.969975f,3.620060f);
+				player->TeleportTo(1,5039.843750f,-2048.064453f,1367.360112f,5.533869f);
 			default:
 				player->CLOSE_GOSSIP_MENU();
 			}
@@ -28,7 +28,7 @@ class teleport_hyjal : public GameObjectScript
 		}
 };
 
-void AddSC_teleport_hyjal()
+void AddSC_teleport_hyjal_up()
 {
-    new teleport_hyjal();
+    new teleport_hyjal_up();
 }

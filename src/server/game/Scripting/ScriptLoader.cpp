@@ -1421,6 +1421,7 @@ void AddSC_dk_up_map1();
 void AddSC_dk_down_map1();
 void AddSC_firelands_volcanus();
 void AddSC_teleport_hyjal();
+void AddSC_teleport_hyjal_up();
 #endif
 
 void AddCustomScripts()
@@ -1435,5 +1436,6 @@ void AddCustomScripts()
     AddSC_dk_down_map1();
     AddSC_firelands_volcanus();
     AddSC_teleport_hyjal();
+    AddSC_teleport_hyjal_up();
 #endif
 }
