@@ -440,7 +440,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,3000,5000,14000,17000,11,5884,0,0,0,0,0,2,0,0,0,0,0,0,0,"Anaya Dawnrunner - In Combat - Cast 5884 (Not found in DBCs!)"),
+(@ENTRY,0,0,0,0,0,100,0,3000,5000,14000,17000,11,5884,0,0,0,0,0,2,0,0,0,0,0,0,0,"Anaya Dawnrunner - In Combat - Cast 5884"),
 (@ENTRY,0,1,0,6,0,100,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Anaya Dawnrunner - On Death - Say Line 0");
 
 -- Texts for Anaya Dawnrunner
@@ -476,7 +476,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,2,1300,14600,14200,36000,11,7295,0,0,0,0,0,2,0,0,0,0,0,0,0,"Rethilgore - In Combat - Cast 7295 (Not found in DBCs!) (Normal Dungeon)"),
+(@ENTRY,0,0,0,0,0,100,2,1300,14600,14200,36000,11,7295,0,0,0,0,0,2,0,0,0,0,0,0,0,"Rethilgore - In Combat - Cast 7295 (Normal Dungeon)"),
 (@ENTRY,0,1,0,4,0,100,3,0,0,0,0,34,2,1,0,0,0,0,1,0,0,0,0,0,0,0,"Rethilgore - On Aggro - Set Instance Data Field To 2 To Data 1 (Normal Dungeon)"),
 (@ENTRY,0,2,0,6,0,100,3,0,0,0,0,34,2,3,0,0,0,0,1,0,0,0,0,0,0,0,"Rethilgore - On Death - Set Instance Data Field To 2 To Data 3 (Normal Dungeon)"),
 (@ENTRY,0,3,0,7,0,100,3,0,0,0,0,34,2,2,0,0,0,0,1,0,0,0,0,0,0,0,"Rethilgore - On Evade - Set Instance Data Field To 2 To Data 2 (Normal Dungeon)");
@@ -514,7 +514,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,4,0,100,1,0,0,0,0,11,6268,0,0,0,0,0,1,0,0,0,0,0,0,0,"Galak Marauder - On Aggro - Cast 6268 (Not found in DBCs!)"),
+(@ENTRY,0,0,0,4,0,100,1,0,0,0,0,11,6268,0,0,0,0,0,1,0,0,0,0,0,0,0,"Galak Marauder - On Aggro - Cast 6268"),
 (@ENTRY,0,1,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Galak Marauder - Between 0-15% Health - Flee For Assist");
 
 -- Screeching Harpy SAI
@@ -523,7 +523,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,5000,8000,17000,25000,11,3589,0,0,0,0,0,2,0,0,0,0,0,0,0,"Screeching Harpy - In Combat - Cast 3589 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,17000,25000,11,3589,0,0,0,0,0,2,0,0,0,0,0,0,0,"Screeching Harpy - In Combat - Cast 3589");
 
 -- Screeching Roguefeather SAI
 SET @ENTRY := 4101;
@@ -531,7 +531,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,2000,4000,10000,15000,11,6595,0,0,0,0,0,2,0,0,0,0,0,0,0,"Screeching Roguefeather - In Combat - Cast 6595 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,2000,4000,10000,15000,11,6595,0,0,0,0,0,2,0,0,0,0,0,0,0,"Screeching Roguefeather - In Combat - Cast 6595");
 
 -- Screeching Windcaller SAI
 SET @ENTRY := 4104;
@@ -539,7 +539,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,4500,7500,35000,40000,11,6982,0,0,0,0,0,1,0,0,0,0,0,0,0,"Screeching Windcaller - In Combat - Cast 6982 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,4500,7500,35000,40000,11,6982,0,0,0,0,0,1,0,0,0,0,0,0,0,"Screeching Windcaller - In Combat - Cast 6982");
 
 -- Highperch Wyvern SAI
 SET @ENTRY := 4107;
@@ -547,7 +547,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,3616,1,0,0,0,0,1,0,0,0,0,0,0,0,"Highperch Wyvern - On Respawn - Cast 3616 (Not found in DBCs!)");
+(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,3616,1,0,0,0,0,1,0,0,0,0,0,0,0,"Highperch Wyvern - On Respawn - Cast 3616");
 
 -- Highperch Consort SAI
 SET @ENTRY := 4109;
@@ -555,7 +555,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,3616,1,0,0,0,0,1,0,0,0,0,0,0,0,"Highperch Consort - On Respawn - Cast 3616 (Not found in DBCs!)");
+(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,3616,1,0,0,0,0,1,0,0,0,0,0,0,0,"Highperch Consort - On Respawn - Cast 3616");
 
 -- Highperch Patriarch SAI
 SET @ENTRY := 4110;
@@ -563,7 +563,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,3616,1,0,0,0,0,1,0,0,0,0,0,0,0,"Highperch Patriarch - On Respawn - Cast 3616 (Not found in DBCs!)");
+(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,3616,1,0,0,0,0,1,0,0,0,0,0,0,0,"Highperch Patriarch - On Respawn - Cast 3616");
 
 -- Gravelsnout Kobold SAI
 SET @ENTRY := 4111;
@@ -571,7 +571,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,3000,5000,4000,7000,11,11976,0,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Kobold - In Combat - Cast 11976 (Not found in DBCs!)"),
+(@ENTRY,0,0,0,0,0,100,0,3000,5000,4000,7000,11,11976,0,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Kobold - In Combat - Cast 11976"),
 (@ENTRY,0,1,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Gravelsnout Kobold - Between 0-15% Health - Flee For Assist");
 
 -- Gravelsnout Vermin SAI
@@ -580,7 +580,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,6000,12000,8000,13000,11,3427,32,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Vermin - In Combat - Cast 3427 (Not found in DBCs!)"),
+(@ENTRY,0,0,0,0,0,100,0,6000,12000,8000,13000,11,3427,32,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Vermin - In Combat - Cast 3427"),
 (@ENTRY,0,1,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Gravelsnout Vermin - Between 0-15% Health - Flee For Assist");
 
 -- Gravelsnout Digger SAI
@@ -589,7 +589,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,2000,3000,7000,10000,11,3551,0,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Digger - In Combat - Cast 3551 (Not found in DBCs!)"),
+(@ENTRY,0,0,0,0,0,100,0,2000,3000,7000,10000,11,3551,0,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Digger - In Combat - Cast 3551"),
 (@ENTRY,0,1,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Gravelsnout Digger - Between 0-15% Health - Flee For Assist");
 
 -- Gravelsnout Forager SAI
@@ -598,7 +598,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,1,1000,3000,0,0,11,8245,0,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Forager - In Combat - Cast 8245 (Not found in DBCs!)"),
+(@ENTRY,0,0,0,0,0,100,1,1000,3000,0,0,11,8245,0,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelsnout Forager - In Combat - Cast 8245"),
 (@ENTRY,0,1,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Gravelsnout Forager - Between 0-15% Health - Flee For Assist");
 
 -- Expedition Researcher SAI
@@ -699,7 +699,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,6,5000,10000,20000,30000,11,33401,0,0,0,0,0,2,0,0,0,0,0,0,0,"Phantasmal Possessor - In Combat - Cast 33401 (Not found in DBCs!) (Dungeon Only)"),
+(@ENTRY,0,0,0,0,0,100,6,5000,10000,20000,30000,11,33401,0,0,0,0,0,2,0,0,0,0,0,0,0,"Phantasmal Possessor - In Combat - Cast 33401 (Dungeon Only)"),
 (@ENTRY,0,1,0,7,0,100,7,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Phantasmal Possessor - On Evade - Forced Despawn (Dungeon Only)");
 
 -- Raging Soul SAI
@@ -708,8 +708,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,3,0,0,0,0,11,32888,1,0,0,0,0,1,0,0,0,0,0,0,0,"Raging Soul - In Combat - Cast 32888 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,1,0,0,0,100,5,0,0,0,0,11,38380,1,0,0,0,0,1,0,0,0,0,0,0,0,"Raging Soul - In Combat - Cast 38380 (Not found in DBCs!) (Heroic Dungeon)"),
+(@ENTRY,0,0,0,0,0,100,3,0,0,0,0,11,32888,1,0,0,0,0,1,0,0,0,0,0,0,0,"Raging Soul - In Combat - Cast 32888 (Normal Dungeon)"),
+(@ENTRY,0,1,0,0,0,100,5,0,0,0,0,11,38380,1,0,0,0,0,1,0,0,0,0,0,0,0,"Raging Soul - In Combat - Cast 38380 (Heroic Dungeon)"),
 (@ENTRY,0,2,0,7,0,100,7,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Raging Soul - On Evade - Forced Despawn (Dungeon Only)");
 
 -- Unliving Soldier SAI
@@ -718,8 +718,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,11,0,100,7,0,0,0,0,11,32828,1,0,0,0,0,1,0,0,0,0,0,0,0,"Unliving Soldier - On Respawn - Cast 32828 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,1,0,13,0,90,6,8000,10000,0,0,11,11972,1,0,0,0,0,2,0,0,0,0,0,0,0,"Unliving Soldier - On Target Casting - Cast 11972 (Not found in DBCs!) (Dungeon Only)"),
+(@ENTRY,0,0,0,11,0,100,7,0,0,0,0,11,32828,1,0,0,0,0,1,0,0,0,0,0,0,0,"Unliving Soldier - On Respawn - Cast 32828 (Dungeon Only)"),
+(@ENTRY,0,1,0,13,0,90,6,8000,10000,0,0,11,11972,1,0,0,0,0,2,0,0,0,0,0,0,0,"Unliving Soldier - On Target Casting - Cast 11972 (Dungeon Only)"),
 (@ENTRY,0,2,0,7,0,100,7,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Unliving Soldier - On Evade - Forced Despawn (Dungeon Only)");
 
 -- Dreadfang Lurker SAI
@@ -728,7 +728,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,3000,6500,4000,9000,11,32902,32,0,0,0,0,2,0,0,0,0,0,0,0,"Dreadfang Lurker - In Combat - Cast 32902 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,3000,6500,4000,9000,11,32902,32,0,0,0,0,2,0,0,0,0,0,0,0,"Dreadfang Lurker - In Combat - Cast 32902");
 
 -- Dreadfang Widow SAI
 SET @ENTRY := 18467;
@@ -736,7 +736,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,3000,6500,4000,9000,11,32902,32,0,0,0,0,2,0,0,0,0,0,0,0,"Dreadfang Widow - In Combat - Cast 32902 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,3000,6500,4000,9000,11,32902,32,0,0,0,0,2,0,0,0,0,0,0,0,"Dreadfang Widow - In Combat - Cast 32902");
 
 -- Teromoth SAI
 SET @ENTRY := 18468;
@@ -744,7 +744,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,6000,12500,15000,22000,11,32904,0,0,0,0,0,2,0,0,0,0,0,0,0,"Teromoth - In Combat - Cast 32904 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,6000,12500,15000,22000,11,32904,0,0,0,0,0,2,0,0,0,0,0,0,0,"Teromoth - In Combat - Cast 32904");
 
 -- Royal Teromoth SAI
 SET @ENTRY := 18469;
@@ -752,8 +752,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,6000,12500,15000,22000,11,32904,0,0,0,0,0,2,0,0,0,0,0,0,0,"Royal Teromoth - In Combat - Cast 32904 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,2000,5000,9000,15000,11,32914,1,0,0,0,0,1,0,0,0,0,0,0,0,"Royal Teromoth - In Combat - Cast 32914 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,6000,12500,15000,22000,11,32904,0,0,0,0,0,2,0,0,0,0,0,0,0,"Royal Teromoth - In Combat - Cast 32904"),
+(@ENTRY,0,1,0,0,0,100,0,2000,5000,9000,15000,11,32914,1,0,0,0,0,1,0,0,0,0,0,0,0,"Royal Teromoth - In Combat - Cast 32914");
 
 -- Bonelasher SAI
 SET @ENTRY := 18470;
@@ -761,7 +761,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,2000,6000,5000,7000,11,34363,32,0,0,0,0,2,0,0,0,0,0,0,0,"Bonelasher - In Combat - Cast 34363 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,2000,6000,5000,7000,11,34363,32,0,0,0,0,2,0,0,0,0,0,0,0,"Bonelasher - In Combat - Cast 34363");
 
 -- Timber Worg SAI
 SET @ENTRY := 18476;
@@ -769,8 +769,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,2000,4000,16000,20000,11,32918,1,0,0,0,0,1,0,0,0,0,0,0,0,"Timber Worg - In Combat - Cast 32918 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,5000,8000,4000,6000,11,32919,0,0,0,0,0,2,0,0,0,0,0,0,0,"Timber Worg - In Combat - Cast 32919 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,2000,4000,16000,20000,11,32918,1,0,0,0,0,1,0,0,0,0,0,0,0,"Timber Worg - In Combat - Cast 32918"),
+(@ENTRY,0,1,0,0,0,100,0,5000,8000,4000,6000,11,32919,0,0,0,0,0,2,0,0,0,0,0,0,0,"Timber Worg - In Combat - Cast 32919");
 
 -- Timber Worg Alpha SAI
 SET @ENTRY := 18477;
@@ -778,8 +778,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,1000,3000,15000,18000,11,3149,1,0,0,0,0,1,0,0,0,0,0,0,0,"Timber Worg Alpha - In Combat - Cast 3149 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,4000,6000,5000,7000,11,32919,0,0,0,0,0,2,0,0,0,0,0,0,0,"Timber Worg Alpha - In Combat - Cast 32919 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,1000,3000,15000,18000,11,3149,1,0,0,0,0,1,0,0,0,0,0,0,0,"Timber Worg Alpha - In Combat - Cast 3149"),
+(@ENTRY,0,1,0,0,0,100,0,4000,6000,5000,7000,11,32919,0,0,0,0,0,2,0,0,0,0,0,0,0,"Timber Worg Alpha - In Combat - Cast 32919");
 
 -- Lost Spirit SAI
 SET @ENTRY := 18460;
@@ -787,7 +787,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,3000,5000,9000,12000,11,32938,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lost Spirit - In Combat - Cast 32938 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,3000,5000,9000,12000,11,32938,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lost Spirit - In Combat - Cast 32938");
 
 -- Dampscale Basilisk SAI
 SET @ENTRY := 18461;
@@ -795,7 +795,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,5000,8000,45000,50000,11,32905,0,0,0,0,0,2,0,0,0,0,0,0,0,"Dampscale Basilisk - In Combat - Cast 32905 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,5000,8000,45000,50000,11,32905,0,0,0,0,0,2,0,0,0,0,0,0,0,"Dampscale Basilisk - In Combat - Cast 32905");
 
 -- Dampscale Devourer SAI
 SET @ENTRY := 18463;
@@ -803,7 +803,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,3000,6000,4000,7000,11,32906,0,0,0,0,0,2,0,0,0,0,0,0,0,"Dampscale Devourer - In Combat - Cast 32906 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,3000,6000,4000,7000,11,32906,0,0,0,0,0,2,0,0,0,0,0,0,0,"Dampscale Devourer - In Combat - Cast 32906");
 
 -- Skithian Windripper SAI
 SET @ENTRY := 18453;
@@ -811,9 +811,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,4,0,100,1,0,0,0,0,11,32924,0,0,0,0,0,1,0,0,0,0,0,0,0,"Skithian Windripper - On Aggro - Cast 32924 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,3000,5000,6000,9000,11,32907,0,0,0,0,0,2,0,0,0,0,0,0,0,"Skithian Windripper - In Combat - Cast 32907 (Not found in DBCs!)"),
-(@ENTRY,0,2,0,2,0,100,0,0,50,16000,21000,11,16561,1,0,0,0,0,1,0,0,0,0,0,0,0,"Skithian Windripper - Between 0-50% Health - Cast 16561 (Not found in DBCs!)");
+(@ENTRY,0,0,0,4,0,100,1,0,0,0,0,11,32924,0,0,0,0,0,1,0,0,0,0,0,0,0,"Skithian Windripper - On Aggro - Cast 32924"),
+(@ENTRY,0,1,0,0,0,100,0,3000,5000,6000,9000,11,32907,0,0,0,0,0,2,0,0,0,0,0,0,0,"Skithian Windripper - In Combat - Cast 32907"),
+(@ENTRY,0,2,0,2,0,100,0,0,50,16000,21000,11,16561,1,0,0,0,0,1,0,0,0,0,0,0,0,"Skithian Windripper - Between 0-50% Health - Cast 16561");
 
 -- Shalassi Talonguard SAI
 SET @ENTRY := 18454;
@@ -821,7 +821,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,4000,7000,45000,48000,11,6016,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Talonguard - In Combat - Cast 6016 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,4000,7000,45000,48000,11,6016,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Talonguard - In Combat - Cast 6016");
 
 -- Shalassi Oracle SAI
 SET @ENTRY := 18455;
@@ -829,11 +829,11 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,4,0,100,1,0,0,0,0,11,32924,0,0,0,0,0,1,0,0,0,0,0,0,0,"Shalassi Oracle - On Aggro - Cast 32924 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,5000,7000,7000,11000,11,32907,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 32907 (Not found in DBCs!)"),
-(@ENTRY,0,2,0,0,0,100,0,2000,4000,40000,45000,11,6535,1,0,0,0,0,5,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 6535 (Not found in DBCs!)"),
-(@ENTRY,0,3,0,0,0,100,0,8000,11000,13000,16000,11,12058,1,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 12058 (Not found in DBCs!)"),
-(@ENTRY,0,4,0,0,0,100,0,12000,14000,13000,16000,11,11824,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 11824 (Not found in DBCs!)");
+(@ENTRY,0,0,0,4,0,100,1,0,0,0,0,11,32924,0,0,0,0,0,1,0,0,0,0,0,0,0,"Shalassi Oracle - On Aggro - Cast 32924"),
+(@ENTRY,0,1,0,0,0,100,0,5000,7000,7000,11000,11,32907,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 32907"),
+(@ENTRY,0,2,0,0,0,100,0,2000,4000,40000,45000,11,6535,1,0,0,0,0,5,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 6535"),
+(@ENTRY,0,3,0,0,0,100,0,8000,11000,13000,16000,11,12058,1,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 12058"),
+(@ENTRY,0,4,0,0,0,100,0,12000,14000,13000,16000,11,11824,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shalassi Oracle - In Combat - Cast 11824");
 
 -- Shienor Wing Guard SAI
 SET @ENTRY := 18451;
@@ -841,7 +841,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,9,0,100,0,0,5,8000,11000,11,11972,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shienor Wing Guard - Between 0-5 Range - Cast 11972 (Not found in DBCs!)");
+(@ENTRY,0,0,0,9,0,100,0,0,5,8000,11000,11,11972,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shienor Wing Guard - Between 0-5 Range - Cast 11972");
 
 -- Warden Bullrok SAI
 SET @ENTRY := 18407;
@@ -865,8 +865,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,30000,30000,30000,50000,11,34771,1,0,0,0,0,1,0,0,0,0,0,0,0,"Durn the Hungerer - In Combat - Cast 34771 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,9000,9000,9000,15000,11,28168,1,0,0,0,0,2,0,0,0,0,0,0,0,"Durn the Hungerer - In Combat - Cast 28168 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,30000,30000,30000,50000,11,34771,1,0,0,0,0,1,0,0,0,0,0,0,0,"Durn the Hungerer - In Combat - Cast 34771"),
+(@ENTRY,0,1,0,0,0,100,0,9000,9000,9000,15000,11,28168,1,0,0,0,0,2,0,0,0,0,0,0,0,"Durn the Hungerer - In Combat - Cast 28168");
 
 -- Arcane Fiend SAI
 SET @ENTRY := 18429;
@@ -874,9 +874,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,2,1300,3700,4800,6200,11,15253,0,0,0,0,0,1,0,0,0,0,0,0,0,"Arcane Fiend - In Combat - Cast 15253 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,1,0,0,0,100,4,1300,3700,4800,6200,11,33860,0,0,0,0,0,1,0,0,0,0,0,0,0,"Arcane Fiend - In Combat - Cast 33860 (Not found in DBCs!) (Heroic Dungeon)"),
-(@ENTRY,0,2,0,13,0,100,6,25000,30000,0,0,11,15122,1,0,0,0,0,7,0,0,0,0,0,0,0,"Arcane Fiend - On Target Casting - Cast 15122 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,0,0,100,2,1300,3700,4800,6200,11,15253,0,0,0,0,0,1,0,0,0,0,0,0,0,"Arcane Fiend - In Combat - Cast 15253 (Normal Dungeon)"),
+(@ENTRY,0,1,0,0,0,100,4,1300,3700,4800,6200,11,33860,0,0,0,0,0,1,0,0,0,0,0,0,0,"Arcane Fiend - In Combat - Cast 33860 (Heroic Dungeon)"),
+(@ENTRY,0,2,0,13,0,100,6,25000,30000,0,0,11,15122,1,0,0,0,0,7,0,0,0,0,0,0,0,"Arcane Fiend - On Target Casting - Cast 15122 (Dungeon Only)");
 
 -- Vicious Teromoth SAI
 SET @ENTRY := 18437;
@@ -884,9 +884,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,32423,0,0,0,0,0,1,0,0,0,0,0,0,0,"Vicious Teromoth - On Respawn - Cast 32423 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,9000,15000,16000,24000,11,32913,0,0,0,0,0,2,0,0,0,0,0,0,0,"Vicious Teromoth - In Combat - Cast 32913 (Not found in DBCs!)"),
-(@ENTRY,0,2,0,0,0,100,0,3000,5000,11000,16000,11,32914,0,0,0,0,0,1,0,0,0,0,0,0,0,"Vicious Teromoth - In Combat - Cast 32914 (Not found in DBCs!)");
+(@ENTRY,0,0,0,11,0,100,1,0,0,0,0,11,32423,0,0,0,0,0,1,0,0,0,0,0,0,0,"Vicious Teromoth - On Respawn - Cast 32423"),
+(@ENTRY,0,1,0,0,0,100,0,9000,15000,16000,24000,11,32913,0,0,0,0,0,2,0,0,0,0,0,0,0,"Vicious Teromoth - In Combat - Cast 32913"),
+(@ENTRY,0,2,0,0,0,100,0,3000,5000,11000,16000,11,32914,0,0,0,0,0,1,0,0,0,0,0,0,0,"Vicious Teromoth - In Combat - Cast 32914");
 
 -- Naphthal'ar SAI
 SET @ENTRY := 18438;
@@ -894,8 +894,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,0,9000,15000,16000,24000,11,32913,0,0,0,0,0,2,0,0,0,0,0,0,0,"Naphthal'ar - In Combat - Cast 32913 (Not found in DBCs!)"),
-(@ENTRY,0,1,0,0,0,100,0,3000,5000,11000,16000,11,32914,0,0,0,0,0,1,0,0,0,0,0,0,0,"Naphthal'ar - In Combat - Cast 32914 (Not found in DBCs!)");
+(@ENTRY,0,0,0,0,0,100,0,9000,15000,16000,24000,11,32913,0,0,0,0,0,2,0,0,0,0,0,0,0,"Naphthal'ar - In Combat - Cast 32913"),
+(@ENTRY,0,1,0,0,0,100,0,3000,5000,11000,16000,11,32914,0,0,0,0,0,1,0,0,0,0,0,0,0,"Naphthal'ar - In Combat - Cast 32914");
 
 -- Giselda the Crone SAI
 SET @ENTRY := 18391;
@@ -903,7 +903,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,2,0,100,1,0,65,0,0,11,33316,0,0,0,0,0,1,0,0,0,0,0,0,0,"Giselda the Crone - Between 0-65% Health - Cast 33316 (Not found in DBCs!)");
+(@ENTRY,0,0,0,2,0,100,1,0,65,0,0,11,33316,0,0,0,0,0,1,0,0,0,0,0,0,0,"Giselda the Crone - Between 0-65% Health - Cast 33316");
 
 -- Ethereal Darkcaster SAI
 SET @ENTRY := 18331;
@@ -911,11 +911,11 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,4,0,100,7,0,0,0,0,11,38061,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ethereal Darkcaster - On Aggro - Cast 38061 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,1,0,0,0,100,6,2500,6100,9600,12000,11,34942,32,0,0,0,0,5,0,0,0,0,0,0,0,"Ethereal Darkcaster - In Combat - Cast 34942 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,2,0,0,0,100,2,3700,7600,6000,6900,11,34930,1,0,0,0,0,6,0,0,0,0,0,0,0,"Ethereal Darkcaster - In Combat - Cast 34930 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,3,0,0,0,100,4,3700,7600,6000,6900,11,34931,1,0,0,0,0,6,0,0,0,0,0,0,0,"Ethereal Darkcaster - In Combat - Cast 34931 (Not found in DBCs!) (Heroic Dungeon)"),
-(@ENTRY,0,4,0,2,0,100,7,0,50,0,0,11,16592,1,0,0,0,0,1,0,0,0,0,0,0,0,"Ethereal Darkcaster - Between 0-50% Health - Cast 16592 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,4,0,100,7,0,0,0,0,11,38061,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ethereal Darkcaster - On Aggro - Cast 38061 (Dungeon Only)"),
+(@ENTRY,0,1,0,0,0,100,6,2500,6100,9600,12000,11,34942,32,0,0,0,0,5,0,0,0,0,0,0,0,"Ethereal Darkcaster - In Combat - Cast 34942 (Dungeon Only)"),
+(@ENTRY,0,2,0,0,0,100,2,3700,7600,6000,6900,11,34930,1,0,0,0,0,6,0,0,0,0,0,0,0,"Ethereal Darkcaster - In Combat - Cast 34930 (Normal Dungeon)"),
+(@ENTRY,0,3,0,0,0,100,4,3700,7600,6000,6900,11,34931,1,0,0,0,0,6,0,0,0,0,0,0,0,"Ethereal Darkcaster - In Combat - Cast 34931 (Heroic Dungeon)"),
+(@ENTRY,0,4,0,2,0,100,7,0,50,0,0,11,16592,1,0,0,0,0,1,0,0,0,0,0,0,0,"Ethereal Darkcaster - Between 0-50% Health - Cast 16592 (Dungeon Only)");
 
 -- Tavarok SAI
 SET @ENTRY := 18343;
@@ -923,10 +923,10 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,6,10000,14200,20000,38600,11,33919,0,0,0,0,0,1,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 33919 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,1,0,0,0,100,6,12000,23500,14100,24500,11,32361,1,0,0,0,0,5,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 32361 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,2,0,0,0,100,2,12000,20700,7400,15500,11,8374,0,0,0,0,0,2,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 8374 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,3,0,0,0,100,4,12000,20700,7400,15500,11,38761,0,0,0,0,0,2,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 38761 (Not found in DBCs!) (Heroic Dungeon)");
+(@ENTRY,0,0,0,0,0,100,6,10000,14200,20000,38600,11,33919,0,0,0,0,0,1,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 33919 (Dungeon Only)"),
+(@ENTRY,0,1,0,0,0,100,6,12000,23500,14100,24500,11,32361,1,0,0,0,0,5,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 32361 (Dungeon Only)"),
+(@ENTRY,0,2,0,0,0,100,2,12000,20700,7400,15500,11,8374,0,0,0,0,0,2,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 8374 (Normal Dungeon)"),
+(@ENTRY,0,3,0,0,0,100,4,12000,20700,7400,15500,11,38761,0,0,0,0,0,2,0,0,0,0,0,0,0,"Tavarok - In Combat - Cast 38761 (Heroic Dungeon)");
 
 -- Sethekk Guard SAI
 SET @ENTRY := 18323;
@@ -934,7 +934,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,6,3000,5000,10000,13000,11,33967,0,0,0,0,0,1,0,0,0,0,0,0,0,"Sethekk Guard - In Combat - Cast 33967 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,0,0,100,6,3000,5000,10000,13000,11,33967,0,0,0,0,0,1,0,0,0,0,0,0,0,"Sethekk Guard - In Combat - Cast 33967 (Dungeon Only)");
 
 -- Sethekk Prophet SAI
 SET @ENTRY := 18325;
@@ -942,7 +942,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,6,1000,3000,8000,12000,11,27641,0,0,0,0,0,5,0,0,0,0,0,0,0,"Sethekk Prophet - In Combat - Cast 27641 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,0,0,100,6,1000,3000,8000,12000,11,27641,0,0,0,0,0,5,0,0,0,0,0,0,0,"Sethekk Prophet - In Combat - Cast 27641 (Dungeon Only)");
 
 -- Sethekk Shaman SAI
 SET @ENTRY := 18326;
@@ -950,9 +950,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,13,0,100,2,8000,8000,0,0,11,15501,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Shaman - On Target Casting - Cast 15501 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,1,0,13,0,100,4,8000,8000,0,0,11,22885,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Shaman - On Target Casting - Cast 22885 (Not found in DBCs!) (Heroic Dungeon)"),
-(@ENTRY,0,2,0,4,0,100,7,0,0,0,0,11,32663,1,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Shaman - On Aggro - Cast 32663 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,13,0,100,2,8000,8000,0,0,11,15501,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Shaman - On Target Casting - Cast 15501 (Normal Dungeon)"),
+(@ENTRY,0,1,0,13,0,100,4,8000,8000,0,0,11,22885,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Shaman - On Target Casting - Cast 22885 (Heroic Dungeon)"),
+(@ENTRY,0,2,0,4,0,100,7,0,0,0,0,11,32663,1,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Shaman - On Aggro - Cast 32663 (Dungeon Only)");
 
 -- Sethekk Oracle SAI
 SET @ENTRY := 18328;
@@ -960,9 +960,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,2,1000,2000,8000,14000,11,32690,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Oracle - In Combat - Cast 32690 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,1,0,0,0,100,4,1000,2000,8000,14000,11,38146,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Oracle - In Combat - Cast 38146 (Not found in DBCs!) (Heroic Dungeon)"),
-(@ENTRY,0,2,0,0,0,100,7,4000,7000,0,0,11,32129,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Oracle - In Combat - Cast 32129 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,0,0,100,2,1000,2000,8000,14000,11,32690,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Oracle - In Combat - Cast 32690 (Normal Dungeon)"),
+(@ENTRY,0,1,0,0,0,100,4,1000,2000,8000,14000,11,38146,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Oracle - In Combat - Cast 38146 (Heroic Dungeon)"),
+(@ENTRY,0,2,0,0,0,100,7,4000,7000,0,0,11,32129,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Oracle - In Combat - Cast 32129 (Dungeon Only)");
 
 -- Time-Lost Shadowmage SAI
 SET @ENTRY := 18320;
@@ -970,8 +970,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,3,4000,7000,0,0,11,32682,0,0,0,0,0,2,0,0,0,0,0,0,0,"Time-Lost Shadowmage - In Combat - Cast 32682 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,1,0,0,0,100,5,4000,7000,0,0,11,38149,0,0,0,0,0,2,0,0,0,0,0,0,0,"Time-Lost Shadowmage - In Combat - Cast 38149 (Not found in DBCs!) (Heroic Dungeon)");
+(@ENTRY,0,0,0,0,0,100,3,4000,7000,0,0,11,32682,0,0,0,0,0,2,0,0,0,0,0,0,0,"Time-Lost Shadowmage - In Combat - Cast 32682 (Normal Dungeon)"),
+(@ENTRY,0,1,0,0,0,100,5,4000,7000,0,0,11,38149,0,0,0,0,0,2,0,0,0,0,0,0,0,"Time-Lost Shadowmage - In Combat - Cast 38149 (Heroic Dungeon)");
 
 -- Sethekk Talon Lord SAI
 SET @ENTRY := 18321;
@@ -979,8 +979,8 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,4,0,100,7,0,0,0,0,11,32674,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Talon Lord - On Aggro - Cast 32674 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,1,0,0,0,100,6,2000,6000,10000,15000,11,32654,0,0,0,0,0,5,0,0,0,0,0,0,0,"Sethekk Talon Lord - In Combat - Cast 32654 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,4,0,100,7,0,0,0,0,11,32674,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Talon Lord - On Aggro - Cast 32674 (Dungeon Only)"),
+(@ENTRY,0,1,0,0,0,100,6,2000,6000,10000,15000,11,32654,0,0,0,0,0,5,0,0,0,0,0,0,0,"Sethekk Talon Lord - In Combat - Cast 32654 (Dungeon Only)");
 
 -- Sethekk Initiate SAI
 SET @ENTRY := 18318;
@@ -988,9 +988,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,6,1000,3000,5000,7000,11,16145,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Initiate - In Combat - Cast 16145 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,1,0,0,0,100,6,5000,7000,12000,18000,11,33961,1,0,0,0,0,1,0,0,0,0,0,0,0,"Sethekk Initiate - In Combat - Cast 33961 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,2,0,14,0,5,7,10000,20,0,0,11,20223,0,0,0,0,0,7,0,0,0,0,0,0,0,"Sethekk Initiate - On Friendly Unit At 10000 Health Within 20 Range - Cast 20223 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,0,0,100,6,1000,3000,5000,7000,11,16145,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sethekk Initiate - In Combat - Cast 16145 (Dungeon Only)"),
+(@ENTRY,0,1,0,0,0,100,6,5000,7000,12000,18000,11,33961,1,0,0,0,0,1,0,0,0,0,0,0,0,"Sethekk Initiate - In Combat - Cast 33961 (Dungeon Only)"),
+(@ENTRY,0,2,0,14,0,5,7,10000,20,0,0,11,20223,0,0,0,0,0,7,0,0,0,0,0,0,0,"Sethekk Initiate - On Friendly Unit At 10000 Health Within 20 Range - Cast 20223 (Dungeon Only)");
 
 -- Nexus Stalker SAI
 SET @ENTRY := 18314;
@@ -998,9 +998,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,0,0,100,6,5000,7900,9700,22100,11,34940,0,0,0,0,0,5,0,0,0,0,0,0,0,"Nexus Stalker - In Combat - Cast 34940 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,1,0,0,0,100,2,3000,10400,12200,18600,11,33925,0,0,0,0,0,2,0,0,0,0,0,0,0,"Nexus Stalker - In Combat - Cast 33925 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,2,0,0,0,100,4,3000,10400,12200,18600,11,39332,0,0,0,0,0,2,0,0,0,0,0,0,0,"Nexus Stalker - In Combat - Cast 39332 (Not found in DBCs!) (Heroic Dungeon)");
+(@ENTRY,0,0,0,0,0,100,6,5000,7900,9700,22100,11,34940,0,0,0,0,0,5,0,0,0,0,0,0,0,"Nexus Stalker - In Combat - Cast 34940 (Dungeon Only)"),
+(@ENTRY,0,1,0,0,0,100,2,3000,10400,12200,18600,11,33925,0,0,0,0,0,2,0,0,0,0,0,0,0,"Nexus Stalker - In Combat - Cast 33925 (Normal Dungeon)"),
+(@ENTRY,0,2,0,0,0,100,4,3000,10400,12200,18600,11,39332,0,0,0,0,0,2,0,0,0,0,0,0,0,"Nexus Stalker - In Combat - Cast 39332 (Heroic Dungeon)");
 
 -- Ethereal Theurgist SAI
 SET @ENTRY := 18315;
@@ -1008,11 +1008,11 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,9,0,100,2,0,5,5000,8500,11,15580,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - Between 0-5 Range - Cast 15580 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,1,0,9,0,100,4,0,5,5000,8500,11,34920,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - Between 0-5 Range - Cast 34920 (Not found in DBCs!) (Heroic Dungeon)"),
-(@ENTRY,0,2,0,0,0,100,2,4200,6500,8000,12000,11,17145,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - In Combat - Cast 17145 (Not found in DBCs!) (Normal Dungeon)"),
-(@ENTRY,0,3,0,0,0,100,4,4200,6500,8000,12000,11,38064,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - In Combat - Cast 38064 (Not found in DBCs!) (Heroic Dungeon)"),
-(@ENTRY,0,4,0,0,0,100,6,2400,7200,18000,24000,11,13323,1,0,0,0,0,5,0,0,0,0,0,0,0,"Ethereal Theurgist - In Combat - Cast 13323 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,9,0,100,2,0,5,5000,8500,11,15580,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - Between 0-5 Range - Cast 15580 (Normal Dungeon)"),
+(@ENTRY,0,1,0,9,0,100,4,0,5,5000,8500,11,34920,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - Between 0-5 Range - Cast 34920 (Heroic Dungeon)"),
+(@ENTRY,0,2,0,0,0,100,2,4200,6500,8000,12000,11,17145,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - In Combat - Cast 17145 (Normal Dungeon)"),
+(@ENTRY,0,3,0,0,0,100,4,4200,6500,8000,12000,11,38064,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Theurgist - In Combat - Cast 38064 (Heroic Dungeon)"),
+(@ENTRY,0,4,0,0,0,100,6,2400,7200,18000,24000,11,13323,1,0,0,0,0,5,0,0,0,0,0,0,0,"Ethereal Theurgist - In Combat - Cast 13323 (Dungeon Only)");
 
 -- Ethereal Scavenger SAI
 SET @ENTRY := 18309;
@@ -1020,9 +1020,9 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,9,0,100,6,0,5,9500,16200,11,34920,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Scavenger - Between 0-5 Range - Cast 34920 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,1,0,0,0,100,6,2400,3600,12100,13200,11,33865,0,0,0,0,0,5,0,0,0,0,0,0,0,"Ethereal Scavenger - In Combat - Cast 33865 (Not found in DBCs!) (Dungeon Only)"),
-(@ENTRY,0,2,0,13,0,100,6,10000,14000,0,0,11,33871,1,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Scavenger - On Target Casting - Cast 33871 (Not found in DBCs!) (Dungeon Only)");
+(@ENTRY,0,0,0,9,0,100,6,0,5,9500,16200,11,34920,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Scavenger - Between 0-5 Range - Cast 34920 (Dungeon Only)"),
+(@ENTRY,0,1,0,0,0,100,6,2400,3600,12100,13200,11,33865,0,0,0,0,0,5,0,0,0,0,0,0,0,"Ethereal Scavenger - In Combat - Cast 33865 (Dungeon Only)"),
+(@ENTRY,0,2,0,13,0,100,6,10000,14000,0,0,11,33871,1,0,0,0,0,2,0,0,0,0,0,0,0,"Ethereal Scavenger - On Target Casting - Cast 33871 (Dungeon Only)");
 
 DELETE FROM `linked_respawn` WHERE `guid` IN (79448,86059,86060,86061,86062,86063,86064);
 UPDATE `smart_scripts` SET `action_type`=11, `action_param1`=47009 WHERE `entryorguid`=26268 AND `id`=1;
