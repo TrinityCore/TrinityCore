@@ -74,7 +74,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,30,0,1,0,100,6,1080000,1080000,2340000,2340000,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nat Pagle - Out Of Combat - Say Line 0 (Dungeon Only)"),
 (@ENTRY,0,31,0,1,0,100,6,1087000,1087000,2347000,2347000,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nat Pagle - Out Of Combat - Say Line 1 (Dungeon Only)"),
 (@ENTRY,0,32,0,1,0,100,6,1097000,1097000,2357000,2357000,1,20,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nat Pagle - Out Of Combat - Say Line 20 (Dungeon Only)"),
-(@ENTRY,0,33,0,1,0,100,6,1107000,1107000,2367000,2367000,1,21,0,0,0,0,1,0,0,0,0,0,0,0,"Nat Pagle - Out Of Combat - Say Line 21 (Dungeon Only)"),
+(@ENTRY,0,33,0,1,0,100,6,1107000,1107000,2367000,2367000,1,21,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nat Pagle - Out Of Combat - Say Line 21 (Dungeon Only)"),
 (@ENTRY,0,34,0,1,0,100,6,1117000,1117000,2377000,2377000,1,22,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nat Pagle - Out Of Combat - Say Line 22 (Dungeon Only)");
 
 -- Texts for Nat Pagle
