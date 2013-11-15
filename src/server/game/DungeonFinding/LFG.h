@@ -42,9 +42,9 @@ enum LfgRoles
 enum LfgUpdateType
 {
     LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
-    LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
+    LFG_UPDATETYPE_LEADER                        = 1,      // FIXME: At group leave
     LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
-    LFG_UPDATETYPE_JOIN_QUEUE                    = 6,
+    LFG_UPDATETYPE_JOIN_PROPOSAL                 = 6,
     LFG_UPDATETYPE_ROLECHECK_FAILED              = 7,
     LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,
     LFG_UPDATETYPE_PROPOSAL_FAILED               = 9,
@@ -52,7 +52,7 @@ enum LfgUpdateType
     LFG_UPDATETYPE_GROUP_FOUND                   = 11,
     LFG_UPDATETYPE_ADDED_TO_QUEUE                = 13,
     LFG_UPDATETYPE_PROPOSAL_BEGIN                = 14,
-    LFG_UPDATETYPE_UPDATE_STATUS                 = 15,
+    LFG_UPDATETYPE_CLEAR_LOCK_LIST               = 15,
     LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16,
     LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17,     // FIXME: Sometimes at group disband
     LFG_UPDATETYPE_JOIN_QUEUE_INITIAL            = 24,
@@ -99,7 +99,7 @@ enum LfgAnswer
 };
 
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, uint32> LfgLockMap;
+typedef std::map<uint32, LfgLockStatusType> LfgLockMap;
 typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
 typedef std::set<uint64> LfgGuidSet;
 typedef std::list<uint64> LfgGuidList;
