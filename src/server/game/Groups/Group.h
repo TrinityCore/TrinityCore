@@ -19,11 +19,15 @@
 #ifndef TRINITYCORE_GROUP_H
 #define TRINITYCORE_GROUP_H
 
+#include "Battleground.h"
 #include "DBCEnums.h"
 #include "GroupRefManager.h"
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
+#include "Player.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 class Battlefield;
 class Battleground;
@@ -241,6 +245,7 @@ class Group
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
 
         uint8 GetMemberGroup(uint64 guid) const;
+        uint8 GetGroupType() { return m_groupType; }
 
         void ConvertToLFG();
         void ConvertToRaid();
@@ -307,7 +312,6 @@ class Group
         InstanceGroupBind* GetBoundInstance(Player* player);
         InstanceGroupBind* GetBoundInstance(Map* aMap);
         InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
-        InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty);
 
         // FG: evil hacks
