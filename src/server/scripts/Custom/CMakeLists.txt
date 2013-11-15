@@ -19,6 +19,7 @@ Custom/dk_up_map1.cpp
 Custom/dk_down_map1.cpp
 Custom/firelands_volcanus.cpp
 Custom/teleport_hyjal.cpp
+Custom/teleport_hyjal_up.cpp
 )
 
 message("  -> Prepared: Custom")
