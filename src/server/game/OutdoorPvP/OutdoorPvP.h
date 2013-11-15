@@ -19,6 +19,7 @@
 #define OUTDOOR_PVP_H_
 
 #include "Util.h"
+#include "Utilities/Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 
@@ -84,7 +85,7 @@ class Unit;
 struct GossipMenuItems;
 class OutdoorPvP;
 
-typedef std::set<uint64> PlayerSet;
+typedef std::set<Player*> PlayerSet;
 
 class OPvPCapturePoint
 {
@@ -284,7 +285,7 @@ class OutdoorPvP : public ZoneScript
 
         void RegisterZone(uint32 zoneid);
 
-        bool HasPlayer(Player const* player) const;
+        bool HasPlayer(Player* player) const;
 
         void TeamCastSpell(TeamId team, int32 spellId);
 };
