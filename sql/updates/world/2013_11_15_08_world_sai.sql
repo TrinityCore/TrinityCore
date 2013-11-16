@@ -820,7 +820,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,9,10,9,2,100,0,25,80,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 25-80 Range - Allow Combat Movement (Phase 2)"),
 (@ENTRY,0,10,0,61,2,100,0,0,0,0,0,20,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 25-80 Range - Start Auto Attack (Phase 2)"),
 (@ENTRY,0,11,11,9,2,100,0,0,5,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 0-5 Range - Allow Combat Movement (Phase 2)"),
-(@ENTRY,0,12,12,61,2,100,0,0,0,0,0,40,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 0-5 Range - Set Sheath Melee (Phase 2)"),
+(@ENTRY,0,12,13,61,2,100,0,0,0,0,0,40,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 0-5 Range - Set Sheath Melee (Phase 2)"),
 (@ENTRY,0,13,0,61,2,100,0,0,0,0,0,20,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 0-5 Range - Start Auto Attack (Phase 2)"),
 (@ENTRY,0,14,15,9,2,100,0,5,15,0,0,21,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 5-15 Range - Disallow Combat Movement (Phase 2)"),
 (@ENTRY,0,15,0,61,2,100,0,0,0,0,0,20,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Horde Scout - Between 5-15 Range - Stop Auto Attack (Phase 2)"),
@@ -838,7 +838,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (@ENTRY,0,2,"Feel the power of the Dark Iron Dwarves!",12,0,100,0,0,0,"Horde Scout");
 
 -- Anubisath Defender SAI
-SET @ENTRY := ;
+SET @ENTRY := 15277;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
@@ -857,7 +857,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,11,0,0,0,34,2,1000,1000,12000,12000,12,15387,1,60000,0,0,0,6,0,0,0,0,0,0,0,"Anubisath Defender - In Combat - Summon Creature Qiraji Warrior (Normal Dungeon)");
 
 -- Texts for Anubisath Defender
-SET @ENTRY := ;
+SET @ENTRY := 15277;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@ENTRY,0,0,"%s becomes enraged!",16,0,100,0,0,0,"Anubisath Defender");
