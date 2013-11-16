@@ -927,7 +927,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
-
+            std::cout << "Pet summoned";
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
             break;
         }
@@ -949,6 +949,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 case 510: // mage Water Elemental
                 {
                     SetBonusDamage(int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.33f));
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance; // Let Water Elementals inherit spell hit from their master
                     break;
                 }
                 case 1964: //force of nature
@@ -1035,6 +1036,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 30*petlevel);
                         SetCreateHealth(28 + 10*petlevel);
                     }
+                    // Let mirror images inherit their master's spell hit rating
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
                     break;
                 }
                 case 27829: // Ebon Gargoyle
@@ -1044,10 +1047,11 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 10*petlevel);
                         SetCreateHealth(28 + 30*petlevel);
                     }
-                    // convert DK melee haste into the gargoyles spell haste
+                    // Convert DK haste and hit into the gargoyle's haste/hit
                     float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
                     ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
-                    m_modSpellHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
 
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
