@@ -663,7 +663,7 @@ bool AuthSocket::_HandleLogonProof()
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
         stmt->setString(4, _login);
-        LoginDatabase.Execute(stmt);
+        LoginDatabase.DirectExecute(stmt);
 
         OPENSSL_free((void*)K_hex);
 
