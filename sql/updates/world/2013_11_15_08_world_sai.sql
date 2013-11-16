@@ -302,7 +302,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,5,6,9,2,100,0,5,30,3600,3800,11,8858,0,0,0,0,0,2,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 5-30 Range - Cast 8858 (Phase 2)"),
 (@ENTRY,0,6,0,61,2,100,0,0,0,0,0,40,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 5-30 Range - Set Sheath Ranged (Phase 2)"),
 (@ENTRY,0,7,8,9,2,100,0,25,80,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 25-80 Range - Allow Combat Movement (Phase 2)"),
-(@ENTRY,0,8,0,61,2,100,0,00,0,0,20,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 25-80 Range - Start Auto Attack (Phase 2)"),
+(@ENTRY,0,8,0,61,2,100,0,0,0,0,0,20,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 25-80 Range - Start Auto Attack (Phase 2)"),
 (@ENTRY,0,9,10,9,2,100,0,0,5,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 0-5 Range - Allow Combat Movement (Phase 2)"),
 (@ENTRY,0,10,11,61,2,100,0,0,0,0,0,40,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 0-5 Range - Set Sheath Melee (Phase 2)"),
 (@ENTRY,0,11,0,61,2,100,0,0,0,0,0,20,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Dark Iron Demolitionist - Between 0-5 Range - Start Auto Attack (Phase 2)"),
