@@ -69,7 +69,8 @@ enum PaladinSpells
     SPELL_PALADIN_SEAL_OF_JUSTICE                = 20164, 
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
-	SPELL_PALADIN_SEAL_OF_INSIGHT                = 20167
+	SPELL_PALADIN_SEAL_OF_INSIGHT                = 20167,
+	SPELL_PALADIN_SACRED_SHIELD_TRIGGERED        = 96263
 };
 
 enum MiscSpells
@@ -999,37 +1000,58 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         }
 };
 
-// 85285 - Sacred Shield
+//85285 Sacred Shield
+//DELETE FROM spell_script_names WHERE spell_id = 85285;
+//INSERT INTO spell_script_names VALUES (20165,'spell_pal_sacred_shield');
+//INSERT INTO `conditions` VALUES ('24','0','85285','0','0','38','1','30','4','0','0','0','0','',NULL);
+
 class spell_pal_sacred_shield : public SpellScriptLoader
 {
     public:
         spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
 
-        class spell_pal_sacred_shield_SpellScript : public SpellScript
+        class spell_pal_sacred_shield_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_pal_sacred_shield_SpellScript);
+            PrepareAuraScript(spell_pal_sacred_shield_AuraScript);
 
-            SpellCastResult CheckCast()
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SACRED_SHIELD_TRIGGERED))
+                    return false;
+                return true;
+            }
 
-                if (!caster->HealthBelowPct(30))
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+			bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                if (Player* player = GetTarget()->ToPlayer())
+                    if (player->HasSpellCooldown(SPELL_PALADIN_SACRED_SHIELD_TRIGGERED))
+                        return false;
+                return true;
+            }
 
-                return SPELL_CAST_OK;
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+				if(Player* p = GetTarget()->ToPlayer())
+				{
+					int32 absorb_amount = int32(1 + 2.8 * p->GetTotalAttackPowerValue(BASE_ATTACK));
+					int32 heal_improvement_pct = 20;
+					p->CastCustomSpell(p,SPELL_PALADIN_SACRED_SHIELD_TRIGGERED,&absorb_amount,&heal_improvement_pct,NULL,true);
+					p->AddSpellCooldown(SPELL_PALADIN_SACRED_SHIELD_TRIGGERED,0,time(NULL)+60);
+				}
+
             }
 
             void Register() OVERRIDE
             {
-                OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
+				DoCheckProc += AuraCheckProcFn(spell_pal_sacred_shield_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_sacred_shield_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        AuraScript* GetAuraScript() const OVERRIDE
         {
-            return new spell_pal_sacred_shield_SpellScript();
+            return new spell_pal_sacred_shield_AuraScript();
         }
 };
 
