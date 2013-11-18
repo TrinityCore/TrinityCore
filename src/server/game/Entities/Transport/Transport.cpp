@@ -530,7 +530,9 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
                 break;
             }
             case TYPEID_PLAYER:
-                GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
+                //relocate only passengers in world and skip any player that might be still logging in/teleporting
+                if (passenger->IsInWorld())
+                    GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
