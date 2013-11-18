@@ -30,7 +30,7 @@
 enum PaladinSpells
 {
 	//Spells related to Guardian of ancient kings
-	SPELL_PALADIN_GUARDIAN_ANCIENT_KINGS         = 86150, //Dummy
+    SPELL_PALADIN_GUARDIAN_ANCIENT_KINGS         = 86150, //Dummy
     SPELL_PALADIN_GUARDIAN_RETRIBUTION           = 86698,
     SPELL_PALADIN_GUARDIAN_HOLY                  = 86669,
     SPELL_PALADIN_GUARDIAN_PROTECTION            = 86659,
@@ -69,8 +69,8 @@ enum PaladinSpells
     SPELL_PALADIN_SEAL_OF_JUSTICE                = 20164, 
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
-	SPELL_PALADIN_SEAL_OF_INSIGHT                = 20167,
-	SPELL_PALADIN_SACRED_SHIELD_TRIGGERED        = 96263
+    SPELL_PALADIN_SEAL_OF_INSIGHT                = 20167,
+    SPELL_PALADIN_SACRED_SHIELD_TRIGGERED        = 96263
 };
 
 enum MiscSpells
@@ -1366,72 +1366,54 @@ class spell_pal_judgements : public SpellScriptLoader
 };
 
 // Light of Dawn dream wow 
-class spell_pal_light_of_dawn: public SpellScriptLoader
+class spell_pal_lod : public SpellScriptLoader
 {
-public:
-    spell_pal_light_of_dawn () :
-            SpellScriptLoader("spell_pal_light_of_dawn")
-    {
-    }
+    public:
+        spell_pal_lod() : SpellScriptLoader("spell_pal_lod") { }
 
-    class spell_pal_light_of_dawn_SpellScript: public SpellScript
-    {
-        PrepareSpellScript(spell_pal_light_of_dawn_SpellScript)
-        ;
-
-        uint32 totalheal;
-
-        bool Load ()
+        class spell_pal_lod_SpellScript : public SpellScript
         {
-            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                return false;
+            PrepareSpellScript(spell_pal_lod_SpellScript);
 
-            return true;
-        }
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                std::list<Unit*> temp;
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); itr++)
+                    if (Unit* unit = (*itr)->ToUnit())
+                        temp.push_back(unit);
 
-        void ChangeHeal (SpellEffIndex /*effIndex*/)
+                targets.clear();
+                temp.sort(Trinity::HealthPctOrderPred());
+                if (temp.size() > 6)
+                    temp.resize(6);                
+                for (std::list<Unit*>::iterator itr = temp.begin(); itr != temp.end(); itr++)
+                    targets.push_back((WorldObject*)(*itr));
+            }
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+		  
+		  int32 heal = GetHitHeal();
+
+		  int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
+		  heal *= 0.5*hp*hp + 1.5*hp + 1;
+
+                SetHitHeal(heal);
+		  Player* p = GetCaster()->ToPlayer();
+		  p->SetPower(POWER_HOLY_POWER, 0);           
+	     }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_lod_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_lod_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-
-            if (!target)
-                return;
-
-            if (target == caster)
-                return;
-
-            switch (caster->GetPower(POWER_HOLY_POWER))
-            {
-            case 0:          // 1 Holy Power
-            {
-                totalheal = GetHitHeal();
-                break;
-            }
-            case 1:          // 2 Holy Power
-            {
-                totalheal = GetHitHeal() * 2;
-                break;
-            }
-            case 2:          // 3 Holy Power
-            {
-                totalheal = GetHitHeal() * 3;
-                break;
-            }
-            }
-            SetHitHeal(totalheal);
-            caster->SetPower(POWER_HOLY_POWER, 0);
+            return new spell_pal_lod_SpellScript();
         }
-
-        void Register ()
-        {
-            OnEffectLaunch += SpellEffectFn(spell_pal_light_of_dawn_SpellScript::ChangeHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-        }
-    };
-
-    SpellScript* GetSpellScript () const
-    {
-        return new spell_pal_light_of_dawn_SpellScript();
-    }
 };
 
 // 53600 - Shield of the Righteous DREAM WOW 
@@ -1556,8 +1538,8 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_guardian_ancient_kings();
     new spell_pal_judgement_of_command();
     new spell_pal_judgements();
-	new spell_pal_light_of_dawn();
-	new spell_pal_shield_of_the_righteous();
-	new spell_pal_seal_of_insight();
+    new spell_pal_shield_of_the_righteous();
+    new spell_pal_seal_of_insight();
+    new spell_pal_lod();
 	
 }

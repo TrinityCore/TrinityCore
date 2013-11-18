@@ -6401,7 +6401,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
-                // Totemic Power (The Earthshatterer set)
+               			
+		  // Totemic Power (The Earthshatterer set)
                 case 28823:
                 {
                     if (!victim)
@@ -7532,6 +7533,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
+	 
 	 // Find weakness DREAMWOW 
         case 91021:
         {

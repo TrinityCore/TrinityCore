@@ -389,6 +389,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_WARRIOR:
             {
+		
                 // Victory Rush
                 if (m_spellInfo->Id == 34428)
                     ApplyPct(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
@@ -595,6 +596,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 			*/
             case SPELLFAMILY_DRUID:
             {
+
+		
                 // Ferocious Bite
                 if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags[0] & 0x000800000) && m_spellInfo->SpellVisual[0] == 6587)
                 {
@@ -675,6 +678,19 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_DEATHKNIGHT:
             {
+		   // PESTEADOR DE EBANO DREAM WOW
+                 if (m_caster->HasAura(51099)) // Rank 1
+                 {
+                     if (m_spellInfo->Id == 45462 || m_spellInfo->Id == 45477 || m_spellInfo->Id == 45524 || m_spellInfo->Id == 77575)
+                     m_caster->CastSpell(unitTarget, 65142, true);
+                }
+                 else
+                 if (m_caster->HasAura(51160)) // Rank 2
+                 {
+                     if (m_spellInfo->Id == 45462 || m_spellInfo->Id == 45477 || m_spellInfo->Id == 45524 || m_spellInfo->Id == 77575)
+                     m_caster->CastSpell(unitTarget, 65142, true);
+                 }
+
                 // Blood Boil - bonus for diseased targets
                 if (m_spellInfo->SpellFamilyFlags[0] & 0x00040000)
                 {
@@ -686,9 +702,11 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
-// agregado por Dream wow
-case SPELLFAMILY_HUNTER:
+	    // agregado por Dream wow
+	    case SPELLFAMILY_HUNTER:
 				{
+		
+			
 					//Base attack of hunter pets
 					if (m_spellInfo->Id == 16827 || m_spellInfo->Id == 49966 || m_spellInfo->Id == 17253)
 						if (m_caster->IsPet())
@@ -859,6 +877,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
          }
 // agregado por Dream wow
 case SPELLFAMILY_HUNTER:
+
+		
 	// steady shot focus effect (it has its own skill for this)
 		if (m_spellInfo->SpellFamilyFlags[1] & 0x1)
 		{
@@ -3336,6 +3356,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         case SPELLFAMILY_WARRIOR:
         {
+	  	
             // Devastate (player ones)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x40)
             {

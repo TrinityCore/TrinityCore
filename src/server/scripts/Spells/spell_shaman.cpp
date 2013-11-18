@@ -531,8 +531,6 @@ class spell_sha_fire_nova : public SpellScriptLoader
         }
 };
 
-// 8050 -Flame Shock
-/// Updated 4.3.4
 class spell_sha_flame_shock : public SpellScriptLoader
 {
     public:
