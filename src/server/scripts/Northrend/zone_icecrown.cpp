@@ -483,7 +483,7 @@ class npc_tournament_training_dummy : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/)OVERRIDE { }
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
         };
 

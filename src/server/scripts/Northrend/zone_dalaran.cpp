@@ -64,11 +64,11 @@ public:
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void Reset()OVERRIDE { }
+        void Reset() OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void AttackStart(Unit* /*who*/)OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -118,7 +118,7 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 /*diff*/)OVERRIDE { }
+        void UpdateAI(uint32 /*diff*/) OVERRIDE { }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE

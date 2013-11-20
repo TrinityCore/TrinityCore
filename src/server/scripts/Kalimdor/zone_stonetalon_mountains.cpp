@@ -144,7 +144,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void Reset()OVERRIDE { }
+        void Reset() OVERRIDE { }
     };
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
