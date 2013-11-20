@@ -1401,8 +1401,8 @@ class spell_pal_lod : public SpellScriptLoader
 
             void HandleAfterCast()
             {
-				Player* p = GetCaster()->ToPlayer();
-				p->SetPower(POWER_HOLY_POWER, 0);           
+                Player* p = GetCaster()->ToPlayer();
+                p->SetPower(POWER_HOLY_POWER, 0);           
 			}
 
             void Register()
@@ -1410,7 +1410,7 @@ class spell_pal_lod : public SpellScriptLoader
 
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_lod_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_pal_lod_SpellScript::HandleOnEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
-				AfterCast += SpellCastFn(spell_pal_lod_SpellScript::HandleAfterCast);
+                AfterCast += SpellCastFn(spell_pal_lod_SpellScript::HandleAfterCast);
             }
         };
 
