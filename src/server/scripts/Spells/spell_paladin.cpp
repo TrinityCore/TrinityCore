@@ -1403,7 +1403,7 @@ class spell_pal_lod : public SpellScriptLoader
             {
                 Player* p = GetCaster()->ToPlayer();
                 p->SetPower(POWER_HOLY_POWER, 0);           
-			}
+	        }
 
             void Register()
             {
