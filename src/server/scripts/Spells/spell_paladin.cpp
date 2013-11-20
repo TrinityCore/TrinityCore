@@ -1390,23 +1390,27 @@ class spell_pal_lod : public SpellScriptLoader
                     targets.push_back((WorldObject*)(*itr));
             }
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+			void HandleOnEffectHit(SpellEffIndex /*effIndex*/)
+			{
+				Player * p = GetCaster()->ToPlayer();
+				int32 heal = int32(GetEffectValue() + 0.156*p->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
+				int8 hp_charges = p->GetPower(POWER_HOLY_POWER); //Formula: 606 a 874 por cada carga de Holy Power
+				int32 total_heal = heal * (hp_charges + 1); //El mas 1 es porque Trinity detecta mal las cargas de poder sagrado, cuando tienes 3 te detecta solo 2, cuando tienes 2 te detecta 1 y cuando tienes 1 no te detecta ninguna.
+				SetHitHeal(total_heal);
+			}
+
+            void HandleAfterCast()
             {
-		  
-		  int32 heal = GetHitHeal();
-
-		  int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
-		  heal *= 0.5*hp*hp + 1.5*hp + 1;
-
-                SetHitHeal(heal);
-		  Player* p = GetCaster()->ToPlayer();
-		  p->SetPower(POWER_HOLY_POWER, 0);           
-	     }
+				Player* p = GetCaster()->ToPlayer();
+				p->SetPower(POWER_HOLY_POWER, 0);           
+			}
 
             void Register()
             {
+
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_lod_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ALLY);
-                OnEffectHitTarget += SpellEffectFn(spell_pal_lod_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_lod_SpellScript::HandleOnEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+				AfterCast += SpellCastFn(spell_pal_lod_SpellScript::HandleAfterCast);
             }
         };
 
