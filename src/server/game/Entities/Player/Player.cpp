@@ -26485,17 +26485,17 @@ void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uin
     */
     if (GetGUIDLow() == 0)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "[Wowarmory]: player is not initialized, unable to create log entry!");
+        TC_LOG_DEBUG("misc", "[Wowarmory]: player is not initialized, unable to create log entry!");
         return;
     }
     if (type <= 0 || type > 3)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "[Wowarmory]: unknown feed type: %d, ignore.", type);
+        TC_LOG_DEBUG("misc", "[Wowarmory]: unknown feed type: %d, ignore.", type);
         return;
     }
     if (data == 0)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "[Wowarmory]: empty data (GUID: %u), ignore.", GetGUIDLow());
+        TC_LOG_DEBUG("misc", "[Wowarmory]: empty data (GUID: %u), ignore.", GetGUIDLow());
         return;
     }
     WowarmoryFeedEntry feed;
@@ -26507,6 +26507,6 @@ void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uin
     feed.item_quality = item_quality;
     feed.counter = 0;
     feed.date = time(NULL);
-    sLog->outDebug(LOG_FILTER_UNITS, "[Wowarmory]: create wowarmory feed (GUID: %u, type: %d, data: %u).", feed.guid, feed.type, feed.data);
+    TC_LOG_DEBUG("entities.unit", "[Wowarmory]: create wowarmory feed (GUID: %u, type: %d, data: %u).", feed.guid, feed.type, feed.data);
     m_wowarmory_feeds.push_back(feed);
 }
