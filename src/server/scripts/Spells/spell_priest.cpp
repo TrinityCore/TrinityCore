@@ -739,8 +739,8 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 canBeRecalculated = false;
                 if (Unit* caster = GetCaster())
                 {
-                    // +80.68% from sp bonus
-                    float bonus = 0.8068f;
+                    // +87% from sp bonus
+                    float bonus = 0.87f;
 
                     // Borrowed Time
                     if (AuraEffect const* borrowedTime = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_BORROWED_TIME, EFFECT_1))
