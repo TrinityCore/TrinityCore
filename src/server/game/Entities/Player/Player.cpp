@@ -9637,13 +9637,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4131) << uint32(0);              // 10 WORLDSTATE_ALGALON_DESPAWN_TIMER
             }
             break;
-        // Wintergrasp
-        case 4197:
-            if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
-            {
-                bf->FillInitialWorldStates(data);
-                break;
-            }
+        // Halls of Refection
         case 4820:
             if (instance && mapid == 668)
                 instance->FillInitialWorldStates(data);
@@ -9653,7 +9647,13 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4882) << uint32(0);              // 10 WORLD_STATE_HOR_WAVE_COUNT
             }
             break;
-
+        // Wintergrasp
+        case 4197:
+            if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
+            {
+                bf->FillInitialWorldStates(data);
+                break;
+            }
             // No break here, intended.
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
@@ -17150,26 +17150,28 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             float x = fields[26].GetFloat(), y = fields[27].GetFloat(), z = fields[28].GetFloat(), o = fields[29].GetFloat();
             m_movementInfo.transport.pos.Relocate(x, y, z, o);
             m_transport->CalculatePassengerPosition(x, y, z, &o);
-            Relocate(x, y, z, o);
 
-            if (!Trinity::IsValidMapCoord(
-                GetPositionX() + m_movementInfo.transport.pos.m_positionX, GetPositionY() + m_movementInfo.transport.pos.m_positionY,
-                GetPositionZ() + m_movementInfo.transport.pos.m_positionZ, GetOrientation() + m_movementInfo.transport.pos.m_orientation) ||
+            if (!Trinity::IsValidMapCoord(x, y, z, o) ||
                 // transport size limited
-                m_movementInfo.transport.pos.m_positionX > 250 || m_movementInfo.transport.pos.m_positionY > 250 || m_movementInfo.transport.pos.m_positionZ > 250)
+                std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
+                std::fabs(m_movementInfo.transport.pos.GetPositionY()) > 250.0f ||
+                std::fabs(m_movementInfo.transport.pos.GetPositionZ()) > 250.0f)
             {
                 TC_LOG_ERROR("entities.player", "Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
-                    guid, GetPositionX() + m_movementInfo.transport.pos.m_positionX, GetPositionY() + m_movementInfo.transport.pos.m_positionY,
-                    GetPositionZ() + m_movementInfo.transport.pos.m_positionZ, GetOrientation() + m_movementInfo.transport.pos.m_orientation);
+                    guid, x, y, z, o);
 
                 m_transport = NULL;
+                m_movementInfo.transport.Reset();
 
                 RelocateToHomebind();
             }
             else
             {
-                m_transport->AddPassenger(this);
+                Relocate(x, y, z, o);
                 mapId = m_transport->GetMapId();
+
+                m_transport->AddPassenger(this);
+                AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
             }
         }
         else
