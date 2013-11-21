@@ -29,10 +29,10 @@
 
 enum PriestSpells
 {
-	SPELL_PRIEST_INNER_FOCUS                        = 89485,
-	SPELL_PRIEST_FLASH_HEAL                         = 2061,
-	SPELL_PRIEST_GREATER_HEAL                       = 2060,
-	SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
+    SPELL_PRIEST_INNER_FOCUS                        = 89485,
+    SPELL_PRIEST_FLASH_HEAL                         = 2061, 
+    SPELL_PRIEST_GREATER_HEAL                       = 2060,
+    SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
     SPELL_PRIEST_ABSOLUTION                         = 33167,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
@@ -795,8 +795,8 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 canBeRecalculated = false;
                 if (Unit* caster = GetCaster())
                 {
-                    // +80.68% from sp bonus
-                    float bonus = 0.8068f;
+                    // +87.00% from sp bonus
+                    float bonus = 0.87f;
 
                     // Borrowed Time
                     if (AuraEffect const* borrowedTime = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_BORROWED_TIME, EFFECT_1))
