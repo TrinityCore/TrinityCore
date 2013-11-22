@@ -1089,9 +1089,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         break;
                     case EVENT_ESCAPE_27:
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                            me->SummonGameObject(GO_CAPTAIN_CHEST_1, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+                            me->SummonGameObject(IsHeroic() ? GO_CAPTAIN_CHEST_HORDE_HEROIC : GO_CAPTAIN_CHEST_HORDE_NORMAL, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
                         else
-                            me->SummonGameObject(GO_CAPTAIN_CHEST_3, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+                            me->SummonGameObject(IsHeroic() ? GO_CAPTAIN_CHEST_ALLIANCE_HEROIC : GO_CAPTAIN_CHEST_ALLIANCE_NORMAL, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
                         me->SummonGameObject(GO_PORTAL, FinalPortalPos.GetPositionX(), FinalPortalPos.GetPositionY(), FinalPortalPos.GetPositionZ(), FinalPortalPos.GetOrientation(), 0, 0, 0, 0, 720000);
                         if (Creature* lichking = ObjectAccessor::GetCreature(*me, _lichkingGUID))
                             lichking->DespawnOrUnsummon(1);
