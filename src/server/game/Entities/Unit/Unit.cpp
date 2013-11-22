@@ -5890,7 +5890,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 case 56807: // Glyph of hemorrhage
                 {
-                    basepoints0 = int32(0.40f * damage);
+                    basepoints0 = int32((0.40f * damage)/ 8);
                     triggered_spell_id = 89775;
                     break;
                 }
@@ -7474,6 +7474,14 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             // When your health drops below 20%
             if (HealthBelowPctDamaged(20, damage) || HealthBelowPct(20))
                 return false;
+            break;
+        }
+	 // Improved Hamstring Seccionar Mejorado
+        case 12289:
+        case 12668:
+        {
+            if (!victim->HasAura(1715)) 
+		  return false;
             break;
         }
         // Greater Heal Refund (Avatar Raiment set)

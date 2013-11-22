@@ -1514,6 +1514,46 @@ class spell_pal_seal_of_insight : public SpellScriptLoader
         }
 };
 
+// Inquisition DREAM WOW
+class spell_pal_inquisition : public SpellScriptLoader
+{
+    public:
+        spell_pal_inquisition() : SpellScriptLoader("spell_pal_inquisition") { }
+
+        class spell_pal_inquisition_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_inquisition_SpellScript);
+
+            void HandleApply(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                int8 holypower = caster->GetPower(POWER_HOLY_POWER);
+		  int32 total_power = (holypower + 1);
+                if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+                holypower = GetCaster()->GetMaxPower(POWER_HOLY_POWER);
+                Aura* aura = GetHitAura();
+                aura->SetDuration(aura->GetMaxDuration() * total_power);
+            }
+			
+	     void HandleAfterCast()
+            {
+                Player* p = GetCaster()->ToPlayer();
+                p->SetPower(POWER_HOLY_POWER, 0);           
+	     }
+			
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_inquisition_SpellScript::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+		  AfterCast += SpellCastFn(spell_pal_inquisition_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_inquisition_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -1545,5 +1585,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_shield_of_the_righteous();
     new spell_pal_seal_of_insight();
     new spell_pal_lod();
+    new spell_pal_inquisition();
 	
 }

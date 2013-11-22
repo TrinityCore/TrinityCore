@@ -1195,32 +1195,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
 				
-				// para seccionar mejorado Dream wow
+				
 				case SPELLFAMILY_WARRIOR:
 				{
 					if (!caster)
 						break;
-					if(GetId() == 1715) // Hamstring
-					{
-						if(caster->HasAura(12668)) // Improved Hamstring rank 2
-						{
-							if(target->HasAura(1715)) // If he already has hamstring
-							{
-								caster->CastSpell(target,23694,false); // Not triggered
-								if(!caster->ToPlayer()->HasSpellCooldown(23694))
-									caster->ToPlayer()->AddSpellCooldown(23694,0,uint32(time(NULL) + 30000)); // Add 30 seconds cooldown
-							}
-						}
-						if(caster->HasAura(12289)) // Improved Hamstring rank 1
-						{
-							if(target->HasAura(1715)) // If he already has hamstring
-							{
-								caster->CastSpell(target,23694,false); // Not triggered
-								if(!caster->ToPlayer()->HasSpellCooldown(23694))
-									caster->ToPlayer()->AddSpellCooldown(23694,0,uint32(time(NULL) + 60000)); // Add 60 seconds cooldown
-							}
-						}
-					}
+				
 					if(GetId() == 2565) //shield block
 					{
 						int32 bp0 = 0;
@@ -1244,9 +1224,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 					switch (GetId())
 					{
 					case 60970: // Heroic Fury (remove Intercept cooldown)
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            target->ToPlayer()->RemoveSpellCooldown(20252, true);
-                        break;
+                       			if (target->GetTypeId() == TYPEID_PLAYER)
+                            		target->ToPlayer()->RemoveSpellCooldown(20252, true);
+                       		 break;
 						
 					case 50227: // Warrior - Sword and Board
 						{

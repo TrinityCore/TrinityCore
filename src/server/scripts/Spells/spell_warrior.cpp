@@ -59,7 +59,10 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
-    SPELL_WARRIOR_VENGEANCE                         = 76691
+    SPELL_WARRIOR_VENGEANCE                         = 76691,
+    SPELL_WARRIOR_IMPROVED_HAMSTRING_R2             = 12668,
+    SPELL_WARRIOR_IMPROVED_HAMSTRING_R1             = 12289,
+    SPELL_WARRIOR_HAMSTRING                         = 1715
 };
 
 enum WarriorSpellIcons
@@ -1093,6 +1096,56 @@ class spell_warr_cleave : public SpellScriptLoader
         }
 };
 
+// 12289, 12669 - Improved Hamstring
+/// Updated 4.3.4
+class spell_warr_improved_hamstring : public SpellScriptLoader
+{
+public:
+    spell_warr_improved_hamstring() : SpellScriptLoader("spell_warr_improved_hamstring") { }
+ 
+    class spell_warr_improved_hamstring_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_improved_hamstring_SpellScript)
+ 
+        bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+        {
+            return true;
+        }
+ 
+        void HandleBeforeHit()
+        {
+            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                return;
+ 
+            Unit* unitTarget = GetHitUnit();
+            if ((GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_HAMSTRING_R1) || (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_HAMSTRING_R2))) &&
+                (unitTarget->HasAura(SPELL_WARRIOR_HAMSTRING,GetCaster()->GetGUID())))
+            {
+                if (!GetCaster()->ToPlayer()->HasSpellCooldown(23694))
+                {
+                    GetCaster()->CastSpell(unitTarget,23694,true);
+ 
+                    if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_HAMSTRING_R1))
+                        GetCaster()->ToPlayer()->AddSpellCooldown(23694, 0, time(NULL) + 60);
+                   
+                    if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_HAMSTRING_R2))
+                        GetCaster()->ToPlayer()->AddSpellCooldown(23694, 0, time(NULL) + 30);
+                }
+            }
+        }
+ 
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_warr_improved_hamstring_SpellScript::HandleBeforeHit);
+        }
+    };
+ 
+    SpellScript *GetSpellScript() const
+    {
+        return new spell_warr_improved_hamstring_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1121,4 +1174,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
     new spell_warr_cleave();
+    new spell_warr_improved_hamstring();
 }
