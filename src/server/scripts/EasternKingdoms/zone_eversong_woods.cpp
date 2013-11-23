@@ -84,7 +84,6 @@ public:
         {
             CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->me->setFaction(FACTION_COMBAT);
             CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-
             CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->events.ScheduleEvent(EVENT_SUMMON, 1000);
             CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
             CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = player->GetGUID();
@@ -131,7 +130,7 @@ public:
             Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit* who) OVERRIDE
+        void SummonedCreatureDies(Creature* summoned, Unit* /*who*/) OVERRIDE
         {
             Summons.Despawn(summoned);
             ++KillCount;
@@ -186,7 +185,7 @@ public:
                     case EVENT_FIREBALL:
                         if (!UpdateVictim())
                             continue;
-                        DoCastVictim(SPELL_FIREBALL, true);
+                        DoCastVictim(SPELL_FIREBALL, true);  // Not casting in combat
                         events.ScheduleEvent(EVENT_FIREBALL, 3000);
                         break;
                     default:
