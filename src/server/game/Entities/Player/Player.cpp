@@ -15301,9 +15301,25 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
     if (quest->GetRewSpellCast() > 0)
-        CastSpell(this, quest->GetRewSpellCast(), true);
+    {
+        if (questGiver->isType(TYPEMASK_UNIT))
+        {
+            if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
+                creature->CastSpell(this, quest->GetRewSpellCast(), true);
+        }
+        else
+            CastSpell(this, quest->GetRewSpellCast(), true);
+    }
     else if (quest->GetRewSpell() > 0)
-        CastSpell(this, quest->GetRewSpell(), true);
+    {
+        if (questGiver->isType(TYPEMASK_UNIT))
+        {
+            if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
+                creature->CastSpell(this, quest->GetRewSpell(), true);
+        }
+        else
+            CastSpell(this, quest->GetRewSpell(), true);
+    }
 
     if (quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
