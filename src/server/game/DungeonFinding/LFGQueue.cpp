@@ -674,7 +674,7 @@ void LFGQueue::UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQu
             --queueData.tanks;
         else if (role & PLAYER_ROLE_HEALER)
             --queueData.healers;
-        else
+        else if (role & PLAYER_ROLE_DAMAGE)
             --queueData.dps;
     }
 }
