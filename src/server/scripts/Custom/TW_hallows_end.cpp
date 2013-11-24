@@ -309,7 +309,7 @@ public:
             {
                 if (id == 0 && !allFiresSet)
                 {
-                    sLog->outInfo(LOG_FILTER_TSCR, "HEADLESS HORSEMAN BUG TRACKING Area %u.", me->GetAreaId());
+                    TC_LOG_INFO("scripts", "HEADLESS HORSEMAN BUG TRACKING Area %u.", me->GetAreaId());
                     Talk(SAY_HORSEMAN_SPAWN);
                 }
 
@@ -548,7 +548,7 @@ public:
 
             if (!horseman)
             {
-                sLog->outInfo(LOG_FILTER_TSCR, "HEADLESS HORSEMAN BUG TRACKING. SUMMON: GUID Player: (" UI64FMTD "). Area %u.", player->GetGUID(), player->GetAreaId());
+                TC_LOG_INFO("scripts", "HEADLESS HORSEMAN BUG TRACKING. SUMMON: GUID Player: (" UI64FMTD "). Area %u.", player->GetGUID(), player->GetAreaId());
                 if (Creature* newHorseman = player->SummonCreature(NPC_SHADE_HORSEMAN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 20.0f, 0, TEMPSUMMON_DEAD_DESPAWN, 180000))
                     _headlessHoresemanGUID = newHorseman->GetGUID();
             }
