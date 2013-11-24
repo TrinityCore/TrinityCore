@@ -207,7 +207,8 @@ public:
 enum CrusadeRecruit
 {
     SPELL_QUEST_CREDIT                       = 50633,
-    QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE  = 12509
+    QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE  = 12509,
+    SAY_RECRUIT                              = 0
 };
 
 enum CrusadeRecruitEvents
