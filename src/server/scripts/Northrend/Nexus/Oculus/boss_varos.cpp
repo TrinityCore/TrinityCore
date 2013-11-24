@@ -63,6 +63,7 @@ class boss_varos : public CreatureScript
 
             void InitializeAI() OVERRIDE
             {
+                BossAI::InitializeAI();
                 if (instance->GetBossState(DATA_DRAKOS) != DONE)
                     DoCast(me, SPELL_CENTRIFUGE_SHIELD);
             }
