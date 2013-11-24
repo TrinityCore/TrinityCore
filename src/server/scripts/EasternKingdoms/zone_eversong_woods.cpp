@@ -67,43 +67,12 @@ class npc_apprentice_mirveda : public CreatureScript
 public:
     npc_apprentice_mirveda() : CreatureScript("npc_apprentice_mirveda") { }
 
-    bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest* quest, uint32 /*slot*/) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_CORRUPTED_SOIL)
-        {
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->events.ScheduleEvent(EVENT_TALK, 2000);
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->CorruptedSoil = true;
-        }
-        return true;
-    }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
-        {
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->me->setFaction(FACTION_COMBAT);
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->events.ScheduleEvent(EVENT_SUMMON, 1000);
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = player->GetGUID();
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_apprentice_mirvedaAI(creature);
-    }
-
     struct npc_apprentice_mirvedaAI : public ScriptedAI
     {
         npc_apprentice_mirvedaAI(Creature* creature) : ScriptedAI(creature), Summons(me) { }
 
         uint32 KillCount;
         uint64 PlayerGUID;
-        bool CorruptedSoil;
-        bool Summon;
         SummonList Summons;
         EventMap events;
 
@@ -113,8 +82,26 @@ public:
             KillCount = 0;
             PlayerGUID = 0;
             Summons.DespawnAll();
-            CorruptedSoil = false;
-            Summon = false;
+        }
+
+        void sQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) OVERRIDE
+        {
+            if (quest->GetQuestId() == QUEST_CORRUPTED_SOIL)
+            {
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                events.ScheduleEvent(EVENT_TALK, 2000);
+            }
+        }
+
+        void sQuestAccept(Player* player, Quest const* quest) OVERRIDE
+        {
+            if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
+            {
+                me->setFaction(FACTION_COMBAT);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                events.ScheduleEvent(EVENT_SUMMON, 1000);
+                PlayerGUID = player->GetGUID();
+            }
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -163,24 +150,16 @@ public:
                 switch (eventId)
                 {
                     case EVENT_TALK:
-                        if (!CorruptedSoil)
-                            continue;
                         Talk(SAY_TEST_SOIL);
                         events.ScheduleEvent(EVENT_ADD_QUEST_GIVER_FLAG, 7000);
                         break;
                     case EVENT_ADD_QUEST_GIVER_FLAG:
-                        if (!CorruptedSoil)
-                            continue;
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        CorruptedSoil = false;
                         break;
                     case EVENT_SUMMON:
-                        if (!Summon)
-                            continue;
                         me->SummonCreature(NPC_GHARZUL,    8749.505f, -7132.595f, 35.31983f, 3.816502f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
                         me->SummonCreature(NPC_ANGERSHADE, 8755.38f,  -7131.521f, 35.30957f, 3.816502f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
                         me->SummonCreature(NPC_ANGERSHADE, 8753.199f, -7125.975f, 35.31986f, 3.816502f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
-                        Summon = false;
                         break;
                     case EVENT_FIREBALL:
                         if (!UpdateVictim())
@@ -195,6 +174,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_apprentice_mirvedaAI(creature);
+    }
 };
 
 /*######
