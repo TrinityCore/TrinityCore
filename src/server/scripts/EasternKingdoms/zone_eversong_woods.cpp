@@ -67,9 +67,9 @@ class npc_apprentice_mirveda : public CreatureScript
 public:
     npc_apprentice_mirveda() : CreatureScript("npc_apprentice_mirveda") { }
 
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) OVERRIDE
+    bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest* quest, uint32 /*slot*/) OVERRIDE
     {
-        if (_Quest->GetQuestId() == QUEST_CORRUPTED_SOIL)
+        if (quest->GetQuestId() == QUEST_CORRUPTED_SOIL)
         {
             CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->events.ScheduleEvent(EVENT_TALK, 2000);
