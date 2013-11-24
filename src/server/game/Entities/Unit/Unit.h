@@ -2158,7 +2158,7 @@ class Unit : public WorldObject
 
         typedef std::list<GameObject*> GameObjectList;
         GameObjectList m_gameObj;
-        bool m_isSorted;
+
         uint32 m_transform;
 
         Spell* m_currentSpells[CURRENT_MAX_SPELL];

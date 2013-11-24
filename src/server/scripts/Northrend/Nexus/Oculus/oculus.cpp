@@ -154,7 +154,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                         }
                         return;
                     case GOSSIP_MENU_BELGARISTRASZ:
-                        if (gossipListId >= 0 && gossipListId <= 2)
+                        if (gossipListId <= 2)
                         {
                             if (gossipListId == 1)
                                 RemoveEssence(player, ITEM_AMBER_ESSENCE);
@@ -274,7 +274,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                     me->SetDisableGravity(false); // Needed this for proper animation after spawn, the summon in air fall to ground bug leave no other option for now, if this isn't used the drake will only walk on move.
             }
 
-            void PassengerBoarded(Unit* passenger, int8 seatId, bool apply)
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) OVERRIDE
             {
                 if (passenger->GetTypeId() != TYPEID_PLAYER)
                     return;
