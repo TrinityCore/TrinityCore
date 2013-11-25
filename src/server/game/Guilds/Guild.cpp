@@ -273,6 +273,7 @@ void Guild::RankInfo::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8 (1, m_rankId);
     stmt->setString(2, m_name);
     stmt->setUInt32(3, m_rights);
+    stmt->setUInt32(4, m_bankMoneyPerDay);
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
