@@ -72,8 +72,8 @@ std::string _GetGuildEventString(GuildEvents event)
             return "Bank tab updated";
         case GE_BANK_MONEY_SET:
             return "Bank money set";
-        case GE_BANK_MONEY_CHANGED:
-            return "Bank money changed";
+        case GE_BANK_TAB_AND_MONEY_UPDATED:
+            return "Bank and money updated";
         case GE_BANK_TEXT_CHANGED:
             return "Bank tab text changed";
         default:
@@ -1750,8 +1750,8 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&amount), 8, true);
-    _BroadcastEvent(GE_BANK_MONEY_CHANGED, 0, aux.c_str());
+    std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
+    _BroadcastEvent(GE_BANK_MONEY_SET, 0, aux.c_str());
 
     if (player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
@@ -1800,8 +1800,8 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
     _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
 
-    std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&amount), 8, true);
-    _BroadcastEvent(GE_BANK_MONEY_CHANGED, 0, aux.c_str());
+    std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
+    _BroadcastEvent(GE_BANK_MONEY_SET, 0, aux.c_str());
     return true;
 }
 
@@ -2926,6 +2926,5 @@ void Guild::ResetTimes()
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         itr->second->ResetValues();
 
-    // Hack... way to force client to ask for money/slots
-    _BroadcastEvent(GE_RANK_UPDATED, 0, "0", GetRankInfo(0)->GetName().c_str());
+    _BroadcastEvent(GE_BANK_TAB_AND_MONEY_UPDATED, 0);
 }
