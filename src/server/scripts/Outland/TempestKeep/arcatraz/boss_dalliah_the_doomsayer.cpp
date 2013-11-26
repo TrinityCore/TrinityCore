@@ -15,19 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_dalliah_the_doomsayer
-SD%Complete: 100%
-SDComment:
-SDCategory: Tempest Keep, The Arcatraz
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "arcatraz.h"
 
 enum Say
 {
+    // Dalliah the Doomsayer
     SAY_AGGRO                       = 1,
     SAY_SLAY                        = 2,
     SAY_WHIRLWIND                   = 3,
@@ -35,7 +29,7 @@ enum Say
     SAY_DEATH                       = 5,
     SAY_SOCCOTHRATES_DEATH          = 7,
 
-    // boss_wrath_scryer_soccothrates
+    // Wrath-Scryer Soccothrates
     SAY_AGGRO_DALLIAH_FIRST         = 0,
     SAY_DALLIAH_25_PERCENT          = 5
 };
@@ -78,7 +72,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                 _JustDied();
                 Talk(SAY_DEATH);
 
-                if (Creature* soccothrates = me->GetCreature(*me, soccothratesGUID))
+                if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, soccothratesGUID))
                     if (soccothrates->IsAlive() && !soccothrates->IsInCombat())
                         soccothrates->AI()->SetData(1, 1);
             }
@@ -110,9 +104,8 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                         events.ScheduleEvent(EVENT_SOCCOTHRATES_DEATH, 6000);
                         soccothratesDeath = true;
                         break;
-                    break;
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
 
@@ -168,7 +161,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOW_WAVE, urand(11000, 16000));
                             break;
                         case EVENT_ME_FIRST:
-                            if (Creature* soccothrates = me->GetCreature(*me, soccothratesGUID))
+                            if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, soccothratesGUID))
                                 if (soccothrates->IsAlive() && !soccothrates->IsInCombat())
                                     soccothrates->AI()->Talk(SAY_AGGRO_DALLIAH_FIRST);
                             break;
@@ -179,7 +172,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
 
                 if (HealthBelowPct(25) && !soccothratesTaunt)
                 {
-                    if (Creature* soccothrates = me->GetCreature(*me, soccothratesGUID))
+                    if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, soccothratesGUID))
                         soccothrates->AI()->Talk(SAY_DALLIAH_25_PERCENT);
                     soccothratesTaunt = true;
                 }
