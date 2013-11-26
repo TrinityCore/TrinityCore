@@ -450,7 +450,7 @@ class npc_ritual_channeler : public CreatureScript
 
                 if (paralyzeTimer <= diff)
                 {
-                    if (Player* victim = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
+                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
                         DoCast(victim, SPELL_PARALYZE, false);
 
                     paralyzeTimer = 200;
