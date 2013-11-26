@@ -1,6 +1,6 @@
-#include "ScriptMgr.h"
+#include "ScriptPCH.h"
 
 void AddSC_custom_scripts()
 {
-    //scriptholder
+    //placeholder
 }

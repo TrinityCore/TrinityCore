@@ -14,6 +14,7 @@ set(scripts_STAT_SRCS
   Custom/custom_scripts.cpp
   Custom/brewfest.cpp
   Custom/TW_hallows_end.cpp
+  Custom/TW_pilgrim.cpp
   ${scripts_STAT_SRCS}
 )
 
