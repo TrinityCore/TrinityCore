@@ -117,13 +117,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.71 - 17/02/2013: UpdateEntry tambien recarga las spells de los vehiculos por Trista
 0.72 - 08/03/2013: Los npc de transports no se detienen en OnGossipHello por Zwerg
 0.73 - 21/03/2013: Nuevo appender (43) LOG_FILTER_INSTANCES por Eilo
-0.77 - 03/05/2013: Nuevo appender (44) LOG_FILTER_PHANTONS_TEST por Phantons
 0.79 - 21/05/2013: Arena Espectador nuevo, base general wowrean, mejoras e implementaciones nuevas, incluyendo contenedores y otros por Eilo
 0.80 - 04/06/2013: Gm command log en DB por Eilo
 0.81 - 04/06/2013: Anti-rollback quests por Eilo basado en codigo de Demonid
 0.82 - 04/06/2013: Anti-rollback loot por Eilo basado en raidinfo de Eilo
 0.83 - 18/06/2013: Funciones base para el sistema anti-caidas debajo del suelo en arenas por Eilo
-0.84 - 20/06/2013: Sistema anti-caida debajo del suelo en RoV por Eilo
 0.90 - 07/07/2013: Duel Reset: Fix problema CD con spell Elemental Mastery (chamy) por Gildor
 0.92 - 09/07/2013: PerformanceLog por Eilo
 0.93 - 22/07/2013: Cmake: Añadimos al cmake la opcion de forzar el Zm para no tener que usar el cmake 2.8 y poder usar las ultimas versiones de visual + ultimo cmake por Retriman
@@ -141,6 +139,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.107 - 23/10/2013: IsIncapacited funcion añadida al nucleo por Sonneh
 0.108 - 23/10/2013: Implementado sistema de Fade Out Sigilo por Sonneh
 0.109 - 05/11/2013: SMART_ACTION_SET_MOVEMENT_SPEED implementada por Lauja
+0.110 - 13/11/2013: SMART_ACTION_MOVE_TO_POS ahora podrás moverlo de la posición del objetivo  por Lauja
+0.111 - 19/11/2013: Finalizando la recepción de opcodes si el mover no esta en el mundo por Eilo
 
 
 ###############
@@ -184,7 +184,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.76 - 13/12/2012: Armas s6 (Furious) y s7 (Relentless) añadidas en tanaris a los npcs correspondientes por Eilo
 1.77 - 14/12/2012: Fix exploit Alt + F4 cuando el encuentro está en progreso y estás en un vehículo (Fix ICC LK valkyrs) por zouzoul
 1.78 - 01/02/2013: Vehiculos, evitando crash por Eilo
-1.79 - 19/12/2012: Deshabilitando SoTA por Gildor
 1.81 - 02/01/2013: Evitando crashes del IntersectRay por Eilo
 1.84 - 10/01/2013: Fix de arena frames por 3kids
 1.85 - 10/01/2013: Fix Root auras, ahora eliminarán los efectos de sigilo por elecyb
@@ -241,6 +240,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.150 - 02/07/2013: IoC: Agregando scripts y asignacion de scriptname a los bosses de la Alianza y la Horda por Jar
 1.151 - 03/07/2013: Varios ajustes en  SpellInfo::CheckTarge y Spell::CheckCast, Ahora los power-ups o auras de ayuda de Warsong Gulch y Arathi Basin, se pueden usar cuando el personaje se encuentra en sigilo o invisible por jar
 1.152 - 04/07/2013: IoC: Fix del movimiento del cannon por Apa
+1.153 - 07/07/2013: MotionMaster:MoveKnockbackFrom, Ahora Las creaturas jamas podran entrar a las texturas por Retriman
 1.156 - 06/07/2013: SotA: Fix regenhealth del demolisher por Apa
 1.157 - 05/07/2013: Wintergrasp: Fix Regenhealth de Tower Cannon por komix
 1.158 - 05/07/2013: Wintergrasp: Fix del movimiento de Tower Cannon por komix
@@ -248,6 +248,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.160 - 09/07/2013: IoC: Agregadas las inmunidades de los boss por jar
 1.161 - 09/07/2013: Profesiones: corregidas las misiones de especializaciones para que no se vuelvan a aprender al reloguear por Muzashi
 1.162 - 13/03/2013: Vehiculos, funcionamiento de VEHICLE_SEAT_FLAG_CAN_CONTROL a cualquier asiento por Machiavell1
+1.167 - 12/07/2013: Update al movimiento astronauta ahora si realmente se notara el cambio blizlike por Retriman
 1.171 - 13/07/2013: Wintergrasp: Ahora los cementerios de la base horda y alianza daran resurreccion de forma correcta.Ademas todos los cementerios estarán funcionales solo cuando se este llevando a cabo una batalla por Jar
 1.172 - 13/07/2013: Wintergrasp: Fix cementerio del Workshop  Broken temple, ahora los espíritus horda y alianza cambiaran  de fase dependiendo de quien controle  el Workshop, para que los personajes puedan ser resucitados por Jar
 1.173 - 22/07/2013: Wintergrasp: Ahora tenacity se actualizara cuando los jugadores summonen vehículos por Jar
@@ -286,6 +287,15 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.209 - 24/09/2013: Vehiculos: Ahora los personajes pueden canalizar spells como Drain Soul o Arcane Missiles cuando esten sobre vehiculos donde el seat se lo permita por jar
 1.210 - 02/10/2013: Mejorado el funcionamiento de SPELL_AURA_FORCE_REACTION por Jar
 1.211 - 28/10/2013: Pets: Previniendo exploit de dar loot automático (tipo emblemas o fragmentos) al morir la pet por Gildor
+1.212 - 20/06/2013: Ring of Valor: Sistema anti-caida debajo del suelo por Eilo
+1.213 - 22/11/2013: Corregido crash de UnderWaterState por Eilo
+1.214 - 22/11/2013: Corrigiendo algunos exploits por Kiddie
+1.215 - 24/11/2013: Fix bug perdida de control de personaje por Soneh
+1.216 - 24/11/2013: Ruins of Lordaeron: Sistema anti-caida debajo del suelo por Eilo
+1.217 - 25/11/2013: Nagrand Arena: Sistema anti-caida debajo del suelo por Eilo
+1.218 - 25/11/2013: Blade's Edge Arena: Sistema anti-caida debajo del suelo por Eilo
+1.219 - 25/11/2013: Dalaran Sewers: Sistema anti-caida debajo del suelo por Eilo
+1.221 - 25/11/2013: Bgs: Sistema de cierre prematuro retocado e implementado mejoras por Eilo
 
 
 ########################
@@ -359,6 +369,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.95 - 03/09/2012: Rampart of Skulls trashmob añadido por Muzashi
 2.2.97 - 30/09/2012: TheLichKing Valkyr become selectable on Life Syphon use by Jildor
 2.2.98 - 30/09/2012: TheLichKing Valkyr Shadowguard drop player prematurely when stunned or similar effect by Xanvial
+2.2.99 - 30/09/2012: Marrowgar Impaled players can be healed by Jildor
 2.2.100 - 30/09/2012: LadyDeathwhisper Temp fix spell dark martyrdom by Jildor
 2.2.102 - 25/10/2012: Putricidio Evitando que las babosas targeteen a la abominacion por Eilo
 2.2.105 - 22/08/2012: GunshipBattle añadido scripts de instancia y transportes por Eilo
@@ -482,7 +493,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.233 - 22/10/2013: TheLichKing corregido comportamiento de Wicked Spirit al respawnear por Saitama
 2.2.234 - 24/10/2013: TheLichKing ajustado el comportamiento del Harvested Soul para que no gane poder LK mientras no estan en Frostmourne Room por Eilo
 2.2.235 - 25/10/2013: TheLichKing los players afectados por Harvest Soul ya no serán objetivos inválidos por Saitama
-2.2.236 - 25/10/2013: Marrowgar los players empalados ya no serán objetivos inválidos por Saitama
 2.2.237 - 29/10/2013: Lana'thel: evitando crashes en el Frenzied Bloodthirst al generar bucle infinito en Uncontrollable Frenzy por Eilo
 2.2.238 - 03/11/2013: Valithria: añadido texto faltante de introducción al encuentro por Lauja
 - Naxxramas -
@@ -563,6 +573,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.69 - 02/11/2013: Ulduar: Hodir corregido el tiempo de cooldown de Flash Freeze por Saitama
 2.6.70 - 03/11/2013: Ulduar: Hodir equipada su arma en dificultad 25 jugadores por Saitama
 2.6.71 - 03/11/2013: Ulduar: Auriaya ahora spawnearán 4 Sanctum Sentry en dificultad 25 jugadores por Saitama
+2.6.72 - 07/11/2013: Ulduar: Auriaya reparado el respawn de los Sanctum Sentry al wipear por Saitama
+2.6.73 - 09/11/2013: Ulduar: Hodir corregido el bug que causaba que se duplicaran los uso de las spells por Saitama
+2.6.74 - 22/11/2013: Ulduar: Razorscale los mobs que salen durante el encuentro ahora desapareceran al wipear por Sothu
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -609,6 +622,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.9.42 - 29/10/2013: RubySanctum: Evitando que los adds queden spawneados en 25h por Evef.
 2.9.43 - 19/01/2013: RubySanctum: Evitando que intenten llevar a Halion al borde para resetearlo por Dolanpls
 2.9.44 - 06/11/2013: RubySanctum: Ajustado los Effect para que solo actue dentro del area por Evef
+2.9.45 - 07/11/2013: RubySanctum: Añadida flag anti taunt para Living Inferno por Evef
+2.9.46 - 26/11/2013: RubySanctum: Añadido un segundo portal para el mundo material y ajustado su tamaño por Evef.
 - Ahn'Kahet -
 2.10.1 - 03/08/2011: Ahn'Kahet: Taldaram combate en invisible por Greymane
 2.10.2 - 16/12/2011: Ahn'Kahet: Taldaram daño esferas ajustado por Eilo
@@ -624,6 +639,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.12.6 - 19/07/2012: CullingOfStratholme: Added an extra option to skip intro event por Eilo
 2.12.7 - 15/08/2012: CullingOfStratholme: Added a cryer to notify players about next trash wave por Eilo
 2.12.8 - 04/02/2013: CullingOfStratholme: Quitadas las flags de inmune en la 2ª oleada cuando empezamos a seguir a arthas para evitar el bug por Dolanpls
+2.12.9 - 09/11/2013: CullingOfStratholme: Corregido credito de la misión Una escolta real por Rincewind
 - TrialOfTheChampion -
 2.13.1 - 15/08/2012: TrialOfTheChampions: Reimplementacion y soporte spells por Souler, mejoras, reordenacion y complementos por Eilo
 - Drak'Tharon -
@@ -638,10 +654,18 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.16.1 - 08/10/2011: HallsOfReflection: Reimplementacion y añadido LichKing por Odyssey, editada por Eilo
 2.16.2 - 07/11/2012: HallsOfReflection: Fix waves, ahora no se juntara una oleada con otra al pasar por la zona del altar por Gildor
 2.16.3 - 16/12/2012: HallsOfReflection: Falric y Marwyn deben dejar id por Kroenen
+2.16.4 - 04/11/2013: HallsOfReflection: Corregidas las immunidades de los mobs de las oleadas en modalidad normal por Sothu
+2.16.5 - 06/11/2013: HallsOfReflection: Ahora el mob Fusilero torturado realizará las skills que debe utilizar por Sothu
+2.16.6 - 13/11/2013: HallsOfReflection: Durante el evento de escapar del rey exánime, se casteará Pain and Suffering así evitando que los players se mantengan detras del boss por Sothu
 - PitOfSaron -
 2.17.1 - 24/12/2011: PitOfSaron: Correccion de varios mobs por Eilo
 2.17.3 - 16/08/2012: PitOfSaron: Krickandick ajuste de efectos visuales y timers en pursuit por Eilo
 2.17.4 - 31/10/2013: PitOfSaron: Arreglo del evento de las estalactitas de la cueva por Efreet
+2.17.5 - 06/11/2013: PitOfSaron: Scripteado el logro Dont Look Up! por Efreet
+2.17.6 - 11/11/2013: PitOfSaron: Scripteada la intro de la instance con el evento tanto para la horda como para la alianza por Efreet
+2.17.7 - 20/11/2013: PitOfSaron: Scripteada la outro de la instance con el evento tanto para la horda como para la alianza por Efreet
+2.17.8 - 26/11/2013: PitOfSaron: Add el area de hielo que deja Icy Blast de Dientefrio en el combate vs Tyrannus por Efreet
+2.17.9 - 26/11/2013: PitOfSaron: Fixeado el exploit con el NPC Ymirjar (31260) de la instance y control mental, de forma que no pueda regenerar vida, por Efreet
 - ForgeOfSouls -
 2.18.1 - 16/08/2012: ForgeOfSouls: Bronjahm ajuste de inmunidades por Eilo
 2.18.2 - 16/08/2012: ForgeOfSouls: Adding some texts by Eilo
@@ -652,6 +676,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 - TheNexus -
 2.19.1 - 05/12/2011: TheNexus: Correccion de trash mob y varias flags por Treak
 2.19.2 - 21/07/2012: TheNexus: Fixed quest "Buying Time" and the white dragons falling to the ground by Muzashi
+2.19.3 - 16/11/2013: TheNexus: Corregidos las faciones de los adds junto al primer boss que se peleaban entre ellos por Sothu
 - TheOculus -
 2.20.1 - 13/07/2012: TheOculus: All mount spells should enable on dragonking targets, due to exploits by Zwerg
 2.20.2 - 13/07/2012: TheOculus: Reward workaround for heroic mode by Darkman
@@ -682,6 +707,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.23.1 - 20/07/2012: HallsOfStone: TribunalOfAegis Added motionmaster to summons to avoid exploits by Eilo
 2.23.2 - 16/08/2012: HallsOfStone: adding some texts by Eilo
 2.23.3 - 07/01/2013: HallsOfStone: Tribunalevent añadidos los AI a trash por Evef.
+2.23.4 - 07/11/2013: HallsOfStone: Fixeado el reset del evento del Tribunal para que se reinicie cuando Brann muere por Efreet
 - UtgardeKeep -
 2.24.1 - 01/10/2011: UtgardeKeep: Ingvar permitiendo que se le pueda atacar en el reseteo por Eilo
 2.24.2 - 30/10/2013: UtgardeKeep: Fixeado el exploit que permitia saltarse las forjas del Horno del Odio por Efreet
@@ -847,6 +873,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.216 - 23/10/2013: Mago: Fix spell Glyph of Molten Armor, previniendo exploit de mantener el efecto sin el glifo por Gildor
 3.218 - 24/10/2013: Fix spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
 3.219 - 04/11/2013: Fix spells Resurrection Sickness, Deserter (BG), Dungeon Deserter, ahora no se podrán disipar por Gildor
+3.220 - 06/11/2013: Hunter/Pet: Fix spell Dust Cloud(50285), ahora se remueve el aura al fallar un spell por Mauvas
 
 
 #################
@@ -1090,6 +1117,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.5.30 - 21/11/2012: Cementerio de Dragones: Sobre unas alas rubí por Muzashi
 4.5.31 - 03/12/2012: Cementerio de Dragones: ¡Al Bastión de Fordragón! por Muzashi
 4.5.32 - 03/12/2012: Cementerio de Dragones: Regresa a Angrathar por Muzashi
+4.5.33 - 08/11/2013: Cementerio de Dragones: La historia olvidada por Kirkhammett
 - Zul'Drak -
 4.6.0  - 15/08/2012: Zul'Drak: Horizonte Oscuro - Reunidos por Pitcrawler
 4.6.1  - 26/11/2012: Zul'Drak: La venganza del Rey de la Tormenta spawns de YTDB scripts de CoolerSAI
@@ -1149,6 +1177,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.7.24  - 11/03/2013: Colinas Pardas: El Foso de la Conquista por Muzashi
 4.7.25  - 12/03/2013: Colinas Pardas: Cabalgando sobre el cohete rojo por Muzashi
 4.7.26  - 12/03/2013: Colinas Pardas: ¡Tralarí, tralará! por Pitcrawler
+4.7.27  - 07/11/2013: Colinas Pardas: El señor feudal de Runavold por Muzashi
 - Tundra Boreal -
 4.8.0  - 26/05/2012: Tundra Boreal: Tecnologia con otro proposito por Muzashi
 4.8.1  - 26/05/2012: Tundra Boreal: La muerte cae desde el cielo por Muzashi
@@ -1207,6 +1236,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.8.54 - 06/02/2013: Tundra Boreal: Los espíritus perdidos por Gecko32 y Nelegalno
 4.8.55 - 18/02/2013: Tundra Boreal: Las orejas de nuestros enemigos por Rincewind
 4.8.56 - 15/04/2013: Tundra Boreal: Llevar a los ancestros a casa por Rincewind
+4.8.57 - 07/11/2013: Tundra Boreal: El emisario por Muzashi
+4.8.58 - 07/11/2013: Tundra Boreal: Viaje en Alfombra Mágica por Muzashi
 - Fiordo Aquilonal -
 4.9.0  - 26/08/2012: Fiordo Aquilonal: Déjalo y Ondéalo por Kroenen
 4.9.1  - 26/08/2012: Fiordo Aquilonal: El Eco de Ymiron por Muzashi
@@ -1314,6 +1345,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.10.62 - 31/10/2013: Montañas Filospada: La marca del rey-nexo por Muzashi
 4.10.63 - 01/11/2013: Montañas Filospada: Proteger a los nuestros por Muzashi
 4.10.64 - 04/11/2013: Montañas Filospada: ¡Una maldición para ambos clanes! por Muzashi
+4.10.65 - 06/11/2013: Montañas Filospada: Las alas de Espíritu por Lauja
+4.10.66 - 08/11/2013: Bosque de Terokkar: La caida de Terokk por Rincewind
+4.10.67 - 08/11/2013: Tormenta Abisal: Punto de inflexión - Golpe mortal a la Legión por Muzashi
+4.10.68 - 12/11/2013: Valle Sombraluna: Una distracción necesaria por Muzashi
+4.10.69 - 22/11/2013: Nagrand: ¡Tráeme el huevo! por Lauja
 - Kalimdor y Reinos del Este -
 4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
 4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
@@ -1338,6 +1374,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.11.20 - 22/10/2013: Tierras de la Peste Oeste: Profanar la tumba de Uther por Rincewind
 4.11.21 - 23/10/2013: Isla Bruma de Sangre: Salvar a la princesa Semprepino por Lauja
 4.11.22 - 31/10/2013: Desolace: Get Me Out of Here! por Lauja
+4.11.23 - 22/11/2013: Pantano de las Penas: Los héroes de los antiguos por Lauja
+4.11.24 - 26/11/2013: Tanaris: El oro de Cuergo por Rincewind
 
 
 ################
@@ -1348,6 +1386,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 5.3  - 08/12/2011: Adecuaciones de nombres de 2 game_tele por Eilo
 5.4  - 19/08/2012: Traducciones en los diálogos de ICC por Abismo
 5.5  - 31/08/2012: Traducciones en los diálogos de Quel'Delar por Abismo y Muzashi
+5.6  - 25/11/2013: Traducciones de las bgs y arenas eliminadas debido a incompatibilidad con lo nuevo de wowrean por Eilo
 
 
 ##########
@@ -1427,6 +1466,12 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.76 - 27/10/2013: Zulgurub: Arlokk ahora si se invoca cuando se interactua con su gameObject por Sothu y Efreet
 6.77 - 27/10/2013: Zulgurub: Arlokk mejorada la respuesta del gameObject que lo invoca cuando el boss entra en EvadeMode o derrota al grupo, reactivando el GO para re-invocar el boss por Efreet
 6.78 - 03/11/2013: Thulrin corregidas warnings por Muzashi
+6.79 - 05/11/2013: Karazhan: Corregido el bugg que no dejaba atacar al boss The Crone por Sothu
+6.80 - 11/11/2013: Tumbas de maná: Cámaras de Estasis de las Tumbas de Mana por Lauja
+6.81 - 25/11/2013: Modificados RequiredLevel y bondings en los objetos Mark of Hakkar, Hakkari Breastplate y Hakkari Shroud por Rincewind
+6.82 - 26/11/2013: Wintergrasp: Ahora las misiones Alianza de "Combustible para los demoledores" están en su sitio según si es atacante/defensor por Lauja
+6.83 - 26/11/2013: Wintergrasp: Ahora las misiones Alianza de "Parar el asedio/Defender el Asedio" están en su sitio según si es atacante/defensor por Lauja
+6.84 - 26/11/2013: Wintergrasp: Las misiones semanales pasan a ser diarias y se han ajustado sus recompensas por Lauja
 
 
 ##########
