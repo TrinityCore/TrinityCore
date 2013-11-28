@@ -304,7 +304,7 @@ class npc_wyrmrest_defender : public CreatureScript
 };
 
 /*#####
-# npc_torturer_leCraft
+# npc_torturer_lecraft
 #####*/
 
 enum TorturerLeCraft
@@ -318,27 +318,28 @@ enum TorturerLeCraft
     SAY_AGGRO                          = 0
 };
 
-class npc_torturer_leCraft : public CreatureScript
+class npc_torturer_lecraft : public CreatureScript
 {
-    public: npc_torturer_leCraft() : CreatureScript("npc_torturer_leCraft") {}
+    public: npc_torturer_lecraft() : CreatureScript("npc_torturer_lecraft") {}
 
-        struct npc_torturer_leCraftAI : public ScriptedAI
+        struct npc_torturer_lecraftAI : public ScriptedAI
         {
-            npc_torturer_leCraftAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_torturer_lecraftAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE
             {
-                _textcounter = 1;
+                _textCounter = 1;
                 _playerGUID  = 0;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* who) OVERRIDE
             {
                 _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(5000, 8000));
                 _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
-                Talk (SAY_AGGRO);
-            }
 
+                if (Player* player = who->ToPlayer())
+                    Talk (SAY_AGGRO, player->GetGUID());
+            }
 
             void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
             {
@@ -347,21 +348,21 @@ class npc_torturer_leCraft : public CreatureScript
 
                 if (Player* player = caster->ToPlayer())
                 {
-                    if (_textcounter == 1)
+                    if (_textCounter == 1)
                         _playerGUID = player->GetGUID();
 
                     if (_playerGUID != player->GetGUID())
                         return;
 
-                    Talk(_textcounter, player->GetGUID());
+                    Talk(_textCounter, player->GetGUID());
 
-                    if (_textcounter == 5)
+                    if (_textCounter == 5)
                         player->KilledMonsterCredit(NPC_TORTURER_LECRAFT, 0);
 
-                    ++_textcounter;
+                    ++_textCounter;
 
-                    if (_textcounter == 13)
-                        _textcounter = 6;
+                    if (_textCounter == 13)
+                        _textCounter = 6;
                 }
             }
 
@@ -390,16 +391,15 @@ class npc_torturer_leCraft : public CreatureScript
                 }
                 DoMeleeAttackIfReady();
             }
-
             private:
                 EventMap _events;
-                uint8 _textcounter;
-                uint64 _playerGUID;
+                uint8    _textCounter;
+                uint64   _playerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_torturer_leCraftAI(creature);
+            return new npc_torturer_lecraftAI(creature);
         }
 };
 
@@ -409,5 +409,5 @@ void AddSC_dragonblight()
     new spell_q12096_q12092_dummy;
     new spell_q12096_q12092_bark;
     new npc_wyrmrest_defender;
-    new npc_torturer_leCraft;
+    new npc_torturer_lecraft;
 }
