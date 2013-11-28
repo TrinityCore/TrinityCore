@@ -303,10 +303,111 @@ class npc_wyrmrest_defender : public CreatureScript
         }
 };
 
+/*#####
+# npc_torturer_leCraft
+#####*/
+
+enum TorturerLeCraft
+{
+    SPELL_HEMORRHAGE                   = 30478,
+    SPELL_KIDNEY_SHOT                  = 30621,
+    SPELL_HIGH_EXECUTORS_BRANDING_IRON = 48603,
+    NPC_TORTURER_LECRAFT               = 27394,
+    EVENT_HEMORRHAGE                   = 1,
+    EVENT_KIDNEY_SHOT                  = 2,
+    SAY_AGGRO                          = 0
+};
+
+class npc_torturer_leCraft : public CreatureScript
+{
+    public: npc_torturer_leCraft() : CreatureScript("npc_torturer_leCraft") {}
+
+        struct npc_torturer_leCraftAI : public ScriptedAI
+        {
+            npc_torturer_leCraftAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset() OVERRIDE
+            {
+                _textcounter = 1;
+                _playerGUID  = 0;
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(5000, 8000));
+                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
+                Talk (SAY_AGGRO);
+            }
+
+
+            void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
+            {
+                if (spell->Id != SPELL_HIGH_EXECUTORS_BRANDING_IRON)
+                    return;
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (_textcounter == 1)
+                        _playerGUID = player->GetGUID();
+
+                    if (_playerGUID != player->GetGUID())
+                        return;
+
+                    Talk(_textcounter, player->GetGUID());
+
+                    if (_textcounter == 5)
+                        player->KilledMonsterCredit(NPC_TORTURER_LECRAFT, 0);
+
+                    ++_textcounter;
+
+                    if (_textcounter == 13)
+                        _textcounter = 6;
+                }
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+               if (!UpdateVictim())
+                   return;
+
+               _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_HEMORRHAGE:
+                            DoCastVictim(SPELL_HEMORRHAGE);
+                            _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(12000, 168000));
+                            break;
+                        case EVENT_KIDNEY_SHOT:
+                            DoCastVictim(SPELL_KIDNEY_SHOT);
+                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(20000, 26000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap _events;
+                uint8 _textcounter;
+                uint64 _playerGUID;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_torturer_leCraftAI(creature);
+        }
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
     new spell_q12096_q12092_dummy;
     new spell_q12096_q12092_bark;
     new npc_wyrmrest_defender;
+    new npc_torturer_leCraft;
 }
