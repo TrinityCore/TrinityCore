@@ -90,7 +90,6 @@ class Transport : public GameObject, public TransportBase
 
         KeyFrameVec::const_iterator _currentFrame;
         KeyFrameVec::const_iterator _nextFrame;
-        uint32 _moveTimer;
         TimeTrackerSmall _positionChangeTimer;
         bool _isMoving;
         bool _pendingStop;
