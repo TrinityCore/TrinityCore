@@ -5970,7 +5970,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 // agregado para dream wow hunter family
    case SPELLFAMILY_HUNTER:
         {
-            switch (dummySpell->SpellIconID)
+	     switch (dummySpell->SpellIconID)
             {
                 case 267: // Improved Mend Pet
                 {
@@ -6108,6 +6108,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
             }
             break;
+	     
         }
         case SPELLFAMILY_PALADIN:
         {

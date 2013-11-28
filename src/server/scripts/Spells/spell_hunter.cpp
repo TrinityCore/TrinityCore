@@ -63,6 +63,9 @@ enum HunterSpells
     SPELL_HUNTER_IMPROVED_SERPENT_STING_R2          = 82834,
     SPELL_HUNTER_IMPROVED_STEADY_SHOT               = 53220,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
+    SPELL_HUNTER_MARKED_FOR_DEATH_R1 		   = 53241,
+    SPELL_HUNTER_MARKED_FOR_DEATH_R2 		   = 53243,
+    SPELL_HUNTER_MARKED_FOR_DEATH_SPELL 		   = 88691,
 
 };
 
@@ -1223,6 +1226,57 @@ class spell_hun_improved_steady_shot : public SpellScriptLoader
         }
 };
 
+// MARKED FOR DEATH DREAM WOW
+class spell_hun_mod : public SpellScriptLoader
+{
+    public:
+        spell_hun_mod() : SpellScriptLoader("spell_hun_mod") { }
+
+        class spell_hun_mod_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_mod_SpellScript)
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MARKED_FOR_DEATH_R1) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_MARKED_FOR_DEATH_R2))
+                    return false;
+                return true;
+
+            }
+
+            bool Load() OVERRIDE
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleOnHit()
+            {
+				Unit* unitTarget = GetHitUnit(); 
+				if (GetCaster()->HasAura(SPELL_HUNTER_MARKED_FOR_DEATH_R1)) // rango 1 marcado para morir
+					{
+						if (roll_chance_i(50.0f)) // 50% de prob de lanzarlo
+						{
+							GetCaster()->CastSpell(unitTarget, SPELL_HUNTER_MARKED_FOR_DEATH_SPELL, true);
+						}
+					}
+				else if (GetCaster()->HasAura(SPELL_HUNTER_MARKED_FOR_DEATH_R2)) //rango 2 marcado para morir
+					{
+						GetCaster()->CastSpell(unitTarget, SPELL_HUNTER_MARKED_FOR_DEATH_SPELL, true); //100% de prob de lanzarlo
+					}
+            }
+
+            void Register() OVERRIDE
+            {
+                OnHit += SpellHitFn(spell_hun_mod_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_hun_mod_SpellScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_chimera_shot();
@@ -1252,4 +1306,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_kill_command();
     new spell_hun_focus_fire();
     new spell_hun_improved_steady_shot();
+    new spell_hun_mod();
 }
