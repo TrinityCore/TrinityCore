@@ -38,6 +38,8 @@ class instance_arcatraz : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
+                DalliahGUID       = 0;
+                SoccothratesGUID  = 0;
                 MellicharGUID     = 0;
                 WardensShieldGUID = 0;
 
@@ -49,8 +51,20 @@ class instance_arcatraz : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) OVERRIDE
             {
-                if (creature->GetEntry() == NPC_MELLICHAR)
-                    MellicharGUID = creature->GetGUID();
+                switch (creature->GetEntry())
+                {
+                    case NPC_DALLIAH:
+                        DalliahGUID = creature->GetGUID();
+                        break;
+                    case NPC_SOCCOTHRATES:
+                        SoccothratesGUID = creature->GetGUID();
+                        break;
+                    case NPC_MELLICHAR:
+                        MellicharGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) OVERRIDE
@@ -102,29 +116,13 @@ class instance_arcatraz : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_WARDEN_1:
-                        if (data == IN_PROGRESS)
-                            HandleGameObject(StasisPodGUIDs[0], true);
-                        StasisPodStates[0] = uint8(data);
-                        break;
                     case DATA_WARDEN_2:
-                        if (data == IN_PROGRESS)
-                            HandleGameObject(StasisPodGUIDs[1], true);
-                        StasisPodStates[1] = uint8(data);
-                        break;
                     case DATA_WARDEN_3:
-                        if (data == IN_PROGRESS)
-                            HandleGameObject(StasisPodGUIDs[2], true);
-                        StasisPodStates[2] = uint8(data);
-                        break;
                     case DATA_WARDEN_4:
-                        if (data == IN_PROGRESS)
-                            HandleGameObject(StasisPodGUIDs[3], true);
-                        StasisPodStates[3] = uint8(data);
-                        break;
                     case DATA_WARDEN_5:
                         if (data == IN_PROGRESS)
-                            HandleGameObject(StasisPodGUIDs[4], true);
-                        StasisPodStates[4] = uint8(data);
+                            HandleGameObject(StasisPodGUIDs[type - DATA_WARDEN_1], true);
+                        StasisPodStates[type - DATA_WARDEN_1] = uint8(data);
                         break;
                     case DATA_CONVERSATION:
                         ConversationState = uint8(data);
@@ -156,6 +154,10 @@ class instance_arcatraz : public InstanceMapScript
             {
                 switch (data)
                 {
+                    case DATA_DALLIAH:
+                        return DalliahGUID;
+                    case DATA_SOCCOTHRATES:
+                        return SoccothratesGUID;
                     case DATA_MELLICHAR:
                         return MellicharGUID;
                     case DATA_WARDENS_SHIELD:
@@ -233,6 +235,8 @@ class instance_arcatraz : public InstanceMapScript
             }
 
         protected:
+            uint64 DalliahGUID;
+            uint64 SoccothratesGUID;
             uint64 StasisPodGUIDs[5];
             uint64 MellicharGUID;
             uint64 WardensShieldGUID;
