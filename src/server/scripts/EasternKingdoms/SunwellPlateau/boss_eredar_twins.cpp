@@ -200,16 +200,13 @@ public:
         {
             if (!SisterDeath)
             {
-                if (instance)
+                Unit* Temp = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
+                if (Temp && Temp->isDead())
                 {
-                    Unit* Temp = Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
-                    if (Temp && Temp->isDead())
-                    {
-                        Talk(YELL_SISTER_ALYTHESS_DEAD);
-                        DoCast(me, SPELL_EMPOWER);
-                        me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        SisterDeath = true;
-                    }
+                    Talk(YELL_SISTER_ALYTHESS_DEAD);
+                    DoCast(me, SPELL_EMPOWER);
+                    me->InterruptSpell(CURRENT_GENERIC_SPELL);
+                    SisterDeath = true;
                 }
             }
 
@@ -347,15 +344,12 @@ public:
         {
             Enraged = false;
 
-            if (instance)
+            if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SACROLASH)))
             {
-                if (Creature* temp = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_SACROLASH)))
-                {
-                    if (temp->isDead())
-                        temp->Respawn();
-                    else if (temp->GetVictim())
-                        me->getThreatManager().addThreat(temp->GetVictim(), 0.0f);
-                }
+                if (temp->isDead())
+                    temp->Respawn();
+                else if (temp->GetVictim())
+                    me->getThreatManager().addThreat(temp->GetVictim(), 0.0f);
             }
 
             if (!me->IsInCombat())
@@ -527,7 +521,7 @@ public:
 
             if (!SisterDeath)
             {
-                Unit* Temp = Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
+                Unit* Temp = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                 if (Temp && Temp->isDead())
                 {
                     Talk(YELL_SISTER_SACROLASH_DEAD);
@@ -538,7 +532,7 @@ public:
             }
             if (!me->GetVictim())
             {
-                Creature* sisiter = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_SACROLASH));
+                Creature* sisiter = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SACROLASH));
                 if (sisiter && !sisiter->isDead() && sisiter->GetVictim())
                 {
                     me->AddThreat(sisiter->GetVictim(), 0.0f);
