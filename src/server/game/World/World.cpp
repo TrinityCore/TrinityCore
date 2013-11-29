@@ -3018,16 +3018,6 @@ void World::LoadDBVersion()
         m_DBVersion = "Unknown world database.";
 }
 
-void World::ProcessStartEvent()
-{
-    isEventKillStart = true;
-}
-
-void World::ProcessStopEvent()
-{
-    isEventKillStart = false;
-}
-
 void World::UpdateAreaDependentAuras()
 {
     SessionMap::const_iterator itr;

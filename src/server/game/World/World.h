@@ -731,12 +731,6 @@ class World
 
         void UpdateAreaDependentAuras();
 
-        void ProcessStartEvent();
-        void ProcessStopEvent();
-        bool GetEventKill() const { return isEventKillStart; }
-
-        bool isEventKillStart;
-
         CharacterNameData const* GetCharacterNameData(uint32 guid) const;
         void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
         void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
