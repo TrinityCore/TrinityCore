@@ -943,7 +943,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,12,0,61,1,100,0,0,0,0,0,20,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Runic Lightning Gunner - Between 5-15 Range - Stop Auto Attack (Phase 1)"),
 (@ENTRY,0,13,0,7,0,100,1,0,0,0,0,40,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Runic Lightning Gunner - On Evade - Set Sheath Melee"),
 (@ENTRY,0,14,0,6,0,100,1,0,0,0,0,22,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Runic Lightning Gunner - On Death - Set Event Phase 3"),
-(@ENTRY,0,15,16,8,0,100,1,48046,0,0,0,33,26885,0,0,0,0,0,7,0,0,0,0,0,0,0,"Runic Lightning Gunner - On Spellhit By 48046 - Quest Credit"),
+(@ENTRY,0,15,16,8,0,100,1,48046,0,0,0,11,48047,0,0,0,0,0,7,0,0,0,0,0,0,0,"Runic Lightning Gunner - On Spellhit By 48046 - Quest Credit"),
 (@ENTRY,0,16,0,61,0,100,0,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Runic Lightning Gunner - On Spellhit By 48046 - Forced Despawn");
 
 -- Frostpaw Shaman SAI
