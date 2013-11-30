@@ -15362,6 +15362,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
+
+    // Save the player after quest is rewarded to avoid bad behaviors in case of server crashes.
+    this->SaveToDB();
 }
 
 void Player::FailQuest(uint32 questId)
