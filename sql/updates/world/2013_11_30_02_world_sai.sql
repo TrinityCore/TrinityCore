@@ -104,7 +104,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,1,0,100,7,0,0,0,0,21,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - Out Of Combat - Disallow Combat Movement (Dungeon Only)"),
 (@ENTRY,0,1,0,1,0,100,6,1000,1000,900000,900000,11,34880,1,0,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - Out Of Combat - Cast 34880 (Dungeon Only)"),
-(@ENTRY,0,2,0,0,0,100,7,0,0,0,0,30,1,4,16,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - In Combat - Set Random Phase (Dungeon Only)"),
+(@ENTRY,0,2,0,0,0,100,7,0,0,0,0,30,1,3,5,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - In Combat - Set Random Phase (Dungeon Only)"),
 (@ENTRY,0,3,6,4,1,100,3,0,0,0,0,11,15497,0,0,0,0,0,2,0,0,0,0,0,0,0,"Murkblood Oracle - On Aggro - Cast 15497 (Normal Dungeon) (Phase 1)"),
 (@ENTRY,0,4,0,9,1,100,2,0,40,3200,4800,11,15497,0,0,0,0,0,2,0,0,0,0,0,0,0,"Murkblood Oracle - Between 0-40 Range - Cast 15497 (Normal Dungeon) (Phase 1)"),
 (@ENTRY,0,5,6,4,1,100,3,0,0,0,0,11,12675,0,0,0,0,0,2,0,0,0,0,0,0,0,"Murkblood Oracle - On Aggro - Cast 12675 (Heroic Dungeon) (Phase 1)"),
@@ -145,7 +145,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,40,0,0,16,100,4,7600,7600,6700,6700,11,37113,32,0,0,0,0,5,0,0,0,0,0,0,0,"Murkblood Oracle - In Combat - Cast 37113 (Heroic Dungeon) (Phase 5)"),
 (@ENTRY,0,41,0,3,32,100,6,30,100,100,100,23,0,1,0,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - Between 30-100% Mana - Decrement Event Phase (Dungeon Only) (Phase 6)"),
 (@ENTRY,0,42,0,0,0,100,6,3000,9000,15000,250000,11,34880,33,0,0,0,0,5,0,0,0,0,0,0,0,"Murkblood Oracle - In Combat - Cast 34880 (Dungeon Only)"),
-(@ENTRY,0,43,44,2,0,100,7,0,15,0,0,22,7,0,0,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - Between 0-15% Health - Set Event Phase 7 (Dungeon Only)"),
+(@ENTRY,0,43,44,2,0,100,7,0,15,0,0,22,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - Between 0-15% Health - Set Event Phase 0 (Dungeon Only)"),
 (@ENTRY,0,44,45,61,0,100,0,0,0,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Murkblood Oracle - Between 0-15% Health - Allow Combat Movement (Dungeon Only)"),
 (@ENTRY,0,45,0,61,0,100,0,0,0,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Murkblood Oracle - Between 0-15% Health - Flee For Assist (Dungeon Only)");
 
@@ -156,7 +156,7 @@ DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,1,0,100,7,0,0,0,0,21,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Coilfang Leper - Out Of Combat - Disallow Combat Movement (Dungeon Only)"),
-(@ENTRY,0,1,0,0,0,100,7,0,0,0,0,30,1,4,16,0,0,0,1,0,0,0,0,0,0,0,"Coilfang Leper - In Combat - Set Random Phase (Dungeon Only)"),
+(@ENTRY,0,1,0,0,0,100,7,0,0,0,0,30,1,3,5,0,0,0,1,0,0,0,0,0,0,0,"Coilfang Leper - In Combat - Set Random Phase (Dungeon Only)"),
 (@ENTRY,0,2,5,4,1,100,3,0,0,0,0,11,9613,0,0,0,0,0,2,0,0,0,0,0,0,0,"Coilfang Leper - On Aggro - Cast 9613 (Normal Dungeon) (Phase 1)"),
 (@ENTRY,0,3,0,9,1,100,2,0,40,2400,3800,11,9613,0,0,0,0,0,2,0,0,0,0,0,0,0,"Coilfang Leper - Between 0-40 Range - Cast 9613 (Normal Dungeon) (Phase 1)"),
 (@ENTRY,0,4,5,4,1,100,3,0,0,0,0,11,12739,0,0,0,0,0,2,0,0,0,0,0,0,0,"Coilfang Leper - On Aggro - Cast 12739 (Heroic Dungeon) (Phase 1)"),
@@ -245,7 +245,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,1,0,100,7,0,0,0,0,21,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Out Of Combat - Disallow Combat Movement (Dungeon Only)"),
 (@ENTRY,0,1,0,1,0,100,7,1000,1000,0,0,11,58040,0,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Out Of Combat - Cast 58040 (Dungeon Only)"),
-(@ENTRY,0,2,0,0,0,100,7,0,0,0,0,30,1,4,16,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - In Combat - Set Random Phase (Dungeon Only)"),
+(@ENTRY,0,2,0,0,0,100,7,0,0,0,0,30,1,3,5,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - In Combat - Set Random Phase (Dungeon Only)"),
 (@ENTRY,0,3,6,4,1,100,3,0,0,0,0,11,15043,0,0,0,0,0,2,0,0,0,0,0,0,0,"Veteran Mage Hunter - On Aggro - Cast 15043 (Normal Dungeon) (Phase 1)"),
 (@ENTRY,0,4,0,9,1,100,2,0,40,2400,3800,11,15043,0,0,0,0,0,2,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 0-40 Range - Cast 15043 (Normal Dungeon) (Phase 1)"),
 (@ENTRY,0,5,6,4,1,100,3,0,0,0,0,11,20822,0,0,0,0,0,2,0,0,0,0,0,0,0,"Veteran Mage Hunter - On Aggro - Cast 20822 (Heroic Dungeon) (Phase 1)"),
@@ -279,6 +279,6 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,33,0,9,16,100,6,5,15,0,0,21,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 5-15 Range - Disallow Combat Movement (Dungeon Only) (Phase 5)"),
 (@ENTRY,0,34,0,9,16,100,6,0,5,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 0-5 Range - Allow Combat Movement (Dungeon Only) (Phase 5)"),
 (@ENTRY,0,35,0,3,32,100,6,30,100,100,100,23,0,1,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 30-100% Mana - Decrement Event Phase (Dungeon Only) (Phase 6)"),
-(@ENTRY,0,36,37,2,0,100,7,0,15,0,0,22,7,0,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 0-15% Health - Set Event Phase 7 (Dungeon Only)"),
+(@ENTRY,0,36,37,2,0,100,7,0,15,0,0,22,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 0-15% Health - Set Event Phase 0 (Dungeon Only)"),
 (@ENTRY,0,37,38,61,0,100,0,0,0,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 0-15% Health - Allow Combat Movement (Dungeon Only)"),
 (@ENTRY,0,38,0,61,0,100,0,0,0,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Veteran Mage Hunter - Between 0-15% Health - Flee For Assist (Dungeon Only)");
