@@ -150,6 +150,7 @@ class boss_rotface : public CreatureScript
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_DEATH);
                 DespawnOozes();
+                instance->SetBossState(DATA_ROTFACE, DONE); // I know it's already set by _JustDied() but double check it as it seems to be failing
             }
 
             void JustReachedHome() OVERRIDE
