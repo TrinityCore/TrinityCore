@@ -82,10 +82,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-            {
                 instance->SetData(TYPE_RIFT, SPECIAL);
-                instance->SetData(TYPE_TEMPORUS, DONE);
-            }
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE

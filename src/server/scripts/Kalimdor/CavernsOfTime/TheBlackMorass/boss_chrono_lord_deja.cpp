@@ -58,7 +58,7 @@ public:
 
     struct boss_chrono_lord_dejaAI : public BossAI
     {
-        boss_chrono_lord_dejaAI(Creature* creature) : BossAI(creature, TYPE_CHRONO_LORD_DEJA) { }
+        boss_chrono_lord_dejaAI(Creature* creature) : BossAI(creature, TYPE_CRONO_LORD_DEJA) { }
 
         void Reset() OVERRIDE { }
 
@@ -99,10 +99,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-            {
                 instance->SetData(TYPE_RIFT, SPECIAL);
-                instance->SetData(TYPE_CHRONO_LORD_DEJA, DONE);
-            }
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
