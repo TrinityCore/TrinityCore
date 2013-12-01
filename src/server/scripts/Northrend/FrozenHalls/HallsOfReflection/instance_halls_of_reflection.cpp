@@ -110,10 +110,13 @@ public:
 
         void OnCreatureCreate(Creature* creature) OVERRIDE
         {
-            Map::PlayerList const& players = instance->GetPlayers();
-            if (!players.isEmpty())
-                if (Player* player = players.begin()->GetSource())
-                    _teamInInstance = player->GetTeam();
+            if (!_teamInInstance)
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+                if (!players.isEmpty())
+                    if (Player* player = players.begin()->GetSource())
+                        _teamInInstance = player->GetTeam();
+            }
 
             switch (creature->GetEntry())
             {

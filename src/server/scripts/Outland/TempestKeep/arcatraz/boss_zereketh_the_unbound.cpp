@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_zereketh_the_unbound
-SD%Complete: 100%
-SDComment:
-SDCategory: Tempest Keep, The Arcatraz
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "arcatraz.h"
