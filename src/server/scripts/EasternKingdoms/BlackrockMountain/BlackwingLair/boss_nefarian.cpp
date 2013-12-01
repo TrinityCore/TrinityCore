@@ -264,7 +264,6 @@ public:
                             if (Unit* player = me->SelectNearestPlayer(60.0f))
                             {
                                 me->SetInFront(player);
-                                me->SendMovementFlagUpdate();
                                 Talk(SAY_SUCCESS);
                                 if (GameObject* portcullis1 = me->FindNearestGameObject(GO_PORTCULLIS_ACTIVE, 65.0f))
                                     portcullis1->SetGoState(GO_STATE_ACTIVE);

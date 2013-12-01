@@ -234,7 +234,8 @@ ObjectMgr::ObjectMgr():
     _hiGoGuid(1),
     _hiDoGuid(1),
     _hiCorpseGuid(1),
-    _hiMoTransGuid(1)
+    _hiMoTransGuid(1),
+    DBCLocaleIndex(LOCALE_enUS)
 {
     for (uint8 i = 0; i < MAX_CLASSES; ++i)
     {

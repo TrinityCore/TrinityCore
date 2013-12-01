@@ -64,6 +64,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     lootingGroupLowGUID = 0;
 
     ResetLootMode(); // restore default loot mode
+    m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 GameObject::~GameObject()

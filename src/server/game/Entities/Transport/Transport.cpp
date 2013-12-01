@@ -33,7 +33,8 @@
 #include "CellImpl.h"
 
 Transport::Transport() : GameObject(),
-    _transportInfo(NULL), _isMoving(true), _pendingStop(false)
+    _transportInfo(NULL), _isMoving(true), _pendingStop(false),
+    _triggeredArrivalEvent(false), _triggeredDepartureEvent(false)
 {
     m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
