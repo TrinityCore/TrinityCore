@@ -73,6 +73,8 @@ public:
             go_blackrockaltar         = 0;
             go_portcullis_active      = 0;
             go_portcullis_tobossrooms = 0;
+            memset(go_roomrunes, 0, sizeof(go_roomrunes));
+            memset(go_emberseerrunes, 0, sizeof(go_emberseerrunes));
         }
 
         void OnCreatureCreate(Creature* creature) OVERRIDE
