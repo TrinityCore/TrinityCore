@@ -1,1 +1,1 @@
-DELETE FROM `command` WHERE `permission` WHERE  IN (631,632);
+DELETE FROM `command` WHERE `permission` IN (631,632);
