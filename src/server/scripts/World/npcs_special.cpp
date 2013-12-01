@@ -2862,20 +2862,25 @@ public:
     {
         npc_lightwellAI(Creature* creature) : PassiveAI(creature) 
 	  {
-            DoCast(me, 59907, false); // Spell for Lightwell Charges
+         DoCast(me, 59907, false); // Spell for Lightwell Charges
 	     me->SetDisplayId(27769);
-         }
-
-        void EnterEvadeMode() OVERRIDE
-        {
-            if (!me->IsAlive())
-                return;
-
-            me->DeleteThreatList();
-            me->CombatStop(true);
-            me->ResetPlayerDamageReq();
-        }
+      }
     };
+
+    bool OnGossipHello(Player* player, Creature* creature ) OVERRIDE
+    {
+        if(player->IsFriendlyTo(creature->GetOwner()))
+        {
+            player->CastSpell(player,7001,true);
+
+            if(AuraApplication * charges = creature->GetAuraApplication(59907,creature->GetGUID()))
+            {
+                charges->GetBase()->DropCharge(AURA_REMOVE_BY_DEFAULT);
+            }
+        }
+
+        return true;
+    }
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
