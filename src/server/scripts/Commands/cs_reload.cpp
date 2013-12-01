@@ -26,7 +26,6 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
-#include "CreatureEventAIMgr.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
 #include "Language.h"
@@ -53,7 +52,6 @@ public:
         {
             { "achievement", rbac::RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT, true,  &HandleReloadAllAchievementCommand, "", NULL },
             { "area",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_AREA,        true,  &HandleReloadAllAreaCommand,       "", NULL },
-            { "eventai",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_EVENTAI,     true,  &HandleReloadAllEventAICommand,    "", NULL },
             { "gossips",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_GOSSIP,      true,  &HandleReloadAllGossipsCommand,    "", NULL },
             { "item",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_ITEM,        true,  &HandleReloadAllItemCommand,       "", NULL },
             { "locales",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_LOCALES,     true,  &HandleReloadAllLocalesCommand,    "", NULL },
@@ -80,8 +78,6 @@ public:
             { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS, true,  &HandleReloadConditions,                        "", NULL },
             { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG, true,  &HandleReloadConfigCommand,                     "", NULL },
             { "creature_text",                 rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEXT, true,  &HandleReloadCreatureText,                      "", NULL },
-            { "creature_ai_scripts",           rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_AI_SCRIPTS, true,  &HandleReloadEventAIScriptsCommand,             "", NULL },
-            { "creature_ai_texts",             rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_AI_TEXTS, true,  &HandleReloadEventAITextsCommand,               "", NULL },
             { "creature_questender",           rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTENDER, true,  &HandleReloadCreatureQuestEnderCommand,  "", NULL },
             { "creature_linked_respawn",       rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
             { "creature_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
@@ -182,7 +178,6 @@ public:
 
         HandleReloadAllAchievementCommand(handler, "");
         HandleReloadAllAreaCommand(handler, "");
-        HandleReloadAllEventAICommand(handler, "");
         HandleReloadAllLootCommand(handler, "");
         HandleReloadAllNpcCommand(handler, "");
         HandleReloadAllQuestCommand(handler, "");
@@ -270,13 +265,6 @@ public:
         HandleReloadDbScriptStringCommand(handler, "a");
         HandleReloadWpScriptsCommand(handler, "a");
         HandleReloadWpCommand(handler, "a");
-        return true;
-    }
-
-    static bool HandleReloadAllEventAICommand(ChatHandler* handler, const char* /*args*/)
-    {
-        HandleReloadEventAITextsCommand(handler, "a");
-        HandleReloadEventAIScriptsCommand(handler, "a");
         return true;
     }
 
@@ -1011,23 +999,6 @@ public:
         if (*args != 'a')
             handler->SendGlobalGMSysMessage("DB Table 'waypoint_data' reloaded.");
 
-        return true;
-    }
-
-    static bool HandleReloadEventAITextsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-
-        TC_LOG_INFO("misc", "Re-Loading Texts from `creature_ai_texts`...");
-        sEventAIMgr->LoadCreatureEventAI_Texts();
-        handler->SendGlobalGMSysMessage("DB table `creature_ai_texts` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadEventAIScriptsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Scripts from `creature_ai_scripts`...");
-        sEventAIMgr->LoadCreatureEventAI_Scripts();
-        handler->SendGlobalGMSysMessage("DB table `creature_ai_scripts` reloaded.");
         return true;
     }
 
