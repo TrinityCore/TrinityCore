@@ -1082,6 +1082,57 @@ public:
     }
 };
 
+/*######
+## Quest Dreadsaber Mastery: Stalking the Prey (12550)
+######*/
+
+enum ShangoTracks
+{
+    SPELL_CORRECT_TRACKS   = 52160,
+    SPELL_INCORRECT_TRACKS = 52163,
+    SAY_CORRECT_TRACKS     = 28634,
+    SAY_INCORRECT_TRACKS   = 28635
+};
+
+class spell_shango_tracks : public SpellScriptLoader
+{
+public:
+   spell_shango_tracks() : SpellScriptLoader("spell_shango_tracks") { }
+
+    class spell_shango_tracks_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_shango_tracks_SpellScript);
+
+        void HandleScript(SpellEffIndex effIndex)
+        {
+            if (Player* player = GetHitUnit()->ToPlayer())
+            {
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_CORRECT_TRACKS:
+                        player->Say(sObjectMgr->GetTrinityStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL);
+                        break;
+                    case SPELL_INCORRECT_TRACKS:
+                        player->Say(sObjectMgr->GetTrinityStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        void Register() OVERRIDE
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_shango_tracks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const OVERRIDE
+    {
+        return new spell_shango_tracks_SpellScript();
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     new npc_injured_rainspeaker_oracle();
@@ -1095,4 +1146,5 @@ void AddSC_sholazar_basin()
     new spell_q12589_shoot_rjr();
     new npc_haiphoon();
     new npc_vics_flying_machine();
+    new spell_shango_tracks();
 }
