@@ -106,6 +106,7 @@ public:
                 me->RemoveAura(SPELL_CHANNEL);
 
             DoCast(me, SPELL_PORTAL_RUNE, true);
+            instance->SetData(TYPE_MEDIVH, NOT_STARTED);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE

@@ -27,7 +27,7 @@ enum DataTypes
     TYPE_RIFT                           = 2,
     TYPE_AEONUS                         = 3,
     TYPE_TEMPORUS                       = 4,
-    TYPE_CRONO_LORD_DEJA                = 5,
+    TYPE_CHRONO_LORD_DEJA               = 5,
     DATA_MEDIVH                         = 10,
     DATA_PORTAL_COUNT                   = 11,
     DATA_SHIELD                         = 12

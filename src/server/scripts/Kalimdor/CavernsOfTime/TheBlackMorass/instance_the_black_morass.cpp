@@ -92,6 +92,9 @@ public:
         uint64 _medivhGUID;
         uint8  _currentRiftId;
 
+        bool _hasChronoLordDejaDied;
+        bool _hasTemporusDied;
+
         void Initialize() OVERRIDE
         {
             _medivhGUID         = 0;
@@ -153,11 +156,27 @@ public:
             switch (mRiftPortalCount)
             {
             case 6:
-                mRiftWaveId = 2;
-                return 1;
+                if (!_hasChronoLordDejaDied)
+                {
+                    mRiftWaveId = 2;
+                    return 1;
+                }
+                else
+                {
+                    SetData(TYPE_RIFT, SPECIAL);
+                    return mRiftWaveId;
+                }
             case 12:
-                mRiftWaveId = 4;
-                return 3;
+                if (!_hasTemporusDied)
+                {
+                    mRiftWaveId = 4;
+                    return 3;
+                }
+                else
+                {
+                    SetData(TYPE_RIFT, SPECIAL);
+                    return mRiftWaveId;
+                }
             case 18:
                 return 5;
             default:
@@ -221,17 +240,28 @@ public:
                         }
                     }
 
+                    if (data == NOT_STARTED)
+                        Clear();
+
                     m_auiEncounter[0] = data;
                 }
                 break;
             case TYPE_RIFT:
                 if (data == SPECIAL)
                 {
-                    if (mRiftPortalCount < 7)
+                    if (mRiftPortalCount < 7 || _hasChronoLordDejaDied)
                         ScheduleEventNextPortal(5000);
                 }
                 else
                     m_auiEncounter[1] = data;
+                break;
+            case TYPE_CHRONO_LORD_DEJA:
+                if (data == DONE)
+                    _hasChronoLordDejaDied = true;
+                break;
+            case TYPE_TEMPORUS:
+                if (data == DONE)
+                    _hasTemporusDied = true;
                 break;
             }
         }
@@ -263,6 +293,9 @@ public:
         Creature* SummonedPortalBoss(Creature* me)
         {
             uint32 entry = RiftWaves[GetRiftWaveId()].PortalBoss;
+
+            if (GetData(TYPE_MEDIVH == DONE)) // Don't let the event repeat if it has already been through.
+                return;
 
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
