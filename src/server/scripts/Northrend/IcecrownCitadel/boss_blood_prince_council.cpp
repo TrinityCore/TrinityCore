@@ -1206,6 +1206,11 @@ class npc_ball_of_flame : public CreatureScript
                     _despawnTimer -= diff;
             }
 
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                me->DespawnOrUnsummon();
+            }
+            
         private:
             uint64 _chaseGUID;
             InstanceScript* _instance;

@@ -340,7 +340,9 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildMap(uint32 mapID)
     {
+#ifdef _WIN32 || _WIN64 || __linux__
         printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
+#endif
 
         std::set<uint32>* tiles = getTileList(mapID);
 

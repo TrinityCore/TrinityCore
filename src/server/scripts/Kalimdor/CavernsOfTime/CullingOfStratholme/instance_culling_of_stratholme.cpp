@@ -23,294 +23,392 @@
 #include "TemporarySummon.h"
 #include "SpellInfo.h"
 
+#ifdef __APPLE__
+#include "ScriptPCH.h"
+#endif
+
 #define MAX_ENCOUNTER 5
 
 /* Culling of Stratholme encounters:
-0 - Meathook
-1 - Salramm the Fleshcrafter
-2 - Chrono-Lord Epoch
-3 - Mal'Ganis
-4 - Infinite Corruptor (Heroic only)
-*/
+ 0 - Meathook
+ 1 - Salramm the Fleshcrafter
+ 2 - Chrono-Lord Epoch
+ 3 - Mal'Ganis
+ 4 - Infinite Corruptor (Heroic only)
+ */
 
 enum Texts
 {
-    SAY_CRATES_COMPLETED    = 0,
+    SAY_CRATES_COMPLETED    = 0, // Chromie
+    
+    SAY_INFINITE_START      = 0, // Chromie - On Infinite Corruptor event start
+    SAY_INFINITE            = 1, // Chromie - On Infinite Corruptor event at 5 minutes
+    SAY_INFINITE_FAIL       = 2, // Chromie - On Infinite Corruptor event fail
+    
+    SAY_FAIL                = 2  // Infinite Corruptor - On Infinite Corruptor event fail
+    
 };
 
-Position const ChromieSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
+enum TimedEvents
+{
+    EVENT_INFINITE_TIMER   = 1
+};
+
+Position const ChromieSummonPos[] =
+{
+    {1813.298f, 1283.578f, 142.3258f, 3.878161f},
+    {2273.725f, 1483.684f, 128.7205f, 6.057528f}
+};
 
 class instance_culling_of_stratholme : public InstanceMapScript
 {
-    public:
-        instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+public:
+    instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
+    
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    {
+        return new instance_culling_of_stratholme_InstanceMapScript(map);
+    }
+    
+    struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
+    {
+        instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
         {
-            return new instance_culling_of_stratholme_InstanceMapScript(map);
+            _arthasGUID = 0;
+            _meathookGUID = 0;
+            _salrammGUID = 0;
+            _epochGUID = 0;
+            _malGanisGUID = 0;
+            _infiniteGUID = 0;
+            _shkafGateGUID = 0;
+            _malGanisGate1GUID = 0;
+            _malGanisGate2GUID = 0;
+            _exitGateGUID = 0;
+            _malGanisChestGUID = 0;
+            _genericBunnyGUID = 0;
+            _chromieGUID = 0;
+            memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
+            _crateCount = 0;
+            _eventMinute = 0;
         }
-
-        struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
+        
+        bool IsEncounterInProgress() const
         {
-            instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
+            
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                if (_encounterState[i] == IN_PROGRESS)
+                    return true;
+            
+            return false;
+        }
+        
+        void FillInitialWorldStates(WorldPacket& data)
+        {
+            data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1);
+            data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
+            data << uint32(WORLDSTATE_WAVE_COUNT) << uint32(0);
+            data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
+            data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
+        }
+        
+        void OnCreatureCreate(Creature* creature)
+        {
+            switch (creature->GetEntry())
             {
-                _arthasGUID = 0;
-                _meathookGUID = 0;
-                _salrammGUID = 0;
-                _epochGUID = 0;
-                _malGanisGUID = 0;
-                _infiniteGUID = 0;
-                _shkafGateGUID = 0;
-                _malGanisGate1GUID = 0;
-                _malGanisGate2GUID = 0;
-                _exitGateGUID = 0;
-                _malGanisChestGUID = 0;
-                _genericBunnyGUID = 0;
-                memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
-                _crateCount = 0;
+                case NPC_ARTHAS:
+                    _arthasGUID = creature->GetGUID();
+                    break;
+                case NPC_MEATHOOK:
+                    _meathookGUID = creature->GetGUID();
+                    break;
+                case NPC_SALRAMM:
+                    _salrammGUID = creature->GetGUID();
+                    break;
+                case NPC_EPOCH:
+                    _epochGUID = creature->GetGUID();
+                    break;
+                case NPC_MAL_GANIS:
+                    _malGanisGUID = creature->GetGUID();
+                    break;
+                case NPC_INFINITE:
+                    _infiniteGUID = creature->GetGUID();
+                    break;
+                case NPC_GENERIC_BUNNY:
+                    _genericBunnyGUID = creature->GetGUID();
+                    break;
+                case NPC_CHROMIE:
+                    _chromieGUID = creature->GetGUID();
+                    break;
             }
-
-            bool IsEncounterInProgress() const OVERRIDE
+        }
+        
+        void OnGameObjectCreate(GameObject* go)
+        {
+            switch (go->GetEntry())
             {
+                case GO_SHKAF_GATE:
+                    _shkafGateGUID = go->GetGUID();
+                    break;
+                case GO_MALGANIS_GATE_1:
+                    _malGanisGate1GUID = go->GetGUID();
+                    break;
+                case GO_MALGANIS_GATE_2:
+                    _malGanisGate2GUID = go->GetGUID();
+                    break;
+                case GO_EXIT_GATE:
+                    _exitGateGUID = go->GetGUID();
+                    if (_encounterState[3] == DONE)
+                        HandleGameObject(_exitGateGUID, true);
+                    break;
+                case GO_MALGANIS_CHEST_N:
+                case GO_MALGANIS_CHEST_H:
+                    _malGanisChestGUID = go->GetGUID();
+                    if (_encounterState[3] == DONE)
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    break;
+            }
+        }
+        
+        void SetData(uint32 type, uint32 data) OVERRIDE
+        {
+            switch (type)
+            {
+                case DATA_MEATHOOK_EVENT:
+                    _encounterState[0] = data;
+                    break;
+                case DATA_SALRAMM_EVENT:
+                    _encounterState[1] = data;
+                    break;
+                case DATA_EPOCH_EVENT:
+                    _encounterState[2] = data;
+                    break;
+                case DATA_MAL_GANIS_EVENT:
+                    _encounterState[3] = data;
+                    
+                    switch (_encounterState[3])
+                {
+                    case NOT_STARTED:
+                        HandleGameObject(_malGanisGate2GUID, true);
+                        break;
+                    case IN_PROGRESS:
+                        HandleGameObject(_malGanisGate2GUID, false);
+                        break;
+                    case DONE:
+                        HandleGameObject(_exitGateGUID, true);
+                        if (GameObject* go = instance->GetGameObject(_malGanisChestGUID))
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        instance->SummonCreature(NPC_CHROMIE_3, ChromieSummonPos[1]);
+                        break;
+                }
+                    break;
+                case DATA_INFINITE_EVENT:
+                    _encounterState[4] = data;
+                    if(data == DONE)
+                    {
+                        DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                        Events.CancelEvent(EVENT_INFINITE_TIMER);
+                    }
+                    break;
+                case DATA_CRATE_COUNT:
+                    _crateCount = data;
+                    if (_crateCount == 5)
+                    {
+                        if (Creature* bunny = instance->GetCreature(_genericBunnyGUID))
+                            bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
+                        
+                        // Summon Chromie and global whisper
+                        if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos[0]))
+                            if (!instance->GetPlayers().isEmpty())
+                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                    sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                    }
+                    DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
+                    break;
+                case DATA_INFINITE_COUNTER:
+                    _eventCounterState = data;
+                    if (data == IN_PROGRESS)
+                        if (_infiniteGUID != 0)
+                        {
+                            Events.ScheduleEvent(EVENT_INFINITE_TIMER, 1);
+                            _eventMinute = 25;
+                        }
+            }
+            
+            if (data == DONE)
+                SaveToDB();
+        }
+        
+        uint32 GetData(uint32 type) const OVERRIDE
+        {
+            switch (type)
+            {
+                case DATA_MEATHOOK_EVENT:
+                    return _encounterState[0];
+                case DATA_SALRAMM_EVENT:
+                    return _encounterState[1];
+                case DATA_EPOCH_EVENT:
+                    return _encounterState[2];
+                case DATA_MAL_GANIS_EVENT:
+                    return _encounterState[3];
+                case DATA_INFINITE_EVENT:
+                    return _encounterState[4];
+                case DATA_CRATE_COUNT:
+                    return _crateCount;
+                case DATA_INFINITE_COUNTER:
+                    return _eventCounterState;
+            }
+            return 0;
+        }
+        
+        uint64 GetData64(uint32 identifier) const OVERRIDE
+        {
+            switch (identifier)
+            {
+                case DATA_ARTHAS:
+                    return _arthasGUID;
+                case DATA_MEATHOOK:
+                    return _meathookGUID;
+                case DATA_SALRAMM:
+                    return _salrammGUID;
+                case DATA_EPOCH:
+                    return _epochGUID;
+                case DATA_MAL_GANIS:
+                    return _malGanisGUID;
+                case DATA_INFINITE:
+                    return _infiniteGUID;
+                case DATA_SHKAF_GATE:
+                    return _shkafGateGUID;
+                case DATA_MAL_GANIS_GATE_1:
+                    return _malGanisGate1GUID;
+                case DATA_MAL_GANIS_GATE_2:
+                    return _malGanisGate2GUID;
+                case DATA_EXIT_GATE:
+                    return _exitGateGUID;
+                case DATA_MAL_GANIS_CHEST:
+                    return _malGanisChestGUID;
+            }
+            return 0;
+        }
+        
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+            
+            std::ostringstream saveStream;
+            saveStream << "C S " << _encounterState[0] << ' ' << _encounterState[1] << ' '
+            << _encounterState[2] << ' ' << _encounterState[3] << ' ' << _encounterState[4];
+            
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+        }
+        
+        void Load(const char* in)
+        {
+            if (!in)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+            
+            OUT_LOAD_INST_DATA(in);
+            
+            char dataHead1, dataHead2;
+            uint16 data0, data1, data2, data3, data4;
+            
+            std::istringstream loadStream(in);
+            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
+            
+            if (dataHead1 == 'C' && dataHead2 == 'S')
+            {
+                _encounterState[0] = data0;
+                _encounterState[1] = data1;
+                _encounterState[2] = data2;
+                _encounterState[3] = data3;
+                _encounterState[4] = data4;
+                
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (_encounterState[i] == IN_PROGRESS)
-                        return true;
-
-                return false;
+                        _encounterState[i] = NOT_STARTED;
+                
             }
-
-            void FillInitialWorldStates(WorldPacket& data) OVERRIDE
+            else
+                OUT_LOAD_INST_DATA_FAIL;
+            
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
+        
+        void Update(uint32 diff) OVERRIDE
+        {
+            Events.Update(diff);
+            
+            while (uint32 eventId = Events.ExecuteEvent())
             {
-                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1);
-                data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
-                data << uint32(WORLDSTATE_WAVE_COUNT) << uint32(0);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
-            }
-
-            void OnCreatureCreate(Creature* creature) OVERRIDE
-            {
-                switch (creature->GetEntry())
+                switch(eventId)
                 {
-                    case NPC_ARTHAS:
-                        _arthasGUID = creature->GetGUID();
-                        break;
-                    case NPC_MEATHOOK:
-                        _meathookGUID = creature->GetGUID();
-                        break;
-                    case NPC_SALRAMM:
-                        _salrammGUID = creature->GetGUID();
-                        break;
-                    case NPC_EPOCH:
-                        _epochGUID = creature->GetGUID();
-                        break;
-                    case NPC_MAL_GANIS:
-                        _malGanisGUID = creature->GetGUID();
-                        break;
-                    case NPC_INFINITE:
-                        _infiniteGUID = creature->GetGUID();
-                        break;
-                    case NPC_GENERIC_BUNNY:
-                        _genericBunnyGUID = creature->GetGUID();
-                        break;
+                    case EVENT_INFINITE_TIMER:
+                        DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1);
+                        DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, _eventMinute);
+                        Events.ScheduleEvent(EVENT_INFINITE_TIMER, MINUTE*IN_MILLISECONDS);
+                        
+                        switch(_eventMinute)
+                    {
+                        case 25:
+                            if (!instance->GetPlayers().isEmpty())
+                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_START, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                            break;
+                        case 5:
+                            if (!instance->GetPlayers().isEmpty())
+                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                            break;
+                        case 0:
+                            if (!instance->GetPlayers().isEmpty())
+                                if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                                    if (Creature* chromie = instance->GetCreature(_chromieGUID))
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_FAIL, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                            
+                            if (Creature* infinite = instance->GetCreature(_infiniteGUID))
+                                if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
+                                {
+                                    infinite->Kill(infinite->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f));
+                                    infinite->GetMotionMaster()->MovePoint(0, rift->GetPositionX(), rift->GetPositionY(), rift->GetPositionZ());
+                                    infinite->AI()->Talk(SAY_FAIL);
+                                    rift->DespawnOrUnsummon();
+                                    infinite->DespawnOrUnsummon(3*IN_MILLISECONDS);
+                                    Events.CancelEvent(EVENT_INFINITE_TIMER);
+                                    DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                                }
+                            break;
+                    }
                 }
+                --_eventMinute;
             }
-
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_SHKAF_GATE:
-                        _shkafGateGUID = go->GetGUID();
-                        break;
-                    case GO_MALGANIS_GATE_1:
-                        _malGanisGate1GUID = go->GetGUID();
-                        break;
-                    case GO_MALGANIS_GATE_2:
-                        _malGanisGate2GUID = go->GetGUID();
-                        break;
-                    case GO_EXIT_GATE:
-                        _exitGateGUID = go->GetGUID();
-                        if (_encounterState[3] == DONE)
-                            HandleGameObject(_exitGateGUID, true);
-                        break;
-                    case GO_MALGANIS_CHEST_N:
-                    case GO_MALGANIS_CHEST_H:
-                        _malGanisChestGUID = go->GetGUID();
-                        if (_encounterState[3] == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                        break;
-                }
-            }
-
-            void SetData(uint32 type, uint32 data) OVERRIDE
-            {
-                switch (type)
-                {
-                    case DATA_MEATHOOK_EVENT:
-                        _encounterState[0] = data;
-                        break;
-                    case DATA_SALRAMM_EVENT:
-                        _encounterState[1] = data;
-                        break;
-                    case DATA_EPOCH_EVENT:
-                        _encounterState[2] = data;
-                        break;
-                    case DATA_MAL_GANIS_EVENT:
-                        _encounterState[3] = data;
-
-                        switch (_encounterState[3])
-                        {
-                            case NOT_STARTED:
-                                HandleGameObject(_malGanisGate2GUID, true);
-                                break;
-                            case IN_PROGRESS:
-                                HandleGameObject(_malGanisGate2GUID, false);
-                                break;
-                            case DONE:
-                                HandleGameObject(_exitGateGUID, true);
-                                if (GameObject* go = instance->GetGameObject(_malGanisChestGUID))
-                                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                                break;
-                        }
-                        break;
-                    case DATA_INFINITE_EVENT:
-                        _encounterState[4] = data;
-                        break;
-                    case DATA_CRATE_COUNT:
-                        _crateCount = data;
-                        if (_crateCount == 5)
-                        {
-                            if (Creature* bunny = instance->GetCreature(_genericBunnyGUID))
-                                bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
-
-                            // Summon Chromie and global whisper
-                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos))
-                                if (!instance->GetPlayers().isEmpty())
-                                    if (Player* player = instance->GetPlayers().getFirst()->GetSource())
-                                        sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
-                        }
-                        DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
-                        break;
-                }
-
-                if (data == DONE)
-                    SaveToDB();
-            }
-
-            uint32 GetData(uint32 type) const OVERRIDE
-            {
-                switch (type)
-                {
-                    case DATA_MEATHOOK_EVENT:
-                        return _encounterState[0];
-                    case DATA_SALRAMM_EVENT:
-                        return _encounterState[1];
-                    case DATA_EPOCH_EVENT:
-                        return _encounterState[2];
-                    case DATA_MAL_GANIS_EVENT:
-                        return _encounterState[3];
-                    case DATA_INFINITE_EVENT:
-                        return _encounterState[4];
-                    case DATA_CRATE_COUNT:
-                        return _crateCount;
-                }
-                return 0;
-            }
-
-            uint64 GetData64(uint32 identifier) const OVERRIDE
-            {
-                switch (identifier)
-                {
-                    case DATA_ARTHAS:
-                        return _arthasGUID;
-                    case DATA_MEATHOOK:
-                        return _meathookGUID;
-                    case DATA_SALRAMM:
-                        return _salrammGUID;
-                    case DATA_EPOCH:
-                        return _epochGUID;
-                    case DATA_MAL_GANIS:
-                        return _malGanisGUID;
-                    case DATA_INFINITE:
-                        return _infiniteGUID;
-                    case DATA_SHKAF_GATE:
-                        return _shkafGateGUID;
-                    case DATA_MAL_GANIS_GATE_1:
-                        return _malGanisGate1GUID;
-                    case DATA_MAL_GANIS_GATE_2:
-                        return _malGanisGate2GUID;
-                    case DATA_EXIT_GATE:
-                        return _exitGateGUID;
-                    case DATA_MAL_GANIS_CHEST:
-                        return _malGanisChestGUID;
-                }
-                return 0;
-            }
-
-            std::string GetSaveData() OVERRIDE
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "C S " << _encounterState[0] << ' ' << _encounterState[1] << ' '
-                    << _encounterState[2] << ' ' << _encounterState[3] << ' ' << _encounterState[4];
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* in) OVERRIDE
-            {
-                if (!in)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(in);
-
-                char dataHead1, dataHead2;
-                uint16 data0, data1, data2, data3, data4;
-
-                std::istringstream loadStream(in);
-                loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
-
-                if (dataHead1 == 'C' && dataHead2 == 'S')
-                {
-                    _encounterState[0] = data0;
-                    _encounterState[1] = data1;
-                    _encounterState[2] = data2;
-                    _encounterState[3] = data3;
-                    _encounterState[4] = data4;
-
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                        if (_encounterState[i] == IN_PROGRESS)
-                            _encounterState[i] = NOT_STARTED;
-
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
-        private:
-            uint64 _arthasGUID;
-            uint64 _meathookGUID;
-            uint64 _salrammGUID;
-            uint64 _epochGUID;
-            uint64 _malGanisGUID;
-            uint64 _infiniteGUID;
-            uint64 _shkafGateGUID;
-            uint64 _malGanisGate1GUID;
-            uint64 _malGanisGate2GUID;
-            uint64 _exitGateGUID;
-            uint64 _malGanisChestGUID;
-            uint64 _genericBunnyGUID;
-            uint32 _encounterState[MAX_ENCOUNTER];
-            uint32 _crateCount;
-        };
+            
+        }
+    private:
+        EventMap Events;
+        
+        uint64 _arthasGUID;
+        uint64 _meathookGUID;
+        uint64 _salrammGUID;
+        uint64 _epochGUID;
+        uint64 _malGanisGUID;
+        uint64 _infiniteGUID;
+        uint64 _shkafGateGUID;
+        uint64 _malGanisGate1GUID;
+        uint64 _malGanisGate2GUID;
+        uint64 _exitGateGUID;
+        uint64 _malGanisChestGUID;
+        uint64 _genericBunnyGUID;
+        uint64 _chromieGUID;
+        uint32 _encounterState[MAX_ENCOUNTER];
+        uint32 _eventCounterState;
+        uint32 _crateCount;
+        uint32 _eventMinute;
+    };
 };
 
 void AddSC_instance_culling_of_stratholme()

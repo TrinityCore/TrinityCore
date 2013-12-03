@@ -998,6 +998,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 10*petlevel);
                         SetCreateHealth(28 + 30*petlevel);
                     }
+                    
+                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_SPELL);
+                    ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME, ownerHaste, false);
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+                    m_modMeleeHitChance = m_owner->m_modSpellHitChance;
+                    
                     int32 bonus_dmg = int32(GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW)* 0.3f);
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel) + bonus_dmg));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel) + bonus_dmg));
@@ -1023,6 +1029,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     // wolf attack speed is 1.5s
                     SetAttackTime(BASE_ATTACK, cinfo->baseattacktime);
+                    
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
 
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel)));
@@ -1051,6 +1060,11 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 10*petlevel);
                         SetCreateHealth(28 + 30*petlevel);
                     }
+                    // convert DK melee haste into the gargoyles spell haste
+                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
+                    ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
+                    m_modSpellHitChance = m_owner->m_modMeleeHitChance;
+                    
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));

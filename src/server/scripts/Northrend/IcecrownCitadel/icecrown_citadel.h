@@ -38,6 +38,8 @@ extern Position const TerenasSpawn;
 extern Position const TerenasSpawnHeroic;
 extern Position const SpiritWardenSpawn;
 
+extern Position const MuradinSpawnPos;
+
 // Shared spells used by more than one script
 enum SharedSpells
 {
@@ -116,6 +118,22 @@ enum DataTypes
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
     DATA_ARTHAS_PLATFORM            = 38,
     DATA_TERENAS_MENETHIL           = 39,
+    
+    //Gunship
+    DATA_FIRST_SQUAD_STATE                  = 100,
+    DATA_SECOND_SQUAD_STATE                 = 101,
+    DATA_SPIRE_FROSTWYRM_STATE              = 102,
+    DATA_GB_HIGH_OVERLORD_SAURFANG          = 103,
+    DATA_GB_MURADIN_BRONZEBEARD             = 104,
+    DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL  = 105,
+    DATA_GB_BATTLE_MAGE                     = 106,
+    DATA_SKYBREAKER_BOSS                    = 107,
+    DATA_ORGRIMMAR_HAMMER_BOSS              = 108,
+    DATA_MURADIN_BRONZEBEARD_NOT_VISUAL     = 109,
+    DATA_MURADIN_BRONZEBEARD                = 110,
+    DATA_GUNSHIP_BATTLE                     = 111,
+    GUID_PLAYER_LOCATION                    = 112,
+	DATA_ENEMY_SHIP							= 113,
 };
 
 enum CreaturesIds
@@ -286,6 +304,36 @@ enum CreaturesIds
 
     // Generic
     NPC_INVISIBLE_STALKER                       = 30298,
+    
+    //Gunship ID    
+    NPC_GB_SKYBREAKER                           = 37540,
+    NPC_GB_ORGRIMS_HAMMER                       = 37215,
+    NPC_GB_HIGH_OVERLORD_SAURFANG               = 36939,
+    NPC_GB_MURADIN_BRONZEBEARD                  = 36948,
+    NPC_GB_HIGH_CAPTAIN_JUSTIN_BARTLETT         = 37182,
+    NPC_GB_HIGH_OVERLORD_SAURFANG_NOT_VISUAL    = 50004,
+    NPC_GB_MURADIN_BRONZEBEARD_NOT_VISUAL       = 50006,
+    NPC_GB_SKYBREAKER_SORCERER                  = 37026,
+    NPC_GB_SKYBREAKER_SORCERERS                 = 37116,
+    NPC_GB_KORKRON_REAVER                       = 37920,
+    NPC_GB_KORKRON_REAVERS                      = 36957,
+    NPC_GB_KORKRON_SERGANTE                     = 36960,
+    NPC_GB_SKYBREAKER_SERGANTE                  = 36961,
+    NPC_GB_KORKRON_BATTLE_MAGE                  = 37117,
+    NPC_GB_SKYBREAKER_MARINE                    = 36950,
+    NPC_GB_KORKRON_ROCKETEER                    = 36982,
+    NPC_GB_SKYBREAKER_MORTAR_SOLDIER            = 36978,
+    NPC_GB_KORKRON_AXETHROWER                   = 36968,
+    NPC_GB_SKYBREAKER_RIFLEMAN                  = 36969,
+    NPC_GB_SKYBREAKER_DECKHAND                  = 36970,
+    NPC_GB_ZAFOD_BOOMBOX                        = 37184,
+    NPC_GB_ALLIANCE_CANON                       = 36838,
+    NPC_GB_HORDE_CANON                          = 36839,
+    NPC_GB_INVISIBLE_STALKER                    = 32780,
+    NPC_GB_PORTAL                               = 37227,
+    NPC_GB_GUNSHIP_HULL                         = 37547,
+    
+
 };
 
 enum GameObjectsIds
@@ -369,6 +417,13 @@ enum GameObjectsIds
     GO_FROZEN_LAVAMAN                       = 202436,
     GO_LAVAMAN_PILLARS_CHAINED              = 202437,
     GO_LAVAMAN_PILLARS_UNCHAINED            = 202438,
+    
+    // Gunship Event
+
+    GO_ALLIANCE_GUNSHIP = 201580, //Alliance Ship
+    GO_HORDE_GUNSHIP = 201812, //Horde Ship
+    GO_ALLIANCE_GUNSHIP_ENEMY = 201581,
+    GO_HORDE_GUNSHIP_ENEMY = 201811
 };
 
 enum AchievementCriteriaIds

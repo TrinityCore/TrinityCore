@@ -90,7 +90,11 @@ typedef ACE_INT64 int64;
 typedef ACE_INT32 int32;
 typedef ACE_INT16 int16;
 typedef ACE_INT8 int8;
+#ifdef __APPLE__
+typedef uint64_t uint64;
+#elif _WIN32 || _WIN64 || __linux__
 typedef ACE_UINT64 uint64;
+#endif
 typedef ACE_UINT32 uint32;
 typedef ACE_UINT16 uint16;
 typedef ACE_UINT8 uint8;
