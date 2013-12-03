@@ -160,7 +160,7 @@ public:
         std::string name;
         char* questArg;
         char* PlayerName;
-        handler->extractOptFirstArg((char*)args, &PlayerName, &questArg);
+        handler->extractOptFirstArg((char*)args, &questArg, &PlayerName);
         if (!PlayerName)
         {
             player = handler->getSelectedPlayer();
