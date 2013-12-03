@@ -57,16 +57,15 @@ public:
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 0.1f);
 
-            if (Unit* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000))
+            if (Creature* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000))
             {
                 _rageclawGUID = summon->GetGUID();
-                LockRageclaw();
+                LockRageclaw(summon);
             }
         }
 
-        void LockRageclaw()
+        void LockRageclaw(Creature* rageclaw)
         {
-            Unit* rageclaw = Unit::GetCreature(*me, _rageclawGUID);
             // pointer check not needed
             me->SetInFront(rageclaw);
             rageclaw->SetInFront(me);
@@ -75,12 +74,11 @@ public:
             DoCast(rageclaw, SPELL_RIGHT_CHAIN, true);
         }
 
-        void UnlockRageclaw(Unit* who)
+        void UnlockRageclaw(Unit* who, Creature* rageclaw)
         {
             if (!who)
                 return;
 
-            Creature* rageclaw = Unit::GetCreature(*me, _rageclawGUID);
             // pointer check not needed
             DoCast(rageclaw, SPELL_FREE_RAGECLAW, true);
 
@@ -95,7 +93,7 @@ public:
                 {
                     if (Creature* rageclaw = Unit::GetCreature(*me, _rageclawGUID))
                     {
-                        UnlockRageclaw(caster);
+                        UnlockRageclaw(caster, rageclaw);
                         caster->ToPlayer()->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
                         me->DespawnOrUnsummon();
                     }
