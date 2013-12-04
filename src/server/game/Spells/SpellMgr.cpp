@@ -3167,7 +3167,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 54171: // Divine Storm
                 spellInfo->MaxAffectedTargets = 3;
                 break;
-            case 37697: // Top Bunny Beam Test Visual
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
