@@ -3782,6 +3782,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 18756:
                 spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 break;
+            case 52212: // Death Knight's Death and Decay triggered spell
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                break;
             // ISLE OF CONQUEST SPELLS
             //
             case 66551: // Teleport
