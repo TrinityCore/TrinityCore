@@ -1103,7 +1103,7 @@ public:
     {
         PrepareSpellScript(spell_shango_tracks_SpellScript);
 
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Player* player = GetHitUnit()->ToPlayer())
             {
