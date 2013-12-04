@@ -165,7 +165,7 @@ public:
             unit->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId)
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) OVERRIDE
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
