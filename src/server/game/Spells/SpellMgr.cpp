@@ -3167,6 +3167,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 54171: // Divine Storm
                 spellInfo->MaxAffectedTargets = 3;
                 break;
+            case 37697: // Top Bunny Beam Test Visual
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
@@ -3220,6 +3221,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
+                break;
+            case 37408: // Oscillation Field
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 47201: // Everlasting Affliction
             case 47202:
