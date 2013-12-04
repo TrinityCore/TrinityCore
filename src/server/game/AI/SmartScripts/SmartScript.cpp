@@ -516,7 +516,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS)
                         me->InterruptNonMeleeSpells(false);
 
+                    if (e.action.cast.flags & SMARTCAST_COMBAT_MOVE)
+                    {
+                        // If cast flag SMARTCAST_COMBAT_MOVE is set combat movement will not be allowed
+                        // unless target is outside spell range, out of mana, or LOS.
+
+                        bool _allowMove = false;
+                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.cast.spell);
+                        int32 mana = me->GetPower(POWER_MANA);
+
+                        if (me->GetDistance((*itr)->ToUnit()) > spellInfo->GetMaxRange(true) ||
+                            me->GetDistance((*itr)->ToUnit()) < spellInfo->GetMinRange(true) ||
+                            !me->ToUnit()->IsWithinLOSInMap((*itr)->ToUnit()) ||
+                            mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
+                                _allowMove = true;
+
+                        CAST_AI(SmartAI, me->AI())->SetCombatMove(_allowMove);
+                    }
+
                     me->CastSpell((*itr)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED));
+
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CAST:: Creature %u casts spell %u on target %u with castflags %u",
                         me->GetGUIDLow(), e.action.cast.spell, (*itr)->GetGUIDLow(), e.action.cast.flags);
                 }
