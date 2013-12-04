@@ -460,7 +460,6 @@ void SmartAI::EnterEvadeMode()
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
     me->ResetPlayerDamageReq();
-
     GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);//must be after aura clear so we can cast spells from db
 
     SetRun(mRun);
@@ -475,7 +474,10 @@ void SmartAI::EnterEvadeMode()
             me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
     }
     else
+    {
+        mCanCombatMove = true;
         me->GetMotionMaster()->MoveTargetedHome();
+    }
 
     Reset();
 }
@@ -588,6 +590,9 @@ int SmartAI::Permissible(const Creature* creature)
 void SmartAI::JustReachedHome()
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
+
+    if (!UpdateVictim() && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE && me->GetWaypointPath())
+        me->ToCreature()->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
 }
 
 void SmartAI::EnterCombat(Unit* enemy)
@@ -787,8 +792,9 @@ void SmartAI::SetCombatMove(bool on)
         }
         else
         {
-            me->StopMoving();
+            me->GetMotionMaster()->MovementExpired();
             me->GetMotionMaster()->Clear(true);
+            me->StopMoving();
             me->GetMotionMaster()->MoveIdle();
         }
     }
