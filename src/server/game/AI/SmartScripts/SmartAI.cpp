@@ -474,10 +474,7 @@ void SmartAI::EnterEvadeMode()
             me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
     }
     else
-    {
-        mCanCombatMove = true;
         me->GetMotionMaster()->MoveTargetedHome();
-    }
 
     Reset();
 }
