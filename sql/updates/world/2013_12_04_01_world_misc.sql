@@ -1,4 +1,4 @@
-Quest 10594 "Gauging the Resonant Frequency"
+-- Quest 10594 "Gauging the Resonant Frequency"
 
 -- Add creature script
 UPDATE creature_template SET ScriptName = 'npc_oscillating_frequency_scanner_master_bunny' WHERE entry=21760;
