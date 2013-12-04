@@ -184,7 +184,7 @@ class boss_dalliah_the_doomsayer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_dalliah_the_doomsayerAI(creature);
+            return GetArcatrazAI<boss_dalliah_the_doomsayerAI>(creature);
         }
 };
 
