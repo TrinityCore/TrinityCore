@@ -718,6 +718,12 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     }
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
+    if (!spellInfo)
+    {
+        TC_LOG_ERROR("network", "WORLD: unknown PET spell id %u", spellid);
+        return;
+    }
+
     // do not add not learned spells/ passive spells
     if (!pet->HasSpell(spellid) || !spellInfo->IsAutocastable())
         return;
