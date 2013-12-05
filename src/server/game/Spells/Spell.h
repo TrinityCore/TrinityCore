@@ -106,6 +106,9 @@ class SpellCastTargets
 
         void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
 
+        uint64 GetOrigUnitTargetGUID() const;
+        void SetOrigUnitTarget(Unit* target);
+
         uint64 GetUnitTargetGUID() const;
         Unit* GetUnitTarget() const;
         void SetUnitTarget(Unit* target);
@@ -169,6 +172,7 @@ class SpellCastTargets
         Item* m_itemTarget;
 
         // object GUID/etc, can be used always
+        uint64 m_origObjectTargetGUID;
         uint64 m_objectTargetGUID;
         uint64 m_itemTargetGUID;
         uint32 m_itemTargetEntry;
