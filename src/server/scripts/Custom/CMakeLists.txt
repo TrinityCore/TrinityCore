@@ -15,6 +15,12 @@ set(scripts_STAT_SRCS
   Custom/brewfest.cpp
   Custom/TW_hallows_end.cpp
   Custom/TW_pilgrim.cpp
+  Custom/HallsOfReflection/TW_boss_falric.cpp
+  Custom/HallsOfReflection/TW_boss_lich_king_hor.cpp
+  Custom/HallsOfReflection/TW_boss_marwyn.cpp
+  Custom/HallsOfReflection/TW_halls_of_reflection.cpp
+  Custom/HallsOfReflection/TW_halls_of_reflection.h
+  Custom/HallsOfReflection/TW_instance_halls_of_reflection.cpp
   ${scripts_STAT_SRCS}
 )
 

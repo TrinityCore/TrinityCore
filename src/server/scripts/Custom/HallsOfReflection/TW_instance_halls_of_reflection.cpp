@@ -20,13 +20,22 @@
 #include "InstanceScript.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "halls_of_reflection.h"
+#include "TW_halls_of_reflection.h"
+#include "TransportMgr.h"
+#include "Transport.h"
+#include "MapManager.h"
+#include "Map.h"
+
 
 Position const JainaSpawnPos                = {5236.659f, 1929.894f, 707.7781f, 0.8726646f}; // Jaina Spawn Position
 Position const SylvanasSpawnPos             = {5236.667f, 1929.906f, 707.7781f, 0.8377581f}; // Sylvanas Spawn Position
 Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 3.944444f};  // Frostsworn General
-Position const JainaSpawnPos2               = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Jaina Spawn Position 2
-Position const SylvanasSpawnPos2            = {5549.011f, 2257.041f, 733.0120f, 1.153993f};  // Sylvanas Spawn Position 2
+
+Position const OutroSpawns[2] =
+{
+    {5564.25f, 2274.69f, 733.01f, 3.93f}, // Lich King
+    {5556.27f, 2266.28f, 733.01f, 0.8f},  // Jaina/Sylvana
+};
 
 Position const SpawnPos[] =
 {
@@ -66,14 +75,14 @@ Position const SpawnPos[] =
     {5299.250f, 2035.998f, 707.7781f, 5.026548f},
 };
 
-class instance_halls_of_reflection : public InstanceMapScript
+class TW_instance_halls_of_reflection : public InstanceMapScript
 {
 public:
-    instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection", 668) { }
+    TW_instance_halls_of_reflection() : InstanceMapScript("TW_instance_halls_of_reflection", 668) { }
 
-    struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
+    struct TW_instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        TW_instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         void Initialize() OVERRIDE
         {
@@ -85,6 +94,7 @@ public:
             _jainaOrSylvanasPart1GUID = 0;
             _jainaOrSylvanasPart2GUID = 0;
             _lichkingPart1GUID = 0;
+            _lichkingPart2GUID = 0;
             _frostwornGeneralGUID = 0;
 
             _frostmourneGUID = 0;
@@ -98,8 +108,25 @@ public:
             _waveCount = 0;
             _introEvent = NOT_STARTED;
             _frostwornGeneral = NOT_STARTED;
-            _escapeevent = NOT_STARTED;
-            _mobsaticewall = 0;
+
+            for (uint8 i = 0; i < 4; ++i)
+                _wall[i] = 0;
+
+            _wallID = 0;
+        }
+
+        void OpenDoor(uint64 guid)
+        {
+            if (!guid) return;
+            GameObject* go = instance->GetGameObject(guid);
+            if (go) HandleGameObject(0, true, go);
+        }
+
+        void CloseDoor(uint64 guid)
+        {
+            if (!guid) return;
+            GameObject* go = instance->GetGameObject(guid);
+            if (go) HandleGameObject(0, false, go);
         }
 
         void OnPlayerEnter(Player* player) OVERRIDE
@@ -110,13 +137,10 @@ public:
 
         void OnCreatureCreate(Creature* creature) OVERRIDE
         {
-            if (!_teamInInstance)
-            {
-                Map::PlayerList const& players = instance->GetPlayers();
-                if (!players.isEmpty())
-                    if (Player* player = players.begin()->GetSource())
-                        _teamInInstance = player->GetTeam();
-            }
+            Map::PlayerList const& players = instance->GetPlayers();
+            if (!players.isEmpty())
+                if (Player* player = players.begin()->GetSource())
+                    _teamInInstance = player->GetTeam();
 
             switch (creature->GetEntry())
             {
@@ -136,9 +160,13 @@ public:
                         if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
                             general->SetPhaseMask(1, true);
                     break;
-                case NPC_JAINA_PART2:
-                case NPC_SYLVANAS_PART2:
+                case NPC_JAINA_OUTRO:
+                case NPC_SYLVANA_OUTRO:
                     _jainaOrSylvanasPart2GUID = creature->GetGUID();
+                    break;
+                case BOSS_LICH_KING:
+                    creature->SetHealth(20917000);
+                    _lichkingPart2GUID = creature->GetGUID();
                     break;
             }
         }
@@ -196,6 +224,10 @@ public:
                     _caveGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     break;
+                case GO_ICE_WALL:
+                    _wallID = go->GetGUID();
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    break;
             }
         }
 
@@ -230,6 +262,37 @@ public:
                     }
                     break;
                 case DATA_LICHKING_EVENT:
+                    if (state == IN_PROGRESS)
+                    {
+                        if(instance->IsHeroic())
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                    }
+                    else if (state == FAIL)
+                    {
+                        if (GameObject* go = instance->GetGameObject(_wallID))
+                            go->RemoveFromWorld();
+                        if (Creature* pLichKing = instance->GetCreature(_lichkingPart2GUID))
+                            pLichKing->DespawnOrUnsummon(10000);
+                        if (Creature* pLider = instance->GetCreature(_jainaOrSylvanasPart2GUID))
+                            pLider->DespawnOrUnsummon(10000);
+                        if(instance->IsHeroic())
+                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                        SetData(DATA_PHASE, 3);
+                        instance->SummonCreature(BOSS_LICH_KING, OutroSpawns[0]);
+                        if (_teamInInstance == HORDE)
+                            instance->SummonCreature(NPC_SYLVANA_OUTRO, OutroSpawns[1]);
+                        else
+                            instance->SummonCreature(NPC_JAINA_OUTRO, OutroSpawns[1]);
+                    }
+                    if (state == DONE)
+                    {
+                        if (instance->IsHeroic())
+                        {
+                            DoCastSpellOnPlayers(SPELL_ACHIEV_CHECK);
+                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
@@ -261,45 +324,36 @@ public:
                 case DATA_FROSWORN_EVENT:
                     if (data == DONE)
                     {
+                        SetData(DATA_PHASE, 3); 
                         HandleGameObject(_arthasDoorGUID, true);
-                        if (_teamInInstance == ALLIANCE)
-                            instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
+                        instance->SummonCreature(BOSS_LICH_KING, OutroSpawns[0]);
+                        if (_teamInInstance == HORDE)
+                            instance->SummonCreature(NPC_SYLVANA_OUTRO, OutroSpawns[1]);
                         else
-                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
+                            instance->SummonCreature(NPC_JAINA_OUTRO, OutroSpawns[1]);
                     }
                     _frostwornGeneral = data;
                     break;
-                case DATA_ESCAPE_EVENT:
-                    if (data == IN_PROGRESS)
-                    {
-                        if (!_escapeevent)
-                            if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
-                                jaina_or_sylvanas->AI()->DoAction(ACTION_START_ESCAPING);
-                    }
-                    else if (data == NOT_STARTED)
-                    {
-                        if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
-                            jaina_or_sylvanas->DespawnOrUnsummon(1);
-                        if (_teamInInstance == ALLIANCE)
-                            instance->SummonCreature(NPC_JAINA_PART2, JainaSpawnPos2);
-                        else
-                            instance->SummonCreature(NPC_SYLVANAS_PART2, SylvanasSpawnPos2);
-                        SetData(DATA_ESCAPE_EVENT,IN_PROGRESS);
-                    }
-                     _escapeevent = data;
-                    break;
                 case DATA_SUMMONS:
-                    if (data == 0)
-                    {
-                        _mobsaticewall--;
-                        if (_mobsaticewall == 0)
-                        {
-                            if (Creature* jaina_or_sylvanas = instance->GetCreature(_jainaOrSylvanasPart2GUID))
-                                jaina_or_sylvanas->AI()->DoAction(ACTION_WALL_BROKEN);
-                        }
-                    }
-                    else if (data == 1)
-                        _mobsaticewall++;
+                    if (data == 3) _summons = 0;
+                    else if (data == 1) ++_summons;
+                    else if (data == 0) --_summons;
+                    data = NOT_STARTED;
+                    break;
+                case DATA_ICE_WALL_1:
+                    _wall[0] = data;
+                    break;
+                case DATA_ICE_WALL_2:
+                    _wall[1] = data;
+                    break;
+                case DATA_ICE_WALL_3:
+                    _wall[2] = data;
+                    break;
+                case DATA_ICE_WALL_4:
+                    _wall[3] = data;
+                    break;
+                case DATA_PHASE:
+                    _dataPhase = data;
                     break;
             }
 
@@ -357,7 +411,7 @@ public:
             }
         }
 
-        void ProcessEvent(WorldObject* /*go*/, uint32 eventId) OVERRIDE
+        void ProcessEvent(WorldObject* go, uint32 eventId) OVERRIDE
         {
             switch (eventId)
             {
@@ -473,10 +527,18 @@ public:
                     return _introEvent;
                 case DATA_FROSWORN_EVENT:
                     return _frostwornGeneral;
-                case DATA_ESCAPE_EVENT:
-                    return _escapeevent;
                 case DATA_SUMMONS:
-                    return _mobsaticewall;
+                    return _summons;
+                case DATA_ICE_WALL_1:
+                    return _wall[0];
+                case DATA_ICE_WALL_2:
+                    return _wall[1];
+                case DATA_ICE_WALL_3:
+                    return _wall[2];
+                case DATA_ICE_WALL_4:
+                    return _wall[3];
+                case DATA_PHASE:
+                    return _dataPhase;
                 default:
                     break;
             }
@@ -488,9 +550,9 @@ public:
         {
             switch (type)
             {
-                case DATA_FALRIC_EVENT:
+                case DATA_FALRIC:
                     return _falricGUID;
-                case DATA_MARWYN_EVENT:
+                case DATA_MARWYN:
                     return _marwynGUID;
                 case DATA_FROSWORN_EVENT:
                     return _frostwornGeneralGUID;
@@ -498,10 +560,14 @@ public:
                     return _frostwornDoorGUID;
                 case DATA_FROSTMOURNE:
                     return _frostmourneGUID;
+                case DATA_LICHKING:
+                    return _lichkingPart2GUID;
                 case DATA_ESCAPE_LEADER:
                     return _jainaOrSylvanasPart2GUID;
-                case DATA_CAVE_IN:
+                case GO_CAVE:
                     return _caveGUID;
+                case GO_ICE_WALL:
+                    return _wallID;
                 default:
                     break;
             }
@@ -514,13 +580,13 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "H R " << GetBossSaveData() << _introEvent << ' ' << _frostwornGeneral << ' ' << _escapeevent;
+            saveStream << "H R " << GetBossSaveData() << _introEvent << ' ' << _frostwornGeneral;
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
         }
 
-        void Load(char const* in) OVERRIDE
+        void Load(char const* in) OVERRIDE OVERRIDE
         {
             if (!in)
             {
@@ -559,12 +625,6 @@ public:
                     SetData(DATA_FROSWORN_EVENT, DONE);
                 else
                     SetData(DATA_FROSWORN_EVENT, NOT_STARTED);
-
-                loadStream >> temp;
-                if (temp == DONE)
-                    SetData(DATA_ESCAPE_EVENT, DONE);
-                else
-                    SetData(DATA_ESCAPE_EVENT, NOT_STARTED);
             }
             else
                 OUT_LOAD_INST_DATA_FAIL;
@@ -578,6 +638,7 @@ public:
         uint64 _jainaOrSylvanasPart1GUID;
         uint64 _jainaOrSylvanasPart2GUID;
         uint64 _lichkingPart1GUID;
+        uint64 _lichkingPart2GUID;
         uint64 _frostwornGeneralGUID;
 
         uint64 _frostmourneGUID;
@@ -586,13 +647,15 @@ public:
         uint64 _arthasDoorGUID;
         uint64 _escapeDoorGUID;
         uint64 _caveGUID;
+        uint64 _wall[4];
+        uint64 _wallID;
 
         uint32 _teamInInstance;
         uint32 _waveCount;
         uint32 _introEvent;
         uint32 _frostwornGeneral;
-        uint32 _escapeevent;
-        uint32 _mobsaticewall;
+        uint32 _summons;
+        uint32 _dataPhase;
 
         EventMap events;
 
@@ -601,11 +664,11 @@ public:
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
-        return new instance_halls_of_reflection_InstanceMapScript(map);
+        return new TW_instance_halls_of_reflection_InstanceMapScript(map);
     }
 };
 
-void AddSC_instance_halls_of_reflection()
+void AddSC_TW_instance_halls_of_reflection()
 {
-    new instance_halls_of_reflection();
+    new TW_instance_halls_of_reflection();
 }

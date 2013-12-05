@@ -760,12 +760,12 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) OVERRIDE
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             me->DespawnOrUnsummon(5000);
         }
 
-        void EnterCombat(Unit* attacker) OVERRIDE
+        void EnterCombat(Unit* /*attacker*/) OVERRIDE
         {
             DoCast(me,SPELL_DEFEND_AURA_PERIODIC,true);
             if (Aura* aur = me->AddAura(SPELL_DEFEND,me))
