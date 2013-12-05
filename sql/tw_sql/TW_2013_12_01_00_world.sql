@@ -30,4 +30,4 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 UPDATE `creature_template` SET `ScriptName`='TW_npc_argent_faction_rider',`gossip_menu_id`=0,`speed_walk`=1.2,`dmg_multiplier`=2,`unit_flags`=256 WHERE `entry` IN 
 (33562,33559,33558,33564,33561,33382,33383,33384,33306,33285,33739,33738,33747,33743,33740,33746,33748,33744,33745,33749);
 
-UPDATE `creature_template` SET `ScriptName`='npc_the_black_knight' WHERE `entry`=33785;
+UPDATE `creature_template` SET `ScriptName`='TW_npc_the_black_knight' WHERE `entry`=33785;
