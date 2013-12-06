@@ -159,20 +159,13 @@ public:
         Player* player;
         std::string name;
         char* questArg;
-        char* PlayerName;
-        handler->extractOptFirstArg((char*)args, &questArg, &PlayerName);
-        if (!PlayerName)
-        {
+        char* playerName;
+        handler->extractOptFirstArg((char*)args, &playerName, &questArg);
+        if (!playerName)
             player = handler->getSelectedPlayer();
-            if (player) 
-            {
-                name = player->GetName();
-                normalizePlayerName(name);
-            }
-        }
         else 
         {
-            name = PlayerName;
+            name = playerName;
             normalizePlayerName(name);
             player = sObjectAccessor->FindPlayerByName(name);
         }
