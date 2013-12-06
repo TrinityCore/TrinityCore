@@ -1201,6 +1201,8 @@ public:
                 case 13:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                     m_pInstance->SetBossState(DATA_LICHKING_EVENT, DONE);
+                    // achieve credit and RDF credit
+                    DoCastAOE(SPELL_ACHIEV_CHECK);
 
                     if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             me->SummonGameObject(IsHeroic() ? GO_CAPTAIN_CHEST_ALLIANCE_HEROIC : GO_CAPTAIN_CHEST_ALLIANCE_NORMAL, 5246.187500f, 1649.079468f, 784.301758f, 0.901268f, 0, 0, 0, 0, 720000);

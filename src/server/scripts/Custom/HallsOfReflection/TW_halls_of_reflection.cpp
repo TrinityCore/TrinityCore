@@ -722,6 +722,7 @@ enum TrashSpells
     SPELL_FROSTBOLT                               = 72166,
     SPELL_CHAINS_OF_ICE                           = 72121,
     SPELL_HALLUCINATION                           = 72342,
+    AURA_HALLUCINATION                            = 72343,
 
     // Phantom Hallucination (same as phantom mage + HALLUCINATION_2 when dies)
     SPELL_HALLUCINATION_2                         = 72344,
@@ -781,10 +782,7 @@ enum TrashEvents
 
 struct npc_gauntlet_trash : public ScriptedAI
 {
-    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript())
-    {
-    }
+    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
     void Reset() OVERRIDE
     {
@@ -827,9 +825,7 @@ public:
 
     struct TW_npc_ghostly_priestAI : public npc_gauntlet_trash
     {
-        TW_npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        TW_npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -898,8 +894,12 @@ public:
 
     struct TW_npc_phantom_mageAI : public npc_gauntlet_trash
     {
-        TW_npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature)
+        TW_npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature) { }
+
+        void EnterEvadeMode() OVERRIDE
         {
+            if (!me->HasAura(AURA_HALLUCINATION))
+                npc_gauntlet_trash::EnterEvadeMode();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -943,6 +943,8 @@ public:
                     _events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 15000);
                     break;
                 case EVENT_HALLUCINATION:
+                    // removing any dots on mage or else the invisibility spell will break duration
+                    me->RemoveAllAuras();
                     DoCast(SPELL_HALLUCINATION);
                     break;
             }
@@ -966,6 +968,19 @@ public:
     {
         TW_npc_phantom_hallucinationAI(Creature* creature) : TW_npc_phantom_mage::TW_npc_phantom_mageAI(creature) { }
 
+        void Reset() OVERRIDE
+        {
+            if (Unit* unit = me->SelectNearestTarget())
+                AttackStart(unit);
+            DoZoneInCombat();
+        }
+
+        void EnterEvadeMode() OVERRIDE
+        {
+            if (!me->GetOwner()->HasAura(AURA_HALLUCINATION))
+                TW_npc_phantom_mage::TW_npc_phantom_mageAI::EnterEvadeMode();
+        }
+
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             DoCast(SPELL_HALLUCINATION_2);
@@ -985,9 +1000,7 @@ public:
 
     struct TW_npc_shadowy_mercenaryAI : public npc_gauntlet_trash
     {
-        TW_npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        TW_npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -1045,9 +1058,7 @@ public:
 
     struct TW_npc_spectral_footmanAI : public npc_gauntlet_trash
     {
-        TW_npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        TW_npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -1099,9 +1110,7 @@ public:
 
     struct TW_npc_tortured_riflemanAI : public npc_gauntlet_trash
     {
-        TW_npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        TW_npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {

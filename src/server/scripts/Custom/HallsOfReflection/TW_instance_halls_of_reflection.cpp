@@ -264,7 +264,7 @@ public:
                 case DATA_LICHKING_EVENT:
                     if (state == IN_PROGRESS)
                     {
-                        if(instance->IsHeroic())
+                        if (instance->IsHeroic())
                             DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
                     }
                     else if (state == FAIL)
@@ -287,10 +287,7 @@ public:
                     if (state == DONE)
                     {
                         if (instance->IsHeroic())
-                        {
-                            DoCastSpellOnPlayers(SPELL_ACHIEV_CHECK);
                             DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
-                        }
                     }
                     break;
                 default:
