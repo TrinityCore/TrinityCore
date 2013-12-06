@@ -1007,6 +1007,10 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
             
+            if (Player* player = who->ToPlayer())
+                if (player->IsGameMaster())
+                    return;
+            
             // just in case the spawns fuckup,force correct the id based on teamInInstance
             // usually happens after a crash
             if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && me->GetCreatureTemplate()->Entry == NPC_SYLVANA_OUTRO)
@@ -1200,9 +1204,16 @@ public:
                     break;
                 case 13:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                    m_pInstance->SetBossState(DATA_LICHKING_EVENT, DONE);
+                    
                     // achieve credit and RDF credit
-                    DoCastAOE(SPELL_ACHIEV_CHECK);
+                    if (m_pInstance)
+                    {
+                        Map::PlayerList const &PlayerList = m_pInstance->instance->GetPlayers();
+                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                            if (Player* player = i->GetSource())
+                                player->CastSpell(player, SPELL_ACHIEV_CHECK, true);
+                    }
+                    m_pInstance->SetBossState(DATA_LICHKING_EVENT, DONE);
 
                     if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             me->SummonGameObject(IsHeroic() ? GO_CAPTAIN_CHEST_ALLIANCE_HEROIC : GO_CAPTAIN_CHEST_ALLIANCE_NORMAL, 5246.187500f, 1649.079468f, 784.301758f, 0.901268f, 0, 0, 0, 0, 720000);
