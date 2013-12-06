@@ -136,7 +136,6 @@ class boss_festergut : public CreatureScript
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
-                instance->SetBossState(DATA_FESTERGUT, DONE); // I know it's already set by _JustDied() but double check it as it seems to be failing
 
                 RemoveBlight();
             }
