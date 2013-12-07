@@ -55,7 +55,8 @@ enum Data64
     DATA_FALRIC            = 101,
     DATA_MARWYN            = 102,
     DATA_LICHKING          = 103,
-    DATA_ESCAPE_LIDER      = 104
+    DATA_ESCAPE_LIDER      = 104,
+    DATA_KORELN_LORALEN    = 105
 };
 
 enum Creatures
@@ -143,7 +144,8 @@ enum TrashGeneralSpells
 {
     // General spells
     SPELL_WELL_OF_SOULS                           = 72630, // cast when spawn(become visible)
-    SPELL_SPIRIT_ACTIVATE                         = 72130 // cast when unit activates
+    SPELL_SPIRIT_ACTIVATE                         = 72130, // cast when unit activates
+    SPELL_FEIGN_DEATH                             = 29266 // Koreln/Loralen
 };
 
 enum InstanceEvents

@@ -148,3 +148,7 @@ INSERT INTO `script_waypoint` VALUES
    (@NPC_LICH_KING_BOSS, 67, 5277.98, 1701.28, 785.224, 0, 'HoR WP LichKing');
 
 UPDATE `creature_template` SET `faction_A`=1771,`faction_H`=1771 WHERE `entry` IN (36940,37550,36941,37551,37069,37549);
+
+DELETE FROM `areatrigger_scripts` WHERE `entry`=5740;
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
+(5740, 'TW_at_koreln_loralen');

@@ -248,6 +248,8 @@ enum Spells
     SPELL_VOMIT_SPRAY                  = 70176,
 };
 
+Position const LoralenKoreln                = {5369.772f, 2083.472f, 707.7781f, 0.4886922f}; // Loralen/oreln Position
+
 const Position HallsofReflectionLocs[] =
 {
     {5283.234863f, 1990.946777f, 707.695679f, 0.929097f},   // 2 Loralen Follows
@@ -1696,6 +1698,26 @@ public:
     }
 };
 
+class TW_at_koreln_loralen : public AreaTriggerScript
+{
+public:
+    TW_at_koreln_loralen() : AreaTriggerScript("TW_at_koreln_loralen") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
+    {
+        InstanceScript* _instance = player->GetInstanceScript();
+
+        if (player->IsGameMaster())
+            return true;
+
+        if (player->GetTeam() == ALLIANCE && (!_instance->GetData64(DATA_KORELN_LORALEN)))
+            _instance->instance->SummonCreature(NPC_KORELN, LoralenKoreln);
+        else if (player->GetTeam() == HORDE && (!_instance->GetData64(DATA_KORELN_LORALEN)))
+            _instance->instance->SummonCreature(NPC_LORALEN, LoralenKoreln);
+
+        return true;
+    }
+};
 void AddSC_TW_halls_of_reflection()
 {
     new TW_at_hor_intro_start();
@@ -1709,4 +1731,5 @@ void AddSC_TW_halls_of_reflection()
     new TW_npc_tortured_rifleman();
     new TW_npc_frostworn_general();
     new TW_npc_spiritual_reflection();
+    new TW_at_koreln_loralen();
 }
