@@ -20709,13 +20709,15 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
     if (!spell || spell->m_appliedMods.empty())
         return;
 
+    std::list<Aura*> aurasQueue;
+
     for (uint8 i=0; i<MAX_SPELLMOD; ++i)
     {
         for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end(); ++itr)
         {
             SpellModifier* mod = *itr;
 
-            // spellmods without aura set cannot be charged
+            // Spellmods without aura set cannot be charged
             if (!mod->ownerAura || !mod->ownerAura->IsUsingCharges())
                 continue;
 
@@ -20726,17 +20728,20 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
             if (aura && mod->ownerAura != aura)
                 continue;
 
-            // check if mod affected this spell
-            // first, check if the mod aura applied at least one spellmod to this spell
+            // Check if mod affected this spell
+            // First, check if the mod aura applied at least one spellmod to this spell
             Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
             if (iterMod == spell->m_appliedMods.end())
                 continue;
-            // secondly, check if the current mod is one of the spellmods applied by the mod aura
+            // Second, check if the current mod is one of those applied by the mod aura
             if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
                 continue;
 
-            // remove from list
-            spell->m_appliedMods.erase(iterMod);
+            // remove from list - This will be done after all mods have been gone through
+            // to ensure we iterate over all mods of an aura before removing said aura
+            // from applied mods (Else, an aura with two mods on the current spell would
+            // only see the first of its modifier restored)
+            aurasQueue.push_back(mod->ownerAura);
 
             // add mod charges back to mod
             if (mod->charges == -1)
@@ -20744,14 +20749,21 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
             else
                 mod->charges++;
 
-            // Do not set more spellmods than avalible
+            // Do not set more spellmods than available
             if (mod->ownerAura->GetCharges() < mod->charges)
                 mod->charges = mod->ownerAura->GetCharges();
 
             // Skip this check for now - aura charges may change due to various reason
-            /// @todo trac these changes correctly
+            /// @todo track these changes correctly
             //ASSERT (mod->ownerAura->GetCharges() <= mod->charges);
         }
+    }
+
+    for (std::list<Aura*>::iterator itr = aurasQueue.begin(); itr != aurasQueue.end(); ++itr)
+    {
+        Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(*itr);
+        if (iterMod != spell->m_appliedMods.end())
+            spell->m_appliedMods.erase(iterMod);
     }
 }
 
