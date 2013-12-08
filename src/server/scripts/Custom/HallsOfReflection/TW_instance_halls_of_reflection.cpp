@@ -167,6 +167,7 @@ public:
                 case BOSS_LICH_KING:
                     creature->SetHealth(20917000);
                     _lichkingPart2GUID = creature->GetGUID();
+                    break;
                 case NPC_KORELN:
                 case NPC_LORALEN:
                     creature->AddAura(SPELL_FEIGN_DEATH, creature);
@@ -266,12 +267,7 @@ public:
                     }
                     break;
                 case DATA_LICHKING_EVENT:
-                    if (state == IN_PROGRESS)
-                    {
-                        if (instance->IsHeroic())
-                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
-                    }
-                    else if (state == FAIL)
+                    if (state == FAIL)
                     {
                         if (GameObject* go = instance->GetGameObject(_wallID))
                             go->RemoveFromWorld();
@@ -279,8 +275,6 @@ public:
                             pLichKing->DespawnOrUnsummon(10000);
                         if (Creature* pLider = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                             pLider->DespawnOrUnsummon(10000);
-                        if(instance->IsHeroic())
-                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
                         SetData(DATA_PHASE, 3);
                         instance->SummonCreature(BOSS_LICH_KING, OutroSpawns[0]);
                         if (_teamInInstance == HORDE)
@@ -289,10 +283,7 @@ public:
                             instance->SummonCreature(NPC_JAINA_OUTRO, OutroSpawns[1]);
                     }
                     if (state == DONE)
-                    {
-                        if (instance->IsHeroic())
-                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
-                    }
+                        DoCastSpellOnPlayers(SPELL_ACHIEV_CHECK);
                     break;
                 default:
                     break;
