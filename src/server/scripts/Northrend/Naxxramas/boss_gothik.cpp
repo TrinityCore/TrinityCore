@@ -514,6 +514,7 @@ class npc_gothik_minion : public CreatureScript
             npc_gothik_minionAI(Creature* creature) : CombatAI(creature)
             {
                 liveSide = IN_LIVE_SIDE(me);
+                gateClose = false;
             }
 
             bool liveSide;

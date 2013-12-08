@@ -310,8 +310,6 @@ class npc_snobold_vassal : public CreatureScript
                 _targetGUID = 0;
                 _targetDied = false;
 
-                if (_instance)
-                    _bossGUID = _instance->GetData64(NPC_GORMOK);
                 //Workaround for Snobold
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
@@ -450,7 +448,6 @@ class npc_snobold_vassal : public CreatureScript
             private:
                 EventMap _events;
                 InstanceScript* _instance;
-                uint64 _bossGUID;
                 uint64 _targetGUID;
                 bool   _targetDied;
         };

@@ -68,6 +68,7 @@ public:
 
         void Reset() OVERRIDE
         {
+            myClass = CLASS_NONE;
             Class_Timer = 1000;
         }
 
