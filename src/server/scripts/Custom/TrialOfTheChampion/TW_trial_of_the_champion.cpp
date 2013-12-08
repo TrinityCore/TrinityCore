@@ -119,10 +119,10 @@ enum Spells
     SPELL_HERALD_ARGENT                   = 64787,
 };
 
-class npc_herald_toc5 : public CreatureScript
+class TW_npc_herald_toc5 : public CreatureScript
 {
     public:
-        npc_herald_toc5(): CreatureScript("npc_herald_toc5") {}
+        TW_npc_herald_toc5(): CreatureScript("TW_npc_herald_toc5") {}
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -130,7 +130,7 @@ class npc_herald_toc5 : public CreatureScript
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_herald_toc5::npc_herald_toc5AI, creature->AI())->StartEncounter();
+            CAST_AI(TW_npc_herald_toc5::TW_npc_herald_toc5AI, creature->AI())->StartEncounter();
         }
 
         return true;
@@ -175,9 +175,9 @@ class npc_herald_toc5 : public CreatureScript
         }
     }
 
-    struct npc_herald_toc5AI : public ScriptedAI
+    struct TW_npc_herald_toc5AI : public ScriptedAI
     {
-        npc_herald_toc5AI(Creature *creature) : ScriptedAI(creature)
+        TW_npc_herald_toc5AI(Creature *creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
 
@@ -778,11 +778,11 @@ class npc_herald_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_herald_toc5AI (creature);
+        return new TW_npc_herald_toc5AI (creature);
     };
 };
 
 void AddSC_TW_trial_of_the_champion()
 {
-    new npc_herald_toc5();
+    new TW_npc_herald_toc5();
 }

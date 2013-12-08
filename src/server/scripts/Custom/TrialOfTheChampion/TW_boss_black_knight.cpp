@@ -626,7 +626,7 @@ public:
             uiClawTimer = 1000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -675,12 +675,12 @@ public:
         Creature* pHighlord;
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             pHighlord = NULL;
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 uiPointId) OVERRIDE
         {
             switch (uiPointId)
             {
@@ -722,7 +722,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             npc_escortAI::UpdateAI(uiDiff);
 
