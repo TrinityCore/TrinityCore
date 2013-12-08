@@ -341,7 +341,7 @@ public:
 
         void SetData(uint32 /*type*/, uint32 data) OVERRIDE
         {
-            if(!instance)
+            if (!instance)
                 return;
 
             if (data < 7)
@@ -352,7 +352,7 @@ public:
                 me->SummonCreature(NPC_DEATHS_HEAD_GEOMANCER, me->GetPositionX() + (cos(me->GetOrientation() - (M_PI/2)) * 2), me->GetPositionY() + (sin(me->GetOrientation() - (M_PI/2)) * 2), me->GetPositionZ(),  me->GetOrientation());
                 me->SummonCreature(NPC_WITHERED_QUILGUARD, me->GetPositionX() + (cos(me->GetOrientation() + (M_PI/2)) * 2), me->GetPositionY() + (sin(me->GetOrientation() + (M_PI/2)) * 2), me->GetPositionZ(),  me->GetOrientation());
             }
-            else if (data =7)
+            else if (data == 7)
                 me->SummonCreature(NPC_PLAGUEMAW_THE_ROTTING, me->GetPositionX(),  me->GetPositionY(),  me->GetPositionZ(),  me->GetOrientation());
         }
 
