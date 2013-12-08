@@ -1185,6 +1185,7 @@ struct npc_gauntlet_trash : public ScriptedAI
 
     void Reset() OVERRIDE
     {
+        InternalWaveId = 0;
         me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
         _events.Reset();
     }
