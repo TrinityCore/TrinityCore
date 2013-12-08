@@ -32,6 +32,8 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_apothecary_hanes
@@ -43,7 +45,8 @@ enum Entries
     FACTION_ESCORTEE_H           = 775,
     NPC_HANES_FIRE_TRIGGER       = 23968,
     QUEST_TRAIL_OF_FIRE          = 11241,
-    SPELL_COSMETIC_LOW_POLY_FIRE = 56274
+    SPELL_COSMETIC_LOW_POLY_FIRE = 56274,
+    SPELL_HEALING_POTION         = 17534
 };
 
 class npc_apothecary_hanes : public CreatureScript
@@ -92,7 +95,7 @@ public:
             {
                 if (PotTimer <= diff)
                 {
-                    DoCast(me, 17534, true);
+                    DoCast(me, SPELL_HEALING_POTION, true);
                     PotTimer = 10000;
                 } else PotTimer -= diff;
             }
@@ -380,10 +383,107 @@ public:
     }
 };
 
+enum MindlessAbomination
+{
+    EVENT_CHECK_CHARMED                = 1
+};
+
+class npc_mindless_abomination : public CreatureScript
+{
+public:
+    npc_mindless_abomination() : CreatureScript("npc_mindless_abomination") { }
+
+    struct npc_mindless_abominationAI : public ScriptedAI
+    {
+        npc_mindless_abominationAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() OVERRIDE
+        {
+            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1000);
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CHECK_CHARMED:
+                        if (!me->IsCharmedOwnedByPlayerOrPlayer())
+                            me->DespawnOrUnsummon();
+                        else
+                            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1000);
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_mindless_abominationAI(creature);
+    }
+};
+
+class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
+{
+    enum Spells
+    {
+        SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON = 42266,
+        SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE = 43401
+    };
+
+    public:
+        spell_mindless_abomination_explosion_fx_master() : SpellScriptLoader("spell_mindless_abomination_explosion_fx_master") { }
+
+        class spell_mindless_abomination_explosion_fx_master_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON) || !sSpellMgr->GetSpellInfo(SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*eff*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                if (!caster)
+                    return;
+
+                caster->AI()->DoCast(caster, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE);
+
+                for (uint8 i = 0; i < 10; ++i)
+                    caster->AI()->DoCast(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+
+                caster->DespawnOrUnsummon(4000);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_mindless_abomination_explosion_fx_master_SpellScript();
+        }
+};
+
 void AddSC_howling_fjord()
 {
-    new npc_apothecary_hanes;
-    new npc_plaguehound_tracker;
-    new npc_razael_and_lyana;
-    new npc_daegarn;
+    new npc_apothecary_hanes();
+    new npc_plaguehound_tracker();
+    new npc_razael_and_lyana();
+    new npc_daegarn();
+    new npc_mindless_abomination();
+    new spell_mindless_abomination_explosion_fx_master();
  }
