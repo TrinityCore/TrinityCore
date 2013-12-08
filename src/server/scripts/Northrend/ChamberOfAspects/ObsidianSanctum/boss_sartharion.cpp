@@ -907,6 +907,14 @@ struct dummy_dragonAI : public ScriptedAI
         //Unclear what are expected to happen if one drake has a portal open already
         //Refresh respawnTime so time again are set to 30secs?
     }
+    
+    void DamageTaken(Unit* /*who*/, uint32 &damage) OVERRIDE
+    {
+        /* This will nullify elegible looter's list, making players not elegible to loot from drakes (i.e emblems)
+        while Sartharion's in progress (if they're left alive). */
+        if (damage >= me->GetHealth() && instance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+            me->Kill(me, false);
+    }
 
     void JustDied(Unit* /*killer*/) OVERRIDE
     {

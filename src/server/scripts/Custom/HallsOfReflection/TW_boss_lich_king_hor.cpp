@@ -86,7 +86,7 @@ public:
         bool NonFight;
         float walkSpeed;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if(!pInstance)
                 return;
@@ -163,7 +163,7 @@ public:
             if (Unit* pLider = Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LEADER)))
             {
                 summoned->GetMotionMaster()->MoveChase(pLider);
-                summoned->AddThreat(pLider, 100.0f);
+                summoned->AddThreat(pLider, 0.0f);
             }
         }
 
@@ -742,6 +742,8 @@ public:
                 {
                     m_pInstance->SetData64(DATA_ESCAPE_LEADER, creature->GetGUID());
                     m_pInstance->SetBossState(DATA_LICHKING_EVENT, IN_PROGRESS);
+                    if (m_pInstance->instance->IsHeroic())
+                        m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
                 }
                 return true;
             default:
@@ -847,6 +849,8 @@ public:
             if(!m_pInstance)
                 return;
             m_pInstance->SetBossState(DATA_LICHKING_EVENT, FAIL);
+            if (m_pInstance->instance->IsHeroic())
+                m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
         }
 
         void WaypointReached(uint32 i) OVERRIDE
@@ -1192,28 +1196,25 @@ public:
                     }
                     break;
                 case 12:
+                    {
                     if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_CAVE)))
                         pCave->SetGoState(GO_STATE_READY);
                     me->RemoveAllAuras();
 
                     if (pLichKing)
+                    {
+                        //manual RDF credit...since spell 72830 won't trigger it
+                        m_pInstance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_ACHIEV_CHECK, pLichKing);
+                        m_pInstance->SetBossState(DATA_LICHKING_EVENT, DONE);
+                        HoRQuestComplete(38211);
                         pLichKing->DespawnOrUnsummon();
-
-                    HoRQuestComplete(38211);
+                    }
+                    
                     JumpNextStep(10000);
+                    }
                     break;
                 case 13:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                    
-                    // achieve credit and RDF credit
-                    if (m_pInstance)
-                    {
-                        Map::PlayerList const &PlayerList = m_pInstance->instance->GetPlayers();
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (Player* player = i->GetSource())
-                                player->CastSpell(player, SPELL_ACHIEV_CHECK, true);
-                    }
-                    m_pInstance->SetBossState(DATA_LICHKING_EVENT, DONE);
 
                     if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             me->SummonGameObject(IsHeroic() ? GO_CAPTAIN_CHEST_ALLIANCE_HEROIC : GO_CAPTAIN_CHEST_ALLIANCE_NORMAL, 5246.187500f, 1649.079468f, 784.301758f, 0.901268f, 0, 0, 0, 0, 720000);

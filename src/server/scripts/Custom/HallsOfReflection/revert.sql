@@ -25,3 +25,4 @@ UPDATE `creature_template` SET `Scriptname`='npc_risen_witch_doctor' WHERE `entr
 UPDATE `creature_template` SET `Scriptname`='npc_raging_gnoul' WHERE `entry`=36940;
 DELETE FROM `script_waypoint` WHERE `entry` IN(36955,37554,37226);
 DELETE FROM `gameobject` WHERE `map` = 668 AND (`guid` BETWEEN 400100 AND 400109);
+DELETE FROM `areatrigger_scripts` WHERE `entry`=5740;

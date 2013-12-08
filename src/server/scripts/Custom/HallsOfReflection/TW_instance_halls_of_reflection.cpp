@@ -30,7 +30,6 @@
 Position const JainaSpawnPos                = {5236.659f, 1929.894f, 707.7781f, 0.8726646f}; // Jaina Spawn Position
 Position const SylvanasSpawnPos             = {5236.667f, 1929.906f, 707.7781f, 0.8377581f}; // Sylvanas Spawn Position
 Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 3.944444f};  // Frostsworn General
-
 Position const OutroSpawns[2] =
 {
     {5564.25f, 2274.69f, 733.01f, 3.93f}, // Lich King
@@ -96,6 +95,7 @@ public:
             _lichkingPart1GUID = 0;
             _lichkingPart2GUID = 0;
             _frostwornGeneralGUID = 0;
+            _korelnLoralenGUID = 0;
 
             _frostmourneGUID = 0;
             _entranceDoorGUID = 0;
@@ -167,6 +167,11 @@ public:
                 case BOSS_LICH_KING:
                     creature->SetHealth(20917000);
                     _lichkingPart2GUID = creature->GetGUID();
+                    break;
+                case NPC_KORELN:
+                case NPC_LORALEN:
+                    creature->AddAura(SPELL_FEIGN_DEATH, creature);
+                    _korelnLoralenGUID = creature->GetGUID();
                     break;
             }
         }
@@ -262,12 +267,7 @@ public:
                     }
                     break;
                 case DATA_LICHKING_EVENT:
-                    if (state == IN_PROGRESS)
-                    {
-                        if (instance->IsHeroic())
-                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
-                    }
-                    else if (state == FAIL)
+                    if (state == FAIL)
                     {
                         if (GameObject* go = instance->GetGameObject(_wallID))
                             go->RemoveFromWorld();
@@ -275,8 +275,6 @@ public:
                             pLichKing->DespawnOrUnsummon(10000);
                         if (Creature* pLider = instance->GetCreature(_jainaOrSylvanasPart2GUID))
                             pLider->DespawnOrUnsummon(10000);
-                        if(instance->IsHeroic())
-                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
                         SetData(DATA_PHASE, 3);
                         instance->SummonCreature(BOSS_LICH_KING, OutroSpawns[0]);
                         if (_teamInInstance == HORDE)
@@ -285,10 +283,7 @@ public:
                             instance->SummonCreature(NPC_JAINA_OUTRO, OutroSpawns[1]);
                     }
                     if (state == DONE)
-                    {
-                        if (instance->IsHeroic())
-                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
-                    }
+                        DoCastSpellOnPlayers(SPELL_ACHIEV_CHECK);
                     break;
                 default:
                     break;
@@ -565,6 +560,8 @@ public:
                     return _caveGUID;
                 case GO_ICE_WALL:
                     return _wallID;
+                case DATA_KORELN_LORALEN:
+                    return _korelnLoralenGUID;
                 default:
                     break;
             }
@@ -637,6 +634,7 @@ public:
         uint64 _lichkingPart1GUID;
         uint64 _lichkingPart2GUID;
         uint64 _frostwornGeneralGUID;
+        uint64 _korelnLoralenGUID;
 
         uint64 _frostmourneGUID;
         uint64 _entranceDoorGUID;
