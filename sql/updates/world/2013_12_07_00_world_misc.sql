@@ -17,7 +17,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (@ENTRY,3,0,'Just two minutes to go!  We're half way there, but don't let your guard down!',14,0,100,0,0,0,'Belnistrasz SAY_EVENT_TWO_MIN_LEFT'),
 (@ENTRY,4,0,'One more minute!  Hold on now, the ritual is about to take hold!',14,0,100,0,0,0,'Belnistrasz SAY_EVENT_ONE_MIN_LEFT'),
 (@ENTRY,5,0,'That's it -- we made it!  The ritual is set in motion, and idol fires are about to go out for good!  You truly are the heroes I thought you would be!',14,0,100,4,0,0,'Belnistrasz SAY_EVENT_END'),
-(@ENTRY,6,0,'You'll rue the day you crossed me, $N',12,0,100,0,0,0,'Belnistrasz SAY_AGGRO');
+(@ENTRY,6,0,'You'll rue the day you crossed me, $N',12,0,100,0,0,0,'Belnistrasz SAY_AGGRO'),
 (@ENTRY,7,0,'Watch out for the $N!',12,0,100,0,0,0,'Belnistrasz SAY_WATCH_OUT');
 
 -- Fix trigger location
