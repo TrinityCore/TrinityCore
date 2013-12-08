@@ -12,12 +12,12 @@ SET @ENTRY := 8516;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@ENTRY,0,0,'All right, stay close.  These fiends will jump right out of the shadows at you if you let your guard down.',12,0,100,0,0,0,'Belnistrasz SAY_QUEST_ACCEPTED'),
-(@ENTRY,1,0,'Okay, here we go.  It's going to take about five minutes to shut this thing down through the ritual.  Once I start, keep the vermin off of me or it will be the end of us all!',12,0,100,0,0,0,'Belnistrasz SAY_EVENT_START'),
+(@ENTRY,1,0,'Okay, here we go.  It''s going to take about five minutes to shut this thing down through the ritual.  Once I start, keep the vermin off of me or it will be the end of us all!',12,0,100,0,0,0,'Belnistrasz SAY_EVENT_START'),
 (@ENTRY,2,0,'Three minutes left -- I can feel the energy starting to build! Keep up the solid defense!',14,0,100,0,0,0,'Belnistrasz SAY_EVENT_THREE_MIN_LEFT'),
-(@ENTRY,3,0,'Just two minutes to go!  We're half way there, but don't let your guard down!',14,0,100,0,0,0,'Belnistrasz SAY_EVENT_TWO_MIN_LEFT'),
+(@ENTRY,3,0,'Just two minutes to go!  We''re half way there, but don''t let your guard down!',14,0,100,0,0,0,'Belnistrasz SAY_EVENT_TWO_MIN_LEFT'),
 (@ENTRY,4,0,'One more minute!  Hold on now, the ritual is about to take hold!',14,0,100,0,0,0,'Belnistrasz SAY_EVENT_ONE_MIN_LEFT'),
-(@ENTRY,5,0,'That's it -- we made it!  The ritual is set in motion, and idol fires are about to go out for good!  You truly are the heroes I thought you would be!',14,0,100,4,0,0,'Belnistrasz SAY_EVENT_END'),
-(@ENTRY,6,0,'You'll rue the day you crossed me, $N',12,0,100,0,0,0,'Belnistrasz SAY_AGGRO'),
+(@ENTRY,5,0,'That''s it -- we made it!  The ritual is set in motion, and idol fires are about to go out for good!  You truly are the heroes I thought you would be!',14,0,100,4,0,0,'Belnistrasz SAY_EVENT_END'),
+(@ENTRY,6,0,'You''ll rue the day you crossed me, $N',12,0,100,0,0,0,'Belnistrasz SAY_AGGRO'),
 (@ENTRY,7,0,'Watch out for the $N!',12,0,100,0,0,0,'Belnistrasz SAY_WATCH_OUT');
 
 -- Fix trigger location
