@@ -13607,9 +13607,19 @@ void CharmInfo::InitEmptyActionBar(bool withAttack)
 
 void CharmInfo::InitPossessCreateSpells()
 {
-    InitEmptyActionBar();
     if (_unit->GetTypeId() == TYPEID_UNIT)
     {
+        // Adding switch until better way is found. Malcrom
+        // Adding entrys to this switch will prevent COMMAND_ATTACK being added to pet bar.
+        switch (_unit->GetEntry())
+        {
+            case 23575: // Mindless Abomination
+                break;
+            default:
+                InitEmptyActionBar();
+                break;
+        }
+
         for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         {
             uint32 spellId = _unit->ToCreature()->m_spells[i];
@@ -13623,6 +13633,8 @@ void CharmInfo::InitPossessCreateSpells()
             }
         }
     }
+    else
+        InitEmptyActionBar();
 }
 
 void CharmInfo::InitCharmCreateSpells()
