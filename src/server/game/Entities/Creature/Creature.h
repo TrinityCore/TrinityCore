@@ -630,15 +630,15 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void GetTransportHomePosition(float &x, float &y, float &z, float &ori) { m_transportHomePosition.GetPosition(x, y, z, ori); }
         Position GetTransportHomePosition() { return m_transportHomePosition; }
 
-        uint32 GetWaypointPath(){return m_path_id;}
+        uint32 GetWaypointPath() const { return m_path_id; }
         void LoadPath(uint32 pathid) { m_path_id = pathid; }
 
         uint32 GetCurrentWaypointID() const { return m_waypointID; }
         void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
         void SearchFormation();
-        CreatureGroup* GetFormation() {return m_formation;}
-        void SetFormation(CreatureGroup* formation) {m_formation = formation;}
+        CreatureGroup* GetFormation() { return m_formation; }
+        void SetFormation(CreatureGroup* formation) { m_formation = formation; }
 
         Unit* SelectVictim();
 
@@ -710,10 +710,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         CreatureData const* m_creatureData;
 
         uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
-        uint32 guid_transport;
 
         bool IsInvisibleDueToDespawn() const;
         bool CanAlwaysSee(WorldObject const* obj) const;
+
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0);
 

@@ -1089,9 +1089,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         break;
                     case EVENT_ESCAPE_27:
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                            me->SummonGameObject(GO_CAPTAIN_CHEST_1, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+                            me->SummonGameObject(IsHeroic() ? GO_CAPTAIN_CHEST_ALLIANCE_HEROIC : GO_CAPTAIN_CHEST_ALLIANCE_NORMAL, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
                         else
-                            me->SummonGameObject(GO_CAPTAIN_CHEST_3, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
+                            me->SummonGameObject(IsHeroic() ? GO_CAPTAIN_CHEST_HORDE_HEROIC : GO_CAPTAIN_CHEST_HORDE_NORMAL, ChestPos.GetPositionX(), ChestPos.GetPositionY(), ChestPos.GetPositionZ(), ChestPos.GetOrientation(), 0, 0, 0, 0, 720000);
                         me->SummonGameObject(GO_PORTAL, FinalPortalPos.GetPositionX(), FinalPortalPos.GetPositionY(), FinalPortalPos.GetPositionZ(), FinalPortalPos.GetOrientation(), 0, 0, 0, 0, 720000);
                         if (Creature* lichking = ObjectAccessor::GetCreature(*me, _lichkingGUID))
                             lichking->DespawnOrUnsummon(1);
@@ -1121,6 +1121,7 @@ enum TrashSpells
     SPELL_FROSTBOLT                               = 72166,
     SPELL_CHAINS_OF_ICE                           = 72121,
     SPELL_HALLUCINATION                           = 72342,
+    AURA_HALLUCINATION                            = 72343,
 
     // Phantom Hallucination (same as phantom mage + HALLUCINATION_2 when dies)
     SPELL_HALLUCINATION_2                         = 72344,
@@ -1180,10 +1181,7 @@ enum TrashEvents
 
 struct npc_gauntlet_trash : public ScriptedAI
 {
-    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript())
-    {
-    }
+    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
     void Reset() OVERRIDE
     {
@@ -1226,9 +1224,7 @@ public:
 
     struct npc_ghostly_priestAI : public npc_gauntlet_trash
     {
-        npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -1297,8 +1293,12 @@ public:
 
     struct npc_phantom_mageAI : public npc_gauntlet_trash
     {
-        npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature)
+        npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature) { }
+
+        void EnterEvadeMode() OVERRIDE
         {
+            if (!me->HasAura(AURA_HALLUCINATION))
+                npc_gauntlet_trash::EnterEvadeMode();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -1342,6 +1342,8 @@ public:
                     _events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 15000);
                     break;
                 case EVENT_HALLUCINATION:
+                    // removing any dots on mage or else the invisibility spell will break duration
+                    me->RemoveAllAuras();
                     DoCast(SPELL_HALLUCINATION);
                     break;
             }
@@ -1365,6 +1367,19 @@ public:
     {
         npc_phantom_hallucinationAI(Creature* creature) : npc_phantom_mage::npc_phantom_mageAI(creature) { }
 
+        void Reset() OVERRIDE
+        {
+            if (Unit* unit = me->SelectNearestTarget())
+                AttackStart(unit);
+            DoZoneInCombat();
+        }
+
+        void EnterEvadeMode() OVERRIDE
+        {
+            if (!me->GetOwner()->HasAura(AURA_HALLUCINATION))
+                npc_phantom_mage::npc_phantom_mageAI::EnterEvadeMode();
+        }
+
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             DoCast(SPELL_HALLUCINATION_2);
@@ -1384,9 +1399,7 @@ public:
 
     struct npc_shadowy_mercenaryAI : public npc_gauntlet_trash
     {
-        npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -1444,9 +1457,7 @@ public:
 
     struct npc_spectral_footmanAI : public npc_gauntlet_trash
     {
-        npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -1498,9 +1509,7 @@ public:
 
     struct npc_tortured_riflemanAI : public npc_gauntlet_trash
     {
-        npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature)
-        {
-        }
+        npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {

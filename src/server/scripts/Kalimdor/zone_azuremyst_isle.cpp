@@ -457,7 +457,7 @@ public:
             StartEvent();
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void StartEvent()
         {

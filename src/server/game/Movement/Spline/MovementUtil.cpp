@@ -77,7 +77,7 @@ namespace Movement
         {
             result = termVel * (t_passed - terminal_time) +
                 start_velocity * terminal_time +
-                gravity * terminal_time * terminal_time*0.5f;
+                gravity * terminal_time * terminal_time * 0.5f;
         }
         else
             result = t_passed * (start_velocity + t_passed * gravity * 0.5f);

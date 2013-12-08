@@ -75,7 +75,7 @@ struct LogMessage
     ///@ Returns size of the log message content in bytes
     uint32 Size() const
     {
-        return prefix.size() + text.size();
+        return static_cast<uint32>(prefix.size() + text.size());
     }
 };
 

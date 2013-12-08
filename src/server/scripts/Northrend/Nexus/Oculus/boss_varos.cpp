@@ -54,105 +54,111 @@ enum Events
 
 class boss_varos : public CreatureScript
 {
-public:
-    boss_varos() : CreatureScript("boss_varos") { }
+    public:
+        boss_varos() : CreatureScript("boss_varos") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new boss_varosAI(creature);
-    }
-
-    struct boss_varosAI : public BossAI
-    {
-        boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS_EVENT)
+        struct boss_varosAI : public BossAI
         {
-            if (instance->GetBossState(DATA_DRAKOS_EVENT) != DONE)
-                DoCast(me, SPELL_CENTRIFUGE_SHIELD);
-        }
+            boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS) { }
 
-        void Reset() OVERRIDE
-        {
-            _Reset();
-
-            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
-            // not sure if this is handled by a timer or hp percentage
-            events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
-
-            firstCoreEnergize = false;
-            coreEnergizeOrientation = 0.0f;
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            _EnterCombat();
-
-            Talk(SAY_AGGRO);
-        }
-
-        float GetCoreEnergizeOrientation()
-        {
-            return coreEnergizeOrientation;
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
+            void InitializeAI() OVERRIDE
             {
-                switch (eventId)
-                {
-                    case EVENT_ENERGIZE_CORES:
-                        DoCast(me, SPELL_ENERGIZE_CORES);
-                        events.CancelEvent(EVENT_ENERGIZE_CORES);
-                        break;
-                    case EVENT_ENERGIZE_CORES_VISUAL:
-                        if (!firstCoreEnergize)
-                        {
-                            coreEnergizeOrientation = me->GetOrientation();
-                            firstCoreEnergize = true;
-                        } else
-                            coreEnergizeOrientation = Position::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
-
-                        DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
-                        events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
-                        events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
-                        break;
-                    case EVENT_CALL_AZURE:
-                        // not sure how blizz handles this, i cant see any pattern between the differnt spells
-                        DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
-                        Talk(SAY_AZURE);
-                        Talk(SAY_AZURE_EMOTE);
-                        events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
-                        break;
-                    case EVENT_AMPLIFY_MAGIC:
-                        DoCastVictim(SPELL_CALL_AMPLIFY_MAGIC);
-                        events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
-                        break;
-                }
+                BossAI::InitializeAI();
+                if (instance->GetBossState(DATA_DRAKOS) != DONE)
+                    DoCast(me, SPELL_CENTRIFUGE_SHIELD);
             }
 
-            DoMeleeAttackIfReady();
-        }
+            void Reset() OVERRIDE
+            {
+                _Reset();
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+                events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
+                // not sure if this is handled by a timer or hp percentage
+                events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
+
+                firstCoreEnergize = false;
+                coreEnergizeOrientation = 0.0f;
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                _EnterCombat();
+
+                Talk(SAY_AGGRO);
+            }
+
+            float GetCoreEnergizeOrientation()
+            {
+                return coreEnergizeOrientation;
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_ENERGIZE_CORES:
+                            DoCast(me, SPELL_ENERGIZE_CORES);
+                            events.CancelEvent(EVENT_ENERGIZE_CORES);
+                            break;
+                        case EVENT_ENERGIZE_CORES_VISUAL:
+                            if (!firstCoreEnergize)
+                            {
+                                coreEnergizeOrientation = me->GetOrientation();
+                                firstCoreEnergize = true;
+                            }
+                            else
+                                coreEnergizeOrientation = Position::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
+
+                            DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
+                            break;
+                        case EVENT_CALL_AZURE:
+                            // not sure how blizz handles this, i cant see any pattern between the differnt spells
+                            DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
+                            Talk(SAY_AZURE);
+                            Talk(SAY_AZURE_EMOTE);
+                            events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
+                            break;
+                        case EVENT_AMPLIFY_MAGIC:
+                            DoCastVictim(SPELL_CALL_AMPLIFY_MAGIC);
+                            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void JustDied(Unit* /*killer*/) OVERRIDE
+            {
+                _JustDied();
+                Talk(SAY_DEATH);
+                DoCast(me, SPELL_DEATH_SPELL, true); // we cast the spell as triggered or the summon effect does not occur
+            }
+
+        private:
+            bool firstCoreEnergize;
+            float coreEnergizeOrientation;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            _JustDied();
-            Talk(SAY_DEATH);
-            DoCast(me, SPELL_DEATH_SPELL, true); // we cast the spell as triggered or the summon effect does not occur
+            return GetOculusAI<boss_varosAI>(creature);
         }
-    private:
-        bool firstCoreEnergize;
-        float coreEnergizeOrientation;
-    };
 };
 
 class npc_azure_ring_captain : public CreatureScript
@@ -259,7 +265,6 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // flags taken from sniffs
-                    // UNIT_FLAG_UNK_9 -> means passive but it is not yet implemented in core
                     if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6))
                     {
                         caster->ToCreature()->SetReactState(REACT_PASSIVE);

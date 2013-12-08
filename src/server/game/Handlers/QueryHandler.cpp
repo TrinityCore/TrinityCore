@@ -443,7 +443,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
                     data << int32(itr->ObjectiveIndex);     // objective index
                     data << uint32(itr->MapId);             // mapid
                     data << uint32(itr->AreaId);            // areaid
-                    data << uint32(itr->Unk2);              // unknown
+                    data << uint32(itr->FloorId);           // floorid
                     data << uint32(itr->Unk3);              // unknown
                     data << uint32(itr->Unk4);              // unknown
                     data << uint32(itr->points.size());     // POI points count

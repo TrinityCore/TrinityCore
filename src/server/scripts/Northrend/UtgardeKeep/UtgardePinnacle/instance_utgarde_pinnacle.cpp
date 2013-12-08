@@ -19,246 +19,235 @@
 #include "InstanceScript.h"
 #include "utgarde_pinnacle.h"
 
-#define MAX_ENCOUNTER     4
-
-/* Utgarde Pinnacle encounters:
-0 - Svala Sorrowgrave
-1 - Gortok Palehoof
-2 - Skadi the Ruthless
-3 - King Ymiron
-*/
-
-enum GameObjects
+DoorData const doorData[] =
 {
-    ENTRY_SKADI_THE_RUTHLESS_DOOR                 = 192173,
-    ENTRY_KING_YMIRON_DOOR                        = 192174,
-    ENTRY_GORK_PALEHOOF_SPHERE                    = 188593
+    { GO_SKADI_THE_RUTHLESS_DOOR,   DATA_SKADI_THE_RUTHLESS,    DOOR_TYPE_PASSAGE,  BOUNDARY_W    },
+    { GO_KING_YMIRON_DOOR,          DATA_KING_YMIRON,           DOOR_TYPE_PASSAGE,  BOUNDARY_N    },
+    { 0,                            0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
 };
 
 class instance_utgarde_pinnacle : public InstanceMapScript
 {
-public:
-    instance_utgarde_pinnacle() : InstanceMapScript("instance_utgarde_pinnacle", 575) { }
+    public:
+        instance_utgarde_pinnacle() : InstanceMapScript(UPScriptName, 575) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
-    {
-        return new instance_pinnacle(map);
-    }
-
-    struct instance_pinnacle : public InstanceScript
-    {
-        instance_pinnacle(Map* map) : InstanceScript(map) { }
-
-        uint64 uiSvalaSorrowgrave;
-        uint64 uiGortokPalehoof;
-        uint64 uiSkadiTheRuthless;
-        uint64 uiKingYmiron;
-
-        uint64 uiSkadiTheRuthlessDoor;
-        uint64 uiKingYmironDoor;
-        uint64 uiGortokPalehoofSphere;
-
-        uint64 uiFrenziedWorgen;
-        uint64 uiRavenousFurbolg;
-        uint64 uiFerociousRhino;
-        uint64 uiMassiveJormungar;
-        uint64 uiPalehoofOrb;
-
-        uint64 uiSvala;
-        uint64 uiSacrificedPlayer;
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-        std::string str_data;
-
-        void Initialize() OVERRIDE
+        struct instance_utgarde_pinnacle_InstanceMapScript : public InstanceScript
         {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-               m_auiEncounter[i] = NOT_STARTED;
-
-            uiSvalaSorrowgrave = 0;
-            uiGortokPalehoof = 0;
-            uiSkadiTheRuthless = 0;
-            uiKingYmiron = 0;
-
-            uiSkadiTheRuthlessDoor = 0;
-            uiKingYmironDoor = 0;
-            uiGortokPalehoofSphere = 0;
-
-            uiFrenziedWorgen = 0;
-            uiRavenousFurbolg = 0;
-            uiFerociousRhino = 0;
-            uiMassiveJormungar = 0;
-            uiPalehoofOrb = 0;
-
-            uiSvala = 0;
-            uiSacrificedPlayer = 0;
-        }
-
-        bool IsEncounterInProgress() const OVERRIDE
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-
-            return false;
-        }
-
-        void OnCreatureCreate(Creature* creature) OVERRIDE
-        {
-            switch (creature->GetEntry())
+            instance_utgarde_pinnacle_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                case BOSS_SVALA_SORROWGRAVE:  uiSvalaSorrowgrave = creature->GetGUID();  break;
-                case BOSS_GORTOK_PALEHOOF:    uiGortokPalehoof = creature->GetGUID();    break;
-                case BOSS_SKADI_RUTHLESS:     uiSkadiTheRuthless = creature->GetGUID();  break;
-                case BOSS_KING_YMIRON:        uiKingYmiron = creature->GetGUID();        break;
-                case NPC_FRENZIED_WORGEN:     uiFrenziedWorgen = creature->GetGUID();    break;
-                case NPC_RAVENOUS_FURBOLG:    uiRavenousFurbolg = creature->GetGUID();   break;
-                case NPC_MASSIVE_JORMUNGAR:   uiMassiveJormungar = creature->GetGUID();  break;
-                case NPC_FEROCIOUS_RHINO:     uiFerociousRhino = creature->GetGUID();    break;
-                case NPC_SVALA:               uiSvala = creature->GetGUID();             break;
-                case NPC_PALEHOOF_ORB:        uiPalehoofOrb = creature->GetGUID();       break;
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+
+                SvalaSorrowgraveGUID        = 0;
+                GortokPalehoofGUID          = 0;
+                SkadiTheRuthlessGUID        = 0;
+                KingYmironGUID              = 0;
+
+                UtgardeMirrorGUID           = 0;
+                GortokPalehoofSphereGUID    = 0;
+
+                FrenziedWorgenGUID          = 0;
+                RavenousFurbolgGUID         = 0;
+                FerociousRhinoGUID          = 0;
+                MassiveJormungarGUID        = 0;
+                PalehoofOrbGUID             = 0;
+
+                SvalaGUID                   = 0;
+                SacrificedPlayerGUID        = 0;
             }
-        }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
-        {
-            switch (go->GetEntry())
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
-                case ENTRY_SKADI_THE_RUTHLESS_DOOR:
-                    uiSkadiTheRuthlessDoor = go->GetGUID();
-                    if (m_auiEncounter[2] == DONE) HandleGameObject(0, true, go);
-                    break;
-                case ENTRY_KING_YMIRON_DOOR:
-                    uiKingYmironDoor = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE) HandleGameObject(0, true, go);
-                    break;
-                case ENTRY_GORK_PALEHOOF_SPHERE:
-                    uiGortokPalehoofSphere = go->GetGUID();
-                    if (m_auiEncounter[1] == DONE)
+                switch (creature->GetEntry())
+                {
+                    case NPC_SVALA_SORROWGRAVE:
+                        SvalaSorrowgraveGUID = creature->GetGUID();
+                        break;
+                    case NPC_GORTOK_PALEHOOF:
+                        GortokPalehoofGUID = creature->GetGUID();
+                        break;
+                    case NPC_SKADI_THE_RUTHLESS:
+                        SkadiTheRuthlessGUID = creature->GetGUID();
+                        break;
+                    case NPC_KING_YMIRON:
+                        KingYmironGUID = creature->GetGUID();
+                        break;
+                    case NPC_FRENZIED_WORGEN:
+                        FrenziedWorgenGUID = creature->GetGUID();
+                        break;
+                    case NPC_RAVENOUS_FURBOLG:
+                        RavenousFurbolgGUID = creature->GetGUID();
+                        break;
+                    case NPC_MASSIVE_JORMUNGAR:
+                        MassiveJormungarGUID = creature->GetGUID();
+                        break;
+                    case NPC_FEROCIOUS_RHINO:
+                        FerociousRhinoGUID = creature->GetGUID();
+                        break;
+                    case NPC_SVALA:
+                        SvalaGUID = creature->GetGUID();
+                        break;
+                    case NPC_PALEHOOF_ORB:
+                        PalehoofOrbGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_UTGARDE_MIRROR:
+                        UtgardeMirrorGUID = go->GetGUID();
+                        break;
+                    case GO_GORTOK_PALEHOOF_SPHERE:
+                        GortokPalehoofSphereGUID = go->GetGUID();
+                        if (GetBossState(DATA_GORTOK_PALEHOOF) == DONE)
+                        {
+                            HandleGameObject(0, true, go);
+                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        }
+                        break;
+                    case GO_SKADI_THE_RUTHLESS_DOOR:
+                    case GO_KING_YMIRON_DOOR:
+                        AddDoor(go, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_SKADI_THE_RUTHLESS_DOOR:
+                    case GO_KING_YMIRON_DOOR:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SetData64(uint32 type, uint64 data) OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_SACRIFICED_PLAYER:
+                        SacrificedPlayerGUID = data;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            uint64 GetData64(uint32 type) const OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_SVALA_SORROWGRAVE:
+                        return SvalaSorrowgraveGUID;
+                    case DATA_GORTOK_PALEHOOF:
+                        return GortokPalehoofGUID;
+                    case DATA_SKADI_THE_RUTHLESS:
+                        return SkadiTheRuthlessGUID;
+                    case DATA_KING_YMIRON:
+                        return KingYmironGUID;
+                    case DATA_FRENZIED_WORGEN:
+                        return FrenziedWorgenGUID;
+                    case DATA_RAVENOUS_FURBOLG:
+                        return RavenousFurbolgGUID;
+                    case DATA_MASSIVE_JORMUNGAR:
+                        return MassiveJormungarGUID;
+                    case DATA_FEROCIOUS_RHINO:
+                        return FerociousRhinoGUID;
+                    case DATA_GORTOK_ORB:
+                        return PalehoofOrbGUID;
+                    case DATA_GORTOK_PALEHOOF_SPHERE:
+                        return GortokPalehoofSphereGUID;
+                    case DATA_UTGARDE_MIRROR:
+                        return UtgardeMirrorGUID;
+                    case DATA_SVALA:
+                        return SvalaGUID;
+                    case DATA_SACRIFICED_PLAYER:
+                        return SacrificedPlayerGUID;
+                    default:
+                        break;
+                }
+
+                return 0;
+            }
+
+            std::string GetSaveData() OVERRIDE
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "U P " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(char const* str) OVERRIDE
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'U' && dataHead2 == 'P')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
                     {
-                        HandleGameObject(0, true, go);
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
                     }
-                    break;
-            }
-        }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
-        {
-            switch (type)
-            {
-                case DATA_SVALA_SORROWGRAVE_EVENT:
-                    m_auiEncounter[0] = data;
-                    break;
-                case DATA_GORTOK_PALEHOOF_EVENT:
-                    m_auiEncounter[1] = data;
-                    break;
-                case DATA_SKADI_THE_RUTHLESS_EVENT:
-                    if (data == DONE)
-                        HandleGameObject(uiSkadiTheRuthlessDoor, true);
-                    m_auiEncounter[2] = data;
-                    break;
-                case DATA_KING_YMIRON_EVENT:
-                    if (data == DONE)
-                        HandleGameObject(uiKingYmironDoor, true);
-                    m_auiEncounter[3] = data;
-                    break;
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            if (data == DONE)
-                SaveToDB();
-        }
+        protected:
+            uint64 SvalaSorrowgraveGUID;
+            uint64 GortokPalehoofGUID;
+            uint64 SkadiTheRuthlessGUID;
+            uint64 KingYmironGUID;
 
-        void SetData64(uint32 type, uint64 data) OVERRIDE
+            uint64 UtgardeMirrorGUID;
+            uint64 GortokPalehoofSphereGUID;
+
+            uint64 FrenziedWorgenGUID;
+            uint64 RavenousFurbolgGUID;
+            uint64 FerociousRhinoGUID;
+            uint64 MassiveJormungarGUID;
+
+            uint64 PalehoofOrbGUID;
+
+            uint64 SvalaGUID;
+            uint64 SacrificedPlayerGUID;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
-            switch (type)
-            {
-                case DATA_SACRIFICED_PLAYER:
-                    uiSacrificedPlayer = data;
-                    break;
-            }
+            return new instance_utgarde_pinnacle_InstanceMapScript(map);
         }
-
-        uint32 GetData(uint32 type) const OVERRIDE
-        {
-            switch (type)
-            {
-                case DATA_SVALA_SORROWGRAVE_EVENT:        return m_auiEncounter[0];
-                case DATA_GORTOK_PALEHOOF_EVENT:          return m_auiEncounter[1];
-                case DATA_SKADI_THE_RUTHLESS_EVENT:       return m_auiEncounter[2];
-                case DATA_KING_YMIRON_EVENT:              return m_auiEncounter[3];
-            }
-            return 0;
-        }
-
-        uint64 GetData64(uint32 identifier) const OVERRIDE
-        {
-            switch (identifier)
-            {
-                case DATA_SVALA_SORROWGRAVE:      return uiSvalaSorrowgrave;
-                case DATA_GORTOK_PALEHOOF:        return uiGortokPalehoof;
-                case DATA_SKADI_THE_RUTHLESS:     return uiSkadiTheRuthless;
-                case DATA_KING_YMIRON:            return uiKingYmiron;
-                case DATA_NPC_FRENZIED_WORGEN:    return uiFrenziedWorgen;
-                case DATA_NPC_RAVENOUS_FURBOLG:   return uiRavenousFurbolg;
-                case DATA_NPC_MASSIVE_JORMUNGAR:  return uiMassiveJormungar;
-                case DATA_NPC_FEROCIOUS_RHINO:    return uiFerociousRhino;
-                case DATA_NPC_ORB:                return uiPalehoofOrb;
-                case DATA_SVALA:                  return uiSvala;
-                case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
-                case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
-            }
-
-            return 0;
-        }
-
-        std::string GetSaveData() OVERRIDE
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "U P " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
-                << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
-
-            str_data = saveStream.str();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return str_data;
-        }
-
-        void Load(const char* in) OVERRIDE
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
-
-            if (dataHead1 == 'U' && dataHead2 == 'P')
-            {
-                m_auiEncounter[0] = data0;
-                m_auiEncounter[1] = data1;
-                m_auiEncounter[2] = data2;
-                m_auiEncounter[3] = data3;
-
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        m_auiEncounter[i] = NOT_STARTED;
-
-            } else OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-    };
 };
 
 void AddSC_instance_utgarde_pinnacle()

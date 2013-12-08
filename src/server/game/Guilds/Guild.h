@@ -165,7 +165,7 @@ enum GuildEvents
     GE_BANK_TAB_PURCHASED               = 19,
     GE_BANK_TAB_UPDATED                 = 20,
     GE_BANK_MONEY_SET                   = 21,
-    GE_BANK_MONEY_CHANGED               = 22,
+    GE_BANK_TAB_AND_MONEY_UPDATED       = 22,
     GE_BANK_TEXT_CHANGED                = 23,
     // 24 - error 795
     GE_SIGNED_ON_MOBILE                 = 25,
@@ -576,7 +576,8 @@ private:
         RankInfo(): m_guildId(0), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
         RankInfo(uint32 guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
         RankInfo(uint32 guildId, uint8 rankId, std::string const& name, uint32 rights, uint32 money) :
-            m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
+            m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights),
+            m_bankMoneyPerDay(rankId != GR_GUILDMASTER ? money : GUILD_WITHDRAW_MONEY_UNLIMITED) { }
 
         void LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;

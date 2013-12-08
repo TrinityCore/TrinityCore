@@ -33,7 +33,8 @@
 #include "CellImpl.h"
 
 Transport::Transport() : GameObject(),
-    _transportInfo(NULL), _isMoving(true), _pendingStop(false)
+    _transportInfo(NULL), _isMoving(true), _pendingStop(false),
+    _triggeredArrivalEvent(false), _triggeredDepartureEvent(false)
 {
     m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
@@ -529,7 +530,9 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
                 break;
             }
             case TYPEID_PLAYER:
-                GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
+                //relocate only passengers in world and skip any player that might be still logging in/teleporting
+                if (passenger->IsInWorld())
+                    GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);

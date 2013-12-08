@@ -61,20 +61,14 @@ enum Spells
 class boss_harbinger_skyriss : public CreatureScript
 {
     public:
+        boss_harbinger_skyriss() : CreatureScript("boss_harbinger_skyriss") { }
 
-        boss_harbinger_skyriss()
-            : CreatureScript("boss_harbinger_skyriss")
+        struct boss_harbinger_skyrissAI : public BossAI
         {
-        }
-        struct boss_harbinger_skyrissAI : public ScriptedAI
-        {
-            boss_harbinger_skyrissAI(Creature* creature) : ScriptedAI(creature)
+            boss_harbinger_skyrissAI(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS)
             {
-                instance = creature->GetInstanceScript();
                 Intro = false;
             }
-
-            InstanceScript* instance;
 
             bool Intro;
             bool IsImage33;
@@ -104,7 +98,6 @@ class boss_harbinger_skyriss : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) OVERRIDE
-
             {
                 if (!Intro)
                     return;
@@ -117,8 +110,7 @@ class boss_harbinger_skyriss : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(TYPE_HARBINGERSKYRISS, DONE);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
@@ -137,7 +129,7 @@ class boss_harbinger_skyriss : public CreatureScript
             void KilledUnit(Unit* victim) OVERRIDE
             {
                 //won't yell killing pet/other unit
-                if (victim->GetEntry() == 21436)
+                if (victim->GetEntry() == NPC_ALPHA_POD_TARGET)
                     return;
 
                 Talk(SAY_KILL);
@@ -160,27 +152,24 @@ class boss_harbinger_skyriss : public CreatureScript
             {
                 if (!Intro)
                 {
-                    if (!instance)
-                        return;
-
                     if (Intro_Timer <= diff)
                     {
                         switch (Intro_Phase)
                         {
                         case 1:
                             Talk(SAY_INTRO);
-                            instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), true);
+                            instance->HandleGameObject(instance->GetData64(DATA_WARDENS_SHIELD), true);
                             ++Intro_Phase;
                             Intro_Timer = 25000;
                             break;
                         case 2:
                             Talk(SAY_AGGRO);
-                            if (Unit* mellic = Unit::GetUnit(*me, instance->GetData64(DATA_MELLICHAR)))
+                            if (Unit* mellic = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_MELLICHAR)))
                             {
                                 //should have a better way to do this. possibly spell exist.
                                 mellic->setDeathState(JUST_DIED);
                                 mellic->SetHealth(0);
-                                instance->SetData(TYPE_SHIELD_OPEN, IN_PROGRESS);
+                                instance->HandleGameObject(instance->GetData64(DATA_WARDENS_SHIELD), false);
                             }
                             ++Intro_Phase;
                             Intro_Timer = 3000;
@@ -275,18 +264,15 @@ class boss_harbinger_skyriss : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_harbinger_skyrissAI(creature);
+            return GetArcatrazAI<boss_harbinger_skyrissAI>(creature);
         }
 };
 
 class boss_harbinger_skyriss_illusion : public CreatureScript
 {
     public:
+        boss_harbinger_skyriss_illusion() : CreatureScript("boss_harbinger_skyriss_illusion") { }
 
-        boss_harbinger_skyriss_illusion()
-            : CreatureScript("boss_harbinger_skyriss_illusion")
-        {
-        }
         struct boss_harbinger_skyriss_illusionAI : public ScriptedAI
         {
             boss_harbinger_skyriss_illusionAI(Creature* creature) : ScriptedAI(creature) { }

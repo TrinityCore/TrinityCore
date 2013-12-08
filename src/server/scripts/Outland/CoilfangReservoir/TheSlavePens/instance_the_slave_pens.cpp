@@ -24,11 +24,12 @@ gets instead the deserter debuff.
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "the_slave_pens.h"
 
 class instance_the_slave_pens : public InstanceMapScript
 {
 public:
-    instance_the_slave_pens() : InstanceMapScript("instance_the_slave_pens", 547) { }
+    instance_the_slave_pens() : InstanceMapScript(SPScriptName, 547) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
