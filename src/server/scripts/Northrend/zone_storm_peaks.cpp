@@ -460,6 +460,52 @@ class spell_close_rift : public SpellScriptLoader
         }
 };
 
+/*#####
+# spell_jokkum_scriptcast
+#####*/
+
+enum JokkumScriptcast
+{
+    SPELL_JOKKUM_KILL_CREDIT    = 56545,
+    SPELL_JOKKUM_SUMMON         = 56541
+};
+
+class spell_jokkum_scriptcast : public SpellScriptLoader
+{
+    public: spell_jokkum_scriptcast() : SpellScriptLoader("spell_jokkum_scriptcast") { }
+
+        class spell_jokkum_scriptcast_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_jokkum_scriptcast_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_JOKKUM_KILL_CREDIT) || !sSpellMgr->GetSpellInfo(SPELL_JOKKUM_SUMMON))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* player = GetTarget()->ToPlayer())
+                {
+                    player->CastSpell(player, SPELL_JOKKUM_KILL_CREDIT, true);
+                    player->CastSpell(player, SPELL_JOKKUM_SUMMON, true);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_jokkum_scriptcast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_jokkum_scriptcast_AuraScript();
+        }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_injured_goblin();
@@ -469,4 +515,5 @@ void AddSC_storm_peaks()
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
     new spell_close_rift();
+    new spell_jokkum_scriptcast();
 }

@@ -25,13 +25,6 @@ void Logger::Create(std::string const& _name, LogLevel _level)
     level = _level;
 }
 
-Logger::~Logger()
-{
-    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
-        it->second = NULL;
-    appenders.clear();
-}
-
 std::string const& Logger::getName() const
 {
     return name;
@@ -49,12 +42,7 @@ void Logger::addAppender(uint8 id, Appender* appender)
 
 void Logger::delAppender(uint8 id)
 {
-    AppenderMap::iterator it = appenders.find(id);
-    if (it != appenders.end())
-    {
-        it->second = NULL;
-        appenders.erase(it);
-    }
+    appenders.erase(id);
 }
 
 void Logger::setLogLevel(LogLevel _level)
@@ -66,7 +54,7 @@ void Logger::write(LogMessage& message) const
 {
     if (!level || level > message.level || message.text.empty())
     {
-        //fprintf(stderr, "Logger::write: Logger %s, Level %u. Msg %s Level %u WRONG LEVEL MASK OR EMPTY MSG\n", getName().c_str(), messge.level, message.text.c_str(), .message.level); // DEBUG - RemoveMe
+        //fprintf(stderr, "Logger::write: Logger %s, Level %u. Msg %s Level %u WRONG LEVEL MASK OR EMPTY MSG\n", getName().c_str(), getLogLevel(), message.text.c_str(), message.level);
         return;
     }
 

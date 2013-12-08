@@ -3185,6 +3185,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
                 break;
             case 31347: // Doom
+            case 36327: // Shoot Arcane Explosion Arrow
             case 39365: // Thundering Storm
             case 41071: // Raise Dead (HACK)
             case 42442: // Vengeance Landing Cannonfire
@@ -3284,6 +3285,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 47205: // Everlasting Affliction (5)
                 // add corruption to affected spells
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
+                break;
+            case 37408: // Oscillation Field
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->Effects[EFFECT_0].MiscValue |= 1;

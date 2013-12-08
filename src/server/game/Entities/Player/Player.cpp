@@ -2209,6 +2209,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             Position oldPos;
             GetPosition(&oldPos);
+            if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+                z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
             Relocate(x, y, z, orientation);
             SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
         }
@@ -9820,6 +9822,16 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(3932) << uint32(0);              // 13 WORLDSTATE_TIME_GUARDIAN_SHOW
             }
             break;
+        // The Oculus
+        case 4228:
+            if (instance && mapid == 578)
+                instance->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(3524) << uint32(0);              // 9  WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW
+                data << uint32(3486) << uint32(0);              // 10 WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT
+            }
+            break;
         // Ulduar
         case 4273:
             if (instance && mapid == 603)
@@ -9868,6 +9880,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 bf->FillInitialWorldStates(data);
                 break;
             }
+        // Halls of Refection
         case 4820:
             if (instance && mapid == 668)
                 instance->FillInitialWorldStates(data);
@@ -9877,7 +9890,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4882) << uint32(0);              // 10 WORLD_STATE_HOR_WAVE_COUNT
             }
             break;
-
             // No break here, intended.
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
@@ -15389,9 +15401,27 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
     if (quest->GetRewSpellCast() > 0)
-        CastSpell(this, quest->GetRewSpellCast(), true);
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpellCast());
+        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+        {
+            if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
+                creature->CastSpell(this, quest->GetRewSpellCast(), true);
+        }
+        else
+            CastSpell(this, quest->GetRewSpellCast(), true);
+    }
     else if (quest->GetRewSpell() > 0)
-        CastSpell(this, quest->GetRewSpell(), true);
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
+        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+        {
+            if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
+                creature->CastSpell(this, quest->GetRewSpell(), true);
+        }
+        else
+            CastSpell(this, quest->GetRewSpell(), true);
+    }
 
     if (quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
@@ -17137,8 +17167,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     InitPrimaryProfessions();                               // to max set before any spell loaded
 
     // init saved position, and fix it later if problematic
-    uint32 transGUID = uint32(fields[31].GetUInt32());
-
+    uint32 transLowGUID = uint32(fields[31].GetUInt32());
+    
     Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), fields[16].GetFloat());
 
     uint32 mapId = fields[15].GetUInt16();
@@ -17241,40 +17271,48 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         }
     }
     // currently we do not support transport in bg
-    else if (transGUID)
+    else if (transLowGUID)
     {
-        m_movementInfo.transport.guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
-        m_movementInfo.transport.pos.Relocate(fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat(), fields[30].GetFloat());
+        uint64 transGUID = MAKE_NEW_GUID(transLowGUID, 0, HIGHGUID_MO_TRANSPORT);
 
-        if (!Trinity::IsValidMapCoord(
-            GetPositionX()+m_movementInfo.transport.pos.GetPositionX(), GetPositionY()+m_movementInfo.transport.pos.GetPositionY(),
-            GetPositionZ()+m_movementInfo.transport.pos.GetPositionZ(), GetOrientation()+m_movementInfo.transport.pos.GetOrientation()) ||
-            // transport size limited
-            m_movementInfo.transport.pos.m_positionX > 250 || m_movementInfo.transport.pos.m_positionY > 250 || m_movementInfo.transport.pos.m_positionZ > 250)
+        if (GameObject* go = HashMapHolder<GameObject>::Find(transGUID))
+            m_transport = go->ToTransport();
+
+        if (m_transport)
         {
-            TC_LOG_ERROR("entities.player", "Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
-                guid, GetPositionX()+m_movementInfo.transport.pos.GetPositionX(), GetPositionY()+m_movementInfo.transport.pos.GetPositionY(),
-                GetPositionZ()+m_movementInfo.transport.pos.GetPositionZ(), GetOrientation()+m_movementInfo.transport.pos.GetOrientation());
+            m_movementInfo.transport.guid = transGUID;
+            float x = fields[27].GetFloat(), y = fields[28].GetFloat(), z = fields[29].GetFloat(), o = fields[30].GetFloat();
+            m_movementInfo.transport.pos.Relocate(x, y, z, o);
+            m_transport->CalculatePassengerPosition(x, y, z, &o);
 
-            RelocateToHomebind();
-        }
-        else
-        {
-            if (GameObject* go = HashMapHolder<GameObject>::Find(m_movementInfo.transport.guid))
-                m_transport = go->ToTransport();
+            if (!Trinity::IsValidMapCoord(x, y, z, o) ||
+                // transport size limited
+                std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
+                std::fabs(m_movementInfo.transport.pos.GetPositionY()) > 250.0f ||
+                std::fabs(m_movementInfo.transport.pos.GetPositionZ()) > 250.0f)
+            {
+                TC_LOG_ERROR("entities.player", "Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
+                    guid, x, y, z, o);
 
-            if (m_transport)
-            {
-                m_transport->AddPassenger(this);
-                mapId = m_transport->GetMapId();
-            }
-            else
-            {
-                TC_LOG_ERROR("entities.player", "Player (guidlow %d) have problems with transport guid (%u). Teleport to bind location.",
-                    guid, transGUID);
+                m_transport = NULL;
+                m_movementInfo.transport.Reset();
 
                 RelocateToHomebind();
             }
+            else
+            {
+                Relocate(x, y, z, o);
+                mapId = m_transport->GetMapId();
+
+                m_transport->AddPassenger(this);
+            }
+        }
+        else
+        {
+            TC_LOG_ERROR("entities.player", "Player (guidlow %d) have problems with transport guid (%u). Teleport to bind location.",
+                guid, transLowGUID);
+
+            RelocateToHomebind();
         }
     }
     // currently we do not support taxi in instance
@@ -19159,6 +19197,14 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetPositionY()));
         stmt->setFloat(index++, finiteAlways(GetPositionZ()));
         stmt->setFloat(index++, finiteAlways(GetOrientation()));
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetX()));
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
+        uint32 transLowGUID = 0;
+        if (GetTransport())
+            transLowGUID = GetTransport()->GetGUIDLow();
+        stmt->setUInt32(index++, transLowGUID);
 
         std::ostringstream ss;
         ss << m_taxi;
@@ -19279,6 +19325,15 @@ void Player::SaveToDB(bool create /*=false*/)
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionZ()));
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetOrientation()));
         }
+
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetX()));
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
+        stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
+        uint32 transLowGUID = 0;
+        if (GetTransport())
+            transLowGUID = GetTransport()->GetGUIDLow();
+        stmt->setUInt32(index++, transLowGUID);
 
         std::ostringstream ss;
         ss << m_taxi;
@@ -20165,7 +20220,7 @@ void Player::UpdateSpeakTime()
         }
     }
     else
-        m_speakCount = 0;
+        m_speakCount = 1;
 
     m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
 }
@@ -21001,13 +21056,15 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
     if (!spell || spell->m_appliedMods.empty())
         return;
 
+    std::list<Aura*> aurasQueue;
+
     for (uint8 i=0; i<MAX_SPELLMOD; ++i)
     {
         for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end(); ++itr)
         {
             SpellModifier* mod = *itr;
 
-            // spellmods without aura set cannot be charged
+            // Spellmods without aura set cannot be charged
             if (!mod->ownerAura || !mod->ownerAura->IsUsingCharges())
                 continue;
 
@@ -21018,17 +21075,20 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
             if (aura && mod->ownerAura != aura)
                 continue;
 
-            // check if mod affected this spell
-            // first, check if the mod aura applied at least one spellmod to this spell
+            // Check if mod affected this spell
+            // First, check if the mod aura applied at least one spellmod to this spell
             Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
             if (iterMod == spell->m_appliedMods.end())
                 continue;
-            // secondly, check if the current mod is one of the spellmods applied by the mod aura
+            // Second, check if the current mod is one of those applied by the mod aura
             if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
                 continue;
 
-            // remove from list
-            spell->m_appliedMods.erase(iterMod);
+            // remove from list - This will be done after all mods have been gone through
+            // to ensure we iterate over all mods of an aura before removing said aura
+            // from applied mods (Else, an aura with two mods on the current spell would
+            // only see the first of its modifier restored)
+            aurasQueue.push_back(mod->ownerAura);
 
             // add mod charges back to mod
             if (mod->charges == -1)
@@ -21036,14 +21096,21 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
             else
                 mod->charges++;
 
-            // Do not set more spellmods than avalible
+            // Do not set more spellmods than available
             if (mod->ownerAura->GetCharges() < mod->charges)
                 mod->charges = mod->ownerAura->GetCharges();
 
             // Skip this check for now - aura charges may change due to various reason
-            /// @todo trac these changes correctly
+            /// @todo track these changes correctly
             //ASSERT (mod->ownerAura->GetCharges() <= mod->charges);
         }
+    }
+
+    for (std::list<Aura*>::iterator itr = aurasQueue.begin(); itr != aurasQueue.end(); ++itr)
+    {
+        Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(*itr);
+        if (iterMod != spell->m_appliedMods.end())
+            spell->m_appliedMods.erase(iterMod);
     }
 }
 

@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,23 +15,56 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ARCATRAZ_H_
-#define ARCATRAZ_H_
+#ifndef ARCATRAZ_H
+#define ARCATRAZ_H
+
+#define ArcatrazScriptName "instance_arcatraz"
+
+uint32 const EncounterCount = 4;
 
 enum DataTypes
 {
-    TYPE_ZEREKETH          = 1,
-    TYPE_DALLIAH           = 2,
-    TYPE_SOCCOTHRATES      = 3,
-    TYPE_HARBINGERSKYRISS  = 4,
-    TYPE_WARDEN_1          = 5,
-    TYPE_WARDEN_2          = 6,
-    TYPE_WARDEN_3          = 7,
-    TYPE_WARDEN_4          = 8,
-    TYPE_WARDEN_5          = 9,
-    DATA_MELLICHAR         = 10,
-    TYPE_SHIELD_OPEN       = 11,
-    DATA_SPHERE_SHIELD     = 12
+    // Encounter States/Boss GUIDs
+    DATA_ZEREKETH                               = 0,
+    DATA_DALLIAH                                = 1,
+    DATA_SOCCOTHRATES                           = 2,
+    DATA_HARBINGER_SKYRISS                      = 3,
+
+    // Additional Data
+    DATA_CONVERSATION                           = 4,
+    DATA_WARDEN_1                               = 5, // used by EventAI
+    DATA_WARDEN_2                               = 6, // used by EventAI
+    DATA_WARDEN_3                               = 7, // used by EventAI
+    DATA_WARDEN_4                               = 8, // used by EventAI
+    DATA_WARDEN_5                               = 9, // used by EventAI
+    DATA_MELLICHAR                              = 10,
+    DATA_WARDENS_SHIELD                         = 11
 };
 
-#endif // ARCATRAZ_H_
+enum CreatureIds
+{
+    NPC_DALLIAH                                 = 20885,
+    NPC_SOCCOTHRATES                            = 20886,
+    NPC_MELLICHAR                               = 20904, // skyriss will kill this unit
+    NPC_ALPHA_POD_TARGET                        = 21436
+};
+
+enum GameObjectIds
+{
+    GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA    = 184318, // door opened when Wrath-Scryer Soccothrates dies
+    GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA     = 184319, // door opened when Dalliah the Doomsayer dies
+    GO_STASIS_POD_ALPHA                         = 183961, // pod first boss wave
+    GO_STASIS_POD_BETA                          = 183963, // pod second boss wave
+    GO_STASIS_POD_DELTA                         = 183964, // pod third boss wave
+    GO_STASIS_POD_GAMMA                         = 183962, // pod fourth boss wave
+    GO_STASIS_POD_OMEGA                         = 183965, // pod fifth boss wave
+    GO_WARDENS_SHIELD                           = 184802  // shield 'protecting' mellichar
+};
+
+template<class AI>
+AI* GetArcatrazAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, ArcatrazScriptName);
+}
+
+#endif // ARCATRAZ_H

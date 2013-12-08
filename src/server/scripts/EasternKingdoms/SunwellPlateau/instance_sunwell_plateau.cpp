@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,19 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Sunwell_Plateau
-SD%Complete: 25
-SDComment: VERIFY SCRIPT
-SDCategory: Sunwell_Plateau
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "sunwell_plateau.h"
 #include "Player.h"
-
-#define MAX_ENCOUNTER 6
+#include "sunwell_plateau.h"
 
 /* Sunwell Plateau:
 0 - Kalecgos and Sathrovarr
@@ -39,268 +29,256 @@ EndScriptData */
 5 - Kil'Jaeden
 */
 
+DoorData const doorData[] =
+{
+    { GO_FIRE_BARRIER,     DATA_FELMYST,  DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_MURUS_GATE_1,     DATA_MURU,     DOOR_TYPE_ROOM,    BOUNDARY_NONE },
+    { GO_MURUS_GATE_2,     DATA_MURU,     DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_BOSS_COLLISION_1, DATA_KALECGOS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
+    { GO_BOSS_COLLISION_2, DATA_KALECGOS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
+    { GO_FORCE_FIELD,      DATA_KALECGOS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
+    { 0,                   0,             DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+};
+
 class instance_sunwell_plateau : public InstanceMapScript
 {
-public:
-    instance_sunwell_plateau() : InstanceMapScript("instance_sunwell_plateau", 580) { }
+    public:
+        instance_sunwell_plateau() : InstanceMapScript(SunwellPlateauScriptName, 580) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
-    {
-        return new instance_sunwell_plateau_InstanceMapScript(map);
-    }
-
-    struct instance_sunwell_plateau_InstanceMapScript : public InstanceScript
-    {
-        instance_sunwell_plateau_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-        /** Creatures **/
-        uint64 Kalecgos_Dragon;
-        uint64 Kalecgos_Human;
-        uint64 Sathrovarr;
-        uint64 Brutallus;
-        uint64 Madrigosa;
-        uint64 Felmyst;
-        uint64 Alythess;
-        uint64 Sacrolash;
-        uint64 Muru;
-        uint64 KilJaeden;
-        uint64 KilJaedenController;
-        uint64 Anveena;
-        uint64 KalecgosKJ;
-        uint32 SpectralPlayers;
-
-        /** GameObjects **/
-        uint64 ForceField;                                      // Kalecgos Encounter
-        uint64 KalecgosWall[2];
-        uint64 FireBarrier;                                     // Felmysts Encounter
-        uint64 MurusGate[2];                                    // Murus Encounter
-
-        /*** Misc ***/
-        uint32 SpectralRealmTimer;
-        std::vector<uint64> SpectralRealmList;
-
-        void Initialize() OVERRIDE
+        struct instance_sunwell_plateau_InstanceMapScript : public InstanceScript
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            /*** Creatures ***/
-            Kalecgos_Dragon         = 0;
-            Kalecgos_Human          = 0;
-            Sathrovarr              = 0;
-            Brutallus               = 0;
-            Madrigosa               = 0;
-            Felmyst                 = 0;
-            Alythess                = 0;
-            Sacrolash               = 0;
-            Muru                    = 0;
-            KilJaeden               = 0;
-            KilJaedenController     = 0;
-            Anveena                 = 0;
-            KalecgosKJ              = 0;
-            SpectralPlayers         = 0;
-
-            /*** GameObjects ***/
-            ForceField  = 0;
-            FireBarrier = 0;
-            MurusGate[0] = 0;
-            MurusGate[1] = 0;
-            KalecgosWall[0] = 0;
-            KalecgosWall[1] = 0;
-
-            /*** Misc ***/
-            SpectralRealmTimer = 5000;
-        }
-
-        bool IsEncounterInProgress() const OVERRIDE
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-
-            return false;
-        }
-
-        Player const* GetPlayerInMap() const
-        {
-            Map::PlayerList const& players = instance->GetPlayers();
-
-            if (!players.isEmpty())
+            instance_sunwell_plateau_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+
+                KalecgosDragonGUID          = 0;
+                KalecgosHumanGUID           = 0;
+                SathrovarrGUID              = 0;
+                BrutallusGUID               = 0;
+                MadrigosaGUID               = 0;
+                FelmystGUID                 = 0;
+                AlythessGUID                = 0;
+                SacrolashGUID               = 0;
+                MuruGUID                    = 0;
+                KilJaedenGUID               = 0;
+                KilJaedenControllerGUID     = 0;
+                AnveenaGUID                 = 0;
+                KalecgosKjGUID              = 0;
+                SpectralPlayers             = 0;
+
+                SpectralRealmTimer          = 5000;
+            }
+
+            Player const* GetPlayerInMap() const
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+
+                if (!players.isEmpty())
                 {
-                    Player* player = itr->GetSource();
-                    if (player && !player->HasAura(45839, 0))
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        Player* player = itr->GetSource();
+                        if (player && !player->HasAura(45839, 0))
                             return player;
+                    }
+                }
+                else
+                    TC_LOG_DEBUG("scripts", "Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
+
+                return NULL;
+            }
+
+            void OnCreatureCreate(Creature* creature) OVERRIDE
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_KALECGOS:
+                        KalecgosDragonGUID = creature->GetGUID();
+                        break;
+                    case NPC_KALEC:
+                        KalecgosHumanGUID = creature->GetGUID();
+                        break;
+                    case NPC_SATHROVARR:
+                        SathrovarrGUID = creature->GetGUID();
+                        break;
+                    case NPC_BRUTALLUS:
+                        BrutallusGUID = creature->GetGUID();
+                        break;
+                    case NPC_MADRIGOSA:
+                        MadrigosaGUID = creature->GetGUID();
+                        break;
+                    case NPC_FELMYST:
+                        FelmystGUID = creature->GetGUID();
+                        break;
+                    case NPC_GRAND_WARLOCK_ALYTHESS:
+                        AlythessGUID = creature->GetGUID();
+                        break;
+                    case NPC_LADY_SACROLASH:
+                        SacrolashGUID = creature->GetGUID();
+                        break;
+                    case NPC_MURU:
+                        MuruGUID = creature->GetGUID();
+                        break;
+                    case NPC_KILJAEDEN:
+                        KilJaedenGUID = creature->GetGUID();
+                        break;
+                    case NPC_KILJAEDEN_CONTROLLER:
+                        KilJaedenControllerGUID = creature->GetGUID();
+                        break;
+                    case NPC_ANVEENA:
+                        AnveenaGUID = creature->GetGUID();
+                        break;
+                    case NPC_KALECGOS_KJ:
+                        KalecgosKjGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
                 }
             }
-            else
-                TC_LOG_DEBUG("scripts", "Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
 
-            return NULL;
-        }
-
-        void OnCreatureCreate(Creature* creature) OVERRIDE
-        {
-            switch (creature->GetEntry())
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
-                case 24850: Kalecgos_Dragon     = creature->GetGUID(); break;
-                case 24891: Kalecgos_Human      = creature->GetGUID(); break;
-                case 24892: Sathrovarr          = creature->GetGUID(); break;
-                case 24882: Brutallus           = creature->GetGUID(); break;
-                case 24895: Madrigosa           = creature->GetGUID(); break;
-                case 25038: Felmyst             = creature->GetGUID(); break;
-                case 25166: Alythess            = creature->GetGUID(); break;
-                case 25165: Sacrolash           = creature->GetGUID(); break;
-                case 25741: Muru                = creature->GetGUID(); break;
-                case 25315: KilJaeden           = creature->GetGUID(); break;
-                case 25608: KilJaedenController = creature->GetGUID(); break;
-                case 26046: Anveena             = creature->GetGUID(); break;
-                case 25319: KalecgosKJ          = creature->GetGUID(); break;
+                switch (go->GetEntry())
+                {
+                    case GO_FORCE_FIELD:
+                    case GO_BOSS_COLLISION_1:
+                    case GO_BOSS_COLLISION_2:
+                    case GO_FIRE_BARRIER:
+                    case GO_MURUS_GATE_1:
+                    case GO_MURUS_GATE_2:
+                        AddDoor(go, true);
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
-        {
-            switch (go->GetEntry())
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
             {
-                case 188421: ForceField     = go->GetGUID(); break;
-                case 188523: KalecgosWall[0] = go->GetGUID(); break;
-                case 188524: KalecgosWall[0] = go->GetGUID(); break;
-                case 188075:
-                    if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(0, true, go);
-                    FireBarrier = go->GetGUID();
-                    break;
-                case 187990: MurusGate[0]   = go->GetGUID(); break;
-                case 188118:
-                    if (m_auiEncounter[4] == DONE)
-                        HandleGameObject(0, true, go);
-                    MurusGate[1]= go->GetGUID();
-                    break;
+                switch (go->GetEntry())
+                {
+                    case GO_FIRE_BARRIER:
+                    case GO_MURUS_GATE_1:
+                    case GO_MURUS_GATE_2:
+                    case GO_BOSS_COLLISION_1:
+                    case GO_BOSS_COLLISION_2:
+                    case GO_FORCE_FIELD:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
 
-        uint32 GetData(uint32 id) const OVERRIDE
-        {
-            switch (id)
+            uint64 GetData64(uint32 id) const OVERRIDE
             {
-                case DATA_KALECGOS_EVENT:     return m_auiEncounter[0];
-                case DATA_BRUTALLUS_EVENT:    return m_auiEncounter[1];
-                case DATA_FELMYST_EVENT:      return m_auiEncounter[2];
-                case DATA_EREDAR_TWINS_EVENT: return m_auiEncounter[3];
-                case DATA_MURU_EVENT:         return m_auiEncounter[4];
-                case DATA_KILJAEDEN_EVENT:    return m_auiEncounter[5];
-            }
-            return 0;
-        }
-
-        uint64 GetData64(uint32 id) const OVERRIDE
-        {
-            switch (id)
-            {
-                case DATA_KALECGOS_DRAGON:      return Kalecgos_Dragon;
-                case DATA_KALECGOS_HUMAN:       return Kalecgos_Human;
-                case DATA_SATHROVARR:           return Sathrovarr;
-                case DATA_GO_FORCEFIELD:        return ForceField;
-                case DATA_BRUTALLUS:            return Brutallus;
-                case DATA_MADRIGOSA:            return Madrigosa;
-                case DATA_FELMYST:              return Felmyst;
-                case DATA_ALYTHESS:             return Alythess;
-                case DATA_SACROLASH:            return Sacrolash;
-                case DATA_MURU:                 return Muru;
-                case DATA_KILJAEDEN:            return KilJaeden;
-                case DATA_KILJAEDEN_CONTROLLER: return KilJaedenController;
-                case DATA_ANVEENA:              return Anveena;
-                case DATA_KALECGOS_KJ:          return KalecgosKJ;
-                case DATA_PLAYER_GUID:
-                    Player const* target = GetPlayerInMap();
-                    return target ? target->GetGUID() : 0;
-            }
-            return 0;
-        }
-
-        void SetData(uint32 id, uint32 data) OVERRIDE
-        {
-            switch (id)
-            {
-                case DATA_KALECGOS_EVENT:
+                switch (id)
+                {
+                    case DATA_KALECGOS_DRAGON:
+                        return KalecgosDragonGUID;
+                    case DATA_KALECGOS_HUMAN:
+                        return KalecgosHumanGUID;
+                    case DATA_SATHROVARR:
+                        return SathrovarrGUID;
+                    case DATA_BRUTALLUS:
+                        return BrutallusGUID;
+                    case DATA_MADRIGOSA:
+                        return MadrigosaGUID;
+                    case DATA_FELMYST:
+                        return FelmystGUID;
+                    case DATA_ALYTHESS:
+                        return AlythessGUID;
+                    case DATA_SACROLASH:
+                        return SacrolashGUID;
+                    case DATA_MURU:
+                        return MuruGUID;
+                    case DATA_KILJAEDEN:
+                        return KilJaedenGUID;
+                    case DATA_KILJAEDEN_CONTROLLER:
+                        return KilJaedenControllerGUID;
+                    case DATA_ANVEENA:
+                        return AnveenaGUID;
+                    case DATA_KALECGOS_KJ:
+                        return KalecgosKjGUID;
+                    case DATA_PLAYER_GUID:
                     {
-                        if (data == NOT_STARTED || data == DONE)
-                        {
-                            HandleGameObject(ForceField, true);
-                            HandleGameObject(KalecgosWall[0], true);
-                            HandleGameObject(KalecgosWall[1], true);
-                        }
-                        else if (data == IN_PROGRESS)
-                        {
-                            HandleGameObject(ForceField, false);
-                            HandleGameObject(KalecgosWall[0], false);
-                            HandleGameObject(KalecgosWall[1], false);
-                        }
-                        m_auiEncounter[0] = data;
+                        Player const* target = GetPlayerInMap();
+                        return target ? target->GetGUID() : 0;
                     }
-                    break;
-                case DATA_BRUTALLUS_EVENT:     m_auiEncounter[1] = data; break;
-                case DATA_FELMYST_EVENT:
-                    if (data == DONE)
-                        HandleGameObject(FireBarrier, true);
-                    m_auiEncounter[2] = data; break;
-                case DATA_EREDAR_TWINS_EVENT:  m_auiEncounter[3] = data; break;
-                case DATA_MURU_EVENT:
-                    switch (data)
-                    {
-                        case DONE:
-                            HandleGameObject(MurusGate[0], true);
-                            HandleGameObject(MurusGate[1], true);
-                            break;
-                        case IN_PROGRESS:
-                            HandleGameObject(MurusGate[0], false);
-                            HandleGameObject(MurusGate[1], false);
-                            break;
-                        case NOT_STARTED:
-                            HandleGameObject(MurusGate[0], true);
-                            HandleGameObject(MurusGate[1], false);
-                            break;
-                    }
-                    m_auiEncounter[4] = data; break;
-                case DATA_KILJAEDEN_EVENT:     m_auiEncounter[5] = data; break;
+                    default:
+                        break;
+                }
+                return 0;
             }
 
-            if (data == DONE)
-                SaveToDB();
-        }
-
-        std::string GetSaveData() OVERRIDE
-        {
-            OUT_SAVE_INST_DATA;
-            std::ostringstream stream;
-            stream << m_auiEncounter[0] << ' '  << m_auiEncounter[1] << ' '  << m_auiEncounter[2] << ' '  << m_auiEncounter[3] << ' '
-                << m_auiEncounter[4] << ' '  << m_auiEncounter[5];
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return stream.str();
-        }
-
-        void Load(char const* in) OVERRIDE
-        {
-            if (!in)
+            std::string GetSaveData() OVERRIDE
             {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "S P " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
             }
 
-            OUT_LOAD_INST_DATA(in);
-            std::istringstream stream(in);
-            stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
-                >> m_auiEncounter[4] >> m_auiEncounter[5];
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
-                    m_auiEncounter[i] = NOT_STARTED;
-            OUT_LOAD_INST_DATA_COMPLETE;
+            void Load(char const* str) OVERRIDE
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'S' && dataHead2 == 'P')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+            protected:
+                uint64 KalecgosDragonGUID;
+                uint64 KalecgosHumanGUID;
+                uint64 SathrovarrGUID;
+                uint64 BrutallusGUID;
+                uint64 MadrigosaGUID;
+                uint64 FelmystGUID;
+                uint64 AlythessGUID;
+                uint64 SacrolashGUID;
+                uint64 MuruGUID;
+                uint64 KilJaedenGUID;
+                uint64 KilJaedenControllerGUID;
+                uint64 AnveenaGUID;
+                uint64 KalecgosKjGUID;
+                uint32 SpectralPlayers;
+
+                uint32 SpectralRealmTimer;
+                std::vector<uint64> SpectralRealmList;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        {
+            return new instance_sunwell_plateau_InstanceMapScript(map);
         }
-    };
 };
 
 void AddSC_instance_sunwell_plateau()

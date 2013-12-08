@@ -459,7 +459,7 @@ void AccountMgr::LoadRBAC()
     {
         Field* field = result->Fetch();
         uint32 newId = field[0].GetUInt32();
-        if (secId != newId)
+        if (secId != newId || permissions == NULL)
         {
             secId = newId;
             permissions = &_defaultPermissions[secId];

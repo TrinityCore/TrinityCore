@@ -610,7 +610,10 @@ class MapObject
         friend class ObjectGridLoader; //grid loader for loading creatures
 
     protected:
-        MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE) { }
+        MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE)
+        { 
+            _newPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+        }
 
     private:
         Cell _currentCell;

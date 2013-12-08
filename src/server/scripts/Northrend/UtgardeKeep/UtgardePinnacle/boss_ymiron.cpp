@@ -103,16 +103,10 @@ class boss_ymiron : public CreatureScript
 public:
     boss_ymiron() : CreatureScript("boss_ymiron") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    struct boss_ymironAI : public BossAI
     {
-        return new boss_ymironAI(creature);
-    }
-
-    struct boss_ymironAI : public ScriptedAI
-    {
-        boss_ymironAI(Creature* creature) : ScriptedAI(creature)
+        boss_ymironAI(Creature* creature) : BossAI(creature, DATA_KING_YMIRON)
         {
-            instance = creature->GetInstanceScript();
             for (int i = 0; i < 4; ++i)
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)
@@ -122,9 +116,6 @@ public:
                 m_uiActiveOrder[i] = m_uiActiveOrder[r];
                 m_uiActiveOrder[r] = temp;
             }
-
-            m_uiActivedCreatureGUID = 0;
-            m_uiOrbGUID = 0;
         }
 
         bool m_bIsWalking;
@@ -155,10 +146,9 @@ public:
         uint64 m_uiActivedCreatureGUID;
         uint64 m_uiOrbGUID;
 
-        InstanceScript* instance;
-
         void Reset() OVERRIDE
         {
+            _Reset();
             m_bIsWalking = false;
             m_bIsPause = false;
             m_bIsActiveWithBJORN = false;
@@ -182,19 +172,14 @@ public:
             m_uiHealthAmountModifier = 1;
             m_uiHealthAmountMultipler = DUNGEON_MODE(20, 25);
 
-            DespawnBoatGhosts(m_uiActivedCreatureGUID);
-            DespawnBoatGhosts(m_uiOrbGUID);
-
-            if (instance)
-                instance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
+            m_uiActivedCreatureGUID = 0;
+            m_uiOrbGUID = 0;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
-
-            if (instance)
-                instance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
         }
 
         void SpellHitTarget(Unit* who, SpellInfo const* spell) OVERRIDE
@@ -371,21 +356,17 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            _JustDied();
             Talk(SAY_DEATH);
-
-            DespawnBoatGhosts(m_uiActivedCreatureGUID);
-            DespawnBoatGhosts(m_uiOrbGUID);
-
-            if (instance)
-                instance->SetData(DATA_KING_YMIRON_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
-        void DespawnBoatGhosts(uint64 m_uiCreatureGUID)
+        void DespawnBoatGhosts(uint64& m_uiCreatureGUID)
         {
             if (m_uiCreatureGUID)
                 if (Creature* temp = Unit::GetCreature(*me, m_uiCreatureGUID))
@@ -395,14 +376,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetUtgardePinnacleAI<boss_ymironAI>(creature);
+    }
 };
 
 class achievement_kings_bane : public AchievementCriteriaScript
 {
     public:
-        achievement_kings_bane() : AchievementCriteriaScript("achievement_kings_bane")
-        {
-        }
+        achievement_kings_bane() : AchievementCriteriaScript("achievement_kings_bane") { }
 
         bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
