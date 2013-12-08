@@ -32,11 +32,10 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "razorfen_downs.h"
 #include "Player.h"
-#include "GridDefines.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "ObjectDefines.h"
-#include "ObjectMgr.h"
+#include "Cell.h"
+#include "CellImpl.h"
 
 /*###
 # npc_henry_stern
