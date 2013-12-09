@@ -63,6 +63,7 @@ public:
         {
             // Razorgore
             EggCount = 0;
+            EggEvent = 0;
             RazorgoreTheUntamedGUID = 0;
             RazorgoreDoorGUID = 0;
             EggList.clear();

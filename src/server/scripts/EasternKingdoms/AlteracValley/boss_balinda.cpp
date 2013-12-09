@@ -60,6 +60,7 @@ public:
         {
             waterBoltTimer            = 3 * IN_MILLISECONDS;
             resetTimer                = 5 * IN_MILLISECONDS;
+            balindaGUID = 0;
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

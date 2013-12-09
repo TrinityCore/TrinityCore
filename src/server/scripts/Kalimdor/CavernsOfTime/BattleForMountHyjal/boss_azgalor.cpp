@@ -193,6 +193,7 @@ public:
     {
         npc_lesser_doomguardAI(Creature* creature) : hyjal_trashAI(creature)
         {
+            AzgalorGUID = 0;
             instance = creature->GetInstanceScript();
             if (instance)
                 AzgalorGUID = instance->GetData64(DATA_AZGALOR);
