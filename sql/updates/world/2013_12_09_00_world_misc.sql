@@ -1,4 +1,4 @@
-Fix for Quest 13285 "Forging the Keystone"
+-- Fix for Quest 13285 "Forging the Keystone"
 
 -- Missing Brann Bronzebeard spawn
 SET @GUID := 24;
