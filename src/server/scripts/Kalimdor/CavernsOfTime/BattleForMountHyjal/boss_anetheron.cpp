@@ -186,6 +186,7 @@ public:
     {
         npc_towering_infernalAI(Creature* creature) : ScriptedAI(creature)
         {
+            AnetheronGUID = 0;
             instance = creature->GetInstanceScript();
             if (instance)
                 AnetheronGUID = instance->GetData64(DATA_ANETHERON);
