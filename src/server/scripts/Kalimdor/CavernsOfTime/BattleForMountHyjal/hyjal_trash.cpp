@@ -431,7 +431,6 @@ public:
 
         bool meteor;
         bool CanMove;
-        bool WpEnabled;
         bool go;
         uint32 spawnTimer;
         uint32 FlameBuffetTimer;

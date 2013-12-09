@@ -171,6 +171,7 @@ public:
             _Reset();
             gythEvent = false;
             victorGUID = 0;
+            portcullisGUID = 0;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
