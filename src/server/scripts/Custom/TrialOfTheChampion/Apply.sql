@@ -78,7 +78,7 @@ UPDATE `creature_template` SET `rank` = '1',`mindmg` = '420',`maxdmg` = '630',`a
 UPDATE `creature_template` SET `faction_A` = '84',`faction_H` = '84',`speed_run` = '2',`baseattacktime` = '0',`unit_flags2` = '0',`spell1` = '62544',`spell3` = '63010',`VehicleId` = '486' WHERE `entry` = '35644';
 UPDATE `creature_template` SET `rank` = '1',`mindmg` = '420',`maxdmg` = '630',`attackpower` = '157',`unit_flags` = '0',`unit_flags2` = '0',`Health_mod` = '15',`ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '35768';
 UPDATE `creature_template` SET `faction_A` = '83',`faction_H` = '83',`speed_run` = '2',`baseattacktime` = '0',`unit_flags` = '256',`unit_flags2` = '0',`spell1` = '62544',`spell2` = '62575',`spell3` = '63010',`spell4` = '66482' WHERE `entry` = '36558';
-
+UPDATE `creature_template` SET `ScriptName` = 'TW_risen_ghoul' WHERE `entry` = '35590';
 
 UPDATE `instance_template` SET `Script` = 'TW_instance_trial_of_the_champion' WHERE `map` = 650;
 
@@ -275,10 +275,11 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 UPDATE `creature_template` SET `faction_A`=35, `faction_H`=35, `mindmg`=0, `maxdmg`=0, `attackpower`=0, `dmg_multiplier`=0, `baseattacktime`=0, `unit_flags`=33554432, `dynamicflags`=0, `minrangedmg`=0, `maxrangedmg`=0, `rangedattackpower`=0, `VehicleId`=486 WHERE `entry`=35491;
 
 -- SpellScripts
-DELETE FROM spell_script_names WHERE `spell_id` IN (67680, 66903);
+DELETE FROM spell_script_names WHERE `spell_id` IN (67680, 66903, 66515);
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (67680, 'TW_spell_eadric_hoj'), -- Eadric's Hammer of Justice
-(66903, 'TW_spell_eadric_hoj'); 
+(66903, 'TW_spell_eadric_hoj'),
+(66515, 'TW_spell_gen_reflective_shield');
 
 -- Achievement scripts
 DELETE FROM achievement_criteria_data WHERE criteria_id IN (12302, 12303, 12304, 12305, 12306, 12307, 12308, 12318, 12319, 12320, 12321, 12322, 12323, 12324, 12439, 11420, 12298, 12299, 12300, 12301, 11559, 11560, 12310, 12311, 12312, 12313, 12314, 12315, 12316, 12317);

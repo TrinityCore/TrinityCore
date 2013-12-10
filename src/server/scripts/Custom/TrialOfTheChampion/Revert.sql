@@ -77,6 +77,7 @@ UPDATE `creature_template` SET `rank` = '0',`mindmg` = '422',`maxdmg` = '586',`a
 UPDATE `creature_template` SET `faction_A` = '35',`faction_H` = '35',`speed_run` = '1.57143',`baseattacktime` = '2000',`unit_flags2` = '2048',`spell1` = '68505',`spell3` = '68282',`VehicleId` = '529' WHERE `entry` = '35644';
 UPDATE `creature_template` SET `rank` = '0',`mindmg` = '422',`maxdmg` = '586',`attackpower` = '642',`unit_flags` = '33587456',`unit_flags2` = '2048',`Health_mod` = '1',`ScriptName` = 'generic_vehicleAI_toc5' WHERE `entry` = '35768';
 UPDATE `creature_template` SET `faction_A` = '35',`faction_H` = '35',`speed_run` = '1.57143',`baseattacktime` = '2000',`unit_flags` = '0',`unit_flags2` = '2048',`spell1` = '0',`spell2` = '0',`spell3` = '0',`spell4` = '0' WHERE `entry` = '36558';
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = '35590';
 
 UPDATE `instance_template` SET `Script` = 'instance_trial_of_the_champion' WHERE `map` = 650;
 
@@ -216,7 +217,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (12302, 12303, 12304, 12305, 12306, 12307, 12308, 12318, 12319, 12320, 12321, 12322, 12323, 12324, 12439, 11420, 12298, 12299, 12300, 12301, 11559, 11560, 12310, 12311, 12312, 12313, 12314, 12315, 12316, 12317);
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (67680, 66903);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (67680, 66903, 66515);
 
 -- Memories
 UPDATE `creature_template` SET `minlevel` = '1',`maxlevel` = '1',`exp` = '0',`faction_A` = '35',`faction_H` = '35',`mindmg` = '0',`maxdmg` = '0',`attackpower` = '0',`dmg_multiplier` = '1',`dynamicflags` = '0',`minrangedmg` = '0',`maxrangedmg` = '0',`rangedattackpower` = '0',`ScriptName` = '' WHERE `entry` = '35519';

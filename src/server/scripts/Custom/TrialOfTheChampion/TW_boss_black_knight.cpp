@@ -203,6 +203,7 @@ public:
             uiMarkedDeathTimer = urand (5000, 7000);
             uiIntroTimer = 15000;
             uiIntroPhase = 0;
+            Phase = IDLE;
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
