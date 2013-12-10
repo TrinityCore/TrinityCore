@@ -44,17 +44,25 @@ enum Texts
     SAY_INTRO_HERALD_6          = 11,
     SAY_INTRO_HERALD_7          = 18,
 
-    // Announcing the fighters
-    SAY_WARRIOR_ENTERS          = 6,
+    //  Horde - Announcing the fighters
+    H_SAY_WARRIOR_ENTERS          = 6,
+    H_SAY_MAGE_ENTERS             = 5,
+    H_SAY_SHAMAN_ENTERS           = 3,
+    H_SAY_ROGUE_ENTERS            = 7,
+
+    //  Alliance - Announcing the fighters
+    A_SAY_WARRIOR_ENTERS          = 5,
+    A_SAY_MAGE_ENTERS             = 3,
+    A_SAY_SHAMAN_ENTERS           = 7,
+    A_SAY_ROGUE_ENTERS            = 6,
+
+    // Shared emotes - announcer
     SAY_WARRIOR_CHEER           = 20,
-    SAY_MAGE_ENTERS             = 5,
     SAY_MAGE_CHEER              = 21,
-    SAY_SHAMAN_ENTERS           = 3,
     SAY_SHAMAN_CHEER            = 22,
-    SAY_HUNTER_ENTERS           = 4,
     SAY_HUNTER_CHEER            = 23,
-    SAY_ROGUE_ENTERS            = 7,
     SAY_ROGUE_CHEER             = 24,
+    SAY_HUNTER_ENTERS           = 4,
 
     // Argent Champion
     SAY_ARGENT_CHAMP_ENTERS     = 19,
@@ -396,19 +404,19 @@ class TW_npc_herald_toc5 : public CreatureScript
             switch(uiBoss)
             {
                 case 0:
-                    Talk(SAY_WARRIOR_ENTERS);
+                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_HORDE ? Talk(H_SAY_WARRIOR_ENTERS) : Talk(A_SAY_WARRIOR_ENTERS);
                     Talk(SAY_WARRIOR_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
                     break;
                 case 1:
-                    Talk(SAY_MAGE_ENTERS);
+                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_HORDE ? Talk(H_SAY_MAGE_ENTERS) : Talk(A_SAY_MAGE_ENTERS);
                     Talk(SAY_MAGE_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
                     break;
                 case 2:
-                    Talk(SAY_SHAMAN_ENTERS);
+                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_HORDE ? Talk(H_SAY_SHAMAN_ENTERS) : Talk(A_SAY_SHAMAN_ENTERS);
                     Talk(SAY_SHAMAN_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
@@ -420,7 +428,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
                     break;
                 case 4:
-                    Talk(SAY_ROGUE_ENTERS);
+                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_HORDE ? Talk(H_SAY_ROGUE_ENTERS) : Talk(A_SAY_ROGUE_ENTERS);
                     Talk(SAY_ROGUE_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;

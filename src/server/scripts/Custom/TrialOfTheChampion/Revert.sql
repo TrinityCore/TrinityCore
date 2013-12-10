@@ -245,4 +245,7 @@ UPDATE `creature_template` SET `minlevel` = '1',`maxlevel` = '1',`exp` = '0',`fa
 UPDATE `creature_template` SET `minlevel` = '1',`maxlevel` = '1',`exp` = '0',`faction_A` = '35',`faction_H` = '35',`mindmg` = '0',`maxdmg` = '0',`attackpower` = '0',`dmg_multiplier` = '1',`dynamicflags` = '0',`minrangedmg` = '0',`maxrangedmg` = '0',`rangedattackpower` = '0',`ScriptName` = '' WHERE `entry` = '35543';
 UPDATE `creature_template` SET `minlevel` = '1',`maxlevel` = '1',`exp` = '0',`faction_A` = '35',`faction_H` = '35',`mindmg` = '0',`maxdmg` = '0',`attackpower` = '0',`dmg_multiplier` = '1',`dynamicflags` = '0',`minrangedmg` = '0',`maxrangedmg` = '0',`rangedattackpower` = '0',`ScriptName` = '' WHERE `entry` = '35544';
 
-DELETE FROM `creature_text` WHERE `entry` = 35004 AND `groupid` BETWEEN 20 AND 25;
+-- Horde announcer
+DELETE FROM `creature_text` WHERE `entry` = 35004 AND `groupid` BETWEEN 20 AND 27;
+-- Ally announcer
+DELETE FROM `creature_text` WHERE `entry` = 35005 AND `groupid` BETWEEN 20 AND 27;

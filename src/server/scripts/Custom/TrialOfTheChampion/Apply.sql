@@ -372,3 +372,16 @@ VALUES
 (35004, 25, 0, "The Alliance spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Horde Intro 3"),
 (35004, 26, 0, "The Alliance spectators cheer for Eadric the Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Horde Intro 3"),
 (35004, 27, 0, "The Sunreavers are proud to present their representatives in this trial by combat.", 12, 0, 0, 2, 0, 0, "ToC5 - Horde Intro 1");
+
+-- Alliance Heralnd
+DELETE FROM `creature_text` WHERE `entry` = 35005 AND `groupid` BETWEEN 20 AND 27;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) 
+VALUES
+(35005, 20, 0, "The orcs of Orgrimmar cheer for Mokra the Skullcrusher.", 41, 0, 0, 2, 0, 8572, "ToC5 - Orgrimmar Cheers"),
+(35005, 21, 0, "The blood elves of Silvermoon cheer for Eressa Dawnsinger.", 41, 0, 0, 2, 0, 8572, "ToC5 - Silvermoon Cheers"),
+(35005, 22, 0, "The tauren of Thunder Bluff cheer for Runok Wildmane..", 41, 0, 0, 2, 0, 8572, "ToC5 - ThunderBluff Cheers"),
+(35005, 23, 0, "The trolls of Sen'jin begin a chant to celebrate Zul'tore.", 41, 0, 0, 2, 0, 8572, "ToC5 - Sen'jin Cheers"),
+(35005, 24, 0, "The forsaken of the Undercity cheer for Deathstalker Visceri!.", 41, 0, 0, 2, 0, 8572, "ToC5 - Undercity Cheers"),
+(35005, 25, 0, "The Horde spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Alliance Intro 3"),
+(35005, 26, 0, "The Horde spectators cheer for Eadric The Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Alliance Intro 3");
+
