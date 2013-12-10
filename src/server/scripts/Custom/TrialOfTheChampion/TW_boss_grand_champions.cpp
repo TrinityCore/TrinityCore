@@ -186,7 +186,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
         uint32 uiThrustTimer;
         uint32 uiWaypointPath;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             combatCheckTimer = 500;
             uiShieldBreakerTimer = 8000;
@@ -197,7 +197,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             uiDefendTimer = urand(30000, 60000);
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData8*/)
+        void SetData(uint32 uiType, uint32 /*uiData8*/) OVERRIDE
         {
             switch(uiType)
             {
@@ -239,7 +239,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                 Start(false,true,0,NULL);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 i) OVERRIDE
         {
             switch(i)
             {
@@ -254,7 +254,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             hasBeenInCombat = true;
             DoCastSpellDefend();
@@ -266,7 +266,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
                 DoCast(me, SPELL_DEFEND, true);
         }
 
-        void SpellHit(Unit* source, const SpellInfo* spell)
+        void SpellHit(Unit* source, const SpellInfo* spell) OVERRIDE
         {
 
             uint32 defendAuraStackAmount = 0;
@@ -354,7 +354,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             return true;
         }
 
-        void EnterEvadeMode()
+        void EnterEvadeMode() OVERRIDE
         {
             // Try to stay in combat, otherwise reset
             if (!StayInCombatAndCleanup(true, false))
@@ -512,14 +512,15 @@ class TW_boss_warrior_toc5 : public CreatureScript
         bool bCredit;
         bool hasBeenInCombat;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiBladeStormTimer = urand(15000,20000);
             uiInterceptTimer  = 7000;
             uiMortalStrikeTimer = urand(8000, 12000);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             ScriptedAI::JustReachedHome();
 
@@ -540,6 +541,9 @@ class TW_boss_warrior_toc5 : public CreatureScript
 
         void UpdateAI(uint32 uiDiff)
         {
+            if (!me->GetVehicle())
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
             if (!bDone && TW_GrandChampionsOutVehicle(me))
             {
                 bDone = true;
@@ -552,6 +556,8 @@ class TW_boss_warrior_toc5 : public CreatureScript
                          me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
                          me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -662,6 +668,8 @@ class TW_boss_mage_toc5 : public CreatureScript
 
             uiPhase = 0;
             uiPhaseTimer = 0;
+
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -678,7 +686,7 @@ class TW_boss_mage_toc5 : public CreatureScript
         bool hasBeenInCombat;
         bool bCredit;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiFireBallTimer = 5000;
             uiPolymorphTimer  = 8000;
@@ -686,7 +694,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             uiHasteTimer = 22000;
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             ScriptedAI::JustReachedHome();
 
@@ -699,14 +707,17 @@ class TW_boss_mage_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             _EnterCombat();
             hasBeenInCombat = true;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
+            if (!me->GetVehicle())
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
             if (!bDone && TW_GrandChampionsOutVehicle(me))
             {
                 bDone = true;
@@ -721,6 +732,8 @@ class TW_boss_mage_toc5 : public CreatureScript
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -769,7 +782,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
         {
             if (damage >= me->GetHealth())
             {
@@ -820,6 +833,8 @@ class TW_boss_shaman_toc5 : public CreatureScript
 
             uiPhase = 0;
             uiPhaseTimer = 0;
+            
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);        
         }
 
         InstanceScript* pInstance;
@@ -836,7 +851,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
         bool hasBeenInCombat;
         bool bCredit;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiChainLightningTimer = 16000;
             uiHealingWaveTimer = 12000;
@@ -844,7 +859,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             uiHexMendingTimer = urand(20000, 25000);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             _EnterCombat();
             hasBeenInCombat = true;
@@ -852,7 +867,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             DoCast(who,SPELL_HEX_OF_MENDING);
         };
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             ScriptedAI::JustReachedHome();
 
@@ -865,8 +880,11 @@ class TW_boss_shaman_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
+            if (!me->GetVehicle())
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
             if (!bDone && TW_GrandChampionsOutVehicle(me))
             {
                 bDone = true;
@@ -887,7 +905,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 bHome = true;
             }
 
-            if (uiPhaseTimer <= uiDiff)
+            if (uiPhaseTimer <= uiDiff) OVERRIDE
             {
                 if (uiPhase == 1)
                 {
@@ -938,7 +956,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
         {
             if (damage >= me->GetHealth())
             {
@@ -989,6 +1007,8 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
             uiPhase = 0;
             uiPhaseTimer = 0;
+
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -1008,7 +1028,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
         bool hasBeenInCombat;
         bool bCredit;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiShootTimer = 12000;
             uiMultiShotTimer = 0;
@@ -1042,7 +1062,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             ScriptedAI::JustReachedHome();
 
@@ -1055,14 +1075,17 @@ class TW_boss_hunter_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             _EnterCombat();
             hasBeenInCombat = true;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
+            if (!me->GetVehicle())
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
             if (!bDone && TW_GrandChampionsOutVehicle(me))
             {
                 bDone = true;
@@ -1154,7 +1177,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
         {
             if (damage >= me->GetHealth())
             {
@@ -1206,6 +1229,8 @@ class TW_boss_rogue_toc5 : public CreatureScript
             uiPhaseTimer = 0;
 
             hasBeenInCombat = false;
+
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -1221,7 +1246,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
         bool hasBeenInCombat;
         bool bCredit;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiEviscerateTimer = 8000;
             uiFanKivesTimer   = 14000;
@@ -1252,7 +1277,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() OVERRIDE
         {
             ScriptedAI::JustReachedHome();
 
@@ -1265,14 +1290,17 @@ class TW_boss_rogue_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             _EnterCombat();
             hasBeenInCombat = true;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
+            if (!me->GetVehicle())
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
             if (!bDone && TW_GrandChampionsOutVehicle(me))
             {
                 bDone = true;
@@ -1288,6 +1316,8 @@ class TW_boss_rogue_toc5 : public CreatureScript
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -1327,7 +1357,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
         {
             if (damage >= me->GetHealth())
             {
@@ -1369,7 +1399,7 @@ class TW_achievement_toc5_grand_champions : public AchievementCriteriaScript
             creature_entry = original_entry;
         }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

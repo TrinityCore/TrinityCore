@@ -63,7 +63,7 @@ public:
 
         bool bDone;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             uiMovementDone                = 0;
             uiGrandChampionsDeaths        = 0;
@@ -102,7 +102,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature)  OVERRIDE
         {
             Map::PlayerList const &players = instance->GetPlayers();
 
@@ -219,7 +219,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch(go->GetEntry())
             {
@@ -236,7 +236,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
         {
             switch(uiType)
             {
@@ -267,6 +267,11 @@ public:
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
+
+                        for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                            if (Creature* unit = instance->GetCreature(*itr))
+                                if (unit->GetEntry() == NPC_ARGENT_WARHORSE || unit->GetEntry() == NPC_ARGENT_BATTLEWORG)
+                                    unit->DespawnOrUnsummon();
                             }
                         }
                     }
@@ -367,7 +372,7 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 uiType, uint64 uiData)
+        void SetData64(uint32 uiType, uint64 uiData) OVERRIDE
         {
             switch(uiType)
             {

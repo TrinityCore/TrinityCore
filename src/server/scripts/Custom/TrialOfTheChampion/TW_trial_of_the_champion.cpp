@@ -132,7 +132,7 @@ class TW_npc_herald_toc5 : public CreatureScript
     public:
         TW_npc_herald_toc5(): CreatureScript("TW_npc_herald_toc5") {}
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -144,7 +144,7 @@ class TW_npc_herald_toc5 : public CreatureScript
         return true;
     }
         
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -247,14 +247,14 @@ class TW_npc_herald_toc5 : public CreatureScript
 
         bool _introDone;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _introDone = false;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
         {
             if (!_introDone && me->IsWithinDistInMap(who, 75.0f))
             {
@@ -297,7 +297,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/)
+        void SetData(uint32 uiType, uint32 /*uiData*/) OVERRIDE
         {
             switch (uiType)
             {
@@ -356,7 +356,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 uiType, uint32 uiPointId) OVERRIDE 
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -368,7 +368,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             if (instance && instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
@@ -377,7 +377,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             switch(summon->GetEntry())
             {
@@ -391,7 +391,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                 case VEHICLE_ORGRIMMAR_WOLF:
                 case VEHICLE_SILVERMOON_HAWKSTRIDER:
                 case VEHICLE_DARKSPEAR_RAPTOR:
-                    me->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED,0);
+                    me->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED, 0);
                     break;
             }
         }
@@ -451,8 +451,8 @@ class TW_npc_herald_toc5 : public CreatureScript
                                     uiGrandChampionBoss1 = pUnit->GetGUID();
                         if (instance)
                         {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1,uiVehicle1GUID);
-                            instance->SetData64(DATA_GRAND_CHAMPION_1,uiGrandChampionBoss1);
+                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
+                            instance->SetData64(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
                         }
                         pBoss->AI()->SetData(1,0);
                         break;
@@ -467,10 +467,10 @@ class TW_npc_herald_toc5 : public CreatureScript
                                     uiGrandChampionBoss2 = pUnit->GetGUID();
                         if (instance)
                         {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2,uiVehicle2GUID);
-                            instance->SetData64(DATA_GRAND_CHAMPION_2,uiGrandChampionBoss2);
+                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
+                            instance->SetData64(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
                         }
-                        pBoss->AI()->SetData(2,0);
+                        pBoss->AI()->SetData(2, 0);
                         break;
                     }
                     case 3:
@@ -483,10 +483,10 @@ class TW_npc_herald_toc5 : public CreatureScript
                                     uiGrandChampionBoss3 = pUnit->GetGUID();
                         if (instance)
                         {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3,uiVehicle3GUID);
-                            instance->SetData64(DATA_GRAND_CHAMPION_3,uiGrandChampionBoss3);
+                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
+                            instance->SetData64(DATA_GRAND_CHAMPION_3, uiGrandChampionBoss3);
                         }
-                        pBoss->AI()->SetData(3,0);
+                        pBoss->AI()->SetData(3, 0);
                         break;
                     }
                     default:
@@ -513,13 +513,13 @@ class TW_npc_herald_toc5 : public CreatureScript
                         switch(i)
                         {
                             case 0:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss,2.5f,M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, M_PI);
                                 break;
                             case 1:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss,2.5f,M_PI / 2);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, M_PI / 2);
                                 break;
                             case 2:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss,2.5f,M_PI / 2 + M_PI);
+                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, M_PI / 2 + M_PI);
                                 break;
                         }
                     }
@@ -552,7 +552,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             me->SetReactState(REACT_PASSIVE);
             if (Creature* pGhoul = me->SummonCreature(NPC_RISEN_JAEREN, 742.835f, 639.134f, 411.571f, 1.05731f))
@@ -659,7 +659,7 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!(thrallGUID || garroshGUID || varianGUID || proudmooreGUID || tirionGUID))
                 return;
