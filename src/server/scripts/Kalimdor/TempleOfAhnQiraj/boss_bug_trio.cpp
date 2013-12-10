@@ -308,18 +308,15 @@ public:
             {
                 if (instance)
                 {
-                    Unit* pKri = Unit::GetUnit(*me, instance->GetData64(DATA_KRI));
-                    Unit* pVem = Unit::GetUnit(*me, instance->GetData64(DATA_VEM));
-
                     switch (urand(0, 2))
                     {
                         case 0:
-                            if (pKri)
-                                DoCast(pKri, SPELL_HEAL);
+                            if (Creature* kri = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRI)))
+                                DoCast(kri, SPELL_HEAL);
                             break;
                         case 1:
-                            if (pVem)
-                                DoCast(pVem, SPELL_HEAL);
+                            if (Creature* vem = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VEM)))
+                                DoCast(vem, SPELL_HEAL);
                             break;
                         case 2:
                             DoCast(me, SPELL_HEAL);

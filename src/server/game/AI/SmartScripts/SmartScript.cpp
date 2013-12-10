@@ -525,9 +525,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.cast.spell);
                         int32 mana = me->GetPower(POWER_MANA);
 
-                        if (me->GetDistance((*itr)->ToUnit()) > spellInfo->GetMaxRange(true) ||
-                            me->GetDistance((*itr)->ToUnit()) < spellInfo->GetMinRange(true) ||
-                            !me->ToUnit()->IsWithinLOSInMap((*itr)->ToUnit()) ||
+                        if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
+                            me->GetDistance(*itr) < spellInfo->GetMinRange(true) ||
+                            !me->IsWithinLOSInMap(*itr) ||
                             mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
                                 _allowMove = true;
 
