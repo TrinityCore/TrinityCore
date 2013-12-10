@@ -351,8 +351,7 @@ public:
                     break;
                 }
                 case 6:
-                    me->SetOrientation(me->GetAngle(breathX, breathY));
-                    me->StopMoving();
+                    me->SetFacingTo(me->GetAngle(breathX, breathY));
                     //DoTextEmote("takes a deep breath.", NULL);
                     events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
                     break;
