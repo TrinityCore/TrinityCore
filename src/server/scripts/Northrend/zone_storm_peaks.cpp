@@ -551,14 +551,13 @@ public:
                         events.ScheduleEvent(EVENT_SCRIPT_11, 6000);
                         break;
                     case EVENT_SCRIPT_11:
-                        me->SetOrientation(2.932153f);
-                        me->SendMovementFlagUpdate(true);
+                        me->SetFacingTo(2.932153f);
                         Talk(SAY_BRANN_3, playerGUID);
+
                         for (uint8 i = 0; i < 5; ++i)
-                        {
                             if (GameObject* go = ObjectAccessor::GetGameObject(*me, objectGUID[i]))
                                 go->Delete();
-                        }
+
                         events.ScheduleEvent(EVENT_SCRIPT_12, 6000);
                         break;
                     case EVENT_SCRIPT_12:
