@@ -121,7 +121,7 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
         {
             PrepareSpellScript(TW_spell_eadric_hoj_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHit() OVERRIDE
             {
                 if (GetHitUnit() && GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
                     if (!GetHitUnit()->HasAura(SPELL_HAMMER_JUSTICE_STUN)) // FIXME: Has Catched Hammer...
@@ -132,7 +132,7 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
 
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnHit += SpellHitFn(TW_spell_eadric_hoj_SpellScript::HandleOnHit);
             }
@@ -579,7 +579,7 @@ class TW_boss_paletress : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             MemoryGUID = summon->GetGUID();
         }
@@ -611,7 +611,7 @@ class TW_npc_memory : public CreatureScript
             uiWakingNightmare = 7000;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -646,7 +646,7 @@ class TW_npc_memory : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (me->IsSummon())
             {
@@ -703,7 +703,7 @@ class TW_npc_argent_soldier : public CreatureScript
 
         bool bStarted;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiStrikeTimer = 5000;
             uiCleaveTimer = 6000;
@@ -723,7 +723,7 @@ class TW_npc_argent_soldier : public CreatureScript
             }
         }
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 uiPoint) OVERRIDE
         {
             if (uiPoint == 0)
             {
@@ -762,7 +762,7 @@ class TW_npc_argent_soldier : public CreatureScript
             }  
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
         {
             switch(me->GetEntry())
             {
@@ -820,7 +820,7 @@ class TW_npc_argent_soldier : public CreatureScript
             uiWaypoint = uiType;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -896,7 +896,7 @@ class TW_npc_argent_soldier : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (pInstance)
                 pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
@@ -924,7 +924,7 @@ class TW_spell_gen_reflective_shield : public SpellScriptLoader
         {
             PrepareAuraScript(TW_spell_gen_reflective_shield_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_TRIGGERED)) // Is this correct?  I honestly don't know anything about AuraScript, so I took this from class spell_blood_queen_pact_of_the_darkfallen_dmg 
                     return false;
@@ -932,7 +932,7 @@ class TW_spell_gen_reflective_shield : public SpellScriptLoader
                 return true;
             }
 
-            void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount) OVERRIDE
             {
                 Unit * target = dmgInfo.GetAttacker();
                 if (!target)
@@ -965,7 +965,7 @@ class TW_achievement_toc5_argent_challenge : public AchievementCriteriaScript
             creature_entry = original_entry;
         }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;
