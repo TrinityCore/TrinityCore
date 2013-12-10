@@ -36,10 +36,10 @@ const Position SpawnPosition1 = {746.71f, 661.02f, 411.69f, 4.66995f};
 enum Texts
 {
     // Starts when you enter toc
-    SAY_INTRO_HERALD_1          = 0, 
-    SAY_INTRO_HERALD_2          = 17,
+    SAY_INTRO_HERALD_1          = 27, 
+    SAY_INTRO_HERALD_2          = 50,
     SAY_INTRO_HERALD_3          = 10,
-    SAY_INTRO_HERALD_4          = 10,
+    SAY_INTRO_HERALD_4          = 50,
     SAY_INTRO_HERALD_5          = 11,
     SAY_INTRO_HERALD_6          = 11,
     SAY_INTRO_HERALD_7          = 18,
@@ -63,7 +63,7 @@ enum Texts
     SAY_PALETRESS_INTRO_3       = 0,
     SAY_PALETRESS_INTRO_4       = 1,
     SAY_EADRIC_INTRO_1          = 0,
-    SAY_EADRIC_INTRO_2          = 14,
+    SAY_EADRIC_INTRO_2          = 26,
     SAY_EADRIC_INTRO_3          = 0,
 
     // Black Knight
@@ -743,6 +743,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     case EVENT_PALETRESS_3:
                         if (Creature* argentchamp = Unit::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_PALETRESS_INTRO_4);
+                        events.CancelEvent(EVENT_PALETRESS_3);
                         break;
                     case EVENT_EADRIC_1:
                         Talk(SAY_EADRIC_INTRO_1);

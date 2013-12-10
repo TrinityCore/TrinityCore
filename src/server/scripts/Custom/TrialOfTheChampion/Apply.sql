@@ -361,12 +361,14 @@ UPDATE `creature_template` SET `minlevel` = '82', `maxlevel` = '82', `faction_A`
 '35537'); -- Memory of Malchezaar
 
 -- Horde Herald
-DELETE FROM `creature_text` WHERE `entry` = 35004 AND `groupid` BETWEEN 20 AND 25;
+DELETE FROM `creature_text` WHERE `entry` = 35004 AND `groupid` BETWEEN 20 AND 27;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) 
 VALUES 
 (35004, 20, 0, "The humans of Stormwind cheer for Marshal Jacob Alerius.", 41, 0, 0, 2, 0, 8572, "ToC5 - Stormwind Cheers"),
-(35004, 21, 0, "The gnomes of Gnomeregan cheer for Amberose Boltspark.", 41, 0, 0, 2, 0, 8572, "ToC5 - Gnomeregan Cheers"),
+(35004, 21, 0, "The gnomes of Gnomeregan cheer for Ambrose Boltspark.", 41, 0, 0, 2, 0, 8572, "ToC5 - Gnomeregan Cheers"),
 (35004, 22, 0, "The Draenei of the Exodar cheer for Colosos.", 41, 0, 0, 2, 0, 8572, "ToC5 - Draenei Cheers"),
 (35004, 23, 0, "The night elves of Darnassus cheer for Jaelyne Evensong.", 41, 0, 0, 2, 0, 8572, "ToC5 - Darnassus Cheers"),
 (35004, 24, 0, "The dwarves of Ironforge being a cheer for Lana Stouthammer.", 41, 0, 0, 2, 0, 8572, "ToC5 - Ironforge Cheers"),
-(35004, 25, 0, "The Alliance spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Horde Intro 3");
+(35004, 25, 0, "The Alliance spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Horde Intro 3"),
+(35004, 26, 0, "The Alliance spectators cheer for Eadric the Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Horde Intro 3"),
+(35004, 27, 0, "The Sunreavers are proud to present their representatives in this trial by combat.", 12, 0, 0, 2, 0, 0, "ToC5 - Horde Intro 1");
