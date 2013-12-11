@@ -924,7 +924,7 @@ public:
         if (!ve)
             return false;
 
-        Creature* v = new Creature;
+        Creature* v = new Creature();
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
 

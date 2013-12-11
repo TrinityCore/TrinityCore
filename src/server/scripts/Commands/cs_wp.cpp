@@ -693,8 +693,13 @@ public:
                         wpCreature->AddObjectToRemoveList();
                     }
                     // re-create
+<<<<<<< HEAD
                     Creature* wpCreature2 = new Creature;
                     if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
+=======
+                    Creature* wpCreature2 = new Creature();
+                    if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
+>>>>>>> fb26e1852394a1aa6e7695030eabcf8e85b1c5c8
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                         delete wpCreature2;
@@ -917,8 +922,13 @@ public:
                 Map* map = chr->GetMap();
                 float o = chr->GetOrientation();
 
+<<<<<<< HEAD
                 Creature* wpCreature = new Creature;
                 if (!wpCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+=======
+                Creature* wpCreature = new Creature();
+                if (!wpCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+>>>>>>> fb26e1852394a1aa6e7695030eabcf8e85b1c5c8
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                     delete wpCreature;
@@ -981,8 +991,13 @@ public:
             float o = chr->GetOrientation();
             Map* map = chr->GetMap();
 
+<<<<<<< HEAD
             Creature* creature = new Creature;
             if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+=======
+            Creature* creature = new Creature();
+            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+>>>>>>> fb26e1852394a1aa6e7695030eabcf8e85b1c5c8
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                 delete creature;
@@ -1030,7 +1045,7 @@ public:
             Player* chr = handler->GetSession()->GetPlayer();
             Map* map = chr->GetMap();
 
-            Creature* creature = new Creature;
+            Creature* creature = new Creature();
             if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);

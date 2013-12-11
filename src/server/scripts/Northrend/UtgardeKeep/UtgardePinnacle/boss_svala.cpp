@@ -81,13 +81,38 @@ enum Creatures
     NPC_SCOURGE_HULK                                = 26555
 };
 
-enum SvalaPhase
+enum Phases
 {
-    IDLE,
+    IDLE        = 1,
     INTRO,
     NORMAL,
     SACRIFICING,
     SVALADEAD
+};
+
+enum Events
+{
+    //INTRO
+    EVENT_INTRO_SVALA_TALK_0    = 1,
+    EVENT_INTRO_ARTHAS_TALK_0,
+    EVENT_INTRO_TRANSFORM_0,
+    EVENT_INTRO_TRANSFORM_1,
+    EVENT_INTRO_TRANSFORM_2,
+    EVENT_INTRO_SVALA_TALK_1,
+    EVENT_INTRO_ARTHAS_TALK_1,
+    EVENT_INTRO_SVALA_TALK_2,
+    EVENT_INTRO_RELOCATE_SVALA,
+    EVENT_INTRO_DESPAWN_ARTHAS,
+
+    //NORMAL
+    EVENT_SINISTER_STRIKE,
+    EVENT_CALL_FLAMES,
+    EVENT_RITUAL_PREPARATION,
+
+    //SACRIFICING
+    EVENT_SPAWN_RITUAL_CHANNELERS,
+    EVENT_RITUAL_STRIKE,
+    EVENT_RITUAL_DISARM
 };
 
 enum Misc
@@ -112,38 +137,23 @@ class boss_svala : public CreatureScript
         {
             boss_svalaAI(Creature* creature) : BossAI(creature, DATA_SVALA_SORROWGRAVE)
             {
-                Phase = IDLE;
+                _introCompleted = false;
             }
-
-            SvalaPhase Phase;
-
-            uint32 introTimer;
-            uint8 introPhase;
-            uint8 sacrePhase;
-
-            uint64 arthasGUID;
-
-            uint32 sinsterStrikeTimer;
-            uint32 callFlamesTimer;
-            uint32 sacrificeTimer;
-
-            bool sacrificed;
 
             void Reset() OVERRIDE
             {
                 _Reset();
-                sacrificed = false;
+                _sacrificed = false;
                 SetCombatMovement(true);
 
-                if (Phase > NORMAL)
-                    Phase = NORMAL;
+                if (_introCompleted)
+                    events.SetPhase(NORMAL);
+                else
+                    events.SetPhase(IDLE);
 
-                me->SetDisableGravity(Phase == NORMAL);
+                me->SetDisableGravity(events.IsInPhase(NORMAL));
 
-                introTimer = 1 * IN_MILLISECONDS;
-                introPhase = 0;
-                sacrePhase = 0;
-                arthasGUID = 0;
+                _arthasGUID = 0;
 
                 instance->SetData64(DATA_SACRIFICED_PLAYER, 0);
             }
@@ -152,16 +162,12 @@ class boss_svala : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-
-                sinsterStrikeTimer = 7 * IN_MILLISECONDS;
-                callFlamesTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
             {
                 if (summon->GetEntry() == NPC_RITUAL_CHANNELER)
                     summon->CastSpell(summon, SPELL_SUMMONED_VIS, true);
-
                 summons.Summon(summon);
             }
 
@@ -170,9 +176,9 @@ class boss_svala : public CreatureScript
                 if (!who)
                     return;
 
-                if (Phase == IDLE && me->IsValidAttackTarget(who) && me->IsWithinDistInMap(who, 40))
+                if (events.IsInPhase(IDLE) && me->IsValidAttackTarget(who) && me->IsWithinDistInMap(who, 40))
                 {
-                    Phase = INTRO;
+                    events.SetPhase(INTRO);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                     if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
@@ -181,8 +187,9 @@ class boss_svala : public CreatureScript
                     if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
                     {
                         arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        arthasGUID = arthas->GetGUID();
+                        _arthasGUID = arthas->GetGUID();
                     }
+                    events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_0, 1 * IN_MILLISECONDS, 0, INTRO);
                 }
             }
 
@@ -194,20 +201,20 @@ class boss_svala : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Phase == SACRIFICING)
+                if (events.IsInPhase(SACRIFICING))
                     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-
                 me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
-
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
             void SpellHitTarget(Unit* /*target*/, SpellInfo const* spellInfo) OVERRIDE
             {
-                if (spellInfo->Id == SPELL_RITUAL_STRIKE_EFF_1 && Phase != NORMAL && Phase != SVALADEAD)
+                if (spellInfo->Id == SPELL_RITUAL_STRIKE_EFF_1 && !events.IsInPhase(NORMAL) && !events.IsInPhase(SVALADEAD))
                 {
-                    Phase = NORMAL;
+                    events.SetPhase(NORMAL);
+                    events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7 * IN_MILLISECONDS, 0, NORMAL);
+                    events.ScheduleEvent(EVENT_CALL_FLAMES, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, NORMAL);
                     SetCombatMovement(true);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f, true))
@@ -217,199 +224,163 @@ class boss_svala : public CreatureScript
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
-                if (Phase == IDLE)
+                if (events.IsInPhase(IDLE))
                     return;
 
-                if (Phase == INTRO)
+                if (events.IsInPhase(NORMAL) && !UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (!_sacrificed && HealthBelowPct(50))
                 {
-                    if (introTimer <= diff)
-                    {
-                        Creature* arthas = ObjectAccessor::GetCreature(*me, arthasGUID);
-                        if (!arthas)
-                            return;
-
-                        switch (introPhase)
-                        {
-                            case 0:
-                                Talk(SAY_SVALA_INTRO_0);
-                                ++introPhase;
-                                introTimer = 8100;
-                                break;
-                            case 1:
-                                arthas->AI()->Talk(SAY_DIALOG_OF_ARTHAS_1);
-                                ++introPhase;
-                                introTimer = 10000;
-                                break;
-                            case 2:
-                            {
-                                arthas->CastSpell(me, SPELL_TRANSFORMING_CHANNEL, false);
-                                Position pos;
-                                pos.Relocate(me);
-                                pos.m_positionZ += 8.0f;
-                                me->GetMotionMaster()->MoveTakeoff(0, pos);
-                                // spectators flee event
-                                std::list<Creature*> lspectatorList;
-                                GetCreatureListWithEntryInGrid(lspectatorList, me, NPC_SPECTATOR, 100.0f);
-                                for (std::list<Creature*>::iterator itr = lspectatorList.begin(); itr != lspectatorList.end(); ++itr)
-                                {
-                                    if ((*itr)->IsAlive())
-                                    {
-                                        (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
-                                        (*itr)->SetWalk(false);
-                                        (*itr)->GetMotionMaster()->MovePoint(1, spectatorWP[0]);
-                                    }
-                                }
-
-                                ++introPhase;
-                                introTimer = 4200;
-                                break;
-                            }
-                            case 3:
-                                me->CastSpell(me, SPELL_SVALA_TRANSFORMING1, false);
-                                ++introPhase;
-                                introTimer = 6200;
-                                break;
-                            case 4:
-                                me->CastSpell(me, SPELL_SVALA_TRANSFORMING2, false);
-                                arthas->InterruptNonMeleeSpells(true);
-                                me->RemoveAllAuras();
-                                me->UpdateEntry(NPC_SVALA_SORROWGRAVE);
-                                me->SetFacingToObject(arthas);
-                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                ++introPhase;
-                                introTimer = 3200;
-                                break;
-                            case 5:
-                                Talk(SAY_SVALA_INTRO_1);
-                                ++introPhase;
-                                introTimer = 10000;
-                                break;
-                            case 6:
-                                arthas->AI()->Talk(SAY_DIALOG_OF_ARTHAS_2);
-                                ++introPhase;
-                                introTimer = 7200;
-                                break;
-                            case 7:
-                                Talk(SAY_SVALA_INTRO_2);
-                                me->SetFacingTo(1.58f);
-                                arthas->SetVisible(false);
-                                ++introPhase;
-                                introTimer = 13800;
-                                break;
-                            case 8:
-                            {
-                                Position pos;
-                                pos.Relocate(me);
-                                pos.m_positionX = me->GetHomePosition().GetPositionX();
-                                pos.m_positionY = me->GetHomePosition().GetPositionY();
-                                pos.m_positionZ = 90.6065f;
-                                me->GetMotionMaster()->MoveLand(0, pos);
-                                me->SetDisableGravity(false, true);
-                                me->SetHover(true);
-                                ++introPhase;
-                                introTimer = 3000;
-                                break;
-                            }
-                            case 9:
-                                if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
-                                    mirror->SetGoState(GO_STATE_ACTIVE);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                arthas->DespawnOrUnsummon();
-                                arthasGUID = 0;
-                                Phase = NORMAL;
-                                break;
-                        }
-                    }
-                    else
-                        introTimer -= diff;
-
-                    return;
+                    _sacrificed = true;
+                    events.SetPhase(SACRIFICING);
+                    events.ScheduleEvent(EVENT_RITUAL_PREPARATION, 0, 0, SACRIFICING);
                 }
 
-                if (Phase == NORMAL)
+                if (events.IsInPhase(NORMAL))
+                    DoMeleeAttackIfReady();
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (!UpdateVictim())
-                        return;
-
-                    if (sinsterStrikeTimer <= diff)
+                    switch (eventId)
                     {
-                        DoCastVictim(SPELL_SINSTER_STRIKE);
-                        sinsterStrikeTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
-                    }
-                    else
-                        sinsterStrikeTimer -= diff;
-
-                    if (callFlamesTimer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        case EVENT_INTRO_SVALA_TALK_0:
+                            Talk(SAY_SVALA_INTRO_0);
+                            events.ScheduleEvent(EVENT_INTRO_ARTHAS_TALK_0, 8.1 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        case EVENT_INTRO_ARTHAS_TALK_0:
+                            if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
+                                arthas->AI()->Talk(SAY_DIALOG_OF_ARTHAS_1);
+                            events.ScheduleEvent(EVENT_INTRO_TRANSFORM_0, 10 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        case EVENT_INTRO_TRANSFORM_0:
                         {
-                            DoCast(target, SPELL_CALL_FLAMES);
-                            callFlamesTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+                            if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
+                                arthas->CastSpell(me, SPELL_TRANSFORMING_CHANNEL, false);
+                            Position pos;
+                            pos.Relocate(me);
+                            pos.m_positionZ += 8.0f;
+                            me->GetMotionMaster()->MoveTakeoff(0, pos);
+                            // spectators flee event
+                            std::list<Creature*> lspectatorList;
+                            GetCreatureListWithEntryInGrid(lspectatorList, me, NPC_SPECTATOR, 100.0f);
+                            for (std::list<Creature*>::iterator itr = lspectatorList.begin(); itr != lspectatorList.end(); ++itr)
+                            {
+                                if ((*itr)->IsAlive())
+                                {
+                                    (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
+                                    (*itr)->SetWalk(false);
+                                    (*itr)->GetMotionMaster()->MovePoint(1, spectatorWP[0]);
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_INTRO_TRANSFORM_1, 4.2 * IN_MILLISECONDS, 0, INTRO);
+                            break;
                         }
-                    }
-                    else
-                        callFlamesTimer -= diff;
-
-                    if (!sacrificed)
-                    {
-                        if (HealthBelowPct(50))
+                        case EVENT_INTRO_TRANSFORM_1:
+                            me->CastSpell(me, SPELL_SVALA_TRANSFORMING1, false);
+                            events.ScheduleEvent(EVENT_INTRO_TRANSFORM_2, 6.2 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        case EVENT_INTRO_TRANSFORM_2:
+                            me->CastSpell(me, SPELL_SVALA_TRANSFORMING2, false);
+                            if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
+                            {
+                                arthas->InterruptNonMeleeSpells(true);
+                                me->SetFacingToObject(arthas);
+                            }
+                            me->RemoveAllAuras();
+                            me->UpdateEntry(NPC_SVALA_SORROWGRAVE);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_1, 10 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        case EVENT_INTRO_SVALA_TALK_1:
+                            Talk(SAY_SVALA_INTRO_1);
+                            events.ScheduleEvent(EVENT_INTRO_ARTHAS_TALK_1, 3.2 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        case EVENT_INTRO_ARTHAS_TALK_1:
+                            if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
+                                arthas->AI()->Talk(SAY_DIALOG_OF_ARTHAS_2);
+                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_2, 7.2 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        case EVENT_INTRO_SVALA_TALK_2:
+                            Talk(SAY_SVALA_INTRO_2);
+                            me->SetFacingTo(1.58f);
+                            if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
+                                arthas->SetVisible(false);
+                            events.ScheduleEvent(EVENT_INTRO_RELOCATE_SVALA, 13.8 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        case EVENT_INTRO_RELOCATE_SVALA:
                         {
+                            Position pos;
+                            pos.Relocate(me);
+                            pos.m_positionX = me->GetHomePosition().GetPositionX();
+                            pos.m_positionY = me->GetHomePosition().GetPositionY();
+                            pos.m_positionZ = 90.6065f;
+                            me->GetMotionMaster()->MoveLand(0, pos);
+                            me->SetDisableGravity(false, true);
+                            me->SetHover(true);
+                            events.ScheduleEvent(EVENT_INTRO_DESPAWN_ARTHAS, 3 * IN_MILLISECONDS, 0, INTRO);
+                            break;
+                        }
+                        case EVENT_INTRO_DESPAWN_ARTHAS:
+                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, DATA_UTGARDE_MIRROR))
+                                mirror->SetGoState(GO_STATE_ACTIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
+                                arthas->DespawnOrUnsummon();
+                            _arthasGUID = 0;
+                            events.SetPhase(NORMAL);
+                            _introCompleted = true;
+                            events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7 * IN_MILLISECONDS, 0, NORMAL);
+                            events.ScheduleEvent(EVENT_CALL_FLAMES, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, NORMAL);
+                            break;
+                        case EVENT_SINISTER_STRIKE:
+                            DoCastVictim(SPELL_SINSTER_STRIKE);
+                            events.ScheduleEvent(EVENT_SINISTER_STRIKE, urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS), 0, NORMAL);
+                            break;
+                        case EVENT_CALL_FLAMES:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(target, SPELL_CALL_FLAMES);
+                            events.ScheduleEvent(EVENT_CALL_FLAMES, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, NORMAL);
+                            break;
+                        case EVENT_RITUAL_PREPARATION:
                             if (Unit* sacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
                             {
                                 instance->SetData64(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
-
                                 Talk(SAY_SACRIFICE_PLAYER);
-
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
-
                                 SetCombatMovement(false);
-
-                                Phase = SACRIFICING;
-                                sacrePhase = 0;
-                                sacrificeTimer = 1 * IN_MILLISECONDS;
-
                                 DoCast(me, SPELL_RITUAL_OF_THE_SWORD);
-                                sacrificed = true;
                             }
-                        }
+                            events.ScheduleEvent(EVENT_SPAWN_RITUAL_CHANNELERS, 1 * IN_MILLISECONDS, 0, SACRIFICING);
+                            break;
+                        case EVENT_SPAWN_RITUAL_CHANNELERS:
+                            DoCast(me, SPELL_RITUAL_CHANNELER_1, true);
+                            DoCast(me, SPELL_RITUAL_CHANNELER_2, true);
+                            DoCast(me, SPELL_RITUAL_CHANNELER_3, true);
+                            events.ScheduleEvent(EVENT_RITUAL_STRIKE, 2 * IN_MILLISECONDS, 0, SACRIFICING);
+                            break;
+                        case EVENT_RITUAL_STRIKE:
+                            me->StopMoving();
+                            me->GetMotionMaster()->MoveIdle();
+                            me->InterruptNonMeleeSpells(true);
+                            DoCast(me, SPELL_RITUAL_STRIKE_TRIGGER, true);
+                            events.ScheduleEvent(EVENT_RITUAL_DISARM, 200, 0, SACRIFICING);
+                            break;
+                        case EVENT_RITUAL_DISARM:
+                            DoCast(me, SPELL_RITUAL_DISARM);
+                            break;
+                        default:
+                            break;
                     }
-
-                    DoMeleeAttackIfReady();
-                }
-                else // SACRIFICING
-                {
-                    if (sacrificeTimer <= diff)
-                    {
-                        switch (sacrePhase)
-                        {
-                            case 0:
-                                // spawn ritual channelers
-                                DoCast(me, SPELL_RITUAL_CHANNELER_1, true);
-                                DoCast(me, SPELL_RITUAL_CHANNELER_2, true);
-                                DoCast(me, SPELL_RITUAL_CHANNELER_3, true);
-                                ++sacrePhase;
-                                sacrificeTimer = 2 * IN_MILLISECONDS;
-                                break;
-                            case 1:
-                                me->StopMoving();
-                                me->GetMotionMaster()->MoveIdle();
-                                me->InterruptNonMeleeSpells(true);
-                                DoCast(me, SPELL_RITUAL_STRIKE_TRIGGER, true);
-                                ++sacrePhase;
-                                sacrificeTimer = 200;
-                                break;
-                            case 2:
-                                DoCast(me, SPELL_RITUAL_DISARM);
-                                ++sacrePhase;
-                                break;
-                            case 3:
-                                break;
-                        }
-                    }
-                    else
-                        sacrificeTimer -= diff;
                 }
             }
+
+        private:
+            uint64 _arthasGUID;
+            bool _sacrificed;
+            bool _introCompleted;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
