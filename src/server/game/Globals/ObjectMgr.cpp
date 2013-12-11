@@ -2256,7 +2256,7 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
         if (!location)
             return 0;
 
-        if (itemSubclass < ITEM_SUBCLASS_ARMOR_CLOTH)
+        if (itemSubclass < ITEM_SUBCLASS_ARMOR_CLOTH || itemSubclass > ITEM_SUBCLASS_ARMOR_PLATE)
             return 0;
 
         return uint32(armorQuality->Value[quality] * armorTotal->Value[itemSubclass - 1] * location->Value[itemSubclass - 1] + 0.5f);
