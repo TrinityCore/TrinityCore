@@ -107,6 +107,8 @@ SmartWaypointMgr::~SmartWaypointMgr()
 
 void SmartAIMgr::LoadSmartAIFromDB()
 {
+    LoadHelperStores();
+
     uint32 oldMSTime = getMSTime();
 
     for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
@@ -118,7 +120,6 @@ void SmartAIMgr::LoadSmartAIFromDB()
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 SmartAI scripts. DB table `smartai_scripts` is empty.");
-
         return;
     }
 
@@ -236,6 +237,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u SmartAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+    UnLoadHelperStores();
 }
 
 bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
@@ -769,27 +771,14 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             }
         case SMART_ACTION_SUMMON_CREATURE:
+        {
             if (!IsCreatureValid(e, e.action.summonCreature.creature))
                 return false;
 
-            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
-                if (!spellInfo)
-                    continue;
-
-                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                {
-                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_SUMMON)
-                    {
-                        uint32 creatureSummonEntry = spellInfo->Effects[j].MiscValue;
-
-                        if (e.action.summonCreature.creature == creatureSummonEntry)
-                            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u creature summon: There is a summon spell for creature entry %u (SpellId: %u, effect: %u)",
-                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.creature, spellInfo->Id, j);
-                    }
-                }
-            }
+            CacheSpellContainerBounds sBounds = GetSummonCreatureSpellContainerBounds(e.action.summonCreature.creature);
+            for (CacheSpellContainer::const_iterator itr = sBounds.first; itr != sBounds.second; ++itr)
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u creature summon: There is a summon spell for creature entry %u (SpellId: %u, effect: %u)",
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.creature, itr->second.first, itr->second.second);
 
             if (e.action.summonCreature.type < TEMPSUMMON_TIMED_OR_DEAD_DESPAWN || e.action.summonCreature.type > TEMPSUMMON_MANUAL_DESPAWN)
             {
@@ -797,27 +786,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
             break;
+        }
         case SMART_ACTION_CALL_KILLEDMONSTER:
+        {
             if (!IsCreatureValid(e, e.action.killedMonster.creature))
                 return false;
 
-            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
-                if (!spellInfo)
-                    continue;
-
-                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                {
-                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_KILL_CREDIT || spellInfo->Effects[j].Effect == SPELL_EFFECT_KILL_CREDIT2)
-                    {
-                        uint32 killCredit = spellInfo->Effects[j].MiscValue;
-
-                        if (e.action.killedMonster.creature == killCredit)
-                            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u Kill Credit: %u has already spell kill credit (SpellId: %u effect: %u)", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, spellInfo->Id, j);
-                    }
-                }
-            }
+            CacheSpellContainerBounds sBounds = GetKillCreditSpellContainerBounds(e.action.killedMonster.creature);
+            for (CacheSpellContainer::const_iterator itr = sBounds.first; itr != sBounds.second; ++itr)
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u Kill Credit: There is a killcredit spell for creatureEntry %u (SpellId: %u effect: %u)",
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.killedMonster.creature, itr->second.first, itr->second.second);
 
             if (e.GetTargetType() == SMART_TARGET_POSITION)
             {
@@ -825,6 +803,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
             break;
+        }
         case SMART_ACTION_UPDATE_TEMPLATE:
             if (e.action.updateTemplate.creature && !IsCreatureValid(e, e.action.updateTemplate.creature))
                 return false;
@@ -846,28 +825,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             }
         case SMART_ACTION_SUMMON_GO:
+        {
             if (!IsGameObjectValid(e, e.action.summonGO.entry))
                 return false;
 
-            for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
-                if (!spellInfo)
-                    continue;
-
-                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                {
-                    if (spellInfo->Effects[j].Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                    {
-                        uint32 goSummonEntry = spellInfo->Effects[j].MiscValue;
-
-                        if (e.action.summonGO.entry == goSummonEntry)
-                            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u gameobject summon: There is a summon spell for gameobject entry %u (SpellId: %u, effect: %u)",
-                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonGO.entry, spellInfo->Id, j);
-                    }
-                }
-            }
+            CacheSpellContainerBounds sBounds = GetSummonGameObjectSpellContainerBounds(e.action.summonGO.entry);
+            for (CacheSpellContainer::const_iterator itr = sBounds.first; itr != sBounds.second; ++itr)
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u gameobject summon: There is a summon spell for gameobject entry %u (SpellId: %u, effect: %u)",
+                                e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonGO.entry, itr->second.first, itr->second.second);
             break;
+        }
         case SMART_ACTION_ADD_ITEM:
         case SMART_ACTION_REMOVE_ITEM:
             if (!IsItemValid(e, e.action.item.entry))
@@ -1073,3 +1040,52 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     }
     return true;
 }*/
+
+void SmartAIMgr::LoadHelperStores()
+{
+    uint32 oldMSTime = getMSTime();
+
+    SpellInfo const* spellInfo = NULL;
+    for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+    {
+        spellInfo = sSpellMgr->GetSpellInfo(i);
+        if (!spellInfo)
+            continue;
+
+        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        {
+            if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_SUMMON))
+                SummonCreatureSpellStore.insert(std::make_pair(uint32(spellInfo->Effects[j].MiscValue), std::make_pair(i, SpellEffIndex(j))));
+
+            else if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_SUMMON_OBJECT_WILD))
+                SummonGameObjectSpellStore.insert(std::make_pair(uint32(spellInfo->Effects[j].MiscValue), std::make_pair(i, SpellEffIndex(j))));
+
+            else if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT2))
+                KillCreditSpellStore.insert(std::make_pair(uint32(spellInfo->Effects[j].MiscValue), std::make_pair(i, SpellEffIndex(j))));
+        }
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded SmartAIMgr Helpers in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SmartAIMgr::UnLoadHelperStores()
+{
+    SummonCreatureSpellStore.clear();
+    SummonGameObjectSpellStore.clear();
+    KillCreditSpellStore.clear();
+}
+
+CacheSpellContainerBounds SmartAIMgr::GetSummonCreatureSpellContainerBounds(uint32 creatureEntry) const
+{
+    return SummonCreatureSpellStore.equal_range(creatureEntry);
+}
+
+CacheSpellContainerBounds SmartAIMgr::GetSummonGameObjectSpellContainerBounds(uint32 gameObjectEntry) const
+{
+    return SummonGameObjectSpellStore.equal_range(gameObjectEntry);
+}
+
+CacheSpellContainerBounds SmartAIMgr::GetKillCreditSpellContainerBounds(uint32 killCredit) const
+{
+    return KillCreditSpellStore.equal_range(killCredit);
+}
