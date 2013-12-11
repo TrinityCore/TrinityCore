@@ -125,7 +125,7 @@ public:
                     break;
                 case 11:
                     Talk(SAY_PROGRESS2, player->GetGUID());
-                    me->SetOrientation(4.762841f);
+                    me->SetFacingTo(4.762841f);
                     break;
                 case 18:
                     {
@@ -150,11 +150,11 @@ public:
                     player->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
                     break;
                 case 32:
-                    me->SetOrientation(2.978281f);
+                    me->SetFacingTo(2.978281f);
                     Talk(SAY_END1, player->GetGUID());
                     break;
                 case 33:
-                    me->SetOrientation(5.858011f);
+                    me->SetFacingTo(5.858011f);
                     Talk(SAY_END2, player->GetGUID());
                     Creature* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
                     if (CaptainHelios)

@@ -1346,12 +1346,16 @@ typedef std::vector<SmartScriptHolder> SmartAIEventList;
 // all events for all entries / guids
 typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
 
+// Helper Stores
+typedef std::map<uint32 /*entry*/, std::pair<uint32 /*spellId*/, SpellEffIndex /*effIndex*/> > CacheSpellContainer;
+typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::const_iterator> CacheSpellContainerBounds;
+
 class SmartAIMgr
 {
     friend class ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>;
-    SmartAIMgr(){ }
+    SmartAIMgr() { }
     public:
-        ~SmartAIMgr(){ }
+        ~SmartAIMgr() { }
 
         void LoadSmartAIFromDB();
 
@@ -1506,6 +1510,18 @@ class SmartAIMgr
         }
 
         //bool IsTextValid(SmartScriptHolder const& e, uint32 id);
+
+        // Helpers
+        void LoadHelperStores();
+        void UnLoadHelperStores();
+
+        CacheSpellContainerBounds GetSummonCreatureSpellContainerBounds(uint32 creatureEntry) const;
+        CacheSpellContainerBounds GetSummonGameObjectSpellContainerBounds(uint32 gameObjectEntry) const;
+        CacheSpellContainerBounds GetKillCreditSpellContainerBounds(uint32 killCredit) const;
+
+        CacheSpellContainer SummonCreatureSpellStore;
+        CacheSpellContainer SummonGameObjectSpellStore;
+        CacheSpellContainer KillCreditSpellStore;
 };
 
 #define sSmartScriptMgr ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance()
