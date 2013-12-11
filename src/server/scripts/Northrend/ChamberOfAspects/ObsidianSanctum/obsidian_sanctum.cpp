@@ -706,17 +706,16 @@ public:
 
             if (instance)
             {
-                Creature* target = NULL;
-                //if not solo figth, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
+                //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
-                    if (target = Unit::GetCreature((*me), instance->GetData64(DATA_SARTHARION)))
-                        target->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, target);
+                    if (Creature* sartharion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SARTHARION)))
+                        sartharion->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, sartharion);
                 }
                 else
                 {
-                    if (target = Unit::GetCreature((*me), instance->GetData64(DATA_SHADRON)))
-                        target->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, target);
+                    if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+                        shadron->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, shadron);
                 }
             }
 
@@ -727,7 +726,7 @@ public:
         {
             if (instance)
             {
-                if (Creature* shadron = instance->instance->GetCreature(instance->GetData64(DATA_SHADRON)))
+                if (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
                 Map* map = me->GetMap();
@@ -750,19 +749,19 @@ public:
                    }
                 }
 
-                //not solo fight, so main boss has deduff
-                if (Creature* debuffTarget = instance->instance->GetCreature(instance->GetData64(DATA_SARTHARION)))
+                // not solo fight, so main boss has debuff
+                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SARTHARION)))
                     if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SAR))
                         debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SAR);
 
-                //event not in progress, then solo fight and must remove debuff mini-boss
-                if (Creature* debuffTarget = instance->instance->GetCreature(instance->GetData64(DATA_SHADRON)))
+                // event not in progress, then solo fight and must remove debuff mini-boss
+                if (Creature* debuffTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
                     if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
                         debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -814,12 +813,12 @@ public:
             // remove twilight torment on Vesperon
             if (instance)
             {
-                if (Creature* vesperon = instance->instance->GetCreature(instance->GetData64(DATA_VESPERON)))
+                if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
                 {
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
-                if (vesperon->IsAlive() && vesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
-                    vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
+                    if (vesperon->IsAlive() && vesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
+                        vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
                 Map* map = me->GetMap();
@@ -850,7 +849,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -920,7 +919,7 @@ public:
 
             if (events.ExecuteEvent() == EVENT_TWILIGHT_EGGS)
             {
-                if (Creature* tenebron = instance->instance->GetCreature(instance->GetData64(DATA_TENEBRON)))
+                if (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
 
                 SpawnWhelps();
@@ -966,8 +965,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100);
             events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1000);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -1024,10 +1022,9 @@ public:
 
         void Reset() OVERRIDE
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->AddAura( 46265, me ); // Wrong, can't find proper visual
-            me->AddAura( 69422, me );
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->AddAura(46265, me); // Wrong, can't find proper visual
+            me->AddAura(69422, me);
             events.ScheduleEvent(EVENT_VOID_BLAST, 5000);
         }
 
@@ -1118,14 +1115,7 @@ class achievement_twilight_assist : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
-            if (!target)
-                return false;
-
-            if (Creature* sartharion = target->ToCreature())
-                if (sartharion->AI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 1)
-                    return true;
-
-            return false;
+            return target && target->GetAI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 1;
         }
 };
 
@@ -1136,14 +1126,7 @@ class achievement_twilight_duo : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
-            if (!target)
-                return false;
-
-            if (Creature* sartharion = target->ToCreature())
-                if (sartharion->AI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 2)
-                    return true;
-
-            return false;
+            return target && target->GetAI()->GetData(TWILIGHT_ACHIEVEMENTS) >= 2;
         }
 };
 
@@ -1154,14 +1137,7 @@ class achievement_twilight_zone : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
-            if (!target)
-                return false;
-
-            if (Creature* sartharion = target->ToCreature())
-                if (sartharion->AI()->GetData(TWILIGHT_ACHIEVEMENTS) == 3)
-                    return true;
-
-            return false;
+            return target && target->GetAI()->GetData(TWILIGHT_ACHIEVEMENTS) == 3;
         }
 };
 
