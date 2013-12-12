@@ -28,6 +28,7 @@
 
 void UnitAI::AttackStart(Unit* victim)
 {
+
     if (victim && me->Attack(victim, true))
         me->GetMotionMaster()->MoveChase(victim);
 }
@@ -44,14 +45,18 @@ void UnitAI::DoMeleeAttackIfReady()
         return;
 
     Unit* victim = me->GetVictim();
+
+    if (!me->IsWithinMeleeRange(victim))
+        return;
+
     //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady() && me->IsWithinMeleeRange(victim))
+    if (me->isAttackReady())
     {
         me->AttackerStateUpdate(victim);
         me->resetAttackTimer();
     }
 
-    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK) && me->IsWithinMeleeRange(victim))
+    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
         me->AttackerStateUpdate(victim, OFF_ATTACK);
         me->resetAttackTimer(OFF_ATTACK);
