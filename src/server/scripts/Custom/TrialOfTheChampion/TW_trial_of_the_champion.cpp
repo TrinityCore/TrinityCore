@@ -38,11 +38,14 @@ enum Texts
     // Starts when you enter toc
     SAY_INTRO_HERALD_1          = 27, 
     SAY_INTRO_HERALD_2          = 50,
-    SAY_INTRO_HERALD_3          = 10,
-    SAY_INTRO_HERALD_4          = 50,
-    SAY_INTRO_HERALD_5          = 11,
-    SAY_INTRO_HERALD_6          = 11,
-    SAY_INTRO_HERALD_7          = 18,
+    H_SAY_INTRO_HERALD_3        = 0,
+    A_SAY_INTRO_HERALD_3        = 50,
+    H_SAY_INTRO_HERALD_4        = 50,
+    A_SAY_INTRO_HERALD_4        = 10,
+    SAY_INTRO_HERALD_5          = 52,
+    H_SAY_INTRO_HERALD_6        = 11,
+    A_SAY_INTRO_HERALD_6        = 2,
+    SAY_INTRO_HERALD_7          = 51,
 
     //  Horde - Announcing the fighters
     H_SAY_WARRIOR_ENTERS          = 6,
@@ -253,7 +256,7 @@ class TW_npc_herald_toc5 : public CreatureScript
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
         {
-            if (!_introDone)
+            if (!_introDone && (instance->GetData(BOSS_GRAND_CHAMPIONS) != DONE && instance->GetData(BOSS_GRAND_CHAMPIONS) != FAIL))
             {
                 _introDone = true;
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -673,31 +676,38 @@ class TW_npc_herald_toc5 : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_2, 5000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_2:
-                        Talk(SAY_INTRO_HERALD_2);
+                        if (Creature* tirion = me->GetCreature(*me, tirionGUID))
+                            tirion->AI()->Talk(SAY_INTRO_HERALD_2);
                         events.ScheduleEvent(EVENT_INTRO_3, 13000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_3:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
                             if (Creature* thrall = me->GetCreature(*me, thrallGUID))
-                                thrall->AI()->Talk(SAY_INTRO_HERALD_3);
+                                thrall->AI()->Talk(H_SAY_INTRO_HERALD_3);
+                        }
                         else
                             if (Creature* varian = me->GetCreature(*me, varianGUID))
-                                varian->AI()->Talk(SAY_INTRO_HERALD_3);
+                                varian->AI()->Talk(A_SAY_INTRO_HERALD_3);
                         events.ScheduleEvent(EVENT_INTRO_4, 4000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_4:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
                             if (Creature* garrosh = me->GetCreature(*me, garroshGUID))
-                                garrosh->AI()->Talk(SAY_INTRO_HERALD_4);
+                                garrosh->AI()->Talk(H_SAY_INTRO_HERALD_4);
+                        }
                         else
                             if (Creature* proudmoore = me->GetCreature(*me, proudmooreGUID))
-                                proudmoore->AI()->Talk(SAY_INTRO_HERALD_4);
+                                proudmoore->AI()->Talk(A_SAY_INTRO_HERALD_4);
                         events.ScheduleEvent(EVENT_INTRO_5, 4000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_5:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
                             if (Creature* varian = me->GetCreature(*me, varianGUID))
                                 varian->AI()->Talk(SAY_INTRO_HERALD_5);
+                        }
                         else
                             if (Creature* garrosh = me->GetCreature(*me, garroshGUID))
                                 garrosh->AI()->Talk(SAY_INTRO_HERALD_5);
@@ -705,11 +715,13 @@ class TW_npc_herald_toc5 : public CreatureScript
                         break;
                     case EVENT_INTRO_6:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
                             if (Creature* proudmoore = me->GetCreature(*me, proudmooreGUID))
-                                proudmoore->AI()->Talk(SAY_INTRO_HERALD_6);
+                                proudmoore->AI()->Talk(H_SAY_INTRO_HERALD_6);
+                        }
                         else
                             if (Creature* thrall = me->GetCreature(*me, thrallGUID))
-                                thrall->AI()->Talk(SAY_INTRO_HERALD_6);
+                                thrall->AI()->Talk(A_SAY_INTRO_HERALD_6);
                         events.ScheduleEvent(EVENT_INTRO_7, 6000, 0, PHASE_INTRO);
                         break;
                     case EVENT_INTRO_7:
@@ -771,8 +783,10 @@ class TW_npc_herald_toc5 : public CreatureScript
                         break;
                     case EVENT_OUTRO_3:
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
                             if (Creature* thrall = me->GetCreature(*me, thrallGUID))
                                 thrall->AI()->Talk(SAY_OUTRO_3_HORDE);
+                        }
                         else
                             if (Creature* varian = me->GetCreature(*me, varianGUID))
                                 varian->AI()->Talk(SAY_OUTRO_3_ALLY);

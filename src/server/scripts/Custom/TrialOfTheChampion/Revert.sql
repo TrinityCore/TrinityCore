@@ -250,3 +250,7 @@ UPDATE `creature_template` SET `minlevel` = '1',`maxlevel` = '1',`exp` = '0',`fa
 DELETE FROM `creature_text` WHERE `entry` = 35004 AND `groupid` BETWEEN 20 AND 27;
 -- Ally announcer
 DELETE FROM `creature_text` WHERE `entry` = 35005 AND `groupid` BETWEEN 20 AND 27;
+-- Jaina Proudmoore
+DELETE FROM `creature_text` WHERE `entry` = 34992 AND `groupid` IN (10, 11);
+-- Varian
+UPDATE `creature_text` SET `type` = 12 WHERE `groupid` IN (50, 52) AND `entry` = 34990;

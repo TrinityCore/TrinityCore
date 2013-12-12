@@ -371,8 +371,7 @@ VALUES
 (35004, 23, 0, "The night elves of Darnassus cheer for Jaelyne Evensong.", 41, 0, 0, 2, 0, 8572, "ToC5 - Darnassus Cheers"),
 (35004, 24, 0, "The dwarves of Ironforge being a cheer for Lana Stouthammer.", 41, 0, 0, 2, 0, 8572, "ToC5 - Ironforge Cheers"),
 (35004, 25, 0, "The Alliance spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Horde Intro 3"),
-(35004, 26, 0, "The Alliance spectators cheer for Eadric the Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Horde Intro 3"),
-(35004, 27, 0, "The Sunreavers are proud to present their representatives in this trial by combat.", 12, 0, 0, 2, 0, 0, "ToC5 - Horde Intro 1");
+(35004, 26, 0, "The Alliance spectators cheer for Eadric the Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Horde Intro 3");
 
 -- Alliance Heralnd
 DELETE FROM `creature_text` WHERE `entry` = 35005 AND `groupid` BETWEEN 20 AND 27;
@@ -385,4 +384,14 @@ VALUES
 (35005, 24, 0, "The forsaken of the Undercity cheer for Deathstalker Visceri!.", 41, 0, 0, 2, 0, 8572, "ToC5 - Undercity Cheers"),
 (35005, 25, 0, "The Horde spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Alliance Intro 3"),
 (35005, 26, 0, "The Horde spectators cheer for Eadric The Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Alliance Intro 3");
+
+-- Jaina Proudmoore
+DELETE FROM `creature_text` WHERE `entry` = 34992 AND `groupid` IN (10, 11);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) 
+VALUES
+(34992, 10, 0, "Of course they will.", 14, 0, 0, 2, 0, 0, "ToC - Alliance Intro 4"),
+(34992, 11, 0, "They're worthy fighters, you'll see.", 14, 0, 0, 2, 0, 0, "ToC - Horde Intro 6");
+
+-- Varian
+UPDATE `creature_text` SET `type` = 14 WHERE `groupid` IN (50, 52) AND `entry` = 34990; -- because players can't hear it otherwise
 
