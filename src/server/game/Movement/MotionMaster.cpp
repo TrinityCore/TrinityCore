@@ -72,7 +72,8 @@ MotionMaster::~MotionMaster()
     {
         MovementGenerator *curr = top();
         pop();
-        if (curr) DirectDelete(curr);
+        if (curr && !isStatic(curr))
+            delete curr;    // Skip finalizing on delete, it might launch new movement
     }
 }
 
