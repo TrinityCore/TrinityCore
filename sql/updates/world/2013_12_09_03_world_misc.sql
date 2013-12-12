@@ -135,7 +135,7 @@ DELETE FROM `creature_template_addon` WHERE `entry`=29370;
 INSERT INTO `creature_template_addon` (`entry`,`bytes2`,`emote`,`auras`) VALUES (29370,1,375, '');
 
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid`=113377;
-UPDATE `Creature_template` SET InhabitType=4 WHERE `entry`=29368;
+UPDATE `creature_template` SET InhabitType=4 WHERE `entry`=29368;
 
 DELETE FROM `creature_addon` WHERE `guid` IN (100482);
 DELETE FROM `creature_template_addon` WHERE `entry`=30001;
