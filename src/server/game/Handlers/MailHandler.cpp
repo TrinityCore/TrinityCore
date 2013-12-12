@@ -29,7 +29,7 @@
 #include "Item.h"
 #include "AccountMgr.h"
 
-bool WorldSession::CheckMailBox(uint64 guid)
+bool WorldSession::CanOpenMailBox(uint64 guid)
 {
     if (guid == GetPlayer()->GetGUID())
     {
@@ -95,7 +95,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     // packet read complete, now do check
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     if (receiverName.empty())
@@ -340,7 +340,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
     recvData >> mailbox;
     recvData >> mailId;
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     Player* player = _player;
@@ -364,7 +364,7 @@ void WorldSession::HandleMailDelete(WorldPacket& recvData)
     recvData >> mailId;
     recvData.read_skip<uint32>();                          // mailTemplateId
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     Mail* m = _player->GetMail(mailId);
@@ -392,7 +392,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
     recvData >> mailId;
     recvData.read_skip<uint64>();                          // original sender GUID for return to, not used
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     Player* player = _player;
@@ -457,7 +457,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     recvData >> mailId;
     recvData >> itemId;                                    // item guid low
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     Player* player = _player;
@@ -551,7 +551,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
     recvData >> mailbox;
     recvData >> mailId;
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     Player* player = _player;
@@ -588,7 +588,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
     uint64 mailbox;
     recvData >> mailbox;
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     Player* player = _player;
@@ -711,7 +711,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     recvData >> mailbox;
     recvData >> mailId;
 
-    if (!CheckMailBox(mailbox))
+    if (!CanOpenMailBox(mailbox))
         return;
 
     Player* player = _player;
