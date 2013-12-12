@@ -618,7 +618,7 @@ void SmartAI::JustSummoned(Creature* creature)
 
 void SmartAI::AttackStart(Unit* who)
 {
-    if (who && me->Attack(who, true))
+    if (who && me->Attack(who, me->IsWithinMeleeRange(who)))
     {
         SetRun(mRun);
         if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == POINT_MOTION_TYPE)
