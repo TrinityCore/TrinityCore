@@ -91,25 +91,25 @@ enum Gossip
 
 enum Events
 {
-    EVENT_INTRO_1               = 0,
-    EVENT_INTRO_2               = 1,
-    EVENT_INTRO_3               = 2,
-    EVENT_INTRO_4               = 3,
-    EVENT_INTRO_5               = 4,
-    EVENT_INTRO_6               = 5,
-    EVENT_INTRO_7               = 6,
-    EVENT_INTRO_8               = 7,
-    EVENT_SUMMON_FACTION_2      = 8,
-    EVENT_SUMMON_FACTION_3      = 9,
-    EVENT_AGGRO_FACTION         = 10,
-    EVENT_PALETRESS_1           = 11,
-    EVENT_PALETRESS_2           = 12,
-    EVENT_PALETRESS_3           = 13,
-    EVENT_EADRIC_1              = 14,
-    EVENT_EADRIC_2              = 15,
-    EVENT_OUTRO_1               = 16,
-    EVENT_OUTRO_2               = 17,
-    EVENT_OUTRO_3               = 18,
+    EVENT_INTRO_1               = 1,
+    EVENT_INTRO_2               = 2,
+    EVENT_INTRO_3               = 3,
+    EVENT_INTRO_4               = 4,
+    EVENT_INTRO_5               = 5,
+    EVENT_INTRO_6               = 6,
+    EVENT_INTRO_7               = 7,
+    EVENT_INTRO_8               = 8,
+    EVENT_SUMMON_FACTION_2      = 9,
+    EVENT_SUMMON_FACTION_3      = 10,
+    EVENT_AGGRO_FACTION         = 11,
+    EVENT_PALETRESS_1           = 12,
+    EVENT_PALETRESS_2           = 13,
+    EVENT_PALETRESS_3           = 14,
+    EVENT_EADRIC_1              = 15,
+    EVENT_EADRIC_2              = 16,
+    EVENT_OUTRO_1               = 17,
+    EVENT_OUTRO_2               = 18,
+    EVENT_OUTRO_3               = 19,
 };
 
 enum Phases
@@ -189,7 +189,6 @@ class TW_npc_herald_toc5 : public CreatureScript
         {
             instance = creature->GetInstanceScript();
 
-            _introDone = false;
             uiSummonTimes = 0;
             uiPosition = 0;
             uiLesserChampions = 0;
@@ -208,7 +207,6 @@ class TW_npc_herald_toc5 : public CreatureScript
             Champion2List.clear();
             Champion3List.clear();
 
-            me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             SetGrandChampionsForEncounter();
@@ -250,13 +248,12 @@ class TW_npc_herald_toc5 : public CreatureScript
         void Reset() OVERRIDE
         {
             _introDone = false;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
         {
-            if (!_introDone && me->IsWithinDistInMap(who, 75.0f))
+            if (!_introDone)
             {
                 _introDone = true;
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
