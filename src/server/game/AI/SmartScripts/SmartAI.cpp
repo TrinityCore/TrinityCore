@@ -597,6 +597,9 @@ void SmartAI::EnterCombat(Unit* enemy)
     me->InterruptNonMeleeSpells(false); // must be before ProcessEvents
     GetScript()->ProcessEventsFor(SMART_EVENT_AGGRO, enemy);
     me->GetPosition(&mLastOOCPos);
+    SetRun(mRun);
+    if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == POINT_MOTION_TYPE)
+        me->GetMotionMaster()->MovementExpired();
 }
 
 void SmartAI::JustDied(Unit* killer)
@@ -620,14 +623,8 @@ void SmartAI::AttackStart(Unit* who)
 {
     if (who && me->Attack(who, me->IsWithinMeleeRange(who)))
     {
-        SetRun(mRun);
-        if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == POINT_MOTION_TYPE)
-            me->GetMotionMaster()->MovementExpired();
-
         if (mCanCombatMove)
             me->GetMotionMaster()->MoveChase(who);
-
-        me->GetPosition(&mLastOOCPos);
     }
 }
 
