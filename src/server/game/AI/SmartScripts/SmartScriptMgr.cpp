@@ -805,7 +805,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         }
         case SMART_ACTION_UPDATE_TEMPLATE:
-            if (e.action.updateTemplate.creature && !IsCreatureValid(e, e.action.updateTemplate.creature))
+            if (!IsCreatureValid(e, e.action.updateTemplate.creature))
                 return false;
             break;
         case SMART_ACTION_SET_SHEATH:

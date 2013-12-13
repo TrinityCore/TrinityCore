@@ -973,12 +973,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_UPDATE_TEMPLATE:
         {
-            if (!me || me->GetEntry() == e.action.updateTemplate.creature)
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (!targets)
                 break;
 
-            me->UpdateEntry(e.action.updateTemplate.creature, e.action.updateTemplate.team ? HORDE : ALLIANCE);
-            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_UPDATE_TEMPLATE: Creature %u, Template: %u, Team: %u",
-                me->GetGUIDLow(), me->GetEntry(), e.action.updateTemplate.team ? HORDE : ALLIANCE);
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature, e.action.updateTemplate.team ? HORDE : ALLIANCE);
+
+            delete targets;
             break;
         }
         case SMART_ACTION_DIE:
@@ -1042,8 +1046,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SET_INGAME_PHASE_MASK:
         {
-            if (GetBaseObject())
-                GetBaseObject()->SetPhaseMask(e.action.ingamePhaseMask.mask, true);
+            if (WorldObject* baseObj = GetBaseObject())
+                baseObj->SetPhaseMask(e.action.ingamePhaseMask.mask, true);
+
             break;
         }
         case SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL:
