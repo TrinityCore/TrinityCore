@@ -118,7 +118,7 @@ World::World()
 
     mail_timer = 0;
     mail_timer_expires = 0;
-    m_updateTime;
+    m_updateTime = 0;
     m_updateTimeSum = 0;
     m_updateTimeCount = 0;
     m_currentTime = 0;
