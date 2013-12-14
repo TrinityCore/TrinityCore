@@ -34,7 +34,7 @@ CalendarEvent::~CalendarEvent()
     sCalendarMgr->FreeEventId(_eventId);
 }
 
-CalendarMgr::CalendarMgr() { }
+CalendarMgr::CalendarMgr() : _maxEventId(0), _maxInviteId(0) { }
 
 CalendarMgr::~CalendarMgr()
 {
