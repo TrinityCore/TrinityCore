@@ -188,20 +188,12 @@ public:
             events.ScheduleEvent(EVENT_CALL_TENEBRON, 30000);
             events.ScheduleEvent(EVENT_CALL_SHADRON, 75000);
             events.ScheduleEvent(EVENT_CALL_VESPERON, 120000);
-
-            std::list<Creature*> Type[4];
-            for (int i = 0; i < 4; ++i)
-                GetCreatureListWithEntryInGrid(Type[i], me, i == 3 ? 30453 : 30680 + i, 200);
-            for (int x = 0; x < 4; ++x)
-                for (std::list<Creature*>::const_iterator itr = Type[x].begin(); itr != Type[x].end(); ++itr)
-                    if ((*itr)->IsAlive())
-                        (*itr)->SetInCombatWithZone();
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_SARTHARION_DEATH);
-            _JustDied();(*itr)->SetInCombatWithZone();
+            _JustDied();
 
             if (instance)
             {
@@ -518,14 +510,6 @@ public:
                         break;
                     case EVENT_CALL_SHADRON:
                         CallDragon(DATA_SHADRON);    
-    }
-    
-    void DamageTaken(Unit* /*who*/, uint32 &damage) OVERRIDE
-    {
-        /* This will nullify elegible looter's list, making players not elegible to loot from drakes (i.e emblems)
-        while Sartharion's in progress (if they're left alive). */
-        if (damage >= me->GetHealth() && instance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
-            me->Kill(me, false);
                         break;
                     case EVENT_CALL_VESPERON:
                         CallDragon(DATA_VESPERON);
