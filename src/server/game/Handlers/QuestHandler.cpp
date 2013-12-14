@@ -483,7 +483,7 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
             return;
 
         if (_player->CanAddQuest(quest, true))
-            _player->AddQuest(quest, NULL);                // NULL, this prevent DB script from duplicate running
+            _player->AddQuestAndCheckCompletion(quest, NULL); // NULL, this prevent DB script from duplicate running
 
         _player->SetDivider(0);
     }
