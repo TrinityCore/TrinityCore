@@ -239,6 +239,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                 default:
                     break;
             }
+
             _player->PlayerTalkClass->SendCloseGossip();
 
             if (quest->GetSrcSpell() > 0)
@@ -278,11 +279,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
             return;
 
         if (quest->IsAutoAccept() && _player->CanAddQuest(quest, true))
-        {
-            _player->AddQuest(quest, object);
-            if (_player->CanCompleteQuest(questId))
-                _player->CompleteQuest(questId);
-        }
+            _player->AddQuestAndCheckCompletion(quest, object);
 
         if (quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
@@ -348,11 +345,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
-                            {
-                                _player->AddQuest(nextQuest, object);
-                                if (_player->CanCompleteQuest(nextQuest->GetQuestId()))
-                                    _player->CompleteQuest(nextQuest->GetQuestId());
-                            }
+                                _player->AddQuestAndCheckCompletion(nextQuest, object);
 
                             _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
                         }
@@ -367,11 +360,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
                             if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
-                            {
-                                _player->AddQuest(nextQuest, object);
-                                if (_player->CanCompleteQuest(nextQuest->GetQuestId()))
-                                    _player->CompleteQuest(nextQuest->GetQuestId());
-                            }
+                                _player->AddQuestAndCheckCompletion(nextQuest, object);
 
                             _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
                         }
@@ -615,11 +604,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
         sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_SHARING_QUEST);
 
         if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
-        {
-            receiver->AddQuest(quest, sender);
-            if (receiver->CanCompleteQuest(questId))
-                receiver->CompleteQuest(questId);
-        }
+            receiver->AddQuestAndCheckCompletion(quest, sender);
 
         if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
