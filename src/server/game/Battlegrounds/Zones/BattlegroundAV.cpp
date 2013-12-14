@@ -33,6 +33,25 @@ BattlegroundAV::BattlegroundAV()
     BgObjects.resize(BG_AV_OBJECT_MAX);
     BgCreatures.resize(AV_CPLACE_MAX+AV_STATICCPLACE_MAX);
 
+    for (uint8 i = 0; i < 2; i++)
+    {
+        for (uint8 j = 0; j < 9; j++)
+            m_Team_QuestStatus[i][j] = 0;
+        m_Team_Scores[i] = 0;
+        m_IsInformedNearVictory[i] = false;
+        m_CaptainAlive[i] = true;
+        m_CaptainBuffTimer[i] = 0;
+        m_Mine_Owner[i] = 0;
+        m_Mine_PrevOwner[i] = 0;
+        m_Mine_Reclaim_Timer[i] = 0;
+    }
+
+    m_Mine_Timer = 0;
+    m_MaxLevel = 0;
+
+    for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+        InitNode(i, 0, false);
+
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AV_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AV_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AV_START_HALF_MINUTE;

@@ -67,6 +67,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mFollowCredit = 0;
     mFollowArrivedEntry = 0;
     mFollowCreditType = 0;
+    mFollowArrivedTimer = 0;
     mInvincibilityHpLevel = 0;
 
     mJustReset = false;

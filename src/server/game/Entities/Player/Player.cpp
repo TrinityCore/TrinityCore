@@ -663,6 +663,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_session = session;
 
     m_divider = 0;
+    m_ingametime = 0;
 
     m_ExtraFlags = 0;
 
@@ -689,6 +690,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_zoneUpdateTimer = 0;
 
     m_areaUpdateId = 0;
+    m_team = 0;
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
@@ -750,6 +752,8 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_logintime = time(NULL);
     m_Last_tick = m_logintime;
+    m_Played_time[PLAYED_TIME_TOTAL] = 0;
+    m_Played_time[PLAYED_TIME_LEVEL] = 0;
     m_WeaponProficiency = 0;
     m_ArmorProficiency = 0;
     m_canParry = false;
@@ -795,6 +799,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_InstanceValid = true;
     m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
     m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
+    m_raidMapDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
 
     m_lastPotionId = 0;
 
@@ -840,6 +845,18 @@ Player::Player(WorldSession* session): Unit(true)
     m_movedPlayer = this;
     m_seer = this;
 
+    m_recallMap = 0;
+    m_recallX = 0;
+    m_recallY = 0;
+    m_recallZ = 0;
+    m_recallO = 0;
+
+    m_homebindMapId = 0;
+    m_homebindAreaId = 0;
+    m_homebindX = 0;
+    m_homebindY = 0;
+    m_homebindZ = 0;
+
     m_contestedPvPTimer = 0;
 
     m_declinedname = NULL;
@@ -858,6 +875,11 @@ Player::Player(WorldSession* session): Unit(true)
     sWorld->IncreasePlayerCount();
 
     m_ChampioningFaction = 0;
+
+    m_timeSyncCounter = 0;
+    m_timeSyncTimer = 0;
+    m_timeSyncClient = 0;
+    m_timeSyncServer = 0;
 
     for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
