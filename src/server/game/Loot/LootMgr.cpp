@@ -364,6 +364,7 @@ LootItem::LootItem(LootStoreItem const& li)
 
     randomSuffix = GenerateEnchSuffixFactor(itemid);
     randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
+    count = 0;
     is_looted = 0;
     is_blocked = 0;
     is_underthreshold = 0;

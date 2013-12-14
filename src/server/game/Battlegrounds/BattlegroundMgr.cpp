@@ -52,6 +52,7 @@
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
+    m_NextAutoDistributionTime(0),
     m_AutoDistributionTimeChecker(0), m_ArenaTesting(false), m_Testing(false)
 { }
 

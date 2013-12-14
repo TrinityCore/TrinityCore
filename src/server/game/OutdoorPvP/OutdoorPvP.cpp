@@ -231,7 +231,7 @@ void OutdoorPvP::DeleteSpawns()
     m_capturePoints.clear();
 }
 
-OutdoorPvP::OutdoorPvP() : m_sendUpdate(true) { }
+OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_sendUpdate(true) { }
 
 OutdoorPvP::~OutdoorPvP()
 {
