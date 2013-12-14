@@ -147,7 +147,7 @@ m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemov
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL)
+m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(NULL), m_creatureData(NULL), m_waypointID(0), m_path_id(0), m_formation(NULL)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -726,16 +726,16 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
 void Creature::Motion_Initialize()
 {
     if (!m_formation)
-        i_motionMaster.Initialize();
+        GetMotionMaster()->Initialize();
     else if (m_formation->getLeader() == this)
     {
         m_formation->FormationReset(false);
-        i_motionMaster.Initialize();
+        GetMotionMaster()->Initialize();
     }
     else if (m_formation->isFormed())
-        i_motionMaster.MoveIdle(); //wait the order of leader
+        GetMotionMaster()->MoveIdle(); //wait the order of leader
     else
-        i_motionMaster.Initialize();
+        GetMotionMaster()->Initialize();
 }
 
 bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data)
@@ -1337,7 +1337,7 @@ bool Creature::IsInvisibleDueToDespawn() const
     if (Unit::IsInvisibleDueToDespawn())
         return true;
 
-    if (IsAlive() || m_corpseRemoveTime > time(NULL))
+    if (IsAlive() || isDying() || m_corpseRemoveTime > time(NULL))
         return false;
 
     return true;
@@ -1461,7 +1461,7 @@ void Creature::setDeathState(DeathState s)
             m_formation->FormationReset(true);
 
         if ((CanFly() || IsFlying()))
-            i_motionMaster.MoveFall();
+            GetMotionMaster()->MoveFall();
 
         Unit::setDeathState(CORPSE);
     }

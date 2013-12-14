@@ -1894,7 +1894,7 @@ class Unit : public WorldObject
         uint32 m_lastSanctuaryTime;
 
         // Threat related methods
-        bool CanHaveThreatList() const;
+        bool CanHaveThreatList(bool skipAliveCheck = false) const;
         void AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
         float ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL);
         void DeleteThreatList();
@@ -2005,8 +2005,8 @@ class Unit : public WorldObject
         static Player* GetPlayer(WorldObject& object, uint64 guid);
         static Creature* GetCreature(WorldObject& object, uint64 guid);
 
-        MotionMaster* GetMotionMaster() { return &i_motionMaster; }
-        const MotionMaster* GetMotionMaster() const { return &i_motionMaster; }
+        MotionMaster* GetMotionMaster() { return i_motionMaster; }
+        const MotionMaster* GetMotionMaster() const { return i_motionMaster; }
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
         void StopMoving();
@@ -2187,7 +2187,7 @@ class Unit : public WorldObject
 
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
 
-        MotionMaster i_motionMaster;
+        MotionMaster* i_motionMaster;
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;

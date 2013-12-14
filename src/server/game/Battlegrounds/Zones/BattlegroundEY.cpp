@@ -43,6 +43,28 @@ BattlegroundEY::BattlegroundEY()
     m_Points_Trigger[BLOOD_ELF] = TR_BLOOD_ELF_BUFF;
     m_Points_Trigger[DRAENEI_RUINS] = TR_DRAENEI_RUINS_BUFF;
     m_Points_Trigger[MAGE_TOWER] = TR_MAGE_TOWER_BUFF;
+    m_HonorScoreTics[TEAM_ALLIANCE] = 0;
+    m_HonorScoreTics[TEAM_HORDE] = 0;
+    m_TeamPointsCount[TEAM_ALLIANCE] = 0;
+    m_TeamPointsCount[TEAM_HORDE] = 0;
+    m_FlagKeeper = 0;
+    m_DroppedFlagGUID = 0;
+    m_FlagCapturedBgObjectType = 0;
+    m_FlagState = BG_EY_FLAG_STATE_ON_BASE;
+    m_FlagsTimer = 0;
+    m_TowerCapCheckTimer = 0;
+    m_PointAddingTimer = 0;
+    m_HonorTics = 0;
+
+    for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
+    {
+        m_PointOwnedByTeam[i] = EY_POINT_NO_OWNER;
+        m_PointState[i] = EY_POINT_STATE_UNCONTROLLED;
+        m_PointBarStatus[i] = BG_EY_PROGRESS_BAR_STATE_MIDDLE;
+    }
+
+    for (uint8 i = 0; i < 2 * EY_POINTS_MAX; ++i)
+        m_CurrentPointPlayersCount[i] = 0;
 
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_EY_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_EY_START_ONE_MINUTE;

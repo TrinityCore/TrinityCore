@@ -45,6 +45,7 @@ set(scripts_STAT_SRCS
   Northrend/ChamberOfAspects/ObsidianSanctum/instance_obsidian_sanctum.cpp
   Northrend/ChamberOfAspects/ObsidianSanctum/obsidian_sanctum.h
   Northrend/ChamberOfAspects/ObsidianSanctum/boss_sartharion.cpp
+  Northrend/ChamberOfAspects/ObsidianSanctum/obsidian_sanctum.cpp
   Northrend/ChamberOfAspects/RubySanctum/instance_ruby_sanctum.cpp
   Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.h
   Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.cpp

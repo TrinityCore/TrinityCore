@@ -71,10 +71,7 @@ class SmartAI : public CreatureAI
         // Called when creature is spawned or respawned
         void JustRespawned();
 
-        // Called after InitializeAI(), EnterEvadeMode() for resetting variables
-        void Reset();
-
-        // Called at reaching home after evade
+        // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
         void JustReachedHome();
 
         // Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
@@ -232,6 +229,7 @@ class SmartAI : public CreatureAI
         uint32 mDespawnState;
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;
+        bool mJustReset;
 };
 
 class SmartGameObjectAI : public GameObjectAI

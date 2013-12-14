@@ -35,6 +35,27 @@ BattlegroundAB::BattlegroundAB()
     BgObjects.resize(BG_AB_OBJECT_MAX);
     BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
 
+    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
+    {
+        m_Nodes[i] = 0;
+        m_prevNodes[i] = 0;
+        m_NodeTimers[i] = 0;
+        m_BannerTimers[i].timer = 0;
+        m_BannerTimers[i].type = 0;
+        m_BannerTimers[i].teamIndex = 0;
+    }
+
+    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+    {
+        m_lastTick[i] = 0;
+        m_HonorScoreTics[i] = 0;
+        m_ReputationScoreTics[i] = 0;
+        m_TeamScores500Disadvantage[i] = false;
+    }
+
+    m_HonorTics = 0;
+    m_ReputationTics = 0;
+
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AB_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AB_START_HALF_MINUTE;

@@ -117,6 +117,10 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
         {
             i_path = &pathnodes;
             i_currentNode = startNode;
+            _endGridX = 0.0f;
+            _endGridY = 0.0f;
+            _endMapId = 0;
+            _preloadTargetNode = 0;
         }
         void DoInitialize(Player*);
         void DoReset(Player*);
