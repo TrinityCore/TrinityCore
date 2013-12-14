@@ -3393,6 +3393,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 34471: // The Beast Within
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 56606: // Ride Jokkum
+            case 61791: // Ride Vehicle (Yogg-Saron)
+                /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
+                spellInfo->Effects[EFFECT_0].BasePoints = 1;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
@@ -3430,10 +3435,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
                 // that will be clear if we get more spells with problem like this
                 spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
-                break;
-            case 61791: // Ride Vehicle (Yogg-Saron)
-                // TODO: remove this when basepoints of all Ride Vehicle auras are calculated correctly
-                spellInfo->Effects[EFFECT_0].BasePoints = 1;
                 break;
             case 64468: // Empowering Shadows (Yogg-Saron)
             case 64486: // Empowering Shadows (Yogg-Saron)
