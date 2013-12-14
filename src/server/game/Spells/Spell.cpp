@@ -504,6 +504,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_applyMultiplierMask = 0;
     m_auraScaleMask = 0;
+    memset(m_damageMultipliers, 0, sizeof(m_damageMultipliers));
 
     // Get data for type of attack
     switch (m_spellInfo->DmgClass)
@@ -559,6 +560,16 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     unitTarget = NULL;
     itemTarget = NULL;
     gameObjTarget = NULL;
+    destTarget = NULL;
+    damage = 0;
+    effectHandleMode = SPELL_EFFECT_HANDLE_LAUNCH;
+    m_diminishLevel = DIMINISHING_LEVEL_1;
+    m_diminishGroup = DIMINISHING_NONE;
+    m_damage = 0;
+    m_healing = 0;
+    m_procAttacker = 0;
+    m_procVictim = 0;
+    m_procEx = 0;
     focusObject = NULL;
     m_cast_count = 0;
     m_glyphIndex = 0;
@@ -573,6 +584,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_powerCost = 0;                                        // setup to correct value in Spell::prepare, must not be used before.
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, must not be used before.
     m_timer = 0;                                            // will set to castime in prepare
+
+    m_immediateHandled = false;
 
     m_channelTargetEffectMask = 0;
 
