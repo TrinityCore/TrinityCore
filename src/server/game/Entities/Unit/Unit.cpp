@@ -13634,9 +13634,10 @@ void CharmInfo::InitPossessCreateSpells()
         // Adding entrys to this switch will prevent COMMAND_ATTACK being added to pet bar.
         switch (_unit->GetEntry())
         {
-            case 40281: //Crashin' Thrashin' Racer
-            case 27664: //Crashin' Thrashin' Racer
             case 23575: // Mindless Abomination
+            case 24783: // Trained Rock Falcon
+            case 27664: // Crashin' Thrashin' Racer
+            case 40281: // Crashin' Thrashin' Racer
                 break;
             default:
                 InitEmptyActionBar();
@@ -15923,9 +15924,6 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                             TC_LOG_ERROR("entities.unit", "Aura::HandleModCharm: target=" UI64FMTD " with typeid=%d has a charm aura but no charm info!", GetGUID(), GetTypeId());
                     }
                 }
-                break;
-            default:
-            case CHARM_TYPE_CONVERT:
                 break;
         }
     }
