@@ -43,6 +43,9 @@ MapManager::MapManager()
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
+    memset(i_GridStates, 0, sizeof(i_GridStates));
+    i_GridStateErrorCount = 0;
+    _nextInstanceId = 0;
 }
 
 MapManager::~MapManager() { }

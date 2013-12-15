@@ -1037,6 +1037,10 @@ struct SmartTarget
         raw.param1 = p1;
         raw.param2 = p2;
         raw.param3 = p3;
+        x = 0.0f;
+        y = 0.0f;
+        z = 0.0f;
+        o = 0.0f;
     }
     SMARTAI_TARGETS type;
     float x, y, z, o;

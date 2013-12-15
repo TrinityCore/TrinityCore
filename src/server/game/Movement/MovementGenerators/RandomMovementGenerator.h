@@ -37,7 +37,6 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
     private:
         TimeTrackerSmall i_nextMoveTime;
 
-        uint32 i_nextMove;
         float wander_distance;
 };
 #endif

@@ -1064,4 +1064,5 @@ void WintergraspCapturePoint::ChangeTeam(TeamId /*oldTeam*/)
 BfGraveyardWG::BfGraveyardWG(BattlefieldWG* battlefield) : BfGraveyard(battlefield)
 {
     m_Bf = battlefield;
+    m_GossipTextId = 0;
 }

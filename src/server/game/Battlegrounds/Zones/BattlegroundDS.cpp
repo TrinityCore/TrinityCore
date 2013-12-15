@@ -29,6 +29,12 @@ BattlegroundDS::BattlegroundDS()
     BgObjects.resize(BG_DS_OBJECT_MAX);
     BgCreatures.resize(BG_DS_NPC_MAX);
 
+    _waterfallTimer = 0;
+    _waterfallStatus = 0;
+    _waterfallKnockbackTimer = 0;
+    _pipeKnockBackTimer = 0;
+    _pipeKnockBackCount = 0;
+
     StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;

@@ -60,7 +60,7 @@ class _SpellScript
         virtual bool _Validate(SpellInfo const* entry);
 
     public:
-        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE) { }
+        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(NULL), m_scriptSpellId(0) {}
         virtual ~_SpellScript() { }
         virtual void _Register();
         virtual void _Unload();
