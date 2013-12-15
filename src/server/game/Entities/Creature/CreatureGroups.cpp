@@ -166,11 +166,11 @@ void CreatureGroup::RemoveMember(Creature* member)
 
 void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
 {
-    uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetDBTableGUIDLow()]->groupAI;
-    if (!groupAI)
+    uint32 groupAI = m_members[member]->groupAI;
+    if ((groupAI & GROUP_AI_DEFEND_SOMETHING) == 0)
         return;
 
-    if (groupAI == 1 && member != m_leader)
+    if ((groupAI & GROUP_AI_DEFEND_LEADER) != 0 && member != m_leader)
         return;
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -224,6 +224,10 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
     {
         Creature* member = itr->first;
         if (member == m_leader || !member->IsAlive() || member->GetVictim())
+            continue;
+
+        uint32 groupAI = itr->second->groupAI;
+        if (groupAI & GROUP_AI_NO_FOLLOW != 0)
             continue;
 
         if (itr->second->point_1)
