@@ -125,14 +125,14 @@ void TW_AggroAllPlayers(Creature* pTemp)
 
 bool TW_GrandChampionsOutVehicle(Creature* me)
 {
-    InstanceScript* pInstance = me->GetInstanceScript();
+    InstanceScript* instance = me->GetInstanceScript();
 
-    if (!pInstance)
+    if (!instance)
         return false;
 
-    Creature* pGrandChampion1 = Unit::GetCreature(*me, pInstance->GetData64(DATA_GRAND_CHAMPION_1));
-    Creature* pGrandChampion2 = Unit::GetCreature(*me, pInstance->GetData64(DATA_GRAND_CHAMPION_2));
-    Creature* pGrandChampion3 = Unit::GetCreature(*me, pInstance->GetData64(DATA_GRAND_CHAMPION_3));
+    Creature* pGrandChampion1 = Unit::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_1));
+    Creature* pGrandChampion2 = Unit::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_2));
+    Creature* pGrandChampion3 = Unit::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_3));
 
     if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
     {
@@ -166,10 +166,10 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
             SetDespawnAtEnd(false);
             uiWaypointPath = 0;
             uiCheckTimer=5000;
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool hasBeenInCombat;
         bool combatEntered;
@@ -241,15 +241,17 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
 
         void WaypointReached(uint32 i) OVERRIDE
         {
+            if (!instance)
+                return;
+
             switch(i)
             {
                 case 2:
-                    if ((pInstance && uiWaypointPath == 3) || uiWaypointPath == 2)
-                        pInstance->SetData(DATA_MOVEMENT_DONE, pInstance->GetData(DATA_MOVEMENT_DONE)+1);
+                    if (uiWaypointPath == 3 || uiWaypointPath == 2)
+                        instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE)+1);
                     break;
                 case 3:
-                    if (pInstance)
-                        pInstance->SetData(DATA_MOVEMENT_DONE, pInstance->GetData(DATA_MOVEMENT_DONE)+1);
+                        instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE)+1);
                     break;
             }
         }
@@ -324,7 +326,7 @@ class TW_generic_vehicleAI_toc5 : public CreatureScript
 
                                     foundtarget = true;
 
-                                    if (Vehicle* pVehicle = player->GetVehicle())
+                                    if (Vehicle* pVehicle = player->GetVehicle()) // If no mounted player is found, first encounter bugs. This might cause it, needs further tests
                                     {
                                         if (Unit* vehicleCreature = pVehicle->GetBase())
                                         {
@@ -487,7 +489,7 @@ class TW_boss_warrior_toc5 : public CreatureScript
     {
         TW_boss_warrior_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -498,7 +500,7 @@ class TW_boss_warrior_toc5 : public CreatureScript
             uiPhaseTimer = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -550,11 +552,11 @@ class TW_boss_warrior_toc5 : public CreatureScript
                 Talk(WARNING_WEAPONS);
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect	
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                          me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                          me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -618,8 +620,8 @@ class TW_boss_warrior_toc5 : public CreatureScript
                 hasBeenInCombat = false;
                 Talk(SAY_CHAMPION_DIED);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 
                 // Instance encounter counting mechanics
                 if (!bCredit)
@@ -658,7 +660,7 @@ class TW_boss_mage_toc5 : public CreatureScript
     {
         TW_boss_mage_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -672,7 +674,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -723,15 +725,15 @@ class TW_boss_mage_toc5 : public CreatureScript
                 bDone = true;
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                          me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                          me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
@@ -790,8 +792,8 @@ class TW_boss_mage_toc5 : public CreatureScript
                 hasBeenInCombat = false;
                 Talk(SAY_CHAMPION_DIED);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 
                 // Instance encounter counting mechanics
                 if (!bCredit)
@@ -824,7 +826,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
     {
         TW_boss_shaman_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -837,7 +839,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);        
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -891,15 +893,15 @@ class TW_boss_shaman_toc5 : public CreatureScript
 
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                          me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                          me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -964,8 +966,8 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 hasBeenInCombat = false;
                 Talk(SAY_CHAMPION_DIED);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 
                 // Instance encounter counting mechanics
                 if (!bCredit)
@@ -998,7 +1000,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
     {
         TW_boss_hunter_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -1011,7 +1013,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -1048,14 +1050,14 @@ class TW_boss_hunter_toc5 : public CreatureScript
                         return;
                 }
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
 
-                if (pInstance)
+                if (instance)
                 {
-                    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
+                    GameObject* GO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1));
                     if (GO)
-                        pInstance->HandleGameObject(GO->GetGUID(),true);
+                        instance->HandleGameObject(GO->GetGUID(),true);
                 }
 
                 me->RemoveFromWorld();
@@ -1092,15 +1094,15 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                          me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                          me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -1185,8 +1187,8 @@ class TW_boss_hunter_toc5 : public CreatureScript
                 hasBeenInCombat = false;
                 Talk(SAY_CHAMPION_DIED);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 
                 // Instance encounter counting mechanics
                 if (!bCredit)
@@ -1219,7 +1221,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
     {
         TW_boss_rogue_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -1233,7 +1235,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -1263,14 +1265,14 @@ class TW_boss_rogue_toc5 : public CreatureScript
                         return;
                 }
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
 
-                if (pInstance)
+                if (instance)
                 {
-                    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
+                    GameObject* GO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1));
                     if (GO)
-                        pInstance->HandleGameObject(GO->GetGUID(),true);
+                        instance->HandleGameObject(GO->GetGUID(),true);
                 }
 
                 me->RemoveFromWorld();
@@ -1307,15 +1309,15 @@ class TW_boss_rogue_toc5 : public CreatureScript
 
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                          me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                          me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
@@ -1365,8 +1367,8 @@ class TW_boss_rogue_toc5 : public CreatureScript
                 hasBeenInCombat = false;
                 Talk(SAY_CHAMPION_DIED);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 
                 // Instance encounter counting mechanics
                 if (!bCredit)
