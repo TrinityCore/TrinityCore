@@ -395,3 +395,6 @@ VALUES
 -- Varian
 UPDATE `creature_text` SET `type` = 14 WHERE `groupid` IN (50, 52) AND `entry` = 34990; -- because players can't hear it otherwise
 
+-- Go's
+UPDATE `gameobject_template` SET `flags` = `flags` &~ 16 WHERE `entry` IN (195324, 195323, 195375, 195374, 195710, 195709);
+

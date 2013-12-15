@@ -254,3 +254,5 @@ DELETE FROM `creature_text` WHERE `entry` = 35005 AND `groupid` BETWEEN 20 AND 2
 DELETE FROM `creature_text` WHERE `entry` = 34992 AND `groupid` IN (10, 11);
 -- Varian
 UPDATE `creature_text` SET `type` = 12 WHERE `groupid` IN (50, 52) AND `entry` = 34990;
+
+UPDATE `gameobject_template` SET `flags` = `flags` |16 WHERE `entry` IN (195324, 195323, 195375, 195374, 195710, 195709);
