@@ -31,9 +31,18 @@ struct FormationInfo
     uint32 leaderGUID;
     float follow_dist;
     float follow_angle;
-    uint8 groupAI;
+    uint32 groupAI;
     uint16 point_1;
     uint16 point_2;
+};
+
+enum GroupAIType
+{
+    GROUP_AI_DEFEND_LEADER          = 0x00000001,
+    GROUP_AI_DEFEND_ALL             = 0x00000002,
+    GROUP_AI_NO_FOLLOW              = 0x00000004,
+
+    GROUP_AI_DEFEND_SOMETHING       = GROUP_AI_DEFEND_LEADER | GROUP_AI_DEFEND_ALL,
 };
 
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
