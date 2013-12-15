@@ -21,8 +21,10 @@
 
 enum Say
 {
-    SAY_HP50                = 0,
-    SAY_HP15                = 1
+    SAY_AGGRO               = 0,
+    SAY_SLAY                = 1,
+    SAY_HP50                = 2,
+    SAY_HP15                = 3
 };
 
 enum Spells
@@ -50,6 +52,12 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
+            Talk(SAY_AGGRO);
+        }
+
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        {
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE

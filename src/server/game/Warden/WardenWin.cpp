@@ -34,7 +34,7 @@
 #include "WardenCheckMgr.h"
 #include "AccountMgr.h"
 
-WardenWin::WardenWin() : Warden() { }
+WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
 
 WardenWin::~WardenWin() { }
 

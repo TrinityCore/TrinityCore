@@ -130,7 +130,11 @@ enum eNpcs
     MEMORY_VANCLEEF             = 35028,
     MEMORY_VASHJ                = 35040,
     MEMORY_VEKNILASH            = 35036,
-    MEMORY_VEZAX                = 35051
+    MEMORY_VEZAX                = 35051,
+
+    // Vehicles
+    NPC_ARGENT_WARHORSE         = 35644,
+    NPC_ARGENT_BATTLEWORG       = 36558
 };
 
 enum eGameObjects

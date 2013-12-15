@@ -81,6 +81,7 @@ enum Talk
 {
     SAY_ARGENT_ENTERS           = 19,
     SAY_ARGENT_READY            = 20,
+    SAY_MEMORY_NIGHTMARE        = 0,
 
     // Paletress
     SAY_PALETRESS_AGGRO         = 2,
@@ -91,9 +92,11 @@ enum Talk
 
     // Eadric
     SAY_EADRIC_AGGRO            = 1,
-    SAY_EADRIC_HAMMER           = 2,
-    SAY_EADRIC_PLAYER_DIES      = 3,
-    SAY_EADRIC_DEFEATED         = 4
+    SAY_EADRIC_RADIATE_LIGHT    = 2,
+    SAY_EADRIC_HAMMER_TARGET    = 3,
+    SAY_EADRIC_HAMMER           = 4,
+    SAY_EADRIC_PLAYER_DIES      = 5,
+    SAY_EADRIC_DEFEATED         = 6
 };
 
 class OrientationCheck
@@ -109,33 +112,6 @@ class OrientationCheck
         Unit* caster;
 };
 
-class TW_spell_eadric_radiance : public SpellScriptLoader
-{
-    public:
-        TW_spell_eadric_radiance() : SpellScriptLoader("TW_spell_eadric_radiance") { }
-
-        class TW_spell_eadric_radiance_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(TW_spell_eadric_radiance_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(OrientationCheck(GetCaster()));
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript *GetSpellScript() const
-        {
-            return new TW_spell_eadric_radiance_SpellScript();
-        }
-};
-
 class TW_spell_eadric_hoj : public SpellScriptLoader
 {
     public:
@@ -145,7 +121,7 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
         {
             PrepareSpellScript(TW_spell_eadric_hoj_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHit() OVERRIDE
             {
                 if (GetHitUnit() && GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
                     if (!GetHitUnit()->HasAura(SPELL_HAMMER_JUSTICE_STUN)) // FIXME: Has Catched Hammer...
@@ -156,7 +132,7 @@ class TW_spell_eadric_hoj : public SpellScriptLoader
 
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnHit += SpellHitFn(TW_spell_eadric_hoj_SpellScript::HandleOnHit);
             }
@@ -298,6 +274,7 @@ class TW_boss_eadric : public CreatureScript
                     if (target && target->IsAlive())
                     {
                         Talk(SAY_EADRIC_HAMMER);
+                        Talk(SAY_EADRIC_HAMMER_TARGET, target->GetGUID());
                         DoCast(target, SPELL_HAMMER_JUSTICE);
                         DoCast(target, SPELL_HAMMER_RIGHTEOUS);
                     }
@@ -315,7 +292,7 @@ class TW_boss_eadric : public CreatureScript
             if (uiRadianceTimer <= uiDiff)
             {
                 DoCastAOE(SPELL_RADIANCE);
-
+                Talk(SAY_EADRIC_RADIATE_LIGHT);
                 uiRadianceTimer = 16000;
             } else uiRadianceTimer -= uiDiff;
 
@@ -602,7 +579,7 @@ class TW_boss_paletress : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             MemoryGUID = summon->GetGUID();
         }
@@ -634,7 +611,7 @@ class TW_npc_memory : public CreatureScript
             uiWakingNightmare = 7000;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -651,6 +628,7 @@ class TW_npc_memory : public CreatureScript
 
             if (uiWakingNightmare <= uiDiff)
             {
+                Talk(SAY_MEMORY_NIGHTMARE);
                 DoCast(me, DUNGEON_MODE(SPELL_WAKING_NIGHTMARE,SPELL_WAKING_NIGHTMARE_H));
                 uiWakingNightmare = 15000;
             } else uiWakingNightmare -= uiDiff;
@@ -668,7 +646,7 @@ class TW_npc_memory : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (me->IsSummon())
             {
@@ -725,7 +703,7 @@ class TW_npc_argent_soldier : public CreatureScript
 
         bool bStarted;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiStrikeTimer = 5000;
             uiCleaveTimer = 6000;
@@ -745,7 +723,7 @@ class TW_npc_argent_soldier : public CreatureScript
             }
         }
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 uiPoint) OVERRIDE
         {
             if (uiPoint == 0)
             {
@@ -784,7 +762,7 @@ class TW_npc_argent_soldier : public CreatureScript
             }  
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
         {
             switch(me->GetEntry())
             {
@@ -842,7 +820,7 @@ class TW_npc_argent_soldier : public CreatureScript
             uiWaypoint = uiType;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -918,7 +896,7 @@ class TW_npc_argent_soldier : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (pInstance)
                 pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
@@ -946,7 +924,7 @@ class TW_spell_gen_reflective_shield : public SpellScriptLoader
         {
             PrepareAuraScript(TW_spell_gen_reflective_shield_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_TRIGGERED)) // Is this correct?  I honestly don't know anything about AuraScript, so I took this from class spell_blood_queen_pact_of_the_darkfallen_dmg 
                     return false;
@@ -954,7 +932,7 @@ class TW_spell_gen_reflective_shield : public SpellScriptLoader
                 return true;
             }
 
-            void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount) OVERRIDE
             {
                 Unit * target = dmgInfo.GetAttacker();
                 if (!target)
@@ -987,7 +965,7 @@ class TW_achievement_toc5_argent_challenge : public AchievementCriteriaScript
             creature_entry = original_entry;
         }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;
@@ -1003,7 +981,6 @@ class TW_achievement_toc5_argent_challenge : public AchievementCriteriaScript
 void AddSC_TW_boss_argent_challenge()
 {
     new TW_boss_eadric();
-    new TW_spell_eadric_radiance();
     new TW_spell_eadric_hoj();
     new TW_boss_paletress();
     new TW_npc_memory();

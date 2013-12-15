@@ -5595,12 +5595,8 @@ void Spell::EffectQuestStart(SpellEffIndex effIndex)
 
     Player* player = unitTarget->ToPlayer();
     if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(m_spellInfo->Effects[effIndex].MiscValue))
-    {
         if (player->CanTakeQuest(qInfo, false) && player->CanAddQuest(qInfo, false))
-        {
-            player->AddQuest(qInfo, NULL);
-        }
-    }
+            player->AddQuestAndCheckCompletion(qInfo, NULL);
 }
 
 void Spell::EffectActivateRune(SpellEffIndex effIndex)

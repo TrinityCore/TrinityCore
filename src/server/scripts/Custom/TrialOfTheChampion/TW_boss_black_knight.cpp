@@ -28,11 +28,11 @@ enum Talk
    SAY_INTRO_3                             = 1, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
    SAY_INTRO_4                             = 2, // I have come to finish my task
    SAY_AGGRO                               = 3, // This farce ends here!
-   SAY_AGGRO_A                             = 12, // Don't just stand there; kill him!
-   SAY_AGGRO_H                             = 12, // Tear him apart!
-   SAY_KILLED_PLAYER                       = 4, // Pathetic | A waste of flesh.
-   SAY_PHASE_1                             = 5, // My roting flash was just getting in the way!
-   SAY_PHASE_2                             = 6, // I have no need for bones to best you!
+   SAY_AGGRO_A                             = 12, // Don't just stand there; kill him! - Not used?
+   SAY_AGGRO_H                             = 12, // Tear him apart! - Not used?
+   SAY_KILLED_PLAYER                       = 6, // Pathetic | A waste of flesh.
+   SAY_PHASE_1                             = 4, // My roting flash was just getting in the way!
+   SAY_PHASE_2                             = 5, // I have no need for bones to best you!
    SAY_DEATH                               = 7, // No! I must not fail...again...
 };
 
@@ -156,7 +156,7 @@ public:
         uint32 uiDeathBiteTimer;
         uint32 uiMarkedDeathTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
@@ -203,9 +203,10 @@ public:
             uiMarkedDeathTimer = urand (5000, 7000);
             uiIntroTimer = 15000;
             uiIntroPhase = 0;
+            Phase = IDLE;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
         {
             if (!who)
                 return;
@@ -243,12 +244,12 @@ public:
             SummonList.clear();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             SummonList.push_back(summon->GetGUID());
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (Phase == IDLE)
                 return;
@@ -471,7 +472,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             bEventInBattle = true;
             Talk(SAY_AGGRO);
@@ -498,14 +499,14 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_KILLED_PLAYER);
             if (instance)
                 instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
         {
             if (damage >= me->GetHealth() && uiPhase <= PHASE_SKELETON)
             {
@@ -533,7 +534,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             //DoCast(me, SPELL_KILL_CREDIT);
             Talk(SAY_DEATH);
@@ -576,12 +577,12 @@ public:
 
         uint32 uiAttackTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiAttackTimer = 3500;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -620,13 +621,13 @@ public:
         uint32 uiLeapTimer;
         uint32 uiClawTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiLeapTimer = 10000;
             uiClawTimer = 1000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -675,12 +676,12 @@ public:
         Creature* pHighlord;
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             pHighlord = NULL;
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 uiPointId) OVERRIDE
         {
             switch (uiPointId)
             {
@@ -722,7 +723,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             npc_escortAI::UpdateAI(uiDiff);
 

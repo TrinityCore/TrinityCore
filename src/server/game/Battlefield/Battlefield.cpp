@@ -45,8 +45,10 @@ Battlefield::Battlefield()
     m_MapId = 0;
     m_MaxPlayer = 0;
     m_MinPlayer = 0;
+    m_MinLevel = 0;
     m_BattleTime = 0;
     m_NoWarBattleTime = 0;
+    m_RestartAfterCrash = 0;
     m_TimeForAcceptInvite = 20;
     m_uiKickDontAcceptTimer = 1000;
 
@@ -821,7 +823,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
         return 0;
     }
 
-    Creature* creature = new Creature;
+    Creature* creature = new Creature();
     if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, team, x, y, z, o))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);

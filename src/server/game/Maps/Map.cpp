@@ -68,12 +68,8 @@ Map::~Map()
         Transport* transport = *itr;
         ++itr;
 
-        // Destroy local transports
-        if (transport->GetTransportTemplate()->inInstance)
-        {
-            transport->RemoveFromWorld();
-            delete transport;
-        }
+        transport->RemoveFromWorld();
+        delete transport;
     }
 
     if (!m_scriptSchedule.empty())
@@ -1375,6 +1371,7 @@ GridMap::GridMap()
     // Height level data
     _gridHeight = INVALID_HEIGHT;
     _gridGetHeight = &GridMap::getHeightFromFlat;
+    _gridIntHeightMultiplier = 0;
     m_V9 = NULL;
     m_V8 = NULL;
     // Liquid data
