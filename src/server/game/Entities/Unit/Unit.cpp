@@ -13617,9 +13617,10 @@ void CharmInfo::InitPossessCreateSpells()
         // Adding entrys to this switch will prevent COMMAND_ATTACK being added to pet bar.
         switch (_unit->GetEntry())
         {
-            case 40281: //Crashin' Thrashin' Racer
-            case 27664: //Crashin' Thrashin' Racer
             case 23575: // Mindless Abomination
+            case 24783: // Trained Rock Falcon
+            case 27664: // Crashin' Thrashin' Racer
+            case 40281: // Crashin' Thrashin' Racer
                 break;
             default:
                 InitEmptyActionBar();
