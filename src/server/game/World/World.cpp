@@ -111,17 +111,29 @@ World::World()
     m_MaxPlayerCount = 0;
     m_NextDailyQuestReset = 0;
     m_NextWeeklyQuestReset = 0;
+    m_NextMonthlyQuestReset = 0;
+    m_NextRandomBGReset = 0;
+    m_NextGuildReset = 0;
     m_NextCurrencyReset = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
 
+    mail_timer = 0;
+    mail_timer_expires = 0;
+    m_updateTime = 0;
     m_updateTimeSum = 0;
     m_updateTimeCount = 0;
+    m_currentTime = 0;
 
     m_isClosed = false;
 
     m_CleaningFlags = 0;
+
+    memset(rate_values, 0, sizeof(rate_values));
+    memset(m_int_configs, 0, sizeof(m_int_configs));
+    memset(m_bool_configs, 0, sizeof(m_bool_configs));
+    memset(m_float_configs, 0, sizeof(m_float_configs));
 }
 
 /// World destructor

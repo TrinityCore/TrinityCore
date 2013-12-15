@@ -244,7 +244,10 @@ typedef UNORDERED_MAP<uint32, EquipmentInfoContainerInternal> EquipmentInfoConta
 // from `creature` table
 struct CreatureData
 {
-    CreatureData() : dbData(true) { }
+    CreatureData() : id(0), mapid(0), phaseMask(0), displayid(0), equipmentId(0),
+                     posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
+                     spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
+                     spawnMask(0), npcflag(0), unit_flags(0), dynamicflags(0), dbData(true) { }
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint32 phaseMask;

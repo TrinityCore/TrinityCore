@@ -192,6 +192,7 @@ struct Condition
         SourceType         = CONDITION_SOURCE_TYPE_NONE;
         SourceGroup        = 0;
         SourceEntry        = 0;
+        SourceId           = 0;
         ElseGroup          = 0;
         ConditionType      = CONDITION_NONE;
         ConditionTarget    = 0;

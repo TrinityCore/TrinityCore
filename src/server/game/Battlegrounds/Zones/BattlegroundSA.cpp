@@ -37,6 +37,22 @@ BattlegroundSA::BattlegroundSA()
     SignaledRoundTwo = false;
     SignaledRoundTwoHalfMin = false;
     InitSecondRound = false;
+    gateDestroyed = false;
+    Attackers = TEAM_ALLIANCE;
+    TotalTime = 0;
+    EndRoundTimer = 0;
+    ShipsStarted = false;
+    Status = BG_SA_NOTSTARTED;
+
+    for (uint8 i = 0; i < 6; i++)
+        GateStatus[i] = BG_SA_GATE_OK;
+
+    for (uint8 i = 0; i < 2; i++)
+    {
+        RoundScores[i].winner = TEAM_ALLIANCE;
+        RoundScores[i].time = 0;
+        _allVehiclesAlive[i] = true;
+    }
 
     //! This is here to prevent an uninitialised variable warning
     //! The warning only occurs when SetUpBattleGround fails though.
