@@ -74,7 +74,7 @@ enum Spells
 
 enum Talk
 {
-    SAY_CHAMPION_DIED               = 0,
+    SAY_CHAMPION_DEFEAT             = 0,
     WARNING_WEAPONS                 = 1,
 };
 
@@ -535,13 +535,13 @@ class TW_boss_warrior_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             _EnterCombat();
             hasBeenInCombat = true;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!me->GetVehicle())
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -612,13 +612,13 @@ class TW_boss_warrior_toc5 : public CreatureScript
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
         {
             if (damage >= me->GetHealth())
             {
                 damage = 0;
                 hasBeenInCombat = false;
-                Talk(SAY_CHAMPION_DIED);
+                Talk(SAY_CHAMPION_DEFEAT);
 
                 if (instance)
                     instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
@@ -629,11 +629,11 @@ class TW_boss_warrior_toc5 : public CreatureScript
                     bCredit = true;
                     HandleSpellOnPlayersInInstanceToC5(me, SPELL_GRAND_CHAMPIONS_CREDIT);
                 }
-                EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                me->DespawnOrUnsummon(5000);
+                HandleKillCreditForAllPlayers(me);
+                HandleInstanceBind(me);
             }
         }
 
@@ -790,7 +790,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             {
                 damage = 0;
                 hasBeenInCombat = false;
-                Talk(SAY_CHAMPION_DIED);
+                Talk(SAY_CHAMPION_DEFEAT);
 
                 if (instance)
                     instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
@@ -801,11 +801,11 @@ class TW_boss_mage_toc5 : public CreatureScript
                     bCredit = true;
                     HandleSpellOnPlayersInInstanceToC5(me, SPELL_GRAND_CHAMPIONS_CREDIT);
                 }
-                EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                me->DespawnOrUnsummon(5000);
+                HandleKillCreditForAllPlayers(me);
+                HandleInstanceBind(me);
             }
         }
     };
@@ -865,8 +865,11 @@ class TW_boss_shaman_toc5 : public CreatureScript
         {
             _EnterCombat();
             hasBeenInCombat = true;
-            DoCast(me,SPELL_EARTH_SHIELD);
-            DoCast(who,SPELL_HEX_OF_MENDING);
+            if (!me->GetVehicle())
+            {
+                DoCast(me, SPELL_EARTH_SHIELD);
+                DoCast(who, SPELL_HEX_OF_MENDING);
+            }
         };
 
         void JustReachedHome() OVERRIDE
@@ -916,6 +919,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 }
             } else uiPhaseTimer -= uiDiff;
 
+
             if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || me->GetVehicle())
                 return;
 
@@ -964,7 +968,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             {
                 damage = 0;
                 hasBeenInCombat = false;
-                Talk(SAY_CHAMPION_DIED);
+                Talk(SAY_CHAMPION_DEFEAT);
 
                 if (instance)
                     instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
@@ -979,7 +983,8 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                me->DespawnOrUnsummon(5000);
+                HandleKillCreditForAllPlayers(me);
+                HandleInstanceBind(me);
             }
         }
     };
@@ -1185,7 +1190,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             {
                 damage = 0;
                 hasBeenInCombat = false;
-                Talk(SAY_CHAMPION_DIED);
+                Talk(SAY_CHAMPION_DEFEAT);
 
                 if (instance)
                     instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
@@ -1200,7 +1205,8 @@ class TW_boss_hunter_toc5 : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                me->DespawnOrUnsummon(5000);
+                HandleKillCreditForAllPlayers(me);
+                HandleInstanceBind(me);
             }
         }
     };
@@ -1339,20 +1345,20 @@ class TW_boss_rogue_toc5 : public CreatureScript
 
             if (uiEviscerateTimer <= uiDiff)
             {
-                DoCast(me->GetVictim(),DUNGEON_MODE(SPELL_EVISCERATE,SPELL_EVISCERATE_H));
+                DoCast(me->GetVictim(),DUNGEON_MODE(SPELL_EVISCERATE, SPELL_EVISCERATE_H));
                 uiEviscerateTimer = 12000;
             } else uiEviscerateTimer -= uiDiff;
 
             if (uiFanKivesTimer <= uiDiff)
             {
-                DoCastAOE(SPELL_FAN_OF_KNIVES,false);
+                DoCastAOE(SPELL_FAN_OF_KNIVES, false);
                 uiFanKivesTimer = 20000;
             } else uiFanKivesTimer -= uiDiff;
 
             if (uiPosionBottleTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_POISON_BOTTLE);
+                DoCast(target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
 
@@ -1365,7 +1371,7 @@ class TW_boss_rogue_toc5 : public CreatureScript
             {
                 damage = 0;
                 hasBeenInCombat = false;
-                Talk(SAY_CHAMPION_DIED);
+                Talk(SAY_CHAMPION_DEFEAT);
 
                 if (instance)
                     instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
@@ -1377,10 +1383,11 @@ class TW_boss_rogue_toc5 : public CreatureScript
                     HandleSpellOnPlayersInInstanceToC5(me, SPELL_GRAND_CHAMPIONS_CREDIT);
                 }
                 EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                me->DespawnOrUnsummon(5000);
+                HandleKillCreditForAllPlayers(me);
+                HandleInstanceBind(me);
             }
         }
     };
@@ -1413,6 +1420,32 @@ class TW_achievement_toc5_grand_champions : public AchievementCriteriaScript
             return false;
         }
 };
+
+void HandleInstanceBind(Creature* source)
+{
+    Map::PlayerList const& players = source->GetMap()->GetPlayers();
+    if (!players.isEmpty() && source->GetMap()->ToInstanceMap()->IsHeroic())
+    {
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
+            Player* player = itr->GetSource();
+            if (player)
+                source->GetMap()->ToInstanceMap()->PermBindAllPlayers(player);
+        }
+    }
+}
+
+void HandleKillCreditForAllPlayers(Creature* credit)
+{
+    InstanceScript* instance = credit->GetInstanceScript();
+    if (instance)
+    {
+        Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->KilledMonsterCredit(credit->GetEntry(), 0);
+    }
+}
 
 void AddSC_TW_boss_grand_champions()
 {

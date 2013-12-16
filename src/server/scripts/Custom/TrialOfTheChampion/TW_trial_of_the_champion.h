@@ -191,5 +191,8 @@ enum Actions
 };
 
 void HandleSpellOnPlayersInInstanceToC5(Unit* caller, uint32 spellId);
+void HandleKillCreditForAllPlayers(Creature* credit);
+void HandleInstanceBind(Creature* source);
+
 
 #endif
