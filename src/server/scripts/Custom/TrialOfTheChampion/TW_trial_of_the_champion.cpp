@@ -401,22 +401,31 @@ class TW_npc_herald_toc5 : public CreatureScript
             ++uiSummonTimes;
             uint32 VEHICLE_TO_SUMMON1 = 0;
             uint32 VEHICLE_TO_SUMMON2 = 0;
-            switch(uiBoss)
+            switch (uiBoss)
             {
                 case 0:
-                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE ? Talk(H_SAY_WARRIOR_ENTERS) : Talk(A_SAY_WARRIOR_ENTERS);
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        Talk(H_SAY_WARRIOR_ENTERS);
+                    else
+                        Talk(A_SAY_WARRIOR_ENTERS);
                     Talk(SAY_WARRIOR_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
                     break;
                 case 1:
-                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE ? Talk(H_SAY_MAGE_ENTERS) : Talk(A_SAY_MAGE_ENTERS);
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        Talk(H_SAY_MAGE_ENTERS);
+                    else
+                        Talk(A_SAY_MAGE_ENTERS);
                     Talk(SAY_MAGE_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
                     break;
                 case 2:
-                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE ? Talk(H_SAY_SHAMAN_ENTERS) : Talk(A_SAY_SHAMAN_ENTERS);
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        Talk(H_SAY_SHAMAN_ENTERS);
+                    else
+                        Talk(A_SAY_SHAMAN_ENTERS);
                     Talk(SAY_SHAMAN_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
@@ -428,7 +437,10 @@ class TW_npc_herald_toc5 : public CreatureScript
                     VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
                     break;
                 case 4:
-                    instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE ? Talk(H_SAY_ROGUE_ENTERS) : Talk(A_SAY_ROGUE_ENTERS);
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        Talk(H_SAY_ROGUE_ENTERS);
+                    else
+                        Talk(A_SAY_ROGUE_ENTERS);
                     Talk(SAY_ROGUE_CHEER);
                     VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
                     VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;
@@ -497,7 +509,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                 {
                     if (Creature* pAdd = me->SummonCreature(VEHICLE_TO_SUMMON2,SpawnPosition,TEMPSUMMON_CORPSE_DESPAWN))
                     {
-                        switch(uiSummonTimes)
+                        switch (uiSummonTimes)
                         {
                             case 1:
                                 Champion1List.push_back(pAdd->GetGUID());
@@ -510,7 +522,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                                 break;
                         }
 
-                        switch(i)
+                        switch (i)
                         {
                             case 0:
                                 pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.5f, M_PI);

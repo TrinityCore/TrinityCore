@@ -371,7 +371,8 @@ VALUES
 (35004, 23, 0, "The night elves of Darnassus cheer for Jaelyne Evensong.", 41, 0, 0, 2, 0, 8572, "ToC5 - Darnassus Cheers"),
 (35004, 24, 0, "The dwarves of Ironforge being a cheer for Lana Stouthammer.", 41, 0, 0, 2, 0, 8572, "ToC5 - Ironforge Cheers"),
 (35004, 25, 0, "The Alliance spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Horde Intro 3"),
-(35004, 26, 0, "The Alliance spectators cheer for Eadric the Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Horde Intro 3");
+(35004, 26, 0, "The Alliance spectators cheer for Eadric the Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Horde Intro 3"),
+(35004, 27, 0, "The Sunreavers are proud to present their representatives in this trial by combat.", 12, 0, 0, 2, 0, 0, "ToC5 - Horde Intro 1");
 
 -- Alliance Heralnd
 DELETE FROM `creature_text` WHERE `entry` = 35005 AND `groupid` BETWEEN 20 AND 27;
@@ -383,7 +384,8 @@ VALUES
 (35005, 23, 0, "The trolls of Sen'jin begin a chant to celebrate Zul'tore.", 41, 0, 0, 2, 0, 8572, "ToC5 - Sen'jin Cheers"),
 (35005, 24, 0, "The forsaken of the Undercity cheer for Deathstalker Visceri!.", 41, 0, 0, 2, 0, 8572, "ToC5 - Undercity Cheers"),
 (35005, 25, 0, "The Horde spectators cheer for Argent Confessor Paletress.", 41, 0, 0, 0, 0, 8573, "ToC5 - Paletress Alliance Intro 3"),
-(35005, 26, 0, "The Horde spectators cheer for Eadric The Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Alliance Intro 3");
+(35005, 26, 0, "The Horde spectators cheer for Eadric The Pure.", 41, 0, 0, 0, 0, 8573, "ToC5 - Eadric Alliance Intro 3"),
+(35005, 27, 0, "The Silver Covenant is pleased to present their contenders for this event, Highlord.", 12, 0, 0, 2, 0, 0, "ToC5 - Alliance Intro 1");
 
 -- Jaina Proudmoore
 DELETE FROM `creature_text` WHERE `entry` = 34992 AND `groupid` IN (10, 11);
