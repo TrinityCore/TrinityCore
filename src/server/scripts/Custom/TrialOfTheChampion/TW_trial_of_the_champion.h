@@ -34,7 +34,8 @@ enum eData
     DATA_AGGRO_DONE,
     DATA_AGRO_DONE,
     DATA_BLACK_KNIGHT,
-    DATA_KNIGHT
+    DATA_KNIGHT,
+    DATA_IVE_HAD_WORSE
 };
 
 enum Data64
@@ -188,6 +189,11 @@ enum eVehicles
 enum Actions
 {
     ACTION_OUTRO                        = 0,
+};
+
+enum Criterias
+{
+    CRITERIA_IVE_HAD_WORSE = 11789
 };
 
 void HandleSpellOnPlayersInInstanceToC5(Unit* caller, uint32 spellId);

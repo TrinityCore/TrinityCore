@@ -219,6 +219,21 @@ public:
             }
         }
 
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) OVERRIDE
+        {
+            switch (criteriaId)
+            {
+                case CRITERIA_IVE_HAD_WORSE:
+                    if (Creature* knight = instance->GetCreature(blackknightGUID))
+                        return knight->AI()->GetData(DATA_IVE_HAD_WORSE);
+                    break;
+                default:
+                    break;
+            }
+
+            return false;
+        }
+
         void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch(go->GetEntry())

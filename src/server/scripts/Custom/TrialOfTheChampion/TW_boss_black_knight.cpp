@@ -69,6 +69,9 @@ enum Spells
     SPELL_CLAW              = 67774,
     SPELL_CLAW_H            = 67879,
 
+    GHOUL_EXPLODE_DAMAGE    = 67729,
+    H_GHOUL_EXPLODE_DAMAGE  = 67886,
+
     SPELL_KILL_CREDIT       = 68663
 };
 
@@ -132,6 +135,7 @@ public:
         bool bEventInBattle;
         bool bFight;
         bool bCredit;
+        bool iveHadWorse;
 
         uint8 uiPhase;
         uint8 uiIntroPhase;
@@ -167,6 +171,7 @@ public:
             bSummonArmy = false;
             bDeathArmyDone = false;
             bFight = false;
+            iveHadWorse = true;
             pAnnouncer = NULL;
 
             if (instance)
@@ -534,9 +539,23 @@ public:
             }
         }
 
+        uint32 GetData(uint32 type) const OVERRIDE
+        {
+            if (type == DATA_IVE_HAD_WORSE)
+                return iveHadWorse;
+
+            return 0;
+        }
+
+        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
+        {
+            if (uiType == DATA_IVE_HAD_WORSE)
+                iveHadWorse = uiData;
+        }
+
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            //DoCast(me, SPELL_KILL_CREDIT);
+            DoCast(me, SPELL_KILL_CREDIT);
             Talk(SAY_DEATH);
             if (TempSummon* summ = me->ToTempSummon())
                 summ->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
@@ -547,6 +566,8 @@ public:
             if (instance)
             {
                 instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+
+                instance->DoCastSpellOnPlayers(SPELL_KILL_CREDIT);
 
                 // Instance encounter counting mechanics
                 //instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, 68663, me);
@@ -576,6 +597,7 @@ public:
         TW_npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiAttackTimer;
+        InstanceScript* instance;
 
         void Reset() OVERRIDE
         {
@@ -598,6 +620,13 @@ public:
             } else uiAttackTimer -= diff;
 
             DoMeleeAttackIfReady();
+        }
+
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
+        {
+            if (target->GetTypeId() == TYPEID_PLAYER && (spell->Id == GHOUL_EXPLODE_DAMAGE || spell->Id == H_GHOUL_EXPLODE_DAMAGE || spell->Id == SPELL_GHOUL_EXPLODE))
+                if (Creature* knight = me->FindNearestCreature(NPC_BLACK_KNIGHT, 200.0f))
+                    knight->AI()->SetData(DATA_IVE_HAD_WORSE, false);
         }
     };
 
@@ -738,10 +767,31 @@ public:
     }
 };
 
+class TW_achievement_ive_had_worse : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_ive_had_worse() : AchievementCriteriaScript("TW_achievement_ive_had_worse")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Knight = target->ToCreature())
+                if (Knight->AI()->GetData(DATA_IVE_HAD_WORSE) && Knight->GetMap()->ToInstanceMap()->IsHeroic())
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_TW_boss_black_knight()
 {
     new TW_boss_black_knight();
     new TW_npc_risen_ghoul();
     new TW_npc_risen_announcer();
     new TW_npc_black_knight_skeletal_gryphon();
+    new TW_achievement_ive_had_worse();
 }

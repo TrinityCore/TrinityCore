@@ -78,7 +78,7 @@ UPDATE `creature_template` SET `rank` = '1',`mindmg` = '420',`maxdmg` = '630',`a
 UPDATE `creature_template` SET `faction_A` = '84',`faction_H` = '84',`speed_run` = '2',`baseattacktime` = '0',`unit_flags2` = '0',`spell1` = '62544',`spell3` = '63010',`VehicleId` = '486' WHERE `entry` = '35644';
 UPDATE `creature_template` SET `rank` = '1',`mindmg` = '420',`maxdmg` = '630',`attackpower` = '157',`unit_flags` = '0',`unit_flags2` = '0',`Health_mod` = '15',`ScriptName` = 'TW_generic_vehicleAI_toc5' WHERE `entry` = '35768';
 UPDATE `creature_template` SET `faction_A` = '83',`faction_H` = '83',`speed_run` = '2',`baseattacktime` = '0',`unit_flags` = '256',`unit_flags2` = '0',`spell1` = '62544',`spell2` = '62575',`spell3` = '63010',`spell4` = '66482' WHERE `entry` = '36558';
-UPDATE `creature_template` SET `ScriptName` = 'TW_risen_ghoul' WHERE `entry` = '35590';
+UPDATE `creature_template` SET `ScriptName` = 'TW_npc_risen_ghoul' WHERE `entry` = '35590';
 
 UPDATE `instance_template` SET `Script` = 'TW_instance_trial_of_the_champion' WHERE `map` = 650;
 
@@ -282,7 +282,7 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (66515, 'TW_spell_gen_reflective_shield');
 
 -- Achievement scripts
-DELETE FROM achievement_criteria_data WHERE criteria_id IN (12302, 12303, 12304, 12305, 12306, 12307, 12308, 12318, 12319, 12320, 12321, 12322, 12323, 12324, 12439, 11420, 12298, 12299, 12300, 12301, 11559, 11560, 12310, 12311, 12312, 12313, 12314, 12315, 12316, 12317);
+DELETE FROM achievement_criteria_data WHERE criteria_id IN (12302, 12303, 12304, 12305, 12306, 12307, 12308, 12318, 12319, 12320, 12321, 12322, 12323, 12324, 12439, 11420, 12298, 12299, 12300, 12301, 11559, 11560, 12310, 12311, 12312, 12313, 12314, 12315, 12316, 12317, 11789);
 INSERT INTO achievement_criteria_data (criteria_id, TYPE, value1, value2, ScriptName) VALUES
 -- alliance nh
 (12302, 11, 0, 0, 'TW_achievement_toc5_champions_mokra'), 
@@ -331,7 +331,8 @@ INSERT INTO achievement_criteria_data (criteria_id, TYPE, value1, value2, Script
 (12315, 12, 1, 0, ''),
 (12316, 11, 0, 0, 'TW_achievement_toc5_eadric'), 
 (12316, 12, 1, 0, ''),
-(12317, 12, 1, 0, ''); 
+(12317, 12, 1, 0, ''),
+(11789, 11, 0, 0, 'TW_achievement_ive_had_worse');
 
 -- Heroic memories stat corrections
 UPDATE `creature_template` SET `minlevel` = '82', `maxlevel` = '82', `faction_A` = '14', `faction_H` = '14', `ScriptName` = 'TW_npc_memory', `exp`='2', `mindmg`='488', `maxdmg`='642', `attackpower`='782', `dmg_multiplier`='7.5', `dynamicflags`='8', `minrangedmg`='363', `maxrangedmg`='521', `rangedattackpower`='121' WHERE `entry` IN 
@@ -397,6 +398,5 @@ VALUES
 -- Varian
 UPDATE `creature_text` SET `type` = 14 WHERE `groupid` IN (50, 52) AND `entry` = 34990; -- because players can't hear it otherwise
 
--- Go's
+-- Loot chests
 UPDATE `gameobject_template` SET `flags` = `flags` &~ 16 WHERE `entry` IN (195324, 195323, 195375, 195374, 195710, 195709);
-
