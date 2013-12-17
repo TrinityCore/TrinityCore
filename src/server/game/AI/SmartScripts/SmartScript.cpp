@@ -388,10 +388,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if (!IsUnit(*itr))
+                if (!IsCreature(*itr))
                     continue;
 
-                (*itr)->ToUnit()->SetReactState(ReactStates(e.action.react.state));
+                (*itr)->ToCreature()->SetReactState(ReactStates(e.action.react.state));
             }
 
             break;
@@ -1064,10 +1064,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if (!IsUnit(*itr))
-                    continue;
-
-                (*itr)->ToUnit()->SetPhaseMask(e.action.ingamePhaseMask.mask, true);
+                if (IsUnit(*itr))
+                    (*itr)->ToUnit()->SetPhaseMask(e.action.ingamePhaseMask.mask, true);
+                else if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetPhaseMask(e.action.ingamePhaseMask.mask, true);
             }
 
             break;
