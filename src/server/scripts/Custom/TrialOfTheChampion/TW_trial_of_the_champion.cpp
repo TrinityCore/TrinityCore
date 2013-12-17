@@ -78,12 +78,8 @@ enum Texts
     SAY_EADRIC_INTRO_3          = 0,
 
     // Black Knight
-    SAY_INTRO_BLACK_KNIGHT_TIRION   = 21,
+    SAY_INTRO_BLACK_KNIGHT_TIRION   = 55,
     SAY_HERALD_RAFTERS              = 8,
-    SAY_OUTRO_1_TIRION              = 23,
-    SAY_OUTRO_2_TIRION              = 24,
-    SAY_OUTRO_3_ALLY                = 13,
-    SAY_OUTRO_3_HORDE               = 12,
 };
 
 enum Gossip
@@ -109,10 +105,7 @@ enum Events
     EVENT_PALETRESS_2           = 13,
     EVENT_PALETRESS_3           = 14,
     EVENT_EADRIC_1              = 15,
-    EVENT_EADRIC_2              = 16,
-    EVENT_OUTRO_1               = 17,
-    EVENT_OUTRO_2               = 18,
-    EVENT_OUTRO_3               = 19,
+    EVENT_EADRIC_2              = 16
 };
 
 enum Phases
@@ -264,36 +257,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_INTRO_1, 10000, 0, PHASE_INTRO);
 
-                if (Creature* Thrall = me->SummonCreature(NPC_THRALL, 685.569f, 615.103f, 435.396f, 6.23544f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
-                {
-                    thrallGUID = Thrall->GetGUID();
-                    Thrall->SetReactState(REACT_PASSIVE);
-                    Thrall->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                if (Creature* Garrosh = me->SummonCreature(NPC_GARROSH, 685.7f, 621.134f, 435.396f, 6.259f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
-                {
-                    garroshGUID = Garrosh->GetGUID();
-                    Garrosh->SetReactState(REACT_PASSIVE);
-                    Garrosh->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                if (Creature* Varian = me->SummonCreature(NPC_VARIAN, 807.724f, 617.9f, 435.396f, 3.18416f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
-                {
-                    varianGUID = Varian->GetGUID();
-                    Varian->SetReactState(REACT_PASSIVE);
-                    Varian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                if (Creature* Proudmoore = me->SummonCreature(NPC_JAINA_PROUDMOORE, 807.401f, 613.667f, 435.397f, 3.0585f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
-                {
-                    proudmooreGUID = Proudmoore->GetGUID();
-                    Proudmoore->SetReactState(REACT_PASSIVE);
-                    Proudmoore->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                if (Creature* Tirion = me->SummonCreature(NPC_HIGHLORD, 746.482f, 556.857f, 435.396f, 1.5898f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
-                {
-                    tirionGUID = Tirion->GetGUID();
-                    Tirion->SetReactState(REACT_PASSIVE);
-                    Tirion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                SummonNpcs();
             }
         }
 
@@ -623,6 +587,7 @@ class TW_npc_herald_toc5 : public CreatureScript
 
                 if (instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE && (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE || instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
                 {
+                    SummonNpcs();
                     me->SummonCreature(VEHICLE_BLACK_KNIGHT, 801.369507f, 640.574280f, 469.314362f, 3.97124f);
                     me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -661,14 +626,48 @@ class TW_npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void DoAction(int32 action) OVERRIDE
+        // Why can't these be pre-spawned already? -- Something to look forward...
+        void SummonNpcs()
         {
-            switch (action)
-            {
-                case ACTION_OUTRO:
-                    events.ScheduleEvent(EVENT_OUTRO_1, 4000);
-                    break;
-            }
+            if (!me->FindNearestCreature(NPC_THRALL, 200.0f))
+                if (Creature* Thrall = me->SummonCreature(NPC_THRALL, 685.569f, 615.103f, 435.396f, 6.23544f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                {
+                    thrallGUID = Thrall->GetGUID();
+                    Thrall->SetReactState(REACT_PASSIVE);
+                    Thrall->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+
+            if (!me->FindNearestCreature(NPC_GARROSH, 200.0f))
+                if (Creature* Garrosh = me->SummonCreature(NPC_GARROSH, 685.7f, 621.134f, 435.396f, 6.259f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                {
+                    garroshGUID = Garrosh->GetGUID();
+                    Garrosh->SetReactState(REACT_PASSIVE);
+                    Garrosh->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+
+            if (!me->FindNearestCreature(NPC_VARIAN, 200.0f))
+                if (Creature* Varian = me->SummonCreature(NPC_VARIAN, 807.724f, 617.9f, 435.396f, 3.18416f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                {
+                    varianGUID = Varian->GetGUID();
+                    Varian->SetReactState(REACT_PASSIVE);
+                    Varian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+
+            if (!me->FindNearestCreature(NPC_JAINA_PROUDMOORE, 200.0f))
+                if (Creature* Proudmoore = me->SummonCreature(NPC_JAINA_PROUDMOORE, 807.401f, 613.667f, 435.397f, 3.0585f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                {
+                    proudmooreGUID = Proudmoore->GetGUID();
+                    Proudmoore->SetReactState(REACT_PASSIVE);
+                    Proudmoore->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+
+            if (!me->FindNearestCreature(NPC_HIGHLORD, 200.0f))
+                if (Creature* Tirion = me->SummonCreature(NPC_HIGHLORD, 746.482f, 556.857f, 435.396f, 1.5898f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                {
+                    tirionGUID = Tirion->GetGUID();
+                    Tirion->SetReactState(REACT_PASSIVE);
+                    Tirion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -782,26 +781,6 @@ class TW_npc_herald_toc5 : public CreatureScript
                     case EVENT_EADRIC_2:
                         if (Creature* argentchamp = Unit::GetCreature(*me, instance->GetData64(DATA_ARGENT_CHAMPION)))
                             argentchamp->AI()->Talk(SAY_EADRIC_INTRO_3);
-                        break;
-                    case EVENT_OUTRO_1:
-                        if (Creature* tirion = Unit::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
-                            tirion->AI()->Talk(SAY_OUTRO_1_TIRION);
-                        events.ScheduleEvent(EVENT_OUTRO_2, 5000);
-                        break;
-                    case EVENT_OUTRO_2:
-                        if (Creature* tirion = Unit::GetCreature(*me, instance->GetData64(DATA_HIGHLORD)))
-                            tirion->AI()->Talk(SAY_OUTRO_2_TIRION);
-                        events.ScheduleEvent(EVENT_OUTRO_3, 5000);
-                        break;
-                    case EVENT_OUTRO_3:
-                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                        {
-                            if (Creature* thrall = me->GetCreature(*me, thrallGUID))
-                                thrall->AI()->Talk(SAY_OUTRO_3_HORDE);
-                        }
-                        else
-                            if (Creature* varian = me->GetCreature(*me, varianGUID))
-                                varian->AI()->Talk(SAY_OUTRO_3_ALLY);
                         break;
                 }
             }

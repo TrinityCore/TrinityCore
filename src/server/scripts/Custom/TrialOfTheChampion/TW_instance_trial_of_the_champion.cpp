@@ -21,6 +21,21 @@
 
 #define MAX_ENCOUNTER  4
 
+enum Events
+{
+    EVENT_OUTRO_1               = 1,
+    EVENT_OUTRO_2               = 2,
+    EVENT_OUTRO_3               = 3
+};
+
+enum Texts
+{
+    SAY_OUTRO_1_TIRION                      = 57,
+    SAY_OUTRO_2_TIRION                      = 58,
+    SAY_OUTRO_3_ALLY                        = 53,
+    SAY_OUTRO_3_HORDE                       = 1
+};
+
 class TW_instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
@@ -45,6 +60,8 @@ public:
 
         uint64 uiAnnouncerGUID;
         uint64 blackknightGUID;
+        uint64 uiThrallGUID;
+        uint64 uiVarianGUID;
         uint64 uiHighlordGUID;
         uint64 uiMainGateGUID;
         uint64 uiMainGate1GUID;
@@ -61,6 +78,8 @@ public:
 
         std::string str_data;
 
+        EventMap events;
+
         bool bDone;
 
         void Initialize() OVERRIDE
@@ -75,6 +94,8 @@ public:
             uiHighlordGUID                = 0;
             uiMainGateGUID                = 0;
             uiMainGate1GUID               = 0;
+            uiVarianGUID                  = 0;
+            uiThrallGUID                  = 0;
             uiGrandChampionVehicle1GUID   = 0;
             uiGrandChampionVehicle2GUID   = 0;
             uiGrandChampionVehicle3GUID   = 0;
@@ -216,6 +237,13 @@ public:
                     break;
                 case NPC_BLACK_KNIGHT:
                     blackknightGUID = creature->GetGUID();
+                    break;
+                case NPC_THRALL:
+                    uiThrallGUID = creature->GetGUID();
+                    break;
+                case NPC_VARIAN:
+                    uiVarianGUID = creature->GetGUID();
+                    break;
             }
         }
 
@@ -345,6 +373,10 @@ public:
                         }
                     }
                     break;
+                case BOSS_BLACK_KNIGHT:
+                    if (uiData == DONE)
+                        events.ScheduleEvent(EVENT_OUTRO_1, 4000);
+                    break;
             }
 
             if (uiData == DONE)
@@ -454,6 +486,38 @@ public:
             } else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
+        }
+
+        void Update(uint32 uiDiff) OVERRIDE
+        {
+            events.Update(uiDiff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_OUTRO_1:
+                        if (Creature* tirion = instance->GetCreature(uiHighlordGUID))
+                            tirion->AI()->Talk(SAY_OUTRO_1_TIRION);
+                        events.ScheduleEvent(EVENT_OUTRO_2, 5000);
+                        break;
+                    case EVENT_OUTRO_2:
+                        if (Creature* tirion = instance->GetCreature(uiHighlordGUID))
+                            tirion->AI()->Talk(SAY_OUTRO_2_TIRION);
+                        events.ScheduleEvent(EVENT_OUTRO_3, 5000);
+                        break;
+                    case EVENT_OUTRO_3:
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
+                            if (Creature* thrall = instance->GetCreature(uiThrallGUID))
+                                thrall->AI()->Talk(SAY_OUTRO_3_HORDE);
+                        }
+                        else
+                            if (Creature* varian = instance->GetCreature(uiVarianGUID))
+                                varian->AI()->Talk(SAY_OUTRO_3_ALLY);
+                        break;
+                }
+            }
         }
     };
 

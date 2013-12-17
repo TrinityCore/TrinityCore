@@ -24,7 +24,7 @@ enum Talk
 {
 
    SAY_INTRO_1                             = 0, // You spoiled my grand entrance, Rat.
-   SAY_INTRO_2                             = 22, // What is the meaning of this? -Tirion
+   SAY_INTRO_2                             = 56, // What is the meaning of this? -Tirion
    SAY_INTRO_3                             = 1, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
    SAY_INTRO_4                             = 2, // I have come to finish my task
    SAY_AGGRO                               = 3, // This farce ends here!
@@ -559,9 +559,6 @@ public:
             Talk(SAY_DEATH);
             if (TempSummon* summ = me->ToTempSummon())
                 summ->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
-
-            if (Creature* herald = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
-                herald->AI()->DoAction(ACTION_OUTRO);
 
             if (instance)
             {
