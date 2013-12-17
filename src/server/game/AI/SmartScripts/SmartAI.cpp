@@ -339,27 +339,10 @@ void SmartAI::UpdateAI(uint32 diff)
         {
             if (me->FindNearestCreature(mFollowArrivedEntry, INTERACTION_DISTANCE, true))
             {
-                if (Player* player = ObjectAccessor::GetPlayer(*me, mFollowGuid))
-                {
-                    if (!mFollowCreditType)
-                        player->RewardPlayerAndGroupAtEvent(mFollowCredit, me);
-                    else
-                        player->GroupEventHappens(mFollowCredit, me);
-                }
-                mFollowGuid = 0;
-                mFollowDist = 0;
-                mFollowAngle = 0;
-                mFollowCredit = 0;
-                mFollowArrivedTimer = 1000;
-                mFollowArrivedEntry = 0;
-                mFollowCreditType = 0;
-                SetDespawnTime(5000);
-                me->StopMoving();
-                me->GetMotionMaster()->MoveIdle();
-                StartDespawn();
-                GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED);
+                StopFollow();
                 return;
             }
+
             mFollowArrivedTimer = 1000;
         }
         else
@@ -803,7 +786,11 @@ void SmartAI::SetCombatMove(bool on)
 void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, uint32 end, uint32 creditType)
 {
     if (!target)
+    {
+        StopFollow();
         return;
+    }
+
     SetRun(mRun);
     mFollowGuid = target->GetGUID();
     mFollowDist = dist >= 0.0f ? dist : PET_FOLLOW_DIST;
@@ -815,6 +802,29 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
     mFollowCreditType = creditType;
 }
 
+void SmartAI::StopFollow()
+{
+    if (Player* player = ObjectAccessor::GetPlayer(*me, mFollowGuid))
+    {
+        if (!mFollowCreditType)
+            player->RewardPlayerAndGroupAtEvent(mFollowCredit, me);
+        else
+            player->GroupEventHappens(mFollowCredit, me);
+    }
+
+    mFollowGuid = 0;
+    mFollowDist = 0;
+    mFollowAngle = 0;
+    mFollowCredit = 0;
+    mFollowArrivedTimer = 1000;
+    mFollowArrivedEntry = 0;
+    mFollowCreditType = 0;
+    SetDespawnTime(5000);
+    me->StopMoving();
+    me->GetMotionMaster()->MoveIdle();
+    StartDespawn();
+    GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED);
+}
 void SmartAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
 {
     if (invoker)
