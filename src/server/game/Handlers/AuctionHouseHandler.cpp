@@ -362,6 +362,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
                 item2->DeleteFromInventoryDB(trans);
                 item2->DeleteFromDB(trans);
                 CharacterDatabase.CommitTransaction(trans);
+                delete item2;
             }
             else // Item stack count is bigger than required count, update item stack count and save to database - cloned item will be used for auction
             {
