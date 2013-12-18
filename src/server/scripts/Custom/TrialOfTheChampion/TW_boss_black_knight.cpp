@@ -28,8 +28,7 @@ enum Talk
    SAY_INTRO_3                             = 1, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
    SAY_INTRO_4                             = 2, // I have come to finish my task
    SAY_AGGRO                               = 3, // This farce ends here!
-   SAY_AGGRO_A                             = 12, // Don't just stand there; kill him! - Not used?
-   SAY_AGGRO_H                             = 12, // Tear him apart! - Not used?
+   SAY_AGGRO_OUTRO                         = 51, // Varian - Don't just stand there; kill him! // Garrosh - Tear him apart!
    SAY_KILLED_PLAYER                       = 6, // Pathetic | A waste of flesh.
    SAY_PHASE_1                             = 4, // My roting flash was just getting in the way!
    SAY_PHASE_2                             = 5, // I have no need for bones to best you!
@@ -484,15 +483,18 @@ public:
 
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
-            if (me->ToTempSummon())
-            {
-                me->ToTempSummon()->InitStats(9000000);
-                me->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-            }
             if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+            {
                 DoCast(me, ZOMBIE_JAEREN);
+                if (Creature* garrosh = me->FindNearestCreature(NPC_GARROSH, 200.0f))
+                    garrosh->AI()->Talk(SAY_AGGRO_OUTRO);
+            }
             else
+            {
                 DoCast(me, ZOMBIE_ARELAS);
+                if (Creature* varian = me->FindNearestCreature(NPC_VARIAN, 200.0f))
+                    varian->AI()->Talk(SAY_AGGRO_OUTRO);
+            }
 
             if (instance)
             {
