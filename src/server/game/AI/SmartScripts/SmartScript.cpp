@@ -1040,18 +1040,24 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_FORCE_DESPAWN:
         {
-            if (!IsSmart())
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (!targets)
                 break;
 
-            // The AI is only updated if the creature is alive
-            if (me->IsAlive())
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                CAST_AI(SmartAI, me->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
-                CAST_AI(SmartAI, me->AI())->StartDespawn();
+                if (!IsCreature(*itr))
+                    continue;
+
+                if ((*itr)->ToUnit()->IsAlive() && IsSmart((*itr)->ToCreature()))
+                {
+                    CAST_AI(SmartAI, (*itr)->ToCreature()->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
+                    CAST_AI(SmartAI, (*itr)->ToCreature()->AI())->StartDespawn();
+                }
+                else
+                    (*itr)->ToCreature()->DespawnOrUnsummon(e.action.forceDespawn.delay);
             }
-            // Otherwise we call the despawn directly
-            else
-                me->DespawnOrUnsummon(e.action.forceDespawn.delay);
 
             break;
         }
