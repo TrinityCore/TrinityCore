@@ -588,8 +588,8 @@ class TW_npc_herald_toc5 : public CreatureScript
                 if (instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE && (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE || instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
                 {
                     SummonNpcs();
-                    me->SummonCreature(VEHICLE_BLACK_KNIGHT, 801.369507f, 640.574280f, 469.314362f, 3.97124f);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                    me->SummonCreature(VEHICLE_BLACK_KNIGHT, 801.369507f, 640.574280f, 469.314362f, 3.97124f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Creature* tirion = me->GetCreature(*me, tirionGUID))
@@ -616,7 +616,7 @@ class TW_npc_herald_toc5 : public CreatureScript
                     if (player->IsAlive())
                     {
                         pTemp->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
-                        pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                        pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pTemp->SetReactState(REACT_AGGRESSIVE);
                         pTemp->SetInCombatWith(player);
                         player->SetInCombatWith(pTemp);

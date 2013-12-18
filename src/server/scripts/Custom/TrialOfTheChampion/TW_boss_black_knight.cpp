@@ -28,7 +28,7 @@ enum Talk
    SAY_INTRO_3                             = 1, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
    SAY_INTRO_4                             = 2, // I have come to finish my task
    SAY_AGGRO                               = 3, // This farce ends here!
-   SAY_AGGRO_OUTRO                         = 51, // Varian - Don't just stand there; kill him! // Garrosh - Tear him apart!
+   SAY_AGGRO_OUTRO                         = 51, // Varian - Don't just stand there; kill him! | Garrosh - Tear him apart!
    SAY_KILLED_PLAYER                       = 6, // Pathetic | A waste of flesh.
    SAY_PHASE_1                             = 4, // My roting flash was just getting in the way!
    SAY_PHASE_2                             = 5, // I have no need for bones to best you!
