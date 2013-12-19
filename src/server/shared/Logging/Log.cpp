@@ -267,7 +267,7 @@ void Log::vlog(std::string const& filter, LogLevel level, char const* str, va_li
     write(new LogMessage(level, filter, text));
 }
 
-void Log::write(LogMessage* msg) const
+void Log::write(LogMessage* msg)
 {
     Logger const* logger = GetLoggerByType(msg->type);
     msg->text.append("\n");
@@ -376,6 +376,7 @@ void Log::Close()
     delete worker;
     worker = NULL;
     loggers.clear();
+    cachedLoggers.clear();
     for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
     {
         delete it->second;
