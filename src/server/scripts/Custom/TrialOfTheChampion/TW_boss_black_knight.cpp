@@ -503,14 +503,14 @@ public:
 
                 if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
                     instance->HandleGameObject(go->GetGUID(), false);
+
+                instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
             }
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_KILLED_PLAYER);
-            if (instance)
-                instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE

@@ -400,3 +400,32 @@ UPDATE `creature_text` SET `type` = 14 WHERE `groupid` IN (50, 52) AND `entry` =
 
 -- Loot chests
 UPDATE `gameobject_template` SET `flags` = `flags` &~ 16 WHERE `entry` IN (195324, 195323, 195375, 195374, 195710, 195709);
+
+-- Argent Confessor
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`,
+`value1`, `value2`, `ScriptName`) VALUES
+(11863, 11, 0, 0, 'TW_achivement_toc5_argent_confessor_hogger'),
+(11904,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_vancleef'),
+(11905,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_mutanus'),
+(11906,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_herod'),
+(11907,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_lucrifon'),
+(11908,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_thunderaan'),
+(11909,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_chromaggus'),
+(11910,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_hakkar'),
+(11911,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_veknilash'),
+(11912,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_kalithresh'),
+(11913,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_malchezar'),
+(11914,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_gruul'),
+(11915,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_vashj'),
+(11916,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_archimonde'),
+(11917,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_illidan'),
+(11918,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_delrissa'),
+(11919,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_muru'),
+(11920,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_ingvar'),
+(11921,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_cyanigosa'),
+(11922,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_eck'),
+(11923,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_onyxia'),
+(11924,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_heigan'),
+(11925,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_ignis'),
+(11926,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_vezax'),
+(11927,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_algalon');

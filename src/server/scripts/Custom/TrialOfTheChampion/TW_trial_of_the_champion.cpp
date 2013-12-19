@@ -68,7 +68,7 @@ enum Texts
     SAY_HUNTER_ENTERS           = 4,
 
     // Argent Champion
-    SAY_ARGENT_CHAMP_ENTERS     = 19,
+    SAY_ARGENT_CHAMP_ENTERS     = 53,
     SAY_PALETRESS_INTRO_1       = 1,
     SAY_PALETRESS_INTRO_2       = 25,
     SAY_PALETRESS_INTRO_3       = 0,

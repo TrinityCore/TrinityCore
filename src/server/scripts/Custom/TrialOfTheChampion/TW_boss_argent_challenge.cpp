@@ -656,8 +656,10 @@ class TW_npc_memory : public CreatureScript
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (summoner && summoner->IsAlive())
+                    if (summoner && summoner->IsAlive() && summoner->GetTypeId() == TYPEID_UNIT)
                         summoner->ToCreature()->AI()->SetData(1,0);
+
+                    HandleSpellOnPlayersInInstanceToC5(me, SPELL_CONFESSOR_ACHIEVEMENT);
                 }
             }
         }
@@ -982,6 +984,29 @@ class TW_achievement_toc5_argent_challenge : public AchievementCriteriaScript
         }
 };
 
+class TW_achievement_toc5_argent_confessor : public AchievementCriteriaScript
+{
+    public:
+        uint32 creature_entry;
+
+        TW_achievement_toc5_argent_confessor(const char* name, uint32 original_entry) : AchievementCriteriaScript(name) 
+        {
+            creature_entry = original_entry;
+        }
+
+        bool OnCheck(Player* source, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            if (Creature* creature = target->ToCreature())
+                if (creature->GetEntry() == creature_entry && creature->GetMap()->ToInstanceMap()->IsHeroic())
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_TW_boss_argent_challenge()
 {
     new TW_boss_eadric();
@@ -992,4 +1017,31 @@ void AddSC_TW_boss_argent_challenge()
     new TW_spell_gen_reflective_shield();
     new TW_achievement_toc5_argent_challenge("TW_achievement_toc5_paletress", NPC_PALETRESS);
     new TW_achievement_toc5_argent_challenge("TW_achievement_toc5_eadric", NPC_EADRIC);
+    
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_hogger", MEMORY_HOGGER);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_vancleef", MEMORY_VANCLEEF);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_mutanus", MEMORY_MUTANUS);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_herod", MEMORY_HEROD);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_lucifron", MEMORY_LUCIFRON);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_thunderaan", MEMORY_THUNDERAAN);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_chromaggus", MEMORY_CHROMAGGUS);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_hakkar", MEMORY_HAKKAR);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_veknilash", MEMORY_VEKNILASH);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_kalithresh", MEMORY_KALITHRESH);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_malchezar", MEMORY_MALCHEZAAR);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_gruul", MEMORY_GRUUL);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_vashj", MEMORY_VASHJ);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_archimonde", MEMORY_ARCHIMONDE);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_illidan", MEMORY_ILLIDAN);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_delrissa", MEMORY_DELRISSA);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_muru", MEMORY_ENTROPIUS);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_ingvar", MEMORY_INGVAR);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_cyanigosa", MEMORY_CYANIGOSA);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_eck", MEMORY_ECK);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_onyxia", MEMORY_ONYXIA);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_heigan", MEMORY_HEIGAN);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_ignis", MEMORY_IGNIS);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_vezax", MEMORY_VEZAX);
+    new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_algalon", MEMORY_ALGALON);
+
 }
