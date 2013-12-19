@@ -61,9 +61,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 UPDATE `creature` SET `spawndist`=5,`MovementType`=1 WHERE `guid`=74216;
 UPDATE `creature` SET `spawndist`=10,`MovementType`=1 WHERE `id`=21423;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid` IN (74147,74148,74149,74151,74152,74153,74154,74156);
-UPDATE `Creature_template` SET InhabitType=4 WHERE `entry`=21757;
+UPDATE `creature_template` SET InhabitType=4 WHERE `entry`=21757;
 UPDATE `creature_template` SET `InhabitType`=4, `flags_extra`=`flags_extra`|128 WHERE `entry` IN (21393,21413,21819);
-UPDATE `Creature_template_addon` SET bytes2=258 WHERE `entry`=21115;
+UPDATE `creature_template_addon` SET bytes2=258 WHERE `entry`=21115;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=21441;
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`bytes2`,`emote`,`auras`) VALUES (21441,0,258,214, '');
