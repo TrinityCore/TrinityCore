@@ -394,6 +394,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 (*itr)->ToCreature()->SetReactState(ReactStates(e.action.react.state));
             }
 
+            delete targets;
             break;
         }
         case SMART_ACTION_RANDOM_EMOTE:
