@@ -12,8 +12,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=10662 WHERE `entry` IN (35597,35
 UPDATE `creature_template` SET `gossip_menu_id`=10666 WHERE `entry` IN (35596,35598);
 UPDATE `creature_template` SET `faction_A`=2123, `faction_H`=2123 WHERE `entry` IN (35603,35611,35612);
 UPDATE `creature_template` SET `baseattacktime`=2000 WHERE `entry` IN (35600,35601,35602,35603,35611,35612);
-UPDATE `creature_template` SET `npcflag`=1, `unit_flags`=8040, `flags_extra`=0 WHERE `subname`= 'Wintergrasp Battle-Mage';
-UPDATE `creature_template` SET `unit_flags`=8340 WHERE `entry` IN (35597,35596,32170,32169);
+UPDATE `creature_template` SET `npcflag`=1, `unit_flags`=33600, `flags_extra`=0 WHERE `subname`= 'Wintergrasp Battle-Mage';
 DELETE FROM `creature_equip_template` WHERE `entry`=35603 AND `id`=2;
 DELETE FROM `creature_equip_template` WHERE `entry`=35601;
 INSERT INTO `creature_equip_template` (`entry`,`id`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES (35601,1,30423,0,0);
