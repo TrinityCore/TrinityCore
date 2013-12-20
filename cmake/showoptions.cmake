@@ -30,6 +30,13 @@ else()
   message("* Build with scripts     : No")
 endif()
 
+if( ELUNA )
+  message("* Build Eluna LuaEngine   : Yes (default)")
+  add_definitions(-DELUNA)
+else()
+  message("* Build Eluna LuaEngine   : No")
+endif()
+
 if( TOOLS )
   message("* Build map/vmap tools   : Yes")
   add_definitions(-DNO_CORE_FUNCS)
