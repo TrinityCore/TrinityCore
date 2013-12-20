@@ -24,7 +24,6 @@ SDCategory: Silithus
 EndScriptData */
 
 /* ContentData
-npc_highlord_demitrian
 npcs_rutgar_and_frankal
 go_wind_stone
 EndContentData */
@@ -34,79 +33,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Group.h"
 #include "Player.h"
-
-/*###
-## npc_highlord_demitrian
-###*/
-
-#define GOSSIP_DEMITRIAN1 "What do you know of it?"
-#define GOSSIP_DEMITRIAN2 "I am listening, Demitrian."
-#define GOSSIP_DEMITRIAN3 "Continue, please."
-#define GOSSIP_DEMITRIAN4 "A battle?"
-#define GOSSIP_DEMITRIAN5 "<Nod>"
-#define GOSSIP_DEMITRIAN6 "Caught unaware? How?"
-#define GOSSIP_DEMITRIAN7 "So what did Ragnaros do next?"
-
-class npc_highlord_demitrian : public CreatureScript
-{
-public:
-    npc_highlord_demitrian() : CreatureScript("npc_highlord_demitrian") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-        case GOSSIP_ACTION_INFO_DEF:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(6842, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->SEND_GOSSIP_MENU(6843, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            player->SEND_GOSSIP_MENU(6844, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+3:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            player->SEND_GOSSIP_MENU(6867, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+4:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            player->SEND_GOSSIP_MENU(6868, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+5:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-            player->SEND_GOSSIP_MENU(6869, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+6:
-            player->SEND_GOSSIP_MENU(6870, creature->GetGUID());
-
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 19016, 1);
-            if (msg == EQUIP_ERR_OK)
-                player->StoreNewItem(dest, 19016, true);
-            break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
-            (player->HasItemCount(18563, 1, false) || player->HasItemCount(18564, 1, false)))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(6812, creature->GetGUID());
-            return true;
-    }
-
-};
 
 /*###
 ## npcs_rutgar_and_frankal
@@ -1504,7 +1430,10 @@ class go_wind_stone : public GameObjectScript
 
 void AddSC_silithus()
 {
-    new npc_highlord_demitrian();
+    new go_crystalline_tear();
+    new npc_anachronos_quest_trigger();
+    new npc_anachronos_the_ancient();
+    new npc_qiraj_war_spawn();
     new npcs_rutgar_and_frankal();
     new go_wind_stone();
 }
