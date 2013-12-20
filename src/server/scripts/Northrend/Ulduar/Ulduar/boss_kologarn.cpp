@@ -93,6 +93,12 @@ enum Yells
     EMOTE_STONE_GRIP                        = 8
 };
 
+enum Data
+{
+    DATA_RUBBLE_AND_ROLL,
+    DATA_WITH_OPEN_ARMS
+};
+
 class boss_kologarn : public CreatureScript
 {
     public:
@@ -114,8 +120,10 @@ class boss_kologarn : public CreatureScript
             }
 
             Vehicle* vehicle;
-            bool left, right;
             uint64 eyebeamTarget;
+            bool left, right, _armDied;
+
+            uint32 _rubbleCount;
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
@@ -138,6 +146,8 @@ class boss_kologarn : public CreatureScript
             void Reset() OVERRIDE
             {
                 _Reset();
+                _armDied = false;
+                _rubbleCount = 0;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 eyebeamTarget = 0;
             }
@@ -170,6 +180,7 @@ class boss_kologarn : public CreatureScript
                     left = apply;
                     if (!apply && isEncounterInProgress)
                     {
+                        _armDied = true;
                         Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
@@ -180,6 +191,7 @@ class boss_kologarn : public CreatureScript
                     right = apply;
                     if (!apply && isEncounterInProgress)
                     {
+                        _armDied = true;
                         Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
@@ -212,6 +224,21 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
+            uint32 GetData(uint32 type) const OVERRIDE
+            {
+                switch (type)
+                {
+                    case DATA_RUBBLE_AND_ROLL:
+                        return (_rubbleCount >= 25) ? 1 : 0;
+                    case DATA_WITH_OPEN_ARMS:
+                        return _armDied ? 0 : 1;
+                    default:
+                        break;
+                }
+
+                return 0;
+            }
+
             void JustSummoned(Creature* summon) OVERRIDE
             {
                 switch (summon->GetEntry())
@@ -224,6 +251,7 @@ class boss_kologarn : public CreatureScript
                         break;
                     case NPC_RUBBLE:
                         summons.Summon(summon);
+                        ++_rubbleCount;
                         // absence of break intended
                     default:
                         return;
@@ -665,6 +693,35 @@ class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
         }
 };
 
+class achievement_rubble_and_roll : public AchievementCriteriaScript
+{
+    public:
+        achievement_rubble_and_roll(const char* name) : AchievementCriteriaScript(name) {}
+
+        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        {
+            if (target && target->IsAIEnabled)
+                return target->GetAI()->GetData(DATA_RUBBLE_AND_ROLL);
+
+            return false;
+        }
+};
+
+class achievement_with_open_arms : public AchievementCriteriaScript
+{
+    public:
+        achievement_with_open_arms(const char* name) : AchievementCriteriaScript(name) {}
+
+        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        {
+            if (target && target->IsAIEnabled)
+                return target->GetAI()->GetData(DATA_WITH_OPEN_ARMS);
+
+            return false;
+        }
+};
+
+
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
@@ -676,4 +733,9 @@ void AddSC_boss_kologarn()
     new spell_ulduar_stone_grip();
     new spell_kologarn_stone_shout();
     new spell_kologarn_summon_focused_eyebeam();
+
+    new achievement_rubble_and_roll("achievement_rubble_and_roll");
+    new achievement_rubble_and_roll("achievement_rubble_and_roll_25");
+    new achievement_with_open_arms("achievement_with_open_arms");
+    new achievement_with_open_arms("achievement_with_open_arms_25");
 }

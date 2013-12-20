@@ -429,3 +429,6 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`,
 (11925,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_ignis'),
 (11926,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_vezax'),
 (11927,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_algalon');
+
+-- Applies interrupt immunity to Argent Confessor Paletress (34928,35517)
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 33554432  WHERE `entry` IN ('34928', '35517');
