@@ -15925,6 +15925,8 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                     }
                 }
                 break;
+            case CHARM_TYPE_CONVERT:
+                break;
         }
     }
 
