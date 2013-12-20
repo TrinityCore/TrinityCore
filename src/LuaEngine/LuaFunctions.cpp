@@ -292,7 +292,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsInAccessiblePlaceFor", &LuaUnit::IsInAccessiblePlaceFor},                                           // :IsInAccessiblePlaceFor(creature) - Returns if the unit is in an accessible place for the specified creature
     {"IsVendor", &LuaUnit::IsVendor},                       // :IsVendor() - Returns if the unit is a vendor or not
     {"IsWithinLoS", &LuaUnit::IsWithinLoS},                 // :IsWithinLoS(x, y, z)
-    {"IsRooted", &LuaUnit::IsRooted},                       // :IsRooted()
+    //{"IsRooted", &LuaUnit::IsRooted},                       // :IsRooted()
     {"IsFullHealth", &LuaUnit::IsFullHealth},               // :IsFullHealth() - Returns if the unit is full health
 
     // Other
@@ -656,7 +656,7 @@ ElunaRegister<Creature> CreatureMethods[] =
 
     // Setters
     //{"SetHover", &LuaCreature::SetHover},                 // :SetHover([enable]) - Sets hover on or off
-    {"SetLevitate", &LuaCreature::SetLevitate},             // :SetLevitate([enable]) - Sets Levitate on or off
+    //{"SetLevitate", &LuaCreature::SetLevitate},             // :SetLevitate([enable]) - Sets Levitate on or off
     //{"SetDisableGravity", &LuaCreature::SetDisableGravity},     // :SetDisableGravity([disable, packetOnly]) - Disables or enables gravity
     {"SetReactState", &LuaCreature::SetReactState},         // :SetReactState(state) - Sets react state
     {"SetNoCallAssistance", &LuaCreature::SetNoCallAssistance}, // :SetNoCallAssistance([noCall]) - Sets call assistance to false or true
@@ -935,13 +935,13 @@ ElunaRegister<Guild> GuildMethods[] =
     {"GetName", &LuaGuild::GetName},                        // :GetName() - Gets the guild name
     {"GetMOTD", &LuaGuild::GetMOTD},                        // :GetMOTD() - Gets the guild MOTD string
     {"GetInfo", &LuaGuild::GetInfo},                        // :GetInfo() - Gets the guild info string
-    {"GetBankMoney", &LuaGuild::GetBankMoney},              // :GetBankMoney() - Returns the money currently in the guild bank
-    {"GetMemberCount", &LuaGuild::GetMemberCount},          // :GetMemberCount() - Returns the amount of players in the guild
+    //{"GetBankMoney", &LuaGuild::GetBankMoney},              // :GetBankMoney() - Returns the money currently in the guild bank
+    //{"GetMemberCount", &LuaGuild::GetMemberCount},          // :GetMemberCount() - Returns the amount of players in the guild
 
     // Setters
     {"SetBankTabText", &LuaGuild::SetBankTabText},          // :SetBankTabText(tabId, text)
     {"SetMemberRank", &LuaGuild::ChangeMemberRank},         // :SetMemberRank(player, newRank) - Sets the player rank in the guild to the new rank
-    {"SetLeader", &LuaGuild::SetLeader},                    // :SetLeader() - Sets the guild's leader
+    //{"SetLeader", &LuaGuild::SetLeader},                    // :SetLeader() - Sets the guild's leader
 
     // Boolean
 
@@ -952,8 +952,8 @@ ElunaRegister<Guild> GuildMethods[] =
     {"Disband", &LuaGuild::Disband},                        // :Disband() - Disbands the guild
     {"AddMember", &LuaGuild::AddMember},                    // :AddMember(player, rank) - adds the player to the guild. Rank is optional
     {"DeleteMember", &LuaGuild::DeleteMember},              // :DeleteMember(player, disbanding, kicked) - Deletes the player from the guild. Disbanding and kicked are optional bools
-    {"DepositBankMoney", &LuaGuild::DepositBankMoney},      // :DepositBankMoney(money) - Deposits money into the guild bank
-    {"WithdrawBankMoney", &LuaGuild::WithdrawBankMoney},    // :WithdrawBankMoney(money) - Withdraws money from the guild bank
+    //{"DepositBankMoney", &LuaGuild::DepositBankMoney},      // :DepositBankMoney(money) - Deposits money into the guild bank
+    //{"WithdrawBankMoney", &LuaGuild::WithdrawBankMoney},    // :WithdrawBankMoney(money) - Withdraws money from the guild bank
     {NULL, NULL},
 };
 
