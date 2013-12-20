@@ -1,534 +1,1630 @@
-/* Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
-* This program is free software licensed under GPL version 3
-* Please see the included DOCS/LICENSE.TXT for more information */
+/*
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
 
 namespace LuaUnit
 {
-    int Attack(lua_State*, Unit*);
-    int DealDamage(lua_State*, Unit*);
-    int SetFlag(lua_State*, Unit*);
-    int RemoveFlag(lua_State*, Unit*);
-    int HasFlag(lua_State*, Unit*);
-    int ClearThreatList(lua_State*, Unit*);
-    int SetOwnerGUID(lua_State*, Unit*);
-    int GetOwner(lua_State*, Unit*);
-    int GetOwnerGUID(lua_State*, Unit*);
-    int SummonPlayer(lua_State*, Unit*);
-    int Mute(lua_State*, Unit*);
-    int GetMap(lua_State*, Unit*);
-    int GetRelativePoint(lua_State*, Unit*);
-    int Mount(lua_State*, Unit*);
-    int Dismount(lua_State*, Unit*);
-    int IsMounted(lua_State*, Unit*);
-    int IsWithinLoS(lua_State*, Unit*);
-    int GetScale(lua_State*, Unit*);
-    int SetScale(lua_State*, Unit*);
-    int IsDamageEnoughForLootingAndReward(lua_State*, Unit*);
-    int IsReputationGainDisabled(lua_State*, Unit*);
-    int SetDisableReputationGain(lua_State*, Unit*);
-    int SelectVictim(lua_State*, Unit*);
-    int GetCurrentWaypointId(lua_State*, Unit*);
-    int GetWaypointPath(lua_State*, Unit*);
-    int GetTransportHomePosition(lua_State*, Unit*);
-    int IsRegeneratingHealth(lua_State*, Unit*);
-    int HasInvolvedQuest(lua_State*, Unit*);
-    int SetInCombatWithZone(lua_State*, Unit*);
-    int SetRespawnRadius(lua_State*, Unit*);
-    int GetRespawnRadius(lua_State*, Unit*);
-    int Respawn(lua_State*, Unit*);
-    int SetRespawnDelay(lua_State*, Unit*);
-    int GetRespawnDelay(lua_State*, Unit*);
-    int DespawnOrUnsummon(lua_State*, Unit*);
-    int RemoveCorpse(lua_State*, Unit*);
-    int SetDefaultMovementType(lua_State*, Unit*);
-    int GetDefaultMovementType(lua_State*, Unit*);
-    int IsTargetAcceptable(lua_State*, Unit*);
-    int CanAssistTo(lua_State*, Unit*);
-    int HasSearchedAssistance(lua_State*, Unit*);
-    int SetNoSearchAssistance(lua_State*, Unit*);
-    int SetNoCallAssistance(lua_State*, Unit*);
-    int CallAssistance(lua_State*, Unit*);
-    int CallForHelp(lua_State*, Unit*);
-    int FleeToGetAssistance(lua_State*, Unit*);
-    int GetAggroRange(lua_State*, Unit*);
-    int GetAttackDistance(lua_State*, Unit*);
-    int CanStartAttack(lua_State*, Unit*);
-    int ResetLootMode(lua_State*, Unit*);
-    int RemoveLootMode(lua_State*, Unit*);
-    int AddLootMode(lua_State*, Unit*);
-    int SetLootMode(lua_State*, Unit*);
-    int HasLootMode(lua_State*, Unit*);
-    int GetLootMode(lua_State*, Unit*);
-    int IsTappedBy(lua_State*, Unit*);
-    int HasLootRecipient(lua_State*, Unit*);
-    int GetLootRecipientGroup(lua_State*, Unit*);
-    int GetLootRecipient(lua_State*, Unit*);
-    int SetDeathState(lua_State*, Unit*);
-    int SetReactState(lua_State*, Unit*);
-    int GetReactState(lua_State*, Unit*);
-    int HasReactState(lua_State*, Unit*);
-    int CanFly(lua_State*, Unit*);
-    int CanSwim(lua_State*, Unit*);
-    int CanWalk(lua_State*, Unit*);
-    int SetDisableGravity(lua_State*, Unit*);
-    int SetHover(lua_State*, Unit*);
-    int IsInEvadeMode(lua_State*, Unit*);
-    int IsElite(lua_State*, Unit*);
-    int IsGuard(lua_State*, Unit*);
-    int IsTrigger(lua_State*, Unit*);
-    int IsCivilian(lua_State*, Unit*);
-    int IsRacialLeader(lua_State*, Unit*);
-    int HasCategoryCooldown(lua_State*, Unit*);
-    int GetScriptName(lua_State*, Unit*);
-    int GetAIName(lua_State*, Unit*);
-    int GetScriptId(lua_State*, Unit*);
-    int GetCreatureSpellCooldownDelay(lua_State*, Unit*);
-    int GetShieldBlockValue(lua_State*, Unit*);
-    int GetMountId(lua_State*, Unit*);
-    int GetCorpseDelay(lua_State*, Unit*);
-    int GetHomePosition(lua_State*, Unit*);
-    int RewardQuest(lua_State*, Unit*);
-    int HasAura(lua_State*, Unit*);
-    int IsARecruiter(lua_State*, Unit*);
-    int GetRecruiterId(lua_State*, Unit*);
-    int GetSelectedPlayer(lua_State*, Unit*);
-    int GetSelectedUnit(lua_State*, Unit*);
-    int GetDistance(lua_State*, Unit*);
-    int GetLatency(lua_State*, Unit*);
-    int GetCreatorGUID(lua_State*, Unit*);
-    int GetMinionGUID(lua_State*, Unit*);
-    int GetCharmerGUID(lua_State*, Unit*);
-    int GetCharmGUID(lua_State*, Unit*);
-    int GetPetGUID(lua_State*, Unit*);
-    int GetCritterGUID(lua_State*, Unit*);
-    int GetControllerGUID(lua_State*, Unit*);
-    int GetControllerGUIDS(lua_State*, Unit*);
-    int GetCorpse(lua_State*, Unit*);
-    int GetQuestRewardStatus(lua_State*, Unit*);
-    int CreateCorpse(lua_State*, Unit*);
-    int SpawnBones(lua_State*, Unit*);
-    int RemovedInsignia(lua_State*, Unit*);
-    int SendAuctionMenu(lua_State*, Unit*);
-    int SendMailMenu(lua_State*, Unit*);
-    int SendTaxiMenu(lua_State*, Unit*);
-    int SendSpiritResurrect(lua_State*, Unit*);
-    int SendTabardVendorActivate(lua_State*, Unit*);
-    int SendShowBank(lua_State*, Unit*);
-    int SendListInventory(lua_State*, Unit*);
-    int SendTrainerList(lua_State*, Unit*);
-    int LogoutPlayer(lua_State*, Unit*);
-    int GetChampioningFaction(lua_State*, Unit*);
-    int ResetAchievements(lua_State*, Unit*);
-    int HasAchieved(lua_State*, Unit*);
-    int GetOriginalSubGroup(lua_State*, Unit*);
-    int GetOriginalGroup(lua_State*, Unit*);
-    int RemoveFromBattlegroundOrBattlefieldRaid(lua_State*, Unit*);
-    int CanUninviteFromGroup(lua_State*, Unit*);
-    int GetNextRandomRaidMember(lua_State*, Unit*);
-    int GetSubGroup(lua_State*, Unit*);
-    int GetGroupInvite(lua_State*, Unit*);
-    int HasPendingBind(lua_State*, Unit*);
-    int UnbindInstance(lua_State*, Unit*);
-    int BindToInstance(lua_State*, Unit*);
-    int SetAtLoginFlag(lua_State*, Unit*);
-    int InRandomLfgDungeon(lua_State*, Unit*);
-    int IsUsingLfg(lua_State*, Unit*);
-    int HasAtLoginFlag(lua_State*, Unit*);
-    int IsVisibleForPlayer(lua_State*, Unit*);
-    int IsNeverVisible(lua_State*, Unit*);
-    int CanFlyInZone(lua_State*, Unit*);
-    int SetRestTime(lua_State*, Unit*);
-    int GetRestTime(lua_State*, Unit*);
-    int GetXPRestBonus(lua_State*, Unit*);
-    int CanSpeak(lua_State*, Unit*);
-    int IsImmuneToEnvironmentalDamage(lua_State*, Unit*);
-    int IsRested(lua_State*, Unit*);
-    int LeaveBattleground(lua_State*, Unit*);
-    int InBattlegroundQueue(lua_State*, Unit*);
-    int GetBattlegroundTypeId(lua_State*, Unit*);
-    int GetBattlegroundId(lua_State*, Unit*);
-    int IsOutdoorPvPActive(lua_State*, Unit*);
-    int InArena(lua_State*, Unit*);
-    int InBattleground(lua_State*, Unit*);
-    int CanTameExoticPets(lua_State*, Unit*);
-    int CanTitanGrip(lua_State*, Unit*);
-    int CanBlock(lua_State*, Unit*);
-    int CanParry(lua_State*, Unit*);
-    int GetDrunkValue(lua_State*, Unit*);
-    int SetDrunkValue(lua_State*, Unit*);
-    int GetSpellCooldowns(lua_State*, Unit*);
-    int ModifyArenaPoints(lua_State*, Unit*);
-    int ModifyHonorPoints(lua_State*, Unit*);
-    int GetReputationRank(lua_State*, Unit*);
-    int IsHonorOrXPTarget(lua_State*, Unit*);
-    int SetFactionForRace(lua_State*, Unit*);
-    int SetSkill(lua_State*, Unit*);
-    int HasSkill(lua_State*, Unit*);
-    int GetSkillTempBonusValue(lua_State*, Unit*);
-    int GetSkillPermBonusValue(lua_State*, Unit*);
-    int GetSkillStep(lua_State*, Unit*);
-    int GetPureSkillValue(lua_State*, Unit*);
-    int GetBaseSkillValue(lua_State*, Unit*);
-    int GetSkillValue(lua_State*, Unit*);
-    int GetPureMaxSkillValue(lua_State*, Unit*);
-    int GetMaxSkillValue(lua_State*, Unit*);
-    int SetMovement(lua_State*, Unit*);
-    int DurabilityRepair(lua_State*, Unit*);
-    int DurabilityRepairAll(lua_State*, Unit*);
-    int DurabilityPointLossForEquipSlot(lua_State*, Unit*);
-    int DurabilityPointsLossAll(lua_State*, Unit*);
-    int DurabilityPointsLoss(lua_State*, Unit*);
-    int DurabilityLoss(lua_State*, Unit*);
-    int DurabilityLossAll(lua_State*, Unit*);
-    int KillPlayer(lua_State*, Unit*);
-    int GetManaBonusFromIntellect(lua_State*, Unit*);
-    int GetHealthBonusFromStamina(lua_State*, Unit*);
-    int GetDifficulty(lua_State*, Unit*);
-    int GetGuildRank(lua_State*, Unit*);
-    int SetGuildRank(lua_State*, Unit*);
-    int RemoveFromGroup(lua_State*, Unit*);
-    int IsGroupVisibleFor(lua_State*, Unit*);
-    int IsInSameRaidWith(lua_State*, Unit*);
-    int IsInSameGroupWith(lua_State*, Unit*);
-    int SetPvP(lua_State*, Unit*);
-    int SetFFA(lua_State*, Unit*);
-    int SetSanctuary(lua_State*, Unit*);
-    int GetSpellCooldownDelay(lua_State*, Unit*);
-    int HasSpellCooldown(lua_State*, Unit*);
-    int IsAuctioneer(lua_State*, Unit*);
-    int HealthBelowPct(lua_State*, Unit*);
-    int HealthAbovePct(lua_State*, Unit*);
-    int GetSpecsCount(lua_State*, Unit*);
-    int GetActiveSpec(lua_State*, Unit*);
-    int HasTalent(lua_State*, Unit*);
-    int AddTalent(lua_State*, Unit*);
-    int ResetTalentsCost(lua_State*, Unit*);
-    int ResetTalents(lua_State*, Unit*);
-    int SetFreeTalentPoints(lua_State*, Unit*);
-    int GetFreeTalentPoints(lua_State*, Unit*);
-    int GetGuildName(lua_State*, Unit*);
-    int GetReputation(lua_State*, Unit*);
-    int GetStat(lua_State*, Unit*);
-    int GetBaseSpellPower(lua_State*, Unit*);
-    int SetReputation(lua_State*, Unit*);
-    int RemoveSpell(lua_State*, Unit*);
-    int ClearComboPoints(lua_State*, Unit*);
-    int GainSpellComboPoints(lua_State*, Unit*);
-    int AddComboPoints(lua_State*, Unit*);
-    int GetComboTarget(lua_State*, Unit*);
-    int GetComboPoints(lua_State*, Unit*);
-    int HasReceivedQuestReward(lua_State*, Unit*);
-    int RegenerateHealth(lua_State*, Unit*);
-    int Regenerate(lua_State*, Unit*);
-    int RegenerateAll(lua_State*, Unit*);
-    int ResetPetTalents(lua_State*, Unit*);
-    int SaveToDB(lua_State*, Unit*);
-    int Emote(lua_State*, Unit*);
-    int CountPctFromCurHealth(lua_State*, Unit*);
-    int CountPctFromMaxHealth(lua_State*, Unit*);
-    int GetInGameTime(lua_State*, Unit*);
-    int TalkedToCreature(lua_State*, Unit*);
-    int KillGOCredit(lua_State*, Unit*);
-    int KilledPlayerCredit(lua_State*, Unit*);
-    int KilledMonsterCredit(lua_State*, Unit*);
-    int GroupEventHappens(lua_State*, Unit*);
-    int AreaExploredOrEventHappens(lua_State*, Unit*);
-    int CanShareQuest(lua_State*, Unit*);
-    int HasQuestForGO(lua_State*, Unit*);
-    int HasQuestForItem(lua_State*, Unit*);
-    int GetReqKillOrCastCurrentCount(lua_State*, Unit*);
-    int RemoveRewardedQuest(lua_State*, Unit*);
-    int RemoveActiveQuest(lua_State*, Unit*);
-    int SetQuestStatus(lua_State*, Unit*);
-    int GetQuestStatus(lua_State*, Unit*);
-    int FailQuest(lua_State*, Unit*);
-    int IncompleteQuest(lua_State*, Unit*);
-    int CompleteQuest(lua_State*, Unit*);
-    int IsActiveQuest(lua_State*, Unit*);
-    int GetQuestLevel(lua_State*, Unit*);
-    int GetItemByEntry(lua_State*, Unit*);
-    int SetSheath(lua_State*, Unit*);
-    int SetName(lua_State*, Unit*);
-    int Whisper(lua_State*, Unit*);
-    int TextEmote(lua_State*, Unit*);
-    int Yell(lua_State*, Unit*);
-    int Say(lua_State*, Unit*);
-    int GetPhaseMaskForSpawn(lua_State*, Unit*);
-    int SummonPet(lua_State*, Unit*);
-    int RemovePet(lua_State*, Unit*);
-    int GetRestType(lua_State*, Unit*);
-    int SetRestType(lua_State*, Unit*);
-    int SetRestBonus(lua_State*, Unit*);
-    int GetRestBonus(lua_State*, Unit*);
-    int GiveLevel(lua_State*, Unit*);
-    int GiveXP(lua_State*, Unit*);
-    int IsGMVisible(lua_State*, Unit*);
-    int IsTaxiCheater(lua_State*, Unit*);
-    int IsGMChat(lua_State*, Unit*);
-    int IsAcceptingWhispers(lua_State*, Unit*);
-    int SetAcceptWhispers(lua_State*, Unit*);
-    int SetPvPDeath(lua_State*, Unit*);
-    int SetGMVisible(lua_State*, Unit*);
-    int SetTaxiCheat(lua_State*, Unit*);
-    int SetGMChat(lua_State*, Unit*);
-    int SetGameMaster(lua_State*, Unit*);
-    int GetChatTag(lua_State*, Unit*);
-    int IsDND(lua_State*, Unit*);
-    int IsAFK(lua_State*, Unit*);
-    int ToggleDND(lua_State*, Unit*);
-    int ToggleAFK(lua_State*, Unit*);
-    int IsFalling(lua_State*, Unit*);
-    int IsUnderWater(lua_State*, Unit*);
-    int IsInWater(lua_State*, Unit*);
-    int IsWithinDistInMap(lua_State*, Unit*);
-    int IsInAccessiblePlaceFor(lua_State*, Unit*);
-    int GetVictim(lua_State*, Unit*);
-    int GetNearestTargetInAttackDistance(lua_State*, Unit*);
-    int GetNearestTarget(lua_State*, Unit*);
-    int GetNearestHostileTargetInAggroRange(lua_State*, Unit*);
-    int GetNearbyTarget(lua_State*, Unit*);
-    int GetObjectGlobally(lua_State*, Unit*);
-    int GetNearbyGameObject(lua_State*, Unit*);
-    int SendChatMessageToPlayer(lua_State*, Unit*);
-    int GetCurrentSpell(lua_State*, Unit*);
-    int EquipItem(lua_State*, Unit*);
-    int CanEquipItem(lua_State*, Unit*);
-    int GetInventoryItem(lua_State*, Unit*);
-    int GetBagItem(lua_State*, Unit*);
-    int SummonGameObject(lua_State*, Unit*);
-    int SpawnCreature(lua_State*, Unit*);
-    int AttackStart(lua_State*, Unit*);
-    int Despawn(lua_State*, Unit*);
-    int GetArenaPoints(lua_State*, Unit*);
-    int KnockbackFrom(lua_State*, Unit*);
-    int JumpTo(lua_State*, Unit*);
-    int Jump(lua_State*, Unit*);
-    int JumpToCoords(lua_State*, Unit*);
-    int MoveCharge(lua_State*, Unit*);
-    int MoveChase(lua_State*, Unit*);
-    int SetStunned(lua_State*, Unit*);
-    int SetRooted(lua_State*, Unit*);
-    int SetConfused(lua_State*, Unit*);
-    int SetFeared(lua_State*, Unit*);
-    int SetGender(lua_State*, Unit*);
-    int MoveTo(lua_State*, Unit*);
-    int MoveFollow(lua_State*, Unit*);
-    int MoveClear(lua_State*, Unit*);
-    int MoveRandom(lua_State*, Unit*);
-    int MoveRotate(lua_State*, Unit*);
-    int SetWalk(lua_State*, Unit*);
-    int SetSpeed(lua_State*, Unit*);
-    int GetHonorPoints(lua_State*, Unit*);
-    int GetSelection(lua_State*, Unit*);
-    int GetGMRank(lua_State*, Unit*);
-    int GetCoinage(lua_State*, Unit*);
-    int GetDisplayId(lua_State*, Unit*);
-    int GetNativeDisplayId(lua_State*, Unit*);
-    int GetName(lua_State*, Unit*);
-    int GetLevel(lua_State*, Unit*);
-    int GetHealth(lua_State*, Unit*);
-    int GetGuildId(lua_State*, Unit*);
-    int GetX(lua_State*, Unit*);
-    int GetY(lua_State*, Unit*);
-    int GetZ(lua_State*, Unit*);
-    int GetO(lua_State*, Unit*);
-    int GetLocation(lua_State*, Unit*);
-    int GetZoneId(lua_State*, Unit*);
-    int GetInstanceId(lua_State*, Unit*);
-    int GetPhaseMask(lua_State*, Unit*);
-    int GetAreaId(lua_State*, Unit*);
-    int GetTeam(lua_State*, Unit*);
-    int GetGUID(lua_State*, Unit*);
-    int GetGUIDLow(lua_State*, Unit*);
-    int GetPower(lua_State*, Unit*);
-    int GetMaxPower(lua_State*, Unit*);
-    int GetPowerType(lua_State*, Unit*);
-    int GetMaxHealth(lua_State*, Unit*);
-    int GetHealthPct(lua_State*, Unit*);
-    int GetPowerPct(lua_State*, Unit*);
-    int GetGender(lua_State*, Unit*);
-    int GetRace(lua_State*, Unit*);
-    int GetClass(lua_State*, Unit*);
-    int GetCreatureType(lua_State*, Unit*);
-    int GetClassAsString(lua_State*, Unit*);
-    int GetItemCount(lua_State*, Unit*);
-    int GetLifetimeKills(lua_State*, Unit*);
-    int GetPlayerIP(lua_State*, Unit*);
-    int GetLevelPlayedTime(lua_State*, Unit*);
-    int GetTotalPlayedTime(lua_State*, Unit*);
-    int GetUnitType(lua_State*, Unit*);
-    int GetGuild(lua_State*, Unit*);
-    int GetGroup(lua_State*, Unit*);
-    int GetGearLevel(lua_State*, Unit*);
-    int GetGossipTextId(lua_State*, Unit*);
-    int GetEntry(lua_State*, Unit*);
-    int GetFaction(lua_State*, Unit*);
-    int GetStandState(lua_State*, Unit*);
-    int SetFaction(lua_State*, Unit*);
-    int SetLevel(lua_State*, Unit*);
-    int SetPhaseMask(lua_State*, Unit*);
-    int SetArenaPoints(lua_State*, Unit*);
-    int SetHonorPoints(lua_State*, Unit*);
-    int SetLifetimeKills(lua_State*, Unit*);
-    int SetHealth(lua_State*, Unit*);
-    int SetMaxHealth(lua_State*, Unit*);
-    int SetPower(lua_State*, Unit*);
-    int SetMaxPower(lua_State*, Unit*);
-    int SetDisplayId(lua_State*, Unit*);
-    int SetNativeDisplayId(lua_State*, Unit*);
-    int SetFacing(lua_State*, Unit*);
-    int SetCoinage(lua_State*, Unit*);
-    int SetBindPoint(lua_State*, Unit*);
-    int SetBindPointAtPlayerLoc(lua_State*, Unit*);
-    int SetKnownTitle(lua_State*, Unit*);
-    int SetCreatorGUID(lua_State*, Unit*);
-    int SetMinionGUID(lua_State*, Unit*);
-    int SetCharmerGUID(lua_State*, Unit*);
-    int SetPetGUID(lua_State*, Unit*);
-    int SetCritterGUID(lua_State*, Unit*);
-    int UnsetKnownTitle(lua_State*, Unit*);
-    int AdvanceSkillsToMax(lua_State*, Unit*);
-    int AdvanceAllSkills(lua_State*, Unit*);
-    int AdvanceSkill(lua_State*, Unit*);
-    int IsInGroup(lua_State*, Unit*);
-    int IsInGuild(lua_State*, Unit*);
-    int IsGM(lua_State*, Unit*);
-    int IsAlive(lua_State*, Unit*);
-    int IsDead(lua_State*, Unit*);
-    int IsDying(lua_State*, Unit*);
-    int IsBanker(lua_State*, Unit*);
-    int IsVendor(lua_State*, Unit*);
-    int IsBattleMaster(lua_State*, Unit*);
-    int IsCharmed(lua_State*, Unit*);
-    int IsArmorer(lua_State*, Unit*);
-    int IsAttackingPlayer(lua_State*, Unit*);
-    int IsInArenaTeam(lua_State*, Unit*);
-    int IsInWorld(lua_State*, Unit*);
-    int IsPvPFlagged(lua_State*, Unit*);
-    int IsQuestGiver(lua_State*, Unit*);
-    int HasQuest(lua_State*, Unit*);
-    int IsHorde(lua_State*, Unit*);
-    int IsAlliance(lua_State*, Unit*);
-    int IsInCombat(lua_State*, Unit*);
-    int HasTitle(lua_State*, Unit*);
-    int HasSpell(lua_State*, Unit*);
-    int HasItem(lua_State*, Unit*);
-    int Teleport(lua_State*, Unit*);
-    int AddLifetimeKills(lua_State*, Unit*);
-    int AddItem(lua_State*, Unit*);
-    int RemoveItem(lua_State*, Unit*);
-    int RemoveLifetimeKills(lua_State*, Unit*);
-    int ResetSpellCooldown(lua_State*, Unit*);
-    int ResetTypeCooldowns(lua_State*, Unit*);
-    int ResetAllCooldowns(lua_State*, Unit*);
-    int SendClearCooldowns(lua_State*, Unit*);
-    int SendBroadcastMessage(lua_State*, Unit*);
-    int SendAreaTriggerMessage(lua_State*, Unit*);
-    int SendNotification(lua_State*, Unit*);
-    int SendUnitWhisper(lua_State*, Unit*);
-    int SendUnitEmote(lua_State*, Unit*);
-    int SendUnitSay(lua_State*, Unit*);
-    int SendUnitYell(lua_State*, Unit*);
-    int SendCreatureTalk(lua_State*, Unit*);
-    int SendPacketToPlayer(lua_State*, Unit*);
-    int SendPacket(lua_State*, Unit*);
-    int SendPacketToGroup(lua_State*, Unit*);
-    int SendPacketToGuild(lua_State*, Unit*);
-    int SendPacketToRankedInGuild(lua_State*, Unit*);
-    int SendVendorWindow(lua_State*, Unit*);
-    int KickPlayer(lua_State*, Unit*);
-    int ModifyMoney(lua_State*, Unit*);
-    int LearnSpell(lua_State*, Unit*);
-    int DeMorph(lua_State*, Unit*);
-    int ResurrectPlayer(lua_State*, Unit*);
-    int CastSpell(lua_State*, Unit*);
-    int CastSpellAoF(lua_State*, Unit*);
-    int GetAccountId(lua_State*, Unit*);
-    int GetAccountName(lua_State*, Unit*);
-    int GetAITarget(lua_State*, Unit*);
-    int GetAITargets(lua_State*, Unit*);
-    int GetAITargetsCount(lua_State*, Unit*);
-    int IsDungeonBoss(lua_State*, Unit*);
-    int IsWorldBoss(lua_State*, Unit*);
-    int GetAura(lua_State*, Unit*);
-    int GetMapId(lua_State*, Unit*);
-    int GetCombatTime(lua_State*, Unit*);
-    int ClearInCombat(lua_State*, Unit*);
-    int StopSpellCast(lua_State*, Unit*);
-    int InterruptSpell(lua_State*, Unit*);
-    int AddAura(lua_State*, Unit*);
-    int RemoveAura(lua_State*, Unit*);
-    int RemoveAllAuras(lua_State*, Unit*);
-    int GossipMenuAddItem(lua_State*, Unit*);
-    int GossipComplete(lua_State*, Unit*);
-    int GossipSendMenu(lua_State*, Unit*);
-    int GossipClearMenu(lua_State*, Unit*);
-    int PlaySoundToPlayer(lua_State*, Unit*);
-    int PlayDirectSound(lua_State*, Unit*);
-    int PlayDistanceSound(lua_State*, Unit*);
-    int Kill(lua_State*, Unit*);
-    int RegisterEvent(lua_State*, Unit*);
-    int RemoveEventById(lua_State*, Unit*);
-    int RemoveEvents(lua_State*, Unit*);
-    int GetInt32Value(lua_State*, Unit*);
-    int GetUInt32Value(lua_State*, Unit*);
-    int GetFloatValue(lua_State*, Unit*);
-    int GetByteValue(lua_State*, Unit*);
-    int GetUInt16Value(lua_State*, Unit*);
-    int SetInt32Value(lua_State*, Unit*);
-    int SetUInt32Value(lua_State*, Unit*);
-    int UpdateUInt32Value(lua_State*, Unit*);
-    int SetFloatValue(lua_State*, Unit*);
-    int SetByteValue(lua_State*, Unit*);
-    int SetUInt16Value(lua_State*, Unit*);
-    int SetInt16Value(lua_State*, Unit*);
-    int IsOnVehicle(lua_State*, Unit*);
-    int DismissVehicle(lua_State*, Unit*);
-    int AddVehiclePassenger(lua_State*, Unit*);
-    int EjectPassenger(lua_State*, Unit*);
-    int RemovePassenger(lua_State*, Unit*);
-    int RemoveAllPassengers(lua_State*, Unit*);
-    int GetPassenger(lua_State*, Unit*);
-    int GetNextEmptySeat(lua_State*, Unit*);
-    int GetAvailableSeats(lua_State*, Unit*);
-    int GetVehicleBase(lua_State*, Unit*);
-    int HasEmptySeat(lua_State*, Unit*);
-    int StartTaxi(lua_State*, Unit*);
-    int SetPlayerLock(lua_State*, Unit*);
-    int GetNearestPlayer(lua_State*, Unit*);
-    int GetNearestGameObject(lua_State*, Unit*);
-    int GetNearestCreature(lua_State*, Unit*);
-    int GossipSendPOI(lua_State*, Unit*);
-    int GossipAddQuests(lua_State*, Unit*);
-    int AttackStop(lua_State*, Unit*);
-    int SetCanFly(lua_State*, Unit*);
-    int SetVisible(lua_State*, Unit*);
-    int IsVisible(lua_State*, Unit*);
-    int IsMoving(lua_State*, Unit*);
-    int IsFlying(lua_State*, Unit*);
-    int IsStopped(lua_State*, Unit*);
-    int RestoreDisplayId(lua_State*, Unit*);
-    int RestoreFaction(lua_State*, Unit*);
-    int RemoveBindSightAuras(lua_State*, Unit*);
-    int RemoveCharmAuras(lua_State*, Unit*);
-    int StopMoving(lua_State*, Unit*);
-    int AddUnitState(lua_State*, Unit*);
-    int ClearUnitState(lua_State*, Unit*);
-    int HasUnitState(lua_State*, Unit*);
-    int DisableMelee(lua_State*, Unit*);
-    int GetFriendlyUnitsInRange(lua_State*, Unit*);
-    int GetUnfriendlyUnitsInRange(lua_State*, Unit*);
-    int SummonGuardian(lua_State*, Unit*);
-    int SendQuestTemplate(lua_State*, Unit*);
-    int GetNPCFlags(lua_State*, Unit*);
-    int SetNPCFlags(lua_State*, Unit*);
-    int GetDbLocaleIndex(lua_State*, Unit*);
-    int GetDbcLocale(lua_State*, Unit*);
-    int CanUseItem(lua_State*, Unit*);
-    int FindNearestGameObject(lua_State*, Unit*);
-    int FindNearestCreature(lua_State*, Unit*);
+    int Attack(lua_State* L, Unit* unit)
+    {
+        Unit* who = sEluna->CHECK_UNIT(L, 1);
+        bool meleeAttack = luaL_optbool(L, 2, false);
+
+        if (!who)
+            sEluna->Push(L, false);
+        else
+            sEluna->Push(L, unit->Attack(who, meleeAttack));
+        return 1;
+    }
+
+    int ClearThreatList(lua_State* L, Unit* unit)
+    {
+        unit->getThreatManager().clearReferences();
+        return 0;
+    }
+
+    int SetOwnerGUID(lua_State* L, Unit* unit)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+
+        unit->SetOwnerGUID(guid);
+        return 0;
+    }
+
+    int GetOwner(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetOwner());
+        return 1;
+    }
+
+    int GetOwnerGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetOwnerGUID());
+        return 1;
+    }
+
+    int GetMap(lua_State* L, Unit* unit)
+    {
+        Map* map = unit->GetMap();
+        sEluna->Push(L, map);
+        return 1;
+    }
+
+    int GetRelativePoint(lua_State* L, Unit* unit)
+    {
+        float dist = luaL_checknumber(L, 1);
+        float rad = luaL_checknumber(L, 2);
+
+        float o = Position::NormalizeOrientation(unit->GetOrientation() + rad);
+        sEluna->Push(L, unit->GetPositionX() + (dist * cosf(o)));
+        sEluna->Push(L, unit->GetPositionY() + (dist * sinf(o)));
+        sEluna->Push(L, o);
+        return 3;
+    }
+
+    int Mount(lua_State* L, Unit* unit)
+    {
+        uint32 displayId = luaL_checkunsigned(L, 1);
+
+        unit->Mount(displayId);
+        return 0;
+    }
+
+    int Dismount(lua_State* L, Unit* unit)
+    {
+        if (unit->IsMounted())
+        {
+            unit->Dismount();
+            unit->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        }
+        return 0;
+    }
+
+    int IsMounted(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsMounted());
+        return 1;
+    }
+
+    int IsWithinLoS(lua_State* L, Unit* unit)
+    {
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+
+        sEluna->Push(L, unit->IsWithinLOS(x, y, z));
+        return 1;
+    }
+
+    /*int IsRooted(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->isRooted());
+        return 1;
+    }*/
+
+    int IsFullHealth(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsFullHealth());
+        return 1;
+    }
+
+    int IsWithinDistInMap(lua_State* L, Unit* unit)
+    {
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+        if (!obj)
+            return 0;
+        float radius = luaL_checknumber(L, 2);
+
+        sEluna->Push(L, unit->IsWithinDistInMap(obj, radius));
+        return 1;
+    }
+
+    int IsInAccessiblePlaceFor(lua_State* L, Unit* unit)
+    {
+        Creature* creature = sEluna->CHECK_CREATURE(L, 1);
+        if (!creature)
+            return 0;
+
+        sEluna->Push(L, unit->isInAccessiblePlaceFor(creature));
+        return 1;
+    }
+
+    int GetMountId(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetMountID());
+        return 1;
+    }
+
+    int GetDistance(lua_State* L, Unit* unit)
+    {
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+        if (obj && obj->IsInWorld())
+            sEluna->Push(L, unit->GetDistance(obj));
+        else
+        {
+            float X = luaL_checknumber(L, 1);
+            float Y = luaL_checknumber(L, 2);
+            float Z = luaL_checknumber(L, 3);
+            sEluna->Push(L, unit->GetDistance(X, Y, Z));
+        }
+        return 1;
+    }
+
+    int GetCreatorGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCreatorGUID());
+        return 1;
+    }
+
+    int GetMinionGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetPetGUID());
+        return 1;
+    }
+
+    int GetCharmerGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCharmerGUID());
+        return 1;
+    }
+
+    int GetCharmGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCharmGUID());
+        return 1;
+    }
+
+    int GetPetGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetPetGUID());
+        return 1;
+    }
+
+    int GetCritterGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCritterGUID());
+        return 1;
+    }
+
+    int GetControllerGUID(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCharmerOrOwnerGUID());
+        return 1;
+    }
+
+    int GetControllerGUIDS(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCharmerOrOwnerOrOwnGUID());
+        return 1;
+    }
+
+    int GetStat(lua_State* L, Unit* unit)
+    {
+        uint32 stat = luaL_checkunsigned(L, 1);
+
+        if (stat >= MAX_STATS)
+            return 0;
+
+        sEluna->Push(L, unit->GetStat((Stats)stat));
+        return 1;
+    }
+
+    int GetBaseSpellPower(lua_State* L, Unit* unit)
+    {
+        uint32 spellschool = luaL_checkunsigned(L, 1);
+
+        if (spellschool >= MAX_SPELL_SCHOOL)
+            return 0;
+
+        sEluna->Push(L, unit->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + spellschool));
+        return 1;
+    }
+
+    int SetPvP(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+
+        unit->SetPvP(apply);
+        return 0;
+    }
+
+    int SetFFA(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+
+        if (apply)
+            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        else
+            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+
+        return 0;
+    }
+
+    int SetSanctuary(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+
+        if (apply)
+        {
+            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+            unit->CombatStop();
+            unit->CombatStopWithPets();
+        }
+        else
+            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+
+        return 0;
+    }
+
+    int IsAuctioneer(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsAuctioner());
+        return 1;
+    }
+
+    int IsGuildMaster(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsGuildMaster());
+        return 1;
+    }
+
+    int IsInnkeeper(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsInnkeeper());
+        return 1;
+    }
+
+    int IsTrainer(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsTrainer());
+        return 1;
+    }
+
+    int IsGossip(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsGossip());
+        return 1;
+    }
+
+    int IsTaxi(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsTaxi());
+        return 1;
+    }
+
+    int IsSpiritHealer(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsSpiritHealer());
+        return 1;
+    }
+
+    int IsSpiritGuide(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsSpiritGuide());
+        return 1;
+    }
+
+    int IsTabardDesigner(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsTabardDesigner());
+        return 1;
+    }
+
+    int IsServiceProvider(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsServiceProvider());
+        return 1;
+    }
+
+    int IsSpiritService(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsSpiritService());
+        return 1;
+    }
+
+    int HealthBelowPct(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->HealthBelowPct(luaL_checkint(L, 1)));
+        return 1;
+    }
+
+    int HealthAbovePct(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->HealthAbovePct(luaL_checkint(L, 1)));
+        return 1;
+    }
+
+    int Emote(lua_State* L, Unit* unit)
+    {
+        unit->HandleEmoteCommand(luaL_checkunsigned(L, 1));
+        return 0;
+    }
+
+    int CountPctFromCurHealth(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->CountPctFromCurHealth(luaL_checkint(L, 1)));
+        return 1;
+    }
+
+    int CountPctFromMaxHealth(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->CountPctFromMaxHealth(luaL_checkint(L, 1)));
+        return 1;
+    }
+
+    int SetSheath(lua_State* L, Unit* unit)
+    {
+        uint32 sheathed = luaL_checkunsigned(L, 1);
+        if (sheathed >= MAX_SHEATH_STATE)
+            return 0;
+        
+        unit->SetSheath((SheathState)sheathed);
+        return 0;
+    }
+
+    int IsUnderWater(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsUnderWater());
+        return 1;
+    }
+
+    int IsInWater(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsInWater());
+        return 1;
+    }
+
+    int GetVictim(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetVictim());
+        return 1;
+    }
+
+    int GetNearbyTarget(lua_State* L, Unit* unit)
+    {
+        float dist = luaL_optnumber(L, 1, 5.0f);
+        Unit* exclude = sEluna->CHECK_UNIT(L, 2);
+
+        // sEluna->Push(L, unit->SelectNearbyTarget(exclude, dist));
+        return 1;
+    }
+
+    int SendChatMessageToPlayer(lua_State* L, Unit* unit)
+    {
+        uint8 type = luaL_checkunsigned(L, 1);
+        uint32 lang = luaL_checkunsigned(L, 2);
+        const char* msg = luaL_checkstring(L, 3);
+        Player* target = sEluna->CHECK_PLAYER(L, 4);
+        if (!target || type == CHAT_MSG_CHANNEL)
+            return 0;
+
+        WorldPacket* data = new WorldPacket();
+        uint32 messageLength = (uint32)strlen(msg) + 1;
+        data->Initialize(SMSG_MESSAGECHAT, 100);
+        *data << (uint8)type;
+        *data << lang;
+        *data << unit->GetGUIDLow();
+        *data << uint32(0);
+        *data << unit->GetGUIDLow();
+        *data << messageLength;
+        *data << msg;
+        if (unit->ToPlayer() && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
+            *data << uint8(unit->ToPlayer()->GetChatTag());
+        else
+            *data << uint8(0);
+        target->GetSession()->SendPacket(data);
+        return 0;
+    }
+
+    int GetCurrentSpell(lua_State* L, Unit* unit)
+    {
+        uint32 type = luaL_checkunsigned(L, 1);
+        if (type >= CURRENT_MAX_SPELL)
+        {
+            luaL_error(L, "Invalid spell type (%d)", type);
+            return 0;
+        }
+        sEluna->Push(L, unit->GetCurrentSpell(type));
+        return 1;
+    }
+
+    int SummonGameObject(lua_State* L, Unit* unit)
+    {
+        uint32 entry = luaL_checkunsigned(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        float o = luaL_checknumber(L, 5);
+        uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
+        sEluna->Push(L, unit->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+        return 1;
+    }
+
+    int SpawnCreature(lua_State* L, Unit* unit)
+    {
+        uint32 entry = luaL_checkunsigned(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        float o = luaL_checknumber(L, 5);
+        uint32 spawnType = luaL_optunsigned(L, 6, 0);
+        uint32 despawnTimer = luaL_optunsigned(L, 7, 0);
+
+        TempSummonType type;
+        switch (spawnType)
+        {
+            case 1:
+                type = TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
+                break;
+            case 2:
+                type = TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN;
+                break;
+            case 3:
+                type = TEMPSUMMON_TIMED_DESPAWN;
+                break;
+            case 5:
+                type = TEMPSUMMON_CORPSE_DESPAWN;
+                break;
+            case 6:
+                type = TEMPSUMMON_CORPSE_TIMED_DESPAWN;
+                break;
+            case 7:
+                type = TEMPSUMMON_DEAD_DESPAWN;
+                break;
+            case 8:
+                type = TEMPSUMMON_MANUAL_DESPAWN;
+                break;
+        }
+        sEluna->Push(L, unit->SummonCreature(entry, x, y, z, o, type, despawnTimer)->ToCreature());
+        return 1;
+    }
+
+    int DealDamage(lua_State* L, Unit* unit)
+    {
+        Unit* target = sEluna->CHECK_UNIT(L, 1);
+        uint32 amount = luaL_checkunsigned(L, 2);
+
+        /*if (!target)
+        unit->DealDamage(unit, amount);
+        else
+        unit->DealDamage(target, amount);*/
+        return 0;
+    }
+
+    int GetStandState(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->getStandState());
+        return 0;
+    }
+
+    int KnockbackFrom(lua_State* L, Unit* unit)
+    {
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float speedXY = luaL_checknumber(L, 3);
+        float speedZ = luaL_checknumber(L, 4);
+        // unit->KnockbackFrom(x, y, speedXY, speedZ);
+        return 0;
+    }
+
+    int JumpTo(lua_State* L, Unit* unit)
+    {
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+        float speedZ = luaL_checknumber(L, 2);
+        if (!obj)
+            return 0;
+
+        // unit->JumpTo(obj, speedZ);
+        return 0;
+    }
+
+    int Jump(lua_State* L, Unit* unit)
+    {
+        float speedXY = luaL_checknumber(L, 1);
+        float speedZ = luaL_checknumber(L, 2);
+        bool forward = luaL_optbool(L, 3, true);
+        // unit->JumpTo(speedXY, speedZ, forward);
+        return 0;
+    }
+
+    int JumpToCoords(lua_State* L, Unit* unit)
+    {
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+        float speedXY = luaL_checknumber(L, 4);
+        float speedZ = luaL_checknumber(L, 5);
+        unit->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+        return 0;
+    }
+
+    int MoveCharge(lua_State* L, Unit* unit)
+    {
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+        float speed = luaL_checknumber(L, 4);
+        // unit->GetMotionMaster()->MoveCharge(x, y, z, speed);
+        return 0;
+    }
+
+    int MoveChase(lua_State* L, Unit* unit)
+    {
+        Unit* target = sEluna->CHECK_UNIT(L, 1);
+        float dist = luaL_optnumber(L, 2, 0.0f);
+        float angle = luaL_optnumber(L, 3, 0.0f);
+        unit->GetMotionMaster()->MoveChase(target, dist, angle);
+        return 0;
+    }
+
+    int SetName(lua_State* L, Unit* unit)
+    {
+        const char* name = luaL_checkstring(L, 1);
+        if (std::string(name).length() > 0)
+            unit->SetName(name);
+        return 0;
+    }
+
+    int SetStunned(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+        // unit->SetControlled(apply, UNIT_STATE_STUNNED);
+        return 0;
+    }
+
+    int SetRooted(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+        // unit->SetControlled(apply, UNIT_STATE_ROOT);
+        return 0;
+    }
+
+    int SetConfused(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+        // unit->SetControlled(apply, UNIT_STATE_CONFUSED);
+        return 0;
+    }
+
+    int SetFeared(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+        // unit->SetControlled(apply, UNIT_STATE_FLEEING);
+        return 0;
+    }
+
+    int MoveTo(lua_State* L, Unit* unit)
+    {
+        float id = luaL_checknumber(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        bool generatePath = luaL_optbool(L, 5, true);
+        unit->GetMotionMaster()->MovePoint(id, x, y, z, generatePath);
+        return 0;
+    }
+
+    int MoveFollow(lua_State* L, Unit* unit)
+    {
+        Unit* target = sEluna->CHECK_UNIT(L, 1);
+        float dist = luaL_checknumber(L, 2);
+        float angle = luaL_checknumber(L, 3);
+        unit->GetMotionMaster()->MoveFollow(target, dist, angle);
+        return 0;
+    }
+
+    int MoveClear(lua_State* L, Unit* unit)
+    {
+        unit->GetMotionMaster()->Clear();
+        return 0;
+    }
+
+    int MoveRandom(lua_State* L, Unit* unit)
+    {
+        float radius = luaL_checknumber(L, 1);
+        unit->GetMotionMaster()->MoveRandom(radius);
+        return 0;
+    }
+
+    int MoveRotate(lua_State* L, Unit* unit)
+    {
+        uint32 time = luaL_checkunsigned(L, 1);
+        bool left = luaL_optbool(L, 2, true);
+        unit->GetMotionMaster()->MoveRotate(time, left ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
+        return 0;
+    }
+
+    int SetSpeed(lua_State* L, Unit* unit)
+    {
+        uint32 type = luaL_checkunsigned(L, 1);
+        float rate = luaL_checknumber(L, 2);
+        bool forced = luaL_optbool(L, 3, false);
+        if (type >= MAX_MOVE_TYPE)
+            luaL_error(L, "Invalid movement type (%d)", type);
+        else
+            unit->SetSpeed((UnitMoveType)type, rate, forced);
+        return 0;
+    }
+
+    int GetDisplayId(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetDisplayId());
+        return 1;
+    }
+
+    int GetNativeDisplayId(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetNativeDisplayId());
+        return 1;
+    }
+
+    int GetLevel(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->getLevel());
+        return 1;
+    }
+
+    int GetHealth(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetHealth());
+        return 1;
+    }
+
+    int GetPower(lua_State* L, Unit* unit)
+    {
+        int type = luaL_optint(L, 1, -1);
+        if (type == -1)
+        {
+
+            switch (unit->getClass())
+            {
+                case 1:
+                    type = POWER_RAGE;
+                    break;
+                case 4:
+                    type = POWER_ENERGY;
+                    break;
+                case 6:
+                    type = POWER_RUNIC_POWER;
+                    break;
+                case 2:
+                case 3:
+                case 5:
+                case 7:
+                case 8:
+                case 9:
+                case 11:
+                    type = POWER_MANA;
+                    break;
+                default:
+                    type = POWER_MANA;
+            }
+        }
+        else if (type >= POWER_ALL)
+        {
+            luaL_error(L, "Invalid power type (%d)", type);
+            return 0;
+        }
+
+        sEluna->Push(L, unit->GetPower((Powers) type));
+        return 1;
+    }
+
+    int GetMaxPower(lua_State* L, Unit* unit)
+    {
+        int type = luaL_optint(L, 1, -1);
+        if (type == -1)
+        {
+
+            switch (unit->getClass())
+            {
+                case 1:
+                    type = POWER_RAGE;
+                    break;
+                case 4:
+                    type = POWER_ENERGY;
+                    break;
+                case 6:
+                    type = POWER_RUNIC_POWER;
+                    break;
+                case 2:
+                case 3:
+                case 5:
+                case 7:
+                case 8:
+                case 9:
+                case 11:
+                    type = POWER_MANA;
+                    break;
+                default:
+                    type = POWER_MANA;
+            }
+        }
+        else if (type < 0 || type >= POWER_ALL)
+        {
+            luaL_error(L, "Invalid index (%d)", type);
+            return 0;
+        }
+
+        sEluna->Push(L, unit->GetMaxPower((Powers) type));
+        return 1;
+    }
+
+    int GetPowerType(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->getPowerType());
+        return 1;
+    }
+
+    int GetMaxHealth(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetMaxHealth());
+        return 1;
+    }
+
+    int GetHealthPct(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetHealthPct());
+        return 1;
+    }
+
+    int GetPowerPct(lua_State* L, Unit* unit)
+    {
+        float percent = (unit->GetPower(unit->getPowerType()) / unit->GetMaxPower(unit->getPowerType())) * 100;
+        sEluna->Push(L, percent);
+        return 1;
+    }
+
+    int GetGender(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->getGender());
+        return 1;
+    }
+
+    int GetRace(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->getRace());
+        return 1;
+    }
+
+    int GetClass(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->getClass());
+        return 1;
+    }
+
+    int GetCreatureType(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCreatureType());
+        return 1;
+    }
+
+    int GetClassAsString(lua_State* L, Unit* unit)
+    {
+        const char* str = NULL;
+        switch (unit->getClass())
+        {
+            case 1:
+                str = "Warrior";
+                break;
+            case 2:
+                str = "Paladin";
+                break;
+            case 3:
+                str = "Hunter";
+                break;
+            case 4:
+                str = "Rogue";
+                break;
+            case 5:
+                str = "Priest";
+                break;
+            case 6:
+                str = "Death Knight";
+                break;
+            case 7:
+                str = "Shaman";
+                break;
+            case 8:
+                str = "Mage";
+                break;
+            case 9:
+                str = "Warlock";
+                break;
+            case 11:
+                str = "Druid";
+                break;
+            default:
+                str = "NULL";
+                break;
+        }
+
+        sEluna->Push(L, str);
+        return 1;
+    }
+
+    int GetFaction(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->getFaction());
+        return 1;
+    }
+
+    int SetFaction(lua_State* L, Unit* unit)
+    {
+        uint32 factionId = luaL_checkunsigned(L, 1);
+        unit->setFaction(factionId);
+        return 0;
+    }
+
+    int SetLevel(lua_State* L, Unit* unit)
+    {
+        uint32 newLevel = luaL_checkunsigned(L, 1);
+        unit->SetLevel(newLevel);
+        return 0;
+    }
+
+    int SetPhaseMask(lua_State* L, Unit* unit)
+    {
+        uint32 phaseMask = luaL_checkunsigned(L, 1);
+        bool Update = luaL_optbool(L, 2, true);
+        unit->SetPhaseMask(phaseMask, Update);
+        return 0;
+    }
+
+    int SetHealth(lua_State* L, Unit* unit)
+    {
+        uint32 amt = luaL_checkunsigned(L, 1);
+        unit->SetHealth(amt);
+        return 0;
+    }
+
+    int SetMaxHealth(lua_State* L, Unit* unit)
+    {
+        uint32 amt = luaL_checkunsigned(L, 1);
+        unit->SetMaxHealth(amt);
+        return 0;
+    }
+
+    int SetPower(lua_State* L, Unit* unit)
+    {
+        int type = luaL_checkinteger(L, 1);
+        uint32 amt = luaL_checkunsigned(L, 2);
+
+        switch (type)
+        {
+            case POWER_MANA:
+                unit->SetPower(POWER_MANA, amt);
+                break;
+            case POWER_RAGE:
+                unit->SetPower(POWER_RAGE, amt);
+                break;
+            case POWER_ENERGY:
+                unit->SetPower(POWER_ENERGY, amt);
+                break;
+            case POWER_RUNIC_POWER:
+                unit->SetPower(POWER_RUNIC_POWER, amt);
+                break;
+            default:
+                luaL_error(L, "Invalid power type (%d)", type);
+                break;
+        }
+        return 0;
+    }
+
+    int SetMaxPower(lua_State* L, Unit* unit)
+    {
+        int type = luaL_checkinteger(L, 1);
+        int amt = luaL_checkunsigned(L, 2);
+
+        switch (type)
+        {
+            case POWER_MANA:
+                unit->SetMaxPower(POWER_MANA, amt);
+                break;
+            case POWER_RAGE:
+                unit->SetMaxPower(POWER_RAGE, amt);
+                break;
+            case POWER_ENERGY:
+                unit->SetMaxPower(POWER_ENERGY, amt);
+                break;
+            case POWER_RUNIC_POWER:
+                unit->SetMaxPower(POWER_RUNIC_POWER, amt);
+                break;
+            default:
+                luaL_error(L, "Invalid power type (%d)", type);
+                break;
+        }
+        return 0;
+    }
+
+    int SetDisplayId(lua_State* L, Unit* unit)
+    {
+        uint32 model = luaL_checkunsigned(L, 1);
+        unit->SetDisplayId(model);
+        return 0;
+    }
+
+    int SetNativeDisplayId(lua_State* L, Unit* unit)
+    {
+        uint32 model = luaL_checkunsigned(L, 1);
+        unit->SetNativeDisplayId(model);
+        return 0;
+    }
+
+    int SetFacing(lua_State* L, Unit* unit)
+    {
+        float o = luaL_checknumber(L, 1);
+        unit->SetFacingTo(o);
+        return 0;
+    }
+
+    int SetCreatorGUID(lua_State* L, Unit* unit)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        unit->SetCreatorGUID(guid);
+        return 0;
+    }
+
+    int SetMinionGUID(lua_State* L, Unit* unit)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        unit->SetPetGUID(guid); // TC MinionGuid methods = same field as Mangos PetGuid
+        return 0;
+    }
+
+    int SetCharmerGUID(lua_State* L, Unit* unit)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        unit->SetCharmerGUID(guid);
+        return 0;
+    }
+
+    int SetPetGUID(lua_State* L, Unit* unit)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        unit->SetPetGUID(guid);
+        return 0;
+    }
+
+    int SetCritterGUID(lua_State* L, Unit* unit)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        unit->SetCritterGUID(guid);
+        return 0;
+    }
+
+    int SetWaterWalk(lua_State* L, Unit* unit)
+    {
+        bool enable = luaL_optbool(L, 1, true);
+
+        unit->SetWaterWalking(enable);
+        return 0;
+    }
+
+    int IsAlive(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsAlive());
+        return 1;
+    }
+
+    int IsDead(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->isDead());
+        return 1;
+    }
+
+    int IsDying(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->isDying());
+        return 1;
+    }
+
+    int IsBanker(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsBanker());
+        return 1;
+    }
+
+    int IsVendor(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsVendor());
+        return 1;
+    }
+
+    int IsBattleMaster(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsBattleMaster());
+        return 1;
+    }
+
+    int IsCharmed(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsCharmed());
+        return 1;
+    }
+
+    int IsArmorer(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsArmorer());
+        return 1;
+    }
+
+    int IsAttackingPlayer(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->isAttackingPlayer());
+        return 1;
+    }
+
+    int IsInWorld(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsInWorld());
+        return 1;
+    }
+
+    int IsPvPFlagged(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsPvP());
+        return 1;
+    }
+
+    int IsInCombat(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsInCombat());
+        return 1;
+    }
+
+    int SendUnitWhisper(lua_State* L, Unit* unit)
+    {
+        const char* msg = luaL_checkstring(L, 1);
+        Unit* receiver = sEluna->CHECK_UNIT(L, 2);
+        bool bossWhisper = luaL_optbool(L, 3, false);
+        if (receiver && std::string(msg).length() > 0)
+            unit->MonsterWhisper(msg, receiver->GetGUID(), bossWhisper);
+        return 0;
+    }
+
+    int SendUnitEmote(lua_State* L, Unit* unit)
+    {
+        const char* msg = luaL_checkstring(L, 1);
+        Unit* receiver = sEluna->CHECK_UNIT(L, 2);
+        bool bossEmote = luaL_optbool(L, 3, false);
+        if (std::string(msg).length() > 0)
+            unit->MonsterTextEmote(msg, receiver ? receiver->GetGUID() : 0, bossEmote);
+        return 0;
+    }
+
+    int SendUnitSay(lua_State* L, Unit* unit)
+    {
+        const char* msg = luaL_checkstring(L, 1);
+        uint32 language = luaL_checknumber(L, 2);
+        if (std::string(msg).length() > 0)
+            unit->MonsterSay(msg, language, unit->GetGUID());
+        return 0;
+    }
+
+    int SendUnitYell(lua_State* L, Unit* unit)
+    {
+        const char* msg = luaL_checkstring(L, 1);
+        uint32 language = luaL_checknumber(L, 2);
+        if (std::string(msg).length() > 0)
+            unit->MonsterYell(msg, language, unit->GetGUID());
+        return 0;
+    }
+
+    int DeMorph(lua_State* L, Unit* unit)
+    {
+        unit->DeMorph();
+        return 0;
+    }
+
+    int CastSpell(lua_State* L, Unit* unit)
+    {
+        Object* obj = sEluna->CHECK_OBJECT(L, 1);
+        if (!obj)
+            return 0;
+        uint32 spell = luaL_checkunsigned(L, 2);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
+        if (!spellInfo)
+            return 0;
+        bool triggered = luaL_optbool(L, 3, true);
+
+        SpellCastTargets targets;
+        if (Unit* unitTarget = obj->ToUnit())
+            targets.SetUnitTarget(unitTarget);
+        else if (GameObject* goTarget = obj->ToGameObject())
+            targets.SetGOTarget(goTarget);
+        else if (obj->GetTypeId() == TYPEID_ITEM)
+        {
+            if (Item* itemTarget = (Item*)obj)
+                targets.SetItemTarget(itemTarget);
+        }
+        else
+            return 0;
+
+        unit->CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+        return 0;
+    }
+
+    int CastSpellAoF(lua_State* L, Unit* unit)
+    {
+        float _x = luaL_checknumber(L, 1);
+        float _y = luaL_checknumber(L, 2);
+        float _z = luaL_checknumber(L, 3);
+        uint32 spell = luaL_checkunsigned(L, 4);
+        bool triggered = luaL_optbool(L, 5, true);
+        unit->CastSpell(_x, _y, _z, spell, triggered);
+        return 0;
+    }
+
+    int GetAura(lua_State* L, Unit* unit)
+    {
+        uint32 spellID = luaL_checkunsigned(L, 1);
+        sEluna->Push(L, unit->GetAura(spellID));
+        return 1;
+    }
+
+    int GetCombatTime(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetCombatTimer());
+        return 1;
+    }
+
+    int ClearInCombat(lua_State* L, Unit* unit)
+    {
+        unit->ClearInCombat();
+        return 0;
+    }
+
+    int StopSpellCast(lua_State* L, Unit* unit)
+    {
+        uint32 spellId = luaL_optunsigned(L, 1, 0);
+        unit->CastStop(spellId);
+        return 0;
+    }
+
+    int InterruptSpell(lua_State* L, Unit* unit)
+    {
+        int spellType = luaL_checkint(L, 1);
+        bool delayed = luaL_optbool(L, 2, true);
+        bool instant = luaL_optbool(L, 3, true);
+        switch (spellType)
+        {
+            case 0:
+                spellType = CURRENT_MELEE_SPELL;
+                break;
+            case 1:
+                spellType = CURRENT_GENERIC_SPELL;
+                break;
+            case 2:
+                spellType = CURRENT_CHANNELED_SPELL;
+                break;
+            case 3:
+                spellType = CURRENT_AUTOREPEAT_SPELL;
+                break;
+        }
+        unit->InterruptSpell((CurrentSpellTypes)spellType, delayed, instant);
+        return 0;
+    }
+
+    int AddAura(lua_State* L, Unit* unit)
+    {
+        uint32 spellId = luaL_checkunsigned(L, 1);
+        Unit* target = sEluna->CHECK_UNIT(L, 2);
+        if (!target)
+            return 0;
+        // sEluna->Push(L, unit->AddAura(spellId, target));
+        return 1;
+    }
+
+    int RemoveAura(lua_State* L, Unit* unit)
+    {
+        uint32 spellId = luaL_checkunsigned(L, 1);
+        unit->RemoveAurasDueToSpell(spellId);
+        return 0;
+    }
+
+    int RemoveAllAuras(lua_State* L, Unit* unit)
+    {
+        unit->RemoveAllAuras();
+        return 0;
+    }
+
+    int PlayDirectSound(lua_State* L, Unit* unit)
+    {
+        uint32 soundId = luaL_checkunsigned(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 2);
+        if (!sSoundEntriesStore.LookupEntry(soundId))
+            return 0;
+
+        if (player)
+            unit->PlayDirectSound(soundId, player);
+        else
+            unit->PlayDirectSound(soundId);
+        return 0;
+    }
+
+    int PlayDistanceSound(lua_State* L, Unit* unit)
+    {
+        uint32 soundId = luaL_checkunsigned(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 2);
+        if (!sSoundEntriesStore.LookupEntry(soundId))
+            return 0;
+
+        if (player)
+            unit->PlayDistanceSound(soundId, player);
+        else
+            unit->PlayDistanceSound(soundId);
+        return 0;
+    }
+
+    int Kill(lua_State* L, Unit* unit)
+    {
+        Unit* target = sEluna->CHECK_UNIT(L, 1);
+        bool durLoss = luaL_optbool(L, 2, true);
+        // unit->Kill((target ? target : unit), durLoss);
+        return 0;
+    }
+
+    int RegisterEvent(lua_State* L, Unit* unit)
+    {
+        luaL_checktype(L, 1, LUA_TFUNCTION);
+        uint32 delay = luaL_checkunsigned(L, 2);
+        uint32 repeats = luaL_checkunsigned(L, 3);
+
+        lua_settop(L, 1);
+        int functionRef = lua_ref(L, true);
+        sEluna->Push(L, sEluna->EventMgr.AddEvent(&unit->m_Events, functionRef, delay, repeats, unit));
+        return 1;
+    }
+
+    int RemoveEventById(lua_State* L, Unit* unit)
+    {
+        int eventId = luaL_checkinteger(L, 1);
+        sEluna->EventMgr.RemoveEvent(&unit->m_Events, eventId);
+        return 0;
+    }
+
+    int RemoveEvents(lua_State* L, Unit* unit)
+    {
+        sEluna->EventMgr.RemoveEvents(&unit->m_Events);
+        return 0;
+    }
+
+    /* Vehicle */
+
+    int IsOnVehicle(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->GetVehicle() || (unit->GetTypeId() == TYPEID_PLAYER && unit->IsVehicle()));
+        return 1;
+    }
+
+    int DismissVehicle(lua_State* L, Unit* unit)
+    {
+        // if (Creature* vehicle = unit->GetVehicleCreatureBase())
+        // vehicle->DespawnOrUnsummon();
+        return 0;
+    }
+
+    int AddVehiclePassenger(lua_State* L, Unit* unit)
+    {
+        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+        int8 seatId = luaL_checkunsigned(L, 2);
+        // Vehicle* _vehicle = unit->GetVehicle();
+        // if (!_vehicle)
+        // return 0;
+
+        //_vehicle->AddPassenger(passenger, seatId);
+        return 0;
+    }
+
+    /* Not coded in core
+    int EjectPassenger(lua_State* L, Unit* unit)
+    {
+    TO_UNIT();
+
+    Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+    Vehicle* _vehicle = unit->GetVehicle();
+    if (!_vehicle)
+    return 0;
+
+    _vehicle->EjectPassenger(passenger, unit);
+    return 0;
+    }
+    */
+
+    int RemovePassenger(lua_State* L, Unit* unit)
+    {
+        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+        // Vehicle* _vehicle = unit->GetVehicle();
+        // if (!_vehicle)
+        // return 0;
+
+        //_vehicle->RemovePassenger(passenger);
+        return 0;
+    }
+
+    int RemoveAllPassengers(lua_State* L, Unit* unit)
+    {
+        // Unit* _unit = unit->GetVehicleBase();
+        // if (!_unit)
+        // return 0;
+
+        //_unit->GetVehicle()->RemoveAllPassengers();
+        return 0;
+    }
+
+    int GetPassenger(lua_State* L, Unit* unit)
+    {
+        int8 seatId = luaL_checkunsigned(L, 1);
+        // Unit* _unit = unit->GetVehicleBase();
+        // if (!_unit)
+        // return 0;
+
+        // sEluna->Push(L, _unit->GetVehicle()->GetPassenger(seatId));
+        return 1;
+    }
+
+    int GetNextEmptySeat(lua_State* L, Unit* unit)
+    {
+        int8 seatId = luaL_checkunsigned(L, 1);
+        // Unit* _unit = unit->GetVehicleBase();
+        // if (!_unit)
+        // return 0;
+
+        return 0;
+    }
+
+    int GetAvailableSeats(lua_State* L, Unit* unit)
+    {
+        // Unit* _unit = unit->GetVehicleBase();
+        // if (!_unit)
+        // return 0;
+
+        // sEluna->Push(L, _unit->GetVehicle()->GetAvailableSeatCount());
+        return 1;
+    }
+
+    int GetVehicleBase(lua_State* L, Unit* unit)
+    {
+        // Unit* _unit = unit->GetVehicleBase();
+        // if (_unit)
+        // sEluna->Push(L, _unit);
+        // else
+        // lua_pushnil(L);
+        return 1;
+    }
+
+    int HasEmptySeat(lua_State* L, Unit* unit)
+    {
+        int8 seatId = luaL_checkunsigned(L, 1);
+        // Unit* _unit = unit->GetVehicleBase();
+        // if (!_unit)
+        // return 0;
+
+        // sEluna->Push(L, _unit->GetVehicle()->HasEmptySeat(seatId));
+        return 1;
+    }
+
+    int GetFriendlyUnitsInRange(lua_State* L, Unit* unit)
+    {
+        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+
+        UnitList list;
+        Trinity::AnyFriendlyUnitInObjectRangeCheck checker(unit, unit, range);
+        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
+        unit->VisitNearbyObject(range, searcher);
+        Eluna::ObjectGUIDCheck guidCheck(unit->GetGUID());
+        list.remove_if (guidCheck);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (UnitList::const_iterator it = list.begin(); it != list.end(); ++it)
+        {
+            sEluna->Push(L, ++i);
+            sEluna->Push(L, *it);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    int GetUnfriendlyUnitsInRange(lua_State* L, Unit* unit)
+    {
+        float range = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+
+        UnitList list;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, unit, range);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
+        unit->VisitNearbyObject(range, searcher);
+        Eluna::ObjectGUIDCheck guidCheck(unit->GetGUID());
+        list.remove_if (guidCheck);
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (UnitList::const_iterator it = list.begin(); it != list.end(); ++it)
+        {
+            sEluna->Push(L, ++i);
+            sEluna->Push(L, *it);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    int AttackStop(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->AttackStop());
+        return 1;
+    }
+
+    int SetCanFly(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+        // unit->SetCanFly(apply);
+        return 0;
+    }
+
+    int SetVisible(lua_State* L, Unit* unit)
+    {
+        bool x = luaL_optbool(L, 1, true);
+        // unit->SetVisible(x);
+        return 0;
+    }
+
+    int IsVisible(lua_State* L, Unit* unit)
+    {
+        // sEluna->Push(L, unit->IsVisible());
+        return 1;
+    }
+
+    int IsMoving(lua_State* L, Unit* unit)
+    {
+        // sEluna->Push(L, unit->isMoving());
+        return 1;
+    }
+
+    int IsFlying(lua_State* L, Unit* unit)
+    {
+        // sEluna->Push(L, unit->IsFlying());
+        return 1;
+    }
+
+    int IsStopped(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsStopped());
+        return 1;
+    }
+
+    int IsQuestGiver(lua_State* L, Unit* unit)
+    {
+        sEluna->Push(L, unit->IsQuestGiver());
+        return 1;
+    }
+
+    int RestoreDisplayId(lua_State* L, Unit* unit)
+    {
+        // unit->RestoreDisplayId();
+        return 0;
+    }
+
+    int RestoreFaction(lua_State* L, Unit* unit)
+    {
+        // unit->RestoreFaction();
+        return 0;
+    }
+
+    int RemoveBindSightAuras(lua_State* L, Unit* unit)
+    {
+        // unit->RemoveBindSightAuras();
+        return 0;
+    }
+
+    int RemoveCharmAuras(lua_State* L, Unit* unit)
+    {
+        // unit->RemoveCharmAuras();
+        return 0;
+    }
+
+    int StopMoving(lua_State* L, Unit* unit)
+    {
+        unit->StopMoving();
+        return 0;
+    }
+
+    int AddUnitState(lua_State* L, Unit* unit)
+    {
+        uint32 state = luaL_checkunsigned(L, 1);
+
+        unit->AddUnitState(state);
+        return 0;
+    }
+
+    int ClearUnitState(lua_State* L, Unit* unit)
+    {
+        uint32 state = luaL_checkunsigned(L, 1);
+
+        unit->ClearUnitState(state);
+        return 0;
+    }
+
+    int HasUnitState(lua_State* L, Unit* unit)
+    {
+        uint32 state = luaL_checkunsigned(L, 1);
+
+        sEluna->Push(L, unit->HasUnitState(state));
+        return 1;
+    }
+
+    int DisableMelee(lua_State* L, Unit* unit)
+    {
+        bool apply = luaL_optbool(L, 1, true);
+
+        /*if (apply)
+        unit->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
+        else
+        unit->ClearUnitState(UNIT_STATE_CANNOT_AUTOATTACK);*/
+        return 0;
+    }
+
+    int SummonGuardian(lua_State* L, Unit* unit)
+    {
+        uint32 entry = luaL_checkunsigned(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        float o = luaL_checknumber(L, 5);
+        uint32 desp = luaL_optunsigned(L, 6, 0);
+
+        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(61);
+        if (!properties)
+            return 0;
+        Position pos;
+        pos.Relocate(x,y,z,o);
+        TempSummon* summon = unit->GetMap()->SummonCreature(entry, pos, properties, desp, unit);
+
+        if (!summon)
+            return 0;
+        if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+            ((Guardian*)summon)->InitStatsForLevel(unit->getLevel());
+        if (properties && properties->Category == SUMMON_CATEGORY_ALLY)
+            summon->setFaction(unit->getFaction());
+        if (summon->GetEntry() == 27893)
+        {
+            if (uint32 weapon = unit->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
+            {
+                summon->SetDisplayId(11686);
+                summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
+            }
+            else
+                summon->SetDisplayId(1126);
+        }
+        summon->AI()->EnterEvadeMode();
+
+        sEluna->Push(L, summon->ToCreature());
+        return 1;
+    }
 };
 #endif

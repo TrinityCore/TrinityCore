@@ -32,7 +32,6 @@
 #include "CreatureAIImpl.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "LuaEngine.h"
 #include "HookMgr.h"
 
 namespace
@@ -182,6 +181,7 @@ ScriptMgr::ScriptMgr()
 
 ScriptMgr::~ScriptMgr() { }
 
+extern void StartEluna(bool restart);
 void ScriptMgr::Initialize()
 {
     uint32 oldMSTime = getMSTime();
@@ -194,7 +194,7 @@ void ScriptMgr::Initialize()
     AddScripts();
     /* Eluna [Lua Engine] */
 #ifdef ELUNA
-    sEluna->StartEluna(false);
+    StartEluna(false);
 #endif
 
     TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
@@ -827,7 +827,7 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sHookMgr->OnQuestReward(player, creature, quest, opt))
+    if(sHookMgr->OnQuestReward(player, creature, quest))
     {
         player->PlayerTalkClass->ClearMenus();
         return true;
@@ -861,7 +861,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
 #ifdef ELUNA
-    if(CreatureAI* luaAI = sEluna->LuaCreatureAI->GetAI(creature))
+    if(CreatureAI* luaAI = sHookMgr->GetAI(creature))
         return luaAI;
 #endif
 
@@ -873,7 +873,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 #ifdef ELUNA
-    if(GameObjectAI* luaAI = sEluna->LuaGameObjectAI->GetAI(gameobject))
+    if(GameObjectAI* luaAI = sHookMgr->GetAI(gameobject))
         return luaAI;
 #endif
 
@@ -951,7 +951,7 @@ bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest
     ASSERT(go);
     ASSERT(quest);
 #ifdef ELUNA
-    if(sHookMgr->OnQuestReward(player, go, quest, opt))
+    if(sHookMgr->OnQuestReward(player, go, quest))
         return true;
 #endif
 
@@ -1048,7 +1048,7 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     ASSERT(player);
     ASSERT(trigger);
 #ifdef ELUNA
-    if(sHookMgr->OnTrigger(player, trigger))
+    if(sHookMgr->OnAreaTrigger(player, trigger))
         return true;
 #endif
 

@@ -1,31 +1,41 @@
-/* Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
-* This program is free software licensed under GPL version 3
-* Please see the included DOCS/LICENSE.TXT for more information */
+/*
+ * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2010 - 2013 Eluna Lua Engine <http://emudevs.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #ifndef ITEMMETHODS_H
 #define ITEMMETHODS_H
 
-class LuaItem
+namespace LuaItem
 {
-public:
-    static int GetItemLink(lua_State* L, Item* item)
+    int GetItemLink(lua_State* L, Item* item) // TODO: Implement
     {
-        if (!item || !item->IsInWorld())
-            return 0;
+        // LOCALE_enUS = 0,
+        // LOCALE_koKR = 1,
+        // LOCALE_frFR = 2,
+        // LOCALE_deDE = 3,
+        // LOCALE_zhCN = 4,
+        // LOCALE_zhTW = 5,
+        // LOCALE_esES = 6,
+        // LOCALE_esMX = 7,
+        // LOCALE_ruRU = 8
 
-        /*
-        LOCALE_enUS = 0,
-        LOCALE_koKR = 1,
-        LOCALE_frFR = 2,
-        LOCALE_deDE = 3,
-        LOCALE_zhCN = 4,
-        LOCALE_zhTW = 5,
-        LOCALE_esES = 6,
-        LOCALE_esMX = 7,
-        LOCALE_ruRU = 8
-        */
         int loc_idx = luaL_optint(L, 1, DEFAULT_LOCALE);
-        if (loc_idx < 0 || loc_idx >= TOTAL_LOCALES)
+        if (loc_idx < 0 || loc_idx >= MAX_LOCALES)
         {
             luaL_error(L, "Invalid locale index (%d)", loc_idx);
             return 0;
@@ -64,7 +74,7 @@ public:
 
         std::ostringstream oss;
         oss << "|c" << std::hex << ItemQualityColors[temp->Quality] << std::dec <<
-            "|Hitem:" << temp->ItemId <<":" <<
+            "|Hitem:" << temp->ItemId << ":" <<
             item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT) << ":" <<
             item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT) << ":" <<
             item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT_2) << ":" <<
@@ -73,51 +83,30 @@ public:
             item->GetItemRandomPropertyId() << ":" << item->GetItemSuffixFactor() << ":" <<
             (uint32)item->GetOwner()->getLevel() << "|h[" << name << "]|h|r";
 
-        sEluna->PushString(L, oss.str().c_str());
+        sEluna->Push(L, oss.str());
         return 1;
     }
 
-    static int GetUnitType(lua_State* L, Item* item)
+    int GetGUID(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushString(L, "Item");
+        sEluna->Push(L, item->GetGUIDLow());
         return 1;
     }
 
-    static int GetGUID(lua_State* L, Item* item)
+    int GetOwnerGUID(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushULong(L, item->GetGUID());
+        sEluna->Push(L, item->GetOwnerGUID());
         return 1;
     }
 
-    static int GetOwnerGUID(lua_State* L, Item* item)
+    int GetOwner(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushULong(L, item->GetOwnerGUID());
+        sEluna->Push(L, item->GetOwner());
         return 1;
     }
 
-    static int GetOwner(lua_State* L, Item* item)
+    int SetOwner(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnit(L, item->GetOwner());
-        return 1;
-    }
-
-    static int SetOwner(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
         Player* player = sEluna->CHECK_PLAYER(L, 1);
 
         if (player)
@@ -125,480 +114,247 @@ public:
         return 0;
     }
 
-    static int SetBinding(lua_State* L, Item* item)
+    int SetBinding(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
         bool soulbound = luaL_checkbool(L, 1);
 
         item->SetBinding(soulbound);
         return 0;
     }
 
-    static int IsSoulBound(lua_State* L, Item* item)
+    int IsSoulBound(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsSoulBound());
+        sEluna->Push(L, item->IsSoulBound());
         return 1;
     }
 
-    static int IsBoundAccountWide(lua_State* L, Item* item)
+    int IsBoundAccountWide(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsBoundAccountWide());
+        sEluna->Push(L, item->IsBoundAccountWide());
         return 1;
     }
 
-    static int IsBoundByEnchant(lua_State* L, Item* item)
+    int IsBoundByEnchant(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsBoundByEnchant());
+        sEluna->Push(L, item->IsBoundByEnchant());
         return 1;
     }
 
-    static int IsNotBoundToPlayer(lua_State* L, Item* item)
+    int IsNotBoundToPlayer(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-        {
-            Player* player = sEluna->CHECK_PLAYER(L, 1);
-            if (player)
-                sEluna->PushBoolean(L, item->IsBindedNotWith(player));
-            else
-                sEluna->PushBoolean(L, false);
-        }
-        return 1;
-    }
-
-    static int IsLocked(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsLocked());
-        return 1;
-    }
-
-    static int IsBag(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsBag());
-        return 1;
-    }
-
-    static int IsCurrencyToken(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsCurrencyToken());
-        return 1;
-    }
-
-    static int IsNotEmptyBag(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsNotEmptyBag());
-        return 1;
-    }
-
-    static int IsBroken(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsBroken());
-        return 1;
-    }
-
-    static int CanBeTraded(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-        {
-            bool mail = luaL_optbool(L, 1, false);
-            bool trade = luaL_optbool(L, 2, false);
-            sEluna->PushBoolean(L, item->CanBeTraded(mail, trade));
-        }
-        return 1;
-    }
-
-    static int IsInTrade(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsInTrade());
-        return 1;
-    }
-
-    static int GetCount(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
+        if (!player)
             return 0;
 
-        sEluna->PushUnsigned(L, item->GetCount());
+        sEluna->Push(L, item->IsBindedNotWith(player));
         return 1;
     }
 
-    static int SetCount(lua_State* L, Item* item)
+    int IsLocked(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
+        sEluna->Push(L, item->IsLocked());
+        return 1;
+    }
 
+    int IsBag(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsBag());
+        return 1;
+    }
+
+    int IsCurrencyToken(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsCurrencyToken());
+        return 1;
+    }
+
+    int IsNotEmptyBag(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsNotEmptyBag());
+        return 1;
+    }
+
+    int IsBroken(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsBroken());
+        return 1;
+    }
+
+    int CanBeTraded(lua_State* L, Item* item) // TODO: Implement trade bool
+    {
+        bool mail = luaL_optbool(L, 1, false);
+        // bool trade = luaL_optbool(L, 2, false);
+        sEluna->Push(L, item->CanBeTraded(mail/*, trade*/));
+        return 1;
+    }
+
+    int IsInTrade(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->IsInTrade());
+        return 1;
+    }
+
+    int GetCount(lua_State* L, Item* item)
+    {
+        sEluna->Push(L, item->GetCount());
+        return 1;
+    }
+
+    int SetCount(lua_State* L, Item* item)
+    {
         uint32 count = luaL_checkunsigned(L, 1);
         item->SetCount(count);
         return 0;
     }
 
-    static int GetMaxStackCount(lua_State* L, Item* item)
+    int GetMaxStackCount(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetMaxStackCount());
+        sEluna->Push(L, item->GetMaxStackCount());
         return 1;
     }
 
-    static int GetSlot(lua_State* L, Item* item)
+    int GetSlot(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetSlot());
+        sEluna->Push(L, item->GetSlot());
         return 1;
     }
 
-    static int GetBagSlot(lua_State* L, Item* item)
+    int GetBagSlot(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetBagSlot());
+        sEluna->Push(L, item->GetBagSlot());
         return 1;
     }
 
-    static int IsInBag(lua_State* L, Item* item)
+    int IsInBag(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsInBag());
+        sEluna->Push(L, item->IsInBag());
         return 1;
     }
 
-    static int IsEquipped(lua_State* L, Item* item)
+    int IsEquipped(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsEquipped());
+        sEluna->Push(L, item->IsEquipped());
         return 1;
     }
 
-    static int hasQuest(lua_State* L, Item* item)
+    int HasQuest(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-        {
-            uint32 quest = luaL_checkunsigned(L, 1);
-            sEluna->PushBoolean(L, item->hasQuest(quest));
-        }
+        uint32 quest = luaL_checkunsigned(L, 1);
+        sEluna->Push(L, item->hasQuest(quest));
         return 1;
     }
 
-    static int IsPotion(lua_State* L, Item* item)
+    int IsPotion(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsPotion());
+        sEluna->Push(L, item->IsPotion());
         return 1;
     }
 
-    static int IsWeaponVellum(lua_State* L, Item* item)
+    int IsWeaponVellum(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsWeaponVellum());
+        sEluna->Push(L, item->IsWeaponVellum());
         return 1;
     }
 
-    static int IsArmorVellum(lua_State* L, Item* item)
+    int IsArmorVellum(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsArmorVellum());
+        sEluna->Push(L, item->IsArmorVellum());
         return 1;
     }
 
-    static int IsConjuredConsumable(lua_State* L, Item* item)
+    int IsConjuredConsumable(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsConjuredConsumable());
+        sEluna->Push(L, item->IsConjuredConsumable());
         return 1;
     }
 
-    static int IsRefundExpired(lua_State* L, Item* item)
+    int IsRefundExpired(lua_State* L, Item* item)// TODO: Implement core support
     {
-        if (!item || !item->IsInWorld())
-            sEluna->PushBoolean(L, false);
-        else
-            sEluna->PushBoolean(L, item->IsRefundExpired());
-        return 1;
+        /*sEluna->Push(L, item->IsRefundExpired());
+        return 1;*/
+        return 0; // Temp till supported
     }
 
-    static int GetInt32Value(lua_State* L, Item* item)
+    int SetEnchantment(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        sEluna->PushInteger(L, item->GetInt32Value(index));
-        return 1;
-    }
-
-    static int GetUInt32Value(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        sEluna->PushUnsigned(L, item->GetUInt32Value(index));
-        return 1;
-    }
-
-    static int GetFloatValue(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        sEluna->PushFloat(L, item->GetFloatValue(index));
-        return 1;
-    }
-
-    static int GetByteValue(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        uint8 offset = luaL_checkunsigned(L, 2);
-        sEluna->PushUnsigned(L, item->GetByteValue(index, offset));
-        return 1;
-    }
-
-    static int GetUInt16Value(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        uint8 offset = luaL_checkunsigned(L, 2);
-        sEluna->PushUnsigned(L, item->GetUInt16Value(index, offset));
-        return 1;
-    }
-
-    static int SetInt32Value(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        int32 value = luaL_checkinteger(L, 2);
-        item->SetInt32Value(index, value);
-        return 0;
-    }
-
-    static int SetUInt32Value(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        uint32 value = luaL_checkunsigned(L, 2);
-        item->SetUInt32Value(index, value);
-        return 0;
-    }
-
-    static int UpdateUInt32Value(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        uint32 value = luaL_checkunsigned(L, 2);
-        item->UpdateUInt32Value(index, value);
-        return 0;
-    }
-
-    static int SetFloatValue(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        float value = luaL_checknumber(L, 2);
-        item->SetFloatValue(index, value);
-        return 0;
-    }
-
-    static int SetByteValue(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        uint8 offset = luaL_checkunsigned(L, 2);
-        uint8 value = luaL_checkunsigned(L, 3);
-        item->SetByteValue(index, offset, value);
-        return 0;
-    }
-
-    static int SetUInt16Value(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        uint8 offset = luaL_checkunsigned(L, 2);
-        uint16 value = luaL_checkunsigned(L, 3);
-        item->SetUInt16Value(index, offset, value);
-        return 0;
-    }
-
-    static int SetInt16Value(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        uint16 index = luaL_checkunsigned(L, 1);
-        uint8 offset = luaL_checkunsigned(L, 2);
-        int16 value = luaL_checkinteger(L, 3);
-        item->SetInt16Value(index, offset, value);
-        return 0;
-    }
-
-    static int SetEnchantment(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-        {
-            sEluna->PushBoolean(L, false);
-            return 1;
-        }
-
         Player* owner = item->GetOwner();
         if (!owner)
         {
-            sEluna->PushBoolean(L, false);
+            sEluna->Push(L, false);
             return 1;
         }
 
         uint32 enchant = luaL_checkunsigned(L, 1);
         if (!sSpellItemEnchantmentStore.LookupEntry(enchant))
         {
-            sEluna->PushBoolean(L, false);
+            sEluna->Push(L, false);
             return 1;
         }
 
         EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 2));
-        if(slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
         {
             luaL_error(L, "Invalid enchantment slot (%d)", slot);
-            sEluna->PushBoolean(L, false);
+            sEluna->Push(L, false);
             return 1;
         }
 
         owner->ApplyEnchantment(item, slot, false);
         item->SetEnchantment(slot, enchant, 0, 0);
         owner->ApplyEnchantment(item, slot, true);
-        sEluna->PushBoolean(L, true);
+        sEluna->Push(L, true);
         return 1;
     }
 
-    static int ClearEnchantment(lua_State* L, Item* item)
+    int ClearEnchantment(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-        {
-            sEluna->PushBoolean(L, false);
-            return 1;
-        }
-
         Player* owner = item->GetOwner();
         if (!owner)
         {
-            sEluna->PushBoolean(L, false);
+            sEluna->Push(L, false);
             return 1;
         }
 
         EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 1));
-        if(slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
         {
             luaL_error(L, "Invalid enchantment slot (%d)", slot);
-            sEluna->PushBoolean(L, false);
+            sEluna->Push(L, false);
             return 1;
         }
 
         if (!item->GetEnchantmentId(slot))
         {
-            sEluna->PushBoolean(L, false);
+            sEluna->Push(L, false);
             return 1;
         }
 
         owner->ApplyEnchantment(item, slot, false);
         item->ClearEnchantment(slot);
-        sEluna->PushBoolean(L, true);
+        sEluna->Push(L, true);
         return 1;
     }
 
-    static int GetGUIDLow(lua_State* L, Item* item)
+    int GetGUIDLow(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetGUIDLow());
+        sEluna->Push(L, item->GetGUIDLow());
         return 1;
     }
 
-    static int GetEnchantmentId(lua_State* L, Item* item)
+    int GetEnchantmentId(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
         uint32 enchant_slot = luaL_checkunsigned(L, 1);
 
         EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 2));
-        if(slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
-            sEluna->PushUnsigned(L, 0);
+        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+            sEluna->Push(L, 0);
         else
-            sEluna->PushUnsigned(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
+            sEluna->Push(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
         return 1;
     }
 
-    static int GetSpellId(lua_State* L, Item* item)
+    int GetSpellId(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
         uint32 index = luaL_checkunsigned(L, 1);
         if (index >= MAX_ITEM_PROTO_SPELLS)
         {
@@ -606,15 +362,12 @@ public:
             return 0;
         }
 
-        sEluna->PushUnsigned(L, item->GetTemplate()->Spells[index].SpellId);
+        sEluna->Push(L, item->GetTemplate()->Spells[index].SpellId);
         return 1;
     }
 
-    static int GetSpellTrigger(lua_State* L, Item* item)
+    int GetSpellTrigger(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
         uint32 index = luaL_checkunsigned(L, 1);
         if (index >= MAX_ITEM_PROTO_SPELLS)
         {
@@ -622,182 +375,126 @@ public:
             return 0;
         }
 
-        sEluna->PushUnsigned(L, item->GetTemplate()->Spells[index].SpellTrigger);
+        sEluna->Push(L, item->GetTemplate()->Spells[index].SpellTrigger);
         return 1;
     }
 
-    static int GetEntry(lua_State* L, Item* item)
+    int GetClass(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetEntry());
+        sEluna->Push(L, item->GetTemplate()->Class);
         return 1;
     }
 
-    static int GetClass(lua_State* L, Item* item)
+    int GetSubClass(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->Class);
+        sEluna->Push(L, item->GetTemplate()->SubClass);
         return 1;
     }
 
-    static int GetSubClass(lua_State* L, Item* item)
+    int GetName(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->SubClass);
+        sEluna->Push(L, item->GetTemplate()->Name1);
         return 1;
     }
 
-    static int GetName(lua_State* L, Item* item)
+    int GetDisplayId(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushString(L, item->GetTemplate()->Name1.c_str());
+        sEluna->Push(L, item->GetTemplate()->DisplayInfoID);
         return 1;
     }
 
-    static int GetDisplayId(lua_State* L, Item* item)
+    int GetQuality(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->DisplayInfoID);
+        sEluna->Push(L, item->GetTemplate()->Quality);
         return 1;
     }
 
-    static int GetQuality(lua_State* L, Item* item)
+    int GetBuyCount(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->Quality);
+        sEluna->Push(L, item->GetTemplate()->BuyCount);
         return 1;
     }
 
-    static int GetBuyCount(lua_State* L, Item* item)
+    int GetBuyPrice(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->BuyCount);
+        sEluna->Push(L, item->GetTemplate()->BuyPrice);
         return 1;
     }
 
-    static int GetBuyPrice(lua_State* L, Item* item)
+    int GetSellPrice(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushInteger(L, item->GetTemplate()->BuyPrice);
+        sEluna->Push(L, item->GetTemplate()->SellPrice);
         return 1;
     }
 
-    static int GetSellPrice(lua_State* L, Item* item)
+    int GetInventoryType(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->SellPrice);
+        sEluna->Push(L, item->GetTemplate()->InventoryType);
         return 1;
     }
 
-    static int GetInventoryType(lua_State* L, Item* item)
+    int GetAllowableClass(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->InventoryType);
+        sEluna->Push(L, item->GetTemplate()->AllowableClass);
         return 1;
     }
 
-    static int GetAllowableClass(lua_State* L, Item* item)
+    int GetAllowableRace(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->AllowableClass);
+        sEluna->Push(L, item->GetTemplate()->AllowableRace);
         return 1;
     }
 
-    static int GetAllowableRace(lua_State* L, Item* item)
+    int GetItemLevel(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->AllowableRace);
+        sEluna->Push(L, item->GetTemplate()->ItemLevel);
         return 1;
     }
 
-    static int GetItemLevel(lua_State* L, Item* item)
+    int GetRequiredLevel(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->ItemLevel);
+        sEluna->Push(L, item->GetTemplate()->RequiredLevel);
         return 1;
     }
 
-    static int GetRequiredLevel(lua_State* L, Item* item)
+    int GetStatsCount(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->RequiredLevel);
+        sEluna->Push(L, item->GetTemplate()->StatsCount);
         return 1;
     }
 
-    static int GetStatsCount(lua_State* L, Item* item)
+    int GetRandomProperty(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->StatsCount);
+        sEluna->Push(L, item->GetTemplate()->RandomProperty);
         return 1;
     }
 
-    static int GetRandomProperty(lua_State* L, Item* item)
+    int GetRandomSuffix(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushInteger(L, item->GetTemplate()->RandomProperty);
+        sEluna->Push(L, item->GetTemplate()->RandomSuffix);
         return 1;
     }
 
-    static int GetRandomSuffix(lua_State* L, Item* item)
+    int GetItemSet(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushInteger(L, item->GetTemplate()->RandomSuffix);
+        sEluna->Push(L, item->GetTemplate()->ItemSet);
         return 1;
     }
 
-    static int GetItemSet(lua_State* L, Item* item)
+    int GetBagSize(lua_State* L, Item* item)
     {
-        if (!item || !item->IsInWorld())
-            return 0;
-
-        sEluna->PushUnsigned(L, item->GetTemplate()->ItemSet);
-        return 1;
-    }
-
-    static int GetBagSize(lua_State* L, Item* item)
-    {
-        if (!item || !item->IsInWorld())
-            return 0;
-
         if (Bag* bag = item->ToBag())
-            sEluna->PushUnsigned(L, bag->GetBagSize());
+            sEluna->Push(L, bag->GetBagSize());
         else
-            sEluna->PushUnsigned(L, 0);
+            sEluna->Push(L, 0);
         return 1;
+    }
+
+    int SaveToDB(lua_State* L, Item* item)
+    {
+        SQLTransaction trans = SQLTransaction(NULL);
+        item->SaveToDB(trans);
+        return 0;
     }
 };
 #endif
