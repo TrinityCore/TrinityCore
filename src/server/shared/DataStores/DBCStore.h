@@ -83,9 +83,8 @@ class DBCStorage
             if(loaded)
             {
                 typename std::map<uint32, T const*>::const_iterator it = data.find(id);
-                if (it == data.end())
-                    return NULL;
-                return it->second;
+                if (it != data.end())
+                    return it->second;
             }
             return (id >= nCount) ? NULL : indexTable.asT[id];
         }

@@ -492,7 +492,7 @@ namespace LuaUnit
                 type = TEMPSUMMON_MANUAL_DESPAWN;
                 break;
         }
-        sEluna->Push(L, unit->SummonCreature(entry, x, y, z, o, type, despawnTimer)->ToCreature());
+        sEluna->Push(L, unit->SummonCreature(entry, x, y, z, o, type, despawnTimer));
         return 1;
     }
 
@@ -1623,7 +1623,7 @@ namespace LuaUnit
         }
         summon->AI()->EnterEvadeMode();
 
-        sEluna->Push(L, summon->ToCreature());
+        sEluna->Push(L, summon);
         return 1;
     }
 };

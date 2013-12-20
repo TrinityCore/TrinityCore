@@ -435,6 +435,14 @@ class Eluna
         {
             ElunaTemplate<T>::push(L, ptr);
         }
+        template<> void Eluna::Push<Pet>(lua_State* L, Pet const* pet)
+        {
+            Push(L, pet->ToCreature());
+        }
+        template<> void Eluna::Push<TempSummon>(lua_State* L, TempSummon const* summon)
+        {
+            Push(L, summon->ToCreature());
+        }
         template<> void Eluna::Push<Unit>(lua_State* L, Unit const* unit)
         {
             if (!unit)
