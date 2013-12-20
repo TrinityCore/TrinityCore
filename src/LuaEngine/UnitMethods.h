@@ -384,14 +384,14 @@ namespace LuaUnit
         return 1;
     }
 
-    /*int GetNearbyTarget(lua_State* L, Unit* unit)
+    int GetNearbyTarget(lua_State* L, Unit* unit)
     {
         float dist = luaL_optnumber(L, 1, 5.0f);
         Unit* exclude = sEluna->CHECK_UNIT(L, 2);
 
-        // sEluna->Push(L, unit->SelectNearbyTarget(exclude, dist));
+        sEluna->Push(L, unit->SelectNearbyTarget(exclude, dist));
         return 1;
-    }*/
+    }
 
     int SendChatMessageToPlayer(lua_State* L, Unit* unit)
     {
@@ -483,7 +483,7 @@ namespace LuaUnit
         return 1;
     }
 
-    /*int DealDamage(lua_State* L, Unit* unit)
+    int DealDamage(lua_State* L, Unit* unit)
     {
         Unit* target = sEluna->CHECK_UNIT(L, 1);
         uint32 amount = luaL_checkunsigned(L, 2);
@@ -493,7 +493,7 @@ namespace LuaUnit
         else
         unit->DealDamage(target, amount);
         return 0;
-    }*/
+    }
 
     int GetStandState(lua_State* L, Unit* unit)
     {
@@ -501,35 +501,35 @@ namespace LuaUnit
         return 0;
     }
 
-    /*int KnockbackFrom(lua_State* L, Unit* unit)
+    int KnockbackFrom(lua_State* L, Unit* unit)
     {
         float x = luaL_checknumber(L, 1);
         float y = luaL_checknumber(L, 2);
         float speedXY = luaL_checknumber(L, 3);
         float speedZ = luaL_checknumber(L, 4);
-        // unit->KnockbackFrom(x, y, speedXY, speedZ);
+        unit->KnockbackFrom(x, y, speedXY, speedZ);
         return 0;
-    }*/
+    }
 
-    /*int JumpTo(lua_State* L, Unit* unit)
+    int JumpTo(lua_State* L, Unit* unit)
     {
         WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
         float speedZ = luaL_checknumber(L, 2);
         if (!obj)
             return 0;
 
-        // unit->JumpTo(obj, speedZ);
+        unit->JumpTo(obj, speedZ);
         return 0;
-    }*/
+    }
 
-    /*int Jump(lua_State* L, Unit* unit)
+    int Jump(lua_State* L, Unit* unit)
     {
         float speedXY = luaL_checknumber(L, 1);
         float speedZ = luaL_checknumber(L, 2);
         bool forward = luaL_optbool(L, 3, true);
-        // unit->JumpTo(speedXY, speedZ, forward);
+        unit->JumpTo(speedXY, speedZ, forward);
         return 0;
-    }*/
+    }
 
     int JumpToCoords(lua_State* L, Unit* unit)
     {
@@ -542,15 +542,15 @@ namespace LuaUnit
         return 0;
     }
 
-    /*int MoveCharge(lua_State* L, Unit* unit)
+    int MoveCharge(lua_State* L, Unit* unit)
     {
         float x = luaL_checknumber(L, 1);
         float y = luaL_checknumber(L, 2);
         float z = luaL_checknumber(L, 3);
         float speed = luaL_checknumber(L, 4);
-        // unit->GetMotionMaster()->MoveCharge(x, y, z, speed);
+        unit->GetMotionMaster()->MoveCharge(x, y, z, speed);
         return 0;
-    }*/
+    }
 
     int MoveChase(lua_State* L, Unit* unit)
     {
@@ -569,33 +569,33 @@ namespace LuaUnit
         return 0;
     }
 
-    /*int SetStunned(lua_State* L, Unit* unit)
+    int SetStunned(lua_State* L, Unit* unit)
     {
         bool apply = luaL_optbool(L, 1, true);
-        // unit->SetControlled(apply, UNIT_STATE_STUNNED);
+        unit->SetControlled(apply, UNIT_STATE_STUNNED);
         return 0;
-    }*/
+    }
 
-    /*int SetRooted(lua_State* L, Unit* unit)
+    int SetRooted(lua_State* L, Unit* unit)
     {
         bool apply = luaL_optbool(L, 1, true);
-        // unit->SetControlled(apply, UNIT_STATE_ROOT);
+        unit->SetControlled(apply, UNIT_STATE_ROOT);
         return 0;
-    }*/
+    }
 
-    /*int SetConfused(lua_State* L, Unit* unit)
+    int SetConfused(lua_State* L, Unit* unit)
     {
         bool apply = luaL_optbool(L, 1, true);
-        // unit->SetControlled(apply, UNIT_STATE_CONFUSED);
+        unit->SetControlled(apply, UNIT_STATE_CONFUSED);
         return 0;
-    }*/
+    }
 
-    /*int SetFeared(lua_State* L, Unit* unit)
+    int SetFeared(lua_State* L, Unit* unit)
     {
         bool apply = luaL_optbool(L, 1, true);
-        // unit->SetControlled(apply, UNIT_STATE_FLEEING);
+        unit->SetControlled(apply, UNIT_STATE_FLEEING);
         return 0;
-    }*/
+    }
 
     int MoveTo(lua_State* L, Unit* unit)
     {
@@ -1210,15 +1210,15 @@ namespace LuaUnit
         return 0;
     }
 
-    /*int AddAura(lua_State* L, Unit* unit)
+    int AddAura(lua_State* L, Unit* unit)
     {
         uint32 spellId = luaL_checkunsigned(L, 1);
         Unit* target = sEluna->CHECK_UNIT(L, 2);
         if (!target)
             return 0;
-        // sEluna->Push(L, unit->AddAura(spellId, target));
+        sEluna->Push(L, unit->AddAura(spellId, target));
         return 1;
-    }*/
+    }
 
     int RemoveAura(lua_State* L, Unit* unit)
     {
@@ -1261,13 +1261,13 @@ namespace LuaUnit
         return 0;
     }
 
-    /*int Kill(lua_State* L, Unit* unit)
+    int Kill(lua_State* L, Unit* unit)
     {
         Unit* target = sEluna->CHECK_UNIT(L, 1);
         bool durLoss = luaL_optbool(L, 2, true);
-        // unit->Kill((target ? target : unit), durLoss);
+        unit->Kill((target ? target : unit), durLoss);
         return 0;
-    }*/
+    }
 
     int RegisterEvent(lua_State* L, Unit* unit)
     {
@@ -1302,112 +1302,109 @@ namespace LuaUnit
         return 1;
     }
 
-    /*int DismissVehicle(lua_State* L, Unit* unit)
+    int DismissVehicle(lua_State* L, Unit* unit)
     {
-        // if (Creature* vehicle = unit->GetVehicleCreatureBase())
-        // vehicle->DespawnOrUnsummon();
+        if (Creature* vehicle = unit->GetVehicleCreatureBase())
+        vehicle->DespawnOrUnsummon();
         return 0;
-    }*/
+    }
 
-    /*int AddVehiclePassenger(lua_State* L, Unit* unit)
+    int AddVehiclePassenger(lua_State* L, Unit* unit)
     {
         Unit* passenger = sEluna->CHECK_UNIT(L, 1);
         int8 seatId = luaL_checkunsigned(L, 2);
-        // Vehicle* _vehicle = unit->GetVehicle();
-        // if (!_vehicle)
-        // return 0;
+        Vehicle* _vehicle = unit->GetVehicle();
+        if (!_vehicle)
+            return 0;
 
-        //_vehicle->AddPassenger(passenger, seatId);
+        _vehicle->AddPassenger(passenger, seatId);
         return 0;
-    }*/
-
-    /* Not coded in core (TC)
-    int EjectPassenger(lua_State* L, Unit* unit)
-    {
-    TO_UNIT();
-
-    Unit* passenger = sEluna->CHECK_UNIT(L, 1);
-    Vehicle* _vehicle = unit->GetVehicle();
-    if (!_vehicle)
-    return 0;
-
-    _vehicle->EjectPassenger(passenger, unit);
-    return 0;
     }
-    */
 
-    /*int RemovePassenger(lua_State* L, Unit* unit)
+    // Not coded in core (TC)
+    /*int EjectPassenger(lua_State* L, Unit* unit)
     {
         Unit* passenger = sEluna->CHECK_UNIT(L, 1);
-        // Vehicle* _vehicle = unit->GetVehicle();
-        // if (!_vehicle)
-        // return 0;
+        Vehicle* _vehicle = unit->GetVehicle();
+        if (!_vehicle)
+            return 0;
 
-        //_vehicle->RemovePassenger(passenger);
+        _vehicle->EjectPassenger(passenger, unit);
         return 0;
     }*/
 
-    /*int RemoveAllPassengers(lua_State* L, Unit* unit)
+    int RemovePassenger(lua_State* L, Unit* unit)
     {
-        // Unit* _unit = unit->GetVehicleBase();
-        // if (!_unit)
-        // return 0;
+        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
+        Vehicle* _vehicle = unit->GetVehicle();
+        if (!_vehicle)
+            return 0;
 
-        //_unit->GetVehicle()->RemoveAllPassengers();
+        _vehicle->RemovePassenger(passenger);
         return 0;
-    }*/
+    }
 
-    /*int GetPassenger(lua_State* L, Unit* unit)
+    int RemoveAllPassengers(lua_State* L, Unit* unit)
+    {
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
+
+        _unit->GetVehicle()->RemoveAllPassengers();
+        return 0;
+    }
+
+    int GetPassenger(lua_State* L, Unit* unit)
     {
         int8 seatId = luaL_checkunsigned(L, 1);
-        // Unit* _unit = unit->GetVehicleBase();
-        // if (!_unit)
-        // return 0;
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
-        // sEluna->Push(L, _unit->GetVehicle()->GetPassenger(seatId));
+        sEluna->Push(L, _unit->GetVehicle()->GetPassenger(seatId));
         return 1;
-    }*/
+    }
 
     /*int GetNextEmptySeat(lua_State* L, Unit* unit)
     {
         int8 seatId = luaL_checkunsigned(L, 1);
-        // Unit* _unit = unit->GetVehicleBase();
-        // if (!_unit)
-        // return 0;
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
         return 0;
     }*/
 
-    /*int GetAvailableSeats(lua_State* L, Unit* unit)
+    int GetAvailableSeats(lua_State* L, Unit* unit)
     {
-        // Unit* _unit = unit->GetVehicleBase();
-        // if (!_unit)
-        // return 0;
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
-        // sEluna->Push(L, _unit->GetVehicle()->GetAvailableSeatCount());
+        sEluna->Push(L, _unit->GetVehicle()->GetAvailableSeatCount());
         return 1;
-    }*/
+    }
 
-    /*int GetVehicleBase(lua_State* L, Unit* unit)
+    int GetVehicleBase(lua_State* L, Unit* unit)
     {
-        // Unit* _unit = unit->GetVehicleBase();
-        // if (_unit)
-        // sEluna->Push(L, _unit);
-        // else
-        // lua_pushnil(L);
+        Unit* _unit = unit->GetVehicleBase();
+        if (_unit)
+            sEluna->Push(L, _unit);
+        else
+            lua_pushnil(L);
         return 1;
-    }*/
+    }
 
-    /*int HasEmptySeat(lua_State* L, Unit* unit)
+    int HasEmptySeat(lua_State* L, Unit* unit)
     {
         int8 seatId = luaL_checkunsigned(L, 1);
-        // Unit* _unit = unit->GetVehicleBase();
-        // if (!_unit)
-        // return 0;
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
-        // sEluna->Push(L, _unit->GetVehicle()->HasEmptySeat(seatId));
+        sEluna->Push(L, _unit->GetVehicle()->HasEmptySeat(seatId));
         return 1;
-    }*/
+    }
 
     int GetFriendlyUnitsInRange(lua_State* L, Unit* unit)
     {
@@ -1467,37 +1464,37 @@ namespace LuaUnit
         return 1;
     }
 
-    /*int SetCanFly(lua_State* L, Unit* unit)
+    int SetCanFly(lua_State* L, Unit* unit)
     {
         bool apply = luaL_optbool(L, 1, true);
-        // unit->SetCanFly(apply);
+        unit->SetCanFly(apply);
         return 0;
-    }*/
+    }
 
-    /*int SetVisible(lua_State* L, Unit* unit)
+    int SetVisible(lua_State* L, Unit* unit)
     {
         bool x = luaL_optbool(L, 1, true);
-        // unit->SetVisible(x);
+        unit->SetVisible(x);
         return 0;
-    }*/
+    }
 
-    /*int IsVisible(lua_State* L, Unit* unit)
+    int IsVisible(lua_State* L, Unit* unit)
     {
-        // sEluna->Push(L, unit->IsVisible());
+        sEluna->Push(L, unit->IsVisible());
         return 1;
-    }*/
+    }
 
-    /*int IsMoving(lua_State* L, Unit* unit)
+    int IsMoving(lua_State* L, Unit* unit)
     {
-        // sEluna->Push(L, unit->isMoving());
+        sEluna->Push(L, unit->isMoving());
         return 1;
-    }*/
+    }
 
-    /*int IsFlying(lua_State* L, Unit* unit)
+    int IsFlying(lua_State* L, Unit* unit)
     {
-        // sEluna->Push(L, unit->IsFlying());
+        sEluna->Push(L, unit->IsFlying());
         return 1;
-    }*/
+    }
 
     int IsStopped(lua_State* L, Unit* unit)
     {
@@ -1511,29 +1508,29 @@ namespace LuaUnit
         return 1;
     }
 
-    /*int RestoreDisplayId(lua_State* L, Unit* unit)
+    int RestoreDisplayId(lua_State* L, Unit* unit)
     {
-        // unit->RestoreDisplayId();
+        unit->RestoreDisplayId();
         return 0;
-    }*/
+    }
 
-    /*int RestoreFaction(lua_State* L, Unit* unit)
+    int RestoreFaction(lua_State* L, Unit* unit)
     {
-        // unit->RestoreFaction();
+        unit->RestoreFaction();
         return 0;
-    }*/
+    }
 
-    /*int RemoveBindSightAuras(lua_State* L, Unit* unit)
+    int RemoveBindSightAuras(lua_State* L, Unit* unit)
     {
-        // unit->RemoveBindSightAuras();
+        unit->RemoveBindSightAuras();
         return 0;
-    }*/
+    }
 
-    /*int RemoveCharmAuras(lua_State* L, Unit* unit)
+    int RemoveCharmAuras(lua_State* L, Unit* unit)
     {
-        // unit->RemoveCharmAuras();
+        unit->RemoveCharmAuras();
         return 0;
-    }*/
+    }
 
     int StopMoving(lua_State* L, Unit* unit)
     {
@@ -1565,16 +1562,16 @@ namespace LuaUnit
         return 1;
     }
 
-    /*int DisableMelee(lua_State* L, Unit* unit)
+    int DisableMelee(lua_State* L, Unit* unit)
     {
         bool apply = luaL_optbool(L, 1, true);
 
         if (apply)
-        unit->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
+            unit->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
         else
-        unit->ClearUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
+            unit->ClearUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
         return 0;
-    }*/
+    }
 
     int SummonGuardian(lua_State* L, Unit* unit)
     {

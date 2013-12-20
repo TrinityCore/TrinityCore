@@ -254,11 +254,11 @@ namespace LuaItem
         return 1;
     }
 
-    /*int IsRefundExpired(lua_State* L, Item* item)// TODO: Implement core support
+    int IsRefundExpired(lua_State* L, Item* item)
     {
         sEluna->Push(L, item->IsRefundExpired());
         return 1;
-    }*/
+    }
 
     int SetEnchantment(lua_State* L, Item* item)
     {

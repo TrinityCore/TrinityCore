@@ -34,11 +34,11 @@ namespace LuaGuild
         return 1;
     }
 
-    /*int GetMemberCount(lua_State* L, Guild* guild)
-    {
-        sEluna->Push(L, guild->GetMemberCount());
+    int GetMemberCount(lua_State* L, Guild* guild)
+    { 
+        sEluna->Push(L, guild->GetMemberSize());
         return 1;
-    }*/
+    }
 
     int GetLeader(lua_State* L, Guild* guild)
     {
@@ -46,15 +46,15 @@ namespace LuaGuild
         return 1;
     }
 
-    /*int SetLeader(lua_State* L, Guild* guild)
+    int SetLeader(lua_State* L, Guild* guild)
     {
         Player* player = sEluna->CHECK_PLAYER(L, 1);
         if (!player)
             return 0;
 
-        guild->SetLeader(player->GetGUID());
+        guild->HandleSetLeader(player->GetSession(), player->GetName());
         return 0;
-    }*/
+    }
 
     int GetLeaderGUID(lua_State* L, Guild* guild)
     {
