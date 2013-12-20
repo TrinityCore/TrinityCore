@@ -35,6 +35,7 @@ class Log
     friend class ACE_Singleton<Log, ACE_Thread_Mutex>;
 
     typedef UNORDERED_MAP<std::string, Logger> LoggerMap;
+    typedef UNORDERED_MAP<std::string, Logger const*> CachedLoggerContainer;
 
     private:
         Log();
@@ -43,7 +44,7 @@ class Log
     public:
         void LoadFromConfig();
         void Close();
-        bool ShouldLog(std::string const& type, LogLevel level) const;
+        bool ShouldLog(std::string const& type, LogLevel level);
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
 
         void outMessage(std::string const& f, LogLevel level, char const* str, ...) ATTR_PRINTF(4, 5);
@@ -56,9 +57,9 @@ class Log
     private:
         static std::string GetTimestampStr();
         void vlog(std::string const& f, LogLevel level, char const* str, va_list argptr);
-        void write(LogMessage* msg) const;
+        void write(LogMessage* msg);
 
-        Logger const* GetLoggerByType(std::string const& type) const;
+        Logger const* GetLoggerByType(std::string const& type);
         Appender* GetAppenderByName(std::string const& name);
         uint8 NextAppenderId();
         void CreateAppenderFromConfig(std::string const& name);
@@ -68,6 +69,7 @@ class Log
 
         AppenderMap appenders;
         LoggerMap loggers;
+        CachedLoggerContainer cachedLoggers;
         uint8 AppenderId;
 
         std::string m_logsDir;
@@ -76,24 +78,36 @@ class Log
         LogWorker* worker;
 };
 
-inline Logger const* Log::GetLoggerByType(std::string const& type) const
+inline Logger const* Log::GetLoggerByType(std::string const& originalType)
 {
-    LoggerMap::const_iterator it = loggers.find(type);
-    if (it != loggers.end())
-        return &(it->second);
+    // Check if already cached
+    CachedLoggerContainer::const_iterator itCached = cachedLoggers.find(originalType);
+    if (itCached != cachedLoggers.end())
+        return itCached->second;
 
-    if (type == LOGGER_ROOT)
-        return NULL;
+    Logger const* logger = NULL;
+    std::string type(originalType);
 
-    std::string parentLogger = LOGGER_ROOT;
-    size_t found = type.find_last_of(".");
-    if (found != std::string::npos)
-        parentLogger = type.substr(0,found);
+    do
+    {
+        // Search for the logger "type.subtype"
+        LoggerMap::const_iterator it = loggers.find(type);
+        if (it == loggers.end())
+        {
+            // Search for the logger "type", if our logger contains '.', otherwise search for LOGGER_ROOT
+            size_t found = type.find_last_of(".");
+            type = found != std::string::npos ? type.substr(0, found) : LOGGER_ROOT;
+        }
+        else
+            logger = &(it->second);
+    }
+    while (!logger);
 
-    return GetLoggerByType(parentLogger);
+    cachedLoggers[type] = logger;
+    return logger;
 }
 
-inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
+inline bool Log::ShouldLog(std::string const& type, LogLevel level)
 {
     // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
     // Speed up in cases where requesting "Type.sub1.sub2" but only configured
@@ -119,7 +133,7 @@ inline void Log::outMessage(std::string const& filter, LogLevel level, const cha
 
 #define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()
 
-#if COMPILER != COMPILER_MICROSOFT
+#if PLATFORM != PLATFORM_WINDOWS
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
         do {                                                            \
             if (sLog->ShouldLog(filterType__, level__))                 \
