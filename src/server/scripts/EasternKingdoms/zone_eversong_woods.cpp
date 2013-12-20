@@ -18,8 +18,8 @@
 
 /* ScriptData
 SDName: Eversong_Woods
-SD%Complete: 100
-SDComment: Quest support: 8488, 8490
+SD%Complete: 95
+SDComment: Quest support: 8487, 8488, 8490
 SDCategory: Eversong Woods
 EndScriptData */
 
@@ -37,11 +37,29 @@ EndContentData */
 enum UnexpectedResults
 {
     // Quest
+    QUEST_CORRUPTED_SOIL            = 8487,
     QUEST_UNEXPECTED_RESULT         = 8488,
 
     // Creatures
-    NPC_GHARZUL                     = 15958,
-    NPC_ANGERSHADE                  = 15656
+    NPC_GHARZUL                     = 15958, // Quest 8488
+    NPC_ANGERSHADE                  = 15656, // Quest 8488
+
+    // Factions
+    FACTION_NORMAL                  = 1604,  // Quest 8488
+    FACTION_COMBAT                  = 232,   // Quest 8488
+
+    // Spells
+    SPELL_TEST_SOIL                 = 29535, // Quest 8487
+    SPELL_FIREBALL                  = 20811, // Quest 8488
+
+    // Text
+    SAY_TEST_SOIL                   = 0,     // Quest 8487
+
+    // Events
+    EVENT_TALK                      = 1,     // Quest 8487
+    EVENT_ADD_QUEST_GIVER_FLAG      = 2,     // Quest 8487
+    EVENT_SUMMON                    = 3,     // Quest 8488
+    EVENT_FIREBALL                  = 4      // Quest 8488
 };
 
 class npc_apprentice_mirveda : public CreatureScript
@@ -49,47 +67,57 @@ class npc_apprentice_mirveda : public CreatureScript
 public:
     npc_apprentice_mirveda() : CreatureScript("npc_apprentice_mirveda") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
-        {
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
-            CAST_AI(npc_apprentice_mirveda::npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = player->GetGUID();
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_apprentice_mirvedaAI(creature);
-    }
-
     struct npc_apprentice_mirvedaAI : public ScriptedAI
     {
         npc_apprentice_mirvedaAI(Creature* creature) : ScriptedAI(creature), Summons(me) { }
 
         uint32 KillCount;
         uint64 PlayerGUID;
-        bool Summon;
         SummonList Summons;
+        EventMap events;
 
         void Reset() OVERRIDE
         {
+            SetCombatMovement(false);
             KillCount = 0;
             PlayerGUID = 0;
             Summons.DespawnAll();
-            Summon = false;
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE { }
+        void sQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) OVERRIDE
+        {
+            if (quest->GetQuestId() == QUEST_CORRUPTED_SOIL)
+            {
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                events.ScheduleEvent(EVENT_TALK, 2000);
+            }
+        }
+
+        void sQuestAccept(Player* player, Quest const* quest) OVERRIDE
+        {
+            if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
+            {
+                me->setFaction(FACTION_COMBAT);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                events.ScheduleEvent(EVENT_SUMMON, 1000);
+                PlayerGUID = player->GetGUID();
+            }
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
+            events.ScheduleEvent(EVENT_FIREBALL, 1000);
+        }
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {
-            summoned->AI()->AttackStart(me);
+            // This is the best I can do because AttackStart does nothing
+            summoned->GetMotionMaster()->MovePoint(1, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+            // summoned->AI()->AttackStart(me);
             Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* summoned) OVERRIDE
+        void SummonedCreatureDies(Creature* summoned, Unit* /*who*/) OVERRIDE
         {
             Summons.Despawn(summoned);
             ++KillCount;
@@ -97,26 +125,60 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            me->setFaction(FACTION_NORMAL);
+
             if (PlayerGUID)
                 if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     player->FailQuest(QUEST_UNEXPECTED_RESULT);
         }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (KillCount >= 3 && PlayerGUID)
                 if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
-                    player->CompleteQuest(QUEST_UNEXPECTED_RESULT);
+                    if (player->GetQuestStatus(QUEST_UNEXPECTED_RESULT) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->CompleteQuest(QUEST_UNEXPECTED_RESULT);
+                        me->setFaction(FACTION_NORMAL);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    }
 
-            if (Summon)
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                me->SummonCreature(NPC_GHARZUL, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(NPC_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(NPC_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                Summon = false;
+                switch (eventId)
+                {
+                    case EVENT_TALK:
+                        Talk(SAY_TEST_SOIL);
+                        events.ScheduleEvent(EVENT_ADD_QUEST_GIVER_FLAG, 7000);
+                        break;
+                    case EVENT_ADD_QUEST_GIVER_FLAG:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        break;
+                    case EVENT_SUMMON:
+                        me->SummonCreature(NPC_GHARZUL,    8749.505f, -7132.595f, 35.31983f, 3.816502f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
+                        me->SummonCreature(NPC_ANGERSHADE, 8755.38f,  -7131.521f, 35.30957f, 3.816502f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
+                        me->SummonCreature(NPC_ANGERSHADE, 8753.199f, -7125.975f, 35.31986f, 3.816502f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
+                        break;
+                    case EVENT_FIREBALL:
+                        if (!UpdateVictim())
+                            continue;
+                        DoCastVictim(SPELL_FIREBALL, true);  // Not casting in combat
+                        events.ScheduleEvent(EVENT_FIREBALL, 3000);
+                        break;
+                    default:
+                        break;
+                }
             }
+            DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_apprentice_mirvedaAI(creature);
+    }
 };
 
 /*######

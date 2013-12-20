@@ -284,7 +284,7 @@ public:
             amountWP  = 49;
         }
 
-        void EnterCombat(Unit* /*who*/)OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
         {

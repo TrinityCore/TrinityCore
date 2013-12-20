@@ -186,6 +186,7 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : npc_escortAI(creature)
     faction = 0;
     useFlyPath = false;
     damageTaken = 0;
+    memset(DummyTarget, 0, sizeof(DummyTarget));
     Reset();
 }
 
@@ -430,7 +431,6 @@ public:
 
         bool meteor;
         bool CanMove;
-        bool WpEnabled;
         bool go;
         uint32 spawnTimer;
         uint32 FlameBuffetTimer;

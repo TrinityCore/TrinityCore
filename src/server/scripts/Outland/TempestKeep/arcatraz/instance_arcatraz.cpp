@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,217 +15,120 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Arcatraz
-SD%Complete: 80
-SDComment: Mainly Harbringer Skyriss event
-SDCategory: Tempest Keep, The Arcatraz
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "arcatraz.h"
 
-#define MAX_ENCOUNTER 9
-
-enum Units
+DoorData const doorData[] =
 {
-    CONTAINMENT_CORE_SECURITY_FIELD_ALPHA = 184318, //door opened when Wrath-Scryer Soccothrates dies
-    CONTAINMENT_CORE_SECURITY_FIELD_BETA  = 184319, //door opened when Dalliah the Doomsayer dies
-    POD_ALPHA                             = 183961, //pod first boss wave
-    POD_BETA                              = 183963, //pod second boss wave
-    POD_DELTA                             = 183964, //pod third boss wave
-    POD_GAMMA                             = 183962, //pod fourth boss wave
-    POD_OMEGA                             = 183965, //pod fifth boss wave
-    WARDENS_SHIELD                        = 184802, // warden shield
-    SEAL_SPHERE                           = 184802, //shield 'protecting' mellichar
-
-    MELLICHAR                             = 20904, //skyriss will kill this unit
+    { GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA, DATA_SOCCOTHRATES,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA,  DATA_DALLIAH,       DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { 0,                                        0,                  DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
 };
-
-/* Arcatraz encounters:
-1 - Zereketh the Unbound event
-2 - Dalliah the Doomsayer event
-3 - Wrath-Scryer Soccothrates event
-4 - Harbinger Skyriss event, 5 sub-events
-*/
 
 class instance_arcatraz : public InstanceMapScript
 {
     public:
-        instance_arcatraz()
-            : InstanceMapScript("instance_arcatraz", 552)
-        {
-        }
+        instance_arcatraz() : InstanceMapScript(ArcatrazScriptName, 552) { }
+
         struct instance_arcatraz_InstanceMapScript : public InstanceScript
         {
-            instance_arcatraz_InstanceMapScript(Map* map) : InstanceScript(map) { }
-
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-            uint64 Containment_Core_Security_Field_AlphaGUID;
-            uint64 Containment_Core_Security_Field_BetaGUID;
-            uint64 Pod_AlphaGUID;
-            uint64 Pod_GammaGUID;
-            uint64 Pod_BetaGUID;
-            uint64 Pod_DeltaGUID;
-            uint64 Pod_OmegaGUID;
-            uint64 Wardens_ShieldGUID;
-            uint64 GoSphereGUID;
-            uint64 MellicharGUID;
-
-            void Initialize() OVERRIDE
+            instance_arcatraz_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
 
-                Containment_Core_Security_Field_AlphaGUID = 0;
-                Containment_Core_Security_Field_BetaGUID = 0;
-                Pod_AlphaGUID = 0;
-                        Pod_GammaGUID = 0;
-                        Pod_BetaGUID = 0;
-                        Pod_DeltaGUID = 0;
-                        Pod_OmegaGUID = 0;
-                        Wardens_ShieldGUID = 0;
-                        GoSphereGUID = 0;
-                        MellicharGUID = 0;
+                DalliahGUID       = 0;
+                SoccothratesGUID  = 0;
+                MellicharGUID     = 0;
+                WardensShieldGUID = 0;
+
+                ConversationState = NOT_STARTED;
+
+                memset(StasisPodGUIDs, 0, 5 * sizeof(uint64));
+                memset(StasisPodStates, NOT_STARTED, 5 * sizeof(uint8));
             }
 
-            bool IsEncounterInProgress() const OVERRIDE
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        return true;
-
-                return false;
+                switch (creature->GetEntry())
+                {
+                    case NPC_DALLIAH:
+                        DalliahGUID = creature->GetGUID();
+                        break;
+                    case NPC_SOCCOTHRATES:
+                        SoccothratesGUID = creature->GetGUID();
+                        break;
+                    case NPC_MELLICHAR:
+                        MellicharGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
-                case CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
-                    Containment_Core_Security_Field_AlphaGUID = go->GetGUID();
-                    break;
-
-                case CONTAINMENT_CORE_SECURITY_FIELD_BETA:
-                    Containment_Core_Security_Field_BetaGUID = go->GetGUID();
-                    break;
-
-                case POD_ALPHA:
-                    Pod_AlphaGUID = go->GetGUID();
-                    break;
-
-                case POD_GAMMA:
-                    Pod_GammaGUID = go->GetGUID();
-                    break;
-
-                case POD_BETA:
-                    Pod_BetaGUID = go->GetGUID();
-                    break;
-
-                case POD_DELTA:
-                    Pod_DeltaGUID = go->GetGUID();
-                    break;
-
-                case POD_OMEGA:
-                    Pod_OmegaGUID = go->GetGUID();
-                    break;
-
-                case SEAL_SPHERE:
-                    GoSphereGUID = go->GetGUID();
-                    break;
-
-                /*case WARDENS_SHIELD:
-                    Wardens_ShieldGUID = go->GetGUID();
-                    break;*/
+                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
+                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA:
+                        AddDoor(go, true);
+                        break;
+                    case GO_STASIS_POD_ALPHA:
+                        StasisPodGUIDs[0] = go->GetGUID();
+                        break;
+                    case GO_STASIS_POD_BETA:
+                        StasisPodGUIDs[1] = go->GetGUID();
+                        break;
+                    case GO_STASIS_POD_DELTA:
+                        StasisPodGUIDs[2] = go->GetGUID();
+                        break;
+                    case GO_STASIS_POD_GAMMA:
+                        StasisPodGUIDs[3] = go->GetGUID();
+                        break;
+                    case GO_STASIS_POD_OMEGA:
+                        StasisPodGUIDs[4] = go->GetGUID();
+                        break;
+                    case GO_WARDENS_SHIELD:
+                        WardensShieldGUID = go->GetGUID();
+                        break;
+                    default:
+                        break;
                 }
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
             {
-                if (creature->GetEntry() == MELLICHAR)
-                    MellicharGUID = creature->GetGUID();
+                switch (go->GetEntry())
+                {
+                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
+                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
-                case TYPE_ZEREKETH:
-                    m_auiEncounter[0] = data;
-                    break;
-                case TYPE_DALLIAH:
-                    if (data == DONE)
-                    {
-                        if (GameObject* go = instance->GetGameObject(Containment_Core_Security_Field_BetaGUID))
-                            go->UseDoorOrButton();
-                    }
-                    m_auiEncounter[1] = data;
-                    break;
-                case TYPE_SOCCOTHRATES:
-                    if (data == DONE)
-                    {
-                        if (GameObject* go = instance->GetGameObject(Containment_Core_Security_Field_AlphaGUID))
-                            go->UseDoorOrButton();
-                    }
-                    m_auiEncounter[2] = data;
-                    break;
-                case TYPE_HARBINGERSKYRISS:
-                    if (data == NOT_STARTED || data == FAIL)
-                    {
-                        m_auiEncounter[4] = NOT_STARTED;
-                        m_auiEncounter[5] = NOT_STARTED;
-                        m_auiEncounter[6] = NOT_STARTED;
-                        m_auiEncounter[7] = NOT_STARTED;
-                        m_auiEncounter[8] = NOT_STARTED;
-                    }
-                    m_auiEncounter[3] = data;
-                    break;
-                case TYPE_WARDEN_1:
-                    if (data == IN_PROGRESS)
-                        if (GameObject* go = instance->GetGameObject(Pod_AlphaGUID))
-                            go->UseDoorOrButton();
-                    m_auiEncounter[4] = data;
-                    break;
-                case TYPE_WARDEN_2:
-                    if (data == IN_PROGRESS)
-                    {
-                        if (GameObject* go = instance->GetGameObject(Pod_BetaGUID))
-                            go->UseDoorOrButton();
-                    }
-                    m_auiEncounter[5] = data;
-                    break;
-                case TYPE_WARDEN_3:
-                    if (data == IN_PROGRESS)
-                    {
-                        if (GameObject* go = instance->GetGameObject(Pod_DeltaGUID))
-                            go->UseDoorOrButton();
-                    }
-                    m_auiEncounter[6] = data;
-                    break;
-                case TYPE_WARDEN_4:
-                    if (data == IN_PROGRESS)
-                    {
-                        if (GameObject* go = instance->GetGameObject(Pod_GammaGUID))
-                            go->UseDoorOrButton();
-                    }
-                    m_auiEncounter[7] = data;
-                    break;
-                case TYPE_WARDEN_5:
-                    if (data == IN_PROGRESS)
-                    {
-                        if (GameObject* go = instance->GetGameObject(Pod_OmegaGUID))
-                            go->UseDoorOrButton();
-                    }
-                    m_auiEncounter[8] = data;
-                    break;
-                case TYPE_SHIELD_OPEN:
-                    if (data == IN_PROGRESS)
-                    {
-                        if (GameObject* go = instance->GetGameObject(Wardens_ShieldGUID))
-                            go->UseDoorOrButton();
-                    }
-                    break;
+                    case DATA_WARDEN_1:
+                    case DATA_WARDEN_2:
+                    case DATA_WARDEN_3:
+                    case DATA_WARDEN_4:
+                    case DATA_WARDEN_5:
+                        if (data == IN_PROGRESS)
+                            HandleGameObject(StasisPodGUIDs[type - DATA_WARDEN_1], true);
+                        StasisPodStates[type - DATA_WARDEN_1] = uint8(data);
+                        break;
+                    case DATA_CONVERSATION:
+                        ConversationState = uint8(data);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -234,12 +136,16 @@ class instance_arcatraz : public InstanceMapScript
             {
                 switch (type)
                 {
-                case TYPE_HARBINGERSKYRISS: return m_auiEncounter[3];
-                case TYPE_WARDEN_1:         return m_auiEncounter[4];
-                case TYPE_WARDEN_2:         return m_auiEncounter[5];
-                case TYPE_WARDEN_3:         return m_auiEncounter[6];
-                case TYPE_WARDEN_4:         return m_auiEncounter[7];
-                case TYPE_WARDEN_5:         return m_auiEncounter[8];
+                    case DATA_WARDEN_1:
+                    case DATA_WARDEN_2:
+                    case DATA_WARDEN_3:
+                    case DATA_WARDEN_4:
+                    case DATA_WARDEN_5:
+                        return StasisPodStates[type - DATA_WARDEN_1];
+                    case DATA_CONVERSATION:
+                        return ConversationState;
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -248,11 +154,95 @@ class instance_arcatraz : public InstanceMapScript
             {
                 switch (data)
                 {
-                case DATA_MELLICHAR:        return MellicharGUID;
-                case DATA_SPHERE_SHIELD:    return GoSphereGUID;
+                    case DATA_DALLIAH:
+                        return DalliahGUID;
+                    case DATA_SOCCOTHRATES:
+                        return SoccothratesGUID;
+                    case DATA_MELLICHAR:
+                        return MellicharGUID;
+                    case DATA_WARDENS_SHIELD:
+                        return WardensShieldGUID;
+                    default:
+                        break;
                 }
                 return 0;
             }
+
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_HARBINGER_SKYRISS:
+                        if (state == NOT_STARTED || state == FAIL)
+                        {
+                            SetData(DATA_WARDEN_1, NOT_STARTED);
+                            SetData(DATA_WARDEN_2, NOT_STARTED);
+                            SetData(DATA_WARDEN_3, NOT_STARTED);
+                            SetData(DATA_WARDEN_4, NOT_STARTED);
+                            SetData(DATA_WARDEN_5, NOT_STARTED);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+
+            std::string GetSaveData() OVERRIDE
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "A Z " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(char const* str) OVERRIDE
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'A' && dataHead2 == 'Z')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+        protected:
+            uint64 DalliahGUID;
+            uint64 SoccothratesGUID;
+            uint64 StasisPodGUIDs[5];
+            uint64 MellicharGUID;
+            uint64 WardensShieldGUID;
+
+            uint8 ConversationState;
+            uint8 StasisPodStates[5];
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
@@ -263,6 +253,6 @@ class instance_arcatraz : public InstanceMapScript
 
 void AddSC_instance_arcatraz()
 {
-    new instance_arcatraz;
+    new instance_arcatraz();
 }
 
