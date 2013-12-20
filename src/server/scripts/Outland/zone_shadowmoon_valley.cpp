@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -28,7 +28,6 @@ npc_mature_netherwing_drake
 npc_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
 npcs_flanis_swiftwing_and_kagrosh
-npc_murkblood_overseer
 npc_karynaku
 npc_oronok_tornheart
 npc_overlord_morghor
@@ -488,74 +487,6 @@ public:
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
-        return true;
-    }
-};
-
-/*######
-## npc_murkblood_overseer
-######*/
-
-#define QUEST_11082     11082
-
-#define GOSSIP_HMO "I am here for you, overseer."
-#define GOSSIP_SMO1 "How dare you question an overseer of the Dragonmaw!"
-#define GOSSIP_SMO2 "Who speaks of me? What are you talking about, broken?"
-#define GOSSIP_SMO3 "Continue please."
-#define GOSSIP_SMO4 "Who are these bidders?"
-#define GOSSIP_SMO5 "Well... yes."
-
-class npc_murkblood_overseer : public CreatureScript
-{
-public:
-    npc_murkblood_overseer() : CreatureScript("npc_murkblood_overseer") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+6:
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                creature->CastSpell(player, 41121, false);
-                player->AreaExploredOrEventHappens(QUEST_11082);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (player->GetQuestStatus(QUEST_11082) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_HMO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
         return true;
     }
 };
@@ -2011,7 +1942,6 @@ void AddSC_shadowmoon_valley()
     new npc_dragonmaw_peon();
     new npc_drake_dealer_hurlunk();
     new npcs_flanis_swiftwing_and_kagrosh();
-    new npc_murkblood_overseer();
     new npc_karynaku();
     new npc_oronok_tornheart();
     new npc_overlord_morghor();
