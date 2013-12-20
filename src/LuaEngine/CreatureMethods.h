@@ -224,7 +224,7 @@ namespace LuaCreature
         return 1;
     }
 
-    int CanStartAttack(lua_State* L, Creature* creature) // TODO: Implement core side
+    /*int CanStartAttack(lua_State* L, Creature* creature) // TODO: Implement core side
     {
         Unit* target = sEluna->CHECK_UNIT(L, 1);
         bool force = luaL_optbool(L, 2, true);
@@ -234,51 +234,51 @@ namespace LuaCreature
 
         // sEluna->Push(L, creature->CanStartAttack(target, force));
         return 1;
-    }
+    }*/
 
-    int ResetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
+    /*int ResetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         // creature->ResetLootMode();
         return 0;
-    }
+    }*/
 
-    int RemoveLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
+    /*int RemoveLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         uint16 lootMode = luaL_checkunsigned(L, 1);
 
         // creature->RemoveLootMode(lootMode);
         return 0;
-    }
+    }*/
 
-    int AddLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
+    /*int AddLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         uint16 lootMode = luaL_checkunsigned(L, 1);
 
         // creature->AddLootMode(lootMode);
         return 0;
-    }
+    }*/
 
-    int SetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
+    /*int SetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         uint16 lootMode = luaL_checkunsigned(L, 1);
 
         // creature->SetLootMode(lootMode);
         return 0;
-    }
+    }*/
 
-    int HasLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
+    /*int HasLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         uint16 lootMode = luaL_checkunsigned(L, 1);
 
         // sEluna->Push(L, creature->HasLootMode(lootMode));
         return 1;
-    }
+    }*/
 
-    int GetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
+    /*int GetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         // sEluna->Push(L, creature->GetLootMode());
         return 1;
-    }
+    }*/
 
     int IsTappedBy(lua_State* L, Creature* creature)
     {
@@ -623,11 +623,11 @@ namespace LuaCreature
         return 1;
     }
 
-    int IsDungeonBoss(lua_State* L, Creature* creature)
+    /*int IsDungeonBoss(lua_State* L, Creature* creature)
     {
         // sEluna->Push(L, creature->IsDungeonBoss());
         return 1;
-    }
+    }*/
 
     int IsWorldBoss(lua_State* L, Creature* creature)
     {

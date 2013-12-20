@@ -167,11 +167,10 @@ namespace LuaItem
         return 1;
     }
 
-    int CanBeTraded(lua_State* L, Item* item) // TODO: Implement trade bool
+    int CanBeTraded(lua_State* L, Item* item)
     {
         bool mail = luaL_optbool(L, 1, false);
-        // bool trade = luaL_optbool(L, 2, false);
-        sEluna->Push(L, item->CanBeTraded(mail/*, trade*/));
+        sEluna->Push(L, item->CanBeTraded(mail));
         return 1;
     }
 
@@ -255,12 +254,11 @@ namespace LuaItem
         return 1;
     }
 
-    int IsRefundExpired(lua_State* L, Item* item)// TODO: Implement core support
+    /*int IsRefundExpired(lua_State* L, Item* item)// TODO: Implement core support
     {
-        /*sEluna->Push(L, item->IsRefundExpired());
-        return 1;*/
-        return 0; // Temp till supported
-    }
+        sEluna->Push(L, item->IsRefundExpired());
+        return 1;
+    }*/
 
     int SetEnchantment(lua_State* L, Item* item)
     {

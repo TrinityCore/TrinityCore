@@ -43,9 +43,9 @@ namespace LuaGameObject
             case 3:
                 type = TEMPSUMMON_TIMED_DESPAWN;
                 break;
-            // case 4:
-            //     type = TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT;
-            //    break;
+            case 4:
+                type = TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT;
+               break;
             case 5:
                 type = TEMPSUMMON_CORPSE_DESPAWN;
                 break;

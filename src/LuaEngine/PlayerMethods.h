@@ -84,38 +84,38 @@ namespace LuaPlayer
         return 0;
     }
 
-    int HasAura(lua_State* L, Player* player)
+    /*int HasAura(lua_State* L, Player* player)
     {
         uint32 spell = luaL_checkunsigned(L, 1);
         WorldObject* caster = sEluna->CHECK_WORLDOBJECT(L, 2);
 
         // sEluna->Push(L, player->HasAura(spell, caster ? caster->GetGUIDLow() : 0));
         return 1;
-    }
+    }*/
 
-    int IsARecruiter(lua_State* L, Player* player)
+    /*int IsARecruiter(lua_State* L, Player* player)
     {
         // sEluna->Push(L, player->GetSession()->IsARecruiter() || (player->GetSession()->GetRecruiterId() != 0));
         return 1;
-    }
+    }*/
 
-    int GetRecruiterId(lua_State* L, Player* player)
+    /*int GetRecruiterId(lua_State* L, Player* player)
     {
         // sEluna->Push(L, player->GetSession()->GetRecruiterId());
         return 1;
-    }
+    }*/
 
-    int GetSelectedPlayer(lua_State* L, Player* player)
+    /*int GetSelectedPlayer(lua_State* L, Player* player)
     {
         // sEluna->Push(L, player->GetSelectedPlayer());
         return 1;
-    }
+    }*/
 
-    int GetSelectedUnit(lua_State* L, Player* player)
+    /*int GetSelectedUnit(lua_State* L, Player* player)
     {
         // sEluna->Push(L, player->GetSelectedUnit());
         return 1;
-    }
+    }*/
 
     int GetLatency(lua_State* L, Player* player)
     {
@@ -924,13 +924,13 @@ namespace LuaPlayer
         return 1;
     }
 
-    int HasReceivedQuestReward(lua_State* L, Player* player)
+    /*int HasReceivedQuestReward(lua_State* L, Player* player)
     {
         uint32 entry = luaL_checkunsigned(L, 1);
 
         // sEluna->Push(L, player->IsQuestRewarded(entry));
         return 1;
-    }
+    }*/
 
     int RegenerateHealth(lua_State* L, Player* player)
     {
@@ -954,11 +954,11 @@ namespace LuaPlayer
         return 0;
     }
 
-    int ResetPetTalents(lua_State* L, Player* player)
+    /*int ResetPetTalents(lua_State* L, Player* player)
     {
         // player->ResetPetTalents();
         return 0;
-    }
+    }*/
 
     int GetInGameTime(lua_State* L, Player* player)
     {
