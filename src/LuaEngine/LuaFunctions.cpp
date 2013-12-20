@@ -111,7 +111,7 @@ void RegisterGlobals(lua_State* L)
     lua_register(L, "FindWeather", &LuaGlobalFunctions::FindWeather);                                       // FindWeather(zoneId) - Finds the weather by zoneId and returns the weather
     lua_register(L, "AddWeather", &LuaGlobalFunctions::AddWeather);                                         // AddWeather(zoneId) - Adds weather to the following zone, also returns weather
     lua_register(L, "RemoveWeather", &LuaGlobalFunctions::RemoveWeather);                                   // RemoveWeather(zoneId) - Removes weather from a zone
-    lua_register(L, "SendFineWeatherToPlayer", &LuaGlobalFunctions::SendFineWeatherToPlayer);               // SendFineWeatherToPlayer(player) - Sends WEATHER_STATE_FINE weather to the player
+    lua_register(L, "SendFineWeatherToPlayer", &LuaGlobalFunctions::SendFineWeatherToPlayer);               // SendFineWeatherToPlayer(player) - Sends WEATHER_STATE_FINE weather to the
 }
 
 ElunaRegister<Object> ObjectMethods[] =
@@ -292,7 +292,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsInAccessiblePlaceFor", &LuaUnit::IsInAccessiblePlaceFor},                                           // :IsInAccessiblePlaceFor(creature) - Returns if the unit is in an accessible place for the specified creature
     {"IsVendor", &LuaUnit::IsVendor},                       // :IsVendor() - Returns if the unit is a vendor or not
     {"IsWithinLoS", &LuaUnit::IsWithinLoS},                 // :IsWithinLoS(x, y, z)
-    // {"IsRooted", &LuaUnit::IsRooted},                       // :IsRooted()
+    //{"IsRooted", &LuaUnit::IsRooted},                       // :IsRooted()
     {"IsFullHealth", &LuaUnit::IsFullHealth},               // :IsFullHealth() - Returns if the unit is full health
 
     // Other
@@ -576,12 +576,12 @@ ElunaRegister<Player> PlayerMethods[] =
     {"Regenerate", &LuaPlayer::Regenerate},                 // :Regenerate(powerType) - Regenerates the given power type
     {"RegenerateHealth", &LuaPlayer::RegenerateHealth},     // :RegenerateHealth() - Regenerates health
     {"AddComboPoints", &LuaPlayer::AddComboPoints},         // :AddComboPoints(target, count[, spell]) - Adds combo points to the target for the player
-    {"GainSpellComboPoints", &LuaPlayer::GainSpellComboPoints},                                               // :GainSpellComboPoints(amount) - Player gains spell combo points
+    //{"GainSpellComboPoints", &LuaPlayer::GainSpellComboPoints},                                               // :GainSpellComboPoints(amount) - Player gains spell combo points
     {"ClearComboPoints", &LuaPlayer::ClearComboPoints},     // :ClearComboPoints() - Clears player's combo points
     {"RemoveSpell", &LuaPlayer::RemoveSpell},               // :RemoveSpell(entry[, disabled, learn_low_rank]) - Removes (unlearn) the given spell
     {"ResetTalents", &LuaPlayer::ResetTalents},             // :ResetTalents([no_cost]) - Resets player's talents
     {"ResetTalentsCost", &LuaPlayer::ResetTalentsCost},     // :ResetTalentsCost() - Returns the reset talents cost
-    {"AddTalent", &LuaPlayer::AddTalent},                 // :AddTalent(spellid, spec, learning) - Adds a talent spell for the player to given spec
+    //{"AddTalent", &LuaPlayer::AddTalent},                 // :AddTalent(spellid, spec, learning) - Adds a talent spell for the player to given spec
     {"RemoveFromGroup", &LuaPlayer::RemoveFromGroup},       // :RemoveFromGroup() - Removes the player from his group
     {"KillPlayer", &LuaPlayer::KillPlayer},                 // :KillPlayer() - Kills the player
     {"DurabilityLossAll", &LuaPlayer::DurabilityLossAll},   // :DurabilityLossAll(percent[, inventory]) - The player's items lose durability. Inventory true by default
@@ -594,7 +594,7 @@ ElunaRegister<Player> PlayerMethods[] =
     {"ModifyHonorPoints", &LuaPlayer::ModifyHonorPoints},   // :ModifyHonorPoints(amount) - Modifies the player's honor points
     {"ModifyArenaPoints", &LuaPlayer::ModifyArenaPoints},   // :ModifyArenaPoints(amount) - Modifies the player's arena points
     {"LeaveBattleground", &LuaPlayer::LeaveBattleground},   // :LeaveBattleground([teleToEntryPoint]) - The player leaves the battleground
-    {"BindToInstance", &LuaPlayer::BindToInstance},       // :BindToInstance() - Binds the player to the current instance
+    //{"BindToInstance", &LuaPlayer::BindToInstance},       // :BindToInstance() - Binds the player to the current instance
     {"UnbindInstance", &LuaPlayer::UnbindInstance},         // :UnbindInstance(map, difficulty) - Unbinds the player from an instance
     {"RemoveFromBattlegroundOrBattlefieldRaid", &LuaPlayer::RemoveFromBattlegroundOrBattlefieldRaid},         // :RemoveFromBattlegroundOrBattlefieldRaid() - Removes the player from a battleground or battlefield raid
     {"ResetAchievements", &LuaPlayer::ResetAchievements},   // :ResetAchievements() - Resets playeräs achievements
@@ -630,11 +630,11 @@ ElunaRegister<Creature> CreatureMethods[] =
     {"GetAITarget", &LuaCreature::GetAITarget},           // :GetAITarget(type[, playeronly, position, distance, aura]) - Get an unit in threat list
     {"GetAITargets", &LuaCreature::GetAITargets},         // :GetAITargets() - Get units in threat list
     {"GetAITargetsCount", &LuaCreature::GetAITargetsCount}, // :GetAITargetsCount() - Get threat list size
-    {"GetNearestTargetInAttackDistance", &LuaCreature::GetNearestTargetInAttackDistance},                       // :GetNearestTargetInAttackDistance([radius]) - Returns nearest target in attack distance and within given radius, if set
-    {"GetNearestTarget", &LuaCreature::GetNearestTarget}, // :GetNearestTarget([radius]) - Returns nearest target in sight or given radius
-    {"GetNearestHostileTargetInAggroRange", &LuaCreature::GetNearestHostileTargetInAggroRange},                 // :GetNearestHostileTargetInAggroRange([checkLOS]) - Returns closest hostile target in aggro range of the creature
+    //{"GetNearestTargetInAttackDistance", &LuaCreature::GetNearestTargetInAttackDistance},                       // :GetNearestTargetInAttackDistance([radius]) - Returns nearest target in attack distance and within given radius, if set
+    //{"GetNearestTarget", &LuaCreature::GetNearestTarget}, // :GetNearestTarget([radius]) - Returns nearest target in sight or given radius
+    //{"GetNearestHostileTargetInAggroRange", &LuaCreature::GetNearestHostileTargetInAggroRange},                 // :GetNearestHostileTargetInAggroRange([checkLOS]) - Returns closest hostile target in aggro range of the creature
     {"GetHomePosition", &LuaCreature::GetHomePosition},     // :GetHomePosition() - Returns x,y,z,o of spawn position
-    {"GetTransportHomePosition", &LuaCreature::GetTransportHomePosition},                                       // :GetTransportHomePosition() - Returns x,y,z,o of transport spawn position
+    //{"GetTransportHomePosition", &LuaCreature::GetTransportHomePosition},                                       // :GetTransportHomePosition() - Returns x,y,z,o of transport spawn position
     {"GetCorpseDelay", &LuaCreature::GetCorpseDelay},       // :GetCorpseDelay() - Returns corpse delay
     {"GetCreatureSpellCooldownDelay", &LuaCreature::GetCreatureSpellCooldownDelay},                             // :GetCreatureSpellCooldownDelay(spellId) - Returns spell cooldown delay
     {"GetScriptId", &LuaCreature::GetScriptId},             // :GetScriptId() - Returns creature's script ID
@@ -646,18 +646,18 @@ ElunaRegister<Creature> CreatureMethods[] =
     {"GetDefaultMovementType", &LuaCreature::GetDefaultMovementType},                                           // :GetDefaultMovementType() - Returns default movement type
     {"GetRespawnDelay", &LuaCreature::GetRespawnDelay},     // :GetRespawnDelay() - Returns respawn delay
     {"GetRespawnRadius", &LuaCreature::GetRespawnRadius},   // :GetRespawnRadius() - Returns respawn radius
-    {"GetWaypointPath", &LuaCreature::GetWaypointPath},   // :GetWaypointPath() - Returns waypoint path ID
-    {"GetCurrentWaypointId", &LuaCreature::GetCurrentWaypointId},                                               // :GetCurrentWaypointId() - Returns waypoint ID
-    {"GetLootMode", &LuaCreature::GetLootMode},           // :GetLootMode() - Returns loot mode
+    //{"GetWaypointPath", &LuaCreature::GetWaypointPath},   // :GetWaypointPath() - Returns waypoint path ID
+    //{"GetCurrentWaypointId", &LuaCreature::GetCurrentWaypointId},                                               // :GetCurrentWaypointId() - Returns waypoint ID
+    //{"GetLootMode", &LuaCreature::GetLootMode},           // :GetLootMode() - Returns loot mode
     {"GetLootRecipient", &LuaCreature::GetLootRecipient},   // :GetLootRecipient() - Returns loot receiver
     {"GetLootRecipientGroup", &LuaCreature::GetLootRecipientGroup},                                             // :GetLootRecipientGroup() - Returns loot receiver group
     {"GetNPCFlags", &LuaCreature::GetNPCFlags},             // :GetNPCFlags() - Returns NPC flags
     {"GetShieldBlockValue", &LuaCreature::GetShieldBlockValue}, // :GetShieldBlockValue() - Returns block value
 
     // Setters
-    {"SetHover", &LuaCreature::SetHover},                 // :SetHover([enable]) - Sets hover on or off
+    //{"SetHover", &LuaCreature::SetHover},                 // :SetHover([enable]) - Sets hover on or off
     //{"SetLevitate", &LuaCreature::SetLevitate},             // :SetLevitate([enable]) - Sets Levitate on or off
-    {"SetDisableGravity", &LuaCreature::SetDisableGravity},     // :SetDisableGravity([disable, packetOnly]) - Disables or enables gravity
+    //{"SetDisableGravity", &LuaCreature::SetDisableGravity},     // :SetDisableGravity([disable, packetOnly]) - Disables or enables gravity
     {"SetReactState", &LuaCreature::SetReactState},         // :SetReactState(state) - Sets react state
     {"SetNoCallAssistance", &LuaCreature::SetNoCallAssistance}, // :SetNoCallAssistance([noCall]) - Sets call assistance to false or true
     {"SetNoSearchAssistance", &LuaCreature::SetNoSearchAssistance},                                             // :SetNoSearchAssistance([noSearch]) - Sets assistance searhing to false or true
@@ -935,13 +935,13 @@ ElunaRegister<Guild> GuildMethods[] =
     {"GetName", &LuaGuild::GetName},                        // :GetName() - Gets the guild name
     {"GetMOTD", &LuaGuild::GetMOTD},                        // :GetMOTD() - Gets the guild MOTD string
     {"GetInfo", &LuaGuild::GetInfo},                        // :GetInfo() - Gets the guild info string
-    // {"GetBankMoney", &LuaGuild::GetBankMoney},              // :GetBankMoney() - Returns the money currently in the guild bank
-    // {"GetMemberCount", &LuaGuild::GetMemberCount},          // :GetMemberCount() - Returns the amount of players in the guild
+    //{"GetBankMoney", &LuaGuild::GetBankMoney},              // :GetBankMoney() - Returns the money currently in the guild bank
+    //{"GetMemberCount", &LuaGuild::GetMemberCount},          // :GetMemberCount() - Returns the amount of players in the guild
 
     // Setters
     {"SetBankTabText", &LuaGuild::SetBankTabText},          // :SetBankTabText(tabId, text)
     {"SetMemberRank", &LuaGuild::ChangeMemberRank},         // :SetMemberRank(player, newRank) - Sets the player rank in the guild to the new rank
-    // {"SetLeader", &LuaGuild::SetLeader},                    // :SetLeader() - Sets the guild's leader
+    //{"SetLeader", &LuaGuild::SetLeader},                    // :SetLeader() - Sets the guild's leader
 
     // Boolean
 
@@ -952,8 +952,8 @@ ElunaRegister<Guild> GuildMethods[] =
     {"Disband", &LuaGuild::Disband},                        // :Disband() - Disbands the guild
     {"AddMember", &LuaGuild::AddMember},                    // :AddMember(player, rank) - adds the player to the guild. Rank is optional
     {"DeleteMember", &LuaGuild::DeleteMember},              // :DeleteMember(player, disbanding, kicked) - Deletes the player from the guild. Disbanding and kicked are optional bools
-    // {"DepositBankMoney", &LuaGuild::DepositBankMoney},      // :DepositBankMoney(money) - Deposits money into the guild bank
-    // {"WithdrawBankMoney", &LuaGuild::WithdrawBankMoney},    // :WithdrawBankMoney(money) - Withdraws money from the guild bank
+    //{"DepositBankMoney", &LuaGuild::DepositBankMoney},      // :DepositBankMoney(money) - Deposits money into the guild bank
+    //{"WithdrawBankMoney", &LuaGuild::WithdrawBankMoney},    // :WithdrawBankMoney(money) - Withdraws money from the guild bank
     {NULL, NULL},
 };
 
@@ -1049,15 +1049,15 @@ ElunaRegister<Corpse> CorpseMethods[] =
 ElunaRegister<Weather> WeatherMethods[] =
 {
     // Getters
-    {"GetScriptId", &LuaWeather::GetScriptId},                                                               // :GetScriptId() - Returns the weather's scriptId
-    {"GetZoneId", &LuaWeather::GetZoneId},                                                                   // :GetZoneId() - Returns the weather's zoneId
+    {"GetScriptId", &LuaWeather::GetScriptId},              // :GetScriptId() - Returns the weather's scriptId
+    {"GetZoneId", &LuaWeather::GetZoneId},                  // :GetZoneId() - Returns the weather's zoneId
 
     // Setters
-    {"SetWeather", &LuaWeather::SetWeather},                                                                 // :SetWeather(weatherType, grade) - Sets the weather by weather type and grade
+    {"SetWeather", &LuaWeather::SetWeather},                // :SetWeather(weatherType, grade) - Sets the weather by weather type and grade
 
     // Boolean
-    {"Regenerate", &LuaWeather::Regenerate},                                                                 // :Regenerate() - Calculates weather, returns true if the weather changed
-    {"UpdateWeather", &LuaWeather::UpdateWeather},                                                           // :UpdateWeather() - Updates the weather in a zone that has players in it, returns false if players aren't found
+    {"Regenerate", &LuaWeather::Regenerate},                // :Regenerate() - Calculates weather, returns true if the weather changed
+    {"UpdateWeather", &LuaWeather::UpdateWeather},          // :UpdateWeather() - Updates the weather in a zone that has players in it, returns false if players aren't found
 
     // Other
     {"SendWeatherUpdateToPlayer", &LuaWeather::SendWeatherUpdateToPlayer},                                   // :SendWeatherUpdateToPlayer(player) - Sends weather update to the player
