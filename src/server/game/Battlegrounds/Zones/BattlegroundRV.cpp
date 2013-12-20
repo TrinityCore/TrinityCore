@@ -28,6 +28,10 @@ BattlegroundRV::BattlegroundRV()
 {
     BgObjects.resize(BG_RV_OBJECT_MAX);
 
+    Timer = 0;
+    State = 0;
+    PillarCollision = false;
+
     StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
@@ -119,7 +123,7 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "BattlegroundRV: Killer player not found");
+        TC_LOG_ERROR("bg.battleground", "BattlegroundRV: Killer player not found");
         return;
     }
 
@@ -196,7 +200,7 @@ bool BattlegroundRV::SetupBattleground()
 
 )
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundRV: Failed to spawn some object!");
+        TC_LOG_ERROR("sql.sql", "BatteGroundRV: Failed to spawn some object!");
         return false;
     }
     return true;

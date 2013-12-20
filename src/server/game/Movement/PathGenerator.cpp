@@ -34,7 +34,7 @@ PathGenerator::PathGenerator(const Unit* owner) :
     _type(PATHFIND_BLANK), _endPosition(G3D::Vector3::zero()),
     _sourceUnit(owner), _navMesh(NULL), _navMeshQuery(NULL)
 {
-    TC_LOG_DEBUG(LOG_FILTER_MAPS, "PathGenerator::PathGenerator for %u \n", _sourceUnit->GetGUIDLow());
+    TC_LOG_DEBUG("maps", "PathGenerator::PathGenerator for %u \n", _sourceUnit->GetGUIDLow());
 
     uint32 mapId = _sourceUnit->GetMapId();
     if (MMAP::MMapFactory::IsPathfindingEnabled(mapId))
@@ -49,7 +49,7 @@ PathGenerator::PathGenerator(const Unit* owner) :
 
 PathGenerator::~PathGenerator()
 {
-    TC_LOG_DEBUG(LOG_FILTER_MAPS, "PathGenerator::~PathGenerator() for %u \n", _sourceUnit->GetGUIDLow());
+    TC_LOG_DEBUG("maps", "PathGenerator::~PathGenerator() for %u \n", _sourceUnit->GetGUIDLow());
 }
 
 bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
@@ -66,7 +66,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     G3D::Vector3 start(x, y, z);
     SetStartPosition(start);
 
-    TC_LOG_DEBUG(LOG_FILTER_MAPS, "PathGenerator::CalculatePath() for %u \n", _sourceUnit->GetGUIDLow());
+    TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u \n", _sourceUnit->GetGUIDLow());
 
     // make sure navMesh works - we can run on map w/o mmap
     // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
@@ -104,7 +104,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     if (!startRef || !endRef)
     {
-        TC_LOG_DEBUG(LOG_FILTER_MAPS, "PathGenerator::CalculatePath() for %u no polygons found for start and end locations\n", _sourceUnit->GetGUIDLow());
+        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u no polygons found for start and end locations\n", _sourceUnit->GetGUIDLow());
         _type = PATHFIND_NOPATH;
         return false;
     }
@@ -112,10 +112,10 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     int hops;
     dtPolyRef* hopBuffer = new dtPolyRef[8192];
     dtStatus status = _navMeshQuery->findPath(startRef, endRef, startPos, endPos, &_filter, hopBuffer, &hops, 8192);
-    
+
     if (!dtStatusSucceed(status))
     {
-        TC_LOG_DEBUG(LOG_FILTER_MAPS, "PathGenerator::CalculatePath() for %u no path found for start and end locations\n", _sourceUnit->GetGUIDLow());
+        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u no path found for start and end locations\n", _sourceUnit->GetGUIDLow());
         _type = PATHFIND_NOPATH;
         return false;
     }
@@ -128,7 +128,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     status = _navMeshQuery->findStraightPath(startPos, endPos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
     if (!dtStatusSucceed(status))
     {
-        TC_LOG_DEBUG(LOG_FILTER_MAPS, "PathGenerator::CalculatePath() for %u no straight path found for start and end locations\n", _sourceUnit->GetGUIDLow());
+        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u no straight path found for start and end locations\n", _sourceUnit->GetGUIDLow());
         _type = PATHFIND_NOPATH;
         return false;
     }
@@ -145,7 +145,7 @@ void PathGenerator::CreateFilter()
 {
     uint16 includeFlags = POLY_FLAG_WALK | POLY_FLAG_SWIM;
     uint16 excludeFlags = 0;
-    
+
     if (_sourceUnit->GetTypeId() == TYPEID_UNIT && !_sourceUnit->ToCreature()->CanSwim())
     {
         includeFlags = POLY_FLAG_WALK;
@@ -160,7 +160,7 @@ void PathGenerator::CreateFilter()
 
 void PathGenerator::UpdateFilter()
 {
-    
+
 }
 
 float PathGenerator::GetTriangleArea(float* verts, int nv)
@@ -202,9 +202,9 @@ float PathGenerator::DistanceToWall(float* polyPickExt, float* pos, float* hitPo
 {
     float distanceToWall = 0;
     dtPolyRef ref;
-    
+
     dtStatus status = _navMeshQuery->findNearestPoly(pos, polyPickExt, &_filter, &ref, 0);
-    
+
     if (!dtStatusSucceed(status) || ref == 0)
         return -1;
 
@@ -220,7 +220,7 @@ float PathGenerator::DistanceToWall(float* polyPickExt, float* pos, float* hitPo
     {
         dtVcopy(&verts[nv * 3], &tile->verts[poly->verts[i] * 3]);
         nv++;
-    }		
+    }
 
     bool inside = PathGenerator::PointInPoly(pos, verts, nv, 0.05f);
     if (!inside)

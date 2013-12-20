@@ -219,6 +219,11 @@ LoginDatabase.WorkerThreads = 1
 Appender.Console=1,2,0
 Appender.Auth=2,2,0,Auth.log,w
 
+#  Logger config values: Given a logger "name"
+#    Logger.name
+#        Description: Defines 'What to log'
+#        Format:      LogLevel,AppenderList
+#
 #                     LogLevel
 #                         0 - (Disabled)
 #                         1 - (Trace)
@@ -231,33 +236,8 @@ Appender.Auth=2,2,0,Auth.log,w
 #                     AppenderList: List of appenders linked to logger
 #                     (Using spaces as separator).
 #
-#    Appenders
-#        Description: List of Appenders to read from config
-#                     (Using spaces as separator).
-#        Default:     "Console Server"
 
-Appenders=Console Auth
-
-#  Logger config values: Given a logger "name"
-#    Logger.name
-#        Description: Defines 'What to log'
-#        Format:      Type,LogLevel,AppenderList
-#                     Type
-#                         0 - Default. Each type that has no config will
-#                             rely on this one. Core will create this logger
-#                             (disabled) if it's not configured
-#                         7 - Network input/output,
-#                        30 - Authserver
-
-Logger.Root=0,3,Console Auth
-
-#
-#    Loggers
-#        Description: List of Loggers to read from config
-#                     (Using spaces as separator).
-#        Default:     "root"
-
-Loggers=Root
+Logger.root=3,Console Auth
 
 #
 ###################################################################################################

@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Blades_Edge_Mountains
 SD%Complete: 90
-SDComment: Quest support: 10503, 10504, 10556, 10609, 10682, 10821, 10980. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
+SDComment: Quest support: 10503, 10504, 10556, 10594, 10609, 10682, 10821, 10980. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
 SDCategory: Blade's Edge Mountains
 EndScriptData */
 
@@ -40,6 +40,10 @@ EndContentData */
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 
 //Support for quest: You're Fired! (10821)
 bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
@@ -49,37 +53,6 @@ bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 #define LEGION_OBELISK_THREE         185196
 #define LEGION_OBELISK_FOUR          185197
 #define LEGION_OBELISK_FIVE          185198
-
-/*######
-## npc_bladespire_ogre
-######*/
-
-/// @todo add support for quest 10512 + Creature abilities
-class npc_bladespire_ogre : public CreatureScript
-{
-public:
-    npc_bladespire_ogre() : CreatureScript("npc_bladespire_ogre") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_bladespire_ogreAI(creature);
-    }
-
-    struct npc_bladespire_ogreAI : public ScriptedAI
-    {
-        npc_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() OVERRIDE { }
-
-        void UpdateAI(uint32 /*uiDiff*/) OVERRIDE
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-};
 
 /*######
 ## npc_nether_drake
@@ -1143,9 +1116,101 @@ class go_apexis_relic : public GameObjectScript
         }
 };
 
+/*######
+## npc_oscillating_frequency_scanner_master_bunny used for quest 10594 "Gauging the Resonant Frequency"
+######*/
+
+enum ScannerMasterBunny
+{
+    NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY = 21759,
+    SPELL_OSCILLATION_FIELD                     = 37408,
+    QUEST_GAUGING_THE_RESONANT_FREQUENCY        = 10594
+};
+
+class npc_oscillating_frequency_scanner_master_bunny : public CreatureScript
+{
+public:
+    npc_oscillating_frequency_scanner_master_bunny() : CreatureScript("npc_oscillating_frequency_scanner_master_bunny") { }
+
+    struct npc_oscillating_frequency_scanner_master_bunnyAI : public ScriptedAI
+    {
+        npc_oscillating_frequency_scanner_master_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() OVERRIDE
+        {
+            if (GetClosestCreatureWithEntry(me, NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, 25.0f))
+                me->DespawnOrUnsummon();
+            else
+            {
+                // Spell 37392 does not exist in dbc, manually spawning
+                me->SummonCreature(21759, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 50000);
+                me->SummonGameObject(184926, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 50000);
+                me->DespawnOrUnsummon(50000);
+            }
+
+            timer = 500;
+        }
+
+        void IsSummonedBy(Unit* summoner) OVERRIDE
+        {
+            if (summoner->isType(TYPEMASK_PLAYER))
+                playerGuid = summoner->GetGUID();
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (timer <= diff)
+            {
+                if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                    DoCast(player, SPELL_OSCILLATION_FIELD);
+
+                timer = 3000;
+            }
+            else
+                timer -= diff;
+        }
+
+        private:
+            uint64 playerGuid;
+            uint32 timer;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_oscillating_frequency_scanner_master_bunnyAI(creature);
+    }
+};
+
+class spell_oscillating_field : public SpellScriptLoader
+{
+    public:
+        spell_oscillating_field() : SpellScriptLoader("spell_oscillating_field") { }
+
+        class spell_oscillating_field_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_oscillating_field_SpellScript);
+
+            void HandleEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetHitPlayer())
+                    if (player->GetAuraCount(SPELL_OSCILLATION_FIELD) == 5 && player->GetQuestStatus(QUEST_GAUGING_THE_RESONANT_FREQUENCY) == QUEST_STATUS_INCOMPLETE)
+                        player->CompleteQuest(QUEST_GAUGING_THE_RESONANT_FREQUENCY);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_oscillating_field_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_oscillating_field_SpellScript();
+        }
+};
+
 void AddSC_blades_edge_mountains()
 {
-    new npc_bladespire_ogre();
     new npc_nether_drake();
     new npc_daranelle();
     new npc_overseer_nuaar();
@@ -1157,4 +1222,6 @@ void AddSC_blades_edge_mountains()
     new npc_simon_bunny();
     new go_simon_cluster();
     new go_apexis_relic();
+    new npc_oscillating_frequency_scanner_master_bunny();
+    new spell_oscillating_field();
 }

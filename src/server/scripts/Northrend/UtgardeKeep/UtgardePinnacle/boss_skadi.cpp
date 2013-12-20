@@ -210,7 +210,7 @@ public:
                  me->SummonCreature(NPC_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
             if (instance)
             {
-                instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_SKADI_THE_RUTHLESS, NOT_STARTED);
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
@@ -237,7 +237,7 @@ public:
             me->SetInCombatWithZone();
             if (instance)
             {
-                instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
                 me->GetMotionMaster()->MoveJump(Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 5.0f, 10.0f);
                 me->SetWalk(false);
@@ -412,7 +412,7 @@ public:
             Talk(SAY_DEATH);
             Summons.DespawnAll();
             if (instance)
-                instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, DONE);
+                instance->SetBossState(DATA_SKADI_THE_RUTHLESS, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE

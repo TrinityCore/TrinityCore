@@ -163,7 +163,8 @@ public:
 ## npc_brunnhildar_prisoner
 ######*/
 
-enum BrunnhildarPrisoner {
+enum BrunnhildarPrisoner
+{
     SPELL_ICE_PRISON           = 54894,
     SPELL_ICE_LANCE            = 55046,
     SPELL_FREE_PRISONER        = 55048,
@@ -413,6 +414,180 @@ class npc_hyldsmeet_protodrake : public CreatureScript
         }
 };
 
+
+/*#####
+# npc_brann_bronzebeard for Quest 13285 "Forging the Keystone"
+#####*/
+
+enum BrannBronzebeard
+{
+    NPC_BRANN_BRONZEBEARD = 31810,
+    NPC_A_DISTANT_VOICE   = 31814,
+    OBJECT_TOL_SIGNAL_1   = 193590,
+    OBJECT_TOL_SIGNAL_2   = 193591,
+    OBJECT_TOL_SIGNAL_3   = 193592,
+    OBJECT_TOL_SIGNAL_4   = 193593,
+    OBJECT_TOL_SIGNAL_5   = 193594,
+    SPELL_RESURRECTION    = 58854,
+    SAY_BRANN_1           = 0,
+    SAY_BRANN_2           = 1,
+    SAY_BRANN_3           = 2,
+    SAY_VOICE_1           = 0,
+    SAY_VOICE_2           = 1,
+    SAY_VOICE_3           = 2,
+    SAY_VOICE_4           = 3,
+    SAY_VOICE_5           = 4,
+
+    EVENT_SCRIPT_1        = 1,
+    EVENT_SCRIPT_2        = 2,
+    EVENT_SCRIPT_3        = 3,
+    EVENT_SCRIPT_4        = 4,
+    EVENT_SCRIPT_5        = 5,
+    EVENT_SCRIPT_6        = 6,
+    EVENT_SCRIPT_7        = 7,
+    EVENT_SCRIPT_8        = 8,
+    EVENT_SCRIPT_9        = 9,
+    EVENT_SCRIPT_10       = 10,
+    EVENT_SCRIPT_11       = 11,
+    EVENT_SCRIPT_12       = 12,
+    EVENT_SCRIPT_13       = 13
+};
+
+class npc_brann_bronzebeard_keystone : public CreatureScript
+{
+public:
+    npc_brann_bronzebeard_keystone() : CreatureScript("npc_brann_bronzebeard_keystone") { }
+
+    struct npc_brann_bronzebeard_keystoneAI : public ScriptedAI
+    {
+        npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() OVERRIDE
+        {
+            memset(&objectGUID, 0, sizeof(objectGUID));
+            playerGUID = 0;
+            voiceGUID  = 0;
+            objectCounter = 0;
+        }
+
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
+        {
+            player->CLOSE_GOSSIP_MENU();
+            playerGUID = player->GetGUID();
+            events.ScheduleEvent(EVENT_SCRIPT_1, 100);
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_SCRIPT_1:
+                        Talk(SAY_BRANN_1, playerGUID);
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49000))
+                            voiceGUID = voice->GetGUID();
+                        events.ScheduleEvent(EVENT_SCRIPT_2, 4000);
+                        break;
+                    case EVENT_SCRIPT_2:
+                        me->SetWalk(true);
+                        me->GetMotionMaster()->MovePoint(0, 7861.488f, -1396.376f, 1534.059f, false);
+                        events.ScheduleEvent(EVENT_SCRIPT_3, 6000);
+                        break;
+                    case EVENT_SCRIPT_3:
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_MINING);
+                        events.ScheduleEvent(EVENT_SCRIPT_4, 6000);
+                        break;
+                    case EVENT_SCRIPT_4:
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                        {
+                            voice->AI()->DoCast(voice, SPELL_RESURRECTION);
+                            voice->AI()->Talk(SAY_VOICE_1, playerGUID);
+                        }
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, 0, 0,  -0.737277f, 0.6755905f, 0))
+                            objectGUID[objectCounter++] = go->GetGUID();
+                        events.ScheduleEvent(EVENT_SCRIPT_5, 6000);
+                        break;
+                    case EVENT_SCRIPT_5:
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                            voice->AI()->Talk(SAY_VOICE_2, playerGUID);
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, 0, 0,  -0.9271832f, 0.3746083f, 0))
+                            objectGUID[objectCounter++] = go->GetGUID();
+                        events.ScheduleEvent(EVENT_SCRIPT_6, 6000);
+                        break;
+                    case EVENT_SCRIPT_6:
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                            voice->AI()->Talk(SAY_VOICE_3, playerGUID);
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, 0, 0,  0.9961939f, 0.08716504f, 0))
+                            objectGUID[objectCounter++] = go->GetGUID();
+                        events.ScheduleEvent(EVENT_SCRIPT_7, 6000);
+                        break;
+                    case EVENT_SCRIPT_7:
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                            voice->AI()->Talk(SAY_VOICE_4, playerGUID);
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, 0, 0,  0.8703556f, 0.4924237f, 0))
+                            objectGUID[objectCounter++] = go->GetGUID();
+                        events.ScheduleEvent(EVENT_SCRIPT_8, 6000);
+                        break;
+                    case EVENT_SCRIPT_8:
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                            voice->AI()->Talk(SAY_VOICE_5, playerGUID);
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, 0, 0,  0.5446386f, 0.8386708f, 0))
+                            objectGUID[objectCounter] = go->GetGUID();
+                        events.ScheduleEvent(EVENT_SCRIPT_9, 6000);
+                        break;
+                    case EVENT_SCRIPT_9:
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
+                            voice->AI()->DoCast(voice, SPELL_RESURRECTION);
+                        events.ScheduleEvent(EVENT_SCRIPT_10, 6000);
+                        break;
+                    case EVENT_SCRIPT_10:
+                        Talk(SAY_BRANN_2, playerGUID);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                            player->KilledMonsterCredit(me->GetEntry());
+                        events.ScheduleEvent(EVENT_SCRIPT_11, 6000);
+                        break;
+                    case EVENT_SCRIPT_11:
+                        me->SetFacingTo(2.932153f);
+                        Talk(SAY_BRANN_3, playerGUID);
+
+                        for (uint8 i = 0; i < 5; ++i)
+                            if (GameObject* go = ObjectAccessor::GetGameObject(*me, objectGUID[i]))
+                                go->Delete();
+
+                        events.ScheduleEvent(EVENT_SCRIPT_12, 6000);
+                        break;
+                    case EVENT_SCRIPT_12:
+                        me->GetMotionMaster()->Clear();
+                        me->SetWalk(false);
+                        me->GetMotionMaster()->MovePoint(0, 7799.908f, -1413.561f, 1534.829f, false);
+                        events.ScheduleEvent(EVENT_SCRIPT_13, 10000);
+                        break;
+                    case EVENT_SCRIPT_13:
+                        me->DisappearAndDie();
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        uint64 playerGUID;
+        uint64 objectGUID[5];
+        uint64 voiceGUID;
+        uint8 objectCounter;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_brann_bronzebeard_keystoneAI(creature);
+    }
+};
+
 enum CloseRift
 {
     SPELL_DESPAWN_RIFT          = 61665
@@ -460,6 +635,91 @@ class spell_close_rift : public SpellScriptLoader
         }
 };
 
+/*#####
+# Krolmir, Hammer of Storms
+#####*/
+
+enum JokkumScriptcast
+{
+    SPELL_JOKKUM_KILL_CREDIT    = 56545,
+    SPELL_JOKKUM_SUMMON         = 56541,
+    NPC_KINGJOKKUM              = 30331,
+    SAY_HOLD_ON                 = 0,
+    PATH_JOKKUM                 = 2072200
+};
+
+class spell_jokkum_scriptcast : public SpellScriptLoader
+{
+    public: spell_jokkum_scriptcast() : SpellScriptLoader("spell_jokkum_scriptcast") { }
+
+        class spell_jokkum_scriptcast_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_jokkum_scriptcast_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_JOKKUM_SUMMON))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->CastSpell(target, SPELL_JOKKUM_SUMMON, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_jokkum_scriptcast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_jokkum_scriptcast_AuraScript();
+        }
+};
+
+class npc_king_jokkum_vehicle : public CreatureScript
+{
+    public:
+        npc_king_jokkum_vehicle() : CreatureScript("npc_king_jokkum_vehicle") { }
+
+        struct npc_king_jokkum_vehicleAI : public VehicleAI
+        {
+            npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature) { }
+
+            void OnCharmed(bool /*apply*/) OVERRIDE { }
+
+            void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) OVERRIDE
+            {
+                if (apply)
+                {
+                    Talk(SAY_HOLD_ON, who->GetGUID());
+                    me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 id) OVERRIDE
+            {
+                if (type != WAYPOINT_MOTION_TYPE)
+                    return;
+
+                // PointId in WaypointMovementGenerator doesn't match with PointId in DB
+                if (id == 19)
+                    me->GetVehicleKit()->RemoveAllPassengers();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return new npc_king_jokkum_vehicleAI(creature);
+        }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_injured_goblin();
@@ -468,5 +728,8 @@ void AddSC_storm_peaks()
     new npc_freed_protodrake();
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
+    new npc_brann_bronzebeard_keystone();
     new spell_close_rift();
+    new spell_jokkum_scriptcast();
+    new npc_king_jokkum_vehicle();
 }

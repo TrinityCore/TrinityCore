@@ -200,7 +200,7 @@ class boss_gothik : public CreatureScript
 
                 if (LiveTriggerGUID.size() < POS_LIVE || DeadTriggerGUID.size() < POS_DEAD)
                 {
-                    TC_LOG_ERROR(LOG_FILTER_TSCR, "Script Gothik: cannot summon triggers!");
+                    TC_LOG_ERROR("scripts", "Script Gothik: cannot summon triggers!");
                     EnterEvadeMode();
                     return;
                 }
@@ -514,6 +514,7 @@ class npc_gothik_minion : public CreatureScript
             npc_gothik_minionAI(Creature* creature) : CombatAI(creature)
             {
                 liveSide = IN_LIVE_SIDE(me);
+                gateClose = false;
             }
 
             bool liveSide;

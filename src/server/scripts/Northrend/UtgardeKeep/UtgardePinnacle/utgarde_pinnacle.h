@@ -15,46 +15,64 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_PINNACLE_H
-#define DEF_PINNACLE_H
+#ifndef UTGARDE_PINNACLE_H_
+#define UTGARDE_PINNACLE_H_
 
-enum Data
+#define UPScriptName "instance_utgarde_pinnacle"
+
+uint32 const EncounterCount = 4;
+
+enum DataTypes
 {
-    DATA_SVALA_SORROWGRAVE_EVENT,
-    DATA_GORTOK_PALEHOOF_EVENT,
-    DATA_SKADI_THE_RUTHLESS_EVENT,
-    DATA_KING_YMIRON_EVENT
+    // Encounter States/Boss GUIDs
+    DATA_SVALA_SORROWGRAVE          = 0,
+    DATA_GORTOK_PALEHOOF            = 1,
+    DATA_SKADI_THE_RUTHLESS         = 2,
+    DATA_KING_YMIRON                = 3,
+
+    // Additional Data
+    DATA_UTGARDE_MIRROR             = 4,
+    DATA_SVALA                      = 5,
+    DATA_SACRIFICED_PLAYER          = 6,
+
+    DATA_FRENZIED_WORGEN            = 7,
+    DATA_RAVENOUS_FURBOLG           = 8,
+    DATA_MASSIVE_JORMUNGAR          = 9,
+    DATA_FEROCIOUS_RHINO            = 10,
+    DATA_GORTOK_ORB                 = 11,
+    DATA_GORTOK_PALEHOOF_SPHERE     = 12
 };
 
-enum Data64
+enum CreatureIds
 {
-    DATA_SVALA,
-    DATA_SVALA_SORROWGRAVE,
-    DATA_GORTOK_PALEHOOF,
-    DATA_SKADI_THE_RUTHLESS,
-    DATA_NPC_GRAUF,
-    DATA_KING_YMIRON,
-    DATA_NPC_FRENZIED_WORGEN,
-    DATA_NPC_RAVENOUS_FURBOLG,
-    DATA_NPC_MASSIVE_JORMUNGAR,
-    DATA_NPC_FEROCIOUS_RHINO,
-    DATA_NPC_ORB,
-    DATA_GORTOK_PALEHOOF_SPHERE,
-    DATA_SACRIFICED_PLAYER
+    NPC_SVALA_SORROWGRAVE           = 26668,
+    NPC_GORTOK_PALEHOOF             = 26687,
+    NPC_SKADI_THE_RUTHLESS          = 26693,
+    NPC_KING_YMIRON                 = 26861,
+
+    // Svala
+    NPC_SVALA                       = 29281,
+
+    // Gortok Palehoof
+    NPC_FRENZIED_WORGEN             = 26683,
+    NPC_RAVENOUS_FURBOLG            = 26684,
+    NPC_MASSIVE_JORMUNGAR           = 26685,
+    NPC_FEROCIOUS_RHINO             = 26686,
+    NPC_PALEHOOF_ORB                = 26688
 };
 
-enum CreatureID
+enum GameObjectIds
 {
-    BOSS_SVALA_SORROWGRAVE   = 26668,
-    BOSS_GORTOK_PALEHOOF     = 26687,
-    BOSS_SKADI_RUTHLESS      = 26693,
-    BOSS_KING_YMIRON         = 26861,
-    NPC_FRENZIED_WORGEN      = 26683,
-    NPC_RAVENOUS_FURBOLG     = 26684,
-    NPC_MASSIVE_JORMUNGAR    = 26685,
-    NPC_FEROCIOUS_RHINO      = 26686,
-    NPC_SVALA                = 29281,
-    NPC_PALEHOOF_ORB         = 26688
+    GO_GORTOK_PALEHOOF_SPHERE       = 188593,
+    GO_UTGARDE_MIRROR               = 191745,
+    GO_SKADI_THE_RUTHLESS_DOOR      = 192173,
+    GO_KING_YMIRON_DOOR             = 192174
 };
 
-#endif
+template<class AI>
+AI* GetUtgardePinnacleAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, UPScriptName);
+}
+
+#endif // UTGARDE_PINNACLE_H_

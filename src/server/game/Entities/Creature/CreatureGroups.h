@@ -32,6 +32,8 @@ struct FormationInfo
     float follow_dist;
     float follow_angle;
     uint8 groupAI;
+    uint16 point_1;
+    uint16 point_2;
 };
 
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;

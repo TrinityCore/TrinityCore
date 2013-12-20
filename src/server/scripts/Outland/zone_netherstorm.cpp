@@ -400,7 +400,7 @@ public:
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
     {
-        npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+        npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
         uint64 ardonisGUID;
@@ -410,9 +410,6 @@ public:
         uint32 PhaseSubphase;
         uint32 Phase_Timer;
         bool isEvent;
-
-        float angle_dawnforge;
-        float angle_ardonis;
 
         void Reset() OVERRIDE
         {
@@ -438,21 +435,15 @@ public:
         {
             Creature* ardonis = ObjectAccessor::GetCreature(*me, ardonisGUID);
             Creature* pathaleon = ObjectAccessor::GetCreature(*me, pathaleonGUID);
-            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
-            if (!ardonis || !pathaleon || !player)
+            if (!ardonis || !pathaleon)
                 return;
 
-            //Calculate the angle to Pathaleon
-            angle_dawnforge = me->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
-            angle_ardonis = ardonis->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
+            // Turn Dawnforge
+            me->SetFacingToObject(pathaleon);
 
-            //Turn Dawnforge and update
-            me->SetOrientation(angle_dawnforge);
-            me->SendUpdateToPlayer(player);
-            //Turn Ardonis and update
-            ardonis->SetOrientation(angle_ardonis);
-            ardonis->SendUpdateToPlayer(player);
+            // Turn Ardonis
+            ardonis->SetFacingToObject(pathaleon);
 
             //Set them to kneel
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
@@ -464,20 +455,11 @@ public:
         {
             if (Unit* ardonis = ObjectAccessor::GetUnit(*me, ardonisGUID))
             {
-                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
+                // Turn Dawnforge
+                me->SetFacingToObject(ardonis);
 
-                if (!player)
-                    return;
-
-                angle_dawnforge = me->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
-                angle_ardonis = ardonis->GetAngle(me->GetPositionX(), me->GetPositionY());
-
-                //Turn Dawnforge and update
-                me->SetOrientation(angle_dawnforge);
-                me->SendUpdateToPlayer(player);
-                //Turn Ardonis and update
-                ardonis->SetOrientation(angle_ardonis);
-                ardonis->SendUpdateToPlayer(player);
+                // Turn Ardonis
+                ardonis->SetFacingToObject(me);
 
                 //Set state
                 me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -502,7 +484,7 @@ public:
                 return true;
             }
 
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_commander_dawnforge event already in progress, need to wait.");
+            TC_LOG_DEBUG("scripts", "npc_commander_dawnforge event already in progress, need to wait.");
             return false;
         }
 
