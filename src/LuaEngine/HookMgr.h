@@ -46,47 +46,47 @@ enum RegisterTypes
 enum ServerEvents
 {
     // Server
-    SERVER_EVENT_ON_NETWORK_START           =     40,       // Not Implemented
-    SERVER_EVENT_ON_NETWORK_STOP            =     41,       // Not Implemented
-    SERVER_EVENT_ON_SOCKET_OPEN             =     42,       // Not Implemented
-    SERVER_EVENT_ON_SOCKET_CLOSE            =     43,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE          =     44,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     45,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_SEND             =     46,       // Not Implemented
+    SERVER_EVENT_ON_NETWORK_START           =     1,       // Not Implemented
+    SERVER_EVENT_ON_NETWORK_STOP            =     2,       // Not Implemented
+    SERVER_EVENT_ON_SOCKET_OPEN             =     3,       // Not Implemented
+    SERVER_EVENT_ON_SOCKET_CLOSE            =     4,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE          =     5,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_SEND             =     7,       // Not Implemented
 
     // World
-    WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     47,       // (event, open)
-    WORLD_EVENT_ON_CONFIG_LOAD              =     48,       // (event, reload)
-    WORLD_EVENT_ON_MOTD_CHANGE              =     49,       // (event, newMOTD)
-    WORLD_EVENT_ON_SHUTDOWN_INIT            =     50,       // (event, code, mask)
-    WORLD_EVENT_ON_SHUTDOWN_CANCEL          =     51,       // (event)
-    WORLD_EVENT_ON_UPDATE                   =     52,       // (event, diff)
-    WORLD_EVENT_ON_STARTUP                  =     53,       // (event)
-    WORLD_EVENT_ON_SHUTDOWN                 =     54,       // (event)
+    WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     8,       // (event, open)
+    WORLD_EVENT_ON_CONFIG_LOAD              =     9,       // (event, reload)
+    WORLD_EVENT_ON_MOTD_CHANGE              =     10,       // (event, newMOTD)
+    WORLD_EVENT_ON_SHUTDOWN_INIT            =     11,       // (event, code, mask)
+    WORLD_EVENT_ON_SHUTDOWN_CANCEL          =     12,       // (event)
+    WORLD_EVENT_ON_UPDATE                   =     13,       // (event, diff)
+    WORLD_EVENT_ON_STARTUP                  =     14,       // (event)
+    WORLD_EVENT_ON_SHUTDOWN                 =     15,       // (event)
 
     // Eluna
-    ELUNA_EVENT_ON_RESTART                  =     55,       // (event)
+    ELUNA_EVENT_ON_RESTART                  =     16,       // (event)
 
     // Map
-    MAP_EVENT_ON_CREATE                     =     56,       // Not Implemented
-    MAP_EVENT_ON_DESTROY                    =     57,       // Not Implemented
-    MAP_EVENT_ON_LOAD                       =     58,       // Not Implemented
-    MAP_EVENT_ON_UNLOAD                     =     59,       // Not Implemented
-    MAP_EVENT_ON_PLAYER_ENTER               =     60,       // Not Implemented
-    MAP_EVENT_ON_PLAYER_LEAVE               =     61,       // Not Implemented
-    MAP_EVENT_ON_UPDATE                     =     62,       // Not Implemented
+    MAP_EVENT_ON_CREATE                     =     17,       // Not Implemented
+    MAP_EVENT_ON_DESTROY                    =     18,       // Not Implemented
+    MAP_EVENT_ON_LOAD                       =     19,       // Not Implemented
+    MAP_EVENT_ON_UNLOAD                     =     20,       // Not Implemented
+    MAP_EVENT_ON_PLAYER_ENTER               =     21,       // Not Implemented
+    MAP_EVENT_ON_PLAYER_LEAVE               =     22,       // Not Implemented
+    MAP_EVENT_ON_UPDATE                     =     23,       // Not Implemented
 
     // Area trigger
-    TRIGGER_EVENT_ON_TRIGGER                =     63,       // (event, player, triggerId)
+    TRIGGER_EVENT_ON_TRIGGER                =     24,       // (event, player, triggerId)
 
     // Weather
-    WEATHER_EVENT_ON_CHANGE                 =     64,       // (event, weather, state, grade)
+    WEATHER_EVENT_ON_CHANGE                 =     25,       // (event, weather, state, grade)
 
     // Auction house
-    AUCTION_EVENT_ON_ADD                    =     65,       // Not Implemented
-    AUCTION_EVENT_ON_REMOVE                 =     66,       // Not Implemented
-    AUCTION_EVENT_ON_SUCCESFUL              =     67,       // Not Implemented
-    AUCTION_EVENT_ON_EXPIRE                 =     68,       // Not Implemented
+    AUCTION_EVENT_ON_ADD                    =     26,       // Not Implemented
+    AUCTION_EVENT_ON_REMOVE                 =     27,       // Not Implemented
+    AUCTION_EVENT_ON_SUCCESFUL              =     28,       // Not Implemented
+    AUCTION_EVENT_ON_EXPIRE                 =     29,       // Not Implemented
 
     SERVER_EVENT_COUNT
 };
