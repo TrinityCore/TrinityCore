@@ -99,6 +99,11 @@ enum Talk
     SAY_EADRIC_DEFEATED         = 6
 };
 
+enum Data
+{
+    DATA_THE_FACEROLLER
+};
+
 class OrientationCheck
 {
     public:
@@ -169,9 +174,12 @@ class TW_boss_eadric : public CreatureScript
         uint32 uiHammerJusticeTimer;
         uint32 uiResetTimer;
 
+        uint64 uiBasePoints;
+
         bool bDone;
         bool hasBeenInCombat;
         bool bCredit;
+        bool _theFaceRoller;
 
         void Reset()
         {
@@ -179,7 +187,9 @@ class TW_boss_eadric : public CreatureScript
             uiRadianceTimer = 16000;
             uiHammerJusticeTimer = 25000;
             uiResetTimer = 5000;
+            uiBasePoints = 0;
 
+            _theFaceRoller = false;
             bDone = false;
             Map* pMap = me->GetMap();
             if (hasBeenInCombat && pMap && pMap->IsDungeon())
@@ -248,10 +258,24 @@ class TW_boss_eadric : public CreatureScript
 
         void SpellHit(Unit* caster, SpellInfo const* spell)
         {
+            uiBasePoints = spell->Effects[0].BasePoints;
             if (IsHeroic() && !bDone)
+            {
                 if (caster->GetTypeId() == TYPEID_PLAYER)
-                    if (spell->Id == SPELL_HAMMER_THROWBACK_DMG && me->GetHealth() <= spell->Effects[0].BasePoints)
-                        DoCast(caster, SPELL_EADRIC_ACHIEVEMENT);
+                    if (spell->Id == SPELL_HAMMER_THROWBACK_DMG && me->GetHealth() <= uiBasePoints)
+                    {
+                        _theFaceRoller = true;
+                        HandleSpellOnPlayersInInstanceToC5(me, SPELL_EADRIC_ACHIEVEMENT);
+                    }
+            }
+        }
+
+        uint32 GetData(uint32 type) const OVERRIDE
+        {
+            if (type == DATA_THE_FACEROLLER)
+                return _theFaceRoller;
+
+            return 0;
         }
 
         void UpdateAI(uint32 uiDiff)
@@ -1007,6 +1031,20 @@ class TW_achievement_toc5_argent_confessor : public AchievementCriteriaScript
         }
 };
 
+class TW_achievement_toc5_the_faceroller : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_toc5_the_faceroller(const char* name) : AchievementCriteriaScript(name) {}
+
+        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        {
+            if (target && target->GetMap()->ToInstanceMap()->IsHeroic())
+                return target->GetAI()->GetData(DATA_THE_FACEROLLER);
+
+            return false;
+        }
+};
+
 void AddSC_TW_boss_argent_challenge()
 {
     new TW_boss_eadric();
@@ -1044,4 +1082,5 @@ void AddSC_TW_boss_argent_challenge()
     new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_vezax", MEMORY_VEZAX);
     new TW_achievement_toc5_argent_confessor("TW_achivement_toc5_argent_confessor_algalon", MEMORY_ALGALON);
 
+    new TW_achievement_toc5_the_faceroller("TW_achievement_toc5_the_faceroller");
 }

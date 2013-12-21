@@ -107,7 +107,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 (33217,35328,0,1,'Stormwind Steed',6,30000),
 (33318,35330,0,1,'Exodar Elekk',6,30000),
 (33319,35332,0,1,'Darnassian Nightsaber',6,30000),
-(35491,35451,0,0,'Trial of the Champion - Black Knight on his gryphon',6,30000);
+(35491,35451,0,0,'Trial of the Champion - Black Knight on his gryphon',6,60000);
 
 -- Spells needed to ride mounts
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (35637,35633,35768,34658,35636,35638,35635,35640,35641,35634,33321,33323,33320,33322,33316,33217,33324,33317,33318,33319,35491);
@@ -402,13 +402,15 @@ UPDATE `creature_text` SET `type` = 14 WHERE `groupid` IN (50, 52) AND `entry` =
 UPDATE `gameobject_template` SET `flags` = `flags` &~ 16 WHERE `entry` IN (195324, 195323, 195375, 195374, 195710, 195709);
 
 -- Argent Confessor
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (11863, 11904, 11905, 11906, 11907, 11908, 11909, 11910, 11911,
+11912, 11913, 11914, 11915, 11916, 11917, 11918, 11919, 11920, 11921, 11922, 11923, 11924, 11925, 11926, 11927, 11858);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`,
 `value1`, `value2`, `ScriptName`) VALUES
 (11863, 11, 0, 0, 'TW_achivement_toc5_argent_confessor_hogger'),
 (11904,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_vancleef'),
 (11905,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_mutanus'),
 (11906,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_herod'),
-(11907,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_lucrifon'),
+(11907,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_lucrifron'),
 (11908,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_thunderaan'),
 (11909,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_chromaggus'),
 (11910,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_hakkar'),
@@ -428,7 +430,14 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`,
 (11924,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_heigan'),
 (11925,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_ignis'),
 (11926,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_vezax'),
-(11927,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_algalon');
+(11927,	11, 0, 0, 'TW_achivement_toc5_argent_confessor_algalon'),
+(11858, 11, 0, 0, 'TW_achievement_toc5_the_faceroller');
 
 -- Applies interrupt immunity to Argent Confessor Paletress (34928,35517)
 UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 33554432  WHERE `entry` IN ('34928', '35517');
+
+-- Conditions for Eadric's Hammer of Righteous (the ones player cast back at him)
+DELETE FROM `conditions` WHERE `SourceEntry` = 66905 AND `SourceTypeOrReferenceId` = 13;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`)VALUES
+(13, 7, 66905, 0, 0, 31, 0, 3, 35119, 0, 0, 0, 0,'','Eadric the Pure - Hammer of the Righteous (Throwback)'),
+(13, 7, 66905, 0, 1, 31, 0, 3, 35518, 0, 0, 0, 0,'','Eadric the Pure - Hammer of the Righteous (Throwback)');
