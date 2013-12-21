@@ -258,7 +258,7 @@ class boss_svala : public CreatureScript
                         case EVENT_INTRO_TRANSFORM_0:
                         {
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
-                                arthas->CastSpell(me, SPELL_TRANSFORMING_CHANNEL, false);
+                                arthas->CastSpell(me, SPELL_TRANSFORMING_CHANNEL, true);
                             Position pos;
                             pos.Relocate(me);
                             pos.m_positionZ += 8.0f;
