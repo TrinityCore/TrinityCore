@@ -256,3 +256,10 @@ DELETE FROM `creature_text` WHERE `entry` = 34992 AND `groupid` IN (10, 11);
 UPDATE `creature_text` SET `type` = 12 WHERE `groupid` IN (50, 52) AND `entry` = 34990;
 
 UPDATE `gameobject_template` SET `flags` = `flags` |16 WHERE `entry` IN (195324, 195323, 195375, 195374, 195710, 195709);
+
+-- Condition for Hammer of the Righteous
+DELETE FROM `conditions` WHERE `SourceEntry` = 66905 AND `SourceTypeOrReferenceId` = 13;
+
+-- Some Argent Champion achievements criterias
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (11863, 11904, 11905, 11906, 11907, 11908, 11909, 11910, 11911,
+11912, 11913, 11914, 11915, 11916, 11917, 11918, 11919, 11920, 11921, 11922, 11923, 11924, 11925, 11926, 11927, 11858);
