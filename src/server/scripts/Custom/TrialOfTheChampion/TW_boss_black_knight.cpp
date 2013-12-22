@@ -71,7 +71,9 @@ enum Spells
     GHOUL_EXPLODE_DAMAGE    = 67729,
     H_GHOUL_EXPLODE_DAMAGE  = 67886,
 
-    SPELL_KILL_CREDIT       = 68663
+    SPELL_KILL_CREDIT       = 68663,
+
+    SPELL_MOUNT_VEHICLE     = 46598
 };
 
 enum Models
@@ -292,13 +294,10 @@ public:
                             uiIntroTimer = 3000;
                             break;
                         case 5:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                             me->SetReactState(REACT_AGGRESSIVE);
                             ++uiIntroPhase;
                             uiIntroTimer = 3000;
-                            break;
-                        case 6:
                             if (Unit* unit = me->SelectNearestTarget())
                                 AttackStart(unit);
                             DoZoneInCombat();
@@ -722,11 +721,7 @@ public:
                         blackknight->AI()->Talk(SAY_INTRO_1);
                     break;
                 case 3:
-                    me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    break;
                 case 4:
-                    me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    break;
                 case 5:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     break;
@@ -736,17 +731,16 @@ public:
                         tirion->AI()->Talk(SAY_INTRO_2);
                     break;
                 case 7:
-                    me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    break;
                 case 8:
-                    me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    break;
                 case 9:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     break;
                 case 10:
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                     me->SetSpeed(MOVE_RUN, 2.0f);
+                    if (!me->FindNearestCreature(NPC_BLACK_KNIGHT, 200.0f))
+                        if (Creature* announcer = Unit::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                            announcer->AI()->DoAction(ACTION_RESET_BLACK_KNIGHT);
                     break;
             }
         }

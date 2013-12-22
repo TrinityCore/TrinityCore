@@ -189,6 +189,7 @@ enum eVehicles
 enum Actions
 {
     ACTION_OUTRO                        = 0,
+    ACTION_RESET_BLACK_KNIGHT           = 1
 };
 
 enum Criterias

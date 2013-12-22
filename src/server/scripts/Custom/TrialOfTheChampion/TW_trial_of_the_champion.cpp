@@ -527,6 +527,12 @@ class TW_npc_herald_toc5 : public CreatureScript
                 }
             }
         }
+        
+        void DoAction(int32 actionID)
+        {
+            if (actionID == ACTION_RESET_BLACK_KNIGHT)
+                StartEncounter();
+        }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
