@@ -25,9 +25,6 @@
 
 enum Enums
 {
-    WHISPER_HATCH_EGGS                          = 6,
-    WHISPER_OPEN_PORTAL                         = 6,         // whisper, shared by two dragons
-
     //Mini bosses common spells
     SPELL_TWILIGHT_RESIDUE                      = 61885,    // makes immune to shadow damage, applied when leave phase
 
@@ -155,7 +152,9 @@ enum SharedTextIDs
     SAY_DEATH                      = 2,
     SAY_BREATH                     = 3,
     SAY_RESPOND                    = 4,
-    SAY_SPECIAL                    = 5
+    SAY_SPECIAL                    = 5,
+    WHISPER_OPEN_PORTAL            = 6,
+    WHISPER_OPENED_PORTAL          = 7
 };
 
 enum DummyDragonEvents
@@ -256,8 +255,6 @@ struct dummy_dragonAI : public ScriptedAI
     // "opens" the portal and does the "opening" whisper
     void OpenPortal()
     {
-        int32 textId = 0;
-
         // there are 4 portal spawn locations, each are expected to be spawned with negative spawntimesecs in database
 
         // using a grid search here seem to be more efficient than caching all four guids
@@ -268,7 +265,6 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
             {
-                textId = WHISPER_HATCH_EGGS;
                 if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
@@ -283,7 +279,6 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_SHADRON:
             {
-                textId = WHISPER_OPEN_PORTAL;
                 if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                     me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron.x, AcolyteofShadron.y, AcolyteofShadron.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
                 else
@@ -293,7 +288,6 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_VESPERON:
             {
-                textId = WHISPER_OPEN_PORTAL;
                 if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
                     if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon.x, AcolyteofVesperon.y, AcolyteofVesperon.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
@@ -317,7 +311,8 @@ struct dummy_dragonAI : public ScriptedAI
             }
         }
 
-        DoRaidWhisper(textId);
+        DoRaidWhisper(WHISPER_OPEN_PORTAL);
+        DoRaidWhisper(WHISPER_OPENED_PORTAL);
 
         // By using SetRespawnTime() we will actually "spawn" the object with our defined time.
         // Once time is up, portal will disappear again.
