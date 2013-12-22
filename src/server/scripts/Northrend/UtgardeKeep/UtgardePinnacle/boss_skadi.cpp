@@ -155,6 +155,11 @@ enum Achievments
     ACHIEV_TIMED_START_EVENT                      = 17726,
 };
 
+enum Data
+{
+    DATA_MGLTS
+};
+
 class boss_skadi : public CreatureScript
 {
 public:
@@ -187,6 +192,7 @@ public:
         uint32 m_uiSummonTimer;
         uint8  m_uiSpellHitCount;
         bool   m_bSaidEmote;
+        bool   m_myGirlLovesToSkadi;
 
         CombatPhase Phase;
 
@@ -201,6 +207,7 @@ public:
             m_uiWaypointId = 0;
             m_bSaidEmote = false;
             m_uiSpellHitCount = 0;
+            m_myGirlLovesToSkadi = true;
 
             Phase = SKADI;
 
@@ -274,6 +281,14 @@ public:
             if (summoned->GetEntry() == NPC_GRAUF)
                 m_uiGraufGUID = 0;
             Summons.Despawn(summoned);
+        }
+        
+        uint32 GetData(uint32 type) const OVERRIDE
+        {
+            if (type == DATA_MGLTS)
+                return m_myGirlLovesToSkadi;
+
+            return 0;
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
@@ -358,6 +373,9 @@ public:
                                 me->GetMotionMaster()->MovePoint(0, Location[69].GetPositionX(), Location[69].GetPositionY(), Location[69].GetPositionZ());
                                 Talk(SAY_DRAKE_BREATH);
                                 Talk(EMOTE_BREATH);
+                                // ! Hack - Because the encounter doesn't work as it should, should check Grauf's health instead!
+                                if (me->HealthBelowPct(100))
+                                    m_myGirlLovesToSkadi = false;
                                 m_uiMovementTimer = 2500;
                                 break;
                             case 4:
@@ -483,8 +501,29 @@ public:
 
 };
 
+class TW_achievement_my_girl_loves_to_skadi_all_the_time : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_my_girl_loves_to_skadi_all_the_time() : AchievementCriteriaScript("TW_achievement_my_girl_loves_to_skadi_all_the_time")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            if (Creature* skadi = target->ToCreature())
+                if (skadi->AI()->GetData(DATA_MGLTS) && skadi->GetMap()->ToInstanceMap()->IsHeroic())
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_skadi()
 {
     new boss_skadi();
     new go_harpoon_launcher();
+    new TW_achievement_my_girl_loves_to_skadi_all_the_time();
 }
