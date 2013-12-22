@@ -44,7 +44,8 @@ enum Yells
     SAY_SLAY                                      = 1,
     SAY_ENRAGE                                    = 2,
     SAY_DEATH                                     = 3,
-    SAY_CRYSTAL_NOVA                              = 4
+    SAY_CRYSTAL_NOVA                              = 4,
+    SAY_FRENZY                                    = 5
 };
 
 enum Misc
@@ -175,6 +176,7 @@ public:
             if (!bEnrage && HealthBelowPct(25))
             {
                 Talk(SAY_ENRAGE);
+                Talk(SAY_FRENZY);
                 DoCast(me, SPELL_ENRAGE);
                 bEnrage = true;
             }
