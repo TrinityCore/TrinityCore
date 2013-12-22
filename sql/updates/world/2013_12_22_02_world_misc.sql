@@ -7,7 +7,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,1,2,40,0,100,0,4,23995,0,0,54,24000,0,0,0,0,0,1,0,0,0,0,0,0,0,"Axle - On Waypoint 4 Reached - Pause Waypoint"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,80,2399500,0,0,0,0,0,1,0,0,0,0,0,0,0,"Axle - On Waypoint 4 Reached - Run Script"),
 (@ENTRY,0,3,4,40,0,100,0,8,23995,0,0,54,140000,0,0,0,0,0,1,0,0,0,0,0,0,0,"Axle - On Waypoint 8 Reached - Pause Waypoint"),
-(@ENTRY,0,4,0,61,0,100,0,0,0,0,0,66,23995,0,0,0,0,0,1,0,0,0,0,0,0,0,"Axle - On Waypoint 8 Reached - Set Orientation Home Position");
+(@ENTRY,0,4,0,61,0,100,0,0,0,0,0,66,23995,0,0,0,0,0,1,0,0,0,0,0,0,0,"Axle - On Waypoint 8 Reached - Set Orientation Home Position"),
 (@ENTRY,0,5,6,62,0,100,0,9123,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,"Axle - On Gossip Option 0 Selected - Close Gossip"),
 (@ENTRY,0,6,0,61,0,100,0,0,0,0,0,85,24751,0,0,0,0,0,7,0,0,0,0,0,0,0,"Axle - On Gossip Option 0 Selected - Invoker Cast 'Trick or Treat'");
 
