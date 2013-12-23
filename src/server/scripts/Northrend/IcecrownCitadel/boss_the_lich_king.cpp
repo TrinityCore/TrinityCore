@@ -934,7 +934,7 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_NECROTIC_PLAGUE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, NecroticPlagueTargetCheck(me, NECROTIC_PLAGUE_LK, NECROTIC_PLAGUE_PLR)))
                             {
-                                Talk(EMOTE_NECROTIC_PLAGUE_WARNING, target->GetGUID());
+                                Talk(EMOTE_NECROTIC_PLAGUE_WARNING, target);
                                 DoCast(target, SPELL_NECROTIC_PLAGUE);
                             }
                             events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);

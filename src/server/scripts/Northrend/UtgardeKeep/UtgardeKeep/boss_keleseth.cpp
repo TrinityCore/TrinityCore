@@ -194,7 +194,7 @@ class boss_keleseth : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_FROST_TOMB))
                             {
                                 Talk(SAY_FROST_TOMB);
-                                Talk(SAY_FROST_TOMB_EMOTE, target->GetGUID());
+                                Talk(SAY_FROST_TOMB_EMOTE, target);
 
                                 DoCast(target, SPELL_FROST_TOMB_STUN, true);
                                 // checked from sniffs - the player casts the spell

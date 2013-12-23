@@ -76,13 +76,13 @@ public:
             switch (waypointId)
             {
                 case 1:
-                    Talk(SAY_START, player->GetGUID());
+                    Talk(SAY_START, player);
                     break;
                 case 10:
                     Talk(SAY_PROGRESS);
                     break;
                 case 13:
-                    Talk(SAY_LAST, player->GetGUID());
+                    Talk(SAY_LAST, player);
                     player->GroupEventHappens(QUEST_ESCORTING, me);
                     break;
                 case 15:
@@ -112,7 +112,7 @@ public:
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(SAY_AGGRO, who->GetGUID());
+            Talk(SAY_AGGRO, who);
         }
     };
 
@@ -120,7 +120,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ESCORTING)
         {
-            creature->AI()->Talk(SAY_QUESTACCEPT, player->GetGUID());
+            creature->AI()->Talk(SAY_QUESTACCEPT, player);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
                 pEscortAI->Start(true, false, player->GetGUID());
@@ -273,7 +273,7 @@ public:
             {
                 case 0:
                     if (WaitTimer == WAIT_SECS)
-                        me->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, 0); //no blizzlike
+                        me->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, NULL); //no blizzlike
 
                     if (WaitTimer <= diff)
                     {
@@ -303,7 +303,7 @@ public:
                     {
                         if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                         {
-                            me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
+                            me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, NULL); //not blizzlike
                             player->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
                         }
                     }

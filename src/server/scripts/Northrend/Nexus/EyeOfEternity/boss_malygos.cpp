@@ -670,7 +670,7 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
@@ -963,7 +963,7 @@ public:
                                     {
                                         if (passenger->GetTypeId() == TYPEID_PLAYER)
                                         {
-                                            Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
+                                            Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger);
                                             DoCast(tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10, true);
                                         }
                                     }
@@ -1142,7 +1142,7 @@ public:
         {
             _instance = creature->GetInstanceScript();
             // Talk range was not enough for this encounter
-            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
             MoveToMalygos();
         }
 
@@ -2351,7 +2351,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
                     if (Vehicle* vehicle = target->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(0))
                             if (passenger->GetTypeId() == TYPEID_PLAYER)
-                                caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
+                                caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger);
                 }
             }
 

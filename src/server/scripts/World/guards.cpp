@@ -65,7 +65,7 @@ public:
         void EnterCombat(Unit* who) OVERRIDE
         {
             if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
-                Talk(SAY_GUARD_SIL_AGGRO, who->GetGUID());
+                Talk(SAY_GUARD_SIL_AGGRO, who);
             if (SpellInfo const* spell = me->reachWithSpellAttack(who))
                 DoCast(who, spell->Id);
         }

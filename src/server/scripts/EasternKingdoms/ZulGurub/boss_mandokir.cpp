@@ -257,7 +257,7 @@ class boss_mandokir : public CreatureScript
                             if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
                                 DoCast(player, SPELL_WATCH);
-                                Talk(SAY_WATCH, player->GetGUID());
+                                Talk(SAY_WATCH, player);
                             }
                             events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(12000, 15000));
                             break;

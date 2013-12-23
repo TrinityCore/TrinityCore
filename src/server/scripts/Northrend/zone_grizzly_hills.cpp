@@ -160,7 +160,7 @@ public:
                     if (player)
                     {
                         player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
-                        Talk(SAY_QUEST_COMPLETE, player->GetGUID());
+                        Talk(SAY_QUEST_COMPLETE, player);
                     }
                     me->SetWalk(false);
                     break;

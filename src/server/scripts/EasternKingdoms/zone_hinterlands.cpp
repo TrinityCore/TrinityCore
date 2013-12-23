@@ -70,7 +70,7 @@ public:
             else if (player->GetTeam() == HORDE)
                 creature->setFaction(FACTION_ESCORTEE_H);
 
-            creature->AI()->Talk(SAY_OOX_START, player->GetGUID());
+            creature->AI()->Talk(SAY_OOX_START, player);
 
             if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest);
@@ -285,7 +285,7 @@ public:
             switch (waypointId)
             {
                 case 1:
-                    Talk(SAY_RIN_FREE, player->GetGUID());
+                    Talk(SAY_RIN_FREE, player);
                     break;
                 case 7:
                     DoSpawnAmbush(true);
@@ -294,7 +294,7 @@ public:
                     DoSpawnAmbush(false);
                     break;
                 case 17:
-                    Talk(SAY_RIN_COMPLETE, player->GetGUID());
+                    Talk(SAY_RIN_COMPLETE, player);
                     player->GroupEventHappens(QUEST_RINJI_TRAPPED, me);
                     SetRun();
                     m_uiPostEventCount = 1;
@@ -318,11 +318,11 @@ public:
                             switch (m_uiPostEventCount)
                             {
                                 case 1:
-                                    Talk(SAY_RIN_PROGRESS_1, player->GetGUID());
+                                    Talk(SAY_RIN_PROGRESS_1, player);
                                     ++m_uiPostEventCount;
                                     break;
                                 case 2:
-                                    Talk(SAY_RIN_PROGRESS_2, player->GetGUID());
+                                    Talk(SAY_RIN_PROGRESS_2, player);
                                     m_uiPostEventCount = 0;
                                     break;
                             }

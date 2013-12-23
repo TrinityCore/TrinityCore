@@ -80,7 +80,7 @@ public:
         void EnterCombat(Unit* who) OVERRIDE
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
-                Talk(SAY_ATTACKED, who->GetGUID());
+                Talk(SAY_ATTACKED, who);
         }
 
         void WaypointStart(uint32 uiPointId) OVERRIDE
@@ -119,8 +119,8 @@ public:
                     if (Player* player = GetPlayerForEscort())
                     {
                         me->SetFacingToObject(player);
-                        Talk(SAY_QUEST_COMPLETE, player->GetGUID());
-                        Talk(EMOTE_WHISPER, player->GetGUID());
+                        Talk(SAY_QUEST_COMPLETE, player);
+                        Talk(EMOTE_WHISPER, player);
                         player->GroupEventHappens(QUEST_GALENS_ESCAPE, me);
                     }
                     SetRun(true);

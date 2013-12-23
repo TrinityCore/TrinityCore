@@ -247,7 +247,7 @@ struct dummy_dragonAI : public ScriptedAI
             if (!PlayerList.isEmpty())
             {
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    Talk(iTextId, i->GetSource()->GetGUID());
+                    Talk(iTextId, i->GetSource());
             }
         }
     }

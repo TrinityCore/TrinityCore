@@ -259,7 +259,7 @@ public:
                 if (Dorothee && Dorothee->IsAlive())
                 {
                     CAST_AI(boss_dorothee::boss_dorotheeAI, Dorothee->AI())->TitoDied = true;
-                    Talk(SAY_DOROTHEE_TITO_DEATH, Dorothee->GetGUID());
+                    Talk(SAY_DOROTHEE_TITO_DEATH, Dorothee);
                 }
             }
         }
