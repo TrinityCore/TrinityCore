@@ -26,6 +26,7 @@ npc_deathly_usher
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "Player.h"
 #include "Group.h"
