@@ -51,6 +51,9 @@ EndContentData */
 
 enum Sinkhole
 {
+    GO_EXPLOSIVES_CART            = 188160,
+    NPC_SCOURGED_BURROWER         = 26250,
+    QUEST_PLUG_THE_SINKHOLES      = 11897,
     SPELL_SET_CART                = 46797,
     SPELL_EXPLODE_CART            = 46799,
     SPELL_SUMMON_CART             = 46798,
@@ -83,7 +86,7 @@ public:
                 return;
 
             Player* player = caster->ToPlayer();
-            if (player && player->GetQuestStatus(11897) == QUEST_STATUS_INCOMPLETE)
+            if (player && player->GetQuestStatus(QUEST_PLUG_THE_SINKHOLES) == QUEST_STATUS_INCOMPLETE)
             {
                 phase = 1;
                 casterGuid = caster->GetGUID();
@@ -104,13 +107,13 @@ public:
                     case 1:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         DoCast(me, SPELL_SUMMON_CART, true);
-                        if (GameObject* cart = me->FindNearestGameObject(188160, 3))
+                        if (GameObject* cart = me->FindNearestGameObject(GO_EXPLOSIVES_CART, 3.0f))
                             cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
                         phaseTimer = 3000;
                         phase = 2;
                         break;
                     case 2:
-                        if (GameObject* cart = me->FindNearestGameObject(188160, 3))
+                        if (GameObject* cart = me->FindNearestGameObject(GO_EXPLOSIVES_CART, 3.0f))
                             cart->UseDoorOrButton();
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         phaseTimer = 3000;
@@ -123,7 +126,7 @@ public:
                         break;
                     case 5:
                         DoCast(me, SPELL_SUMMON_WORM, true);
-                        if (Unit* worm = me->FindNearestCreature(26250, 3))
+                        if (Unit* worm = me->FindNearestCreature(NPC_SCOURGED_BURROWER, 3.0f))
                         {
                             worm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             worm->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -133,7 +136,7 @@ public:
                         break;
                     case 6:
                         DoCast(me, SPELL_EXPLODE_CART, true);
-                        if (Unit* worm = me->FindNearestCreature(26250, 3))
+                        if (Unit* worm = me->FindNearestCreature(NPC_SCOURGED_BURROWER, 3.0f))
                         {
                             me->Kill(worm);
                             worm->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -168,6 +171,12 @@ public:
 ## npc_khunok_the_behemoth
 ######*/
 
+enum Khunok
+{
+    NPC_ORPHANED_MAMMOTH_CALF        = 25861,
+    SPELL_MAMMOTH_CALF_ESCORT_CREDIT = 46231
+};
+
 class npc_khunok_the_behemoth : public CreatureScript
 {
 public:
@@ -185,13 +194,13 @@ public:
             if (who->GetTypeId() != TYPEID_UNIT)
                 return;
 
-            if (who->GetEntry() == 25861 && me->IsWithinDistInMap(who, 10.0f))
+            if (who->GetEntry() == NPC_ORPHANED_MAMMOTH_CALF && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (Unit* owner = who->GetOwner())
                 {
                     if (owner->GetTypeId() == TYPEID_PLAYER)
                     {
-                        owner->CastSpell(owner, 46231, true);
+                        owner->CastSpell(owner, SPELL_MAMMOTH_CALF_ESCORT_CREDIT, true);
                         who->ToCreature()->DespawnOrUnsummon();
                     }
                 }
@@ -341,11 +350,19 @@ public:
 ## npc_nerubar_victim
 ######*/
 
-#define WARSONG_PEON        25270
+enum Nerubar
+{
+    NPC_WARSONG_PEON                        = 25270,
+    QUEST_TAKEN_BY_THE_SCOURGE              = 11611,
+    SPELL_FREED_WARSONG_MAGE                = 45526,
+    SPELL_FREED_WARSONG_SHAMAN              = 45527,
+    SPELL_FREED_WARSONG_WARRIOR             = 45514,
+    SPELL_FREED_WARSONG_PEON                = 45532
+};
 
 const uint32 nerubarVictims[3] =
 {
-    45526, 45527, 45514
+    SPELL_FREED_WARSONG_MAGE, SPELL_FREED_WARSONG_SHAMAN, SPELL_FREED_WARSONG_WARRIOR
 };
 
 class npc_nerubar_victim : public CreatureScript
@@ -368,13 +385,13 @@ public:
             if (!player)
                 return;
 
-            if (player->GetQuestStatus(11611) == QUEST_STATUS_INCOMPLETE)
+            if (player->GetQuestStatus(QUEST_TAKEN_BY_THE_SCOURGE) == QUEST_STATUS_INCOMPLETE)
             {
                 uint8 uiRand = urand(0, 99);
                 if (uiRand < 25)
                 {
-                    player->CastSpell(me, 45532, true);
-                    player->KilledMonsterCredit(WARSONG_PEON, 0);
+                    player->CastSpell(me, SPELL_FREED_WARSONG_PEON, true);
+                    player->KilledMonsterCredit(NPC_WARSONG_PEON, 0);
                 }
                 else if (uiRand < 75)
                     player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
@@ -1026,9 +1043,9 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            npc_escortAI::UpdateAI(diff);
 
             if (arthasInPosition && talbotInPosition)
             {
@@ -1045,7 +1062,7 @@ public:
                 SetEscortPaused(false);
             }
 
-            if (phaseTimer <= uiDiff)
+            if (phaseTimer <= diff)
             {
                 Creature* talbot = me->GetCreature(*me, talbotGUID);
                 Creature* arthas = me->GetCreature(*me, arthasGUID);
@@ -1196,7 +1213,7 @@ public:
                         phaseTimer = 0;
                         phase = 0;
                 }
-            } else phaseTimer -= uiDiff;
+            } else phaseTimer -= diff;
 
             if (!UpdateVictim())
                 return;
@@ -1369,7 +1386,7 @@ public:
                     CAST_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->talbotInPosition = true;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (bCheck)
             {
@@ -1385,23 +1402,23 @@ public:
 
             if (me->GetAreaId() == 4125)
             {
-                if (shadowBoltTimer <= uiDiff)
+                if (shadowBoltTimer <= diff)
                 {
                     DoCastVictim(SPELL_SHADOW_BOLT);
                     shadowBoltTimer = urand(5000, 12000);
-                } else shadowBoltTimer -= uiDiff;
+                } else shadowBoltTimer -= diff;
 
-                if (deflectionTimer <= uiDiff)
+                if (deflectionTimer <= diff)
                 {
                     DoCastVictim(SPELL_DEFLECTION);
                     deflectionTimer = urand(20000, 25000);
-                } else deflectionTimer -= uiDiff;
+                } else deflectionTimer -= diff;
 
-                if (soulBlastTimer <= uiDiff)
+                if (soulBlastTimer <= diff)
                 {
                     DoCastVictim(SPELL_SOUL_BLAST);
                     soulBlastTimer  = urand(12000, 18000);
-                } else soulBlastTimer -= uiDiff;
+                } else soulBlastTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -1491,11 +1508,11 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
-            ScriptedAI::UpdateAI(uiDiff);
+            ScriptedAI::UpdateAI(diff);
 
-            if (phaseTimer <= uiDiff)
+            if (phaseTimer <= diff)
             {
                 switch (phase)
                 {
@@ -1551,7 +1568,7 @@ public:
                         phase = 0;
                         break;
                 }
-            } else phaseTimer -= uiDiff;
+            } else phaseTimer -= diff;
 
             if (!UpdateVictim())
                 return;
@@ -1632,7 +1649,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*uiDiff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
