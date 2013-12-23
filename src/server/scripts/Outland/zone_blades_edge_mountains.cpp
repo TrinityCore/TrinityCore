@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Blades_Edge_Mountains
 SD%Complete: 90
-SDComment: Quest support: 10503, 10504, 10556, 10594, 10609, 10682, 10821, 10980. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
+SDComment: Quest support: 10503, 10504, 10556, 10594, 10609, 10821. Ogri'la->Skettis Flight. (npc_daranelle needs bit more work before consider complete)
 SDCategory: Blade's Edge Mountains
 EndScriptData */
 
@@ -28,8 +28,6 @@ npc_bloodmaul_brutebane
 npc_bloodmaul_brute
 npc_nether_drake
 npc_daranelle
-npc_overseer_nuaar
-npc_saikkal_the_elder
 go_legion_obelisk
 go_thunderspike
 EndContentData */
@@ -401,8 +399,9 @@ public:
 
 enum Daranelle
 {
-    SAY_SPELL_INFLUENCE     = 0,
-    SPELL_LASHHAN_CHANNEL   = 36904
+    SAY_SPELL_INFLUENCE       = 0,
+    SPELL_LASHHAN_CHANNEL     = 36904,
+    SPELL_DISPELLING_ANALYSIS = 37028
 };
 
 class npc_daranelle : public CreatureScript
@@ -427,7 +426,7 @@ public:
                 {
                     Talk(SAY_SPELL_INFLUENCE, who);
                     /// @todo Move the below to updateAI and run if this statement == true
-                    DoCast(who, 37028, true);
+                    DoCast(who, SPELL_DISPELLING_ANALYSIS, true);
                 }
             }
 
@@ -438,79 +437,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_daranelleAI(creature);
-    }
-};
-
-/*######
-## npc_overseer_nuaar
-######*/
-
-#define GOSSIP_HELLO_ON "Overseer, I am here to negotiate on behalf of the Cenarion Expedition."
-
-class npc_overseer_nuaar : public CreatureScript
-{
-public:
-    npc_overseer_nuaar() : CreatureScript("npc_overseer_nuaar") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->SEND_GOSSIP_MENU(10533, creature->GetGUID());
-            player->AreaExploredOrEventHappens(10682);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (player->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(10532, creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
-## npc_saikkal_the_elder
-######*/
-
-#define GOSSIP_HELLO_STE    "Yes... yes, it's me."
-#define GOSSIP_SELECT_STE   "Yes elder. Tell me more of the book."
-
-class npc_saikkal_the_elder : public CreatureScript
-{
-public:
-    npc_saikkal_the_elder() : CreatureScript("npc_saikkal_the_elder") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(10795, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-                player->SEND_GOSSIP_MENU(10796, creature->GetGUID());
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (player->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(10794, creature->GetGUID());
-
-        return true;
     }
 };
 
@@ -1279,8 +1205,6 @@ void AddSC_blades_edge_mountains()
     new npc_bloodmaul_brute();
     new npc_nether_drake();
     new npc_daranelle();
-    new npc_overseer_nuaar();
-    new npc_saikkal_the_elder();
     new go_legion_obelisk();
     new go_thunderspike();
     new npc_simon_bunny();
