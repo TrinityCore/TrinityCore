@@ -140,7 +140,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 0.108 - 23/10/2013: Implementado sistema de Fade Out Sigilo por Sonneh
 0.109 - 05/11/2013: SMART_ACTION_SET_MOVEMENT_SPEED implementada por Lauja
 0.110 - 13/11/2013: SMART_ACTION_MOVE_TO_POS ahora podrás moverlo de la posición del objetivo  por Lauja
-0.111 - 19/11/2013: Finalizando la recepción de opcodes si el mover no esta en el mundo por Eilo
 
 
 ###############
@@ -172,7 +171,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.56 - 01/10/2012: Misiones semanales de Dalaran no se pueden compartir por Rincewind
 1.62 - 18/10/2012: Los integrantes del raid ahora veran el loot en MasterLooter por tibbi
 1.63 - 04/11/2012: Vehicles: Exclude player from vehicle gear scaling effect por Xanvial
-1.64 - 05/11/2012: Mechanics: Arreglando varios issues con el evade por Ille
 1.67 - 12/11/2012: Fix exploit al entrar en arena con fear, ahora entras en la posición que debes y no en el medio por hermida
 1.68 - 19/11/2012: Teletransportes de Isla de la Conquista por Muzashi
 1.69 - 20/11/2012: Crashfix de SelectImplicitAreaTargets por blipi
@@ -199,7 +197,6 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.100 - 02/04/2013: Avisos de Join/Leave desactivados por Eilo
 1.101 - 07/04/2013: Pets will not attack when they are under cc effects by Phantons
 1.103 - 09/04/2013: Evitando crashes de warden, en teoria siempre debe destruirlo por Spp
-1.105 - 14/04/2013: No debemos guardar 2 veces las cosas en el mismo proceso, hay uno en el destructor tb por Eilo
 1.108 - 14/04/2013: Evitando crashes en el Unload del mapa, esto pasa frecuentemente aunque tengas unloadgrid = 0 por Eilo
 1.110 - 19/04/2013: Ampliando la dimension de los pilares de colision para evitar que se pongan en el filo y curen/peguen por Eilo
 1.111 - 19/04/2013: Habilitando RoV por Eilo
@@ -296,6 +293,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 1.218 - 25/11/2013: Blade's Edge Arena: Sistema anti-caida debajo del suelo por Eilo
 1.219 - 25/11/2013: Dalaran Sewers: Sistema anti-caida debajo del suelo por Eilo
 1.221 - 25/11/2013: Bgs: Sistema de cierre prematuro retocado e implementado mejoras por Eilo
+1.222 - 26/11/2013: Wintergrasp: Las misiones semanales pasan a ser diarias y se han ajustado sus recompensas por Lauja
+1.223 - 26/11/2013: Wintergrasp: Wintergrasp: Ahora las misiones Alianza de "Parar el asedio/Defender el Asedio" están en su sitio según si es atacante/defensor por Lauja
+1.224 - 26/11/2013: Wintergrasp: Ahora las misiones Alianza de "Combustible para los demoledores" están en su sitio según si es atacante/defensor por Lauja
+1.225 - 05/12/2013: Wintergrasp: Permitir la spell Swift Flying Wisp para los elfos nocturnos en Wintergrasp
+1.226 - 22/12/2013: Corrigiendo el crash de UpdateSplineMovement por Eilo
 
 
 ########################
@@ -493,11 +495,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.2.233 - 22/10/2013: TheLichKing corregido comportamiento de Wicked Spirit al respawnear por Saitama
 2.2.234 - 24/10/2013: TheLichKing ajustado el comportamiento del Harvested Soul para que no gane poder LK mientras no estan en Frostmourne Room por Eilo
 2.2.235 - 25/10/2013: TheLichKing los players afectados por Harvest Soul ya no serán objetivos inválidos por Saitama
-2.2.237 - 29/10/2013: Lana'thel: evitando crashes en el Frenzied Bloodthirst al generar bucle infinito en Uncontrollable Frenzy por Eilo
 2.2.238 - 03/11/2013: Valithria: añadido texto faltante de introducción al encuentro por Lauja
 - Naxxramas -
 2.3.1  - 25/03/2013: Naxxramas: Heigan arreglo del Plague Cloud para el logro Safety Dance por Eilo
 2.3.2  - 06/06/2013: Naxxramas: Los cuatro jinetes: permitiendo que el cofre sea seleccionable en dificultad 25 por Dolanpls
+2.3.3  - 28/11/2013: Naxxramas: Los mini-bosses del encuentro contra Thaddius reapareceran correctamente al wipear la banda por Sothu
 - Onyxia'sLair -
 2.4.1  - 28/03/2011: Onyxia'sLair: Immunities on script by Souler
 - Eye of Eternity -
@@ -576,6 +578,34 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.6.72 - 07/11/2013: Ulduar: Auriaya reparado el respawn de los Sanctum Sentry al wipear por Saitama
 2.6.73 - 09/11/2013: Ulduar: Hodir corregido el bug que causaba que se duplicaran los uso de las spells por Saitama
 2.6.74 - 22/11/2013: Ulduar: Razorscale los mobs que salen durante el encuentro ahora desapareceran al wipear por Sothu
+2.6.75 - 27/11/2013: Ulduar: Razorscale los arpones se reiniciaran correctamente en el segundo try de la banda por Sothu
+2.6.76 - 01/12/2013: Ulduar: Las imagenes de los 4 titanes daran los buffos de ayuda correspondientes para combatir contra YoggSaron por Dolanpls
+2.6.77 - 03/12/2013: Ulduar: Razorscale los arpones se volveran activos de nuevo durante la segunda fase por Sothu
+2.6.78 - 04/12/2013: Ulduar: Algalon corregidas sus immunidades por Sothu
+2.6.79 - 08/12/2013: Ulduar: En el combate yo YoggSaron los guardianes activos daran el buff al iniciar el combate, y ayudaran correctamente por Evef.
+2.6.80 - 08/12/2013: Ulduar: YoggSaron lanzará correctamente la spell psychosis para las modalidades 10 y 25 restando sanity corectamente por Evef.
+2.6.81 - 10/12/2013: Ulduar: Freya ya no recibirá un buff extra de Ironbranch's Essence por Saitama
+2.6.82 - 10/12/2013: Ulduar: Ahora los buffs que Freya recibe se corresponden correctamente a cada Ancestro por Saitama
+2.6.83 - 10/12/2013: Ulduar: Corregidos los objetivos válidos para Brightleaf's Essence por Saitama
+2.6.84 - 10/12/2013: Ulduar: Corregidos los objetivos válidos para Ironbranch's Essence por Saitama
+2.6.85 - 10/12/2013: Ulduar: Asignada Freya como objetivo para el channeling de las esencias de los ancestros por Saitama
+2.6.86 - 10/12/2013: Ulduar: Reparado el fallo que causaba que los Sun Beam del encuentro con Freya no fuesen visibles por Saitama
+2.6.87 - 10/12/2013: Ulduar: Freya, ahora Ancient Conservator casteará la spell Conservator's Grip dando un aspecto más blizzlike al encuentro por Saitama
+2.6.88 - 10/12/2013: Ulduar: Freya, adaptado el timer de Healthy Spore para que no interrumpa el casteo de Conservator's Grip por Saitama
+2.6.89 - 10/12/2013: Ulduar: Freya, añadidas inmunidades al Ancient Conservator para evitar la interrupción de Conservator's Grip por Saitama
+2.6.90 - 10/12/2013: Ulduar: Freya, añadidas inmunidades a Eonar's Gift por Saitama
+2.6.91 - 10/12/2013: Ulduar: Corregida la spell Iron Roots usada por Freya por Saitama
+2.6.92 - 10/12/2013: Ulduar: Freya, añadidas inmunidades a Strengthen Iron Roots por Saitama
+2.6.93 - 10/12/2013: Ulduar: Corregida la cantidad de adds wave que invocaba Freya por Saitama
+2.6.94 - 10/12/2013: Ulduar: Corregido el momento en que Freya comienza a utilizar Nature Bomb luego de acabadas las oleadas de adds por Saitama
+2.6.95 - 10/12/2013: Ulduar: Aumentados los tiempos entre casteos de Nature Bomb de Freya para acercarlos a un valor más blizzlike por Saitama
+2.6.96 - 10/12/2013: Ulduar: Retocado el script de Nature Bomb de Freya para que tenga un comportamiento más blizzlike por Saitama
+2.6.97 - 10/12/2013: Ulduar: Añadidos detalles visuales en algunos mobs del encuentro contra Freya por Saitama
+2.6.98 - 10/12/2013: Ulduar: Scripteada la spell Nature Bomb para que tenga un efecto y funcionamiento más blizzlike por Saitama
+2.6.99 - 10/12/2013: Ulduar: Añadidas inmunidades a Freya en dificultad 25 jugadores por Hyxon
+2.6.100 - 10/12/2013: Ulduar: Corregidas las inmunidades de Auriaya tanto en dificultad 10 como 25 jugadores por Hyxon
+2.6.101 - 11/12/2013: Ulduar: Freya, añadidas inmunidades al Ancient Conservator en dificultad 25 jugadores por Saitama
+2.6.102 - 11/12/2013: Ulduar: Freya, añadidas inmunidades a Eonar's Gift en dificultad 25 jugadores por Saitama
 - Vault of Archavon -
 2.7.0  - 08/11/2012: VaultOfArchavon: Corregido loot de Toravon por Muzashi
 2.7.1  - 04/12/2012: VaultOfArchavon: Fix entrada a la instance solo si eres defensor de Wintergrasp por Gildor
@@ -624,6 +654,8 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.9.44 - 06/11/2013: RubySanctum: Ajustado los Effect para que solo actue dentro del area por Evef
 2.9.45 - 07/11/2013: RubySanctum: Añadida flag anti taunt para Living Inferno por Evef
 2.9.46 - 26/11/2013: RubySanctum: Añadido un segundo portal para el mundo material y ajustado su tamaño por Evef.
+2.9.47 - 02/12/2013: RubySanctum: El fuego del Meteor Strike, saldra de manera mas aleatoria con efecto mas blizzlike por Evef
+2.9.48 - 03/12/2013: RubySanctum: Living ember saldrán de los fuegos y atacarán al salir por Evef.
 - Ahn'Kahet -
 2.10.1 - 03/08/2011: Ahn'Kahet: Taldaram combate en invisible por Greymane
 2.10.2 - 16/12/2011: Ahn'Kahet: Taldaram daño esferas ajustado por Eilo
@@ -666,6 +698,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 2.17.7 - 20/11/2013: PitOfSaron: Scripteada la outro de la instance con el evento tanto para la horda como para la alianza por Efreet
 2.17.8 - 26/11/2013: PitOfSaron: Add el area de hielo que deja Icy Blast de Dientefrio en el combate vs Tyrannus por Efreet
 2.17.9 - 26/11/2013: PitOfSaron: Fixeado el exploit con el NPC Ymirjar (31260) de la instance y control mental, de forma que no pueda regenerar vida, por Efreet
+2.17.10 - 01/12/2013: PitOfSaron: Despawneados los Dientefríos de diversos eventos para un efecto mas blizzlike de la mazmorra, por Efreet
 - ForgeOfSouls -
 2.18.1 - 16/08/2012: ForgeOfSouls: Bronjahm ajuste de inmunidades por Eilo
 2.18.2 - 16/08/2012: ForgeOfSouls: Adding some texts by Eilo
@@ -874,6 +907,11 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 3.218 - 24/10/2013: Fix spells lanzadas por NPCs que aplican el efecto Charm al target y producen un error al usar cargar por Gildor
 3.219 - 04/11/2013: Fix spells Resurrection Sickness, Deserter (BG), Dungeon Deserter, ahora no se podrán disipar por Gildor
 3.220 - 06/11/2013: Hunter/Pet: Fix spell Dust Cloud(50285), ahora se remueve el aura al fallar un spell por Mauvas
+3.221 - 04/12/2013: Warlock/Felhunter: Fix spell Devour Magic, ahora no podrá ser usada en personajes amistosos que participan en duelos por Mauvas
+3.222 - 04/12/2013: DK/Gargola: Ahora la gargola le pegara al target que tiene seleccionado el DK cuando la invoca por Mauvas
+3.223 - 05/12/2013: DK/Pet: Fix Risen Ghoul (Pet), ahora será clase Rogue y los buff del grupo/banda que se le apliquen a los rogues los obtendrá el Risen Ghoul por Gildor, Mauvas y Muzashi
+3.224 - 05/12/2013: Fix spell Claw(47468), ahora reservará 40 pts de energy en auto-cast por Mauvas
+3.225 - 09/12/2013: Pets: Fix spells Strength of Wrynn, Hellscream's Warsong, ahora se aplicará tambien a las pets por Gildor
 
 
 #################
@@ -974,6 +1012,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.2.39 - 07/02/2013: Cumbres Tormentosas: La furia del rey Natoescarcha - El maestro expedicionario por YTDB
 4.2.40 - 14/02/2013: Hijos de Hodir: Alzar la lanza de Hodir por YTDB
 4.2.41 - 14/02/2013: Hijos de Hodir: Siemprescarcha - ¡Acuérdate de siemprescarcha! por Muzashi
+4.2.42 - 04/12/2013: Hijos de Hodir: Arreglar verjas por Muzashi y Rincewind
 - Corona de Hielo -
 4.3.0  - 17/04/2012: Corona de Hielo: Sangre en el agua por Muzashi
 4.3.1  - 03/04/2012: Corona de Hielo: Pura diversión por Muzashi
@@ -1051,6 +1090,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.3.73 - 07/08/2013: Corona de Hielo: ¡No estoy muerto aún! - ¡Salgamos de aquí! por Muzashi
 4.3.74 - 08/08/2013: Corona de Hielo: Imposible reproducir - Volver a probar por Muzashi
 4.3.75 - 05/10/2013: Corona de Hielo: Batalla en Valhalas original por Kirkhammett ajustes de Muzashi
+4.3.76 - 04/12/2013: Corona de Hielo: Arrastrar y soltar por Rincewind y Muzashi
 - Cuenca de Sholazar -
 4.4.0  - 16/04/2012: Cuenca de Sholazar: Seguir la corriente por Muzashi
 4.4.1  - 16/04/2012: Cuenca de Sholazar: Atormentar a los badanudillos por Muzashi
@@ -1197,7 +1237,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.8.15 - 12/06/2012: Tundra Boreal: ¡Ja!... ¡Ya no eres tan grande! por Muzashi
 4.8.16 - 12/06/2012: Tundra Boreal: Plan B original por Valcorb correcciones en condiciones por Muzashi
 4.8.17 - 13/06/2012: Tundra Boreal: ¡Han sido los orcos! ¡Lo juro! por Muzashi
-4.8.18 - 13/06/2012: Tundra Boreal: Protocolo de emergencia: sección 8.2, parrafo D por Inky
+4.8.18 - 13/06/2012: Tundra Boreal: Protocolo de emergencia: sección 8.2, parrafo D por Inky y Rincewind
 4.8.19 - 14/06/2012: Tundra Boreal: Marcando los sumideros por Muzashi
 4.8.20 - 15/06/2012: Tundra Boreal: ¡Utiliza el Vibro-Motor 5000! - El derrumbamiento por Inky
 4.8.21 - 21/06/2012: Tundra Boreal: El poder de los elementos por Muzashi
@@ -1350,6 +1390,7 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 4.10.67 - 08/11/2013: Tormenta Abisal: Punto de inflexión - Golpe mortal a la Legión por Muzashi
 4.10.68 - 12/11/2013: Valle Sombraluna: Una distracción necesaria por Muzashi
 4.10.69 - 22/11/2013: Nagrand: ¡Tráeme el huevo! por Lauja
+4.10.70 - 04/12/2013: Nagrand: Avasallar al Avasallador por Muzashi
 - Kalimdor y Reinos del Este -
 4.11.0 - 19/06/2012: Cuna del Invierno: ¡Señuelo! por Nelegalno
 4.11.1 - 25/06/2012: Vega de Tuercespina: El maestro mayor de la arena por ZxBiohazardZx y Muzashi
@@ -1469,9 +1510,9 @@ Milestone7.0: Código custom, utilitario y caracteristicas interesantes varias.
 6.79 - 05/11/2013: Karazhan: Corregido el bugg que no dejaba atacar al boss The Crone por Sothu
 6.80 - 11/11/2013: Tumbas de maná: Cámaras de Estasis de las Tumbas de Mana por Lauja
 6.81 - 25/11/2013: Modificados RequiredLevel y bondings en los objetos Mark of Hakkar, Hakkari Breastplate y Hakkari Shroud por Rincewind
-6.82 - 26/11/2013: Wintergrasp: Ahora las misiones Alianza de "Combustible para los demoledores" están en su sitio según si es atacante/defensor por Lauja
-6.83 - 26/11/2013: Wintergrasp: Ahora las misiones Alianza de "Parar el asedio/Defender el Asedio" están en su sitio según si es atacante/defensor por Lauja
-6.84 - 26/11/2013: Wintergrasp: Las misiones semanales pasan a ser diarias y se han ajustado sus recompensas por Lauja
+6.82 - 28/11/2013: Modificados RequiredLevel y bondings para equipo recompensa de mision obtenible por donación por Crash
+6.83 - 03/12/2013: Karazhan: Nightbane al presionar la urna aparecera el boss correctamente por Sothu
+6.84 - 05/12/2013: Fiesta de la cerveza: Boxey Boltspinner, eliminar de creature el que no esta en el evento por Rincewind
 
 
 ##########
