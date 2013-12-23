@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,27 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Blasted_Lands
-SD%Complete: 90
-SDComment: Quest support: 3628. Teleporter to Rise of the Defiler missing group support.
-SDCategory: Blasted Lands
-EndScriptData */
+/*
+Blasted_Lands
+Quest support: 3628. Teleporter to Rise of the Defiler.
+*/
 
-/* ContentData
+/*
 npc_deathly_usher
-EndContentData */
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "Player.h"
+#include "Group.h"
 
 /*######
 ## npc_deathly_usher
 ######*/
-
-#define GOSSIP_ITEM_USHER "I wish to to visit the Rise of the Defiler."
 
 enum DeathlyUsher
 {
@@ -50,30 +46,72 @@ class npc_deathly_usher : public CreatureScript
 public:
     npc_deathly_usher() : CreatureScript("npc_deathly_usher") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    struct npc_deathly_usherAI : public ScriptedAI
     {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
+        npc_deathly_usherAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
         {
             player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, SPELL_TELEPORT_SINGLE, true);
+            me->CastSpell(player, SPELL_TELEPORT_GROUP, true);
         }
+    };
 
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        if (player->GetQuestStatus(3628) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(10757))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
+        return new npc_deathly_usherAI(creature);
     }
+};
+
+/*#####
+# spell_razelikh_teleport_group
+#####*/
+
+class spell_razelikh_teleport_group : public SpellScriptLoader
+{
+    public: spell_razelikh_teleport_group() : SpellScriptLoader("spell_razelikh_teleport_group") { }
+
+        class spell_razelikh_teleport_group_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_razelikh_teleport_group_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TELEPORT_SINGLE) && !sSpellMgr->GetSpellInfo(SPELL_TELEPORT_SINGLE_IN_GROUP))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (Player* player = GetHitPlayer())
+                {
+                    if (Group* group = player->GetGroup())
+                    {
+                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                            if (Player* member = itr->GetSource())
+                                if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
+                                    member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
+                    }
+                    else
+                        player->CastSpell(player, SPELL_TELEPORT_SINGLE, true);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_razelikh_teleport_group_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_razelikh_teleport_group_SpellScript();
+        }
 };
 
 void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
+    new spell_razelikh_teleport_group();
 }
