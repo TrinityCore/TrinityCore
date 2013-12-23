@@ -527,29 +527,29 @@ public:
             switch (waypointId)
             {
                 case 7:
-                    Talk(SAY_STAY_1, player->GetGUID());
+                    Talk(SAY_STAY_1, player);
                     break;
                 case 11:
-                    Talk(SAY_STAY_2, player->GetGUID());
+                    Talk(SAY_STAY_2, player);
                     break;
                 case 25:
-                    Talk(SAY_STAY_3, player->GetGUID());
+                    Talk(SAY_STAY_3, player);
                     break;
                 case 26:
-                    Talk(SAY_STAY_4, player->GetGUID());
+                    Talk(SAY_STAY_4, player);
                     break;
                 case 27:
-                    Talk(SAY_STAY_5, player->GetGUID());
+                    Talk(SAY_STAY_5, player);
                     break;
                 case 28:
-                    Talk(SAY_STAY_6, player->GetGUID());
+                    Talk(SAY_STAY_6, player);
                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                     break;
                 case 29:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     break;
                 case 37:
-                    Talk(SAY_QUEST_COMPLETE, player->GetGUID());
+                    Talk(SAY_QUEST_COMPLETE, player);
                     me->SetSpeed(MOVE_RUN, 1.2f, true);
                     me->SetWalk(false);
                     if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
@@ -565,7 +565,7 @@ public:
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(SAY_ATTACKED_1, who->GetGUID());
+            Talk(SAY_ATTACKED_1, who);
         }
 
         void Reset() OVERRIDE { }

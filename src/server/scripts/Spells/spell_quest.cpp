@@ -1137,9 +1137,9 @@ public:
             // player must cast kill credit and do emote text, according to sniff
             if (Player* target = GetTarget()->ToPlayer())
             {
-                target->MonsterWhisper(SAY_1, target->GetGUID(), true);
+                target->MonsterWhisper(SAY_1, target, true);
                 target->KilledMonsterCredit(NPC_KILLCREDIT, 0);
-                target->MonsterWhisper(SAY_2, target->GetGUID(), true);
+                target->MonsterWhisper(SAY_2, target, true);
             }
         }
 
@@ -1380,7 +1380,7 @@ class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* defender = GetHitCreature())
-                    defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwnerGUID());
+                    defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwner());
             }
 
             void Register() OVERRIDE
@@ -1823,7 +1823,7 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
                     if (failed)
                     {
                         player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
-                        creature->AI()->Talk(0, player->GetGUID());
+                        creature->AI()->Talk(0, player);
                     }
                     else
                         player->CastSpell(player, SPELL_CREATE_BEAR_FLANK);

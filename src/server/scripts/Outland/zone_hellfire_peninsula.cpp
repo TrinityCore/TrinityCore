@@ -399,25 +399,25 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    Talk(SAY_ELF_START, player->GetGUID());
+                    Talk(SAY_ELF_START, player);
                     break;
                 case 9:
-                    Talk(SAY_ELF_SUMMON1, player->GetGUID());
+                    Talk(SAY_ELF_SUMMON1, player);
                     // Spawn two Haal'eshi Talonguard
                     DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 13:
-                    Talk(SAY_ELF_RESTING, player->GetGUID());
+                    Talk(SAY_ELF_RESTING, player);
                     break;
                 case 14:
-                    Talk(SAY_ELF_SUMMON2, player->GetGUID());
+                    Talk(SAY_ELF_SUMMON2, player);
                     // Spawn two Haal'eshi Windwalker
                     DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 27:
-                    Talk(SAY_ELF_COMPLETE, player->GetGUID());
+                    Talk(SAY_ELF_COMPLETE, player);
                     // Award quest credit
                     player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH, me);
                     break;

@@ -178,14 +178,14 @@ public:
         {
             if (channeling)
             {
-                Talk(SAY_WATCH_OUT, who->GetGUID());
+                Talk(SAY_WATCH_OUT, who);
             }
             else
             {
                 events.ScheduleEvent(EVENT_FIREBALL, 1000);
                 events.ScheduleEvent(EVENT_FROST_NOVA, urand(8000, 12000));
                 if (urand(0, 100) > 40)
-                    Talk(SAY_AGGRO, who->GetGUID());
+                    Talk(SAY_AGGRO, who);
             }
         }
 

@@ -688,7 +688,7 @@ class go_warmaul_prison : public GameObjectScript
             {
                 player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, 0);
 
-                prisoner->AI()->Talk(SAY_FREE, player->GetGUID());
+                prisoner->AI()->Talk(SAY_FREE, player);
                 prisoner->DespawnOrUnsummon(6000);
             }
             return true;

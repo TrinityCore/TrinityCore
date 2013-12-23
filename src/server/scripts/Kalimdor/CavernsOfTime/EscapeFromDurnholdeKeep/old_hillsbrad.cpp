@@ -407,7 +407,7 @@ public:
                     if (uint64 TarethaGUID = instance->GetData64(DATA_TARETHA))
                     {
                         if (Creature* Taretha = Creature::GetCreature(*me, TarethaGUID))
-                            Taretha->AI()->Talk(SAY_TA_ESCAPED, me->GetGUID());
+                            Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
                     }
                     break;
                 case 95:

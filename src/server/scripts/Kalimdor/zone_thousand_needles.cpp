@@ -146,7 +146,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_FREE_AT_LAST)
         {
-            creature->AI()->Talk(SAY_LAKO_START, player->GetGUID());
+            creature->AI()->Talk(SAY_LAKO_START, player);
             creature->setFaction(FACTION_ESCORTEE_LAKO);
 
             if (npc_lakota_windsongAI* pEscortAI = CAST_AI(npc_lakota_windsong::npc_lakota_windsongAI, creature->AI()))
@@ -229,7 +229,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_HOMEWARD)
         {
-            creature->AI()->Talk(SAY_START, player->GetGUID());
+            creature->AI()->Talk(SAY_START, player);
             creature->setFaction(FACTION_ESCORTEE);
 
             if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountain::npc_paoka_swiftmountainAI, creature->AI()))

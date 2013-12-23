@@ -374,7 +374,7 @@ public:
                     if (!player)
                         return;
 
-                    Talk(MSG_ESCAPE_NOTICE, player->GetGUID());
+                    Talk(MSG_ESCAPE_NOTICE, player);
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetHover(true);
                     me->SetSwim(true);
@@ -397,7 +397,7 @@ public:
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                 {
-                   Talk(SAY_RIZZLE_GRENADE, player->GetGUID());
+                   Talk(SAY_RIZZLE_GRENADE, player);
                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 GrenadeTimer = 30000;

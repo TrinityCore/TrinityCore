@@ -70,7 +70,7 @@ public:
             if (npc_kerlonianAI* pKerlonianAI = CAST_AI(npc_kerlonian::npc_kerlonianAI, creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                creature->AI()->Talk(SAY_KER_START, player->GetGUID());
+                creature->AI()->Talk(SAY_KER_START, player);
                 pKerlonianAI->StartFollow(player, FACTION_KER_ESCORTEE, quest);
             }
         }
@@ -232,40 +232,40 @@ public:
                 switch (waypointId)
                 {
                     case 0:
-                        Talk(SAY_REM_START, player->GetGUID());
+                        Talk(SAY_REM_START, player);
                         break;
                     case 5:
-                        Talk(SAY_REM_RAMP1_1, player->GetGUID());
+                        Talk(SAY_REM_RAMP1_1, player);
                         break;
                     case 6:
                         DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         break;
                     case 9:
-                        Talk(SAY_REM_RAMP1_2, player->GetGUID());
+                        Talk(SAY_REM_RAMP1_2, player);
                         break;
                     case 14:
                         //depend quest rewarded?
-                        Talk(SAY_REM_BOOK, player->GetGUID());
+                        Talk(SAY_REM_BOOK, player);
                         break;
                     case 15:
-                        Talk(SAY_REM_TENT1_1, player->GetGUID());
+                        Talk(SAY_REM_TENT1_1, player);
                         break;
                     case 16:
                         DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         break;
                     case 17:
-                        Talk(SAY_REM_TENT1_2, player->GetGUID());
+                        Talk(SAY_REM_TENT1_2, player);
                         break;
                     case 26:
-                        Talk(SAY_REM_MOSS, player->GetGUID());
+                        Talk(SAY_REM_MOSS, player);
                         break;
                     case 27:
-                        Talk(EMOTE_REM_MOSS, player->GetGUID());
+                        Talk(EMOTE_REM_MOSS, player);
                         break;
                     case 28:
-                        Talk(SAY_REM_MOSS_PROGRESS, player->GetGUID());
+                        Talk(SAY_REM_MOSS_PROGRESS, player);
                         break;
                     case 29:
                         DoSpawnCreature(NPC_GRAVEL_SCOUT, -15.0f, 3.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -273,13 +273,13 @@ public:
                         DoSpawnCreature(NPC_GRAVEL_GEO, -15.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         break;
                     case 31:
-                        Talk(SAY_REM_PROGRESS, player->GetGUID());
+                        Talk(SAY_REM_PROGRESS, player);
                         break;
                     case 41:
-                        Talk(SAY_REM_REMEMBER, player->GetGUID());
+                        Talk(SAY_REM_REMEMBER, player);
                         break;
                     case 42:
-                        Talk(EMOTE_REM_END, player->GetGUID());
+                        Talk(EMOTE_REM_END, player);
                         player->GroupEventHappens(QUEST_ABSENT_MINDED_PT2, me);
                         break;
                 }
@@ -291,7 +291,7 @@ public:
         void EnterCombat(Unit* who) OVERRIDE
         {
             if (urand(0, 1))
-                Talk(SAY_REM_AGGRO, who->GetGUID());
+                Talk(SAY_REM_AGGRO, who);
         }
 
         void JustSummoned(Creature* /*pSummoned*/) OVERRIDE
@@ -369,7 +369,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    Talk(SAY_AT_CLOSE, who->GetGUID());
+                    Talk(SAY_AT_CLOSE, who);
                     DoAtEnd();
                 }
             }

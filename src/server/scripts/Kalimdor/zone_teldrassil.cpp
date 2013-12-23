@@ -79,7 +79,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    Talk(SAY_AT_HOME, who->GetGUID());
+                    Talk(SAY_AT_HOME, who);
                     DoComplete();
                 }
             }

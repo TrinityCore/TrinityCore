@@ -128,7 +128,7 @@ class example_creature : public CreatureScript
             void EnterCombat(Unit* who) OVERRIDE
             {
                 //Say some stuff
-                Talk(SAY_AGGRO, who->GetGUID());
+                Talk(SAY_AGGRO, who);
             }
 
             // *** HANDLED FUNCTION ***
@@ -236,7 +236,7 @@ class example_creature : public CreatureScript
                     if (m_uiBeserkTimer <= uiDiff)
                     {
                         //Say our line then cast uber death spell
-                        Talk(SAY_BERSERK, me->GetVictim() ? me->GetVictim()->GetGUID() : 0);
+                        Talk(SAY_BERSERK, me->GetVictim());
                         DoCastVictim(SPELL_BERSERK);
 
                         //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
