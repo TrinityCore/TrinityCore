@@ -99,9 +99,10 @@ class boss_eregos : public CreatureScript
                 DoAction(ACTION_SET_NORMAL_EVENTS);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
