@@ -154,18 +154,18 @@ public:
                     me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                         Cage->SetGoState(GO_STATE_ACTIVE);
-                    Talk(SAY_START, player->GetGUID());
+                    Talk(SAY_START, player);
                     break;
                 case 5:
-                    Talk(SAY_PROGRESS1, player->GetGUID());
+                    Talk(SAY_PROGRESS1, player);
                     break;
                 case 11:
-                    Talk(SAY_PROGRESS2, player->GetGUID());
+                    Talk(SAY_PROGRESS2, player);
                     me->SetFacingTo(4.762841f);
                     break;
                 case 18:
                     {
-                        Talk(SAY_PROGRESS3, player->GetGUID());
+                        Talk(SAY_PROGRESS3, player);
                         Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         if (Summ1 && Summ2)
@@ -187,14 +187,14 @@ public:
                     break;
                 case 32:
                     me->SetFacingTo(2.978281f);
-                    Talk(SAY_END1, player->GetGUID());
+                    Talk(SAY_END1, player);
                     break;
                 case 33:
                     me->SetFacingTo(5.858011f);
-                    Talk(SAY_END2, player->GetGUID());
+                    Talk(SAY_END2, player);
                     Creature* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
                     if (CaptainHelios)
-                        CaptainHelios->AI()->Talk(SAY_CAPTAIN_ANSWER, player->GetGUID());
+                        CaptainHelios->AI()->Talk(SAY_CAPTAIN_ANSWER, player);
                     break;
             }
         }

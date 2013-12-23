@@ -373,7 +373,7 @@ public:
         {
             player->CLOSE_GOSSIP_MENU();
             creature->setFaction(FACTION_HOSTILE_FL);
-            creature->AI()->Talk(SAY_FLOON_ATTACK, player->GetGUID());
+            creature->AI()->Talk(SAY_FLOON_ATTACK, player);
             creature->AI()->AttackStart(player);
         }
         return true;
@@ -482,16 +482,16 @@ public:
                         Cage->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case 2:
-                    Talk(SAY_PROGRESS_1, player->GetGUID());
+                    Talk(SAY_PROGRESS_1, player);
                     break;
                 case 5:
-                    Talk(SAY_PROGRESS_2, player->GetGUID());
+                    Talk(SAY_PROGRESS_2, player);
                     break;
                 case 6:
-                    Talk(SAY_PROGRESS_3, player->GetGUID());
+                    Talk(SAY_PROGRESS_3, player);
                     break;
                 case 29:
-                    Talk(SAY_PROGRESS_4, player->GetGUID());
+                    Talk(SAY_PROGRESS_4, player);
                     if (player->GetTeam() == ALLIANCE)
                         player->GroupEventHappens(QUEST_EFTW_A, me);
                     else if (player->GetTeam() == HORDE)

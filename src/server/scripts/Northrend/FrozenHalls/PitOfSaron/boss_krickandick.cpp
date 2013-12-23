@@ -622,7 +622,7 @@ class spell_krick_pursuit : public SpellScriptLoader
                     {
                         if (Unit* target = ick->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
                         {
-                            ick->AI()->Talk(SAY_ICK_CHASE_1, target->GetGUID());
+                            ick->AI()->Talk(SAY_ICK_CHASE_1, target);
                             ick->AddAura(GetSpellInfo()->Id, target);
                             CAST_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->getThreatManager().getThreat(target));
                             ick->AddThreat(target, float(GetEffectValue()));

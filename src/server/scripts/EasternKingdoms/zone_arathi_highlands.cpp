@@ -79,10 +79,10 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 switch (waypointId)
                 {
                     case 4:
-                        Talk(SAY_PROGRESS_2, player->GetGUID());
+                        Talk(SAY_PROGRESS_2, player);
                         break;
                     case 5:
-                        Talk(SAY_PROGRESS_3, player->GetGUID());
+                        Talk(SAY_PROGRESS_3, player);
                         break;
                     case 8:
                         Talk(EMOTE_PROGRESS_4);
@@ -92,18 +92,18 @@ class npc_professor_phizzlethorpe : public CreatureScript
                         me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         break;
                     case 10:
-                        Talk(SAY_PROGRESS_5, player->GetGUID());
+                        Talk(SAY_PROGRESS_5, player);
                         break;
                     case 11:
-                        Talk(SAY_PROGRESS_6, player->GetGUID());
+                        Talk(SAY_PROGRESS_6, player);
                         SetRun();
                         break;
                     case 19:
-                        Talk(SAY_PROGRESS_7, player->GetGUID());
+                        Talk(SAY_PROGRESS_7, player);
                         break;
                     case 20:
                         Talk(EMOTE_PROGRESS_8);
-                        Talk(SAY_PROGRESS_9, player->GetGUID());
+                        Talk(SAY_PROGRESS_9, player);
                         player->GroupEventHappens(QUEST_SUNKEN_TREASURE, me);
                         break;
                 }
@@ -134,7 +134,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
         {
             if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
             {
-                creature->AI()->Talk(SAY_PROGRESS_1, player->GetGUID());
+                creature->AI()->Talk(SAY_PROGRESS_1, player);
                 if (npc_escortAI* pEscortAI = CAST_AI(npc_professor_phizzlethorpeAI, (creature->AI())))
                     pEscortAI->Start(false, false, player->GetGUID(), quest);
 

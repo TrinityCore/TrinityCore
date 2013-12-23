@@ -175,7 +175,7 @@ class boss_jaraxxus : public CreatureScript
                         case EVENT_INCINERATE_FLESH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
                             {
-                                Talk(EMOTE_INCINERATE, target->GetGUID());
+                                Talk(EMOTE_INCINERATE, target);
                                 Talk(SAY_INCINERATE);
                                 DoCast(target, SPELL_INCINERATE_FLESH);
                             }
@@ -188,7 +188,7 @@ class boss_jaraxxus : public CreatureScript
                         case EVENT_LEGION_FLAME:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
                             {
-                                Talk(EMOTE_LEGION_FLAME, target->GetGUID());
+                                Talk(EMOTE_LEGION_FLAME, target);
                                 DoCast(target, SPELL_LEGION_FLAME);
                             }
                             events.ScheduleEvent(EVENT_LEGION_FLAME, 30*IN_MILLISECONDS);

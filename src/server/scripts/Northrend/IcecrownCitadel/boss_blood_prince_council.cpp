@@ -666,7 +666,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);     // too bad for you raiders, its going to boom
 
                 if (summon->GetEntry() == NPC_BALL_OF_INFERNO_FLAME && target)
-                    Talk(EMOTE_TALDARAM_FLAME, target->GetGUID());
+                    Talk(EMOTE_TALDARAM_FLAME, target);
 
                 if (target)
                     summon->AI()->SetGUID(target->GetGUID());

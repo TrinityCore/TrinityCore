@@ -85,10 +85,10 @@ class npc_torek : public CreatureScript
                     switch (waypointId)
                     {
                         case 1:
-                            Talk(SAY_MOVE, player->GetGUID());
+                            Talk(SAY_MOVE, player);
                             break;
                         case 8:
-                            Talk(SAY_PREPARE, player->GetGUID());
+                            Talk(SAY_PREPARE, player);
                             break;
                         case 19:
                             /// @todo verify location and creatures amount.
@@ -97,12 +97,12 @@ class npc_torek : public CreatureScript
                             me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                             break;
                         case 20:
-                            Talk(SAY_WIN, player->GetGUID());
+                            Talk(SAY_WIN, player);
                             Completed = true;
                             player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
                             break;
                         case 21:
-                            Talk(SAY_END, player->GetGUID());
+                            Talk(SAY_END, player);
                             break;
                     }
                 }
@@ -155,7 +155,7 @@ class npc_torek : public CreatureScript
             if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
             {
                 /// @todo find companions, make them follow Torek, at any time (possibly done by core/database in future?)
-                creature->AI()->Talk(SAY_READY, player->GetGUID());
+                creature->AI()->Talk(SAY_READY, player);
                 creature->setFaction(113);
 
                 if (npc_escortAI* pEscortAI = CAST_AI(npc_torekAI, creature->AI()))
@@ -337,10 +337,10 @@ class npc_muglash : public CreatureScript
                     switch (waypointId)
                     {
                         case 0:
-                            Talk(SAY_MUG_START2, player->GetGUID());
+                            Talk(SAY_MUG_START2, player);
                             break;
                         case 24:
-                            Talk(SAY_MUG_BRAZIER, player->GetGUID());
+                            Talk(SAY_MUG_BRAZIER, player);
 
                             if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
                             {
@@ -368,7 +368,7 @@ class npc_muglash : public CreatureScript
                     if (HasEscortState(STATE_ESCORT_PAUSED))
                     {
                         if (urand(0, 1))
-                            Talk(SAY_MUG_ON_GUARD, player->GetGUID());
+                            Talk(SAY_MUG_ON_GUARD, player);
                         return;
                     }
             }
