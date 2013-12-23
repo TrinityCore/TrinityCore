@@ -138,9 +138,10 @@ public:
                 instance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_KILL);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_KILL);
         }
 
         void DoAction(int32 action) OVERRIDE

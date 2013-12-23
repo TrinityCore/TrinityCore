@@ -106,9 +106,10 @@ public:
                 instance->SetData(DATA_ORMOROK_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_KILL);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_KILL);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
