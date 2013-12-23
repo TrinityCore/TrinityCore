@@ -40,15 +40,21 @@ EndContentData */
 ## npc_spitelashes
 ######*/
 
+enum Spitelashes
+{
+    SPELL_POLYMORPH_RANK1       = 118,
+    SPELL_POLYMORPH_RANK2       = 12824,
+    SPELL_POLYMORPH_RANK3       = 12825,
+    SPELL_POLYMORPH_RANK4       = 12826,
+    SPELL_POLYMORPH             = 29124,
+    SPELL_POLYMORPH_BACKFIRE    = 28406,
+    SPELL_REMOVE_POLYMORPH      = 6924
+};
+
 class npc_spitelashes : public CreatureScript
 {
 public:
     npc_spitelashes() : CreatureScript("npc_spitelashes") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_spitelashesAI(creature);
-    }
 
     struct npc_spitelashesAI : public ScriptedAI
     {
@@ -72,15 +78,15 @@ public:
 
             switch (spell->Id)
             {
-                case 118:
-                case 12824:
-                case 12825:
-                case 12826:
+                case SPELL_POLYMORPH_RANK1:
+                case SPELL_POLYMORPH_RANK2:
+                case SPELL_POLYMORPH_RANK3:
+                case SPELL_POLYMORPH_RANK4:
                     if (Player* player = unit->ToPlayer())
                         if (player->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE)
                         {
                             spellhit = true;
-                            DoCast(me, 29124);
+                            DoCast(me, SPELL_POLYMORPH);
                         }
                     break;
                 default:
@@ -102,18 +108,22 @@ public:
                 morphtimer+=diff;
                 if (morphtimer >= 5000)
                 {
-                    DoCast(me, 28406);                   //summon copies
-                    DoCast(me, 6924);                    //visual explosion
+                    DoCast(me, SPELL_POLYMORPH_BACKFIRE); // summon copies
+                    DoCast(me, SPELL_REMOVE_POLYMORPH);   // visual explosion
                 }
             }
             if (!UpdateVictim())
                 return;
 
-            /// @todo add abilities for the different creatures
+            // @todo add abilities for the different creatures
             DoMeleeAttackIfReady();
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_spitelashesAI(creature);
+    }
 };
 
 /*######

@@ -65,10 +65,7 @@ enum TorekMisc
 class npc_torek : public CreatureScript
 {
     public:
-
-        npc_torek() : CreatureScript("npc_torek")
-        {
-        }
+        npc_torek() : CreatureScript("npc_torek") { }
 
         struct npc_torekAI : public npc_escortAI
         {
@@ -411,22 +408,22 @@ class npc_muglash : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 uiDiff) OVERRIDE
+            void UpdateAI(uint32 diff) OVERRIDE
             {
-                npc_escortAI::UpdateAI(uiDiff);
+                npc_escortAI::UpdateAI(diff);
 
                 if (!me->GetVictim())
                 {
                     if (HasEscortState(STATE_ESCORT_PAUSED) && IsBrazierExtinguished)
                     {
-                        if (EventTimer < uiDiff)
+                        if (EventTimer < diff)
                         {
                             ++WaveId;
                             DoWaveSummon();
                             EventTimer = 10000;
                         }
                         else
-                            EventTimer -= uiDiff;
+                            EventTimer -= diff;
                     }
                     return;
                 }
