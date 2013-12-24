@@ -56,21 +56,21 @@ public:
             SetCombatMovement(false);
         }
 
-        uint64 uiTargetGUID;
+        uint64 targetGUID;
 
         void Reset() OVERRIDE
         {
-            uiTargetGUID = 0;
+            targetGUID = 0;
         }
 
-        void UpdateAI(uint32 /*uiDiff*/) OVERRIDE
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             if (me->IsNonMeleeSpellCasted(false))
                 return;
 
             if (me->GetEntry() == NPC_WARMAGE_SARINA)
             {
-                if (!uiTargetGUID)
+                if (!targetGUID)
                 {
                     std::list<Creature*> orbList;
                     GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
@@ -82,7 +82,7 @@ public:
                             {
                                 if (pOrb->GetPositionY() < 1000)
                                 {
-                                    uiTargetGUID = pOrb->GetGUID();
+                                    targetGUID = pOrb->GetGUID();
                                     break;
                                 }
                             }
@@ -91,13 +91,13 @@ public:
                 }
             }else
             {
-                if (!uiTargetGUID)
+                if (!targetGUID)
                     if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
-                        uiTargetGUID = pOrb->GetGUID();
+                        targetGUID = pOrb->GetGUID();
 
             }
 
-            if (Creature* pOrb = me->GetCreature(*me, uiTargetGUID))
+            if (Creature* pOrb = me->GetCreature(*me, targetGUID))
                 DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
 
         }
