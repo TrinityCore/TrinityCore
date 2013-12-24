@@ -238,6 +238,15 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
+        void sQuestAccept(Player* player, Quest const* quest)
+        {
+            if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
+            {
+                me->setFaction(FACTION_FALCON_WATCH_QUEST);
+                npc_escortAI::Start(true, false, player->GetGUID());
+            }
+        }
+
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
             Player* player = GetPlayerForEscort();
@@ -272,20 +281,6 @@ public:
             }
         }
     };
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
-        {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_wounded_blood_elf::npc_wounded_blood_elfAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-
-            // Change faction so mobs attack
-            creature->setFaction(FACTION_FALCON_WATCH_QUEST);
-        }
-
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {

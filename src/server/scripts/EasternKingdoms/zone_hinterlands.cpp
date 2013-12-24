@@ -24,7 +24,7 @@ SDCategory: The Hinterlands
 EndScriptData */
 
 /* ContentData
-npc_00x09hl
+npc_oox09hl
 npc_rinji
 EndContentData */
 
@@ -34,7 +34,7 @@ EndContentData */
 #include "Player.h"
 
 /*######
-## npc_00x09hl
+## npc_oox09hl
 ######*/
 
 enum OOX
@@ -51,14 +51,14 @@ enum OOX
     FACTION_ESCORTEE_H      = 775
 };
 
-class npc_00x09hl : public CreatureScript
+class npc_oox09hl : public CreatureScript
 {
 public:
-    npc_00x09hl() : CreatureScript("npc_00x09hl") { }
+    npc_oox09hl() : CreatureScript("npc_oox09hl") { }
 
-    struct npc_00x09hlAI : public npc_escortAI
+    struct npc_oox09hlAI : public npc_escortAI
     {
-        npc_00x09hlAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_oox09hlAI(Creature* creature) : npc_escortAI(creature) { }
 
         void Reset() OVERRIDE { }
 
@@ -132,7 +132,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_00x09hlAI(creature);
+        return new npc_oox09hlAI(creature);
     }
 };
 
@@ -329,6 +329,6 @@ public:
 
 void AddSC_hinterlands()
 {
-    new npc_00x09hl();
+    new npc_oox09hl();
     new npc_rinji();
 }
