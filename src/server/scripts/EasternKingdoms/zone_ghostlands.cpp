@@ -19,14 +19,11 @@
 /* ScriptData
 SDName: Ghostlands
 SD%Complete: 100
-SDComment: Quest support: 9692, 9212. Obtain Budd's Guise of Zul'aman. Vendor Rathis Tomber
+SDComment: Quest support: 9212.
 SDCategory: Ghostlands
 EndScriptData */
 
 /* ContentData
-npc_blood_knight_dawnstar
-npc_budd_nedreck
-npc_rathis_tomber
 npc_ranger_lilatha
 EndContentData */
 
@@ -38,80 +35,11 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
-## npc_budd_nedreck
-######*/
-
-#define GOSSIP_HBN "You gave the crew disguises?"
-
-class npc_budd_nedreck : public CreatureScript
-{
-public:
-    npc_budd_nedreck() : CreatureScript("npc_budd_nedreck") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, 42540, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-};
-
-/*######
-## npc_rathis_tomber
-######*/
-
-class npc_rathis_tomber : public CreatureScript
-{
-public:
-    npc_rathis_tomber() : CreatureScript("npc_rathis_tomber") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetQuestRewardStatus(9152))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(8432, creature->GetGUID());
-        }else
-        player->SEND_GOSSIP_MENU(8431, creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
 ## npc_ranger_lilatha
 ######*/
 
 enum RangerLilatha
 {
-    // Yells
     SAY_START                           = 0,
     SAY_PROGRESS1                       = 1,
     SAY_PROGRESS2                       = 2,
@@ -119,18 +47,12 @@ enum RangerLilatha
     SAY_END1                            = 4,
     SAY_END2                            = 5,
     SAY_CAPTAIN_ANSWER                  = 0,
-
-    // Quests
     QUEST_ESCAPE_FROM_THE_CATACOMBS     = 9212,
-
-    // Gameobjects
     GO_CAGE                             = 181152,
-
-    // Creature
     NPC_CAPTAIN_HELIOS                  = 16220,
-
-    // Factions
-    FACTION_SMOON_E                     = 1603
+    NPC_MUMMIFIED_HEADHUNTER            = 16342,
+    NPC_SHADOWPINE_ORACLE               = 16343,
+    FACTION_QUEST_ESCAPE                = 113
 };
 
 class npc_ranger_lilatha : public CreatureScript
@@ -166,8 +88,8 @@ public:
                 case 18:
                     {
                         Talk(SAY_PROGRESS3, player);
-                        Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        Creature* Summ1 = me->SummonCreature(NPC_MUMMIFIED_HEADHUNTER, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        Creature* Summ2 = me->SummonCreature(NPC_SHADOWPINE_ORACLE, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         if (Summ1 && Summ2)
                         {
                             Summ1->Attack(me, true);
@@ -210,7 +132,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
         {
-            creature->setFaction(113);
+            creature->setFaction(FACTION_QUEST_ESCAPE);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_ranger_lilatha::npc_ranger_lilathaAI, creature->AI()))
                 pEscortAI->Start(true, false, player->GetGUID());
@@ -227,7 +149,5 @@ public:
 
 void AddSC_ghostlands()
 {
-    new npc_budd_nedreck();
-    new npc_rathis_tomber();
     new npc_ranger_lilatha();
 }
