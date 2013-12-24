@@ -931,20 +931,20 @@ public:
         if (!isSystem && (chan == "world"))
         {
             if (player->GetTeam() == ALLIANCE)
-                TC_LOG_INFO("chat.world", "A-%s : %s",
+                TC_LOG_INFO("chat.world", "[A] %s : %s",
                     player->GetName().c_str(), msg.c_str());
             else
-                TC_LOG_INFO("chat.world", "H-%s : %s",
+                TC_LOG_INFO("chat.world", "[H] %s : %s",
                     player->GetName().c_str(), msg.c_str());
         }
         else
             if (channel->HasFlag(CHANNEL_FLAG_LFG))
             {
                 if (player->GetTeam() == ALLIANCE)
-                TC_LOG_INFO("chat.lfg", "A-%s : %s",
+                TC_LOG_INFO("chat.lfg", "[A] %s : %s",
                     player->GetName().c_str(), msg.c_str());
             else
-                TC_LOG_INFO("chat.lfg", "H-%s : %s",
+                TC_LOG_INFO("chat.lfg", "[H] %s : %s",
                     player->GetName().c_str(), msg.c_str());
             }
     }
