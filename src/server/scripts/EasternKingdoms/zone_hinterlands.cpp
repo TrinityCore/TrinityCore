@@ -80,14 +80,8 @@ public:
             if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-
-                if (player->GetTeam() == ALLIANCE)
-                    me->setFaction(FACTION_ESCORTEE_A);
-                else if (player->GetTeam() == HORDE)
-                    me->setFaction(FACTION_ESCORTEE_H);
-
+                me->setFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A : FACTION_ESCORTEE_H);
                 Talk(SAY_OOX_START, player);
-
                 npc_escortAI::Start(false, false, player->GetGUID(), quest);
             }
         }
@@ -167,14 +161,14 @@ struct Location
 
 Location AmbushSpawn[] =
 {
-    {191.296204f, -2839.329346f, 107.388f},
-    {70.972466f,  -2848.674805f, 109.459f}
+    { 191.296204f, -2839.329346f, 107.388f },
+    { 70.972466f,  -2848.674805f, 109.459f }
 };
 
 Location AmbushMoveTo[] =
 {
-    {166.630386f, -2824.780273f, 108.153f},
-    {70.886589f,  -2874.335449f, 116.675f}
+    { 166.630386f, -2824.780273f, 108.153f },
+    { 70.886589f,  -2874.335449f, 116.675f }
 };
 
 class npc_rinji : public CreatureScript
@@ -315,10 +309,8 @@ public:
                     else
                         postEventTimer -= diff;
                 }
-
                 return;
             }
-
             DoMeleeAttackIfReady();
         }
 
