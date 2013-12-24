@@ -87,17 +87,17 @@ public:
             }
         }
 
-        void UpdateAI(uint32 Diff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (work == true)
                 me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
-            if (RebuffTimer <= Diff)
+            if (RebuffTimer <= diff)
             {
                 DoCast(me, SPELL_BUFF_SLEEP);
                 RebuffTimer = 300000;                 //Rebuff agian in 5 minutes
             }
             else
-                RebuffTimer -= Diff;
+                RebuffTimer -= diff;
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
