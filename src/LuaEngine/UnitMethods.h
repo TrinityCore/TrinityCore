@@ -1080,10 +1080,10 @@ namespace LuaUnit
     int SendUnitWhisper(lua_State* L, Unit* unit)
     {
         const char* msg = luaL_checkstring(L, 1);
-        Unit* receiver = sEluna->CHECK_UNIT(L, 2);
+        Player* receiver = sEluna->CHECK_PLAYER(L, 2);
         bool bossWhisper = luaL_optbool(L, 3, false);
         if (receiver && std::string(msg).length() > 0)
-            unit->MonsterWhisper(msg, receiver->GetGUID(), bossWhisper);
+            unit->MonsterWhisper(msg, receiver, bossWhisper);
         return 0;
     }
 
@@ -1093,7 +1093,7 @@ namespace LuaUnit
         Unit* receiver = sEluna->CHECK_UNIT(L, 2);
         bool bossEmote = luaL_optbool(L, 3, false);
         if (std::string(msg).length() > 0)
-            unit->MonsterTextEmote(msg, receiver ? receiver->GetGUID() : 0, bossEmote);
+            unit->MonsterTextEmote(msg, receiver, bossEmote);
         return 0;
     }
 
@@ -1102,7 +1102,7 @@ namespace LuaUnit
         const char* msg = luaL_checkstring(L, 1);
         uint32 language = luaL_checknumber(L, 2);
         if (std::string(msg).length() > 0)
-            unit->MonsterSay(msg, language, unit->GetGUID());
+            unit->MonsterSay(msg, language, unit);
         return 0;
     }
 
@@ -1111,7 +1111,7 @@ namespace LuaUnit
         const char* msg = luaL_checkstring(L, 1);
         uint32 language = luaL_checknumber(L, 2);
         if (std::string(msg).length() > 0)
-            unit->MonsterYell(msg, language, unit->GetGUID());
+            unit->MonsterYell(msg, language, unit);
         return 0;
     }
 
@@ -1277,20 +1277,20 @@ namespace LuaUnit
 
         lua_settop(L, 1);
         int functionRef = lua_ref(L, true);
-        sEluna->Push(L, sEluna->EventMgr.AddEvent(&unit->m_Events, functionRef, delay, repeats, unit));
+        sEluna->Push(L, sEluna->m_EventMgr.AddEvent(&unit->m_Events, functionRef, delay, repeats, unit));
         return 1;
     }
 
     int RemoveEventById(lua_State* L, Unit* unit)
     {
         int eventId = luaL_checkinteger(L, 1);
-        sEluna->EventMgr.RemoveEvent(&unit->m_Events, eventId);
+        sEluna->m_EventMgr.RemoveEvent(&unit->m_Events, eventId);
         return 0;
     }
 
     int RemoveEvents(lua_State* L, Unit* unit)
     {
-        sEluna->EventMgr.RemoveEvents(&unit->m_Events);
+        sEluna->m_EventMgr.RemoveEvents(&unit->m_Events);
         return 0;
     }
 

@@ -42,7 +42,7 @@ void StartEluna(bool restart)
         if (sEluna->L)
         {
             // Unregisters and stops all timed events
-            sEluna->EventMgr.RemoveEvents();
+            sEluna->m_EventMgr.RemoveEvents();
 
             // Remove bindings
             for (std::map<int, std::vector<int> >::iterator itr = sEluna->ServerEventBindings.begin(); itr != sEluna->ServerEventBindings.end(); ++itr)
@@ -314,12 +314,14 @@ void Eluna::Push(lua_State* L)
 {
     lua_pushnil(L);
 }
+
 void Eluna::Push(lua_State* L, uint64 l)
 {
     std::ostringstream ss;
     ss << "0x" << std::hex << l;
     sEluna->Push(L, ss.str());
 }
+
 void Eluna::Push(lua_State* L, int64 l)
 {
     std::ostringstream ss;
@@ -329,30 +331,37 @@ void Eluna::Push(lua_State* L, int64 l)
         ss << "0x" << std::hex << l;
     sEluna->Push(L, ss.str());
 }
+
 void Eluna::Push(lua_State* L, uint32 u)
 {
     lua_pushunsigned(L, u);
 }
+
 void Eluna::Push(lua_State* L, int32 i)
 {
     lua_pushinteger(L, i);
 }
+
 void Eluna::Push(lua_State* L, double d)
 {
     lua_pushnumber(L, d);
 }
+
 void Eluna::Push(lua_State* L, float f)
 {
     lua_pushnumber(L, f);
 }
+
 void Eluna::Push(lua_State* L, bool b)
 {
     lua_pushboolean(L, b);
 }
+
 void Eluna::Push(lua_State* L, std::string str)
 {
     lua_pushstring(L, str.c_str());
 }
+
 void Eluna::Push(lua_State* L, const char* str)
 {
     lua_pushstring(L, str);
@@ -575,6 +584,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
     }
     luaL_error(L, "Unknown event type (regtype %d, id %d, event %d)", regtype, id, evt);
 }
+
 void Eluna::ElunaBind::Clear()
 {
     for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
@@ -585,6 +595,7 @@ void Eluna::ElunaBind::Clear()
     }
     Bindings.clear();
 }
+
 void Eluna::ElunaBind::Insert(uint32 entryId, uint32 eventId, int funcRef)
 {
     if (Bindings[entryId][eventId])
@@ -601,19 +612,21 @@ EventMgr::LuaEvent::LuaEvent(EventProcessor* _events, int _funcRef, uint32 _dela
 {
     hasObject = _obj;
     if (_events)
-        sEluna->EventMgr.LuaEvents[_events].insert(this); // Able to access the event if we have the processor
+        sEluna->m_EventMgr.LuaEvents[_events].insert(this); // Able to access the event if we have the processor
 }
+
 EventMgr::LuaEvent::~LuaEvent()
 {
     if (events)
     {
         // Attempt to remove the pointer from LuaEvents
-        EventMgr::EventMap::const_iterator it = sEluna->EventMgr.LuaEvents.find(events); // Get event set
-        if (it != sEluna->EventMgr.LuaEvents.end())
-            sEluna->EventMgr.LuaEvents[events].erase(this); // Remove pointer
+        EventMgr::EventMap::const_iterator it = sEluna->m_EventMgr.LuaEvents.find(events); // Get event set
+        if (it != sEluna->m_EventMgr.LuaEvents.end())
+            sEluna->m_EventMgr.LuaEvents[events].erase(this); // Remove pointer
     }
     luaL_unref(sEluna->L, LUA_REGISTRYINDEX, funcRef); // Free lua function ref
 }
+
 bool EventMgr::LuaEvent::Execute(uint64 time, uint32 diff)
 {
     if (hasObject && !obj) // interrupt event if object doesnt exist anymore and should exist.
@@ -647,6 +660,7 @@ void LuaTaxiMgr::StartTaxi(Player* player, uint32 pathid)
 
     player->ActivateTaxiPathTo(nodes);
 }
+
 uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, uint32 mountH, uint32 price, uint32 pathId)
 {
     if (nodes.size() < 2)

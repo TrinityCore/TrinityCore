@@ -505,8 +505,11 @@ namespace LuaCreature
     int SendCreatureTalk(lua_State* L, Creature* creature)
     {
         uint8 id = luaL_checknumber(L, 1);
-        uint64 playerGUID = sEluna->CHECK_ULONG(L, 2);
-        creature->AI()->Talk(id, playerGUID);
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 2);
+        if (!obj)
+            return 0;
+
+        creature->AI()->Talk(id, obj);
         return 0;
     }
 

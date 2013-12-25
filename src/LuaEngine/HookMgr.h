@@ -364,17 +364,18 @@ class ElunaCreatureScript : public CreatureScript
 public:
     ElunaCreatureScript() : CreatureScript("Smart_ElunaCreatureScript") { } // Smart suppressing error @startup 
     ~ElunaCreatureScript() { }
-    CreatureAI* ElunaCreatureScript::GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return sHookMgr->GetAI(creature);
     }
 };
+
 class ElunaGameObjectScript : public GameObjectScript
 {
 public:
     ElunaGameObjectScript() : GameObjectScript("Smart_ElunaGameObjectScript") { } // Smart suppressing error @startup
     ~ElunaGameObjectScript() { }
-    GameObjectAI* ElunaGameObjectScript::GetAI(GameObject* gameObject) const OVERRIDE
+    GameObjectAI* GetAI(GameObject* gameObject) const OVERRIDE
     {
         return sHookMgr->GetAI(gameObject);
     }

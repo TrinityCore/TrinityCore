@@ -851,7 +851,8 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     }
 #endif
 
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
+    /// @todo 100 is a funny magic number to have hanging around here...
+    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, 100);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->GetDialogStatus(player, creature);
 }
@@ -971,7 +972,8 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     }
 #endif
 
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
+    /// @todo 100 is a funny magic number to have hanging around here...
+    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, 100);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->GetDialogStatus(player, go);
 }

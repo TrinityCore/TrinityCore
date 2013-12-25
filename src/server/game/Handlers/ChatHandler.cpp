@@ -447,7 +447,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 #endif
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, CHAT_MSG_BATTLEGROUND_LEADER, Language(lang), _player, NULL, msg);;
+            ChatHandler::BuildChatPacket(data, CHAT_MSG_BATTLEGROUND_LEADER, Language(lang), _player, NULL, msg);
             group->BroadcastPacket(&data, false);
         } break;
         case CHAT_MSG_CHANNEL:

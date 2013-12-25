@@ -505,7 +505,7 @@ namespace LuaGlobalFunctions
 
         lua_settop(L, 1);
         int functionRef = lua_ref(L, true);
-        sEluna->Push(L, sEluna->EventMgr.AddEvent(&sEluna->EventMgr.GlobalEvents, functionRef, delay, repeats));
+        sEluna->Push(L, sEluna->m_EventMgr.AddEvent(&sEluna->m_EventMgr.GlobalEvents, functionRef, delay, repeats));
         return 1;
     }
 
@@ -515,9 +515,9 @@ namespace LuaGlobalFunctions
         bool all_Events = luaL_optbool(L, 1, false);
 
         if (all_Events)
-            sEluna->EventMgr.RemoveEvent(eventId);
+            sEluna->m_EventMgr.RemoveEvent(eventId);
         else
-            sEluna->EventMgr.RemoveEvent(&sEluna->EventMgr.GlobalEvents, eventId);
+            sEluna->m_EventMgr.RemoveEvent(&sEluna->m_EventMgr.GlobalEvents, eventId);
         return 0;
     }
 
@@ -526,9 +526,9 @@ namespace LuaGlobalFunctions
         bool all_Events = luaL_optbool(L, 1, false);
 
         if (all_Events)
-            sEluna->EventMgr.RemoveEvents();
+            sEluna->m_EventMgr.RemoveEvents();
         else
-            sEluna->EventMgr.RemoveEvents(&sEluna->EventMgr.GlobalEvents);
+            sEluna->m_EventMgr.RemoveEvents(&sEluna->m_EventMgr.GlobalEvents);
         return 0;
     }
 

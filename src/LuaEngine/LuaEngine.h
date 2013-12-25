@@ -29,25 +29,6 @@ struct ElunaRegister
 };
 
 template<typename T>
-void SetMethods(lua_State* L, ElunaRegister<T>* methodTable)
-{
-    if (!methodTable)
-        return;
-    if (!lua_istable(L, 1))
-        return;
-    lua_pushstring(L, "GetObjectType");
-    lua_pushcclosure(L, ElunaTemplate<T>::type, 0);
-    lua_settable(L, 1);
-    for (; methodTable->name; ++methodTable)
-    {
-        lua_pushstring(L, methodTable->name);
-        lua_pushlightuserdata(L, (void*)methodTable);
-        lua_pushcclosure(L, ElunaTemplate<T>::thunk, 1);
-        lua_settable(L, 1);
-    }
-}
-
-template<typename T>
 class ElunaTemplate
 {
     public:
@@ -224,6 +205,25 @@ class ElunaTemplate
         }
 };
 
+template<typename T>
+void SetMethods(lua_State* L, ElunaRegister<T>* methodTable)
+{
+    if (!methodTable)
+        return;
+    if (!lua_istable(L, 1))
+        return;
+    lua_pushstring(L, "GetObjectType");
+    lua_pushcclosure(L, ElunaTemplate<T>::type, 0);
+    lua_settable(L, 1);
+    for (; methodTable->name; ++methodTable)
+    {
+        lua_pushstring(L, methodTable->name);
+        lua_pushlightuserdata(L, (void*)methodTable);
+        lua_pushcclosure(L, ElunaTemplate<T>::thunk, 1);
+        lua_settable(L, 1);
+    }
+}
+
 struct EventMgr
 {
     struct LuaEvent;
@@ -383,7 +383,7 @@ class Eluna
     public:
         friend class ScriptMgr;
         lua_State* L;
-        EventMgr EventMgr;
+        EventMgr m_EventMgr;
 
         typedef std::map<int, int> ElunaBindingMap;
         typedef UNORDERED_MAP<uint32, ElunaBindingMap> ElunaEntryMap;
@@ -422,15 +422,18 @@ class Eluna
         {
             ElunaTemplate<T>::push(L, ptr);
         }
-        template<> void Eluna::Push<Pet>(lua_State* L, Pet const* pet)
+
+        void Push(lua_State* L, Pet const* pet)
         {
             Push(L, pet->ToCreature());
         }
-        template<> void Eluna::Push<TempSummon>(lua_State* L, TempSummon const* summon)
+
+        void Push(lua_State* L, TempSummon const* summon)
         {
             Push(L, summon->ToCreature());
         }
-        template<> void Eluna::Push<Unit>(lua_State* L, Unit const* unit)
+
+        void Push(lua_State* L, Unit const* unit)
         {
             if (!unit)
             {
@@ -449,7 +452,8 @@ class Eluna
                     ElunaTemplate<Unit>::push(L, unit);
             }
         }
-        template<> void Eluna::Push<WorldObject>(lua_State*, WorldObject const* obj)
+
+        void Push(lua_State*, WorldObject const* obj)
         {
             if (!obj)
             {
@@ -474,7 +478,8 @@ class Eluna
                     ElunaTemplate<WorldObject>::push(L, obj);
             }
         }
-        template<> void Eluna::Push<Object>(lua_State* L, Object const* obj)
+
+        void Push(lua_State* L, Object const* obj)
         {
             if (!obj)
             {

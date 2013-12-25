@@ -148,20 +148,20 @@ namespace LuaGameObject
 
         lua_settop(L, 1);
         int functionRef = lua_ref(L, true);
-        sEluna->Push(L, sEluna->EventMgr.AddEvent(go->GetGUID(), functionRef, delay, repeats, go));
+        sEluna->Push(L, sEluna->m_EventMgr.AddEvent(go->GetGUID(), functionRef, delay, repeats, go));
         return 1;
     }
 
     int RemoveEventById(lua_State* L, GameObject* go)
     {
         int eventId = luaL_checkinteger(L, 1);
-        sEluna->EventMgr.RemoveEvent(go->GetGUID(), eventId);
+        sEluna->m_EventMgr.RemoveEvent(go->GetGUID(), eventId);
         return 0;
     }
 
     int RemoveEvents(lua_State* L, GameObject* go)
     {
-        sEluna->EventMgr.RemoveEvents(go->GetGUID());
+        sEluna->m_EventMgr.RemoveEvents(go->GetGUID());
         return 0;
     }
 
