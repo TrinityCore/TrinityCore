@@ -329,7 +329,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) OVERRIDE
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
         {
             player->CLOSE_GOSSIP_MENU();
             me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);

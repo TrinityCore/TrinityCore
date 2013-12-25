@@ -22,6 +22,7 @@
 #include "Define.h"
 #include <list>
 #include "Object.h"
+#include "QuestDef.h"
 #include "GameObject.h"
 #include "CreatureAI.h"
 
