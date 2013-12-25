@@ -29,15 +29,13 @@ Script Data End */
 enum CorporalKeeshan
 {
     QUEST_MISSING_IN_ACTION = 219,
-
-    SAY_CORPORAL_1  = 0,
-    SAY_CORPORAL_2  = 1,
-    SAY_CORPORAL_3  = 2,
-    SAY_CORPORAL_4  = 3,
-    SAY_CORPORAL_5  = 4,
-
-    SPELL_MOCKING_BLOW  = 21008,
-    SPELL_SHIELD_BASH   = 11972,
+    SAY_CORPORAL_1          = 0,
+    SAY_CORPORAL_2          = 1,
+    SAY_CORPORAL_3          = 2,
+    SAY_CORPORAL_4          = 3,
+    SAY_CORPORAL_5          = 4,
+    SPELL_MOCKING_BLOW      = 21008,
+    SPELL_SHIELD_BASH       = 11972
 };
 
 class npc_corporal_keeshan : public CreatureScript
@@ -45,37 +43,25 @@ class npc_corporal_keeshan : public CreatureScript
 public:
     npc_corporal_keeshan() : CreatureScript("npc_corporal_keeshan") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_MISSING_IN_ACTION)
-        {
-            CAST_AI(npc_corporal_keeshan::npc_corporal_keeshanAI, creature->AI())->Start(true, false, player->GetGUID(), quest);
-            creature->AI()->Talk(SAY_CORPORAL_1);
-        }
-
-        return false;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_corporal_keeshanAI(creature);
-    }
-
     struct npc_corporal_keeshanAI : public npc_escortAI
     {
         npc_corporal_keeshanAI(Creature* creature) : npc_escortAI(creature) { }
 
-        uint32 uiPhase;
-        uint32 uiTimer;
-        uint32 uiMockingBlowTimer;
-        uint32 uiShieldBashTimer;
-
         void Reset() OVERRIDE
         {
-            uiTimer = 0;
-            uiPhase = 0;
-            uiMockingBlowTimer = 5000;
-            uiShieldBashTimer  = 8000;
+            timer = 0;
+            phase = 0;
+            mockingBlowTimer = 5000;
+            shieldBashTimer  = 8000;
+        }
+
+        void sQuestAccept(Player* player, Quest const* quest)
+        {
+            if (quest->GetQuestId() == QUEST_MISSING_IN_ACTION)
+            {
+                Talk(SAY_CORPORAL_1, player);
+                npc_escortAI::Start(true, false, player->GetGUID(), quest);
+            }
         }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
@@ -91,82 +77,93 @@ public:
             {
                 case 39:
                     SetEscortPaused(true);
-                    uiTimer = 2000;
-                    uiPhase = 1;
+                    timer = 2000;
+                    phase = 1;
                     break;
                 case 65:
                     me->SetWalk(false);
                     break;
                 case 115:
                     player->AreaExploredOrEventHappens(QUEST_MISSING_IN_ACTION);
-                    uiTimer = 2000;
-                    uiPhase = 4;
+                    timer = 2000;
+                    phase = 4;
                     break;
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;
 
-            npc_escortAI::UpdateAI(uiDiff);
+            npc_escortAI::UpdateAI(diff);
 
-            if (uiPhase)
+            if (phase)
             {
-                if (uiTimer <= uiDiff)
+                if (timer <= diff)
                 {
-                    switch (uiPhase)
+                    switch (phase)
                     {
                         case 1:
                             me->SetStandState(UNIT_STAND_STATE_SIT);
-                            uiTimer = 1000;
-                            uiPhase = 2;
+                            timer = 1000;
+                            phase = 2;
                             break;
                         case 2:
                             Talk(SAY_CORPORAL_2);
-                            uiTimer = 15000;
-                            uiPhase = 3;
+                            timer = 15000;
+                            phase = 3;
                             break;
                         case 3:
                             Talk(SAY_CORPORAL_3);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             SetEscortPaused(false);
-                            uiTimer = 0;
-                            uiPhase = 0;
+                            timer = 0;
+                            phase = 0;
                             break;
                         case 4:
                             Talk(SAY_CORPORAL_4);
-                            uiTimer = 2500;
-                            uiPhase = 5;
+                            timer = 2500;
+                            phase = 5;
                             break;
                         case 5:
                             Talk(SAY_CORPORAL_5);
-                            uiTimer = 0;
-                            uiPhase = 0;
+                            timer = 0;
+                            phase = 0;
                             break;
                     }
-                } else uiTimer -= uiDiff;
+                } else timer -= diff;
             }
 
             if (!UpdateVictim())
                 return;
 
-            if (uiMockingBlowTimer <= uiDiff)
+            if (mockingBlowTimer <= diff)
             {
                 DoCastVictim(SPELL_MOCKING_BLOW);
-                uiMockingBlowTimer = 5000;
-            } else uiMockingBlowTimer -= uiDiff;
+                mockingBlowTimer = 5000;
+            } else mockingBlowTimer -= diff;
 
-            if (uiShieldBashTimer <= uiDiff)
+            if (shieldBashTimer <= diff)
             {
                 DoCastVictim(SPELL_MOCKING_BLOW);
-                uiShieldBashTimer = 8000;
-            } else uiShieldBashTimer -= uiDiff;
+                shieldBashTimer = 8000;
+            } else shieldBashTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        uint32 phase;
+        uint32 timer;
+        uint32 mockingBlowTimer;
+        uint32 shieldBashTimer;
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_corporal_keeshanAI(creature);
+    }
 };
 
 void AddSC_redridge_mountains()

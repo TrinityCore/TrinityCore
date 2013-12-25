@@ -116,11 +116,10 @@ class npc_millhouse_manastorm : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
-
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
@@ -191,7 +190,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
                 if (Pyroblast_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         return;
 
                     Talk(SAY_PYRO);

@@ -92,7 +92,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_HANDOFTHAURISSAN);
 
-                //3 Hands of Thaurissan will be casted
+                //3 Hands of Thaurissan will be cast
                 //if (Counter < 3)
                 //{
                 //    HandOfThaurissan_Timer = 1000;

@@ -39,32 +39,27 @@ EndContentData */
 enum ProfessorPhizzlethorpe
 {
     // Yells
-    SAY_PROGRESS_1      = 0,
-    SAY_PROGRESS_2      = 1,
-    SAY_PROGRESS_3      = 2,
-    EMOTE_PROGRESS_4    = 3,
-    SAY_AGGRO           = 4,
-    SAY_PROGRESS_5      = 5,
-    SAY_PROGRESS_6      = 6,
-    SAY_PROGRESS_7      = 7,
-    EMOTE_PROGRESS_8    = 8,
-    SAY_PROGRESS_9      = 9,
-
+    SAY_PROGRESS_1          = 0,
+    SAY_PROGRESS_2          = 1,
+    SAY_PROGRESS_3          = 2,
+    EMOTE_PROGRESS_4        = 3,
+    SAY_AGGRO               = 4,
+    SAY_PROGRESS_5          = 5,
+    SAY_PROGRESS_6          = 6,
+    SAY_PROGRESS_7          = 7,
+    EMOTE_PROGRESS_8        = 8,
+    SAY_PROGRESS_9          = 9,
     // Quests
     QUEST_SUNKEN_TREASURE   = 665,
-
     // Creatures
-    NPC_VENGEFUL_SURGE      = 2776
+    NPC_VENGEFUL_SURGE      = 2776,
+    FACTION_SUNKEN_TREASURE = 113
 };
 
 class npc_professor_phizzlethorpe : public CreatureScript
 {
     public:
-
-        npc_professor_phizzlethorpe()
-            : CreatureScript("npc_professor_phizzlethorpe")
-        {
-        }
+        npc_professor_phizzlethorpe() : CreatureScript("npc_professor_phizzlethorpe") { }
 
         struct npc_professor_phizzlethorpeAI : public npc_escortAI
         {
@@ -79,10 +74,10 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 switch (waypointId)
                 {
                     case 4:
-                        Talk(SAY_PROGRESS_2, player->GetGUID());
+                        Talk(SAY_PROGRESS_2, player);
                         break;
                     case 5:
-                        Talk(SAY_PROGRESS_3, player->GetGUID());
+                        Talk(SAY_PROGRESS_3, player);
                         break;
                     case 8:
                         Talk(EMOTE_PROGRESS_4);
@@ -92,18 +87,18 @@ class npc_professor_phizzlethorpe : public CreatureScript
                         me->SummonCreature(NPC_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         break;
                     case 10:
-                        Talk(SAY_PROGRESS_5, player->GetGUID());
+                        Talk(SAY_PROGRESS_5, player);
                         break;
                     case 11:
-                        Talk(SAY_PROGRESS_6, player->GetGUID());
+                        Talk(SAY_PROGRESS_6, player);
                         SetRun();
                         break;
                     case 19:
-                        Talk(SAY_PROGRESS_7, player->GetGUID());
+                        Talk(SAY_PROGRESS_7, player);
                         break;
                     case 20:
                         Talk(EMOTE_PROGRESS_8);
-                        Talk(SAY_PROGRESS_9, player->GetGUID());
+                        Talk(SAY_PROGRESS_9, player);
                         player->GroupEventHappens(QUEST_SUNKEN_TREASURE, me);
                         break;
                 }
@@ -119,29 +114,26 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
+            void sQuestAccept(Player* player, Quest const* quest)
+            {
+                if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
+                {
+                    Talk(SAY_PROGRESS_1, player);
+                    npc_escortAI::Start(false, false, player->GetGUID(), quest);
+                    me->setFaction(FACTION_SUNKEN_TREASURE);
+                }
+            }
+
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 npc_escortAI::UpdateAI(diff);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
-        {
-            return new npc_professor_phizzlethorpeAI(creature);
-        }
-
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-        {
-            if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
-            {
-                creature->AI()->Talk(SAY_PROGRESS_1, player->GetGUID());
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_professor_phizzlethorpeAI, (creature->AI())))
-                    pEscortAI->Start(false, false, player->GetGUID(), quest);
-
-                creature->setFaction(113);
-            }
-            return true;
-        }
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_professor_phizzlethorpeAI(creature);
+    }
 };
 
 void AddSC_arathi_highlands()

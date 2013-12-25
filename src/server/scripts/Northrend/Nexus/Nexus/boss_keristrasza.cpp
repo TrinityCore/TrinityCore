@@ -44,7 +44,8 @@ enum Yells
     SAY_SLAY                                      = 1,
     SAY_ENRAGE                                    = 2,
     SAY_DEATH                                     = 3,
-    SAY_CRYSTAL_NOVA                              = 4
+    SAY_CRYSTAL_NOVA                              = 4,
+    SAY_FRENZY                                    = 5
 };
 
 enum Misc
@@ -115,9 +116,10 @@ public:
                 instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         bool CheckContainmentSpheres(bool remove_prison = false)
@@ -175,6 +177,7 @@ public:
             if (!bEnrage && HealthBelowPct(25))
             {
                 Talk(SAY_ENRAGE);
+                Talk(SAY_FRENZY);
                 DoCast(me, SPELL_ENRAGE);
                 bEnrage = true;
             }

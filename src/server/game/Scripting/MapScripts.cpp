@@ -166,7 +166,7 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
     {
         unit = obj->ToUnit();
         if (!unit)
-            TC_LOG_ERROR("scripts", "%s %s object could not be casted to unit.",
+            TC_LOG_ERROR("scripts", "%s %s object could not be cast to unit.",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     }
     return unit;
@@ -242,7 +242,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
     {
         WorldObject* wSource = dynamic_cast <WorldObject*> (source);
         if (!wSource)
-            TC_LOG_ERROR("scripts", "%s source object could not be casted to world object (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+            TC_LOG_ERROR("scripts", "%s source object could not be cast to world object (TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
         else
         {
@@ -335,7 +335,7 @@ void Map::ScriptsProcess()
             }
         }
 
-        Object* target = NULL;
+        WorldObject* target = NULL;
         if (step.targetGUID)
         {
             switch (GUID_HIPART(step.targetGUID))
@@ -421,28 +421,28 @@ void Map::ScriptsProcess()
                         switch (step.script->Talk.ChatType)
                         {
                             case CHAT_TYPE_SAY:
-                                cSource->Say(step.script->Talk.TextID, LANG_UNIVERSAL, targetGUID);
+                                cSource->MonsterSay(step.script->Talk.TextID, LANG_UNIVERSAL, target);
                                 break;
                             case CHAT_TYPE_YELL:
-                                cSource->Yell(step.script->Talk.TextID, LANG_UNIVERSAL, targetGUID);
+                                cSource->MonsterYell(step.script->Talk.TextID, LANG_UNIVERSAL, target);
                                 break;
                             case CHAT_TYPE_TEXT_EMOTE:
-                                cSource->TextEmote(step.script->Talk.TextID, targetGUID);
+                                cSource->MonsterTextEmote(step.script->Talk.TextID, target);
                                 break;
                             case CHAT_TYPE_BOSS_EMOTE:
-                                cSource->MonsterTextEmote(step.script->Talk.TextID, targetGUID, true);
+                                cSource->MonsterTextEmote(step.script->Talk.TextID, target, true);
                                 break;
                             case CHAT_TYPE_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
                                     TC_LOG_ERROR("scripts", "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
-                                    cSource->Whisper(step.script->Talk.TextID, targetGUID);
+                                    cSource->MonsterWhisper(step.script->Talk.TextID, target->ToPlayer());
                                 break;
                             case CHAT_MSG_RAID_BOSS_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
                                     TC_LOG_ERROR("scripts", "%s attempt to raidbosswhisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
-                                    cSource->MonsterWhisper(step.script->Talk.TextID, targetGUID, true);
+                                    cSource->MonsterWhisper(step.script->Talk.TextID, target->ToPlayer(), true);
                                 break;
                             default:
                                 break;                              // must be already checked at load

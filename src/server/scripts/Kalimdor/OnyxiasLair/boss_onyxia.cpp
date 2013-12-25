@@ -404,7 +404,7 @@ public:
                         case EVENT_DEEP_BREATH:      // Phase PHASE_BREATH
                             if (!IsMoving)
                             {
-                                if (me->IsNonMeleeSpellCasted(false))
+                                if (me->IsNonMeleeSpellCast(false))
                                     me->InterruptNonMeleeSpells(false);
 
                                 Talk(EMOTE_BREATH);

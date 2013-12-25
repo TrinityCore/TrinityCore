@@ -37,9 +37,6 @@ enum Enums
     SAY_SARTHARION_SLAY                         = 8,
     WHISPER_LAVA_CHURN                          = 9,
 
-    WHISPER_SHADRON_DICIPLE                     = 7,
-    WHISPER_VESPERON_DICIPLE                    = 7,
-
     //Sartharion Spells
     SPELL_BERSERK                               = 61632,    // Increases the caster's attack speed by 150% and all damage it deals by 500% for 5 min.
     SPELL_CLEAVE                                = 56909,    // Inflicts 35% weapon damage to an enemy and its nearest allies, affecting up to 10 targets.
@@ -48,7 +45,7 @@ enum Enums
     SPELL_TAIL_LASH                             = 56910,    // A sweeping tail strike hits all enemies behind the caster, inflicting 3063 to 3937 damage and stunning them for 2 sec.
     SPELL_TAIL_LASH_H                           = 58957,    // A sweeping tail strike hits all enemies behind the caster, inflicting 4375 to 5625 damage and stunning them for 2 sec.
     SPELL_WILL_OF_SARTHARION                    = 61254,    // Sartharion's presence bolsters the resolve of the Twilight Drakes, increasing their total health by 25%. This effect also increases Sartharion's health by 25%.
-    SPELL_LAVA_STRIKE                           = 57571,    // (Real spell casted should be 57578) 57571 then trigger visual missile, then summon Lava Blaze on impact(spell 57572)
+    SPELL_LAVA_STRIKE                           = 57571,    // (Real spell cast should be 57578) 57571 then trigger visual missile, then summon Lava Blaze on impact(spell 57572)
     SPELL_TWILIGHT_REVENGE                      = 60639,
     NPC_FIRE_CYCLONE                            = 30648,
 
@@ -81,44 +78,34 @@ enum Misc
     DATA_CAN_LOOT           = 0
 };
 
-struct Location
-{
-    float x, y, z;
-};
-
-static Location FlameRight1Spawn = { 3200.00f, 573.211f, 57.1551f };
-static Location FlameRight1Direction = { 3289.28f, 573.211f, 57.1551f };
-static Location FlameRight2Spawn = { 3200.00f, 532.211f, 57.1551f };
-static Location FlameRight2Direction = { 3289.28f, 532.211f, 57.1551f };
-static Location FlameRight3Spawn = { 3200.00f, 491.211f, 57.1551f };
-static Location FlameRight3Direction = { 3289.28f, 491.211f, 57.1551f };
-static Location FlameLeft1Spawn = { 3289.28f, 511.711f, 57.1551f };
-static Location FlameLeft1Direction = { 3200.00f, 511.711f, 57.1551f };
-static Location FlameLeft2Spawn = { 3289.28f, 552.711f, 57.1551f };
-static Location FlameLeft2Direction = { 3200.00f, 552.711f, 57.1551f };
-
-struct Waypoint
-{
-    float m_fX, m_fY, m_fZ;
-};
+Position const FlameRight1Spawn     = { 3200.00f, 573.211f, 57.1551f, 0.0f };
+Position const FlameRight1Direction = { 3289.28f, 573.211f, 57.1551f, 0.0f };
+Position const FlameRight2Spawn     = { 3200.00f, 532.211f, 57.1551f, 0.0f };
+Position const FlameRight2Direction = { 3289.28f, 532.211f, 57.1551f, 0.0f };
+Position const FlameRight3Spawn     = { 3200.00f, 491.211f, 57.1551f, 0.0f };
+Position const FlameRight3Direction = { 3289.28f, 491.211f, 57.1551f, 0.0f };
+Position const FlameLeft1Spawn      = { 3289.28f, 511.711f, 57.1551f, 0.0f };
+Position const FlameLeft1Direction  = { 3200.00f, 511.711f, 57.1551f, 0.0f };
+Position const FlameLeft2Spawn      = { 3289.28f, 552.711f, 57.1551f, 0.0f };
+Position const FlameLeft2Direction  = { 3200.00f, 552.711f, 57.1551f, 0.0f };
 
 //each dragons special points. First where fly to before connect to connon, second where land point is.
-Waypoint m_aTene[]=
+Position const TenebronPositions[] =
 {
-    {3212.854f, 575.597f, 109.856f},   // init
-    {3246.425f, 565.367f, 61.249f}     // end
+    { 3212.854f, 575.597f, 109.856f, 0.0f }, // init
+    { 3246.425f, 565.367f, 61.249f,  0.0f }  // end
 };
 
-Waypoint m_aShad[]=
+Position const ShadronPositions[] =
 {
-    {3293.238f, 472.223f, 106.968f},
-    {3271.669f, 526.907f, 61.931f}
+    { 3293.238f, 472.223f, 106.968f, 0.0f },
+    { 3271.669f, 526.907f, 61.931f,  0.0f }
 };
 
-Waypoint m_aVesp[]=
+Position const VesperonPositions[] =
 {
-    {3193.310f, 472.861f, 102.697f},
-    {3227.268f, 533.238f, 59.995f}
+    { 3193.310f, 472.861f, 102.697f, 0.0f },
+    { 3227.268f, 533.238f, 59.995f,  0.0f }
 };
 
 enum SartharionEvents
@@ -159,11 +146,8 @@ public:
 
             me->SetHomePosition(3246.57f, 551.263f, 58.6164f, 4.66003f);
 
-            if (instance)
-            {
-                DrakeRespawn();
-                instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
-            }
+            DrakeRespawn();
+            instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
         }
 
         void JustReachedHome() OVERRIDE
@@ -177,8 +161,7 @@ public:
             _EnterCombat();
             DoZoneInCombat();
 
-            if (instance)
-                FetchDragons();
+            FetchDragons();
 
             events.ScheduleEvent(EVENT_LAVA_STRIKE, 5000);
             events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7000);
@@ -195,25 +178,23 @@ public:
             Talk(SAY_SARTHARION_DEATH);
             _JustDied();
 
-            if (instance)
-            {
-                if (Creature* tenebron = Unit::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
-                    if (tenebron->IsAlive())
-                        tenebron->DisappearAndDie();
+            if (Creature* tenebron = Unit::GetCreature(*me, instance->GetData64(DATA_TENEBRON)))
+                if (tenebron->IsAlive())
+                    tenebron->DisappearAndDie();
 
-                if (Creature* shadron = Unit::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
-                    if (shadron->IsAlive())
-                        shadron->DisappearAndDie();
+            if (Creature* shadron = Unit::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
+                if (shadron->IsAlive())
+                    shadron->DisappearAndDie();
 
-                if (Creature* vesperon = Unit::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
-                    if (vesperon->IsAlive())
-                        vesperon->DisappearAndDie();
-            }
+            if (Creature* vesperon = Unit::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
+                if (vesperon->IsAlive())
+                    vesperon->DisappearAndDie();
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SARTHARION_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SARTHARION_SLAY);
         }
 
         // me->ResetLootMode() is called from Reset()
@@ -310,7 +291,7 @@ public:
                         AddDrakeLootMode();
                         ++drakeCount;
                     }
-                    fetchTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ);
+                    fetchTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, TenebronPositions[0]);
 
                     if (!fetchTene->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                         fetchTene->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -328,7 +309,7 @@ public:
                         AddDrakeLootMode();
                         ++drakeCount;
                     }
-                    fetchShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ);
+                    fetchShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, ShadronPositions[0]);
 
                     if (!fetchShad->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                         fetchShad->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -346,7 +327,7 @@ public:
                         AddDrakeLootMode();
                         ++drakeCount;
                     }
-                    fetchVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ);
+                    fetchVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, VesperonPositions[0]);
 
                     if (!fetchVesp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                         fetchVesp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -370,24 +351,24 @@ public:
                         if (temp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                             temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                        int32 textId = 0;
+                        uint8 textId = 0;
 
                         switch (temp->GetEntry())
                         {
                             case NPC_TENEBRON:
                                 textId = SAY_SARTHARION_CALL_TENEBRON;
                                 temp->AddAura(SPELL_POWER_OF_TENEBRON, temp);
-                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aTene[1].m_fX, m_aTene[1].m_fY, m_aTene[1].m_fZ);
+                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, TenebronPositions[1]);
                                 break;
                             case NPC_SHADRON:
                                 textId = SAY_SARTHARION_CALL_SHADRON;
                                 temp->AddAura(SPELL_POWER_OF_SHADRON, temp);
-                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aShad[1].m_fX, m_aShad[1].m_fY, m_aShad[1].m_fZ);
+                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, ShadronPositions[1]);
                                 break;
                             case NPC_VESPERON:
                                 textId = SAY_SARTHARION_CALL_VESPERON;
                                 temp->AddAura(SPELL_POWER_OF_VESPERON, temp);
-                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aVesp[1].m_fX, m_aVesp[1].m_fY, m_aVesp[1].m_fZ);
+                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, VesperonPositions[1]);
                                 break;
                         }
 
@@ -405,20 +386,6 @@ public:
             return 0;
         }
 
-        void SendFlameTsunami()
-        {
-            if (Map* map = me->GetMap())
-                if (map->IsDungeon())
-                {
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
-
-                    if (!PlayerList.isEmpty())
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (i->GetSource() && i->GetSource()->IsAlive())
-                                Talk(WHISPER_LAVA_CHURN, i->GetSource()->GetGUID());
-                }
-        }
-
         // Selects a random Fire Cyclone and makes it cast Lava Strike.
         // FIXME: Frequency of the casts reduced to compensate 100% chance of spawning a Lava Blaze add
         void CastLavaStrikeOnTarget(Unit* target)
@@ -431,13 +398,7 @@ public:
             if (fireCyclonesList.empty())
                 return;
 
-            std::list<Creature*>::iterator itr = fireCyclonesList.begin();
-            uint32 rnd = rand()%fireCyclonesList.size();
-
-            for (uint32 i = 0; i < rnd; ++i)
-                ++itr;
-
-            (*itr)->CastSpell(target, SPELL_LAVA_STRIKE, true);
+            Trinity::Containers::SelectRandomContainerElement(fireCyclonesList)->CastSpell(target, SPELL_LAVA_STRIKE, true);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -459,25 +420,25 @@ public:
                         }
                         break;
                     case EVENT_FLAME_TSUNAMI:
-                        SendFlameTsunami();
+                        Talk(WHISPER_LAVA_CHURN);
                         switch (urand(0, 1))
                         {
                             case 0:
                             {
-                                if (Creature* right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn.x, FlameRight1Spawn.y, FlameRight1Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000))
-                                    right1->GetMotionMaster()->MovePoint(0, FlameRight1Direction.x, FlameRight1Direction.y, FlameRight1Direction.z);
-                                if (Creature* right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn.x, FlameRight2Spawn.y, FlameRight2Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000))
-                                    right2->GetMotionMaster()->MovePoint(0, FlameRight2Direction.x, FlameRight2Direction.y, FlameRight2Direction.z);
-                                if (Creature* right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn.x, FlameRight3Spawn.y, FlameRight3Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000))
-                                    right3->GetMotionMaster()->MovePoint(0, FlameRight3Direction.x, FlameRight3Direction.y, FlameRight3Direction.z);
+                                if (Creature* right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                    right1->GetMotionMaster()->MovePoint(0, FlameRight1Direction);
+                                if (Creature* right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                    right2->GetMotionMaster()->MovePoint(0, FlameRight2Direction);
+                                if (Creature* right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                    right3->GetMotionMaster()->MovePoint(0, FlameRight3Direction);
                                 break;
                             }
                             case 1:
                             {
-                                if (Creature* left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn.x, FlameLeft1Spawn.y, FlameLeft1Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000))
-                                    left1->GetMotionMaster()->MovePoint(0, FlameLeft1Direction.x, FlameLeft1Direction.y, FlameLeft1Direction.z);
-                                if (Creature* left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn.x, FlameLeft2Spawn.y, FlameLeft2Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000))
-                                    left2->GetMotionMaster()->MovePoint(0, FlameLeft2Direction.x, FlameLeft2Direction.y, FlameLeft2Direction.z);
+                                if (Creature* left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                    left1->GetMotionMaster()->MovePoint(0, FlameLeft1Direction);
+                                if (Creature* left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                    left2->GetMotionMaster()->MovePoint(0, FlameLeft2Direction);
                                 break;
                             }
                         }
@@ -550,7 +511,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_sartharionAI(creature);
+        return GetObsidianSanctumAI<boss_sartharionAI>(creature);
     }
 };
 

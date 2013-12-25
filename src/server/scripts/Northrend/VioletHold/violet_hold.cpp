@@ -649,7 +649,7 @@ public:
                         uiSpawnTimer = SPAWN_TIME;
                     } else uiSpawnTimer -= diff;
 
-                    if (bPortalGuardianOrKeeperOrEliteSpawn && !me->IsNonMeleeSpellCasted(false))
+                    if (bPortalGuardianOrKeeperOrEliteSpawn && !me->IsNonMeleeSpellCast(false))
                     {
                         me->Kill(me, false);
                         me->RemoveCorpse();

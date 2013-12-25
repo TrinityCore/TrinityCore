@@ -137,9 +137,10 @@ public:
                 instance->SetBossState(DATA_IONAR, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
@@ -278,7 +279,7 @@ public:
 
                 Talk(SAY_SPLIT);
 
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 DoCast(me, SPELL_DISPERSE, false);

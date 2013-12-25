@@ -93,7 +93,7 @@ public:
             if (!bShielded && !HealthAbovePct(50))
             {
                 //wait if we already casting
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     return;
 
                 Talk(SAY_SPECIALAE);

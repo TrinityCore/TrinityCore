@@ -115,7 +115,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             void EnterCombat(Unit* who) OVERRIDE
             {
                 Talk(SAY_WAKE);
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
                 if (instance)
@@ -207,7 +207,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 {
                     if (check_Timer <= diff)
                     {
-                        if (!me->IsNonMeleeSpellCasted(false))
+                        if (!me->IsNonMeleeSpellCast(false))
                             DoCast(me, SPELL_EVOCATION);
                         check_Timer = 5000;
                     }
@@ -248,7 +248,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                 if (BurningNova_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(true);
 
                     Talk(SAY_NOVA);
@@ -311,7 +311,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                 ShadowBolt_Timer = 1000+rand()%1000;
                 MarkOfShadow_Timer = 5000+rand()%2000;
                 check_Timer = 0;
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
             }
 
@@ -319,7 +319,7 @@ class npc_shadowmoon_channeler : public CreatureScript
             {
                 if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                     CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
             }
@@ -336,7 +336,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                 {
                     if (check_Timer <= diff)
                     {
-                        if (!me->IsNonMeleeSpellCasted(false))
+                        if (!me->IsNonMeleeSpellCast(false))
                             if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                             {
                                 uint64 channeler = CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);

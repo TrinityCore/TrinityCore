@@ -386,7 +386,7 @@ enum SpellAttr3
     SPELL_ATTR3_ONLY_TARGET_PLAYERS              = 0x00000100, //  8 can only target players
     SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2     = 0x00000200, //  9 triggered from effect?
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
-    SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
+    SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can only be cast in battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
     SPELL_ATTR3_UNK13                            = 0x00002000, // 13
     SPELL_ATTR3_IS_HONORLESS_TARGET              = 0x00004000, // 14 "Honorless Target" only this spells have this flag

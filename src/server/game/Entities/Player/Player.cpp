@@ -2180,7 +2180,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         SetSemaphoreTeleportFar(false);
         //setup delayed teleport flag
         SetDelayedTeleportFlag(IsCanDelayTeleport());
-        //if teleport spell is casted in Unit::Update() func
+        //if teleport spell is cast in Unit::Update() func
         //then we need to delay it until update process will be finished
         if (IsHasDelayedTeleport())
         {
@@ -2244,7 +2244,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             SetSemaphoreTeleportNear(false);
             //setup delayed teleport flag
             SetDelayedTeleportFlag(IsCanDelayTeleport());
-            //if teleport spell is casted in Unit::Update() func
+            //if teleport spell is cast in Unit::Update() func
             //then we need to delay it until update process will be finished
             if (IsHasDelayedTeleport())
             {
@@ -2290,7 +2290,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // stop spellcasting
             // not attempt interrupt teleportation spell at caster teleport
             if (!(options & TELE_TO_SPELL))
-                if (IsNonMeleeSpellCasted(true))
+                if (IsNonMeleeSpellCast(true))
                     InterruptNonMeleeSpells(true);
 
             //remove auras before removing from map...
@@ -8422,7 +8422,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->spellid[s]);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell(GUID: %u, name: %s, enchant: %i): unknown spell %i is casted, ignoring...",
+                TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell(GUID: %u, name: %s, enchant: %i): unknown spell %i is cast, ignoring...",
                     GetGUIDLow(), GetName().c_str(), pEnchant->ID, pEnchant->spellid[s]);
                 continue;
             }
@@ -8483,7 +8483,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // use triggered flag only for items with many spell casts and for not first cast
     uint8 count = 0;
 
-    // item spells casted at use
+    // item spells cast at use
     for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         _Spell const& spellData = proto->Spells[i];
@@ -8512,7 +8512,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         ++count;
     }
 
-    // Item enchantments spells casted at use
+    // Item enchantments spells cast at use
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
         uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
@@ -11554,7 +11554,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 if (IsInCombat()&& (pProto->Class == ITEM_CLASS_WEAPON || pProto->InventoryType == INVTYPE_RELIC) && m_weaponChangeTimer != 0)
                     return EQUIP_ERR_CANT_DO_RIGHT_NOW;         // maybe exist better err
 
-                if (IsNonMeleeSpellCasted(false))
+                if (IsNonMeleeSpellCast(false))
                     return EQUIP_ERR_CANT_DO_RIGHT_NOW;
             }
 
@@ -20353,25 +20353,13 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language) const
-{
-    *data << uint8(msgtype);
-    *data << uint32(language);
-    *data << uint64(GetGUID());
-    *data << uint32(0);                                      // constant unknown time
-    *data << uint64(GetGUID());
-    *data << uint32(text.length() + 1);
-    *data << text;
-    *data << uint8(GetChatTag());
-}
-
 void Player::Say(const std::string& text, const uint32 language)
 {
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_SAY, Language(language), this, this, text);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
@@ -20380,8 +20368,8 @@ void Player::Yell(const std::string& text, const uint32 language)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_YELL, Language(language), this, this, text);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
 
@@ -20390,8 +20378,8 @@ void Player::TextEmote(const std::string& text)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, text);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
 }
 
@@ -20407,16 +20395,15 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, Language(language), this, this, text);
     rPlayer->GetSession()->SendPacket(&data);
 
     // rest stuff shouldn't happen in case of addon message
     if (isAddonMessage)
         return;
 
-    data.Initialize(SMSG_MESSAGECHAT, 200);
-    rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER_INFORM, Language(language), rPlayer, rPlayer, text);
     GetSession()->SendPacket(&data);
 
     if (!isAcceptWhispers() && !IsGameMaster() && !rPlayer->IsGameMaster())
@@ -21065,7 +21052,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         }
 
         // not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
-        if (IsNonMeleeSpellCasted(false))
+        if (IsNonMeleeSpellCast(false))
         {
             GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
             return false;
@@ -23557,7 +23544,7 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
         RemoveOwnedAura(itr);
     }
 
-    // currently casted spells can be dependent from item
+    // currently cast spells can be dependent from item
     for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
         if (Spell* spell = GetCurrentSpell(CurrentSpellTypes(i)))
             if (spell->getState() != SPELL_STATE_DELAYED && !HasItemFitToSpellRequirements(spell->m_spellInfo, pItem))
@@ -25818,7 +25805,7 @@ void Player::ActivateSpec(uint8 spec)
     if (spec > GetSpecsCount())
         return;
 
-    if (IsNonMeleeSpellCasted(false))
+    if (IsNonMeleeSpellCast(false))
         InterruptNonMeleeSpells(false);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();

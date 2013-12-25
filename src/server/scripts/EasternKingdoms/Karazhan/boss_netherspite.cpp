@@ -172,7 +172,7 @@ public:
             for (int j=0; j<3; ++j) // j = color
                 if (Creature* portal = Unit::GetCreature(*me, PortalGUID[j]))
                 {
-                    // the one who's been casted upon before
+                    // the one who's been cast upon before
                     Unit* current = Unit::GetUnit(*portal, BeamTarget[j]);
                     // temporary store for the best suitable beam reciever
                     Unit* target = me;
@@ -308,7 +308,7 @@ public:
 
                 if (PhaseTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         SwitchToBanishPhase();
                         return;
@@ -327,7 +327,7 @@ public:
 
                 if (PhaseTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         SwitchToPortalPhase();
                         return;

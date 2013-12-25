@@ -71,7 +71,8 @@ class boss_broggok : public CreatureScript
                 PoisonSpawn_Timer = 5000;
                 PoisonBolt_Timer = 7000;
                 DoAction(ACTION_RESET_BROGGOK);
-                instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE

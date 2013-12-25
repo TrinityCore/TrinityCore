@@ -83,9 +83,10 @@ public:
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_ONSLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_ONSLAY);
         }
 
         void WaypointReached(uint32 waypointId) OVERRIDE

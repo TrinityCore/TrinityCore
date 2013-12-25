@@ -126,9 +126,10 @@ class boss_akilzon : public CreatureScript
                 _JustDied();
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
             void SetWeather(uint32 weather, float grade)

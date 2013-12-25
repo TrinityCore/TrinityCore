@@ -1936,7 +1936,7 @@ void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool ext
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
         return;                                             // ignore ranged case
 
-    // melee attack spell casted at main hand attack only - no normal melee dmg dealt
+    // melee attack spell cast at main hand attack only - no normal melee dmg dealt
     if (attType == BASE_ATTACK && m_currentSpells[CURRENT_MELEE_SPELL] && !extra)
         m_currentSpells[CURRENT_MELEE_SPELL]->cast();
     else
@@ -2673,7 +2673,7 @@ uint32 Unit::GetDefenseSkillValue(Unit const* target) const
 
 float Unit::GetUnitDodgeChance() const
 {
-    if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
+    if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -2693,7 +2693,7 @@ float Unit::GetUnitDodgeChance() const
 
 float Unit::GetUnitParryChance() const
 {
-    if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
+    if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
 
     float chance = 0.0f;
@@ -2739,7 +2739,7 @@ float Unit::GetUnitMissChance(WeaponAttackType attType) const
 
 float Unit::GetUnitBlockChance() const
 {
-    if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
+    if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
 
     if (Player const* player = ToPlayer())
@@ -2931,7 +2931,7 @@ void Unit::_UpdateSpells(uint32 time)
 void Unit::_UpdateAutoRepeatSpell()
 {
     // check "realtime" interrupts
-    if ((GetTypeId() == TYPEID_PLAYER && ToPlayer()->isMoving()) || IsNonMeleeSpellCasted(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75))
+    if ((GetTypeId() == TYPEID_PLAYER && ToPlayer()->isMoving()) || IsNonMeleeSpellCast(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75))
     {
         // cancel wand shoot
         if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
@@ -2964,7 +2964,7 @@ void Unit::_UpdateAutoRepeatSpell()
     }
 }
 
-void Unit::SetCurrentCastedSpell(Spell* pSpell)
+void Unit::SetCurrentCastSpell(Spell* pSpell)
 {
     ASSERT(pSpell);                                         // NULL may be never passed here, use InterruptSpell or InterruptNonMeleeSpells
 
@@ -3077,16 +3077,16 @@ void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
     spell->finish(ok);
 }
 
-bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
+bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
 {
     // We don't do loop here to explicitly show that melee spell is excluded.
     // Maybe later some special spells will be excluded too.
 
-    // if skipInstant then instant spells shouldn't count as being casted
+    // if skipInstant then instant spells shouldn't count as being cast
     if (skipInstant && m_currentSpells[CURRENT_GENERIC_SPELL] && !m_currentSpells[CURRENT_GENERIC_SPELL]->GetCastTime())
         return false;
 
-    // generic spells are casted when they are not finished and not delayed
+    // generic spells are cast when they are not finished and not delayed
     if (m_currentSpells[CURRENT_GENERIC_SPELL] &&
         (m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_FINISHED) &&
         (withDelayed || m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_DELAYED))
@@ -3094,14 +3094,14 @@ bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skip
         if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
             return true;
     }
-    // channeled spells may be delayed, but they are still considered casted
+    // channeled spells may be delayed, but they are still considered cast
     else if (!skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
         (m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED))
     {
         if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
             return true;
     }
-    // autorepeat spells may be finished or delayed, but they are still considered casted
+    // autorepeat spells may be finished or delayed, but they are still considered cast
     else if (!skipAutorepeat && m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
         return true;
 
@@ -5682,7 +5682,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Second Wind
             if (dummySpell->SpellIconID == 1697)
             {
-                // only for spells and hit/crit (trigger start always) and not start from self casted spells (5530 Mace Stun Effect for example)
+                // only for spells and hit/crit (trigger start always) and not start from self cast spells (5530 Mace Stun Effect for example)
                 if (procSpell == 0 || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
                     return false;
                 // Need stun or root mechanic
@@ -6352,7 +6352,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         {
                             if (Player* member = itr->GetSource())
                             {
-                                // check if it was heal by paladin which casted this beacon of light
+                                // check if it was heal by paladin which cast this beacon of light
                                 if (member->GetAura(53563, victim->GetGUID()))
                                 {
                                     // do not proc when target of beacon of light is healed
@@ -7304,7 +7304,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Runic Power Back on Snare/Root
             if (dummySpell->Id == 61257)
             {
-                // only for spells and hit/crit (trigger start always) and not start from self casted spells
+                // only for spells and hit/crit (trigger start always) and not start from self cast spells
                 if (procSpell == 0 || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
                     return false;
                 // Need snare or root mechanic
@@ -8026,7 +8026,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         {
                             if (!procSpell)
                                 return false;
-                            // procspell is triggered spell but we need mana cost of original casted spell
+                            // procspell is triggered spell but we need mana cost of original cast spell
                             uint32 originalSpellId = procSpell->Id;
                             // Holy Shock heal
                             if (procSpell->SpellFamilyFlags[1] & 0x00010000)
@@ -9050,7 +9050,7 @@ bool Unit::AttackStop()
 
 void Unit::CombatStop(bool includingCast)
 {
-    if (includingCast && IsNonMeleeSpellCasted(false))
+    if (includingCast && IsNonMeleeSpellCast(false))
         InterruptNonMeleeSpells(false);
 
     AttackStop();
@@ -9605,7 +9605,7 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
         if (gain)
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, gain, 0, victim);
 
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED, addhealth);
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CAST, addhealth);
     }
 
     if (Player* player = victim->ToPlayer())
@@ -12404,7 +12404,7 @@ void Unit::setDeathState(DeathState s)
         getHostileRefManager().deleteReferences();
         ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
 
-        if (IsNonMeleeSpellCasted(false))
+        if (IsNonMeleeSpellCast(false))
             InterruptNonMeleeSpells(false);
 
         ExitVehicle();                                      // Exit vehicle before calling RemoveAllControlled
@@ -12823,7 +12823,7 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
         }
     }
 
-    // Glyphs which increase duration of selfcasted buffs
+    // Glyphs which increase duration of selfcast buffs
     if (target == this)
     {
         switch (spellProto->SpellFamilyName)
@@ -12884,7 +12884,7 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
         if (!i->hitTime)
             return DIMINISHING_LEVEL_1;
 
-        // If last spell was casted more than 15 seconds ago - reset the count.
+        // If last spell was cast more than 15 seconds ago - reset the count.
         if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 15000)
         {
             i->hitCount = DIMINISHING_LEVEL_1;
@@ -13495,7 +13495,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     if (finalCleanup)
         m_cleanupDone = true;
 
-    m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
+    m_Events.KillAllEvents(false);                      // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
     ClearComboPointHolders();
     DeleteThreatList();
@@ -14652,7 +14652,7 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
 
 uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const
 {
-    // Not apply this to creature casted spells with casttime == 0
+    // Not apply this to creature cast spells with casttime == 0
     if (CastingTime == 0 && GetTypeId() == TYPEID_UNIT && !ToCreature()->IsPet())
         return 3500;
 
@@ -17174,7 +17174,7 @@ void Unit::StopAttackFaction(uint32 faction_id)
         if (victim->GetFactionTemplateEntry()->faction == faction_id)
         {
             AttackStop();
-            if (IsNonMeleeSpellCasted(false))
+            if (IsNonMeleeSpellCast(false))
                 InterruptNonMeleeSpells(false);
 
             // melee and ranged forced attack cancel

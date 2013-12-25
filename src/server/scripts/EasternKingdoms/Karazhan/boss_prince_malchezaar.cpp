@@ -569,7 +569,7 @@ public:
 
         void DoMeleeAttacksIfReady()
         {
-            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCasted(false))
+            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCast(false))
             {
                 //Check for base attack
                 if (me->isAttackReady() && me->GetVictim())

@@ -90,21 +90,21 @@ class CreatureTextMgr
         void LoadCreatureTextLocales();
         CreatureTextMap  const& GetTextMap() const { return mTextMap; }
 
-        void SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, CreatureTextRange range, Team team, bool gmOnly);
+        void SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
         void SendEmote(Unit* source, uint32 emote);
 
         //if sent, returns the 'duration' of the text else 0 if error
-        uint32 SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid = 0, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = NULL);
+        uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = NULL, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = NULL);
         bool TextExist(uint32 sourceEntry, uint8 textGroup);
         std::string GetLocalizedChatString(uint32 entry, uint8 textGroup, uint32 id, LocaleConstant locale) const;
 
-        template<class Builder>
-        void SendChatPacket(WorldObject* source, Builder const& builder, ChatMsg msgType, uint64 whisperGuid = 0, CreatureTextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false) const;
+        template<class Builder> void SendChatPacket(WorldObject* source, Builder const& builder, ChatMsg msgType, WorldObject const* whisperTarget = NULL, CreatureTextRange range = TEXT_RANGE_NORMAL, Team team = TEAM_OTHER, bool gmOnly = false) const;
+
     private:
         CreatureTextRepeatIds GetRepeatGroup(Creature* source, uint8 textGroup);
         void SetRepeatId(Creature* source, uint8 textGroup, uint8 id);
 
-        void SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, uint64 whisperGuid, CreatureTextRange range, Team team, bool gmOnly) const;
+        void SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const;
         float GetRangeForChatType(ChatMsg msgType) const;
 
         CreatureTextMap mTextMap;
@@ -142,8 +142,9 @@ class CreatureTextLocalizer
             // create if not cached yet
             if (!_packetCache[loc_idx])
             {
-                messageTemplate = new WorldPacket(SMSG_MESSAGECHAT, 200);
+                messageTemplate = new WorldPacket();
                 whisperGUIDpos = _builder(messageTemplate, loc_idx);
+                ASSERT(messageTemplate->GetOpcode() != MSG_NULL_ACTION);
                 _packetCache[loc_idx] = new std::pair<WorldPacket*, size_t>(messageTemplate, whisperGUIDpos);
             }
             else
@@ -173,7 +174,7 @@ class CreatureTextLocalizer
 };
 
 template<class Builder>
-void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder, ChatMsg msgType, uint64 whisperGuid, CreatureTextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder, ChatMsg msgType, WorldObject const* whisperTarget /*= NULL*/, CreatureTextRange range /*= TEXT_RANGE_NORMAL*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/) const
 {
     if (!source)
         return;
@@ -187,11 +188,10 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
         {
             if (range == TEXT_RANGE_NORMAL) //ignores team and gmOnly
             {
-                Player* player = ObjectAccessor::FindPlayer(whisperGuid);
-                if (!player || !player->GetSession())
+                if (!whisperTarget || whisperTarget->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                localizer(player);
+                localizer(const_cast<Player*>(whisperTarget->ToPlayer()));
                 return;
             }
             break;

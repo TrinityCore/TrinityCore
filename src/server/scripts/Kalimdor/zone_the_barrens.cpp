@@ -109,7 +109,7 @@ public:
             creature->setFaction(FACTION_ESCORTEE);
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            creature->AI()->Talk(SAY_GIL_START, player->GetGUID());
+            creature->AI()->Talk(SAY_GIL_START, player);
 
             if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest);
@@ -137,22 +137,22 @@ public:
             switch (waypointId)
             {
                 case 16:
-                    Talk(SAY_GIL_AT_LAST, player->GetGUID());
+                    Talk(SAY_GIL_AT_LAST, player);
                     break;
                 case 17:
-                    Talk(SAY_GIL_PROCEED, player->GetGUID());
+                    Talk(SAY_GIL_PROCEED, player);
                     break;
                 case 18:
-                    Talk(SAY_GIL_FREEBOOTERS, player->GetGUID());
+                    Talk(SAY_GIL_FREEBOOTERS, player);
                     break;
                 case 37:
-                    Talk(SAY_GIL_ALMOST, player->GetGUID());
+                    Talk(SAY_GIL_ALMOST, player);
                     break;
                 case 47:
-                    Talk(SAY_GIL_SWEET, player->GetGUID());
+                    Talk(SAY_GIL_SWEET, player);
                     break;
                 case 53:
-                    Talk(SAY_GIL_FREED, player->GetGUID());
+                    Talk(SAY_GIL_FREED, player);
                     player->GroupEventHappens(QUEST_FREE_FROM_HOLD, me);
                     break;
             }
@@ -168,7 +168,7 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER && me->GetAreaId() == AREA_MERCHANT_COAST)
             {
                 //appears to be pretty much random (possible only if escorter not in combat with who yet?)
-                Talk(SAY_GIL_AGGRO, who->GetGUID());
+                Talk(SAY_GIL_AGGRO, who);
             }
         }
     };
@@ -345,10 +345,7 @@ public:
             BigWill = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
-
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!who || !who->IsAlive() || EventInProgress)
                 return;
@@ -361,8 +358,6 @@ public:
                         EventInProgress = true;
                     }
         }
-
-        void KilledUnit(Unit* /*victim*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -408,7 +403,7 @@ public:
                     if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324)
                     {
                         warrior->AreaExploredOrEventHappens(1719);
-                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, warrior->GetGUID());
+                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, warrior);
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
@@ -577,10 +572,10 @@ public:
             switch (PointId)
             {
                 case 9:
-                    Talk(SAY_STARTUP2, player->GetGUID());
+                    Talk(SAY_STARTUP2, player);
                     break;
                 case 18:
-                    Talk(SAY_PROGRESS_1, player->GetGUID());
+                    Talk(SAY_PROGRESS_1, player);
                     SetRun();
                     break;
             }

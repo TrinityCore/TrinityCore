@@ -65,7 +65,7 @@ public:
         void EnterCombat(Unit* who) OVERRIDE
         {
             if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
-                Talk(SAY_GUARD_SIL_AGGRO, who->GetGUID());
+                Talk(SAY_GUARD_SIL_AGGRO, who);
             if (SpellInfo const* spell = me->reachWithSpellAttack(who))
                 DoCast(who, spell->Id);
         }
@@ -106,7 +106,7 @@ public:
                 return;
 
             // Make sure our attack is ready and we arn't currently casting
-            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
+            if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
             {
                 //If we are within range melee the target
                 if (me->IsWithinMeleeRange(me->GetVictim()))
@@ -145,7 +145,7 @@ public:
             else
             {
                 //Only run this code if we arn't already casting
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     bool healing = false;
                     SpellInfo const* info = NULL;
