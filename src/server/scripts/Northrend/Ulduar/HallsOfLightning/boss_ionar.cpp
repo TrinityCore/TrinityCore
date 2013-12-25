@@ -279,7 +279,7 @@ public:
 
                 Talk(SAY_SPLIT);
 
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 DoCast(me, SPELL_DISPERSE, false);

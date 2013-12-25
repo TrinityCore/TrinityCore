@@ -246,7 +246,7 @@ class boss_zuljin : public CreatureScript
 
             void DoMeleeAttackIfReady()
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     if (me->isAttackReady() && me->IsWithinMeleeRange(me->GetVictim()))
                     {

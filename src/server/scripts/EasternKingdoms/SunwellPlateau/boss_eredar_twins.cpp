@@ -217,7 +217,7 @@ public:
             {
                 if (ConflagrationTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -230,7 +230,7 @@ public:
             {
                 if (ShadownovaTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
@@ -249,7 +249,7 @@ public:
 
             if (ConfoundingblowTimer <= diff)
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CONFOUNDING_BLOW);
@@ -276,7 +276,7 @@ public:
 
             if (ShadowbladesTimer <= diff)
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     DoCast(me, SPELL_SHADOW_BLADES);
                     ShadowbladesTimer = 10000;
@@ -291,7 +291,7 @@ public:
                 Enraged = true;
             } else EnrageTimer -= diff;
 
-            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
+            if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
             {
                 //If we are within range melee the target
                 if (me->IsWithinMeleeRange(me->GetVictim()))
@@ -548,7 +548,7 @@ public:
             {
                 if (ShadownovaTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHADOW_NOVA);
@@ -560,7 +560,7 @@ public:
             {
                 if (ConflagrationTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
@@ -582,7 +582,7 @@ public:
 
             if (FlamesearTimer <= diff)
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     DoCast(me, SPELL_FLAME_SEAR);
                     FlamesearTimer = 15000;
@@ -591,7 +591,7 @@ public:
 
             if (PyrogenicsTimer <= diff)
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     DoCast(me, SPELL_PYROGENICS, true);
                     PyrogenicsTimer = 15000;
@@ -600,7 +600,7 @@ public:
 
             if (BlazeTimer <= diff)
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     DoCastVictim(SPELL_BLAZE);
                     BlazeTimer = 3800;
@@ -691,7 +691,7 @@ public:
 
             if (DarkstrikeTimer <= diff)
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     //If we are within range melee the target
                     if (me->IsWithinMeleeRange(me->GetVictim()))

@@ -245,7 +245,7 @@ public:
             if (m_uiChangeStance_Timer <= uiDiff)
             {
                 //wait for current spell to finish before change stance
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     return;
 
                 DoRemoveStanceAura(m_uiStance);

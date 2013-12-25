@@ -775,11 +775,11 @@ class AuraScript : public _SpellScript
         // returns spellid of the spell
         uint32 GetId() const;
 
-        // returns guid of object which casted the aura (m_originalCaster of the Spell class)
+        // returns guid of object which cast the aura (m_originalCaster of the Spell class)
         uint64 GetCasterGUID() const;
-        // returns unit which casted the aura or NULL if not avalible (caster logged out for example)
+        // returns unit which cast the aura or NULL if not avalible (caster logged out for example)
         Unit* GetCaster() const;
-        // returns object on which aura was casted, target for non-area auras, area aura source for area auras
+        // returns object on which aura was cast, target for non-area auras, area aura source for area auras
         WorldObject* GetOwner() const;
         // returns owner if it's unit or unit derived object, NULL otherwise (only for persistent area auras NULL is returned)
         Unit* GetUnitOwner() const;

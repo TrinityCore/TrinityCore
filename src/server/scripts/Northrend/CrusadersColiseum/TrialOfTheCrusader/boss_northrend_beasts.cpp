@@ -873,7 +873,7 @@ class boss_icehowl : public CreatureScript
                 events.ScheduleEvent(EVENT_MASSIVE_CRASH, 30*IN_MILLISECONDS);
                 _movementStarted = false;
                 _movementFinish = false;
-                _trampleCasted = false;
+                _trampleCast = false;
                 _trampleTargetGUID = 0;
                 _trampleTargetX = 0;
                 _trampleTargetY = 0;
@@ -961,10 +961,10 @@ class boss_icehowl : public CreatureScript
             {
                 if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (!_trampleCasted)
+                    if (!_trampleCast)
                     {
                         DoCast(me, SPELL_FROTHING_RAGE, true);
-                        _trampleCasted = true;
+                        _trampleCast = true;
                     }
                 }
             }
@@ -1025,7 +1025,7 @@ class boss_icehowl : public CreatureScript
                             me->AttackStop();
                             _trampleTargetGUID = target->GetGUID();
                             me->SetTarget(_trampleTargetGUID);
-                            _trampleCasted = false;
+                            _trampleCast = false;
                             SetCombatMovement(false);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                             me->GetMotionMaster()->Clear();
@@ -1047,7 +1047,7 @@ class boss_icehowl : public CreatureScript
                                     {
                                         me->StopMoving();
                                         me->AttackStop();
-                                        _trampleCasted = false;
+                                        _trampleCast = false;
                                         _movementStarted = true;
                                         _trampleTargetX = target->GetPositionX();
                                         _trampleTargetY = target->GetPositionY();
@@ -1100,7 +1100,7 @@ class boss_icehowl : public CreatureScript
                         }
                         break;
                     case 6:
-                        if (!_trampleCasted)
+                        if (!_trampleCast)
                         {
                             DoCast(me, SPELL_STAGGERED_DAZE);
                             Talk(EMOTE_TRAMPLE_CRASH);
@@ -1131,7 +1131,7 @@ class boss_icehowl : public CreatureScript
                 uint64 _trampleTargetGUID;
                 bool   _movementStarted;
                 bool   _movementFinish;
-                bool   _trampleCasted;
+                bool   _trampleCast;
                 uint8  _stage;
         };
 

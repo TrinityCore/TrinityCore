@@ -974,7 +974,7 @@ public:
                 break;
             }
 
-            if (me->IsNonMeleeSpellCasted(false))
+            if (me->IsNonMeleeSpellCast(false))
                 return;
 
             if (Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || (Phase == PHASE_NORMAL_MAIEV && !me->HasAura(SPELL_CAGED)))

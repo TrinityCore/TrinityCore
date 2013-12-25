@@ -65,7 +65,7 @@ public:
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
-            if (me->IsNonMeleeSpellCasted(false))
+            if (me->IsNonMeleeSpellCast(false))
                 return;
 
             if (me->GetEntry() == NPC_WARMAGE_SARINA)

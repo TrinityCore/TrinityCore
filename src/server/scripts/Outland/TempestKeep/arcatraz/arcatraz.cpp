@@ -190,7 +190,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
                 if (Pyroblast_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         return;
 
                     Talk(SAY_PYRO);

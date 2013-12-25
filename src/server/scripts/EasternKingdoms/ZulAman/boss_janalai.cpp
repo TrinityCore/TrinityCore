@@ -324,7 +324,7 @@ class boss_janalai : public CreatureScript
             {
                 if (isFlameBreathing)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                         isFlameBreathing = false;
                     else
                         return;

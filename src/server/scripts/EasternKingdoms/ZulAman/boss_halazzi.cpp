@@ -266,7 +266,7 @@ class boss_halazzi : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            if (target->IsNonMeleeSpellCasted(false))
+                            if (target->IsNonMeleeSpellCast(false))
                                 DoCast(target, SPELL_EARTHSHOCK);
                             else
                                 DoCast(target, SPELL_FLAMESHOCK);

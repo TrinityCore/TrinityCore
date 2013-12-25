@@ -166,7 +166,7 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
     {
         unit = obj->ToUnit();
         if (!unit)
-            TC_LOG_ERROR("scripts", "%s %s object could not be casted to unit.",
+            TC_LOG_ERROR("scripts", "%s %s object could not be cast to unit.",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     }
     return unit;
@@ -242,7 +242,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
     {
         WorldObject* wSource = dynamic_cast <WorldObject*> (source);
         if (!wSource)
-            TC_LOG_ERROR("scripts", "%s source object could not be casted to world object (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+            TC_LOG_ERROR("scripts", "%s source object could not be cast to world object (TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
         else
         {

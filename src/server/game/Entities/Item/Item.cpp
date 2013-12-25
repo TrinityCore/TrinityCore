@@ -102,7 +102,7 @@ void AddItemsSetItem(Player* player, Item* item)
                     break;
                 }
 
-                // spell casted only if fit form requirement, in other case will casted at form change
+                // spell cast only if fit form requirement, in other case will cast at form change
                 player->ApplyEquipSpell(spellInfo, NULL, true);
                 eff->spells[y] = spellInfo;
                 break;

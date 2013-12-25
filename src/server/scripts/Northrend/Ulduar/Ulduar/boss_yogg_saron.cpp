@@ -108,7 +108,7 @@ enum Spells
     SPELL_SANITY                            = 63050,
     SPELL_INSANE_PERIODIC                   = 64554,
     SPELL_INSANE                            = 63120,
-    //SPELL_CLEAR_INSANE                      = 63122,  // when it should be casted?
+    //SPELL_CLEAR_INSANE                      = 63122,  // when should it be cast?
     SPELL_CONSTRICTOR_TENTACLE              = 64132,
     SPELL_CRUSHER_TENTACLE_SUMMON           = 64139,
     SPELL_CORRUPTOR_TENTACLE_SUMMON         = 64143,
@@ -799,7 +799,7 @@ class boss_sara : public CreatureScript
                                 DoCast(yogg, SPELL_RIDE_YOGG_SARON_VEHICLE);
                             DoCast(me, SPELL_SHADOWY_BARRIER_SARA);
                             _events.SetPhase(PHASE_TWO);
-                            _events.ScheduleEvent(EVENT_DEATH_RAY, 20000, 0, PHASE_TWO);    // almost never casted at scheduled time, why?
+                            _events.ScheduleEvent(EVENT_DEATH_RAY, 20000, 0, PHASE_TWO);    // almost never cast at scheduled time, why?
                             _events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, 18000, 0, PHASE_TWO);
                             _events.ScheduleEvent(EVENT_PSYCHOSIS, 1, 0, PHASE_TWO);
                             _events.ScheduleEvent(EVENT_BRAIN_LINK, 23000, 0, PHASE_TWO);

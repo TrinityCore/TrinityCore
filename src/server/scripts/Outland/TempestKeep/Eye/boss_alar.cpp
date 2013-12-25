@@ -426,7 +426,7 @@ class boss_alar : public CreatureScript
 
             void DoMeleeAttackIfReady()
             {
-                if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
+                if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
                 {
                     if (me->IsWithinMeleeRange(me->GetVictim()))
                     {

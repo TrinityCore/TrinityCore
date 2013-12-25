@@ -99,7 +99,7 @@ public:
                 return;
 
             //If we are <30% hp goes Enraged
-            if (!Enrage && !HealthAbovePct(30) && !me->IsNonMeleeSpellCasted(false))
+            if (!Enrage && !HealthAbovePct(30) && !me->IsNonMeleeSpellCast(false))
             {
                 Talk(EMOTE_ENRAGE);
                 Talk(SAY_ENRAGE);

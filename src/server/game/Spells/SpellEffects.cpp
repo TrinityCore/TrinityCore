@@ -4901,8 +4901,8 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     if (unitTarget->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
 
-    // Instantly interrupt non melee spells being casted
-    if (unitTarget->IsNonMeleeSpellCasted(true))
+    // Instantly interrupt non melee spells being cast
+    if (unitTarget->IsNonMeleeSpellCast(true))
         unitTarget->InterruptNonMeleeSpells(true);
 
     float ratio = 0.1f;
