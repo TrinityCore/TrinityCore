@@ -63,15 +63,6 @@ Map::~Map()
         obj->ResetMap();
     }
 
-    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end();)
-    {
-        Transport* transport = *itr;
-        ++itr;
-
-        transport->RemoveFromWorld();
-        delete transport;
-    }
-
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
@@ -1357,6 +1348,17 @@ void Map::UnloadAll()
         ++i;
         UnloadGrid(grid, true);       // deletes the grid and removes it from the GridRefManager
     }
+
+    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end();)
+    {
+        Transport* transport = *itr;
+        ++itr;
+
+        transport->RemoveFromWorld();
+        delete transport;
+    }
+
+    _transports.clear();
 }
 
 // *****************************
