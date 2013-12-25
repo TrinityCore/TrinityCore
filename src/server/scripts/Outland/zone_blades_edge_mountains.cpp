@@ -881,7 +881,7 @@ class npc_simon_bunny : public CreatureScript
 
             /*
             Called when AI is playing the sequence for player. We cast the visual spell and then remove the
-            casted color from the casting sequence.
+            cast color from the casting sequence.
             */
             void PlayNextColor()
             {

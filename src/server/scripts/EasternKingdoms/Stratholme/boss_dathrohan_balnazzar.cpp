@@ -162,7 +162,7 @@ public:
                 //BalnazzarTransform
                 if (HealthBelowPct(40))
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(false);
 
                     //restore hp, mana and stun

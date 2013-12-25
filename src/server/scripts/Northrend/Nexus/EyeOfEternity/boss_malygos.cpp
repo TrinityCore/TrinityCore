@@ -106,8 +106,8 @@ enum Spells
     SPELL_ARCANE_STORM_P_I                   = 61693,
     SPELL_VORTEX_1                           = 56237, // seems that frezze object animation
     SPELL_VORTEX_2                           = 55873, // visual effect
-    SPELL_VORTEX_3                           = 56105, // this spell must handle all the script - casted by the boss and to himself
-    SPELL_VORTEX_6                           = 73040, // teleport - (casted to all raid), caster vortex bunnies, targets players.
+    SPELL_VORTEX_3                           = 56105, // this spell must handle all the script - cast by the boss and to himself
+    SPELL_VORTEX_6                           = 73040, // teleport - (cast to all raid), caster vortex bunnies, targets players.
 
     // Phase II
     SPELL_TELEPORT_VISUAL_ONLY               = 41232, // Light blue animation cast by arcane NPCs when spawned on Hover Disks
@@ -117,7 +117,7 @@ enum Spells
     SPELL_SUMMON_ARCANE_BOMB                 = 56429,
     SPELL_ARCANE_BOMB_TRIGGER                = 56430,
     SPELL_ARCANE_BOMB_KNOCKBACK_DAMAGE       = 56431,
-    SPELL_ARCANE_OVERLOAD_1                  = 56432, // casted by npc Arcane Overload ID: 30282
+    SPELL_ARCANE_OVERLOAD_1                  = 56432, // cast by npc Arcane Overload ID: 30282
     // SPELL_ARCANE_OVERLOAD_2               = 56435, // Triggered by 56432 - resizing target
     // SPELL_ARCANE_OVERLOAD_3               = 56438, // Triggered by 56432 - damage reduction
     SPELL_SURGE_OF_POWER_P_II                = 56505,
@@ -1907,7 +1907,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
                             if (InstanceScript* instance = caster->GetInstanceScript())
                             {
-                                // Teleport spell - I'm not sure but might be it must be casted by each vehicle when it's passenger leaves it.
+                                // Teleport spell - I'm not sure but might be it must be cast by each vehicle when it's passenger leaves it.
                                 if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetData64(DATA_TRIGGER)))
                                     trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
                             }

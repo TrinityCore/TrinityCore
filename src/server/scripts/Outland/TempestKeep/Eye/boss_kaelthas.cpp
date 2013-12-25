@@ -308,7 +308,7 @@ class boss_kaelthas : public CreatureScript
             uint32 Phase;
             uint32 PhaseSubphase;                                   //generic
             uint32 Phase_Timer;                                     //generic timer
-            uint32 PyrosCasted;
+            uint32 PyrosCast;
 
             bool InGravityLapse;
             bool IsCastingFireball;
@@ -330,7 +330,7 @@ class boss_kaelthas : public CreatureScript
                 GravityLapse_Phase = 0;
                 NetherBeam_Timer = 8000;
                 NetherVapor_Timer = 10000;
-                PyrosCasted = 0;
+                PyrosCast = 0;
                 Phase = 0;
                 InGravityLapse = false;
                 IsCastingFireball = false;
@@ -750,7 +750,7 @@ class boss_kaelthas : public CreatureScript
                             {
                                 if (!IsCastingFireball)
                                 {
-                                    if (!me->IsNonMeleeSpellCasted(false))
+                                    if (!me->IsNonMeleeSpellCast(false))
                                     {
                                         //interruptable
                                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
@@ -844,19 +844,19 @@ class boss_kaelthas : public CreatureScript
                             {
                                 DoCast(me, SPELL_SHOCK_BARRIER);
                                 ChainPyros = true;
-                                PyrosCasted = 0;
+                                PyrosCast = 0;
                                 ShockBarrier_Timer = 60000;
                             }
                             else
                                 ShockBarrier_Timer -= diff;
 
                             //Chain Pyros (3 of them max)
-                            if (ChainPyros && !me->IsNonMeleeSpellCasted(false))
+                            if (ChainPyros && !me->IsNonMeleeSpellCast(false))
                             {
-                                if (PyrosCasted < 3)
+                                if (PyrosCast < 3)
                                 {
                                     DoCastVictim(SPELL_PYROBLAST);
-                                    ++PyrosCasted;
+                                    ++PyrosCast;
                                 }
                                 else
                                 {

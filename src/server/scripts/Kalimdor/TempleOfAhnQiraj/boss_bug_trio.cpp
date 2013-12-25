@@ -32,7 +32,7 @@ enum Spells
     SPELL_CLEAVE       = 26350,
     SPELL_TOXIC_VOLLEY = 25812,
     SPELL_POISON_CLOUD = 38718, //Only Spell with right dmg.
-    SPELL_ENRAGE       = 34624, //Changed cause 25790 is casted on gamers too. Same prob with old explosion of twin emperors.
+    SPELL_ENRAGE       = 34624, //Changed cause 25790 is cast on gamers too. Same prob with old explosion of twin emperors.
 
     SPELL_CHARGE       = 26561,
     SPELL_KNOCKBACK    = 26027,

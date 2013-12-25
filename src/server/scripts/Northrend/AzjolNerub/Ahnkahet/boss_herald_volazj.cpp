@@ -33,7 +33,7 @@ enum Spells
     SPELL_MIND_FLAY                               = 57941,
     SPELL_SHADOW_BOLT_VOLLEY                      = 57942,
     SPELL_SHIVER                                  = 57949,
-    SPELL_CLONE_PLAYER                            = 57507, //casted on player during insanity
+    SPELL_CLONE_PLAYER                            = 57507, //cast on player during insanity
     SPELL_INSANITY_PHASING_1                      = 57508,
     SPELL_INSANITY_PHASING_2                      = 57509,
     SPELL_INSANITY_PHASING_3                      = 57510,

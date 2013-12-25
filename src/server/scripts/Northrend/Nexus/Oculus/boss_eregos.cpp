@@ -166,7 +166,7 @@ class boss_eregos : public CreatureScript
                 if (summon->GetEntry() != NPC_PLANAR_ANOMALY)
                     return;
 
-                /// @todo: See why the spell is not casted
+                /// @todo: See why the spell is not cast
                 summon->CastSpell(summon, SPELL_PLANAR_BLAST, true);
             }
 

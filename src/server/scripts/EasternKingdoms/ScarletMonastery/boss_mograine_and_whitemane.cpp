@@ -145,7 +145,7 @@ public:
 
                 me->SetHealth(0);
 
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 me->ClearComboPointHolders();
@@ -313,7 +313,7 @@ public:
             //Cast Deep sleep when health is less than 50%
             if (!_bCanResurrectCheck && !HealthAbovePct(50))
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 DoCastVictim(SPELL_DEEPSLEEP);

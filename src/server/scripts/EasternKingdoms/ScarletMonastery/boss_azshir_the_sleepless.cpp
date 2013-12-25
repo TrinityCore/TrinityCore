@@ -66,7 +66,7 @@ public:
                 return;
 
             //If we are <50% hp cast Soul Siphon rank 1
-            if (!HealthAbovePct(50) && !me->IsNonMeleeSpellCasted(false))
+            if (!HealthAbovePct(50) && !me->IsNonMeleeSpellCast(false))
             {
                 //SoulSiphon_Timer
                 if (SoulSiphon_Timer <= diff)
