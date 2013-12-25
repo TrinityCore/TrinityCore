@@ -1068,7 +1068,7 @@ public:
 
                 if (Freezing_Trap_Timer <= diff)
                 {
-                    //attempt find go summoned from spell (casted by me)
+                    //attempt find go summoned from spell (cast by me)
                     GameObject* go = me->GetGameObject(SPELL_FREEZING_TRAP);
 
                     //if we have a go, we need to wait (only one trap at a time)

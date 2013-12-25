@@ -517,7 +517,7 @@ enum WyrmDefenderEnum
     // Spells data
     SPELL_CHARACTER_SCRIPT                   = 49213,
     SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE       = 52421, // ID - 52421 Wyrmrest Defender: On Low Health Boss Emote to Controller - Random /self/
-    SPELL_RENEW                              = 49263, // casted to heal drakes
+    SPELL_RENEW                              = 49263, // cast to heal drakes
     SPELL_WYRMREST_DEFENDER_MOUNT            = 49256,
 
     // Texts data

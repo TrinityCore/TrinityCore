@@ -528,8 +528,8 @@ public:
             instance    = creature->GetInstanceScript();
             bRemoved    = false;
             bRemoved2   = false;
-            bCasted     = false;
-            bCasted2    = false;
+            bCast     = false;
+            bCast2    = false;
 
             SetCombatMovement(false);
         }
@@ -538,8 +538,8 @@ public:
 
         bool bRemoved;
         bool bRemoved2;
-        bool bCasted;
-        bool bCasted2;
+        bool bCast;
+        bool bCast2;
 
         void Reset() OVERRIDE { }
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
@@ -560,23 +560,23 @@ public:
                     bRemoved = true;
                     return;
                 }
-                if (!bCasted)
+                if (!bCast)
                 {
                     DoCast(me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1, false);
-                    bCasted = true;
+                    bCast = true;
                 }
             }
             if (!bRemoved2 && me->GetPositionX() < 440.0f)
             {
-                if (!bCasted2 && instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
+                if (!bCast2 && instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
                 {
                     DoCast(me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2, false);
-                    bCasted2 = true;
+                    bCast2 = true;
                 }
-                if (bCasted2 && !instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
+                if (bCast2 && !instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
                 {
                     me->InterruptNonMeleeSpells(true);
-                    bCasted2 = false;
+                    bCast2 = false;
                 }
                 if (!bRemoved2 && instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == DONE)
                 {
