@@ -2880,6 +2880,13 @@ bool Player::IsUnderWater() const
 
 void Player::SetInWater(bool apply)
 {
+    if (HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+    {
+        Dismount();
+        RemoveAurasByType(SPELL_AURA_MOUNTED);
+        RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+    }
+    
     if (m_isInWater == apply)
         return;
 
