@@ -49,7 +49,7 @@ enum Spells
     SPELL_HOLY_NOVA             = 66546,
     SPELL_SHIELD                = 66515,
     SPELL_CONFESS               = 66680,
-    SPELL_SUMMON_MEMORY         = 66708,
+    SPELL_SUMMON_MEMORY         = 66545,
     
     //Npc_argent_soldier
     SPELL_STRIKE                = 67237,
