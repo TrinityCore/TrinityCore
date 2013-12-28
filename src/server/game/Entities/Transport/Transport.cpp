@@ -411,37 +411,9 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     if (oldMap->GetId() != newMapid)
     {
         Map* newMap = sMapMgr->CreateBaseMap(newMapid);
-        Map::PlayerList const& oldPlayers = GetMap()->GetPlayers();
-        if (!oldPlayers.isEmpty())
-        {
-            UpdateData data;
-            BuildOutOfRangeUpdateBlock(&data);
-            WorldPacket packet;
-            data.BuildPacket(&packet);
-            for (Map::PlayerList::const_iterator itr = oldPlayers.begin(); itr != oldPlayers.end(); ++itr)
-                if (itr->GetSource()->GetTransport() != this)
-                    itr->GetSource()->SendDirectMessage(&packet);
-        }
-
         UnloadStaticPassengers();
         GetMap()->RemoveFromMap<Transport>(this, false);
         SetMap(newMap);
-
-        Map::PlayerList const& newPlayers = GetMap()->GetPlayers();
-        if (!newPlayers.isEmpty())
-        {
-            for (Map::PlayerList::const_iterator itr = newPlayers.begin(); itr != newPlayers.end(); ++itr)
-            {
-                if (itr->GetSource()->GetTransport() != this)
-                {
-                    UpdateData data;
-                    BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
-                    WorldPacket packet;
-                    data.BuildPacket(&packet);
-                    itr->GetSource()->SendDirectMessage(&packet);
-                }
-            }
-        }
 
         for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end();)
         {
