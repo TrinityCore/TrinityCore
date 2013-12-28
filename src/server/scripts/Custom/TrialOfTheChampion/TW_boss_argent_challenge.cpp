@@ -519,7 +519,7 @@ class TW_boss_paletress : public CreatureScript
                 } else uiRenewTimer -= uiDiff;
             }
 
-            if (!bHealth && me->GetHealth()*100 / me->GetMaxHealth() <= 35)
+            if (!bHealth && me->HealthBelowPct(25))
             {
                 Talk(SAY_PALETRESS_SUMMON_MEMORY);
                 me->InterruptNonMeleeSpells(true);
