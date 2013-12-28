@@ -229,7 +229,7 @@ extern int main(int argc, char** argv)
         {
             CPU_ZERO(&mask);
             sched_getaffinity(0, sizeof(mask), &mask);
-            TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %x", *(uint32*)(&mask));
+            TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
         }
     }
 
