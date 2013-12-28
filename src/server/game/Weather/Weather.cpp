@@ -202,8 +202,7 @@ void Weather::SendWeatherUpdateToPlayer(Player* player)
 /// Send the new weather to all players in the zone
 bool Weather::UpdateWeather()
 {
-    Player* player = sWorld->FindPlayerInZone(m_zone);
-    if (!player)
+    if (!sWorld->FindPlayerInZone(m_zone))
         return false;
 
     ///- Send the weather packet to all players in this zone
