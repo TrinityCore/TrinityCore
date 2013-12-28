@@ -553,6 +553,22 @@ bool Map::AddToMap(Transport* obj)
     obj->AddToWorld();
     _transports.insert(obj);
 
+    // Broadcast creation to players
+    if (!GetPlayers().isEmpty())
+    {
+        for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
+            if (itr->GetSource()->GetTransport() != obj)
+            {
+                UpdateData data;
+                obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
+                WorldPacket packet;
+                data.BuildPacket(&packet);
+                itr->GetSource()->SendDirectMessage(&packet);
+            }
+        }
+    }
+
     return true;
 }
 
@@ -800,6 +816,18 @@ template<>
 void Map::RemoveFromMap(Transport* obj, bool remove)
 {
     obj->RemoveFromWorld();
+
+    Map::PlayerList const& players = GetPlayers();
+    if (!players.isEmpty())
+    {
+        UpdateData data;
+        obj->BuildOutOfRangeUpdateBlock(&data);
+        WorldPacket packet;
+        data.BuildPacket(&packet);
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        if (itr->GetSource()->GetTransport() != obj)
+            itr->GetSource()->SendDirectMessage(&packet);
+    }
 
     if (_transportsUpdateIter != _transports.end())
     {
