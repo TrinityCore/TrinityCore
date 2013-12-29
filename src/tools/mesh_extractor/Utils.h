@@ -102,7 +102,7 @@ public:
     uint32 AreaId;
     uint32 MapObjectRefs;
     uint32 Holes;
-    uint32* LowQualityTextureMap;
+    uint32 LowQualityTextureMap[4];
     uint32 PredTex;
     uint32 NumberEffectDoodad;
     uint32 OffsetMCSE;
@@ -208,7 +208,7 @@ public:
     Vector3 BoundingBox[2];
     uint32 LiquidTypeRelated;
 
-    static WorldModelHeader Read(Stream* stream);
+    void Read(Stream* stream);
 };
 
 class DoodadInstance
@@ -251,22 +251,36 @@ public:
     Vector3 BaseLocation;
     uint16 MaterialId;
 
-    static LiquidHeader Read(Stream* stream);
+    void Read(Stream* stream);
 };
 
 class LiquidData
 {
 public:
     LiquidData() {}
+    
+    ~LiquidData()
+    {
+        for (uint32 i = 0; i < CountXVertices; ++i)
+            delete[] HeightMap[i];
+        delete[] HeightMap;
+
+        for (uint32 i = 0; i < Width; ++i)
+            delete[] RenderFlags[i];
+        delete[] RenderFlags;
+    }
+
     float** HeightMap;
     uint8** RenderFlags;
+    uint32 CountXVertices;
+    uint32 Width;
 
     bool ShouldRender(int x, int y)
     {
         return RenderFlags[x][y] != 0x0F;
     }
 
-    static LiquidData Read(Stream* stream, LiquidHeader& header);
+    void Read(Stream* stream, LiquidHeader& header);
 };
 
 class H2ORenderMask

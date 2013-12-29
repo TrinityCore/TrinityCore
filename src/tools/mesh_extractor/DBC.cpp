@@ -21,7 +21,7 @@
 
 DBC::DBC(Stream* stream) : StringBlock(NULL), StringBlockSize(0), IsFaulty(true)
 {
-    stream->Read(4); // Read the magic "WDBC"
+    delete[] stream->Read(4); // Read the magic "WDBC"
 
     RecordCount = stream->Read<int>();
     Records.reserve(RecordCount);
