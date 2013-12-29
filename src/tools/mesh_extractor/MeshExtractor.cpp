@@ -34,6 +34,28 @@
 MPQManager* MPQHandler;
 CacheClass* Cache;
 
+bool IgnoreMap(uint32 id)
+{
+    switch (id)
+    {
+        case 13:    // test.wdt
+        case 25:    // ScottTest.wdt
+        case 29:    // Test.wdt
+        case 42:    // Colin.wdt
+        case 169:   // EmeraldDream.wdt (unused, and very large)
+        case 451:   // development.wdt
+        case 573:   // ExteriorTest.wdt
+        case 597:   // CraigTest.wdt
+        case 605:   // development_nonweighted.wdt
+        case 606:   // QA_DVD.wdt
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
 {
     std::string basePath = "mmaps/";
@@ -45,8 +67,8 @@ void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
     {
         uint32 mapId = (*itr)->Values[0];
 
-        // Skip this map if a list of specific maps was provided and this one is not contained in it.
-        if (!mapIds.empty() && mapIds.find(mapId) == mapIds.end())
+        // Skip this map if a list of specific maps was provided and this one is not contained in it, or if the map is in the ignore list.
+        if ((!mapIds.empty() && mapIds.find(mapId) == mapIds.end()) || IgnoreMap(mapId))
         {
             if (Constants::Debug)
                 printf("Map %u will not be built.\n", mapId);
