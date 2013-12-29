@@ -311,7 +311,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_volazjAI(creature);
+        return GetInstanceAI<boss_volazjAI>(creature);
     }
 };
 

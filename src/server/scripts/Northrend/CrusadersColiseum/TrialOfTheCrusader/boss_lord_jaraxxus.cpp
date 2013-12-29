@@ -214,7 +214,7 @@ class boss_jaraxxus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_jaraxxusAI(creature);
+            return GetInstanceAI<boss_jaraxxusAI>(creature);
         }
 };
 
@@ -250,7 +250,7 @@ class npc_legion_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_legion_flameAI(creature);
+            return GetInstanceAI<npc_legion_flameAI>(creature);
         }
 };
 
@@ -355,7 +355,7 @@ class npc_fel_infernal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_fel_infernalAI(creature);
+            return GetInstanceAI<npc_fel_infernalAI>(creature);
         }
 };
 
@@ -488,7 +488,7 @@ class npc_mistress_of_pain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_mistress_of_painAI(creature);
+            return GetInstanceAI<npc_mistress_of_painAI>(creature);
         }
 };
 

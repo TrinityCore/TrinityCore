@@ -393,7 +393,7 @@ class npc_vilebranch_speaker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_vilebranch_speakerAI(creature);
+            return GetInstanceAI<npc_vilebranch_speakerAI>(creature);
         }
 };
 

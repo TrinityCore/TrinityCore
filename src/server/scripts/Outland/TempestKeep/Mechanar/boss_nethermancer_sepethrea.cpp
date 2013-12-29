@@ -223,7 +223,7 @@ class npc_ragin_flames : public CreatureScript
             };
             CreatureAI* GetAI(Creature* creature) const OVERRIDE
             {
-                return new npc_ragin_flamesAI(creature);
+                return GetInstanceAI<npc_ragin_flamesAI>(creature);
             }
 };
 

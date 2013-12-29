@@ -236,7 +236,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kalecgos_kjAI(creature);
+        return GetInstanceAI<boss_kalecgos_kjAI>(creature);
     }
 
     struct boss_kalecgos_kjAI : public ScriptedAI
@@ -389,7 +389,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_kiljaeden_controllerAI(creature);
+        return GetInstanceAI<npc_kiljaeden_controllerAI>(creature);
     }
 
     struct npc_kiljaeden_controllerAI : public ScriptedAI
@@ -1150,7 +1150,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shield_orbAI(creature);
+        return GetInstanceAI<npc_shield_orbAI>(creature);
     }
 
     struct npc_shield_orbAI : public ScriptedAI

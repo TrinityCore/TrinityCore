@@ -232,7 +232,7 @@ class npc_healing_ward : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_healing_wardAI(creature);
+            return GetInstanceAI<npc_healing_wardAI>(creature);
         }
 };
 

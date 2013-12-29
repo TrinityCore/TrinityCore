@@ -311,7 +311,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_warchief_kargath_bladefistAI(creature);
+            return GetInstanceAI<boss_warchief_kargath_bladefistAI>(creature);
         }
 };
 

@@ -116,7 +116,7 @@ class npc_forest_frog : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_forest_frogAI(creature);
+            return GetInstanceAI<npc_forest_frogAI>(creature);
         }
 };
 
@@ -460,7 +460,7 @@ class npc_harrison_jones : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_harrison_jonesAI(creature);
+            return GetInstanceAI<npc_harrison_jonesAI>(creature);
         }
 };
 

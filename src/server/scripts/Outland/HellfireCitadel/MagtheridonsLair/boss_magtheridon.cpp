@@ -457,7 +457,7 @@ class boss_magtheridon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_magtheridonAI(creature);
+            return GetInstanceAI<boss_magtheridonAI>(creature);
         }
 };
 
@@ -576,7 +576,7 @@ class npc_hellfire_channeler : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_hellfire_channelerAI(creature);
+            return GetInstanceAI<npc_hellfire_channelerAI>(creature);
         }
 };
 

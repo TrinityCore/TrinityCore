@@ -44,7 +44,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_rage_winterchillAI(creature);
+        return GetInstanceAI<boss_rage_winterchillAI>(creature);
     }
 
     struct boss_rage_winterchillAI : public hyjal_trashAI
