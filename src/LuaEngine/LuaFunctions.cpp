@@ -734,23 +734,23 @@ ElunaRegister<GameObject> GameObjectMethods[] =
 ElunaRegister<Vehicle> VehicleMethods[] =
 {
     /* Getters */
-    {"GetBase", &LuaVehicle::GetBase},
-    {"GetAvailableSeatCount", &LuaVehicle::GetAvailableSeatCount},
-    {"GetCreatureEntry", &LuaVehicle::GetCreatureEntry},
-    {"GetPassenger", &LuaVehicle::GetPassenger},
+    {"GetBase", &LuaVehicle::GetBase},                      // :GetBase() - Returns the vehicle base (unit)
+    {"GetAvailableSeatCount", &LuaVehicle::GetAvailableSeatCount}, // :GetAvailableSeatCount() - Returns the available seats
+    {"GetCreatureEntry", &LuaVehicle::GetCreatureEntry},    // :GetCreatureEntry() - Returns the vehicle's entryId
+    {"GetPassenger", &LuaVehicle::GetPassenger},            // :GetPassenger(seatId) - Returns the passenger (unit) by seatId
     /* Boolean */
-    {"HasEmptySeat", &LuaVehicle::HasEmptySeat},
-    {"IsVehicleInUse", &LuaVehicle::IsVehicleInUse},
+    {"HasEmptySeat", &LuaVehicle::HasEmptySeat},            // :HasEmptySeat(seatId) - Returns true if the specified seatId is empty
+    {"IsVehicleInUse", &LuaVehicle::IsVehicleInUse},        // :IsVehicleInUse() - Returns true if the vehicle is being used
     /* Other */
-    {"InstallAccessory", &LuaVehicle::InstallAccessory},
-    {"ApplyAllImmunities", &LuaVehicle::ApplyAllImmunities},
-    {"AddPassenger", &LuaVehicle::AddPassenger},
-    {"EjectPassenger", &LuaVehicle::EjectPassenger},
-    {"RelocatePassengers", &LuaVehicle::RelocatePassengers},
-    {"RemoveAllPassengers", &LuaVehicle::RemoveAllPassengers},
-    {"RemovePassenger", &LuaVehicle::RemovePassenger},
-    {"RemovePendingEventsForPassenger", &LuaVehicle::RemovePendingEventsForPassenger},
-    {"Reset", &LuaVehicle::Reset},
+    {"InstallAccessory", &LuaVehicle::InstallAccessory},    // :InstallAccessory(entry, seatId, bool minion, typeId, summonTime) - Installs an accessory
+    {"ApplyAllImmunities", &LuaVehicle::ApplyAllImmunities}, // :ApplyAllImmunities() - Applies all Vehicle immunities
+    {"AddPassenger", &LuaVehicle::AddPassenger},            // :AddPassenger(passenger, seatId) - Adds a vehicle passenger
+    {"EjectPassenger", &LuaVehicle::EjectPassenger},        // :EjectPassenger(passenger, controller) - Disabled for now
+    {"RelocatePassengers", &LuaVehicle::RelocatePassengers}, // :RelocatePassengers() - Relocates Passengers
+    {"RemoveAllPassengers", &LuaVehicle::RemoveAllPassengers}, // :RemoveAllPassengers() - Removes all Passengers from the Vehicle
+    {"RemovePassenger", &LuaVehicle::RemovePassenger},      // :RemovePassenger(passenger) - Removes the passenger from the vehicle
+    {"RemovePendingEventsForPassenger", &LuaVehicle::RemovePendingEventsForPassenger}, // :RemovePendingEventsForPassenger(passenger) - Removes pending join events from the passenger
+    {"Reset", &LuaVehicle::Reset},                          // :Reset(evading) - Resets the vehicle, the boolean is optional
 
     { NULL, NULL },
 };
