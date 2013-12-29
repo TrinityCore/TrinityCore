@@ -153,7 +153,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new eye_of_cthunAI(creature);
+        return GetInstanceAI<eye_of_cthunAI>(creature);
     }
 
     struct eye_of_cthunAI : public ScriptedAI
@@ -459,7 +459,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new cthunAI(creature);
+        return GetInstanceAI<cthunAI>(creature);
     }
 
     struct cthunAI : public ScriptedAI

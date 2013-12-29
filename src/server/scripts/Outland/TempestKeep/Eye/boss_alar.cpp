@@ -451,7 +451,7 @@ class boss_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_alarAI(creature);
+            return GetInstanceAI<boss_alarAI>(creature);
         }
 };
 
@@ -528,7 +528,7 @@ class npc_ember_of_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_ember_of_alarAI(creature);
+            return GetInstanceAI<npc_ember_of_alarAI>(creature);
         }
 };
 

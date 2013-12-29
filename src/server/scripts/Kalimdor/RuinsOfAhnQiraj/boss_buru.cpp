@@ -236,7 +236,7 @@ class npc_buru_egg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_buru_eggAI(creature);
+            return GetInstanceAI<npc_buru_eggAI>(creature);
         }
 };
 

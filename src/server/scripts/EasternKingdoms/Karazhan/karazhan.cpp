@@ -412,7 +412,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_barnesAI(creature);
+        return GetInstanceAI<npc_barnesAI>(creature);
     }
 };
 
@@ -476,7 +476,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_image_of_medivhAI(creature);
+        return GetInstanceAI<npc_image_of_medivhAI>(creature);
     }
 
     struct npc_image_of_medivhAI : public ScriptedAI

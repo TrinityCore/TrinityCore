@@ -232,7 +232,7 @@ class boss_ayamiss : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_ayamissAI(creature);
+            return GetInstanceAI<boss_ayamissAI>(creature);
         }
 };
 
@@ -286,7 +286,7 @@ class npc_hive_zara_larva : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_hive_zara_larvaAI(creature);
+            return GetInstanceAI<npc_hive_zara_larvaAI>(creature);
         }
 };
 

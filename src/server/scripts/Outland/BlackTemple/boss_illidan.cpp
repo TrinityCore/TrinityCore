@@ -1126,7 +1126,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_illidan_stormrageAI(creature);
+        return GetInstanceAI<boss_illidan_stormrageAI>(creature);
     }
 };
 
@@ -1794,7 +1794,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_akama_illidanAI(creature);
+        return GetInstanceAI<npc_akama_illidanAI>(creature);
     }
 };
 
@@ -2228,7 +2228,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_parasitic_shadowfiendAI(creature);
+        return GetInstanceAI<npc_parasitic_shadowfiendAI>(creature);
     }
 };
 

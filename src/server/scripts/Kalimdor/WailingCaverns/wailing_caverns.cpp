@@ -81,7 +81,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_disciple_of_naralexAI(creature);
+        return GetInstanceAI<npc_disciple_of_naralexAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE

@@ -188,7 +188,7 @@ class boss_bronjahm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_bronjahmAI(creature);
+            return GetInstanceAI<boss_bronjahmAI>(creature);
         }
 };
 
@@ -231,7 +231,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_corrupted_soul_fragmentAI(creature);
+            return GetInstanceAI<npc_corrupted_soul_fragmentAI>(creature);
         }
 };
 
