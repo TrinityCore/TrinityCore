@@ -344,7 +344,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_arthasAI(creature);
+        return GetInstanceAI<npc_arthasAI>(creature);
     }
 
     struct npc_arthasAI : public npc_escortAI

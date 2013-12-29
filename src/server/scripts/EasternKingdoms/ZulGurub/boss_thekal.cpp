@@ -251,7 +251,7 @@ class boss_thekal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_thekalAI(creature);
+            return GetInstanceAI<boss_thekalAI>(creature);
         }
 };
 
@@ -406,7 +406,7 @@ class npc_zealot_lorkhan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_zealot_lorkhanAI(creature);
+            return GetInstanceAI<npc_zealot_lorkhanAI>(creature);
         }
 };
 
@@ -559,7 +559,7 @@ class npc_zealot_zath : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_zealot_zathAI(creature);
+            return GetInstanceAI<npc_zealot_zathAI>(creature);
         }
 };
 

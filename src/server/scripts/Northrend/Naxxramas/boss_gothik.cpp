@@ -500,7 +500,7 @@ class boss_gothik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_gothikAI(creature);
+            return GetInstanceAI<boss_gothikAI>(creature);
         }
 };
 

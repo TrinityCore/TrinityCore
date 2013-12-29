@@ -337,7 +337,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_jedoga_shadowseekerAI(creature);
+        return GetInstanceAI<boss_jedoga_shadowseekerAI>(creature);
     }
 };
 
@@ -503,7 +503,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_jedoga_initiandAI(creature);
+        return GetInstanceAI<npc_jedoga_initiandAI>(creature);
     }
 };
 
@@ -589,7 +589,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_jedogas_aufseher_triggerAI(creature);
+        return GetInstanceAI<npc_jedogas_aufseher_triggerAI>(creature);
     }
 };
 

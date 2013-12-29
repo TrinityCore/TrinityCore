@@ -619,7 +619,7 @@ class boss_flame_leviathan_seat : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_flame_leviathan_seatAI(creature);
+            return GetInstanceAI<boss_flame_leviathan_seatAI>(creature);
         }
 };
 
@@ -898,7 +898,7 @@ class npc_colossus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_colossusAI(creature);
+            return GetInstanceAI<npc_colossusAI>(creature);
         }
 };
 

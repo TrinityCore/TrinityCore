@@ -132,8 +132,9 @@ public:
 
         void JustDied(Unit* killer) OVERRIDE
         {
-            if (killer->ToPlayer()->GetQuestRewardStatus(QUEST_INTO_THE_SOULGRINDER))
-                Talk(SAY_DEATH);
+            if (killer->GetTypeId() == TYPEID_PLAYER)
+                if (killer->ToPlayer()->GetQuestRewardStatus(QUEST_INTO_THE_SOULGRINDER))
+                    Talk(SAY_DEATH);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE

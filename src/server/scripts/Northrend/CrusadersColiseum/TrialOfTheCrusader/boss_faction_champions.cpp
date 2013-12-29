@@ -539,7 +539,7 @@ class boss_toc_champion_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_toc_champion_controllerAI(creature);
+            return GetInstanceAI<boss_toc_champion_controllerAI>(creature);
         }
 };
 
@@ -839,7 +839,7 @@ class npc_toc_druid : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_druidAI(creature);
+            return GetInstanceAI<npc_toc_druidAI>(creature);
         }
 };
 
@@ -932,7 +932,7 @@ class npc_toc_shaman : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_shamanAI(creature);
+            return GetInstanceAI<npc_toc_shamanAI>(creature);
         }
 };
 
@@ -1036,7 +1036,7 @@ class npc_toc_paladin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_paladinAI(creature);
+            return GetInstanceAI<npc_toc_paladinAI>(creature);
         }
 };
 
@@ -1121,7 +1121,7 @@ class npc_toc_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_priestAI(creature);
+            return GetInstanceAI<npc_toc_priestAI>(creature);
         }
 };
 
@@ -1219,7 +1219,7 @@ class npc_toc_shadow_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_shadow_priestAI(creature);
+            return GetInstanceAI<npc_toc_shadow_priestAI>(creature);
         }
 };
 
@@ -1310,7 +1310,7 @@ class npc_toc_warlock : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_warlockAI(creature);
+            return GetInstanceAI<npc_toc_warlockAI>(creature);
         }
 };
 
@@ -1404,7 +1404,7 @@ class npc_toc_mage : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_mageAI(creature);
+            return GetInstanceAI<npc_toc_mageAI>(creature);
         }
 };
 
@@ -1506,7 +1506,7 @@ class npc_toc_hunter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_hunterAI(creature);
+            return GetInstanceAI<npc_toc_hunterAI>(creature);
         }
 };
 
@@ -1598,7 +1598,7 @@ class npc_toc_boomkin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_boomkinAI(creature);
+            return GetInstanceAI<npc_toc_boomkinAI>(creature);
         }
 };
 
@@ -1702,7 +1702,7 @@ class npc_toc_warrior : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_warriorAI(creature);
+            return GetInstanceAI<npc_toc_warriorAI>(creature);
         }
 };
 
@@ -1798,7 +1798,7 @@ class npc_toc_dk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_dkAI(creature);
+            return GetInstanceAI<npc_toc_dkAI>(creature);
         }
 };
 
@@ -1903,7 +1903,7 @@ class npc_toc_rogue : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_rogueAI(creature);
+            return GetInstanceAI<npc_toc_rogueAI>(creature);
         }
 };
 
@@ -2029,7 +2029,7 @@ class npc_toc_enh_shaman : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_enh_shamanAI(creature);
+            return GetInstanceAI<npc_toc_enh_shamanAI>(creature);
         }
 };
 
@@ -2135,7 +2135,7 @@ class npc_toc_retro_paladin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_retro_paladinAI(creature);
+            return GetInstanceAI<npc_toc_retro_paladinAI>(creature);
         }
 };
 
@@ -2187,7 +2187,7 @@ class npc_toc_pet_warlock : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_pet_warlockAI(creature);
+            return GetInstanceAI<npc_toc_pet_warlockAI>(creature);
         }
 };
 
@@ -2227,7 +2227,7 @@ class npc_toc_pet_hunter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_toc_pet_hunterAI(creature);
+            return GetInstanceAI<npc_toc_pet_hunterAI>(creature);
         }
 };
 

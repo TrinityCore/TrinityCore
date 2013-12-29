@@ -273,7 +273,7 @@ class boss_ossirian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_ossirianAI(creature);
+            return GetInstanceAI<boss_ossirianAI>(creature);
         }
 };
 

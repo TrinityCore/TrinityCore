@@ -72,7 +72,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shadowfang_prisonerAI(creature);
+        return GetInstanceAI<npc_shadowfang_prisonerAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
@@ -158,7 +158,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_arugal_voidwalkerAI(creature);
+        return GetInstanceAI<npc_arugal_voidwalkerAI>(creature);
     }
 
     struct npc_arugal_voidwalkerAI : public ScriptedAI
