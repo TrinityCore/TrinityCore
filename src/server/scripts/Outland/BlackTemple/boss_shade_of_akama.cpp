@@ -748,6 +748,7 @@ public:
         npc_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            startedBanishing = false;
         }
 
         void Reset() OVERRIDE

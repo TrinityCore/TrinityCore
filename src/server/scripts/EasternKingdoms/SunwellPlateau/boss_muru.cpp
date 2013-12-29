@@ -593,6 +593,7 @@ public:
             DespawnTimer = 15000;
             SpellTimer = 5000;
             Phase = 0;
+            NeedForAHack = 0;
 
             me->AddUnitState(UNIT_STATE_STUNNED);
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);

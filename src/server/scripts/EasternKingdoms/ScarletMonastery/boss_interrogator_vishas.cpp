@@ -67,6 +67,8 @@ public:
         void Reset() OVERRIDE
         {
             ShadowWordPain_Timer = 5000;
+            Yell60 = false;
+            Yell30 = false;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE

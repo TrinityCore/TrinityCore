@@ -70,6 +70,12 @@ public:
     {
         boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK_EVENT) { }
 
+        void Reset()
+        {
+            BossAI::Reset();
+            frenzy = false;
+        }
+
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();

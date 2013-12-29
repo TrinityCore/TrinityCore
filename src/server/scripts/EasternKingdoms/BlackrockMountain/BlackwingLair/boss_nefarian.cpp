@@ -170,11 +170,12 @@ public:
 
         void Reset() OVERRIDE
         {
+            SpawnedAdds = 0;
+
             if (me->GetMapId() == 469)
             {
                 if (!me->FindNearestCreature(NPC_NEFARIAN, 1000.0f, true))
                     _Reset();
-                SpawnedAdds = 0;
 
                 me->SetVisible(true);
                 me->SetPhaseMask(1, true);
