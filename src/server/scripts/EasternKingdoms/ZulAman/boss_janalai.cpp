@@ -442,7 +442,7 @@ class boss_janalai : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_janalaiAI(creature);
+            return GetInstanceAI<boss_janalaiAI>(creature);
         }
 };
 
@@ -612,7 +612,7 @@ class npc_janalai_hatcher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_janalai_hatcherAI(creature);
+            return GetInstanceAI<npc_janalai_hatcherAI>(creature);
         }
 };
 
@@ -671,7 +671,7 @@ class npc_janalai_hatchling : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_janalai_hatchlingAI(creature);
+            return GetInstanceAI<npc_janalai_hatchlingAI>(creature);
         }
 };
 

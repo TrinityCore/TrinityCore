@@ -451,7 +451,7 @@ class boss_fjola : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_fjolaAI(creature);
+            return GetInstanceAI<boss_fjolaAI>(creature);
         }
 };
 
@@ -486,7 +486,7 @@ class boss_eydis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_eydisAI(creature);
+            return GetInstanceAI<boss_eydisAI>(creature);
         }
 };
 

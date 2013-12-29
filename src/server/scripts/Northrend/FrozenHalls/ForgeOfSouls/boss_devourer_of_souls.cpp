@@ -345,7 +345,7 @@ class boss_devourer_of_souls : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_devourer_of_soulsAI(creature);
+            return GetInstanceAI<boss_devourer_of_soulsAI>(creature);
         }
 };
 
