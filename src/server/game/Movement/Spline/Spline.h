@@ -118,7 +118,7 @@ public:
 
     /** As i can see there are a lot of ways how spline can be initialized
         would be no harm to have some custom initializers. */
-    template<class Init> inline void init_spline(Init& initializer)
+    template<class Init> inline void init_spline_custom(Init& initializer)
     {
         initializer(m_mode, cyclic, points, index_lo, index_hi);
     }

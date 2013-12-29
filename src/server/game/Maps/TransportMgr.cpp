@@ -87,28 +87,60 @@ void TransportMgr::LoadTransportTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded %u transport templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+class SplineRawInitializer
+{
+public:
+    SplineRawInitializer(Movement::PointsArray& points) : _points(points) { }
+
+    void operator()(uint8& mode, bool& cyclic, Movement::PointsArray& points, int& lo, int& hi) const
+    {
+        mode = Movement::SplineBase::ModeCatmullrom;
+        cyclic = false;
+        points.assign(_points.begin(), _points.end());
+        lo = 1;
+        hi = points.size();
+    }
+
+    Movement::PointsArray& _points;
+};
+
 void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
 {
     uint32 pathId = goInfo->moTransport.taxiPathId;
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
     std::vector<KeyFrame>& keyFrames = transport->keyFrames;
-    Movement::PointsArray splinePath;
+    Movement::PointsArray splinePath, allPoints;
     bool mapChange = false;
-    bool cyclic = true;
+    for (size_t i = 0; i < path.size(); ++i)
+        allPoints.push_back(G3D::Vector3(path[i].x, path[i].y, path[i].z));
+
+    // Add extra points to allow derivative calculations for all path nodes
+    allPoints.insert(allPoints.begin(), allPoints.front().lerp(allPoints[1], -0.2f));
+    allPoints.push_back(allPoints.back().lerp(allPoints[allPoints.size() - 2], -0.2f));
+    allPoints.push_back(allPoints.back().lerp(allPoints[allPoints.size() - 2], -1.0f));
+
+    SplineRawInitializer initer(allPoints);
+    TransportSpline orientationSpline;
+    orientationSpline.init_spline_custom(initer);
+    orientationSpline.initLengths();
+
     for (size_t i = 0; i < path.size(); ++i)
     {
         if (!mapChange)
         {
             TaxiPathNodeEntry const& node_i = path[i];
-            if (i != path.size() - 1 && (node_i.actionFlag == 1 || node_i.mapid != path[i + 1].mapid))
+            if (i != path.size() - 1 && (node_i.actionFlag & 1 || node_i.mapid != path[i + 1].mapid))
             {
-                cyclic = false;
                 keyFrames.back().Teleport = true;
                 mapChange = true;
             }
             else
             {
                 KeyFrame k(node_i);
+                G3D::Vector3 h;
+                orientationSpline.evaluate_derivative(i + 1, 0.0f, h);
+                k.InitialOrientation = Position::NormalizeOrientation(atan2(h.y, h.x) + M_PI);
+
                 keyFrames.push_back(k);
                 splinePath.push_back(G3D::Vector3(node_i.x, node_i.y, node_i.z));
                 transport->mapsUsed.insert(k.Node->mapid);
@@ -118,16 +150,15 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
             mapChange = false;
     }
 
-    // Not sure if data8 means the transport can be stopped or that its path in dbc does not contain extra spline points
-    if (!goInfo->moTransport.canBeStopped && splinePath.size() >= 2)
+    if (splinePath.size() >= 2)
     {
         // Remove special catmull-rom spline points
-        splinePath.erase(splinePath.begin());
-        keyFrames.erase(keyFrames.begin());
-        splinePath.pop_back();
-        keyFrames.pop_back();
-        // Cyclic spline has one more extra point
-        if (cyclic && !splinePath.empty())
+        if (!keyFrames.front().IsStopFrame() && !keyFrames.front().Node->arrivalEventID && !keyFrames.front().Node->departureEventID)
+        {
+            splinePath.erase(splinePath.begin());
+            keyFrames.erase(keyFrames.begin());
+        }
+        if (!keyFrames.back().IsStopFrame() && !keyFrames.back().Node->arrivalEventID && !keyFrames.back().Node->departureEventID)
         {
             splinePath.pop_back();
             keyFrames.pop_back();
@@ -170,67 +201,41 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
 
     // find the rest of the distances between key points
     // Every path segment has its own spline
-    if (cyclic)
+    size_t start = 0;
+    for (size_t i = 1; i < keyFrames.size(); ++i)
     {
-        TransportSpline* spline = new TransportSpline();
-        spline->init_cyclic_spline(&splinePath[0], splinePath.size(), Movement::SplineBase::ModeCatmullrom, 0);
-        spline->initLengths();
-        keyFrames[0].DistFromPrev = spline->length(spline->last() - 2, spline->last() - 1);
-        keyFrames[0].Spline = spline;
-        for (size_t i = 0; i < keyFrames.size(); ++i)
+        if (keyFrames[i - 1].Teleport || i + 1 == keyFrames.size())
         {
-            keyFrames[i].Index = i + 1;
-            keyFrames[i].DistFromPrev = spline->length(i, i + 1);
-            if (i > 0)
-                keyFrames[i - 1].NextDistFromPrev = keyFrames[i].DistFromPrev;
-            keyFrames[i].Spline = spline;
-            if (keyFrames[i].IsStopFrame())
+            size_t extra = !keyFrames[i - 1].Teleport ? 1 : 0;
+            TransportSpline* spline = new TransportSpline();
+            spline->init_spline(&splinePath[start], i - start + extra, Movement::SplineBase::ModeCatmullrom);
+            spline->initLengths();
+            for (size_t j = start; j < i + extra; ++j)
             {
-                // remember first stop frame
-                if (firstStop == -1)
-                    firstStop = i;
-                lastStop = i;
+                keyFrames[j].Index = j - start + 1;
+                keyFrames[j].DistFromPrev = spline->length(j - start, j + 1 - start);
+                if (j > 0)
+                    keyFrames[j - 1].NextDistFromPrev = keyFrames[j].DistFromPrev;
+                keyFrames[j].Spline = spline;
             }
+
+            if (keyFrames[i - 1].Teleport)
+            {
+                keyFrames[i].Index = i - start + 1;
+                keyFrames[i].DistFromPrev = 0.0f;
+                keyFrames[i - 1].NextDistFromPrev = 0.0f;
+                keyFrames[i].Spline = spline;
+            }
+
+            start = i;
         }
-    }
-    else
-    {
-        size_t start = 0;
-        for (size_t i = 1; i < keyFrames.size(); ++i)
+
+        if (keyFrames[i].IsStopFrame())
         {
-            if (keyFrames[i - 1].Teleport || i + 1 == keyFrames.size())
-            {
-                size_t extra = !keyFrames[i - 1].Teleport ? 1 : 0;
-                TransportSpline* spline = new TransportSpline();
-                spline->init_spline(&splinePath[start], i - start + extra, Movement::SplineBase::ModeCatmullrom);
-                spline->initLengths();
-                for (size_t j = start; j < i + extra; ++j)
-                {
-                    keyFrames[j].Index = j - start + 1;
-                    keyFrames[j].DistFromPrev = spline->length(j - start, j + 1 - start);
-                    if (j > 0)
-                        keyFrames[j - 1].NextDistFromPrev = keyFrames[j].DistFromPrev;
-                    keyFrames[j].Spline = spline;
-                }
-
-                if (keyFrames[i - 1].Teleport)
-                {
-                    keyFrames[i].Index = i - start + 1;
-                    keyFrames[i].DistFromPrev = 0.0f;
-                    keyFrames[i - 1].NextDistFromPrev = 0.0f;
-                    keyFrames[i].Spline = spline;
-                }
-
-                start = i;
-            }
-
-            if (keyFrames[i].IsStopFrame())
-            {
-                // remember first stop frame
-                if (firstStop == -1)
-                    firstStop = i;
-                lastStop = i;
-            }
+            // remember first stop frame
+            if (firstStop == -1)
+                firstStop = i;
+            lastStop = i;
         }
     }
 
@@ -373,7 +378,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
     float x = startNode->x;
     float y = startNode->y;
     float z = startNode->z;
-    float o = 0.0f;
+    float o = tInfo->keyFrames.begin()->InitialOrientation;
 
     // initialize the gameobject base
     uint32 guidLow = guid ? guid : sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT);

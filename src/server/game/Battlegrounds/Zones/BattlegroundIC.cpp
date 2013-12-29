@@ -397,6 +397,9 @@ bool BattlegroundIC::SetupBattleground()
         return false;
     }
 
+    gunshipHorde->EnableMovement(false);
+    gunshipAlliance->EnableMovement(false);
+
     // setting correct factions for Keep Cannons
     for (uint8 i = BG_IC_NPC_KEEP_CANNON_1; i < BG_IC_NPC_KEEP_CANNON_12; ++i)
         GetBGCreature(i)->setFaction(BG_IC_Factions[0]);
