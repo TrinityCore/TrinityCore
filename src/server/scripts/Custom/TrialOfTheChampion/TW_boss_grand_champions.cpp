@@ -83,6 +83,44 @@ enum Seat
     SEAT_ID_0                       = 0,
 };
 
+enum Events
+{
+    // Warrior
+    EVENT_BLADESTORM                = 1,
+    EVENT_MORTAL_STRIKE             = 2,
+
+    // Mage
+    EVENT_FIREBALL                  = 3,
+    EVENT_BLASTWAVE                 = 4,
+    EVENT_HASTE                     = 5,
+    EVENT_POLYMORPH                 = 6,
+
+    // Shaman
+    EVENT_EARTH_SHIELD              = 7,
+    EVENT_CHAIN_LIGHTNING           = 8,
+    EVENT_HEALING_WAVE              = 9,
+    EVENT_HEX                       = 10,
+
+    // Hunter
+    EVENT_SHOOT                     = 11,
+    EVENT_MULTI_SHOOT               = 12,
+    EVENT_DISENGAGE                 = 13,
+    EVENT_LIGHTNING_ARROWS          = 14,
+
+    // Rogue
+    EVENT_EVISCERATE                = 15,
+    EVENT_FAN_OF_KNIVES             = 16,
+    EVENT_POISON_BOTTLE             = 17,
+
+    EVENT_PHASE_SWITCH,
+};
+
+enum Phases
+{
+    PHASE_IDLE                      = 1,
+    PHASE_COMBAT                    = 2
+};
+
 /*
 struct Point
 {
@@ -495,19 +533,11 @@ class TW_boss_warrior_toc5 : public CreatureScript
             bHome = false;
             bCredit = false;
             hasBeenInCombat = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
         }
 
         InstanceScript* instance;
 
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-        uint32 uiBladeStormTimer;
         uint32 uiInterceptTimer;
-        uint32 uiMortalStrikeTimer;
-        uint32 uiAttackTimer;
 
         bool bDone;
         bool bHome;
@@ -516,10 +546,9 @@ class TW_boss_warrior_toc5 : public CreatureScript
 
         void Reset() OVERRIDE
         {
-            uiBladeStormTimer = urand(15000,20000);
-            uiInterceptTimer  = 7000;
-            uiMortalStrikeTimer = urand(8000, 12000);
+            uiInterceptTimer  = 7000;                    
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            events.SetPhase(PHASE_IDLE);
         }
 
         void JustReachedHome() OVERRIDE
@@ -529,8 +558,7 @@ class TW_boss_warrior_toc5 : public CreatureScript
             if (!bHome)
                 return;
 
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
+            events.ScheduleEvent(EVENT_PHASE_SWITCH, 15000, 0, PHASE_IDLE);
 
             bHome = false;
         }
@@ -539,12 +567,20 @@ class TW_boss_warrior_toc5 : public CreatureScript
         {
             _EnterCombat();
             hasBeenInCombat = true;
+            events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 25000), 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000,12000), 0, PHASE_COMBAT);
+            events.SetPhase(PHASE_COMBAT);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!me->GetVehicle())
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            
+            if (!UpdateVictim())
+                return;
+
+            events.Update(uiDiff);
 
             if (!bDone && TW_GrandChampionsOutVehicle(me))
             {
@@ -553,31 +589,18 @@ class TW_boss_warrior_toc5 : public CreatureScript
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect	
 
                 if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                    me->SetHomePosition(739.678f, 662.541f, 413.395f, 4.49f);
                 else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
-                         me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                         me->SetHomePosition(746.71f, 661.02f, 412.695f, 4.6f);
                 else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
-                         me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+                         me->SetHomePosition(754.34f, 660.70f, 413.395f, 4.79f);
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
                 EnterEvadeMode();
                 bHome = true;
             }
 
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    TW_AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
-
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || me->GetVehicle())
-                return;
-
-            if (uiInterceptTimer <= uiDiff)
+            if (uiInterceptTimer <= uiDiff && events.GetPhaseMask() == PHASE_COMBAT)
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (me->GetMap()->IsDungeon() && !players.isEmpty())
@@ -585,11 +608,11 @@ class TW_boss_warrior_toc5 : public CreatureScript
                     for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         Player* player = itr->GetSource();
-                        if (player && !player->IsGameMaster() && me->IsInRange(player,8.0f,25.0f,false))
+                        if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
                             DoResetThreat();
-                            me->AddThreat(player,5.0f);
-                            DoCast(player,SPELL_INTERCEPT);
+                            me->AddThreat(player, 5.0f);
+                            DoCast(player, SPELL_INTERCEPT);
                             break;
                         }
                     }
@@ -597,19 +620,30 @@ class TW_boss_warrior_toc5 : public CreatureScript
                 uiInterceptTimer = 7000;
             } else uiInterceptTimer -= uiDiff;
 
-            if (uiBladeStormTimer <= uiDiff)
+            while (uint32 eventID = events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_BLADESTORM);
-                uiBladeStormTimer = urand(15000,25000);
-            } else uiBladeStormTimer -= uiDiff;
-
-            if (uiMortalStrikeTimer <= uiDiff)
-            {
-                DoCastVictim(DUNGEON_MODE(SPELL_MORTAL_STRIKE, SPELL_MORTAL_STRIKE_H));
-                uiMortalStrikeTimer = urand(8000,12000);
-            } else uiMortalStrikeTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
+                switch (eventID)
+                {
+                    case EVENT_BLADESTORM:
+                        DoCastVictim(SPELL_BLADESTORM);
+                        events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 25000), 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_MORTAL_STRIKE:
+                        DoCastVictim(SPELL_MORTAL_STRIKE);
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000,12000), 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_PHASE_SWITCH:
+                        if (events.GetPhaseMask() == PHASE_IDLE)
+                        {
+                            TW_AggroAllPlayers(me);
+                            events.SetPhase(PHASE_COMBAT);
+                        }
+                        break;
+                }
+            }
+            
+            if (events.GetPhaseMask() == PHASE_COMBAT)
+                DoMeleeAttackIfReady();
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
@@ -629,7 +663,8 @@ class TW_boss_warrior_toc5 : public CreatureScript
                     bCredit = true;
                     HandleSpellOnPlayersInInstanceToC5(me, SPELL_GRAND_CHAMPIONS_CREDIT);
                 }
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
                 HandleKillCreditForAllPlayers(me);
@@ -658,7 +693,7 @@ class TW_boss_mage_toc5 : public CreatureScript
 
     struct TW_boss_mage_toc5AI : public BossAI
     {
-        TW_boss_mage_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
+        TW_boss_mage_toc5AI(Creature* creature) : BossAI(creature, BOSS_GRAND_CHAMPIONS)
         {
             instance = creature->GetInstanceScript();
 
@@ -668,20 +703,10 @@ class TW_boss_mage_toc5 : public CreatureScript
 
             hasBeenInCombat = false;
 
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-        uint32 uiFireBallTimer;
-        uint32 uiBlastWaveTimer;
-        uint32 uiHasteTimer;
-        uint32 uiPolymorphTimer;
 
         bool bDone;
         bool bHome;
@@ -690,10 +715,7 @@ class TW_boss_mage_toc5 : public CreatureScript
 
         void Reset() OVERRIDE
         {
-            uiFireBallTimer = 5000;
-            uiPolymorphTimer  = 8000;
-            uiBlastWaveTimer = 12000;
-            uiHasteTimer = 22000;
+            events.SetPhase(PHASE_IDLE);
         }
 
         void JustReachedHome() OVERRIDE
@@ -703,8 +725,7 @@ class TW_boss_mage_toc5 : public CreatureScript
             if (!bHome)
                 return;
 
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
+            events.ScheduleEvent(EVENT_PHASE_SWITCH, 15000, 0, PHASE_IDLE);
 
             bHome = false;
         }
@@ -713,6 +734,11 @@ class TW_boss_mage_toc5 : public CreatureScript
         {
             _EnterCombat();
             hasBeenInCombat = true;
+            events.ScheduleEvent(EVENT_FIREBALL, 5000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_POLYMORPH, 8000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_BLASTWAVE, 12000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_HASTE, 22000, 0, PHASE_COMBAT);
+            events.SetPhase(PHASE_COMBAT);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE
@@ -726,11 +752,11 @@ class TW_boss_mage_toc5 : public CreatureScript
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
                 if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                    me->SetHomePosition(739.678f, 662.541f, 413.395f, 4.49f);
                 else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
-                         me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                         me->SetHomePosition(746.71f, 661.02f, 412.695f, 4.6f);
                 else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
-                         me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+                         me->SetHomePosition(754.34f, 660.70f, 413.395f, 4.79f);
 
                 if (instance)
                     instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -741,47 +767,44 @@ class TW_boss_mage_toc5 : public CreatureScript
                 bHome = true;
             }
 
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    TW_AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-
-            } else uiPhaseTimer -= uiDiff;
-
             if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || me->GetVehicle())
                 return;
 
-            if (uiFireBallTimer <= uiDiff)
+            events.Update(uiDiff);
+
+            while (uint32 eventID = events.ExecuteEvent())
             {
-                DoCastVictim(DUNGEON_MODE(SPELL_FIREBALL,SPELL_FIREBALL_H));
-                uiFireBallTimer = 17000;
-            } else uiFireBallTimer -= uiDiff;
-
-            if (uiPolymorphTimer <= uiDiff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, DUNGEON_MODE(SPELL_POLYMORPH,SPELL_POLYMORPH_H));
-                uiPolymorphTimer = 22000;
-            } else uiPolymorphTimer -= uiDiff;
-
-            if (uiBlastWaveTimer <= uiDiff)
-            {
-                DoCastAOE(DUNGEON_MODE(SPELL_BLAST_WAVE,SPELL_BLAST_WAVE_H),false);
-                uiBlastWaveTimer = 30000;
-            } else uiBlastWaveTimer -= uiDiff;
-
-            if (uiHasteTimer <= uiDiff)
-            {
-                me->InterruptNonMeleeSpells(true);
-
-                DoCast(me,SPELL_HASTE);
-                uiHasteTimer = 40000;
-            } else uiHasteTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
+                switch (eventID)
+                {
+                    case EVENT_FIREBALL:
+                        DoCastVictim(DUNGEON_MODE(SPELL_FIREBALL,SPELL_FIREBALL_H));
+                        events.ScheduleEvent(EVENT_FIREBALL, 17000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_POLYMORPH:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
+                            DoCast(target, DUNGEON_MODE(SPELL_POLYMORPH,SPELL_POLYMORPH_H));
+                        events.ScheduleEvent(EVENT_POLYMORPH, 22000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_BLASTWAVE:
+                        DoCastAOE(DUNGEON_MODE(SPELL_BLAST_WAVE,SPELL_BLAST_WAVE_H),false);
+                        events.ScheduleEvent(EVENT_BLADESTORM, 30000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_HASTE:
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(me,SPELL_HASTE);
+                        events.ScheduleEvent(EVENT_HASTE, 40000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_PHASE_SWITCH:
+                        if (events.GetPhaseMask() == PHASE_IDLE)
+                        {
+                            TW_AggroAllPlayers(me);
+                            events.SetPhase(PHASE_COMBAT);
+                        }
+                        break;
+                }
+            }
+            if (events.GetPhaseMask() == PHASE_COMBAT)
+                DoMeleeAttackIfReady();
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
@@ -832,33 +855,21 @@ class TW_boss_shaman_toc5 : public CreatureScript
             bHome = false;
             bCredit = false;
             hasBeenInCombat = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
             
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);        
         }
 
         InstanceScript* instance;
 
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-        uint32 uiChainLightningTimer;
-        uint32 uiEartShieldTimer;
-        uint32 uiHealingWaveTimer;
-        uint32 uiHexMendingTimer;
-
         bool bDone;
         bool bHome;
         bool hasBeenInCombat;
         bool bCredit;
+        bool bChance;
 
         void Reset() OVERRIDE
         {
-            uiChainLightningTimer = 16000;
-            uiHealingWaveTimer = 12000;
-            uiEartShieldTimer = urand(30000, 35000);
-            uiHexMendingTimer = urand(20000, 25000);
+            events.SetPhase(PHASE_IDLE);
         }
 
         void EnterCombat(Unit* who) OVERRIDE
@@ -870,6 +881,11 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 DoCast(me, SPELL_EARTH_SHIELD);
                 DoCast(who, SPELL_HEX_OF_MENDING);
             }
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_HEALING_WAVE, 12000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(30000, 35000), 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_HEX, urand(20000, 25000), 0, PHASE_COMBAT);
+            events.SetPhase(PHASE_COMBAT);
         };
 
         void JustReachedHome() OVERRIDE
@@ -879,8 +895,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
             if (!bHome)
                 return;
 
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
+            events.ScheduleEvent(EVENT_PHASE_SWITCH, 15000, 0, PHASE_IDLE);
 
             bHome = false;
         }
@@ -910,56 +925,50 @@ class TW_boss_shaman_toc5 : public CreatureScript
                 bHome = true;
             }
 
-            if (uiPhaseTimer <= uiDiff) OVERRIDE
-            {
-                if (uiPhase == 1)
-                {
-                    TW_AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
-
-
             if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || me->GetVehicle())
                 return;
 
-            if (uiChainLightningTimer <= uiDiff)
+            events.Update(uiDiff);
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                    DoCast(target,DUNGEON_MODE(SPELL_CHAIN_LIGHTNING,SPELL_CHAIN_LIGHTNING_H));
-
-                uiChainLightningTimer = 23000;
-            } else uiChainLightningTimer -= uiDiff;
-
-            if (uiHealingWaveTimer <= uiDiff)
-            {
-                bool bChance = urand(0,1);
-
-                if (!bChance)
+                switch (eventId)
                 {
-                    if (Unit* pFriend = DoSelectLowestHpFriendly(40))
-                        DoCast(pFriend,DUNGEON_MODE(SPELL_HEALING_WAVE,SPELL_HEALING_WAVE_H));
-                } else
-                    DoCast(me,DUNGEON_MODE(SPELL_HEALING_WAVE,SPELL_HEALING_WAVE_H));
-
-                uiHealingWaveTimer = 19000;
-            } else uiHealingWaveTimer -= uiDiff;
-
-            if (uiEartShieldTimer <= uiDiff)
-            {
-                DoCast(me,SPELL_EARTH_SHIELD);
-
-                uiEartShieldTimer = urand(40000,45000);
-            } else uiEartShieldTimer -= uiDiff;
-
-            if (uiHexMendingTimer <= uiDiff)
-            {
-                DoCastVictim(SPELL_HEX_OF_MENDING,true);
-
-                uiHexMendingTimer = urand(30000,35000);
-            } else uiHexMendingTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
+                    case EVENT_EARTH_SHIELD:
+                        DoCast(me,SPELL_EARTH_SHIELD);
+                        events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(40000,45000), 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_CHAIN_LIGHTNING:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
+                            DoCast(target,DUNGEON_MODE(SPELL_CHAIN_LIGHTNING,SPELL_CHAIN_LIGHTNING_H));
+                        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 23000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_HEALING_WAVE:
+                        bChance = urand(0,1);
+                        if (!bChance)
+                        {
+                            if (Unit* pFriend = DoSelectLowestHpFriendly(40))
+                                DoCast(pFriend,DUNGEON_MODE(SPELL_HEALING_WAVE, SPELL_HEALING_WAVE_H));
+                        } else
+                            DoCast(me,DUNGEON_MODE(SPELL_HEALING_WAVE, SPELL_HEALING_WAVE_H));
+                        events.ScheduleEvent(EVENT_HEALING_WAVE, 19000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_HEX:
+                        DoCastVictim(SPELL_HEX_OF_MENDING, true);
+                        events.ScheduleEvent(EVENT_HEX, urand(30000,35000), 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_PHASE_SWITCH:
+                        if (events.GetPhaseMask() == PHASE_IDLE)
+                        {
+                            TW_AggroAllPlayers(me);
+                            events.SetPhase(PHASE_COMBAT);
+                        }
+                        break;
+                }
+            }
+            
+            if (events.GetPhaseMask() == PHASE_COMBAT)
+                DoMeleeAttackIfReady();
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
@@ -980,7 +989,7 @@ class TW_boss_shaman_toc5 : public CreatureScript
                     HandleSpellOnPlayersInInstanceToC5(me, SPELL_GRAND_CHAMPIONS_CREDIT);
                 }
                 EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
                 HandleKillCreditForAllPlayers(me);
@@ -1003,7 +1012,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
     struct TW_boss_hunter_toc5AI : public BossAI
     {
-        TW_boss_hunter_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
+        TW_boss_hunter_toc5AI(Creature* creature) : BossAI(creature, BOSS_GRAND_CHAMPIONS)
         {
             instance = creature->GetInstanceScript();
 
@@ -1012,20 +1021,10 @@ class TW_boss_hunter_toc5 : public CreatureScript
             hasBeenInCombat = false;
             bCredit = false;
 
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-        uint32 uiShootTimer;
-        uint32 uiDisengageCooldown;
-        uint32 uiMultiShotTimer;
-        uint32 uiLightningArrowsTimer;
 
         uint64 uiTargetGUID;
 
@@ -1037,10 +1036,6 @@ class TW_boss_hunter_toc5 : public CreatureScript
 
         void Reset() OVERRIDE
         {
-            uiShootTimer = 12000;
-            uiMultiShotTimer = 0;
-            uiLightningArrowsTimer = 7000;
-            uiDisengageCooldown = 10000;
             uiTargetGUID = 0;
 
             bShoot = false;
@@ -1066,6 +1061,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
                 }
 
                 me->RemoveFromWorld();
+                events.SetPhase(PHASE_IDLE);
             }
         }
 
@@ -1076,8 +1072,7 @@ class TW_boss_hunter_toc5 : public CreatureScript
             if (!bHome)
                 return;
 
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
+            events.ScheduleEvent(EVENT_PHASE_SWITCH, 15000, 0, PHASE_IDLE);
 
             bHome = false;
         }
@@ -1086,6 +1081,10 @@ class TW_boss_hunter_toc5 : public CreatureScript
         {
             _EnterCombat();
             hasBeenInCombat = true;
+            events.ScheduleEvent(EVENT_SHOOT, 12000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, 7000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_DISENGAGE, 10000, 0, PHASE_COMBAT);
+            events.SetPhase(PHASE_COMBAT);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE
@@ -1113,256 +1112,76 @@ class TW_boss_hunter_toc5 : public CreatureScript
                 bHome = true;
             }
 
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    TW_AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
-
             if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || me->GetVehicle())
                 return;
 
-            if (uiDisengageCooldown <= uiDiff)
+            events.Update(uiDiff);
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                if (me->IsWithinDistInMap(me->GetVictim(), 5) && uiDisengageCooldown == 0)
+                switch (eventId)
                 {
-                    DoCast(me, SPELL_DISENGAGE);
-                    uiDisengageCooldown = 35000;
-                }
-                uiDisengageCooldown = 20000;
-            } else uiDisengageCooldown -= uiDiff;
-
-            if (uiLightningArrowsTimer <= uiDiff)
-            {
-                 DoCastAOE(SPELL_LIGHTNING_ARROWS, false);
-                 uiLightningArrowsTimer = 15000;
-
-            } else uiLightningArrowsTimer -= uiDiff;
-
-            if (uiShootTimer <= uiDiff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST,0,30.0f))
-                {
-                    uiTargetGUID = target->GetGUID();
-                    DoCast(target, DUNGEON_MODE(SPELL_SHOOT,SPELL_SHOOT_H));
-                }
-                uiShootTimer = 19000;
-                uiMultiShotTimer = 8000;
-                bShoot = true;
-            } else uiShootTimer -= uiDiff;
-
-            if (bShoot && uiMultiShotTimer <= uiDiff)
-            {
-                me->InterruptNonMeleeSpells(true);
-                Unit* target = Unit::GetUnit(*me, uiTargetGUID);
-
-                if (target && me->IsInRange(target,5.0f,30.0f,false))
-                {
-                    DoCast(target,SPELL_MULTI_SHOT);
-                } else
-                {
-                    Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (me->GetMap()->IsDungeon() && !players.isEmpty())
-                    {
-                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    case EVENT_SHOOT:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
                         {
-                            Player* player = itr->GetSource();
-                            if (player && !player->IsGameMaster() && me->IsInRange(player,5.0f,30.0f,false))
-                            {
-                                DoCast(target,SPELL_MULTI_SHOT);
-                                break;
-                            }
+                            uiTargetGUID = target->GetGUID();
+                            DoCast(target, DUNGEON_MODE(SPELL_SHOOT, SPELL_SHOOT_H));
                         }
-                    }
+                        bShoot = true;
+                        events.ScheduleEvent(EVENT_SHOOT, 19000, 0, PHASE_COMBAT);
+                        events.ScheduleEvent(EVENT_MULTI_SHOOT, 8000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_MULTI_SHOOT:
+                        if (bShoot)
+                        {
+                            me->InterruptNonMeleeSpells(true);
+                            Unit* target = Unit::GetUnit(*me, uiTargetGUID);
+
+                            if (target && me->IsInRange(target, 5.0f, 30.0f, false))
+                                DoCast(target, SPELL_MULTI_SHOT);
+                            else
+                            {
+                                Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                                if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                                {
+                                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                    {
+                                        Player* player = itr->GetSource();
+                                        if (player && me->IsInRange(player, 5.0f, 30.0f, false))
+                                        {
+                                            DoCast(target, SPELL_MULTI_SHOT);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            bShoot = false;
+                        }
+                        break;
+                    case EVENT_DISENGAGE: 
+                        if (me->IsWithinDistInMap(me->GetVictim(), 5))
+                        {
+                            DoCast(me, SPELL_DISENGAGE);
+                            events.ScheduleEvent(EVENT_DISENGAGE, 20000, 0, PHASE_COMBAT);
+                        }
+                        else
+                            events.ScheduleEvent(EVENT_DISENGAGE, 10000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_LIGHTNING_ARROWS:
+                        DoCastAOE(SPELL_LIGHTNING_ARROWS, false);
+                        events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, 15000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_PHASE_SWITCH:
+                        if (events.GetPhaseMask() == PHASE_IDLE)
+                        {
+                            TW_AggroAllPlayers(me);
+                            events.SetPhase(PHASE_COMBAT);
+                        }
+                        break;
                 }
-                bShoot = false;
-            } else uiMultiShotTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
-        {
-            if (damage >= me->GetHealth())
-            {
-                damage = 0;
-                hasBeenInCombat = false;
-                Talk(SAY_CHAMPION_DEFEAT);
-
-                if (instance)
-                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
-
-                // Instance encounter counting mechanics
-                if (!bCredit)
-                {
-                    bCredit = true;
-                    HandleSpellOnPlayersInInstanceToC5(me, SPELL_GRAND_CHAMPIONS_CREDIT);
-                }
-                EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-                me->setFaction(35);
-                me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
-                HandleKillCreditForAllPlayers(me);
-                HandleInstanceBind(me);
             }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new TW_boss_hunter_toc5AI(creature);
-    }
-};
-
-// Lana Stouthammer Evensong && Deathstalker Visceri || Rouge
-class TW_boss_rogue_toc5 : public CreatureScript
-{
-    public:
-        TW_boss_rogue_toc5(): CreatureScript("TW_boss_rogue_toc5") {}
-
-    struct TW_boss_rogue_toc5AI : public BossAI
-    {
-        TW_boss_rogue_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
-        {
-            instance = creature->GetInstanceScript();
-
-            bDone = false;
-            bHome = false;
-            bCredit = false;
-
-            uiPhase = 0;
-            uiPhaseTimer = 0;
-
-            hasBeenInCombat = false;
-
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        }
-
-        InstanceScript* instance;
-
-        uint8 uiPhase;
-        uint32 uiPhaseTimer;
-        uint32 uiEviscerateTimer;
-        uint32 uiFanKivesTimer;
-        uint32 uiPosionBottleTimer;
-
-        bool bDone;
-        bool bHome;
-        bool hasBeenInCombat;
-        bool bCredit;
-
-        void Reset() OVERRIDE
-        {
-            uiEviscerateTimer = 8000;
-            uiFanKivesTimer   = 14000;
-            uiPosionBottleTimer = 19000;
-
-            Map* pMap = me->GetMap();
-
-            if (hasBeenInCombat && pMap && pMap->IsDungeon())
-            {
-                Map::PlayerList const &players = pMap->GetPlayers();
-                for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                {
-                    if (itr->GetSource() && itr->GetSource()->IsAlive() && !itr->GetSource()->IsGameMaster())
-                        return;
-                }
-
-                if (instance)
-                    instance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
-
-                if (instance)
-                {
-                    GameObject* GO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1));
-                    if (GO)
-                        instance->HandleGameObject(GO->GetGUID(),true);
-                }
-
-                me->RemoveFromWorld();
-            }
-        }
-
-        void JustReachedHome() OVERRIDE
-        {
-            ScriptedAI::JustReachedHome();
-
-            if (!bHome)
-                return;
-
-            uiPhaseTimer = 15000;
-            uiPhase = 1;
-
-            bHome = false;
-        }
-
-        void EnterCombat(Unit* who) OVERRIDE
-        {
-            _EnterCombat();
-            hasBeenInCombat = true;
-        }
-
-        void UpdateAI(uint32 uiDiff) OVERRIDE
-        {
-            if (!me->GetVehicle())
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-            if (!bDone && TW_GrandChampionsOutVehicle(me))
-            {
-                bDone = true;
-
-                me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
-
-                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
-                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
-                         me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
-                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
-                         me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
-
-                if (instance)
-                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
-
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-                EnterEvadeMode();
-                bHome = true;
-            }
-
-            if (uiPhaseTimer <= uiDiff)
-            {
-                if (uiPhase == 1)
-                {
-                    TW_AggroAllPlayers(me);
-                    uiPhase = 0;
-                }
-            } else uiPhaseTimer -= uiDiff;
-
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || me->GetVehicle())
-                return;
-
-            if (uiEviscerateTimer <= uiDiff)
-            {
-                DoCast(me->GetVictim(),DUNGEON_MODE(SPELL_EVISCERATE, SPELL_EVISCERATE_H));
-                uiEviscerateTimer = 12000;
-            } else uiEviscerateTimer -= uiDiff;
-
-            if (uiFanKivesTimer <= uiDiff)
-            {
-                DoCastAOE(SPELL_FAN_OF_KNIVES, false);
-                uiFanKivesTimer = 20000;
-            } else uiFanKivesTimer -= uiDiff;
-
-            if (uiPosionBottleTimer <= uiDiff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                DoCast(target, SPELL_POISON_BOTTLE);
-                uiPosionBottleTimer = 19000;
-            } else uiPosionBottleTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
+            if (events.GetPhaseMask() == PHASE_COMBAT)
+                DoMeleeAttackIfReady();
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
@@ -1385,7 +1204,181 @@ class TW_boss_rogue_toc5 : public CreatureScript
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
-                me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
+                me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
+                HandleKillCreditForAllPlayers(me);
+                HandleInstanceBind(me);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new TW_boss_hunter_toc5AI(creature);
+    }
+};
+
+// Lana Stouthammer Evensong && Deathstalker Visceri || Rogue
+class TW_boss_rogue_toc5 : public CreatureScript
+{
+    public:
+        TW_boss_rogue_toc5(): CreatureScript("TW_boss_rogue_toc5") {}
+
+    struct TW_boss_rogue_toc5AI : public BossAI
+    {
+        TW_boss_rogue_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
+        {
+            instance = creature->GetInstanceScript();
+
+            bDone = false;
+            bHome = false;
+            bCredit = false;
+
+            hasBeenInCombat = false;
+
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        }
+
+        InstanceScript* instance;
+
+        bool bDone;
+        bool bHome;
+        bool hasBeenInCombat;
+        bool bCredit;
+
+        void Reset() OVERRIDE
+        {
+
+            Map* pMap = me->GetMap();
+
+            if (hasBeenInCombat && pMap && pMap->IsDungeon())
+            {
+                Map::PlayerList const &players = pMap->GetPlayers();
+                for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    if (itr->GetSource() && itr->GetSource()->IsAlive() && !itr->GetSource()->IsGameMaster())
+                        return;
+                }
+
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+
+                if (instance)
+                {
+                    GameObject* GO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE1));
+                    if (GO)
+                        instance->HandleGameObject(GO->GetGUID(),true);
+                }
+
+                events.SetPhase(PHASE_IDLE);
+                me->RemoveFromWorld();
+            }
+        }
+
+        void JustReachedHome() OVERRIDE
+        {
+            ScriptedAI::JustReachedHome();
+
+            if (!bHome)
+                return;
+
+            events.ScheduleEvent(EVENT_PHASE_SWITCH, 15000, 0, PHASE_IDLE);
+
+            bHome = false;
+        }
+
+        void EnterCombat(Unit* who) OVERRIDE
+        {
+            _EnterCombat();
+            hasBeenInCombat = true;
+            events.ScheduleEvent(EVENT_EVISCERATE, 8000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000, 0, PHASE_COMBAT);
+            events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000, 0, PHASE_COMBAT);
+            events.SetPhase(PHASE_COMBAT);
+        }
+
+        void UpdateAI(uint32 uiDiff) OVERRIDE
+        {
+            if (!me->GetVehicle())
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+            if (!bDone && TW_GrandChampionsOutVehicle(me))
+            {
+                bDone = true;
+
+                me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
+
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
+                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
+                         me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
+                         me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                EnterEvadeMode();
+                bHome = true;
+            }
+
+            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || me->GetVehicle())
+                return;
+
+            events.Update(uiDiff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_EVISCERATE:
+                        DoCast(me->GetVictim(),DUNGEON_MODE(SPELL_EVISCERATE, SPELL_EVISCERATE_H));
+                        events.ScheduleEvent(EVENT_EVISCERATE, 12000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_FAN_OF_KNIVES:
+                        DoCastAOE(SPELL_FAN_OF_KNIVES, false);
+                        events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 20000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_POISON_BOTTLE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_POISON_BOTTLE);
+                        events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000, 0, PHASE_COMBAT);
+                        break;
+                    case EVENT_PHASE_SWITCH:
+                        if (events.GetPhaseMask() == PHASE_IDLE)
+                        {
+                            TW_AggroAllPlayers(me);
+                            events.SetPhase(PHASE_COMBAT);
+                        }
+                        break;
+                }
+            }
+            if (events.GetPhaseMask() == PHASE_COMBAT)
+                DoMeleeAttackIfReady();
+        }
+
+        void DamageTaken(Unit* /*who*/, uint32& damage) OVERRIDE
+        {
+            if (damage >= me->GetHealth())
+            {
+                damage = 0;
+                hasBeenInCombat = false;
+                Talk(SAY_CHAMPION_DEFEAT);
+
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+
+                // Instance encounter counting mechanics
+                if (!bCredit)
+                {
+                    bCredit = true;
+                    HandleSpellOnPlayersInInstanceToC5(me, SPELL_GRAND_CHAMPIONS_CREDIT);
+                }
+                EnterEvadeMode();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->setFaction(35);
+                me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
                 HandleKillCreditForAllPlayers(me);
                 HandleInstanceBind(me);
             }

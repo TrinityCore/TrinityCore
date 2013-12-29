@@ -523,9 +523,9 @@ class TW_boss_paletress : public CreatureScript
             {
                 Talk(SAY_PALETRESS_SUMMON_MEMORY);
                 me->InterruptNonMeleeSpells(true);
-                DoCastAOE(SPELL_HOLY_NOVA,false);
+                DoCastAOE(SPELL_HOLY_NOVA, false);
                 DoCast(me, SPELL_SHIELD);
-                DoCastAOE(SPELL_CONFESS,false);
+                DoCastAOE(SPELL_CONFESS, false);
 
                 bHealth = true;
                 DoCast(SPELL_SUMMON_MEMORY);
