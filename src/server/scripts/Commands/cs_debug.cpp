@@ -1382,7 +1382,10 @@ public:
         }
         else
         {
+            Position pos;
+            transport->GetPosition(&pos);
             handler->PSendSysMessage("Transport %s is %s", transport->GetName().c_str(), transport->GetGoState() == GO_STATE_READY ? "stopped" : "moving");
+            handler->PSendSysMessage("Transport position: %s", pos.ToString().c_str());
             return true;
         }
 
