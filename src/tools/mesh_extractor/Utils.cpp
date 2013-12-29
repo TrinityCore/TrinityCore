@@ -54,15 +54,9 @@ void Utils::CreateDir( const std::string& Path )
 #endif
 }
 
-void Utils::Reverse(char word[])
+void Utils::Reverse(std::string& str)
 {
-    int len = strlen(word);
-    for (int i = 0;i < len / 2; i++)
-    {
-        word[i] ^= word[len-i-1];
-        word[len-i-1] ^= word[i];
-        word[i] ^= word[len-i-1];
-    }
+    std::reverse(str.begin(), str.end());
 }
 
 Vector3 Utils::ToRecast(const Vector3& val )

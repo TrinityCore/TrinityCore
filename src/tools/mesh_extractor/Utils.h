@@ -367,7 +367,7 @@ struct MmapTileHeader
 class Utils
 {
 public:
-    static void Reverse(char word[]);
+    static void Reverse(std::string& str);
     static Vector3 ToRecast(const Vector3& val );
     static std::string GetAdtPath(const std::string& world, int x, int y);
     static std::string FixModelPath(const std::string& path);
