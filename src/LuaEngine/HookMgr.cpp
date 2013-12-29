@@ -1962,3 +1962,8 @@ GameObjectAI* HookMgr::GetAI(GameObject* gameObject)
         return NULL;
     return new ElunaGameObjectAI(gameObject);
 }
+
+void AddElunaScripts()
+{
+    new HookMgr::ElunaWorldAI();
+}

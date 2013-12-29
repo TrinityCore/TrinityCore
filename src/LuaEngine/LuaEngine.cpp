@@ -33,6 +33,7 @@ template<> const char* GetTName<Weather>() { return "Weather"; }
 template<> const char* GetTName<AuctionHouseObject>() { return "AuctionHouse"; }
 
 extern void RegisterFunctions(lua_State* L);
+extern void AddElunaScripts();
 
 void StartEluna(bool restart)
 {
@@ -92,6 +93,8 @@ void StartEluna(bool restart)
             lua_close(sEluna->L);
         }
     }
+    else
+        AddElunaScripts();
 
     sEluna->L = luaL_newstate();
     TC_LOG_INFO("misc", "");
