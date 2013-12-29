@@ -1601,7 +1601,8 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
-        if (data.spawnMask & ~spawnMasks[data.mapid])
+        // Skip spawnMask check for transport maps
+        if (!_transportMaps.count(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
 
         bool ok = true;
@@ -1936,7 +1937,7 @@ void ObjectMgr::LoadGameobjects()
 
         data.spawnMask      = fields[14].GetUInt8();
 
-        if (data.spawnMask & ~spawnMasks[data.mapid])
+        if (!_transportMaps.count(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         data.phaseMask      = fields[15].GetUInt32();
@@ -6480,6 +6481,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                         TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u GoType: %u) have data0=%u but TaxiPath (Id: %u) not exist.",
                         entry, got.type, got.moTransport.taxiPathId, got.moTransport.taxiPathId);
                 }
+                if (uint32 transportMap = got.moTransport.mapID)
+                    _transportMaps.insert(transportMap);
                 break;
             }
             case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          //18

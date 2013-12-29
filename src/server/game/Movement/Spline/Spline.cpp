@@ -156,7 +156,7 @@ float SplineBase::SegLengthLinear(index_type index) const
     return (points[index] - points[index+1]).length();
 }
 
-float SplineBase::SegLengthCatmullRom( index_type index ) const
+float SplineBase::SegLengthCatmullRom(index_type index) const
 {
     ASSERT(index >= index_lo && index < index_hi);
 
