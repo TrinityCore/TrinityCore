@@ -201,7 +201,7 @@ public:
             }
         }
 
-        // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
+        // All creature/GO slain/cast (not required, but otherwise it will display "Creature slain 0/10")
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         {
             int32 creature = quest->RequiredNpcOrGo[i];

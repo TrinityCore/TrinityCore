@@ -172,7 +172,7 @@ class boss_void_reaver : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_void_reaverAI(creature);
+            return GetInstanceAI<boss_void_reaverAI>(creature);
         }
 };
 

@@ -404,7 +404,7 @@ public:
                         case EVENT_DEEP_BREATH:      // Phase PHASE_BREATH
                             if (!IsMoving)
                             {
-                                if (me->IsNonMeleeSpellCasted(false))
+                                if (me->IsNonMeleeSpellCast(false))
                                     me->InterruptNonMeleeSpells(false);
 
                                 Talk(EMOTE_BREATH);
@@ -469,7 +469,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_onyxiaAI(creature);
+        return GetInstanceAI<boss_onyxiaAI>(creature);
     }
 };
 

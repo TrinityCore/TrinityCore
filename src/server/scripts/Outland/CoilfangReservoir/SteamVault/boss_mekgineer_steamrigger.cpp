@@ -57,7 +57,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_mekgineer_steamriggerAI(creature);
+        return GetInstanceAI<boss_mekgineer_steamriggerAI>(creature);
     }
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
@@ -197,7 +197,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_steamrigger_mechanicAI(creature);
+        return GetInstanceAI<npc_steamrigger_mechanicAI>(creature);
     }
 
     struct npc_steamrigger_mechanicAI : public ScriptedAI

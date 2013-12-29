@@ -193,7 +193,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_sylvanas_fosAI(creature);
+        return GetInstanceAI<npc_sylvanas_fosAI>(creature);
     }
 };
 
@@ -330,7 +330,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_jaina_fosAI(creature);
+        return GetInstanceAI<npc_jaina_fosAI>(creature);
     }
 };
 

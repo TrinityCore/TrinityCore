@@ -66,7 +66,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_selin_fireheartAI(creature);
+        return GetInstanceAI<boss_selin_fireheartAI>(creature);
     };
 
     struct boss_selin_fireheartAI : public ScriptedAI
@@ -271,7 +271,7 @@ public:
 
                 if (FelExplosionTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         DoCast(me, SPELL_FEL_EXPLOSION);
                         FelExplosionTimer = 2000;

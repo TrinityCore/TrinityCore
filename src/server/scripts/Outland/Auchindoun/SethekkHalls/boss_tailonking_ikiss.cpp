@@ -167,7 +167,7 @@ public:
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(false);
 
                     //Spell doesn't work, but we use for visual effect at least

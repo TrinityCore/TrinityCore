@@ -48,7 +48,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_azgalorAI(creature);
+        return GetInstanceAI<boss_azgalorAI>(creature);
     }
 
     struct boss_azgalorAI : public hyjal_trashAI
@@ -186,7 +186,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_lesser_doomguardAI(creature);
+        return GetInstanceAI<npc_lesser_doomguardAI>(creature);
     }
 
     struct npc_lesser_doomguardAI : public hyjal_trashAI

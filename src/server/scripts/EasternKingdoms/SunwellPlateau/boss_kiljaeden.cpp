@@ -236,7 +236,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kalecgos_kjAI(creature);
+        return GetInstanceAI<boss_kalecgos_kjAI>(creature);
     }
 
     struct boss_kalecgos_kjAI : public ScriptedAI
@@ -389,7 +389,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_kiljaeden_controllerAI(creature);
+        return GetInstanceAI<npc_kiljaeden_controllerAI>(creature);
     }
 
     struct npc_kiljaeden_controllerAI : public ScriptedAI
@@ -710,7 +710,7 @@ public:
                             SpeechTimer += diff;
                             break;
                         case TIMER_SOUL_FLAY:
-                            if (!me->IsNonMeleeSpellCasted(false))
+                            if (!me->IsNonMeleeSpellCast(false))
                             {
                                 DoCastVictim(SPELL_SOUL_FLAY_SLOW, false);
                                 DoCastVictim(SPELL_SOUL_FLAY, false);
@@ -718,7 +718,7 @@ public:
                             }
                             break;
                         case TIMER_LEGION_LIGHTNING:
-                            if (!me->IsNonMeleeSpellCasted(false))
+                            if (!me->IsNonMeleeSpellCast(false))
                             {
                                 Unit* pRandomPlayer = NULL;
 
@@ -740,7 +740,7 @@ public:
                             }
                             break;
                         case TIMER_FIRE_BLOOM:
-                            if (!me->IsNonMeleeSpellCasted(false))
+                            if (!me->IsNonMeleeSpellCast(false))
                             {
                                 me->RemoveAurasDueToSpell(SPELL_SOUL_FLAY);
                                 DoCastAOE(SPELL_FIRE_BLOOM, false);
@@ -760,7 +760,7 @@ public:
                             Timer[TIMER_SOUL_FLAY] = 2000;
                             break;
                         case TIMER_SHADOW_SPIKE: //Phase 3
-                            if (!me->IsNonMeleeSpellCasted(false))
+                            if (!me->IsNonMeleeSpellCast(false))
                             {
                                 CastSinisterReflection();
                                 DoCastAOE(SPELL_SHADOW_SPIKE, false);
@@ -774,7 +774,7 @@ public:
                             Timer[TIMER_FLAME_DART] = 3000; /// @todo Timer
                             break;
                         case TIMER_DARKNESS: //Phase 3
-                            if (!me->IsNonMeleeSpellCasted(false))
+                            if (!me->IsNonMeleeSpellCast(false))
                             {
                                 // Begins to channel for 8 seconds, then deals 50'000 damage to all raid members.
                                 if (!IsInDarkness)
@@ -1150,7 +1150,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shield_orbAI(creature);
+        return GetInstanceAI<npc_shield_orbAI>(creature);
     }
 
     struct npc_shield_orbAI : public ScriptedAI

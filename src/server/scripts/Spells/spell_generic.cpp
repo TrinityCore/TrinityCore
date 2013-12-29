@@ -475,20 +475,20 @@ class spell_gen_bonked : public SpellScriptLoader
             + EFFECT_0: SCRIPT_EFFECT
             + EFFECT_1: NONE
             + EFFECT_2: NONE
-        - Spells casted by players triggered by script:
+        - Spells cast by players triggered by script:
             + EFFECT_0: SCHOOL_DAMAGE
             + EFFECT_1: SCRIPT_EFFECT
             + EFFECT_2: FORCE_CAST
-        - Spells casted by NPCs on players:
+        - Spells cast by NPCs on players:
             + EFFECT_0: SCHOOL_DAMAGE
             + EFFECT_1: SCRIPT_EFFECT
             + EFFECT_2: NONE
 
     In the following script we handle the SCRIPT_EFFECT for effIndex EFFECT_0 and EFFECT_1.
         - When handling EFFECT_0 we're in the "Spells on vehicle bar used by players" case
-          and we'll trigger "Spells casted by players triggered by script"
-        - When handling EFFECT_1 we're in the "Spells casted by players triggered by script"
-          or "Spells casted by NPCs on players" so we'll search for the first defend layer and drop it.
+          and we'll trigger "Spells cast by players triggered by script"
+        - When handling EFFECT_1 we're in the "Spells cast by players triggered by script"
+          or "Spells cast by NPCs on players" so we'll search for the first defend layer and drop it.
 */
 
 enum BreakShieldSpells
@@ -1193,7 +1193,7 @@ class spell_gen_defend : public SpellScriptLoader
             {
                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
 
-                // Defend spells casted by NPCs (add visuals)
+                // Defend spells cast by NPCs (add visuals)
                 if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
                 {
                     AfterEffectApply += AuraEffectApplyFn(spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
@@ -1204,7 +1204,7 @@ class spell_gen_defend : public SpellScriptLoader
                 if (spell->Effects[EFFECT_2].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
                     OnEffectRemove += AuraEffectRemoveFn(spell_gen_defend_AuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
 
-                // Defend spells casted by players (add/remove visuals)
+                // Defend spells cast by players (add/remove visuals)
                 if (spell->Effects[EFFECT_1].ApplyAuraName == SPELL_AURA_DUMMY)
                 {
                     AfterEffectApply += AuraEffectApplyFn(spell_gen_defend_AuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
@@ -2039,15 +2039,15 @@ class spell_gen_mount : public SpellScriptLoader
             + EFFECT_0: SCRIPT_EFFECT
             + EFFECT_1: TRIGGER_SPELL
             + EFFECT_2: NONE
-        - Spells casted by player's mounts triggered by script:
+        - Spells cast by player's mounts triggered by script:
             + EFFECT_0: CHARGE
             + EFFECT_1: TRIGGER_SPELL
             + EFFECT_2: APPLY_AURA
-        - Spells casted by players on the target triggered by script:
+        - Spells cast by players on the target triggered by script:
             + EFFECT_0: SCHOOL_DAMAGE
             + EFFECT_1: SCRIPT_EFFECT
             + EFFECT_2: NONE
-        - Spells casted by NPCs on players:
+        - Spells cast by NPCs on players:
             + EFFECT_0: SCHOOL_DAMAGE
             + EFFECT_1: CHARGE
             + EFFECT_2: SCRIPT_EFFECT
@@ -2055,12 +2055,12 @@ class spell_gen_mount : public SpellScriptLoader
     In the following script we handle the SCRIPT_EFFECT and CHARGE
         - When handling SCRIPT_EFFECT:
             + EFFECT_0: Corresponds to "Spells on vehicle bar used by players" and we make player's mount cast
-              the charge effect on the current target ("Spells casted by player's mounts triggered by script").
-            + EFFECT_1 and EFFECT_2: Triggered when "Spells casted by player's mounts triggered by script" hits target,
-              corresponding to "Spells casted by players on the target triggered by script" and "Spells casted by
+              the charge effect on the current target ("Spells cast by player's mounts triggered by script").
+            + EFFECT_1 and EFFECT_2: Triggered when "Spells cast by player's mounts triggered by script" hits target,
+              corresponding to "Spells cast by players on the target triggered by script" and "Spells cast by
               NPCs on players" and we check Defend layers and drop a charge of the first found.
         - When handling CHARGE:
-            + Only launched for "Spells casted by player's mounts triggered by script", makes the player cast the
+            + Only launched for "Spells cast by player's mounts triggered by script", makes the player cast the
               damaging spell on target with a small chance of failing it.
 */
 

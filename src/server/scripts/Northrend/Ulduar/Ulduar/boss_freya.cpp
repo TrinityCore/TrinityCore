@@ -433,7 +433,7 @@ class boss_freya : public CreatureScript
                         case EVENT_STRENGTHENED_IRON_ROOTS:
                             Talk(EMOTE_IRON_ROOTS);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_ROOTS_FREYA))
-                                target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be casted by Target self
+                                target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be cast by Target self
                             events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(12000, 20000));
                             break;
                         case EVENT_GROUND_TREMOR:
@@ -1146,7 +1146,7 @@ class npc_ancient_water_spirit : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_ancient_water_spiritAI(creature);
+            return GetInstanceAI<npc_ancient_water_spiritAI>(creature);
         }
 };
 
@@ -1213,7 +1213,7 @@ class npc_storm_lasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_storm_lasherAI(creature);
+            return GetInstanceAI<npc_storm_lasherAI>(creature);
         }
 };
 
@@ -1258,7 +1258,7 @@ class npc_snaplasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_snaplasherAI(creature);
+            return GetInstanceAI<npc_snaplasherAI>(creature);
         }
 };
 
@@ -1522,7 +1522,7 @@ class npc_unstable_sun_beam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_unstable_sun_beamAI(creature);
+            return GetInstanceAI<npc_unstable_sun_beamAI>(creature);
         }
 };
 

@@ -86,7 +86,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_aranAI(creature);
+        return GetInstanceAI<boss_aranAI>(creature);
     }
 
     struct boss_aranAI : public ScriptedAI
@@ -305,7 +305,7 @@ public:
             //Normal casts
             if (NormalCastTimer <= diff)
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (!target)
@@ -486,10 +486,10 @@ public:
 
         void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) OVERRIDE
         {
-            //We only care about interrupt effects and only if they are durring a spell currently being casted
+            //We only care about interrupt effects and only if they are durring a spell currently being cast
             if ((Spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
                 Spell->Effects[1].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
-                Spell->Effects[2].Effect != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCasted(false))
+                Spell->Effects[2].Effect != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCast(false))
                 return;
 
             //Interrupt effect

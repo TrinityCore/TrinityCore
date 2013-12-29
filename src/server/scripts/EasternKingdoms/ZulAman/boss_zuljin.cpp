@@ -246,7 +246,7 @@ class boss_zuljin : public CreatureScript
 
             void DoMeleeAttackIfReady()
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
                     if (me->isAttackReady() && me->IsWithinMeleeRange(me->GetVictim()))
                     {
@@ -555,7 +555,7 @@ class boss_zuljin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_zuljinAI(creature);
+            return GetInstanceAI<boss_zuljinAI>(creature);
         }
 };
 

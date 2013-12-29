@@ -369,7 +369,7 @@ class boss_saronite_animus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_saronite_animusAI(creature);
+            return GetInstanceAI<boss_saronite_animusAI>(creature);
         }
 };
 
@@ -439,7 +439,7 @@ class npc_saronite_vapors : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_saronite_vaporsAI(creature);
+            return GetInstanceAI<npc_saronite_vaporsAI>(creature);
         }
 };
 

@@ -97,9 +97,10 @@ public:
              }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -140,7 +141,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_aeonusAI(creature);
+        return GetInstanceAI<boss_aeonusAI>(creature);
     }
 };
 

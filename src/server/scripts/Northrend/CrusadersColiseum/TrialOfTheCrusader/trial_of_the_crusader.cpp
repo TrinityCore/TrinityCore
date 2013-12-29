@@ -357,7 +357,7 @@ class boss_lich_king_toc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_lich_king_tocAI(creature);
+            return GetInstanceAI<boss_lich_king_tocAI>(creature);
         }
 };
 
@@ -375,7 +375,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void JustDied(Unit* killer) OVERRIDE
             {
-                Talk(SAY_STAGE_1_06, killer->GetGUID());
+                Talk(SAY_STAGE_1_06, killer);
                 _instance->SetData(TYPE_EVENT, 1180);
                 if (Creature* temp = Unit::GetCreature(*me, _instance->GetData64(NPC_JARAXXUS)))
                 {
@@ -531,7 +531,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_fizzlebang_tocAI(creature);
+            return GetInstanceAI<npc_fizzlebang_tocAI>(creature);
         }
 };
 
@@ -819,7 +819,7 @@ class npc_tirion_toc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_tirion_tocAI(creature);
+            return GetInstanceAI<npc_tirion_tocAI>(creature);
         }
 };
 
@@ -903,7 +903,7 @@ class npc_garrosh_toc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_garrosh_tocAI(creature);
+            return GetInstanceAI<npc_garrosh_tocAI>(creature);
         }
 };
 
@@ -987,7 +987,7 @@ class npc_varian_toc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_varian_tocAI(creature);
+            return GetInstanceAI<npc_varian_tocAI>(creature);
         }
 };
 

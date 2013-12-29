@@ -2303,7 +2303,7 @@ stmt_read_row_no_result_set(MYSQL_STMT *stmt  __attribute__((unused)),
     mysql_stmt_attr_set()
 
     attr_type  statement attribute
-    value      casted to const void * pointer to value.
+    value      cast to const void * pointer to value.
 
   RETURN VALUE
     0 success

@@ -804,7 +804,7 @@ uint32 BattlefieldWG::GetData(uint32 data) const
 {
     switch (data)
     {
-        // Used to determine when the phasing spells must be casted
+        // Used to determine when the phasing spells must be cast
         // See: SpellArea::IsFitToRequirements
         case AREA_THE_SUNKEN_RING:
         case AREA_THE_BROKEN_TEMPLATE:

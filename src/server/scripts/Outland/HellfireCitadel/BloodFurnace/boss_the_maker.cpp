@@ -156,7 +156,7 @@ class boss_the_maker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_the_makerAI(creature);
+            return GetInstanceAI<boss_the_makerAI>(creature);
         }
 };
 

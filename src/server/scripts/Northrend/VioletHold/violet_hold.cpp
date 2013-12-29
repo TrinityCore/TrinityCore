@@ -307,7 +307,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_sinclariAI(creature);
+        return GetInstanceAI<npc_sinclariAI>(creature);
     }
 
     struct npc_sinclariAI : public ScriptedAI
@@ -428,7 +428,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_saboteurAI(creature);
+        return GetInstanceAI<npc_azure_saboteurAI>(creature);
     }
 
     struct npc_azure_saboteurAI : public npc_escortAI
@@ -552,7 +552,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_teleportation_portalAI(creature);
+        return GetInstanceAI<npc_teleportation_portalAI>(creature);
     }
 
     struct npc_teleportation_portalAI : public ScriptedAI
@@ -649,7 +649,7 @@ public:
                         uiSpawnTimer = SPAWN_TIME;
                     } else uiSpawnTimer -= diff;
 
-                    if (bPortalGuardianOrKeeperOrEliteSpawn && !me->IsNonMeleeSpellCasted(false))
+                    if (bPortalGuardianOrKeeperOrEliteSpawn && !me->IsNonMeleeSpellCast(false))
                     {
                         me->Kill(me, false);
                         me->RemoveCorpse();
@@ -809,7 +809,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_invaderAI(creature);
+        return GetInstanceAI<npc_azure_invaderAI>(creature);
     }
 
     struct npc_azure_invaderAI : public violet_hold_trashAI
@@ -887,7 +887,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_binderAI(creature);
+        return GetInstanceAI<npc_azure_binderAI>(creature);
     }
 
     struct npc_azure_binderAI : public violet_hold_trashAI
@@ -965,7 +965,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_mage_slayerAI(creature);
+        return GetInstanceAI<npc_azure_mage_slayerAI>(creature);
     }
 
     struct npc_azure_mage_slayerAI : public violet_hold_trashAI
@@ -1025,7 +1025,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_raiderAI(creature);
+        return GetInstanceAI<npc_azure_raiderAI>(creature);
     }
 
     struct npc_azure_raiderAI : public violet_hold_trashAI
@@ -1131,7 +1131,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_stalkerAI(creature);
+        return GetInstanceAI<npc_azure_stalkerAI>(creature);
     }
 };
 
@@ -1210,7 +1210,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_spellbreakerAI(creature);
+        return GetInstanceAI<npc_azure_spellbreakerAI>(creature);
     }
 };
 
@@ -1221,7 +1221,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_captainAI(creature);
+        return GetInstanceAI<npc_azure_captainAI>(creature);
     }
 
     struct  npc_azure_captainAI : public violet_hold_trashAI
@@ -1273,7 +1273,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_azure_sorcerorAI(creature);
+        return GetInstanceAI<npc_azure_sorcerorAI>(creature);
     }
 
     struct  npc_azure_sorcerorAI : public violet_hold_trashAI

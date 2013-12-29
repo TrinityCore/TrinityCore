@@ -110,7 +110,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_priestess_delrissaAI(creature);
+        return GetInstanceAI<boss_priestess_delrissaAI>(creature);
     }
 
     struct boss_priestess_delrissaAI : public ScriptedAI
@@ -504,7 +504,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kagani_nightstrikeAI(creature);
+        return GetInstanceAI<boss_kagani_nightstrikeAI>(creature);
     }
 
     struct boss_kagani_nightstrikeAI : public boss_priestess_lackey_commonAI
@@ -608,7 +608,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ellris_duskhallowAI(creature);
+        return GetInstanceAI<boss_ellris_duskhallowAI>(creature);
     }
 
     struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
@@ -699,7 +699,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_eramas_brightblazeAI(creature);
+        return GetInstanceAI<boss_eramas_brightblazeAI>(creature);
     }
 
     struct boss_eramas_brightblazeAI : public boss_priestess_lackey_commonAI
@@ -760,7 +760,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_yazzaiAI(creature);
+        return GetInstanceAI<boss_yazzaiAI>(creature);
     }
 
     struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
@@ -890,7 +890,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_warlord_salarisAI(creature);
+        return GetInstanceAI<boss_warlord_salarisAI>(creature);
     }
 
     struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
@@ -1010,7 +1010,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_garaxxasAI(creature);
+        return GetInstanceAI<boss_garaxxasAI>(creature);
     }
 
     struct boss_garaxxasAI : public boss_priestess_lackey_commonAI
@@ -1068,7 +1068,7 @@ public:
 
                 if (Freezing_Trap_Timer <= diff)
                 {
-                    //attempt find go summoned from spell (casted by me)
+                    //attempt find go summoned from spell (cast by me)
                     GameObject* go = me->GetGameObject(SPELL_FREEZING_TRAP);
 
                     //if we have a go, we need to wait (only one trap at a time)
@@ -1121,7 +1121,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_apokoAI(creature);
+        return GetInstanceAI<boss_apokoAI>(creature);
     }
 
     struct boss_apokoAI : public boss_priestess_lackey_commonAI
@@ -1219,7 +1219,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_zelfanAI(creature);
+        return GetInstanceAI<boss_zelfanAI>(creature);
     }
 
     struct boss_zelfanAI : public boss_priestess_lackey_commonAI

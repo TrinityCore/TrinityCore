@@ -25,9 +25,6 @@
 
 enum Enums
 {
-    WHISPER_HATCH_EGGS                          = 6,
-    WHISPER_OPEN_PORTAL                         = 6,         // whisper, shared by two dragons
-
     //Mini bosses common spells
     SPELL_TWILIGHT_RESIDUE                      = 61885,    // makes immune to shadow damage, applied when leave phase
 
@@ -97,73 +94,73 @@ enum Misc
     DATA_CAN_LOOT           = 0
 };
 
-struct Location
-{
-    float x, y, z;
-};
-
-struct Locations
-{
-    float x, y, z;
-};
-
-struct Waypoint
-{
-    float m_fX, m_fY, m_fZ;
-};
-
 #define MAX_WAYPOINT 6
 //points around raid "isle", counter clockwise. should probably be adjusted to be more alike
-Waypoint dragonCommon[MAX_WAYPOINT]=
+Position const dragonCommon[MAX_WAYPOINT]=
 {
-    {3214.012f, 468.932f, 98.652f},
-    {3244.950f, 468.427f, 98.652f},
-    {3283.520f, 496.869f, 98.652f},
-    {3287.316f, 555.875f, 98.652f},
-    {3250.479f, 585.827f, 98.652f},
-    {3209.969f, 566.523f, 98.652f}
+    { 3214.012f, 468.932f, 98.652f, 0.0f },
+    { 3244.950f, 468.427f, 98.652f, 0.0f },
+    { 3283.520f, 496.869f, 98.652f, 0.0f },
+    { 3287.316f, 555.875f, 98.652f, 0.0f },
+    { 3250.479f, 585.827f, 98.652f, 0.0f },
+    { 3209.969f, 566.523f, 98.652f, 0.0f }
 };
 
-static Location AcolyteofShadron = { 3363.92f, 534.703f, 97.2683f };
-static Location AcolyteofShadron2 = { 3246.57f, 551.263f, 58.6164f };
-static Location AcolyteofVesperon = { 3145.68f, 520.71f, 89.7f };
-static Location AcolyteofVesperon2 = { 3246.57f, 551.263f, 58.6164f };
+Position const AcolyteofShadron   = { 3363.92f, 534.703f, 97.2683f, 0.0f };
+Position const AcolyteofShadron2  = { 3246.57f, 551.263f, 58.6164f, 0.0f };
+Position const AcolyteofVesperon  = { 3145.68f, 520.71f,  89.7f,    0.0f };
+Position const AcolyteofVesperon2 = { 3246.57f, 551.263f, 58.6164f, 0.0f };
 
-Locations TwilightEggs[] =
+Position const TwilightEggs[] =
 {
-    {3219.28f, 669.121f, 88.5549f},
-    {3221.55f, 682.852f, 90.5361f},
-    {3239.77f, 685.94f, 90.3168f},
-    {3250.33f, 669.749f, 88.7637f},
-    {3246.6f, 642.365f, 84.8752f},
-    {3233.68f, 653.117f, 85.7051f}
-};
-Locations TwilightEggsSarth[] =
-{
-    {3252.73f, 515.762f, 58.5501f},
-    {3256.56f, 521.119f, 58.6061f},
-    {3255.63f, 527.513f, 58.7568f},
-    {3264.90f, 525.865f, 58.6436f},
-    {3264.26f, 516.364f, 58.8011f},
-    {3257.54f, 502.285f, 58.2077f}
+    { 3219.28f, 669.121f, 88.5549f, 0.0f },
+    { 3221.55f, 682.852f, 90.5361f, 0.0f },
+    { 3239.77f, 685.94f,  90.3168f, 0.0f },
+    { 3250.33f, 669.749f, 88.7637f, 0.0f },
+    { 3246.6f,  642.365f, 84.8752f, 0.0f },
+    { 3233.68f, 653.117f, 85.7051f, 0.0f }
 };
 
-enum SharedTextIDs
+Position const TwilightEggsSarth[] =
+{
+    { 3252.73f, 515.762f, 58.5501f, 0.0f },
+    { 3256.56f, 521.119f, 58.6061f, 0.0f },
+    { 3255.63f, 527.513f, 58.7568f, 0.0f },
+    { 3264.90f, 525.865f, 58.6436f, 0.0f },
+    { 3264.26f, 516.364f, 58.8011f, 0.0f },
+    { 3257.54f, 502.285f, 58.2077f, 0.0f }
+};
+
+enum SharedTextIds
 {
     SAY_AGGRO                      = 0,
     SAY_SLAY                       = 1,
     SAY_DEATH                      = 2,
     SAY_BREATH                     = 3,
     SAY_RESPOND                    = 4,
-    SAY_SPECIAL                    = 5
+    SAY_SPECIAL                    = 5,
+    WHISPER_OPEN_PORTAL            = 6,
+    WHISPER_OPENED_PORTAL          = 7
 };
 
-enum DummyDragonEvents
+enum DragonEvents
 {
-    EVENT_FREE_MOVEMENT           = 1
+    // Shared Events
+    EVENT_FREE_MOVEMENT            = 1,
+    EVENT_SHADOW_FISSURE           = 2,
+    EVENT_SHADOW_BREATH            = 3,
+
+    // Tenebron
+    EVENT_HATCH_EGGS               = 4,
+
+    // Shadron
+    EVENT_ACOLYTE_SHADRON          = 5,
+
+    // Vesperon
+    EVENT_ACOLYTE_VESPERON         = 6
 };
 
-//to control each dragons common abilities
+// to control each dragons common abilities
 struct dummy_dragonAI : public ScriptedAI
 {
     dummy_dragonAI(Creature* creature) : ScriptedAI(creature)
@@ -176,10 +173,20 @@ struct dummy_dragonAI : public ScriptedAI
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
+        events.Reset();
         waypointId = 0;
         portalRespawnTime = 30000;
         _canMoveFree = false;
         _canLoot = true;
+    }
+
+    void EnterCombat(Unit* /*who*/) OVERRIDE
+    {
+        Talk(SAY_AGGRO);
+        DoZoneInCombat();
+
+        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 5000);
+        events.ScheduleEvent(EVENT_SHADOW_BREATH, 20000);
     }
 
     void SetData(uint32 type, uint32 value) OVERRIDE
@@ -218,14 +225,11 @@ struct dummy_dragonAI : public ScriptedAI
             return;
         }
 
-        // get amount of common points
-        uint32 commonWPCount = sizeof(dragonCommon)/sizeof(Waypoint);
-
         // increase
-        waypointId = pointId+1;
+        waypointId = pointId + 1;
 
         // if we have reached a point bigger or equal to count, it mean we must reset to point 0
-        if (waypointId >= commonWPCount)
+        if (waypointId >= MAX_WAYPOINT)
         {
             if (!_canMoveFree)
                 _canMoveFree = true;
@@ -236,28 +240,9 @@ struct dummy_dragonAI : public ScriptedAI
         events.ScheduleEvent(EVENT_FREE_MOVEMENT, 500);
     }
 
-    // used when open portal and spawn mobs in phase
-    void DoRaidWhisper(int32 iTextId)
-    {
-        Map* map = me->GetMap();
-
-        if (map && map->IsDungeon())
-        {
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-
-            if (!PlayerList.isEmpty())
-            {
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    Talk(iTextId, i->GetSource()->GetGUID());
-            }
-        }
-    }
-
     // "opens" the portal and does the "opening" whisper
     void OpenPortal()
     {
-        int32 textId = 0;
-
         // there are 4 portal spawn locations, each are expected to be spawned with negative spawntimesecs in database
 
         // using a grid search here seem to be more efficient than caching all four guids
@@ -268,35 +253,32 @@ struct dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
             {
-                textId = WHISPER_HATCH_EGGS;
                 if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i].x, TwilightEggs[i].y, TwilightEggs[i].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                 }
                 else
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i].x, TwilightEggsSarth[i].y, TwilightEggsSarth[i].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                 }
                 break;
             }
             case NPC_SHADRON:
             {
-                textId = WHISPER_OPEN_PORTAL;
                 if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron.x, AcolyteofShadron.y, AcolyteofShadron.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
                 else
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2.x, AcolyteofShadron2.y, AcolyteofShadron2.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
 
                 break;
             }
             case NPC_VESPERON:
             {
-                textId = WHISPER_OPEN_PORTAL;
                 if (instance && !instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon.x, AcolyteofVesperon.y, AcolyteofVesperon.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -305,7 +287,7 @@ struct dummy_dragonAI : public ScriptedAI
                 }
                 else
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2.x, AcolyteofVesperon2.y, AcolyteofVesperon2.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -313,11 +295,12 @@ struct dummy_dragonAI : public ScriptedAI
                     }
                 }
 
-                 break;
+                break;
             }
         }
 
-        DoRaidWhisper(textId);
+        Talk(WHISPER_OPEN_PORTAL);
+        Talk(WHISPER_OPENED_PORTAL);
 
         // By using SetRespawnTime() we will actually "spawn" the object with our defined time.
         // Once time is up, portal will disappear again.
@@ -326,6 +309,12 @@ struct dummy_dragonAI : public ScriptedAI
 
         // Unclear what are expected to happen if one drake has a portal open already
         // Refresh respawnTime so time again are set to 30secs?
+    }
+
+    void KilledUnit(Unit* who) OVERRIDE
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) OVERRIDE
@@ -370,7 +359,7 @@ struct dummy_dragonAI : public ScriptedAI
                 return;
 
             // Twilight Revenge to main boss
-            if (Unit* sartharion = Unit::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
+            if (Unit* sartharion = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
                 if (sartharion->IsAlive())
                 {
                     sartharion->RemoveAurasDueToSpell(spellId);
@@ -386,11 +375,30 @@ struct dummy_dragonAI : public ScriptedAI
         if (events.ExecuteEvent() == EVENT_FREE_MOVEMENT)
         {
             if (_canMoveFree && waypointId < MAX_WAYPOINT)
-                me->GetMotionMaster()->MovePoint(waypointId, dragonCommon[waypointId].m_fX, dragonCommon[waypointId].m_fY, dragonCommon[waypointId].m_fZ);
+                me->GetMotionMaster()->MovePoint(waypointId, dragonCommon[waypointId]);
         }
     }
 
-    private:
+    void ExecuteEvent(uint32 eventId)
+    {
+        switch (eventId)
+        {
+            case EVENT_SHADOW_FISSURE:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
+                events.ScheduleEvent(eventId, urand(15000, 20000));
+                break;
+            case EVENT_SHADOW_BREATH:
+                Talk(SAY_BREATH);
+                DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                events.ScheduleEvent(eventId, urand(20000, 25000));
+                break;
+            default:
+                break;
+        }
+    }
+
+    protected:
         InstanceScript* instance;
         EventMap events;
         uint32   waypointId;
@@ -402,13 +410,6 @@ struct dummy_dragonAI : public ScriptedAI
 /*######
 ## Tenebron
 ######*/
-
-enum TenebronEvents
-{
-    EVENT_SHADOW_FISSURE_TENEBRON = 2,
-    EVENT_HATCH_EGGS              = 3,
-    EVENT_SHADOW_BREATH_TENEBRON  = 4
-};
 
 class npc_tenebron : public CreatureScript
 {
@@ -424,23 +425,16 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(SAY_AGGRO);
-            DoZoneInCombat();
-            events.ScheduleEvent(EVENT_SHADOW_FISSURE_TENEBRON, 5000);
-            events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
-            events.ScheduleEvent(EVENT_SHADOW_BREATH_TENEBRON, 20000);
-        }
+            dummy_dragonAI::EnterCombat(who);
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
-        {
-            Talk(SAY_SLAY);
+            events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            //if no target, update dummy and return
+            // if no target, update dummy and return
             if (!UpdateVictim())
             {
                 dummy_dragonAI::UpdateAI(diff);
@@ -453,45 +447,29 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_SHADOW_FISSURE_TENEBRON:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
-                        events.ScheduleEvent(EVENT_SHADOW_FISSURE_TENEBRON, urand(15000, 20000));
-                        break;
                     case EVENT_HATCH_EGGS:
                         OpenPortal();
                         events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
                         break;
-                    case EVENT_SHADOW_BREATH_TENEBRON:
-                        Talk(SAY_BREATH);
-                        DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
-                        events.ScheduleEvent(EVENT_SHADOW_BREATH_TENEBRON, urand(20000, 25000));
+                    default:
+                        dummy_dragonAI::ExecuteEvent(eventId);
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
-
-    private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_tenebronAI(creature);
+        return GetObsidianSanctumAI<npc_tenebronAI>(creature);
     }
 };
 
 /*######
 ## Shadron
 ######*/
-
-enum ShadronEvents
-{
-    EVENT_SHADOW_FISSURE_SHADRON  = 5,
-    EVENT_ACOLYTE_SHADRON         = 6,
-    EVENT_SHADOW_BREATH_SHADRON   = 7
-};
 
 class npc_shadron : public CreatureScript
 {
@@ -500,10 +478,7 @@ public:
 
     struct npc_shadronAI : public dummy_dragonAI
     {
-        npc_shadronAI(Creature* creature) : dummy_dragonAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
+        npc_shadronAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         void Reset() OVERRIDE
         {
@@ -515,27 +490,19 @@ public:
             if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
                 me->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
 
-            if (instance)
-                instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
+            instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(SAY_AGGRO);
-            DoZoneInCombat();
-            events.ScheduleEvent(EVENT_SHADOW_FISSURE_SHADRON, 5000);
+            dummy_dragonAI::EnterCombat(who);
+
             events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60000);
-            events.ScheduleEvent(EVENT_SHADOW_BREATH_SHADRON, 20000);
-        }
-
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
-        {
-            Talk(SAY_SLAY);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            //if no target, update dummy and return
+            // if no target, update dummy and return
             if (!UpdateVictim())
             {
                 dummy_dragonAI::UpdateAI(diff);
@@ -548,11 +515,6 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_SHADOW_FISSURE_SHADRON:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
-                        events.ScheduleEvent(EVENT_SHADOW_FISSURE_SHADRON, urand(15000, 20000));
-                        break;
                     case EVENT_ACOLYTE_SHADRON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == NOT_STARTED)
                             events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10000);
@@ -563,43 +525,30 @@ public:
 
                             OpenPortal();
 
-                            if (instance)
-                                instance->SetBossState(DATA_PORTAL_OPEN, IN_PROGRESS);
+                            instance->SetBossState(DATA_PORTAL_OPEN, IN_PROGRESS);
 
                             events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, urand(60000, 65000));
                         }
                         break;
-                    case EVENT_SHADOW_BREATH_SHADRON:
-                        Talk(SAY_BREATH);
-                        DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
-                        events.ScheduleEvent(EVENT_SHADOW_BREATH_SHADRON, urand(20000, 25000));
+                    default:
+                        dummy_dragonAI::ExecuteEvent(eventId);
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
-
-    private:
-        InstanceScript* instance;
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shadronAI(creature);
+        return GetObsidianSanctumAI<npc_shadronAI>(creature);
     }
 };
 
 /*######
 ## Vesperon
 ######*/
-
-enum VesperonEvents
-{
-    EVENT_SHADOW_FISSURE_VESPERON = 8,
-    EVENT_ACOLYTE_VESPERON        = 9,
-    EVENT_SHADOW_BREATH_VESPERON  = 10
-};
 
 class npc_vesperon : public CreatureScript
 {
@@ -608,33 +557,23 @@ public:
 
     struct npc_vesperonAI : public dummy_dragonAI
     {
-        npc_vesperonAI(Creature* creature) : dummy_dragonAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
+        npc_vesperonAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         void Reset() OVERRIDE
         {
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(SAY_AGGRO);
-            DoZoneInCombat();
-            events.ScheduleEvent(EVENT_SHADOW_FISSURE_VESPERON, 5000);
-            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
-            events.ScheduleEvent(EVENT_SHADOW_BREATH_VESPERON, 20000);
-        }
+            dummy_dragonAI::EnterCombat(who);
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
-        {
-            Talk(SAY_SLAY);
+            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            //if no target, update dummy and return
+            // if no target, update dummy and return
             if (!UpdateVictim())
             {
                 dummy_dragonAI::UpdateAI(diff);
@@ -647,11 +586,6 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_SHADOW_FISSURE_VESPERON:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
-                        events.ScheduleEvent(EVENT_SHADOW_FISSURE_VESPERON, urand(15000, 20000));
-                        break;
                     case EVENT_ACOLYTE_VESPERON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == IN_PROGRESS)
                             events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10000);
@@ -662,24 +596,19 @@ public:
                             events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, urand(60000, 70000));
                         }
                         break;
-                    case EVENT_SHADOW_BREATH_VESPERON:
-                        Talk(SAY_BREATH);
-                        DoCastVictim(RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
-                        events.ScheduleEvent(EVENT_SHADOW_BREATH_VESPERON, urand(20000, 25000));
+                    default:
+                        dummy_dragonAI::ExecuteEvent(eventId);
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
-
-    private:
-        InstanceScript* instance;
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_vesperonAI(creature);
+        return GetObsidianSanctumAI<npc_vesperonAI>(creature);
     }
 };
 
@@ -689,23 +618,21 @@ public:
 
 class npc_acolyte_of_shadron : public CreatureScript
 {
-public:
-    npc_acolyte_of_shadron() : CreatureScript("npc_acolyte_of_shadron") { }
+    public:
+        npc_acolyte_of_shadron() : CreatureScript("npc_acolyte_of_shadron") { }
 
-    struct npc_acolyte_of_shadronAI : public ScriptedAI
-    {
-        npc_acolyte_of_shadronAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_acolyte_of_shadronAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        void Reset() OVERRIDE
-        {
-            // Despawn the NPC automatically after 28 seconds
-            me->DespawnOrUnsummon(28000);
-
-            if (instance)
+            npc_acolyte_of_shadronAI(Creature* creature) : ScriptedAI(creature)
             {
+                instance = creature->GetInstanceScript();
+            }
+
+            void Reset() OVERRIDE
+            {
+                // Despawn the NPC automatically after 28 seconds
+                me->DespawnOrUnsummon(28000);
+
                 //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
                 {
@@ -717,14 +644,11 @@ public:
                     if (Creature* shadron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
                         shadron->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, shadron);
                 }
+
+                me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
             }
 
-            me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
-        }
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            if (instance)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 if (ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SHADRON)))
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
@@ -732,7 +656,7 @@ public:
                 Map* map = me->GetMap();
                 if (map->IsDungeon())
                 {
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
+                    Map::PlayerList const& PlayerList = map->GetPlayers();
 
                     if (PlayerList.isEmpty())
                         return;
@@ -746,7 +670,7 @@ public:
                             i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
                             i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
                         }
-                   }
+                    }
                 }
 
                 // not solo fight, so main boss has debuff
@@ -759,24 +683,23 @@ public:
                     if (debuffTarget->IsAlive() && debuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
                         debuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
             }
-        }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            InstanceScript* instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
+            return GetObsidianSanctumAI<npc_acolyte_of_shadronAI>(creature);
         }
-
-    private:
-        InstanceScript* instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_acolyte_of_shadronAI(creature);
-    }
 };
 
 /*######
@@ -785,34 +708,31 @@ public:
 
 class npc_acolyte_of_vesperon : public CreatureScript
 {
-public:
-    npc_acolyte_of_vesperon() : CreatureScript("npc_acolyte_of_vesperon") { }
+    public:
+        npc_acolyte_of_vesperon() : CreatureScript("npc_acolyte_of_vesperon") { }
 
-    struct npc_acolyte_of_vesperonAI : public ScriptedAI
-    {
-        npc_acolyte_of_vesperonAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_acolyte_of_vesperonAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            npc_acolyte_of_vesperonAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
 
-        void Reset() OVERRIDE
-        {
-            // Despawn the NPC automatically after 28 seconds
-            me->DespawnOrUnsummon(28000);
+            void Reset() OVERRIDE
+            {
+                // Despawn the NPC automatically after 28 seconds
+                me->DespawnOrUnsummon(28000);
 
-            if (instance)
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
-            DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
-        }
+                DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
+            }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
-
-            // remove twilight torment on Vesperon
-            if (instance)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
+                me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
+
+                // remove twilight torment on Vesperon
                 if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VESPERON)))
                 {
                     instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
@@ -847,24 +767,23 @@ public:
                 instance->DoRemoveAurasDueToSpellOnPlayers(57935);
                 instance->DoRemoveAurasDueToSpellOnPlayers(58835); // Components of spell Twilight Torment
             }
-        }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE
+            void UpdateAI(uint32 /*diff*/) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            InstanceScript* instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
+            return GetObsidianSanctumAI<npc_acolyte_of_vesperonAI>(creature);
         }
-
-    private:
-        InstanceScript* instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_acolyte_of_vesperonAI(creature);
-    }
 };
 
 /*######
@@ -891,8 +810,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
+            me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
             events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20000);
         }
@@ -933,7 +851,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_twilight_eggsAI(creature);
+        return GetObsidianSanctumAI<npc_twilight_eggsAI>(creature);
     }
 };
 

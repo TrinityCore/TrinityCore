@@ -69,7 +69,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lokenAI(creature);
+        return GetInstanceAI<boss_lokenAI>(creature);
     }
 
     struct boss_lokenAI : public ScriptedAI
@@ -124,9 +124,10 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE
