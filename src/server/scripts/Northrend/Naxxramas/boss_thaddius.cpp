@@ -123,12 +123,14 @@ public:
             // Moreover, the adds may not yet be spawn. So just track down the status if mob is spawn
             // and each mob will send its status at reset (meaning that it is alive)
             checkFeugenAlive = false;
-            if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
-                checkFeugenAlive = pFeugen->IsAlive();
+            if (instance)
+                if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                    checkFeugenAlive = pFeugen->IsAlive();
 
             checkStalaggAlive = false;
-            if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
-                checkStalaggAlive = pStalagg->IsAlive();
+            if (instance)
+                if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+                    checkStalaggAlive = pStalagg->IsAlive();
 
             if (!checkFeugenAlive && !checkStalaggAlive)
             {
@@ -338,21 +340,24 @@ public:
 
             if (magneticPullTimer <= uiDiff)
             {
-                if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                if (instance)
                 {
-                    Unit* pStalaggVictim = me->GetVictim();
-                    Unit* pFeugenVictim = pFeugen->GetVictim();
-
-                    if (pFeugenVictim && pStalaggVictim)
+                    if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
                     {
-                        // magnetic pull is not working. So just jump.
+                        Unit* pStalaggVictim = me->GetVictim();
+                        Unit* pFeugenVictim = pFeugen->GetVictim();
 
-                        // reset aggro to be sure that feugen will not follow the jump
-                        pFeugen->getThreatManager().modifyThreatPercent(pFeugenVictim, -100);
-                        pFeugenVictim->JumpTo(me, 0.3f);
+                        if (pFeugenVictim && pStalaggVictim)
+                        {
+                            // magnetic pull is not working. So just jump.
 
-                        me->getThreatManager().modifyThreatPercent(pStalaggVictim, -100);
-                        pStalaggVictim->JumpTo(pFeugen, 0.3f);
+                            // reset aggro to be sure that feugen will not follow the jump
+                            pFeugen->getThreatManager().modifyThreatPercent(pFeugenVictim, -100);
+                            pFeugenVictim->JumpTo(me, 0.3f);
+
+                            me->getThreatManager().modifyThreatPercent(pStalaggVictim, -100);
+                            pStalaggVictim->JumpTo(pFeugen, 0.3f);
+                        }
                     }
                 }
 
