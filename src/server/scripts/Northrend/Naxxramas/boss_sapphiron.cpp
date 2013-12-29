@@ -96,6 +96,8 @@ class boss_sapphiron : public CreatureScript
 
             void InitializeAI() OVERRIDE
             {
+                _canTheHundredClub = true;
+
                 float x, y, z;
                 me->GetPosition(x, y, z);
                 me->SummonGameObject(GO_BIRTH, x, y, z, 0, 0, 0, 0, 0, 0);
