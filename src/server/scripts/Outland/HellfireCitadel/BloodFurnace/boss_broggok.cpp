@@ -71,7 +71,8 @@ class boss_broggok : public CreatureScript
                 PoisonSpawn_Timer = 5000;
                 PoisonBolt_Timer = 7000;
                 DoAction(ACTION_RESET_BROGGOK);
-                instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -154,7 +155,7 @@ class boss_broggok : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_broggokAI(creature);
+            return GetInstanceAI<boss_broggokAI>(creature);
         }
 };
 

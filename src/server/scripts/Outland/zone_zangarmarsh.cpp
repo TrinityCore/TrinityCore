@@ -355,16 +355,16 @@ public:
             switch (waypointId)
             {
                 case 4:
-                    Talk(SAY_AMBUSH1, player->GetGUID());
+                    Talk(SAY_AMBUSH1, player);
                     DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     break;
                 case 5:
-                    Talk(SAY_PROGRESS, player->GetGUID());
+                    Talk(SAY_PROGRESS, player);
                     SetRun();
                     break;
                 case 16:
-                    Talk(SAY_AMBUSH2, player->GetGUID());
+                    Talk(SAY_AMBUSH2, player);
                     DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     break;
@@ -372,7 +372,7 @@ public:
                     SetRun(false);
                     break;
                 case 25:
-                    Talk(SAY_END, player->GetGUID());
+                    Talk(SAY_END, player);
                     player->GroupEventHappens(QUEST_ESCAPE_FROM, me);
                     break;
             }
@@ -383,7 +383,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
         {
-            creature->AI()->Talk(SAY_START, player->GetGUID());
+            creature->AI()->Talk(SAY_START, player);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID());

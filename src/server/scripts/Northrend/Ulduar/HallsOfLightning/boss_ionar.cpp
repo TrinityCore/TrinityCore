@@ -72,7 +72,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ionarAI(creature);
+        return GetInstanceAI<boss_ionarAI>(creature);
     }
 
     struct boss_ionarAI : public ScriptedAI
@@ -137,9 +137,10 @@ public:
                 instance->SetBossState(DATA_IONAR, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
@@ -278,7 +279,7 @@ public:
 
                 Talk(SAY_SPLIT);
 
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 DoCast(me, SPELL_DISPERSE, false);
@@ -301,7 +302,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_spark_of_ionarAI(creature);
+        return GetInstanceAI<npc_spark_of_ionarAI>(creature);
     }
 
     struct npc_spark_of_ionarAI : public ScriptedAI

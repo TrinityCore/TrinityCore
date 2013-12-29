@@ -258,10 +258,7 @@ public:
 
         void SaySound(uint8 textEntry, Unit* target = 0)
         {
-            if (target)
-                Talk(textEntry, target->GetGUID());
-            else
-                Talk(textEntry);
+            Talk(textEntry, target);
 
             //DoCast(me, SPELL_HEAD_SPEAKS, true);
             if (Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000))
@@ -348,7 +345,7 @@ public:
                     Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, 0);
+                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
                 }
                 else laugh -= diff;
             }
@@ -377,7 +374,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_headless_horsemanAI(creature);
+        return GetInstanceAI<boss_headless_horsemanAI>(creature);
     }
 
     struct boss_headless_horsemanAI : public ScriptedAI
@@ -528,10 +525,7 @@ public:
 
         void SaySound(uint8 textEntry, Unit* target = 0)
         {
-            if (target)
-                Talk(textEntry, target->GetGUID());
-            else
-                Talk(textEntry);
+            Talk(textEntry, target);
             laugh += 4000;
         }
 
@@ -728,7 +722,7 @@ public:
                 if (laugh <= diff)
                 {
                     laugh = urand(11000, 22000);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, 0);
+                    me->MonsterTextEmote(EMOTE_LAUGHS, NULL);
                     DoPlaySoundToSet(me, RandomLaugh[rand()%3]);
                 }
                 else laugh -= diff;
@@ -806,8 +800,8 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);   //this visual aura some under ground
             me->SetPosition(x, y, z + 0.35f, 0.0f);
-            Despawn();
             debuffGUID = 0;
+            Despawn();
             Creature* debuff = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500);
             if (debuff)
             {

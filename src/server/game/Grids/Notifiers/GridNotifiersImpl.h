@@ -517,14 +517,16 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
     WorldPacket* data;
 
     // create if not cached yet
-    if (i_data_cache.size() < cache_idx+1 || !i_data_cache[cache_idx])
+    if (i_data_cache.size() < cache_idx + 1 || !i_data_cache[cache_idx])
     {
-        if (i_data_cache.size() < cache_idx+1)
-            i_data_cache.resize(cache_idx+1);
+        if (i_data_cache.size() < cache_idx + 1)
+            i_data_cache.resize(cache_idx + 1);
 
-        data = new WorldPacket(SMSG_MESSAGECHAT, 200);
+        data = new WorldPacket();
 
         i_builder(*data, loc_idx);
+
+        ASSERT(data->GetOpcode() != MSG_NULL_ACTION);
 
         i_data_cache[cache_idx] = data;
     }

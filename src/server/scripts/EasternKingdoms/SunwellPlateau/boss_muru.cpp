@@ -371,7 +371,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_muru_portalAI(creature);
+        return GetInstanceAI<npc_muru_portalAI>(creature);
     }
 
     struct npc_muru_portalAI : public ScriptedAI
@@ -571,7 +571,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_blackholeAI(creature);
+        return GetInstanceAI<npc_blackholeAI>(creature);
     }
 
     struct npc_blackholeAI : public ScriptedAI

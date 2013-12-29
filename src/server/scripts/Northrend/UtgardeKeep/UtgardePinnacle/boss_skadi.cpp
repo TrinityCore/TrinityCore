@@ -133,7 +133,7 @@ enum Spells
 {
     // Skadi Spells
     SPELL_CRUSH             = 50234,
-    SPELL_POISONED_SPEAR    = 50225, //isn't being casted =/
+    SPELL_POISONED_SPEAR    = 50225, //isn't being cast
     SPELL_WHIRLWIND         = 50228, //random target, but not the tank approx. every 20s
     SPELL_RAPID_FIRE        = 56570,
     SPELL_HARPOON_DAMAGE    = 56578,
@@ -162,7 +162,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_skadiAI(creature);
+        return GetInstanceAI<boss_skadiAI>(creature);
     }
 
     struct boss_skadiAI : public ScriptedAI
@@ -415,9 +415,10 @@ public:
                 instance->SetBossState(DATA_SKADI_THE_RUTHLESS, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_KILL);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_KILL);
         }
 
         void SpawnMobs()

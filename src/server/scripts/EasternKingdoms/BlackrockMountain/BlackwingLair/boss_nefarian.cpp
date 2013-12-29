@@ -376,7 +376,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_victor_nefariusAI(creature);
+        return GetInstanceAI<boss_victor_nefariusAI>(creature);
     }
 };
 
@@ -423,7 +423,7 @@ public:
             if (rand()%5)
                 return;
 
-            Talk(SAY_SLAY, victim->GetGUID());
+            Talk(SAY_SLAY, victim);
         }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
@@ -572,7 +572,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_nefarianAI(creature);
+        return GetInstanceAI<boss_nefarianAI>(creature);
     }
 };
 

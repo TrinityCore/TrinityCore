@@ -858,7 +858,7 @@ void hyjalAI::UpdateAI(uint32 diff)
         {
             if (SpellTimer[i] <= diff)
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 Unit* target = NULL;
@@ -953,7 +953,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
 {
     if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
-        me->MonsterYell(YELL_HURRY, 0, 0);
+        me->MonsterYell(YELL_HURRY, LANG_UNIVERSAL, NULL);
         WaitForTeleport = true;
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)

@@ -40,15 +40,21 @@ EndContentData */
 ## npc_spitelashes
 ######*/
 
+enum Spitelashes
+{
+    SPELL_POLYMORPH_RANK1       = 118,
+    SPELL_POLYMORPH_RANK2       = 12824,
+    SPELL_POLYMORPH_RANK3       = 12825,
+    SPELL_POLYMORPH_RANK4       = 12826,
+    SPELL_POLYMORPH             = 29124,
+    SPELL_POLYMORPH_BACKFIRE    = 28406,
+    SPELL_REMOVE_POLYMORPH      = 6924
+};
+
 class npc_spitelashes : public CreatureScript
 {
 public:
     npc_spitelashes() : CreatureScript("npc_spitelashes") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_spitelashesAI(creature);
-    }
 
     struct npc_spitelashesAI : public ScriptedAI
     {
@@ -72,15 +78,15 @@ public:
 
             switch (spell->Id)
             {
-                case 118:
-                case 12824:
-                case 12825:
-                case 12826:
+                case SPELL_POLYMORPH_RANK1:
+                case SPELL_POLYMORPH_RANK2:
+                case SPELL_POLYMORPH_RANK3:
+                case SPELL_POLYMORPH_RANK4:
                     if (Player* player = unit->ToPlayer())
                         if (player->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE)
                         {
                             spellhit = true;
-                            DoCast(me, 29124);
+                            DoCast(me, SPELL_POLYMORPH);
                         }
                     break;
                 default:
@@ -102,8 +108,8 @@ public:
                 morphtimer+=diff;
                 if (morphtimer >= 5000)
                 {
-                    DoCast(me, 28406);                   //summon copies
-                    DoCast(me, 6924);                    //visual explosion
+                    DoCast(me, SPELL_POLYMORPH_BACKFIRE); // summon copies
+                    DoCast(me, SPELL_REMOVE_POLYMORPH);   // visual explosion
                 }
             }
             if (!UpdateVictim())
@@ -114,6 +120,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_spitelashesAI(creature);
+    }
 };
 
 /*######
@@ -219,7 +229,7 @@ Position const WPs[58] =
     {3675.02f, -3960.49f, 35.9118f, 3.67f},
     {3653.19f, -3958.33f, 33.9118f, 3.59f},
     {3621.12f, -3958.51f, 29.9118f, 3.48f},
-    {3604.86f, -3963,    29.9118f, 3.48f},
+    {3604.86f, -3963,     29.9118f, 3.48f},
     {3569.94f, -3970.25f, 29.9118f, 3.44f},
     {3541.03f, -3975.64f, 29.9118f, 3.41f},
     {3510.84f, -3978.71f, 29.9118f, 3.41f},
@@ -260,14 +270,14 @@ Position const WPs[58] =
     {2521.05f, -3716.6f,  31.9118f, 2.55f},
     {2485.26f, -3706.67f, 31.9118f, 2.51f},
     {2458.93f, -3696.67f, 31.9118f, 2.51f},
-    {2432,    -3692.03f, 31.9118f, 2.46f},
+    {2432,     -3692.03f, 31.9118f, 2.46f},
     {2399.59f, -3681.97f, 31.9118f, 2.45f},
     {2357.75f, -3666.6f,  31.9118f, 2.44f},
     {2311.99f, -3656.88f, 31.9118f, 2.94f},
     {2263.41f, -3649.55f, 31.9118f, 3.02f},
     {2209.05f, -3641.76f, 31.9118f, 2.99f},
     {2164.83f, -3637.64f, 31.9118f, 3.15f},
-    {2122.42f, -3639,    31.9118f, 3.21f},
+    {2122.42f,  -3639,    31.9118f, 3.21f},
     {2075.73f, -3643.59f, 31.9118f, 3.22f},
     {2033.59f, -3649.52f, 31.9118f, 3.42f},
     {1985.22f, -3662.99f, 31.9118f, 3.42f},
@@ -280,50 +290,9 @@ class npc_rizzle_sprysprocket : public CreatureScript
 public:
     npc_rizzle_sprysprocket() : CreatureScript("npc_rizzle_sprysprocket") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1 && player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
-            CAST_AI(npc_rizzle_sprysprocket::npc_rizzle_sprysprocketAI, creature->AI())->MustDieTimer = 3000;
-            CAST_AI(npc_rizzle_sprysprocket::npc_rizzle_sprysprocketAI, creature->AI())->MustDie = true;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
-            return true;
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(10811, creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_rizzle_sprysprocketAI(creature);
-    }
-
     struct npc_rizzle_sprysprocketAI : public ScriptedAI
     {
         npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 SpellEscapeTimer;
-        uint32 TeleportTimer;
-        uint32 CheckTimer;
-        uint32 GrenadeTimer;
-        uint32 MustDieTimer;
-        uint32 CurrWP;
-
-        uint64 PlayerGUID;
-
-        bool MustDie;
-        bool Escape;
-        bool ContinueWP;
-        bool Reached;
 
         void Reset() OVERRIDE
         {
@@ -340,6 +309,47 @@ public:
             Escape = false;
             ContinueWP = false;
             Reached = false;
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+
+        void AttackStart(Unit* who) OVERRIDE
+        {
+            if (!who || PlayerGUID)
+                return;
+
+            Player* player = who->ToPlayer();
+
+            if (player && player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
+            {
+                PlayerGUID = who->GetGUID();
+                Talk(SAY_RIZZLE_START);
+                DoCast(who, SPELL_RIZZLE_BLACKJACK, false);
+                return;
+            }
+        }
+
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
+        {
+            player->CLOSE_GOSSIP_MENU();
+            me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
+            MustDieTimer = 3000;
+            MustDie = true;
+        }
+
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            if (id == 57)
+            {
+                me->DespawnOrUnsummon();
+                return;
+            }
+
+            ++CurrWP;
+            ContinueWP = true;
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -374,7 +384,7 @@ public:
                     if (!player)
                         return;
 
-                    Talk(MSG_ESCAPE_NOTICE, player->GetGUID());
+                    Talk(MSG_ESCAPE_NOTICE, player);
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetHover(true);
                     me->SetSwim(true);
@@ -397,7 +407,7 @@ public:
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                 {
-                   Talk(SAY_RIZZLE_GRENADE, player->GetGUID());
+                   Talk(SAY_RIZZLE_GRENADE, player);
                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 GrenadeTimer = 30000;
@@ -424,42 +434,35 @@ public:
 
                 CheckTimer = 1000;
             } else CheckTimer -= diff;
-
         }
 
-        void AttackStart(Unit* who) OVERRIDE
-        {
-            if (!who || PlayerGUID)
-                return;
-
-            Player* player = who->ToPlayer();
-
-            if (player && player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
-            {
-                PlayerGUID = who->GetGUID();
-                Talk(SAY_RIZZLE_START);
-                DoCast(who, SPELL_RIZZLE_BLACKJACK, false);
-                return;
-            }
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
-
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (id == 57)
-            {
-                me->DespawnOrUnsummon();
-                return;
-            }
-
-            ++CurrWP;
-            ContinueWP = true;
-        }
+    private:
+        uint64 PlayerGUID;
+        uint32 SpellEscapeTimer;
+        uint32 TeleportTimer;
+        uint32 CheckTimer;
+        uint32 GrenadeTimer;
+        uint32 MustDieTimer;
+        uint32 CurrWP;
+        bool MustDie;
+        bool Escape;
+        bool ContinueWP;
+        bool Reached;
     };
+
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    {
+        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
+            return true;
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->SEND_GOSSIP_MENU(10811, creature->GetGUID());
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_rizzle_sprysprocketAI(creature);
+    }
 };
 
 /*####
@@ -469,11 +472,6 @@ class npc_depth_charge : public CreatureScript
 {
 public:
     npc_depth_charge() : CreatureScript("npc_depth_charge") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_depth_chargeAI(creature);
-    }
 
     struct npc_depth_chargeAI : public ScriptedAI
     {
@@ -491,20 +489,11 @@ public:
             WeMustDieTimer = 1000;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (WeMustDie)
-            {
-                if (WeMustDieTimer <= diff)
-                    me->DespawnOrUnsummon();
-                else
-                    WeMustDieTimer -= diff;
-            }
-            return;
-        }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!who)
                 return;
@@ -517,10 +506,23 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) OVERRIDE { }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (WeMustDie)
+            {
+                if (WeMustDieTimer <= diff)
+                    me->DespawnOrUnsummon();
+                else
+                    WeMustDieTimer -= diff;
+            }
+            return;
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_depth_chargeAI(creature);
+    }
 };
 
 void AddSC_azshara()

@@ -75,7 +75,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_volkhanAI(creature);
+        return GetInstanceAI<boss_volkhanAI>(creature);
     }
 
     struct boss_volkhanAI : public ScriptedAI
@@ -154,9 +154,10 @@ public:
                 instance->SetBossState(DATA_VOLKHAN, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void DespawnGolem()
@@ -286,7 +287,7 @@ public:
             {
                 ++m_uiHealthAmountModifier;
 
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 Talk(SAY_FORGE);
@@ -411,7 +412,7 @@ public:
                 me->AttackStop();
                 // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);  //Set in DB
                 // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //Set in DB
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
                     me->GetMotionMaster()->MovementExpired();

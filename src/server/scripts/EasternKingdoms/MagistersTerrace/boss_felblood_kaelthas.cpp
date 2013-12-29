@@ -96,7 +96,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const OVERRIDE
     {
-        return new boss_felblood_kaelthasAI(c);
+        return GetInstanceAI<boss_felblood_kaelthasAI>(c);
     }
 
     struct boss_felblood_kaelthasAI : public ScriptedAI
@@ -482,7 +482,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const OVERRIDE
     {
-        return new npc_felkael_phoenixAI(c);
+        return GetInstanceAI<npc_felkael_phoenixAI>(c);
     }
 
     struct npc_felkael_phoenixAI : public ScriptedAI

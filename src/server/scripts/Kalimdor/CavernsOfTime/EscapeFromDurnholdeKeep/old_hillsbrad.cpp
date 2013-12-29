@@ -188,7 +188,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_thrall_old_hillsbradAI(creature);
+        return GetInstanceAI<npc_thrall_old_hillsbradAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
@@ -407,7 +407,7 @@ public:
                     if (uint64 TarethaGUID = instance->GetData64(DATA_TARETHA))
                     {
                         if (Creature* Taretha = Creature::GetCreature(*me, TarethaGUID))
-                            Taretha->AI()->Talk(SAY_TA_ESCAPED, me->GetGUID());
+                            Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
                     }
                     break;
                 case 95:
@@ -573,7 +573,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_tarethaAI(creature);
+        return GetInstanceAI<npc_tarethaAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE

@@ -420,7 +420,7 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                Talk(CLINTAR_SPIRIT_SAY_START, PlayerGUID);
+                                Talk(CLINTAR_SPIRIT_SAY_START, player);
                                 EventTimer = 8000;
                                 Step = 1;
                                 break;

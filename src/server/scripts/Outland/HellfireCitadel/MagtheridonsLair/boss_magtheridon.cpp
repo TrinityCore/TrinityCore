@@ -71,7 +71,7 @@ enum Spells
     SPELL_SHADOW_CAGE          = 30168,
     SPELL_SHADOW_GRASP         = 30410,
     SPELL_SHADOW_GRASP_VISUAL  = 30166,
-    SPELL_MIND_EXHAUSTION      = 44032, //Casted by the cubes when channeling ends
+    SPELL_MIND_EXHAUSTION      = 44032, //Cast by the cubes when channeling ends
     SPELL_SHADOW_CAGE_C        = 30205,
     SPELL_SHADOW_GRASP_C       = 30207,
     SPELL_SHADOW_BOLT_VOLLEY   = 30510,
@@ -392,7 +392,7 @@ class boss_magtheridon : public CreatureScript
                 if (Quake_Timer <= diff)
                 {
                     // to avoid blastnova interruption
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         DoCast(me, SPELL_QUAKE_TRIGGER, true);
                         Quake_Timer = 50000;
@@ -421,7 +421,7 @@ class boss_magtheridon : public CreatureScript
                     Blaze_Timer -= diff;
 
                 if (!Phase3 && HealthBelowPct(30)
-                    && !me->IsNonMeleeSpellCasted(false) // blast nova
+                    && !me->IsNonMeleeSpellCast(false) // blast nova
                     && !me->HasUnitState(UNIT_STATE_STUNNED)) // shadow cage and earthquake
                 {
                     Phase3 = true;
@@ -457,7 +457,7 @@ class boss_magtheridon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_magtheridonAI(creature);
+            return GetInstanceAI<boss_magtheridonAI>(creature);
         }
 };
 
@@ -576,7 +576,7 @@ class npc_hellfire_channeler : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_hellfire_channelerAI(creature);
+            return GetInstanceAI<npc_hellfire_channelerAI>(creature);
         }
 };
 

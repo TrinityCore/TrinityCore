@@ -131,7 +131,7 @@ void PetAI::UpdateAI(uint32 diff)
             HandleReturnMovement();
     }
 
-    // Autocast (casted only in combat or persistent spells in any state)
+    // Autocast (cast only in combat or persistent spells in any state)
     if (!me->HasUnitState(UNIT_STATE_CASTING))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;

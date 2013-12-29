@@ -62,7 +62,7 @@ public:
         if (quest->GetQuestId() == QUEST_CHASING_AME)
         {
             CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-            creature->AI()->Talk(SAY_READY, player->GetGUID());
+            creature->AI()->Talk(SAY_READY, player);
             creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             // Change faction so mobs attack
             creature->setFaction(113);
@@ -89,21 +89,21 @@ public:
                 {
                     case 19:
                         me->SummonCreature(ENTRY_STOMPER, -6391.69f, -1730.49f, -272.83f, 4.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        Talk(SAY_AGGRO1, player->GetGUID());
+                        Talk(SAY_AGGRO1, player);
                         break;
                     case 28:
-                        Talk(SAY_SEARCH, player->GetGUID());
+                        Talk(SAY_SEARCH, player);
                         break;
                     case 38:
                         me->SummonCreature(ENTRY_TARLORD, -6370.75f, -1382.84f, -270.51f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        Talk(SAY_AGGRO2, player->GetGUID());
+                        Talk(SAY_AGGRO2, player);
                         break;
                     case 49:
                         me->SummonCreature(ENTRY_TARLORD1, -6324.44f, -1181.05f, -270.17f, 4.34f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        Talk(SAY_AGGRO3, player->GetGUID());
+                        Talk(SAY_AGGRO3, player);
                         break;
                     case 55:
-                        Talk(SAY_FINISH, player->GetGUID());
+                        Talk(SAY_FINISH, player);
                         player->GroupEventHappens(QUEST_CHASING_AME, me);
                         break;
                 }

@@ -103,7 +103,7 @@ public:
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(AGGRO_YELL_AQUE, who->GetGUID());
+            Talk(AGGRO_YELL_AQUE, who);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -191,58 +191,58 @@ public:
                 switch (waypointId)
                 {
                     case 0:
-                        Talk(WHISPER_CUSTODIAN_1, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_1, player);
                         break;
                     case 1:
-                        Talk(WHISPER_CUSTODIAN_2, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_2, player);
                         break;
                     case 2:
-                        Talk(WHISPER_CUSTODIAN_3, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_3, player);
                         break;
                     case 3:
-                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_4, player);
                         break;
                     case 5:
-                        Talk(WHISPER_CUSTODIAN_5, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_5, player);
                         break;
                     case 6:
-                        Talk(WHISPER_CUSTODIAN_6, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_6, player);
                         break;
                     case 7:
-                        Talk(WHISPER_CUSTODIAN_7, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_7, player);
                         break;
                     case 8:
-                        Talk(WHISPER_CUSTODIAN_8, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_8, player);
                         break;
                     case 9:
-                        Talk(WHISPER_CUSTODIAN_9, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_9, player);
                         break;
                     case 10:
-                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_4, player);
                         break;
                     case 13:
-                        Talk(WHISPER_CUSTODIAN_10, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_10, player);
                         break;
                     case 14:
-                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_4, player);
                         break;
                     case 16:
-                        Talk(WHISPER_CUSTODIAN_11, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_11, player);
                         break;
                     case 17:
-                        Talk(WHISPER_CUSTODIAN_12, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_12, player);
                         break;
                     case 18:
-                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_4, player);
                         break;
                     case 22:
-                        Talk(WHISPER_CUSTODIAN_13, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_13, player);
                         break;
                     case 23:
-                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_4, player);
                         break;
                     case 24:
-                        Talk(WHISPER_CUSTODIAN_14, player->GetGUID());
+                        Talk(WHISPER_CUSTODIAN_14, player);
                         DoCast(player, 34883);
                         // below here is temporary workaround, to be removed when spell works properly
                         player->AreaExploredOrEventHappens(10277);

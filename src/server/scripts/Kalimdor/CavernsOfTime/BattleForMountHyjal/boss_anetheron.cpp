@@ -47,7 +47,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_anetheronAI(creature);
+        return GetInstanceAI<boss_anetheronAI>(creature);
     }
 
     struct boss_anetheronAI : public hyjal_trashAI
@@ -83,9 +83,10 @@ public:
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_ONSLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_ONSLAY);
         }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
@@ -179,7 +180,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_towering_infernalAI(creature);
+        return GetInstanceAI<npc_towering_infernalAI>(creature);
     }
 
     struct npc_towering_infernalAI : public ScriptedAI

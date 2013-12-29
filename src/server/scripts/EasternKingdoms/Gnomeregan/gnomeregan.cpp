@@ -90,7 +90,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_blastmaster_emi_shortfuseAI(creature);
+        return GetInstanceAI<npc_blastmaster_emi_shortfuseAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE

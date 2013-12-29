@@ -175,7 +175,7 @@ class boss_jaraxxus : public CreatureScript
                         case EVENT_INCINERATE_FLESH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
                             {
-                                Talk(EMOTE_INCINERATE, target->GetGUID());
+                                Talk(EMOTE_INCINERATE, target);
                                 Talk(SAY_INCINERATE);
                                 DoCast(target, SPELL_INCINERATE_FLESH);
                             }
@@ -188,7 +188,7 @@ class boss_jaraxxus : public CreatureScript
                         case EVENT_LEGION_FLAME:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
                             {
-                                Talk(EMOTE_LEGION_FLAME, target->GetGUID());
+                                Talk(EMOTE_LEGION_FLAME, target);
                                 DoCast(target, SPELL_LEGION_FLAME);
                             }
                             events.ScheduleEvent(EVENT_LEGION_FLAME, 30*IN_MILLISECONDS);
@@ -214,7 +214,7 @@ class boss_jaraxxus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_jaraxxusAI(creature);
+            return GetInstanceAI<boss_jaraxxusAI>(creature);
         }
 };
 
@@ -250,7 +250,7 @@ class npc_legion_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_legion_flameAI(creature);
+            return GetInstanceAI<npc_legion_flameAI>(creature);
         }
 };
 
@@ -355,7 +355,7 @@ class npc_fel_infernal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_fel_infernalAI(creature);
+            return GetInstanceAI<npc_fel_infernalAI>(creature);
         }
 };
 
@@ -488,7 +488,7 @@ class npc_mistress_of_pain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_mistress_of_painAI(creature);
+            return GetInstanceAI<npc_mistress_of_painAI>(creature);
         }
 };
 

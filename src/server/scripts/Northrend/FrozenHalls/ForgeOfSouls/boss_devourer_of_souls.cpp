@@ -345,7 +345,7 @@ class boss_devourer_of_souls : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_devourer_of_soulsAI(creature);
+            return GetInstanceAI<boss_devourer_of_soulsAI>(creature);
         }
 };
 
@@ -480,9 +480,7 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
 class achievement_three_faced : public AchievementCriteriaScript
 {
     public:
-        achievement_three_faced() : AchievementCriteriaScript("achievement_three_faced")
-        {
-        }
+        achievement_three_faced() : AchievementCriteriaScript("achievement_three_faced") { }
 
         bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {

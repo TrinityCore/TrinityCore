@@ -232,7 +232,7 @@ class boss_xt002 : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                 events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
-                //Tantrum is casted a bit slower the first time.
+                //Tantrum is cast a bit slower the first time.
                 events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2);
 
                 if (!instance)
@@ -477,7 +477,7 @@ class npc_xt002_heart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_xt002_heartAI(creature);
+            return GetInstanceAI<npc_xt002_heartAI>(creature);
         }
 };
 
@@ -493,7 +493,7 @@ class npc_scrapbot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_scrapbotAI(creature);
+            return GetInstanceAI<npc_scrapbotAI>(creature);
         }
 
         struct npc_scrapbotAI : public ScriptedAI
@@ -550,7 +550,7 @@ class npc_pummeller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_pummellerAI(creature);
+            return GetInstanceAI<npc_pummellerAI>(creature);
         }
 
         struct npc_pummellerAI : public ScriptedAI
@@ -652,7 +652,7 @@ class npc_boombot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_boombotAI(creature);
+            return GetInstanceAI<npc_boombotAI>(creature);
         }
 
         struct npc_boombotAI : public ScriptedAI

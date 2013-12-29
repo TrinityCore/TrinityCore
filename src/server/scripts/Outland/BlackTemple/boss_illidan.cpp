@@ -608,7 +608,7 @@ public:
                 if (Conversation[count].emote)
                     creature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
                 if (Conversation[count].text.size())
-                    creature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
+                    creature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, NULL); // Have the Creature yell out some text
                 if (Conversation[count].sound)
                     DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
             }
@@ -764,7 +764,7 @@ public:
             if (!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
             {
                 EnterEvadeMode();
-                me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, 0);
+                me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, NULL);
                 TC_LOG_ERROR("scripts", "SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
             }
         }
@@ -974,7 +974,7 @@ public:
                 break;
             }
 
-            if (me->IsNonMeleeSpellCasted(false))
+            if (me->IsNonMeleeSpellCast(false))
                 return;
 
             if (Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || (Phase == PHASE_NORMAL_MAIEV && !me->HasAura(SPELL_CAGED)))
@@ -1126,7 +1126,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_illidan_stormrageAI(creature);
+        return GetInstanceAI<boss_illidan_stormrageAI>(creature);
     }
 };
 
@@ -1794,7 +1794,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_akama_illidanAI(creature);
+        return GetInstanceAI<npc_akama_illidanAI>(creature);
     }
 };
 
@@ -2228,7 +2228,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_parasitic_shadowfiendAI(creature);
+        return GetInstanceAI<npc_parasitic_shadowfiendAI>(creature);
     }
 };
 

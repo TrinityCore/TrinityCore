@@ -649,7 +649,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kelthuzadAI(creature);
+        return GetInstanceAI<boss_kelthuzadAI>(creature);
     }
 };
 
@@ -769,7 +769,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_kelthuzad_abominationAI(creature);
+            return GetInstanceAI<npc_kelthuzad_abominationAI>(creature);
         }
 };
 

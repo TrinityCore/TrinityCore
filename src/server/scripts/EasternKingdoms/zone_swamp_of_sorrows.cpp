@@ -28,59 +28,46 @@
 enum Galen
 {
     QUEST_GALENS_ESCAPE     = 1393,
-
     GO_GALENS_CAGE          = 37118,
-
     SAY_PERIODIC            = 0,
     SAY_QUEST_ACCEPTED      = 1,
     SAY_ATTACKED            = 2,
     SAY_QUEST_COMPLETE      = 3,
     EMOTE_WHISPER           = 4,
-    EMOTE_DISAPPEAR         = 5,
+    EMOTE_DISAPPEAR         = 5
 };
 
 class npc_galen_goodward : public CreatureScript
 {
 public:
-
     npc_galen_goodward() : CreatureScript("npc_galen_goodward") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
-        {
-            CAST_AI(npc_galen_goodward::npc_galen_goodwardAI, creature->AI())->Start(false, false, player->GetGUID());
-            creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
-            creature->AI()->Talk(SAY_QUEST_ACCEPTED);
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_galen_goodwardAI(creature);
-    }
 
     struct npc_galen_goodwardAI : public npc_escortAI
     {
         npc_galen_goodwardAI(Creature* creature) : npc_escortAI(creature)
         {
-            m_uiGalensCageGUID = 0;
+            galensCageGUID = 0;
             Reset();
         }
 
-        uint64 m_uiGalensCageGUID;
-        uint32 m_uiPeriodicSay;
-
         void Reset() OVERRIDE
         {
-            m_uiPeriodicSay = 6000;
+            periodicSay = 6000;
         }
 
         void EnterCombat(Unit* who) OVERRIDE
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
-                Talk(SAY_ATTACKED, who->GetGUID());
+                Talk(SAY_ATTACKED, who);
+        }
+
+        void sQuestAccept(Player* player, Quest const* quest)
+        {
+            if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
+            {
+                Talk(SAY_QUEST_ACCEPTED, player);
+                npc_escortAI::Start(false, false, player->GetGUID(), quest);
+            }
         }
 
         void WaypointStart(uint32 uiPointId) OVERRIDE
@@ -89,15 +76,15 @@ public:
             {
             case 0:
                 {
-                    GameObject* pCage = NULL;
-                    if (m_uiGalensCageGUID)
-                        pCage = me->GetMap()->GetGameObject(m_uiGalensCageGUID);
+                    GameObject* cage = NULL;
+                    if (galensCageGUID)
+                        cage = me->GetMap()->GetGameObject(galensCageGUID);
                     else
-                        pCage = GetClosestGameObjectWithEntry(me, GO_GALENS_CAGE, INTERACTION_DISTANCE);
-                    if (pCage)
+                        cage = GetClosestGameObjectWithEntry(me, GO_GALENS_CAGE, INTERACTION_DISTANCE);
+                    if (cage)
                     {
-                        pCage->UseDoorOrButton();
-                        m_uiGalensCageGUID = pCage->GetGUID();
+                        cage->UseDoorOrButton();
+                        galensCageGUID = cage->GetGUID();
                     }
                     break;
                 }
@@ -112,15 +99,15 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    if (GameObject* pCage = me->GetMap()->GetGameObject(m_uiGalensCageGUID))
-                        pCage->ResetDoorOrButton();
+                    if (GameObject* cage = me->GetMap()->GetGameObject(galensCageGUID))
+                        cage->ResetDoorOrButton();
                     break;
                 case 20:
                     if (Player* player = GetPlayerForEscort())
                     {
                         me->SetFacingToObject(player);
-                        Talk(SAY_QUEST_COMPLETE, player->GetGUID());
-                        Talk(EMOTE_WHISPER, player->GetGUID());
+                        Talk(SAY_QUEST_COMPLETE, player);
+                        Talk(EMOTE_WHISPER, player);
                         player->GroupEventHappens(QUEST_GALENS_ESCAPE, me);
                     }
                     SetRun(true);
@@ -128,25 +115,34 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 diff) OVERRIDE
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            npc_escortAI::UpdateAI(diff);
 
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;
 
-            if (m_uiPeriodicSay < uiDiff)
+            if (periodicSay < diff)
             {
                 if (!HasEscortState(STATE_ESCORT_ESCORTING))
                     Talk(SAY_PERIODIC);
-                m_uiPeriodicSay = 15000;
+                periodicSay = 15000;
             }
             else
-                m_uiPeriodicSay -= uiDiff;
+                periodicSay -= diff;
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        uint64 galensCageGUID;
+        uint32 periodicSay;
     };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_galen_goodwardAI(creature);
+    }
 };
 
 void AddSC_swamp_of_sorrows()

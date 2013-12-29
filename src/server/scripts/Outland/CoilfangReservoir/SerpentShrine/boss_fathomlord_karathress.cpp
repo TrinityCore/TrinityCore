@@ -104,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomlord_karathressAI(creature);
+        return GetInstanceAI<boss_fathomlord_karathressAI>(creature);
     }
 
     struct boss_fathomlord_karathressAI : public ScriptedAI
@@ -293,7 +293,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
                 }
             }
@@ -312,7 +312,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomguard_sharkkisAI(creature);
+        return GetInstanceAI<boss_fathomguard_sharkkisAI>(creature);
     }
 
     struct boss_fathomguard_sharkkisAI : public ScriptedAI
@@ -459,7 +459,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomguard_tidalvessAI(creature);
+        return GetInstanceAI<boss_fathomguard_tidalvessAI>(creature);
     }
 
     struct boss_fathomguard_tidalvessAI : public ScriptedAI
@@ -582,7 +582,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomguard_caribdisAI(creature);
+        return GetInstanceAI<boss_fathomguard_caribdisAI>(creature);
     }
 
     struct boss_fathomguard_caribdisAI : public ScriptedAI
