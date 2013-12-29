@@ -428,7 +428,10 @@ public:
 
     struct npc_jennyAI : public ScriptedAI
     {
-        npc_jennyAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_jennyAI(Creature* creature) : ScriptedAI(creature) 
+        { 
+            setCrateNumber = false;
+        }
 
         bool setCrateNumber;
 
