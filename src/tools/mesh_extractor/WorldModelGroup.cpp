@@ -70,8 +70,8 @@ void WorldModelGroup::ReadLiquid()
 
     HasLiquidData = true;
     Stream* stream = chunk->GetStream();
-    LiquidDataHeader = LiquidHeader::Read(stream);
-    LiquidDataGeometry = LiquidData::Read(stream, LiquidDataHeader);
+    LiquidDataHeader.Read(stream);
+    LiquidDataGeometry.Read(stream, LiquidDataHeader);
 }
 
 void WorldModelGroup::ReadVertices()

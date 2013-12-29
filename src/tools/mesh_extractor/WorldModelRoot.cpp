@@ -92,5 +92,5 @@ void WorldModelRoot::ReadHeader()
         return;
 
     Stream* stream = chunk->GetStream();
-    Header = WorldModelHeader::Read(stream);
+    Header.Read(stream);
 }

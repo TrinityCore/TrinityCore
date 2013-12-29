@@ -113,5 +113,10 @@ void LiquidHandler::HandleNewLiquid()
                 Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));
             }
         }
+
+        // At this stage, heights is no longer needed, so we deallocate it
+        for (int j = 0; j < 9; ++j)
+            delete[] heights[j];
+        delete[] heights;
     }
 }

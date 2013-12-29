@@ -219,7 +219,6 @@ void MapChunkHeader::Read(Stream* stream)
     AreaId = stream->Read<uint32>();
     MapObjectRefs = stream->Read<uint32>();
     Holes = stream->Read<uint32>();
-    LowQualityTextureMap = new uint32[4];
     stream->Read(LowQualityTextureMap, sizeof(uint32) * 4);
     PredTex = stream->Read<uint32>();
     NumberEffectDoodad = stream->Read<uint32>();
@@ -233,8 +232,6 @@ void MapChunkHeader::Read(Stream* stream)
 
 void MHDR::Read(Stream* stream)
 {
-    int count = 0;
-
     Flags = stream->Read<uint32>();
     OffsetMCIN = stream->Read<uint32>();
     OffsetMTEX = stream->Read<uint32>();
@@ -306,24 +303,20 @@ void ModelHeader::Read(Stream* stream)
     OffsetBoundingNormals = stream->Read<uint32>();
 }
 
-WorldModelHeader WorldModelHeader::Read(Stream* stream)
+void WorldModelHeader::Read(Stream* stream)
 {
-    WorldModelHeader ret;
-    int count = 0;
-    ret.CountMaterials = stream->Read<uint32>();
-    ret.CountGroups = stream->Read<uint32>();
-    ret.CountPortals = stream->Read<uint32>();
-    ret.CountLights = stream->Read<uint32>();
-    ret.CountModels = stream->Read<uint32>();
-    ret.CountDoodads = stream->Read<uint32>();
-    ret.CountSets = stream->Read<uint32>();
-    ret.AmbientColorUnk = stream->Read<uint32>();
-    ret.WmoId = stream->Read<uint32>();
-    ret.BoundingBox[0] = Vector3::Read(stream);
-    ret.BoundingBox[1] = Vector3::Read(stream);
-    ret.LiquidTypeRelated = stream->Read<uint32>();
-
-    return ret;
+    CountMaterials = stream->Read<uint32>();
+    CountGroups = stream->Read<uint32>();
+    CountPortals = stream->Read<uint32>();
+    CountLights = stream->Read<uint32>();
+    CountModels = stream->Read<uint32>();
+    CountDoodads = stream->Read<uint32>();
+    CountSets = stream->Read<uint32>();
+    AmbientColorUnk = stream->Read<uint32>();
+    WmoId = stream->Read<uint32>();
+    BoundingBox[0] = Vector3::Read(stream);
+    BoundingBox[1] = Vector3::Read(stream);
+    LiquidTypeRelated = stream->Read<uint32>();
 }
 
 DoodadInstance DoodadInstance::Read(Stream* stream)
@@ -344,8 +337,9 @@ DoodadInstance DoodadInstance::Read(Stream* stream)
 DoodadSet DoodadSet::Read(Stream* stream)
 {
     DoodadSet ret;
-
-    ret.Name = std::string(stream->Read(20), 20);
+    char* name = stream->Read(20);
+    ret.Name = std::string(name, 20);
+    delete[] name;
     ret.FirstInstanceIndex = stream->Read<uint32>();
     ret.CountInstances = stream->Read<uint32>();
     ret.UnknownZero = stream->Read<uint32>();
@@ -353,44 +347,41 @@ DoodadSet DoodadSet::Read(Stream* stream)
     return ret;
 }
 
-LiquidHeader LiquidHeader::Read(Stream* stream)
+void LiquidHeader::Read(Stream* stream)
 {
-    LiquidHeader ret;
-    ret.CountXVertices = stream->Read<uint32>();
-    ret.CountYVertices = stream->Read<uint32>();
-    ret.Width = stream->Read<uint32>();
-    ret.Height = stream->Read<uint32>();
-    ret.BaseLocation = Vector3::Read(stream);
-    ret.MaterialId = stream->Read<uint16>();
-
-    return ret;
+    CountXVertices = stream->Read<uint32>();
+    CountYVertices = stream->Read<uint32>();
+    Width = stream->Read<uint32>();
+    Height = stream->Read<uint32>();
+    BaseLocation = Vector3::Read(stream);
+    MaterialId = stream->Read<uint16>();
 }
 
-LiquidData LiquidData::Read(Stream* stream, LiquidHeader& header)
+void LiquidData::Read(Stream* stream, LiquidHeader& header)
 {
-    LiquidData ret;
-    ret.HeightMap = new float*[header.CountXVertices];
-    for (uint32 i = 0; i < header.CountXVertices; ++i)
-        ret.HeightMap[i] = new float[header.CountYVertices];
+    CountXVertices = header.CountXVertices;
+    Width = header.Width;
 
-    ret.RenderFlags = new uint8*[header.Width];
+    HeightMap = new float*[header.CountXVertices];
+    for (uint32 i = 0; i < header.CountXVertices; ++i)
+        HeightMap[i] = new float[header.CountYVertices];
+
+    RenderFlags = new uint8*[header.Width];
     for (uint32 i = 0; i < header.Width; ++i)
-        ret.RenderFlags[i] = new uint8[header.Height];
+        RenderFlags[i] = new uint8[header.Height];
 
     for (uint32 y = 0; y < header.CountYVertices; y++)
     {
         for (uint32 x = 0; x < header.CountXVertices; x++)
         {
             stream->Read<uint32>(); // Dummy value
-            ret.HeightMap[x][y] = stream->Read<float>();
+            HeightMap[x][y] = stream->Read<float>();
         }
     }
 
     for (uint32 y = 0; y < header.Height; y++)
         for (uint32 x = 0; x < header.Width; x++)
-            ret.RenderFlags[x][y] = stream->Read<uint8>();
-
-    return ret;
+            RenderFlags[x][y] = stream->Read<uint8>();
 }
 
 H2ORenderMask H2ORenderMask::Read(Stream* stream)
