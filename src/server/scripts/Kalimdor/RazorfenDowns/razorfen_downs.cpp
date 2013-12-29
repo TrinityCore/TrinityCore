@@ -321,7 +321,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_belnistraszAI(creature);
+        return GetInstanceAI<npc_belnistraszAI>(creature);
     }
 };
 
@@ -362,7 +362,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_idol_room_spawnerAI(creature);
+        return GetInstanceAI<npc_idol_room_spawnerAI>(creature);
     }
 };
 
@@ -433,7 +433,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_tomb_creatureAI(creature);
+        return GetInstanceAI<npc_tomb_creatureAI>(creature);
     }
 };
 

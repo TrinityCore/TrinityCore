@@ -510,7 +510,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_hex_lord_malacrassAI(creature);
+            return GetInstanceAI<boss_hex_lord_malacrassAI>(creature);
         }
 };
 
@@ -567,7 +567,7 @@ class boss_thurg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_thurgAI(creature);
+            return GetInstanceAI<boss_thurgAI>(creature);
         }
 };
 
@@ -664,7 +664,7 @@ class boss_alyson_antille : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_alyson_antilleAI(creature);
+            return GetInstanceAI<boss_alyson_antilleAI>(creature);
         }
 };
 
@@ -757,7 +757,7 @@ class boss_lord_raadan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_lord_raadanAI(creature);
+            return GetInstanceAI<boss_lord_raadanAI>(creature);
         }
 };
 
@@ -798,7 +798,7 @@ class boss_darkheart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_darkheartAI(creature);
+            return GetInstanceAI<boss_darkheartAI>(creature);
         }
 };
 
@@ -857,7 +857,7 @@ class boss_slither : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_slitherAI(creature);
+            return GetInstanceAI<boss_slitherAI>(creature);
         }
 };
 
@@ -900,7 +900,7 @@ class boss_fenstalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_fenstalkerAI(creature);
+            return GetInstanceAI<boss_fenstalkerAI>(creature);
         }
 };
 
@@ -950,7 +950,7 @@ class boss_koragg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_koraggAI(creature);
+            return GetInstanceAI<boss_koraggAI>(creature);
         }
 };
 

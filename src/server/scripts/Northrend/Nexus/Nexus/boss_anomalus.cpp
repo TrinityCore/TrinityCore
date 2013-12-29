@@ -187,7 +187,7 @@ class boss_anomalus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_anomalusAI(creature);
+            return GetInstanceAI<boss_anomalusAI>(creature);
         }
 };
 
@@ -255,7 +255,7 @@ class npc_chaotic_rift : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_chaotic_riftAI(creature);
+            return GetInstanceAI<npc_chaotic_riftAI>(creature);
         }
 };
 

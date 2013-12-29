@@ -306,7 +306,7 @@ class boss_ragnaros : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_ragnarosAI(creature);
+            return GetInstanceAI<boss_ragnarosAI>(creature);
         }
 };
 
@@ -342,7 +342,7 @@ class npc_son_of_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_son_of_flameAI(creature);
+            return GetInstanceAI<npc_son_of_flameAI>(creature);
         }
 };
 

@@ -286,7 +286,7 @@ class npc_batrider : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_batriderAI(creature);
+            return GetInstanceAI<npc_batriderAI>(creature);
         }
 };
 

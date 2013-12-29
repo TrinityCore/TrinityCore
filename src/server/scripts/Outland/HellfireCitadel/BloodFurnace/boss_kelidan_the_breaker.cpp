@@ -275,7 +275,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_kelidan_the_breakerAI(creature);
+            return GetInstanceAI<boss_kelidan_the_breakerAI>(creature);
         }
 };
 
@@ -373,7 +373,7 @@ class npc_shadowmoon_channeler : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_shadowmoon_channelerAI(creature);
+            return GetInstanceAI<npc_shadowmoon_channelerAI>(creature);
         }
 };
 

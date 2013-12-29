@@ -256,7 +256,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ravenous_furbolgAI(creature);
+        return GetInstanceAI<npc_ravenous_furbolgAI>(creature);
     }
 
     struct npc_ravenous_furbolgAI : public ScriptedAI
@@ -364,7 +364,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_frenzied_worgenAI(creature);
+        return GetInstanceAI<npc_frenzied_worgenAI>(creature);
     }
 
     struct npc_frenzied_worgenAI : public ScriptedAI
@@ -475,7 +475,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ferocious_rhinoAI(creature);
+        return GetInstanceAI<npc_ferocious_rhinoAI>(creature);
     }
 
     struct npc_ferocious_rhinoAI : public ScriptedAI
@@ -590,7 +590,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_massive_jormungarAI(creature);
+        return GetInstanceAI<npc_massive_jormungarAI>(creature);
     }
 
     struct npc_massive_jormungarAI : public ScriptedAI
@@ -691,7 +691,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_palehoof_orbAI(creature);
+        return GetInstanceAI<npc_palehoof_orbAI>(creature);
     }
 
     struct npc_palehoof_orbAI : public ScriptedAI
