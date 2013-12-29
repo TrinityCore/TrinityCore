@@ -1125,7 +1125,10 @@ public:
 
     struct npc_oscillating_frequency_scanner_master_bunnyAI : public ScriptedAI
     {
-        npc_oscillating_frequency_scanner_master_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_oscillating_frequency_scanner_master_bunnyAI(Creature* creature) : ScriptedAI(creature) 
+        {
+            playerGuid = 0;
+        }
 
         void Reset() OVERRIDE
         {

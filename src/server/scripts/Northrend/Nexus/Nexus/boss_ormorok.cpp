@@ -191,7 +191,11 @@ public:
 
     struct npc_crystal_spike_triggerAI : public ScriptedAI
     {
-        npc_crystal_spike_triggerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_crystal_spike_triggerAI(Creature* creature) : ScriptedAI(creature) 
+        { 
+            _count = 0;
+            _despawntimer = 0;
+        }
 
         void IsSummonedBy(Unit* owner) OVERRIDE
         {
