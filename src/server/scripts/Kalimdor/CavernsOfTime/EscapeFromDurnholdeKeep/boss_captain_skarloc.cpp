@@ -54,7 +54,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_captain_skarlocAI(creature);
+        return GetInstanceAI<boss_captain_skarlocAI>(creature);
     }
 
     struct boss_captain_skarlocAI : public ScriptedAI

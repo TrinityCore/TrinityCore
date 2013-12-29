@@ -248,7 +248,7 @@ class boss_drakkari_colossus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_drakkari_colossusAI(creature);
+            return GetInstanceAI<boss_drakkari_colossusAI>(creature);
         }
 };
 
@@ -381,7 +381,7 @@ class boss_drakkari_elemental : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_drakkari_elementalAI(creature);
+            return GetInstanceAI<boss_drakkari_elementalAI>(creature);
         }
 };
 
@@ -392,7 +392,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_living_mojoAI(creature);
+        return GetInstanceAI<npc_living_mojoAI>(creature);
     }
 
     struct npc_living_mojoAI : public ScriptedAI

@@ -297,7 +297,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_grand_warlock_nethekurseAI(creature);
+            return GetInstanceAI<boss_grand_warlock_nethekurseAI>(creature);
         }
 };
 
@@ -369,7 +369,7 @@ class npc_fel_orc_convert : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_fel_orc_convertAI(creature);
+            return GetInstanceAI<npc_fel_orc_convertAI>(creature);
         }
 };
 

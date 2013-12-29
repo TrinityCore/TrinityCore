@@ -241,7 +241,7 @@ class npc_azure_ring_captain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_azure_ring_captainAI(creature);
+            return GetInstanceAI<npc_azure_ring_captainAI>(creature);
         }
 };
 

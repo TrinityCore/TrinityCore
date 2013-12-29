@@ -1074,7 +1074,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_malygosAI(creature);
+        return GetInstanceAI<boss_malygosAI>(creature);
     }
 };
 
@@ -1127,7 +1127,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_portal_eoeAI(creature);
+        return GetInstanceAI<npc_portal_eoeAI>(creature);
     }
 };
 
@@ -1190,7 +1190,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_power_sparkAI(creature);
+        return GetInstanceAI<npc_power_sparkAI>(creature);
     }
 };
 
@@ -1292,7 +1292,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_melee_hover_diskAI(creature);
+        return GetInstanceAI<npc_melee_hover_diskAI>(creature);
     }
 };
 
@@ -1374,7 +1374,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_caster_hover_diskAI(creature);
+        return GetInstanceAI<npc_caster_hover_diskAI>(creature);
     }
 };
 
@@ -1450,7 +1450,7 @@ class npc_nexus_lord : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_nexus_lordAI(creature);
+            return GetInstanceAI<npc_nexus_lordAI>(creature);
         }
 };
 
@@ -1517,7 +1517,7 @@ class npc_scion_of_eternity : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_scion_of_eternityAI(creature);
+            return GetInstanceAI<npc_scion_of_eternityAI>(creature);
         }
 };
 
@@ -1575,7 +1575,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_arcane_overloadAI(creature);
+        return GetInstanceAI<npc_arcane_overloadAI>(creature);
     }
 };
 

@@ -419,7 +419,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_high_astromancer_solarianAI(creature);
+            return GetInstanceAI<boss_high_astromancer_solarianAI>(creature);
         }
 };
 
@@ -506,7 +506,7 @@ class npc_solarium_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_solarium_priestAI(creature);
+            return GetInstanceAI<npc_solarium_priestAI>(creature);
         }
 };
 

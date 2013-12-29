@@ -83,7 +83,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ancient_wispAI(creature);
+        return GetInstanceAI<npc_ancient_wispAI>(creature);
     }
 
     struct npc_ancient_wispAI : public ScriptedAI
@@ -239,7 +239,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_archimondeAI(creature);
+        return GetInstanceAI<boss_archimondeAI>(creature);
     }
 
     struct boss_archimondeAI : public hyjal_trashAI

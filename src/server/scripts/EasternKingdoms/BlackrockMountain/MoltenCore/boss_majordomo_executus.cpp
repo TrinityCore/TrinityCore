@@ -207,7 +207,7 @@ class boss_majordomo : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_majordomoAI(creature);
+            return GetInstanceAI<boss_majordomoAI>(creature);
         }
 };
 

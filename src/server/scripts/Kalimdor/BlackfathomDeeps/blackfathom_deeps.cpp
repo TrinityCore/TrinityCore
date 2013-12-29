@@ -73,7 +73,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_blackfathom_deeps_eventAI(creature);
+        return GetInstanceAI<npc_blackfathom_deeps_eventAI>(creature);
     }
 
     struct npc_blackfathom_deeps_eventAI : public ScriptedAI

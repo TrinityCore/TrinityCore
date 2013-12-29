@@ -155,7 +155,7 @@ class boss_broggok : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_broggokAI(creature);
+            return GetInstanceAI<boss_broggokAI>(creature);
         }
 };
 
