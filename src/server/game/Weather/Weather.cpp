@@ -42,7 +42,7 @@ Weather::Weather(uint32 zone, WeatherData const* weatherChances)
 }
 
 /// Launch a weather update
-bool Weather::Update(uint32 diff)
+void Weather::Update(uint32 diff)
 {
     if (m_timer.GetCurrent() >= 0)
         m_timer.Update(diff);
@@ -55,15 +55,10 @@ bool Weather::Update(uint32 diff)
         m_timer.Reset();
         // update only if Regenerate has changed the weather
         if (ReGenerate())
-        {
-            ///- Weather will be removed if not updated (no players in zone anymore)
-            if (!UpdateWeather())
-                return false;
-        }
+            UpdateWeather();
     }
 
     sScriptMgr->OnWeatherUpdate(this, diff);
-    return true;
 }
 
 /// Calculate the new weather
@@ -200,13 +195,8 @@ void Weather::SendWeatherUpdateToPlayer(Player* player)
 }
 
 /// Send the new weather to all players in the zone
-bool Weather::UpdateWeather()
+void Weather::UpdateWeather()
 {
-    Player* player = sWorld->FindPlayerInZone(m_zone);
-    if (!player)
-        return false;
-
-    ///- Send the weather packet to all players in this zone
     if (m_grade >= 1)
         m_grade = 0.9999f;
     else if (m_grade < 0)
@@ -214,9 +204,10 @@ bool Weather::UpdateWeather()
 
     WeatherState state = GetWeatherState();
 
+    ///- Send the weather packet to all players in this zone
     WorldPacket data(SMSG_WEATHER, (4+4+4));
     data << uint32(state) << (float)m_grade << uint8(0);
-    player->SendMessageToSet(&data, true);
+    sWorld->SendZoneMessage(m_zone, &data);
 
     ///- Log the event
     char const* wthstr;
@@ -266,7 +257,6 @@ bool Weather::UpdateWeather()
     TC_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
 
     sScriptMgr->OnWeatherChange(this, state, m_grade);
-    return true;
 }
 
 /// Set the weather

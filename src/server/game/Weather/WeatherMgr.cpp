@@ -153,17 +153,9 @@ void SendFineWeatherUpdateToPlayer(Player* player)
 void Update(uint32 diff)
 {
     ///- Send an update signal to Weather objects
-    WeatherMap::iterator itr, next;
-    for (itr = m_weathers.begin(); itr != m_weathers.end(); itr = next)
-    {
-        next = itr;
-        ++next;
-
-        ///- and remove Weather objects for zones with no player
-        // As interval > WorldTick
-        if (!itr->second->Update(diff))
-            m_weathers.erase(itr);
-    }
+    WeatherMap::iterator itr;
+    for (itr = m_weathers.begin(); itr != m_weathers.end(); ++itr)
+        itr->second->Update(diff);
 }
 
 } // namespace

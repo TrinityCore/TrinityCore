@@ -154,29 +154,6 @@ World::~World()
     /// @todo free addSessQueue
 }
 
-/// Find a player in a specified zone
-Player* World::FindPlayerInZone(uint32 zone)
-{
-    ///- circle through active sessions and return the first player found in the zone
-    SessionMap::const_iterator itr;
-    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-    {
-        if (!itr->second)
-            continue;
-
-        Player* player = itr->second->GetPlayer();
-        if (!player)
-            continue;
-
-        if (player->IsInWorld() && player->GetZoneId() == zone)
-        {
-            // Used by the weather system. We return the player to broadcast the change weather message to him and all players in the zone.
-            return player;
-        }
-    }
-    return NULL;
-}
-
 bool World::IsClosed() const
 {
     return m_isClosed;

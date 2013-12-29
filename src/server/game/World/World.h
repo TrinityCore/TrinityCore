@@ -551,8 +551,6 @@ class World
         }
         inline void DecreasePlayerCount() { m_PlayerCount--; }
 
-        Player* FindPlayerInZone(uint32 zone);
-
         /// Deny clients?
         bool IsClosed() const;
 
