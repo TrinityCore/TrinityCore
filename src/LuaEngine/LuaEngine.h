@@ -139,11 +139,6 @@ class ElunaTemplate
                 char name[32];
                 tostring(name, obj);
                 lua_getfield(L, -1, std::string(name).c_str());
-                if (lua_isnil(L, -1))
-                {
-                    delete obj;
-                    obj = NULL;
-                }
             }
             return 1;
         }
@@ -390,6 +385,7 @@ class Eluna
         struct ElunaBind;
         std::map<int, std::vector<int> > ServerEventBindings;
         std::map<int, std::vector<int> > PlayerEventBindings;
+        std::map<int, std::vector<int> > VehicleEventBindings;
         std::map<int, std::vector<int> > GuildEventBindings;
         std::map<int, std::vector<int> > GroupEventBindings;
         ElunaBind* CreatureEventBindings;
@@ -513,6 +509,7 @@ class Eluna
         Player* CHECK_PLAYER(lua_State* L, int narg);
         Creature* CHECK_CREATURE(lua_State* L, int narg);
         GameObject* CHECK_GAMEOBJECT(lua_State* L, int narg);
+        Vehicle* CHECK_VEHICLE(lua_State* L, int narg);
         Corpse* CHECK_CORPSE(lua_State* L, int narg);
         Quest* CHECK_QUEST(lua_State* L, int narg);
         Spell* CHECK_SPELL(lua_State* L, int narg);
@@ -535,6 +532,12 @@ class Eluna
             {
                 std::vector<int> _vector;
                 PlayerEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
+            }
+
+            for (int i = 0; i < VEHICLE_EVENT_COUNT; ++i)
+            {
+                std::vector<int> _vector;
+                VehicleEventBindings.insert(std::pair<int, std::vector<int> >(i, _vector));
             }
 
             for (int i = 0; i < GUILD_EVENT_COUNT; ++i)
@@ -573,6 +576,13 @@ class Eluna
                 itr->second.clear();
             }
 
+            for (std::map<int, std::vector<int> >::iterator itr = VehicleEventBindings.begin(); itr != VehicleEventBindings.end(); ++itr)
+            {
+                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+                    luaL_unref(L, LUA_REGISTRYINDEX, (*it));
+                itr->second.clear();
+            }
+
             for (std::map<int, std::vector<int> >::iterator itr = GuildEventBindings.begin(); itr != GuildEventBindings.end(); ++itr)
             {
                 for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
@@ -588,6 +598,7 @@ class Eluna
             }
             ServerEventBindings.clear();
             PlayerEventBindings.clear();
+            VehicleEventBindings.clear();
             GuildEventBindings.clear();
             GroupEventBindings.clear();
             CreatureEventBindings->Clear();

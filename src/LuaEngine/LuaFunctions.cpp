@@ -24,12 +24,14 @@
 #include "MapMethods.h"
 #include "CorpseMethods.h"
 #include "WeatherMethods.h"
+#include "VehicleMethods.h"
 
 void RegisterGlobals(lua_State* L)
 {
     // Hooks
     lua_register(L, "RegisterServerEvent", &LuaGlobalFunctions::RegisterServerEvent);                       // RegisterServerEvent(event, function)
     lua_register(L, "RegisterPlayerEvent", &LuaGlobalFunctions::RegisterPlayerEvent);                       // RegisterPlayerEvent(event, function)
+    lua_register(L, "RegisterVehicleEvent", &LuaGlobalFunctions::RegisterVehicleEvent);                     // RegisterVehicleEvent(event, function)
     lua_register(L, "RegisterGuildEvent", &LuaGlobalFunctions::RegisterGuildEvent);                         // RegisterGuildEvent(event, function)
     lua_register(L, "RegisterGroupEvent", &LuaGlobalFunctions::RegisterGroupEvent);                         // RegisterGroupEvent(event, function)
     lua_register(L, "RegisterCreatureEvent", &LuaGlobalFunctions::RegisterCreatureEvent);                   // RegisterCreatureEvent(entry, event, function)
@@ -333,17 +335,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SummonGuardian", &LuaUnit::SummonGuardian},           // :SummonGuardian(entry, x, y, z, o[, duration]) - summons a guardian to location. Scales with summoner, is friendly to him and guards him.
 
     /* Vehicle */
-    //{"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger}, // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
-    {"IsOnVehicle", &LuaUnit::IsOnVehicle},                 // :IsOnVehicle() - Checks if the (unit) is in a vehicle
-    //{"DismissVehicle", &LuaUnit::DismissVehicle},         // :DismissVehicle() - Dismisses the (unit)'s vehicle (Unmounts)
-    // {"EjectPassenger", &LuaUnit::EjectPassenger},        // :EjectPassenger(unit) - Ejects a specified unit out of the vehicle
-    //{"RemovePassenger", &LuaUnit::RemovePassenger},       // :RemovePassenger(unit) - Removes a specific unit from the vehicle
-    //{"RemoveAllPassengers", &LuaUnit::RemoveAllPassengers}, // :RemoveAllPassengers() - Removes all the passengers from the vehicle
-    //{"GetPassenger", &LuaUnit::GetPassenger},             // :GetPassenger(seatId) - Gets a passenger by their seatId
-    //{"GetNextEmptySeat", &LuaUnit::GetNextEmptySeat},     // :GetNextEmptySeat(seatId) - Gets(returns) the next empty seat
-    //{"GetAvailableSeats", &LuaUnit::GetAvailableSeats},   // :GetAvailableSeats() - Returns the available seats count
-    //{"GetVehicleBase", &LuaUnit::GetVehicleBase},         // :GetVehicleBase() - Returns the unit's vehicle base
-    //{"HasEmptySeat", &LuaUnit::HasEmptySeat},             // :HasEmptySeat(seatId) - Checks if the specified seatId is empty(nobody in it)
+    {"GetVehicle", &LuaUnit::GetVehicle},                 // :GetVehicle() - Returns the unit's vehicle (if it is a vehicle)
 
     { NULL, NULL },
 };
@@ -739,6 +731,30 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     { NULL, NULL },
 };
 
+ElunaRegister<Vehicle> VehicleMethods[] =
+{
+    /* Getters */
+    {"GetBase", &LuaVehicle::GetBase},
+    {"GetAvailableSeatCount", &LuaVehicle::GetAvailableSeatCount},
+    {"GetCreatureEntry", &LuaVehicle::GetCreatureEntry},
+    {"GetPassenger", &LuaVehicle::GetPassenger},
+    /* Boolean */
+    {"HasEmptySeat", &LuaVehicle::HasEmptySeat},
+    {"IsVehicleInUse", &LuaVehicle::IsVehicleInUse},
+    /* Other */
+    {"InstallAccessory", &LuaVehicle::InstallAccessory},
+    {"ApplyAllImmunities", &LuaVehicle::ApplyAllImmunities},
+    {"AddPassenger", &LuaVehicle::AddPassenger},
+    {"EjectPassenger", &LuaVehicle::EjectPassenger},
+    {"RelocatePassengers", &LuaVehicle::RelocatePassengers},
+    {"RemoveAllPassengers", &LuaVehicle::RemoveAllPassengers},
+    {"RemovePassenger", &LuaVehicle::RemovePassenger},
+    {"RemovePendingEventsForPassenger", &LuaVehicle::RemovePendingEventsForPassenger},
+    {"Reset", &LuaVehicle::Reset},
+
+    { NULL, NULL },
+};
+
 ElunaRegister<Item> ItemMethods[] =
 {
     // Getters
@@ -1060,6 +1076,11 @@ ElunaRegister<Weather> WeatherMethods[] =
     {NULL, NULL}
 };
 
+ElunaRegister<AuctionHouseObject> AuctionMethods[] =
+{
+    {NULL, NULL}
+};
+
 void RegisterFunctions(lua_State* L)
 {
     RegisterGlobals(L);
@@ -1075,6 +1096,7 @@ void RegisterFunctions(lua_State* L)
     ElunaTemplate<Unit>::Register(L);
     SetMethods(L, ObjectMethods);
     SetMethods(L, WorldObjectMethods);
+    SetMethods(L, VehicleMethods);
     SetMethods(L, UnitMethods);
 
     ElunaTemplate<Player>::Register(L);
@@ -1093,6 +1115,12 @@ void RegisterFunctions(lua_State* L)
     SetMethods(L, ObjectMethods);
     SetMethods(L, WorldObjectMethods);
     SetMethods(L, GameObjectMethods);
+
+    ElunaTemplate<Vehicle>::Register(L);
+    SetMethods(L, ObjectMethods);
+    SetMethods(L, WorldObjectMethods);
+    SetMethods(L, UnitMethods);
+    SetMethods(L, VehicleMethods);
 
     ElunaTemplate<Corpse>::Register(L);
     SetMethods(L, ObjectMethods);
@@ -1129,6 +1157,8 @@ void RegisterFunctions(lua_State* L)
 
     ElunaTemplate<Weather>::Register(L);
     SetMethods(L, WeatherMethods);
+
+    ElunaTemplate<AuctionHouseObject>::Register(L);
 
     lua_settop(L, 0); // clean stack
 }

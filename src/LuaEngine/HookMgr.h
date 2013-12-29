@@ -33,6 +33,7 @@ enum RegisterTypes
     REGTYPE_GUILD,
     REGTYPE_GROUP,
     REGTYPE_CREATURE,
+    REGTYPE_VEHICLE,
     REGTYPE_CREATURE_GOSSIP,
     REGTYPE_GAMEOBJECT,
     REGTYPE_GAMEOBJECT_GOSSIP,
@@ -83,10 +84,10 @@ enum ServerEvents
     WEATHER_EVENT_ON_CHANGE                 =     25,       // (event, weather, state, grade)
 
     // Auction house
-    AUCTION_EVENT_ON_ADD                    =     26,       // Not Implemented
-    AUCTION_EVENT_ON_REMOVE                 =     27,       // Not Implemented
-    AUCTION_EVENT_ON_SUCCESFUL              =     28,       // Not Implemented
-    AUCTION_EVENT_ON_EXPIRE                 =     29,       // Not Implemented
+    AUCTION_EVENT_ON_ADD                    =     26,       // (event, AHObject)
+    AUCTION_EVENT_ON_REMOVE                 =     27,       // (event, AHObject)
+    AUCTION_EVENT_ON_SUCCESSFUL             =     28,       // (event, AHObject)
+    AUCTION_EVENT_ON_EXPIRE                 =     29,       // (event, AHObject)
 
     SERVER_EVENT_COUNT
 };
@@ -133,6 +134,19 @@ enum PlayerEvents
     PLAYER_EVENT_ON_RESURRECT               =     36,       // (event, player)
 
     PLAYER_EVENT_COUNT
+};
+
+// RegisterVehicleEvent(eventId, function)
+enum VehicleEvents
+{
+    VEHICLE_EVENT_ON_INSTALL                =     1,
+    VEHICLE_EVENT_ON_UNINSTALL              =     2,
+    VEHICLE_EVENT_ON_RESET                  =     3,
+    VEHICLE_EVENT_ON_INSTALL_ACCESSORY      =     4,
+    VEHICLE_EVENT_ON_ADD_PASSENGER          =     5,
+    VEHICLE_EVENT_ON_REMOVE_PASSENGER       =     6,
+
+    VEHICLE_EVENT_COUNT
 };
 
 // RegisterGuildEvent(eventId, function)
@@ -326,13 +340,25 @@ struct HookMgr
     void OnUpdateZone(Player* pPlayer, uint32 newZone, uint32 newArea);
     void OnMapChanged(Player* pPlayer); // TODO
     void HandleGossipSelectOption(Player* pPlayer, uint32 menuId, uint32 sender, uint32 action, std::string code);
+    /* Vehicle */
+    void OnInstall(Vehicle* vehicle);
+    void OnUninstall(Vehicle* vehicle);
+    void OnReset(Vehicle* vehicle);
+    void OnInstallAccessory(Vehicle* vehicle, Creature* accessory);
+    void OnAddPassenger(Vehicle* vehicle, Unit* passenger, int8 seatId);
+    void OnRemovePassenger(Vehicle* vehicle, Unit* passenger);
     /* AreaTrigger */
     bool OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger);
     /* Weather */
     void OnChange(Weather* weather, WeatherState state, float grade);
-    // condition
+    /* Auction House */
+    void OnAdd(AuctionHouseObject* ah);
+    void OnRemove(AuctionHouseObject* ah);
+    void OnSuccessful(AuctionHouseObject* ah);
+    void OnExpire(AuctionHouseObject* ah);
+    /* Condition */
     bool OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo) { return false; }; // TODO ?
-    // transport
+    /* Transport */
     void OnAddPassenger(Transport* transport, Player* player);
     void OnAddCreaturePassenger(Transport* transport, Creature* creature);
     void OnRemovePassenger(Transport* transport, Player* player);

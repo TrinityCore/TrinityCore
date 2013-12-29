@@ -18,6 +18,7 @@ template<> const char* GetTName<Unit>() { return "Unit"; }
 template<> const char* GetTName<Player>() { return "Player"; }
 template<> const char* GetTName<Creature>() { return "Creature"; }
 template<> const char* GetTName<GameObject>() { return "GameObject"; }
+template<> const char* GetTName<Vehicle>() { return "Vehicle"; }
 template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
@@ -29,6 +30,7 @@ template<> const char* GetTName<Quest>() { return "Quest"; }
 template<> const char* GetTName<Map>() { return "Map"; }
 template<> const char* GetTName<Corpse>() { return "Corpse"; }
 template<> const char* GetTName<Weather>() { return "Weather"; }
+template<> const char* GetTName<AuctionHouseObject>() { return "AuctionHouse"; }
 
 extern void RegisterFunctions(lua_State* L);
 
@@ -53,6 +55,13 @@ void StartEluna(bool restart)
             }
 
             for (std::map<int, std::vector<int> >::iterator itr = sEluna->PlayerEventBindings.begin(); itr != sEluna->PlayerEventBindings.end(); ++itr)
+            {
+                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+                    luaL_unref(sEluna->L, LUA_REGISTRYINDEX, (*it));
+                itr->second.clear();
+            }
+
+            for (std::map<int, std::vector<int> >::iterator itr = sEluna->VehicleEventBindings.begin(); itr != sEluna->VehicleEventBindings.end(); ++itr)
             {
                 for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
                     luaL_unref(sEluna->L, LUA_REGISTRYINDEX, (*it));
@@ -417,6 +426,11 @@ Corpse* Eluna::CHECK_CORPSE(lua_State* L, int narg)
     return obj->ToCorpse();
 }
 
+Vehicle* Eluna::CHECK_VEHICLE(lua_State* L, int narg)
+{
+    return ElunaTemplate<Vehicle>::check(L, narg);
+}
+
 WorldPacket* Eluna::CHECK_PACKET(lua_State* L, int narg)
 {
     return ElunaTemplate<WorldPacket>::check(L, narg);
@@ -466,6 +480,14 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
             if (evt < PLAYER_EVENT_COUNT)
             {
                 PlayerEventBindings[evt].push_back(functionRef);
+                return;
+            }
+            break;
+
+        case REGTYPE_VEHICLE:
+            if (evt < VEHICLE_EVENT_COUNT)
+            {
+                VehicleEventBindings[evt].push_back(functionRef);
                 return;
             }
             break;

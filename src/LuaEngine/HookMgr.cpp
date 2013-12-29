@@ -365,7 +365,7 @@ uint32 HookMgr::GetDialogStatus(Player* pPlayer, Creature* pCreature)
     sEluna->Push(sEluna->L, pPlayer);
     sEluna->Push(sEluna->L, pCreature);
     sEluna->ExecuteCall(3, 0);
-    return 100;
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
 }
 // gameobject
 bool HookMgr::OnDummyEffect(Unit* pCaster, uint32 spellId, SpellEffIndex effIndex, GameObject* pTarget)
@@ -482,7 +482,7 @@ uint32 HookMgr::GetDialogStatus(Player* pPlayer, GameObject* pGameObject)
     sEluna->Push(sEluna->L, pPlayer);
     sEluna->Push(sEluna->L, pGameObject);
     sEluna->ExecuteCall(3, 0);
-    return 100; // DIALOG_STATUS_UNDEFINED
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS; // DIALOG_STATUS_UNDEFINED
 }
 
 void HookMgr::OnDestroyed(GameObject* pGameObject, Player* pPlayer)
@@ -972,6 +972,83 @@ bool HookMgr::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg
     }
     return Result;
 }
+// Vehicle
+void HookMgr::OnInstall(Vehicle* vehicle)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_INSTALL].begin();
+        itr != sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_INSTALL].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, VEHICLE_EVENT_ON_INSTALL);
+        sEluna->Push(sEluna->L, vehicle);
+        sEluna->ExecuteCall(2, 0);
+    }
+}
+
+void HookMgr::OnUninstall(Vehicle* vehicle)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_UNINSTALL].begin();
+        itr != sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_UNINSTALL].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, VEHICLE_EVENT_ON_UNINSTALL);
+        sEluna->Push(sEluna->L, vehicle);
+        sEluna->ExecuteCall(2, 0);
+    }
+}
+
+void HookMgr::OnReset(Vehicle* vehicle)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_RESET].begin();
+        itr != sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_RESET].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, VEHICLE_EVENT_ON_RESET);
+        sEluna->Push(sEluna->L, vehicle);
+        sEluna->ExecuteCall(2, 0);
+    }
+}
+
+void HookMgr::OnInstallAccessory(Vehicle* vehicle, Creature* accessory)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_INSTALL_ACCESSORY].begin();
+        itr != sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_INSTALL_ACCESSORY].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, VEHICLE_EVENT_ON_INSTALL_ACCESSORY);
+        sEluna->Push(sEluna->L, vehicle);
+        sEluna->Push(sEluna->L, accessory);
+        sEluna->ExecuteCall(3, 0);
+    }
+}
+
+void HookMgr::OnAddPassenger(Vehicle* vehicle, Unit* passenger, int8 seatId)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_ADD_PASSENGER].begin();
+        itr != sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_ADD_PASSENGER].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, VEHICLE_EVENT_ON_ADD_PASSENGER);
+        sEluna->Push(sEluna->L, vehicle);
+        sEluna->Push(sEluna->L, passenger);
+        sEluna->Push(sEluna->L, seatId);
+        sEluna->ExecuteCall(4, 0);
+    }
+}
+
+void HookMgr::OnRemovePassenger(Vehicle* vehicle, Unit* passenger)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_REMOVE_PASSENGER].begin();
+        itr != sEluna->VehicleEventBindings[VEHICLE_EVENT_ON_REMOVE_PASSENGER].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, VEHICLE_EVENT_ON_REMOVE_PASSENGER);
+        sEluna->Push(sEluna->L, vehicle);
+        sEluna->Push(sEluna->L, passenger);
+        sEluna->ExecuteCall(3, 0);
+    }
+}
+
 // areatrigger
 bool HookMgr::OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger)
 {
@@ -1012,6 +1089,54 @@ void HookMgr::OnRemovePassenger(Transport* transport, Player* player)
 }
 void HookMgr::OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
 {
+}
+// Auction House
+void HookMgr::OnAdd(AuctionHouseObject* ah)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[AUCTION_EVENT_ON_ADD].begin();
+        itr != sEluna->ServerEventBindings[AUCTION_EVENT_ON_ADD].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, AUCTION_EVENT_ON_ADD);
+        sEluna->Push(sEluna->L, (ah));
+        sEluna->ExecuteCall(2, 0);
+    }
+}
+
+void HookMgr::OnRemove(AuctionHouseObject* ah)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[AUCTION_EVENT_ON_REMOVE].begin();
+        itr != sEluna->ServerEventBindings[AUCTION_EVENT_ON_REMOVE].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, AUCTION_EVENT_ON_REMOVE);
+        sEluna->Push(sEluna->L, (ah));
+        sEluna->ExecuteCall(2, 0);
+    }
+}
+
+void HookMgr::OnSuccessful(AuctionHouseObject* ah)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[AUCTION_EVENT_ON_SUCCESSFUL].begin();
+        itr != sEluna->ServerEventBindings[AUCTION_EVENT_ON_SUCCESSFUL].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, AUCTION_EVENT_ON_SUCCESSFUL);
+        sEluna->Push(sEluna->L, (ah));
+        sEluna->ExecuteCall(2, 0);
+    }
+}
+
+void HookMgr::OnExpire(AuctionHouseObject* ah)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->ServerEventBindings[AUCTION_EVENT_ON_EXPIRE].begin();
+        itr != sEluna->ServerEventBindings[AUCTION_EVENT_ON_EXPIRE].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, AUCTION_EVENT_ON_EXPIRE);
+        sEluna->Push(sEluna->L, (ah));
+        sEluna->ExecuteCall(2, 0);
+    }
 }
 
 struct HookMgr::ElunaWorldAI : public WorldScript
