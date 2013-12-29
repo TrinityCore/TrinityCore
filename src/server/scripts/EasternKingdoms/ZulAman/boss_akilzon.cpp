@@ -229,10 +229,14 @@ class boss_akilzon : public CreatureScript
                         case EVENT_STATIC_DISRUPTION:
                             {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                            if (!target) target = me->GetVictim();
-                            TargetGUID = target->GetGUID();
-                            DoCast(target, SPELL_STATIC_DISRUPTION, false);
-                            me->SetInFront(me->GetVictim());
+                            if (!target) 
+                                target = me->GetVictim();
+                            if (target)
+                            {
+                                TargetGUID = target->GetGUID();
+                                DoCast(target, SPELL_STATIC_DISRUPTION, false);
+                                me->SetInFront(me->GetVictim());
+                            }
                             /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
                             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
                             events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 18000));
@@ -241,8 +245,10 @@ class boss_akilzon : public CreatureScript
                         case EVENT_GUST_OF_WIND:
                             {
                                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                                if (!target) target = me->GetVictim();
-                                DoCast(target, SPELL_GUST_OF_WIND);
+                                if (!target) 
+                                    target = me->GetVictim();
+                                if (target)
+                                    DoCast(target, SPELL_GUST_OF_WIND);
                                 events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));
                                 break;
                             }

@@ -320,6 +320,7 @@ public:
         boss_fathomguard_sharkkisAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            SummonedPet = 0;
         }
 
         InstanceScript* instance;

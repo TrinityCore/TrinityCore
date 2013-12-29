@@ -500,6 +500,8 @@ public:
         void Reset() OVERRIDE
         {
             ArcanagosGUID = 0;
+            EventStarted = false;
+            YellTimer = 0;
 
             if (instance && instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
             {
