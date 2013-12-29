@@ -202,8 +202,7 @@ void Weather::SendWeatherUpdateToPlayer(Player* player)
 /// Send the new weather to all players in the zone
 bool Weather::UpdateWeather()
 {
-    Player* player = sWorld->FindPlayerInZone(m_zone);
-    if (!player)
+    if (!sWorld->FindPlayerInZone(m_zone))
         return false;
 
     ///- Send the weather packet to all players in this zone
@@ -216,7 +215,7 @@ bool Weather::UpdateWeather()
 
     WorldPacket data(SMSG_WEATHER, (4+4+4));
     data << uint32(state) << (float)m_grade << uint8(0);
-    player->SendMessageToSet(&data, true);
+    sWorld->SendZoneMessage(m_zone, &data);
 
     ///- Log the event
     char const* wthstr;
