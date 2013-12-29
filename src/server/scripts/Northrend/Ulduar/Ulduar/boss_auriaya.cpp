@@ -315,7 +315,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_auriaya_seeping_triggerAI(creature);
+            return GetInstanceAI<npc_auriaya_seeping_triggerAI>(creature);
         }
 };
 
@@ -390,7 +390,7 @@ class npc_sanctum_sentry : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_sanctum_sentryAI(creature);
+            return GetInstanceAI<npc_sanctum_sentryAI>(creature);
         }
 };
 
@@ -466,7 +466,7 @@ class npc_feral_defender : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_feral_defenderAI(creature);
+            return GetInstanceAI<npc_feral_defenderAI>(creature);
         }
 };
 

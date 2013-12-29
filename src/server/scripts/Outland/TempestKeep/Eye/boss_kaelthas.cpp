@@ -1011,7 +1011,7 @@ class boss_kaelthas : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_kaelthasAI(creature);
+            return GetInstanceAI<boss_kaelthasAI>(creature);
         }
 };
 
@@ -1109,7 +1109,7 @@ class boss_thaladred_the_darkener : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_thaladred_the_darkenerAI(creature);
+            return GetInstanceAI<boss_thaladred_the_darkenerAI>(creature);
         }
 };
 
@@ -1177,7 +1177,7 @@ class boss_lord_sanguinar : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_lord_sanguinarAI(creature);
+            return GetInstanceAI<boss_lord_sanguinarAI>(creature);
         }
 };
 //Grand Astromancer Capernian AI
@@ -1321,7 +1321,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_grand_astromancer_capernianAI(creature);
+            return GetInstanceAI<boss_grand_astromancer_capernianAI>(creature);
         }
 };
 
@@ -1404,7 +1404,7 @@ class boss_master_engineer_telonicus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_master_engineer_telonicusAI(creature);
+            return GetInstanceAI<boss_master_engineer_telonicusAI>(creature);
         }
 };
 

@@ -284,7 +284,7 @@ class boss_gormok : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_gormokAI(creature);
+            return GetInstanceAI<boss_gormokAI>(creature);
         }
 };
 
@@ -454,7 +454,7 @@ class npc_snobold_vassal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_snobold_vassalAI(creature);
+            return GetInstanceAI<npc_snobold_vassalAI>(creature);
         }
 };
 
@@ -490,7 +490,7 @@ class npc_firebomb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_firebombAI(creature);
+            return GetInstanceAI<npc_firebombAI>(creature);
         }
 };
 
@@ -712,7 +712,7 @@ class boss_acidmaw : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_acidmawAI(creature);
+            return GetInstanceAI<boss_acidmawAI>(creature);
         }
 };
 
@@ -779,7 +779,7 @@ class boss_dreadscale : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_dreadscaleAI(creature);
+            return GetInstanceAI<boss_dreadscaleAI>(creature);
         }
 };
 
@@ -820,7 +820,7 @@ class npc_slime_pool : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_slime_poolAI(creature);
+            return GetInstanceAI<npc_slime_poolAI>(creature);
         }
 };
 
@@ -1137,7 +1137,7 @@ class boss_icehowl : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_icehowlAI(creature);
+            return GetInstanceAI<boss_icehowlAI>(creature);
         }
 };
 

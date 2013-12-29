@@ -253,7 +253,7 @@ class boss_kirtonos_the_herald : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_kirtonos_the_heraldAI(creature);
+            return GetInstanceAI<boss_kirtonos_the_heraldAI>(creature);
         }
 };
 

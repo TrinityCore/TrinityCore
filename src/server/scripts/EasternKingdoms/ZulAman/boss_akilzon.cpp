@@ -363,7 +363,7 @@ class boss_akilzon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_akilzonAI(creature);
+            return GetInstanceAI<boss_akilzonAI>(creature);
         }
 };
 
