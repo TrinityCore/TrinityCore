@@ -99,8 +99,8 @@ public:
 
         void AttackStart(Unit* who) OVERRIDE
         {
-            if (instance)//can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
-                instance->SetData(TYPE_BARON, IN_PROGRESS);
+            //can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
+            instance->SetData(TYPE_BARON, IN_PROGRESS);
             ScriptedAI::AttackStart(who);
         }
 
@@ -110,11 +110,10 @@ public:
                 summoned->AI()->AttackStart(target);
         }
 
-         void JustDied(Unit* /*killer*/) OVERRIDE
-         {
-             if (instance)
-                 instance->SetData(TYPE_BARON, DONE);
-         }
+        void JustDied(Unit* /*killer*/) OVERRIDE
+        {
+            instance->SetData(TYPE_BARON, DONE);
+        }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -97,9 +97,6 @@ public:
             Life50 = true;
             Life25 = true;
 
-            if (!instance)
-                return;
-
             if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 DoCast(me, SPELL_CHANNEL, true);
             else if (me->HasAura(SPELL_CHANNEL))
@@ -109,11 +106,7 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
-            if (!instance)
-                return;
-
             if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS || instance->GetData(TYPE_MEDIVH) == DONE)
@@ -175,9 +168,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (SpellCorrupt_Timer)
             {
                 if (SpellCorrupt_Timer <= diff)
@@ -291,9 +281,6 @@ public:
             TimeRiftWave_Timer = 15000;
             mRiftWaveCount = 0;
 
-            if (!instance)
-                return;
-
             mPortalCount = instance->GetData(DATA_PORTAL_COUNT);
 
             if (mPortalCount < 6)
@@ -349,9 +336,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (TimeRiftWave_Timer <= diff)
             {
                 DoSelectSummon();

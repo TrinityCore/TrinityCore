@@ -115,16 +115,14 @@ public:
             if (!me->IsVisible())
                 me->SetVisible(true);
 
-            if (instance)
-                instance->SetBossState(DATA_IONAR, NOT_STARTED);
+            instance->SetBossState(DATA_IONAR, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetBossState(DATA_IONAR, IN_PROGRESS);
+            instance->SetBossState(DATA_IONAR, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
@@ -133,8 +131,7 @@ public:
 
             lSparkList.DespawnAll();
 
-            if (instance)
-                instance->SetBossState(DATA_IONAR, DONE);
+            instance->SetBossState(DATA_IONAR, DONE);
         }
 
         void KilledUnit(Unit* who) OVERRIDE
@@ -348,24 +345,21 @@ public:
             // Prevent them to follow players through the whole instance
             if (uiCheckTimer <= uiDiff)
             {
-                if (instance)
+                Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
+                if (pIonar && pIonar->IsAlive())
                 {
-                    Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
-                    if (pIonar && pIonar->IsAlive())
+                    if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)
                     {
-                        if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)
-                        {
-                            Position pos;
-                            pIonar->GetPosition(&pos);
+                        Position pos;
+                        pIonar->GetPosition(&pos);
 
-                            me->SetSpeed(MOVE_RUN, 2.0f);
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
-                        }
+                        me->SetSpeed(MOVE_RUN, 2.0f);
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
-                    else
-                        me->DespawnOrUnsummon();
                 }
+                else
+                    me->DespawnOrUnsummon();
                 uiCheckTimer = 2*IN_MILLISECONDS;
             }
             else

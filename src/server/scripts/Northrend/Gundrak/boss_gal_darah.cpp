@@ -118,16 +118,14 @@ public:
 
             me->SetDisplayId(DISPLAY_TROLL);
 
-            if (instance)
-                instance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
+            instance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -269,8 +267,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_GAL_DARAH_EVENT, DONE);
+            instance->SetData(DATA_GAL_DARAH_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

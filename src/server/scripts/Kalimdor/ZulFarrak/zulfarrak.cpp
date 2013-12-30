@@ -148,12 +148,9 @@ public:
                             if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
-                            if (instance)
-                            {
-                                switchFactionIfAlive(instance, ENTRY_RAVEN);
-                                switchFactionIfAlive(instance, ENTRY_ORO);
-                                switchFactionIfAlive(instance, ENTRY_MURTA);
-                            }
+                            switchFactionIfAlive(instance, ENTRY_RAVEN);
+                            switchFactionIfAlive(instance, ENTRY_ORO);
+                            switchFactionIfAlive(instance, ENTRY_MURTA);
                     }
                     postGossipStep++;
                 }
@@ -316,8 +313,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            /*if (instance)
-                instance->SetData(0, NOT_STARTED);*/
+            /*instance->SetData(0, NOT_STARTED);*/
         }
 
         void AttackStart(Unit* victim) OVERRIDE
@@ -327,8 +323,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            /*if (instance)
-                instance->SetData(0, DONE);*/
+            /*instance->SetData(0, DONE);*/
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -358,22 +353,19 @@ public:
 
         void MovementInform(uint32 /*type*/, uint32 /*id*/) OVERRIDE
         {
-            if (instance)
+            if (instance->GetData(EVENT_PYRAMID) == PYRAMID_CAGES_OPEN)
             {
-                if (instance->GetData(EVENT_PYRAMID) == PYRAMID_CAGES_OPEN)
-                {
-                    instance->SetData(EVENT_PYRAMID, PYRAMID_ARRIVED_AT_STAIR);
-                    Talk(SAY_WEEGLI_OHNO);
-                    me->SetHomePosition(1882.69f, 1272.28f, 41.87f, 0);
-                }
-                else
-                    if (destroyingDoor)
-                    {
-                        instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
-                        /// @todo leave the area...
-                        me->DespawnOrUnsummon();
-                    };
+                instance->SetData(EVENT_PYRAMID, PYRAMID_ARRIVED_AT_STAIR);
+                Talk(SAY_WEEGLI_OHNO);
+                me->SetHomePosition(1882.69f, 1272.28f, 41.87f, 0);
             }
+            else
+                if (destroyingDoor)
+                {
+                    instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
+                    /// @todo leave the area...
+                    me->DespawnOrUnsummon();
+                };
         }
 
         void DoAction(int32 /*param*/) OVERRIDE

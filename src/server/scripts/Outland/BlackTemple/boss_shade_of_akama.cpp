@@ -198,8 +198,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_SHADE_OF_AKAMA, DONE);
+            instance->SetBossState(DATA_SHADE_OF_AKAMA, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
@@ -475,16 +474,13 @@ public:
                     switch (eventId)
                     {
                         case EVENT_SHADE_START:
-                            if (instance)
-                            {
-                                instance->SetBossState(DATA_SHADE_OF_AKAMA, IN_PROGRESS);
-                                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                me->RemoveAura(SPELL_STEALTH);
-                                me->SetWalk(true);
-                                me->GetMotionMaster()->MovePoint(0, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z, false);
-                                events.ScheduleEvent(EVENT_SHADE_CHANNEL, 10000);
-                                break;
-                            }
+                            instance->SetBossState(DATA_SHADE_OF_AKAMA, IN_PROGRESS);
+                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->RemoveAura(SPELL_STEALTH);
+                            me->SetWalk(true);
+                            me->GetMotionMaster()->MovePoint(0, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z, false);
+                            events.ScheduleEvent(EVENT_SHADE_CHANNEL, 10000);
+                            break;
                         case EVENT_SHADE_CHANNEL:
                             me->AddUnitState(UNIT_STATE_ROOT);
                             me->SetFacingTo(3.118662f);

@@ -71,11 +71,10 @@ public:
         {
         }
 
-         void JustDied(Unit* /*killer*/) OVERRIDE
-         {
-             if (instance)
-                 instance->SetData(TYPE_BARONESS, IN_PROGRESS);
-         }
+        void JustDied(Unit* /*killer*/) OVERRIDE
+        {
+            instance->SetData(TYPE_BARONESS, IN_PROGRESS);
+        }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -293,8 +293,7 @@ public:
         {
             DoCast(me, SPELL_KILL_CREDIT);
 
-            if (instance)
-                instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 

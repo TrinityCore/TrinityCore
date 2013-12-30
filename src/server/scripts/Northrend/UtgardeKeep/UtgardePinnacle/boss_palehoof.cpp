@@ -438,8 +438,7 @@ public:
                 who->SetInCombatWith(me);
                 DoStartMovement(who);
             }
-            if (instance)
-                instance->SetBossState(DATA_GORTOK_PALEHOOF, IN_PROGRESS);
+            instance->SetBossState(DATA_GORTOK_PALEHOOF, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE

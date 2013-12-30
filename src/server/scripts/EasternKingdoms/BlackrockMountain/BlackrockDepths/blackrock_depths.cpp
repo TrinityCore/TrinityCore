@@ -207,12 +207,9 @@ public:
                     Event_Timer = 5000;
                     break;
                 case 5:
-                    if (instance)
-                    {
-                        instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
-                        instance->SetData(TYPE_RING_OF_LAW, DONE);
-                        TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
-                    }
+                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
+                    instance->SetData(TYPE_RING_OF_LAW, DONE);
+                    TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
                     break;
             }
         }
@@ -224,9 +221,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (MobDeath_Timer)
             {
                 if (MobDeath_Timer <= diff)
@@ -1269,9 +1263,6 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (!instance)
-                return;
-
             switch (waypointId)
             {
                 case 1:
@@ -1295,9 +1286,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (BreakKeg_Timer)
             {
                 if (BreakKeg_Timer <= diff)

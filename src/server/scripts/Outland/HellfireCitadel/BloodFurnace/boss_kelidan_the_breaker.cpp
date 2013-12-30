@@ -108,8 +108,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 SummonChannelers();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
-                if (instance)
-                    instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
+                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who) OVERRIDE
@@ -118,8 +117,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
-                if (instance)
-                    instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
+                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
             }
 
             void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -192,9 +190,6 @@ class boss_kelidan_the_breaker : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
-
-                if (!instance)
-                    return;
 
                 instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR1), true);

@@ -88,8 +88,7 @@ public:
 
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
@@ -108,8 +107,7 @@ public:
 
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_ORMOROK_EVENT, DONE);
+            instance->SetData(DATA_ORMOROK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* who) OVERRIDE

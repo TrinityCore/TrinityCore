@@ -135,8 +135,7 @@ public:
                     else
                         Talk(SAY_POST1_DOOR_AD);
 
-                    if (instance)
-                        instance->SetData(TYPE_FREE_NPC, DONE);
+                    instance->SetData(TYPE_FREE_NPC, DONE);
                     break;
                 case 13:
                     if (me->GetEntry() != NPC_ASH)
@@ -196,8 +195,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
+            instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
         }
     };
 

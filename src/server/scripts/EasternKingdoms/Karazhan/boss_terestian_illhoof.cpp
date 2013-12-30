@@ -96,25 +96,17 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (!instance)
-            {
-                ERROR_INST_DATA(me);
-                return;
-            }
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
+            uint64 TerestianGUID = instance->GetData64(DATA_TERESTIAN);
+            if (TerestianGUID)
             {
-                uint64 TerestianGUID = instance->GetData64(DATA_TERESTIAN);
-                if (TerestianGUID)
-                {
-                    Unit* Terestian = Unit::GetUnit(*me, TerestianGUID);
-                    if (Terestian && Terestian->IsAlive())
-                        DoCast(Terestian, SPELL_BROKEN_PACT, true);
-                }
-            } else ERROR_INST_DATA(me);
+                Unit* Terestian = Unit::GetUnit(*me, TerestianGUID);
+                if (Terestian && Terestian->IsAlive())
+                    DoCast(Terestian, SPELL_BROKEN_PACT, true);
+            }
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -307,8 +299,7 @@ public:
             SummonedPortals     = false;
             Berserk             = false;
 
-            if (instance)
-                instance->SetData(TYPE_TERESTIAN, NOT_STARTED);
+            instance->SetData(TYPE_TERESTIAN, NOT_STARTED);
 
             me->RemoveAurasDueToSpell(SPELL_BROKEN_PACT);
 
@@ -363,8 +354,7 @@ public:
 
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(TYPE_TERESTIAN, DONE);
+            instance->SetData(TYPE_TERESTIAN, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
