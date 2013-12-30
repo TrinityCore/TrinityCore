@@ -941,7 +941,7 @@ ElunaRegister<Guild> GuildMethods[] =
     {"GetName", &LuaGuild::GetName},                        // :GetName() - Gets the guild name
     {"GetMOTD", &LuaGuild::GetMOTD},                        // :GetMOTD() - Gets the guild MOTD string
     {"GetInfo", &LuaGuild::GetInfo},                        // :GetInfo() - Gets the guild info string
-    {"GetBankMoney", &LuaGuild::GetBankMoney},              // :GetBankMoney() - Returns the money currently in the guild bank
+    // {"GetBankMoney", &LuaGuild::GetBankMoney},           // :GetBankMoney() - Returns the money currently in the guild bank
     {"GetMemberCount", &LuaGuild::GetMemberCount},          // :GetMemberCount() - Returns the amount of players in the guild
 
     // Setters
@@ -958,8 +958,8 @@ ElunaRegister<Guild> GuildMethods[] =
     {"Disband", &LuaGuild::Disband},                        // :Disband() - Disbands the guild
     {"AddMember", &LuaGuild::AddMember},                    // :AddMember(player, rank) - adds the player to the guild. Rank is optional
     {"DeleteMember", &LuaGuild::DeleteMember},              // :DeleteMember(player, disbanding, kicked) - Deletes the player from the guild. Disbanding and kicked are optional bools
-    {"DepositBankMoney", &LuaGuild::DepositBankMoney},      // :DepositBankMoney(money) - Deposits money into the guild bank
-    {"WithdrawBankMoney", &LuaGuild::WithdrawBankMoney},    // :WithdrawBankMoney(money) - Withdraws money from the guild bank
+    // {"DepositBankMoney", &LuaGuild::DepositBankMoney},   // :DepositBankMoney(money) - Deposits money into the guild bank
+    // {"WithdrawBankMoney", &LuaGuild::WithdrawBankMoney}, // :WithdrawBankMoney(money) - Withdraws money from the guild bank
 
     {NULL, NULL},
 };
