@@ -28,6 +28,24 @@ WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : GroupIndex(
         IsBad = true;
         return;
     }
+    Load(path);
+}
+
+WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupIndex)
+{
+    Data = new ChunkedData(stream, stream->GetSize());
+    Load(path);
+}
+
+WorldModelGroup::~WorldModelGroup()
+{
+    delete Data;
+    delete SubData;
+    delete[] MOBA;
+}
+
+void WorldModelGroup::Load(std::string& path)
+{
     Chunk* mainChunk = Data->GetChunkByName("MOGP");
     int32 firstSub = mainChunk->FindSubChunkOffset("MOPY");
     if (firstSub == -1)

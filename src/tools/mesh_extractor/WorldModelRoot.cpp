@@ -18,6 +18,7 @@
 #include "WorldModelRoot.h"
 #include "ChunkedData.h"
 #include "Utils.h"
+#include "MPQManager.h"
 
 WorldModelRoot::WorldModelRoot( std::string path )
 {
@@ -42,9 +43,10 @@ void WorldModelRoot::ReadGroups()
     {
         char name[200];
         sprintf(name, "%s_%03u.wmo", pathBase.c_str(), i);
-        WorldModelGroup group(name, i);
-        if (!group.IsBad)
-            Groups.push_back(group);
+        Stream* stream = MPQHandler->GetFile(name);
+        if (!stream)
+            continue;
+        Groups.emplace_back(WorldModelGroup(stream, name, i)); // @ToDo: Use the real signature of emplace_back with variadic templates once we make the full switch to C++11 (At least Visual Studio 2012)
     }
 }
 
