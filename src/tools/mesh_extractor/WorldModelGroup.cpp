@@ -39,9 +39,12 @@ WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupInde
 
 WorldModelGroup::~WorldModelGroup()
 {
+    /*
+    @ToDo: Uncomment this when emplace_back is properly used in void WorldModelRoot::ReadGroups() or replace with smart pointers
     delete Data;
     delete SubData;
     delete[] MOBA;
+    */
 }
 
 void WorldModelGroup::Load(std::string& path)
