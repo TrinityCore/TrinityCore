@@ -183,11 +183,11 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
     rcFreeHeightField(hf);
     rcFreeCompactHeightfield(chf);
     rcFreeContourSet(contours);
-    delete vertices;
-    delete triangles;
-    delete areas;
-    delete bmin;
-    delete bmax;
+    delete[] vertices;
+    delete[] triangles;
+    delete[] areas;
+    delete[] bmin;
+    delete[] bmax;
 
     if (!params.polyCount || !params.polys || Constants::TilesPerMap * Constants::TilesPerMap == params.polyCount)
     {
