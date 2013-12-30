@@ -1377,7 +1377,7 @@ public:
 
         void EnterEvadeMode() OVERRIDE
         {
-            if (!me->GetOwner()->HasAura(AURA_HALLUCINATION))
+            if (me->GetOwner() && !me->GetOwner()->HasAura(AURA_HALLUCINATION))
                 npc_phantom_mage::npc_phantom_mageAI::EnterEvadeMode();
         }
 

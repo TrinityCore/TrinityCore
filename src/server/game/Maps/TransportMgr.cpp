@@ -98,7 +98,7 @@ public:
         cyclic = false;
         points.assign(_points.begin(), _points.end());
         lo = 1;
-        hi = points.size();
+        hi = points.size() - 2;
     }
 
     Movement::PointsArray& _points;

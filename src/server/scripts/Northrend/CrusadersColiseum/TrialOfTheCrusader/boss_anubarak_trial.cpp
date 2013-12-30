@@ -245,7 +245,6 @@ class boss_anubarak_trial : public CreatureScript
 
             void JustSummoned(Creature* summoned) OVERRIDE
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
                 switch (summoned->GetEntry())
                 {
                     case NPC_BURROW:
@@ -255,9 +254,12 @@ class boss_anubarak_trial : public CreatureScript
                         summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
                         break;
                     case NPC_SPIKE:
-                        summoned->CombatStart(target);
                         summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
-                        Talk(EMOTE_SPIKE, target);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        {
+                            summoned->CombatStart(target);
+                            Talk(EMOTE_SPIKE, target);
+                        }
                         break;
                     default:
                         break;
