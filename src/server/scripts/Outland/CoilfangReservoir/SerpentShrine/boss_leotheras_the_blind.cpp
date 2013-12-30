@@ -242,8 +242,7 @@ public:
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
             DoCast(me, SPELL_DUAL_WIELD, true);
             me->SetCorpseDelay(1000*60*60);
-            if (instance)
-                instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
+            instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
         }
 
         void CheckChannelers(/*bool DoEvade = true*/)
@@ -290,8 +289,7 @@ public:
         void StartEvent()
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, IN_PROGRESS);
+            instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, IN_PROGRESS);
         }
 
         void CheckBanish()
@@ -402,8 +400,7 @@ public:
                 if (Creature* pDemon = Unit::GetCreature(*me, Demon))
                     pDemon->DespawnOrUnsummon();
             }
-            if (instance)
-                instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
+            instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -703,20 +700,16 @@ public:
             Mindblast_Timer  = urand(3000, 8000);
             Earthshock_Timer = urand(5000, 10000);
 
-            if (instance)
-            {
-                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
-                Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
-                if (leotheras && leotheras->IsAlive())
-                    CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
-            }
+            instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
+            Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
+            if (leotheras && leotheras->IsAlive())
+                CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
         }
 
         void EnterCombat(Unit* who) OVERRIDE
         {
             me->InterruptNonMeleeSpells(false);
-            if (instance)
-                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
+            instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
         void JustRespawned() OVERRIDE
@@ -740,18 +733,15 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (instance)
-            {
-                if (!leotherasGUID)
-                    leotherasGUID = instance->GetData64(DATA_LEOTHERAS);
+            if (!leotherasGUID)
+                leotherasGUID = instance->GetData64(DATA_LEOTHERAS);
 
-                if (!me->IsInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
-                {
-                    Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
-                    if (victim)
-                        AttackStart(victim);
-                }
+            if (!me->IsInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+            {
+                Unit* victim = NULL;
+                victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                if (victim)
+                    AttackStart(victim);
             }
 
             if (!UpdateVictim())

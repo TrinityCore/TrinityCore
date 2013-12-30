@@ -99,8 +99,7 @@ public:
 
             SpineTargetGUID = 0;
 
-            if (instance)
-                instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, NOT_STARTED);
+            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -111,8 +110,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, DONE);
+            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, DONE);
 
             Talk(SAY_DEATH);
         }
@@ -129,8 +127,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, IN_PROGRESS);
+            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, IN_PROGRESS);
 
             Talk(SAY_AGGRO);
             DoZoneInCombat();

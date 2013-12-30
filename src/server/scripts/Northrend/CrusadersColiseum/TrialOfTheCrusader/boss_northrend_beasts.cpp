@@ -195,17 +195,14 @@ class boss_gormok : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
+                instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
             }
 
             void JustReachedHome() OVERRIDE
             {
-                if (instance)
-                {
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
-                    instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-                }
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+
                 me->DespawnOrUnsummon();
             }
 
@@ -514,20 +511,17 @@ struct boss_jormungarAI : public BossAI
 
     void JustDied(Unit* /*killer*/) OVERRIDE
     {
-        if (instance)
+        if (Creature* otherWorm = Unit::GetCreature(*me, instance->GetData64(OtherWormEntry)))
         {
-            if (Creature* otherWorm = Unit::GetCreature(*me, instance->GetData64(OtherWormEntry)))
+            if (!otherWorm->IsAlive())
             {
-                if (!otherWorm->IsAlive())
-                {
-                    instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
 
-                    me->DespawnOrUnsummon();
-                    otherWorm->DespawnOrUnsummon();
-                }
-                else
-                    instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
+                me->DespawnOrUnsummon();
+                otherWorm->DespawnOrUnsummon();
             }
+            else
+                instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
         }
     }
 
@@ -543,16 +537,14 @@ struct boss_jormungarAI : public BossAI
     void KilledUnit(Unit* who) OVERRIDE
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
-            if (instance)
-                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
+            instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
     }
 
     void EnterCombat(Unit* /*who*/) OVERRIDE
     {
         _EnterCombat();
         me->SetInCombatWithZone();
-        if (instance)
-            instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
+        instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
     }
 
     void UpdateAI(uint32 diff) OVERRIDE
@@ -770,8 +762,7 @@ class boss_dreadscale : public CreatureScript
 
             void JustReachedHome() OVERRIDE
             {
-                if (instance)
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
 
                 boss_jormungarAI::JustReachedHome();
             }
@@ -884,8 +875,7 @@ class boss_icehowl : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
-                if (instance)
-                    instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
+                instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
             }
 
             void MovementInform(uint32 type, uint32 pointId) OVERRIDE
@@ -933,11 +923,8 @@ class boss_icehowl : public CreatureScript
 
             void JustReachedHome() OVERRIDE
             {
-                if (instance)
-                {
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
-                    instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-                }
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
                 me->DespawnOrUnsummon();
             }
 
@@ -945,16 +932,14 @@ class boss_icehowl : public CreatureScript
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (instance)
-                        instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
+                    instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
                 }
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
-                if (instance)
-                    instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
+                instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE

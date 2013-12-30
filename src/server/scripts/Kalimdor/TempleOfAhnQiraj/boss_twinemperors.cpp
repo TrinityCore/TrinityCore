@@ -103,10 +103,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     Creature* GetOtherBoss()
     {
-        if (instance)
-            return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
-        else
-            return NULL;
+        return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
     }
 
     void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
@@ -210,9 +207,6 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void TeleportToMyBrother()
     {
-        if (!instance)
-            return;
-
         Teleport_Timer = TELEPORTTIME;
 
         if (IAmVeklor())

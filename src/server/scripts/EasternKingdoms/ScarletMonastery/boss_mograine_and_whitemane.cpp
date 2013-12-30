@@ -94,9 +94,8 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (instance)
-                if (me->IsAlive())
-                    instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
+            if (me->IsAlive())
+                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
 
             _bHasDied = false;
             _bHeal = false;
@@ -105,11 +104,8 @@ public:
 
         void JustReachedHome() OVERRIDE
         {
-            if (instance)
-            {
-                if (instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) != NOT_STARTED)
-                    instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, FAIL);
-            }
+            if (instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) != NOT_STARTED)
+                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, FAIL);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -128,9 +124,6 @@ public:
         void DamageTaken(Unit* /*doneBy*/, uint32 &damage) OVERRIDE
         {
             if (damage < me->GetHealth() || _bHasDied || _bFakeDeath)
-                return;
-
-            if (!instance)
                 return;
 
             //On first death, fake death and open door, as well as initiate whitemane if exist
@@ -170,8 +163,7 @@ public:
                 Talk(SAY_MO_RESSURECTED);
                 _bFakeDeath = false;
 
-                if (instance)
-                    instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
+                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
             }
         }
 
@@ -261,9 +253,8 @@ public:
             _bCanResurrectCheck = false;
             _bCanResurrect = false;
 
-            if (instance)
-                if (me->IsAlive())
-                    instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
+            if (me->IsAlive())
+                instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -334,14 +325,11 @@ public:
                 if (!HealthAbovePct(75))
                     target = me;
 
-                if (instance)
+                if (Creature* mograine = Unit::GetCreature((*me), instance->GetData64(DATA_MOGRAINE)))
                 {
-                    if (Creature* mograine = Unit::GetCreature((*me), instance->GetData64(DATA_MOGRAINE)))
-                    {
-                        // checking _bCanResurrectCheck prevents her healing Mograine while he is "faking death"
-                        if (_bCanResurrectCheck && mograine->IsAlive() && !mograine->HealthAbovePct(75))
-                            target = mograine;
-                    }
+                    // checking _bCanResurrectCheck prevents her healing Mograine while he is "faking death"
+                    if (_bCanResurrectCheck && mograine->IsAlive() && !mograine->HealthAbovePct(75))
+                        target = mograine;
                 }
 
                 if (target)

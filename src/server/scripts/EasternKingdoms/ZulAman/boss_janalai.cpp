@@ -143,8 +143,7 @@ class boss_janalai : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_JANALAIEVENT, NOT_STARTED);
+                instance->SetData(DATA_JANALAIEVENT, NOT_STARTED);
 
                 FireBreathTimer = 8000;
                 BombTimer = 30000;
@@ -169,8 +168,7 @@ class boss_janalai : public CreatureScript
             {
                 Talk(SAY_DEATH);
 
-                if (instance)
-                    instance->SetData(DATA_JANALAIEVENT, DONE);
+                instance->SetData(DATA_JANALAIEVENT, DONE);
             }
 
             void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -180,8 +178,7 @@ class boss_janalai : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
+                instance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
 
                 Talk(SAY_AGGRO);
         //        DoZoneInCombat();

@@ -145,12 +145,9 @@ public:
             SummonWhelpCount = 0;
             IsMoving = false;
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_ONYXIA, NOT_STARTED);
-                instance->SetData(DATA_ONYXIA_PHASE, Phase);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
-            }
+            instance->SetBossState(DATA_ONYXIA, NOT_STARTED);
+            instance->SetData(DATA_ONYXIA_PHASE, Phase);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -163,17 +160,13 @@ public:
             events.ScheduleEvent(EVENT_CLEAVE, urand (2000, 5000));
             events.ScheduleEvent(EVENT_WING_BUFFET, urand (10000, 20000));
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_ONYXIA, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
-            }
+            instance->SetBossState(DATA_ONYXIA, IN_PROGRESS);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_ONYXIA, DONE);
+            instance->SetBossState(DATA_ONYXIA, DONE);
 
             Summons.DespawnAll();
         }
@@ -246,8 +239,7 @@ public:
                         me->GetMotionMaster()->MovePoint(11, Phase2Location.GetPositionX(), Phase2Location.GetPositionY(), Phase2Location.GetPositionZ()+25);
                         me->SetSpeed(MOVE_FLIGHT, 1.0f);
                         Talk(SAY_PHASE_2_TRANS);
-                        if (instance)
-                            instance->SetData(DATA_ONYXIA_PHASE, Phase);
+                        instance->SetData(DATA_ONYXIA_PHASE, Phase);
                         events.ScheduleEvent(EVENT_WHELP_SPAWN, 5000);
                         events.ScheduleEvent(EVENT_LAIR_GUARD, 15000);
                         break;
@@ -280,10 +272,7 @@ public:
                 (Spell->Id >= 22267 && Spell->Id <= 22268)) &&
                 (target->GetTypeId() == TYPEID_PLAYER))
             {
-                if (instance)
-                {
                     instance->SetData(DATA_SHE_DEEP_BREATH_MORE, FAIL);
-                }
             }
         }
 
@@ -383,8 +372,7 @@ public:
                 if (HealthBelowPct(40))
                 {
                     Phase = PHASE_END;
-                    if (instance)
-                        instance->SetData(DATA_ONYXIA_PHASE, PHASE_END);
+                    instance->SetData(DATA_ONYXIA_PHASE, PHASE_END);
                     Talk(SAY_PHASE_3_TRANS);
 
                     SetCombatMovement(true);

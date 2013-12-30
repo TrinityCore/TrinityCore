@@ -444,8 +444,7 @@ public:
         {
             if (canDespawn && DespawnTimer <= diff)
             {
-                if (instance)
-                    instance->SetBossState(BOSS_NEFARIAN, FAIL);
+                instance->SetBossState(BOSS_NEFARIAN, FAIL);
 
                 std::list<Creature*> constructList;
                 me->GetCreatureListWithEntryInGrid(constructList, NPC_BONE_CONSTRUCT, 500.0f);

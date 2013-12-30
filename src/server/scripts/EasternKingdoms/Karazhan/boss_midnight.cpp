@@ -82,6 +82,7 @@ public:
         void Reset() OVERRIDE
         {
             ResetTimer = 0;
+            Midnight = 0;
         }
 
         void EnterEvadeMode() OVERRIDE
