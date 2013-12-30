@@ -83,7 +83,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
 	||	me->HasAuraType(SPELL_AURA_MOD_CONFUSE);
     }
 
-    void Reset()
+    void Reset() OVERRIDE
     {
         championControllerGUID = 0;
         CCTimer = rand()%10000;
@@ -91,7 +91,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         trinket_timer = 0;
     }
 
-    void JustReachedHome()
+    void JustReachedHome() OVERRIDE
     {
         if (instance)
             if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
@@ -107,7 +107,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         return dist_mod * 30000.0f / eh;
     }
 
-    void UpdateThreat()
+    void UpdateThreat() 
     {
 	///Ruben: Escaping from this function if under taunt effect
 	if(me->HasAuraType(SPELL_AURA_MOD_TAUNT)){
@@ -148,7 +148,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         //DoCast(me, SPELL_PVP_TRINKET);
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) OVERRIDE
     {
         if (mAIType != AI_PET)
             if (instance)
@@ -156,7 +156,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
                     pChampionController->AI()->SetData(2, DONE);
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) OVERRIDE
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
@@ -165,9 +165,9 @@ struct TW_boss_faction_championsAI : public ScriptedAI
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* who)
+    void KilledUnit(Unit* victim) OVERRIDE
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (victim->GetTypeId() == TYPEID_PLAYER)
         {
             Map::PlayerList const &players = me->GetMap()->GetPlayers();
             uint32 TeamInInstance = 0;
@@ -232,7 +232,7 @@ struct TW_boss_faction_championsAI : public ScriptedAI
         return count;
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit* who) OVERRIDE
     {
         if (!who)
             return;
@@ -323,7 +323,7 @@ public:
         uint32 m_uiBarkskinTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiNatureGraspTimer = IN_MILLISECONDS;
@@ -419,7 +419,7 @@ public:
         uint32 m_uiHexTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiHeroismOrBloodlustTimer = IN_MILLISECONDS;
@@ -516,7 +516,7 @@ public:
         uint32 m_uiHammerOfJusticeTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiBubbleTimer = urand(0*IN_MILLISECONDS, 360*IN_MILLISECONDS);
@@ -620,7 +620,7 @@ public:
         uint32 m_uiPsychicScreamTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiPsychicScreamTimer = IN_MILLISECONDS;
@@ -705,7 +705,7 @@ public:
         uint32 m_uiMindBlastTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiPsychicScreamTimer = urand(5*IN_MILLISECONDS, 25*IN_MILLISECONDS);
@@ -821,7 +821,7 @@ public:
         uint32 m_uiCommonTimer;
         uint32 m_uiSummonPetTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiFearTimer = urand(4*IN_MILLISECONDS, 15*IN_MILLISECONDS);
@@ -927,7 +927,7 @@ public:
         uint32 m_uiPolymorphTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiCounterspellTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
@@ -1035,7 +1035,7 @@ public:
         uint32 m_uiCommonTimer;
         uint32 m_uiSummonPetTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiDisengageTimer = urand(12*IN_MILLISECONDS, 20*IN_MILLISECONDS);
@@ -1148,7 +1148,7 @@ public:
         uint32 m_uiFaerieFireTimer;
         uint32 m_uiCommonTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiBarkskinTimer = urand(5*IN_MILLISECONDS, 120*IN_MILLISECONDS);
@@ -1257,7 +1257,7 @@ public:
         uint32 m_uiShatteringThrowTimer;
         uint32 m_uiDisarmTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiBladestormTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -1372,7 +1372,7 @@ public:
         uint32 m_uiIcyTouchTimer;
         uint32 m_uiDeathGripTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiIceboundFortitudeTimer = urand(5*IN_MILLISECONDS, 90*IN_MILLISECONDS);
@@ -1475,7 +1475,7 @@ public:
         uint32 m_uiCloakTimer;
         uint32 m_uiBladeFlurryTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiFanOfKnivesTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
@@ -1577,7 +1577,7 @@ public:
         uint8  m_uiTotemCount;
         float  m_fTotemOldCenterX, m_fTotemOldCenterY;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiHeroismOrBloodlustTimer = urand(25*IN_MILLISECONDS, 60*IN_MILLISECONDS);
@@ -1592,12 +1592,12 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* /*pSummoned*/)
+        void SummonedCreatureDespawn(Creature* /*pSummoned*/) OVERRIDE
         {
             --m_uiTotemCount;
         }
@@ -1620,7 +1620,7 @@ public:
             */
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             TW_boss_faction_championsAI::JustDied(killer);
             Summons.DespawnAll();
@@ -1709,7 +1709,7 @@ public:
         uint32 m_uiDivineStormTimer;
         uint32 m_uiJudgementOfCommandTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiRepeteanceTimer = 60*IN_MILLISECONDS;
@@ -1721,7 +1721,7 @@ public:
             SetEquipmentSlots(false, 47519, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) OVERRIDE
         {
             TW_boss_faction_championsAI::EnterCombat(who);
             DoCast(SPELL_SEAL_OF_COMMAND);
@@ -1799,7 +1799,7 @@ public:
         uint32 m_uiDevourMagicTimer;
         uint32 m_uiSpellLockTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiDevourMagicTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -1850,7 +1850,7 @@ public:
 
         uint32 m_uiClawTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             TW_boss_faction_championsAI::Reset();
             m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
