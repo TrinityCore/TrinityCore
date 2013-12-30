@@ -200,8 +200,8 @@ public:
 	
 	/// Finalizes and returns the results of an incomplete sliced path query, returning the path to the furthest
 	/// polygon on the existing path that was visited during the search.
-	///  @param[out]	existing		An array of polygon references for the existing path.
-	///  @param[out]	existingSize	The number of polygon in the @p existing array.
+	///  @param[in]		existing		An array of polygon references for the existing path.
+	///  @param[in]		existingSize	The number of polygon in the @p existing array.
 	///  @param[out]	path			An ordered list of polygon references representing the path. (Start to end.) 
 	///  								[(polyRef) * @p pathCount]
 	///  @param[out]	pathCount		The number of polygons returned in the @p path array.

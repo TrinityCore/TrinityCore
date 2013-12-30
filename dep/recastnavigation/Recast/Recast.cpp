@@ -208,12 +208,11 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 /// See the #rcConfig documentation for more information on the configuration parameters.
 /// 
 /// @see rcAllocHeightfield, rcHeightfield 
-bool rcCreateHeightfield(rcContext* /*ctx*/, rcHeightfield& hf, int width, int height,
+bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int height,
 						 const float* bmin, const float* bmax,
 						 float cs, float ch)
 {
-	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
-//	rcAssert(ctx);
+	rcIgnoreUnused(ctx);
 	
 	hf.width = width;
 	hf.height = height;
@@ -245,13 +244,12 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 /// See the #rcConfig documentation for more information on the configuration parameters.
 /// 
 /// @see rcHeightfield, rcClearUnwalkableTriangles, rcRasterizeTriangles
-void rcMarkWalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAngle,
+void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 							 const float* verts, int /*nv*/,
 							 const int* tris, int nt,
 							 unsigned char* areas)
 {
-	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
-//	rcAssert(ctx);
+	rcIgnoreUnused(ctx);
 	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*RC_PI);
 
@@ -275,13 +273,12 @@ void rcMarkWalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAngle,
 /// See the #rcConfig documentation for more information on the configuration parameters.
 /// 
 /// @see rcHeightfield, rcClearUnwalkableTriangles, rcRasterizeTriangles
-void rcClearUnwalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAngle,
+void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 								const float* verts, int /*nv*/,
 								const int* tris, int nt,
 								unsigned char* areas)
 {
-	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
-//	rcAssert(ctx);
+	rcIgnoreUnused(ctx);
 	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*RC_PI);
 	
@@ -297,10 +294,9 @@ void rcClearUnwalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAng
 	}
 }
 
-int rcGetHeightFieldSpanCount(rcContext* /*ctx*/, rcHeightfield& hf)
+int rcGetHeightFieldSpanCount(rcContext* ctx, rcHeightfield& hf)
 {
-	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
-//	rcAssert(ctx);
+	rcIgnoreUnused(ctx);
 	
 	const int w = hf.width;
 	const int h = hf.height;

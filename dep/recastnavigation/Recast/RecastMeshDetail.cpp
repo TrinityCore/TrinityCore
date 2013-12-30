@@ -200,8 +200,8 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 {
 	int ix = (int)floorf(fx*ics + 0.01f);
 	int iz = (int)floorf(fz*ics + 0.01f);
-	ix = rcClamp(ix-hp.xmin, 0, hp.width);
-	iz = rcClamp(iz-hp.ymin, 0, hp.height);
+	ix = rcClamp(ix-hp.xmin, 0, hp.width - 1);
+	iz = rcClamp(iz-hp.ymin, 0, hp.height - 1);
 	unsigned short h = hp.data[ix+iz*hp.width];
 	if (h == RC_UNSET_HEIGHT)
 	{
@@ -554,7 +554,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			float dx = vi[0] - vj[0];
 			float dy = vi[1] - vj[1];
 			float dz = vi[2] - vj[2];
-			float d = rcSqrt(dx*dx + dz*dz);
+			float d = sqrtf(dx*dx + dz*dz);
 			int nn = 1 + (int)floorf(d/sampleDist);
 			if (nn >= MAX_VERTS_PER_EDGE) nn = MAX_VERTS_PER_EDGE-1;
 			if (nverts+nn >= MAX_VERTS)

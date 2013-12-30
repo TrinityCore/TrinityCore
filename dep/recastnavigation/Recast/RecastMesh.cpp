@@ -1105,7 +1105,9 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 					unsigned short* pa = &polys[bestPa*nvp];
 					unsigned short* pb = &polys[bestPb*nvp];
 					mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
-					memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
+					unsigned short* lastPoly = &polys[(npolys-1)*nvp];
+					if (pb != lastPoly)
+						memcpy(pb, lastPoly, sizeof(unsigned short)*nvp);
 					npolys--;
 				}
 				else
