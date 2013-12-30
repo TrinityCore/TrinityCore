@@ -151,13 +151,13 @@ namespace LuaGuild
         return 0;
     }
 
-    /*int GetBankMoney(lua_State* L, Guild* guild)
+    int GetBankMoney(lua_State* L, Guild* guild)
     {
         sEluna->Push(L, guild->GetGuildBankMoney());
         return 1;
-    }*/
+    }
 
-    /*int WithdrawBankMoney(lua_State* L, Guild* guild)
+    int WithdrawBankMoney(lua_State* L, Guild* guild)
     {
         Player* player = sEluna->CHECK_PLAYER(L, 1);
         uint32 money = luaL_checknumber(L, 2);
@@ -168,9 +168,9 @@ namespace LuaGuild
         player->SetMoney(player->GetMoney() + money);
         guild->SetBankMoney(guild->GetGuildBankMoney() - money);
         return 0;
-    }*/
+    }
 
-    /*int DepositBankMoney(lua_State* L, Guild* guild)
+    int DepositBankMoney(lua_State* L, Guild* guild)
     {
         Player* player = sEluna->CHECK_PLAYER(L, 1);
         uint32 money = luaL_checknumber(L, 2);
@@ -179,8 +179,8 @@ namespace LuaGuild
             return 0;
 
         player->SetMoney(player->GetMoney() - money);
-        guild->DepositBankMoney(guild->GetGuildBankMoney() + money);
+        guild->SetBankMoney(guild->GetGuildBankMoney() + money);
         return 0;
-    }*/
+    }
 };
 #endif

@@ -658,7 +658,17 @@ public:
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
 
+    // Custom (Eluna)
     uint32 GetMemberSize() const { return m_members.size(); }
+    uint64 GetGuildBankMoney() { return m_bankMoney; }
+    void SetBankMoney(int64 money)
+    {
+        if (money < 0)
+            money = 0;
+        m_bankMoney = money;
+
+        CharacterDatabase.PExecute("UPDATE guild SET BankMoney='" UI64FMTD "' WHERE guildid='%u'", money, m_id);
+    };
 
     bool SetName(std::string const& name);
 
