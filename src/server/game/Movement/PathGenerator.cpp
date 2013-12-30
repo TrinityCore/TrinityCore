@@ -141,8 +141,8 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     for (uint32 i = 0; i < resultHopCount; ++i)
     {
-        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u path point %u: (%f, %f, %f)", _sourceUnit->GetGUIDLow(), i, _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
         _pathPoints.push_back(G3D::Vector3(-straightPath[i * 3 + 2], -straightPath[i * 3 + 0], straightPath[i * 3 + 1]));
+        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u path point %u: (%f, %f, %f)", _sourceUnit->GetGUIDLow(), i, _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
     }
 
     return true;
