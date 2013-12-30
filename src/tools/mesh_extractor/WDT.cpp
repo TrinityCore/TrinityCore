@@ -20,6 +20,7 @@
 #include "ChunkedData.h"
 #include "Utils.h"
 #include "WorldModelHandler.h"
+#include "Cache.h"
 
 WDT::WDT(std::string file) : IsGlobalModel(false), IsValid(false), Model(NULL)
 {
@@ -38,7 +39,7 @@ void WDT::ReadGlobalModel()
     IsGlobalModel = true;
     ModelDefinition = WorldModelDefinition::Read(defChunk->GetStream());
     ModelFile = fileChunk->GetStream()->ReadString();
-    Model = new WorldModelRoot(ModelFile);
+    Model = Cache->WorldModelCache.Get(ModelFile);
 }
 
 void WDT::ReadTileTable()

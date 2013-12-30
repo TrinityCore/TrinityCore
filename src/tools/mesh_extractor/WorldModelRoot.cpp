@@ -44,7 +44,7 @@ void WorldModelRoot::ReadGroups()
         sprintf(name, "%s_%03u.wmo", pathBase.c_str(), i);
         WorldModelGroup group(name, i);
         if (!group.IsBad)
-            Groups.push_back(std::move(group));
+            Groups.push_back(group);
     }
 }
 
