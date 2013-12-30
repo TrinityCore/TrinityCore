@@ -54,12 +54,16 @@ PathGenerator::~PathGenerator()
 
 bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
 {
+    // Clear the previous path, just in case that the same PathGenerator instance is being used
+    _pathPoints.clear();
+
     float x, y, z;
     _sourceUnit->GetPosition(x, y, z);
 
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
     {
         TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() called with invalid map coords, destX: %f destY: %f destZ: %f x: %f y: %f z: %f for creature %u", destX, destY, destZ, x, y, z, _sourceUnit->GetGUIDLow());
+        _type = PATHFIND_NOPATH;
         return false;
     }
 
@@ -77,6 +81,8 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     {
         TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() navmesh is not initialized for %u \n", _sourceUnit->GetGUIDLow());
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+        _pathPoints.push_back(start);
+        _pathPoints.push_back(dest);
         return true;
     }
 
@@ -109,7 +115,9 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     if (!startRef || !endRef)
     {
         TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u no polygons found for start and end locations\n", _sourceUnit->GetGUIDLow());
-        _type = PATHFIND_NOPATH;
+        _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+        _pathPoints.push_back(start);
+        _pathPoints.push_back(dest);
         return false;
     }
 
@@ -120,7 +128,9 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     if (!dtStatusSucceed(status))
     {
         TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u no path found for start and end locations\n", _sourceUnit->GetGUIDLow());
-        _type = PATHFIND_NOPATH;
+        _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+        _pathPoints.push_back(start);
+        _pathPoints.push_back(dest);
         return false;
     }
 
@@ -133,7 +143,9 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     if (!dtStatusSucceed(status))
     {
         TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u no straight path found for start and end locations\n", _sourceUnit->GetGUIDLow());
-        _type = PATHFIND_NOPATH;
+        _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+        _pathPoints.push_back(start);
+        _pathPoints.push_back(dest);
         return false;
     }
 
@@ -145,6 +157,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
         TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u path point %u: (%f, %f, %f)", _sourceUnit->GetGUIDLow(), i, _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
     }
 
+    _type = PATHFIND_NORMAL;
     return true;
 }
 
