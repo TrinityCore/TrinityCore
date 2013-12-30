@@ -150,16 +150,12 @@ public:
 
             Phase = 0;
 
-            if (instance)
-                instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
+            instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-
-            if (!instance)
-                return;
 
             instance->SetData(DATA_KAELTHAS_EVENT, DONE);
 
@@ -176,9 +172,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (!instance)
-                return;
-
             instance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
         }
 
@@ -371,8 +364,7 @@ public:
                                     Talk(SAY_GRAVITY_LAPSE);
                                     FirstGravityLapse = false;
 
-                                    if (instance)
-                                        instance->SetData(DATA_KAELTHAS_STATUES, 1);
+                                    instance->SetData(DATA_KAELTHAS_STATUES, 1);
                                 }
                                 else
                                     Talk(SAY_RECAST_GRAVITY);

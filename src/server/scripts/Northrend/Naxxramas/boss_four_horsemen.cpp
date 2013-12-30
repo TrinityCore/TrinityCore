@@ -121,8 +121,7 @@ public:
             if (!encounterActionReset)
                 DoEncounteraction(NULL, false, true, false);
 
-            if (instance)
-                instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED);
+            instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED);
 
             me->SetReactState(REACT_AGGRESSIVE);
             uiEventStarterGUID = 0;
@@ -139,9 +138,6 @@ public:
 
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
-            if (!instance)
-                return false;
-
             Creature* Thane = Unit::GetCreature(*me, instance->GetData64(DATA_THANE));
             Creature* Lady = Unit::GetCreature(*me, instance->GetData64(DATA_LADY));
             Creature* Baron = Unit::GetCreature(*me, instance->GetData64(DATA_BARON));
@@ -301,10 +297,9 @@ public:
             events.Reset();
             summons.DespawnAll();
 
-            if (instance)
-                instance->SetData(DATA_HORSEMEN0 + id, DONE);
+            instance->SetData(DATA_HORSEMEN0 + id, DONE);
 
-            if (instance && DoEncounteraction(NULL, false, false, true))
+            if (DoEncounteraction(NULL, false, false, true))
             {
                 instance->SetBossState(BOSS_HORSEMEN, DONE);
                 instance->SaveToDB();

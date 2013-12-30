@@ -120,16 +120,14 @@ public:
             DespawnGolem();
             m_lGolemGUIDList.clear();
 
-            if (instance)
-                instance->SetBossState(DATA_VOLKHAN, NOT_STARTED);
+            instance->SetBossState(DATA_VOLKHAN, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetBossState(DATA_VOLKHAN, IN_PROGRESS);
+            instance->SetBossState(DATA_VOLKHAN, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -150,8 +148,7 @@ public:
             Talk(SAY_DEATH);
             DespawnGolem();
 
-            if (instance)
-                instance->SetBossState(DATA_VOLKHAN, DONE);
+            instance->SetBossState(DATA_VOLKHAN, DONE);
         }
 
         void KilledUnit(Unit* who) OVERRIDE

@@ -182,8 +182,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (me->IsSummon()) //we are not a normal spawn.
-                if (instance)
-                    instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
+                instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
         }
     };
 };

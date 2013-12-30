@@ -291,9 +291,6 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (!instance)
-                return;
-
             switch (waypointId)
             {
                 case 8:
@@ -526,8 +523,7 @@ public:
         }
         void JustDied(Unit* slayer) OVERRIDE
         {
-            if (instance)
-                instance->SetData(TYPE_THRALL_EVENT, FAIL);
+            instance->SetData(TYPE_THRALL_EVENT, FAIL);
 
             // Don't do a yell if he kills self (if player goes too far or at the end).
             if (slayer == me)

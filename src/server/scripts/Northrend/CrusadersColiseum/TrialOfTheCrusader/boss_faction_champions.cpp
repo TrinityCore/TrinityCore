@@ -559,9 +559,8 @@ struct boss_faction_championsAI : public BossAI
 
     void JustReachedHome() OVERRIDE
     {
-        if (instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                pChampionController->AI()->SetData(2, FAIL);
+        if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
 
@@ -610,18 +609,16 @@ struct boss_faction_championsAI : public BossAI
     void JustDied(Unit* /*killer*/) OVERRIDE
     {
         if (_aiType != AI_PET)
-            if (instance)
-                if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                    pChampionController->AI()->SetData(2, DONE);
+            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                pChampionController->AI()->SetData(2, DONE);
     }
 
     void EnterCombat(Unit* /*who*/) OVERRIDE
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         _EnterCombat();
-        if (instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                pChampionController->AI()->SetData(2, IN_PROGRESS);
+        if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* who) OVERRIDE
@@ -635,20 +632,17 @@ struct boss_faction_championsAI : public BossAI
                 if (Player* player = players.begin()->GetSource())
                     TeamInInstance = player->GetTeam();
 
-            if (instance)
+            if (TeamInInstance == ALLIANCE)
             {
-                if (TeamInInstance == ALLIANCE)
-                {
-                    if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
-                        temp->AI()->Talk(SAY_KILL_PLAYER);
-                }
-                else
-                    if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_GARROSH)))
-                        temp->AI()->Talk(SAY_KILL_PLAYER);
-
-
-                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
+                if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
+                    temp->AI()->Talk(SAY_KILL_PLAYER);
             }
+            else
+                if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_GARROSH)))
+                    temp->AI()->Talk(SAY_KILL_PLAYER);
+
+
+            instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
         }
     }
 

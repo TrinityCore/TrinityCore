@@ -340,40 +340,37 @@ public:
 
         void CallDragon(uint32 dataId)
         {
-            if (instance)
+            if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(dataId)))
             {
-                if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(dataId)))
+                if (temp->IsAlive() && !temp->GetVictim())
                 {
-                    if (temp->IsAlive() && !temp->GetVictim())
+                    temp->SetWalk(false);
+
+                    if (temp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                        temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                    uint8 textId = 0;
+
+                    switch (temp->GetEntry())
                     {
-                        temp->SetWalk(false);
-
-                        if (temp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                            temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-                        uint8 textId = 0;
-
-                        switch (temp->GetEntry())
-                        {
-                            case NPC_TENEBRON:
-                                textId = SAY_SARTHARION_CALL_TENEBRON;
-                                temp->AddAura(SPELL_POWER_OF_TENEBRON, temp);
-                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, TenebronPositions[1]);
-                                break;
-                            case NPC_SHADRON:
-                                textId = SAY_SARTHARION_CALL_SHADRON;
-                                temp->AddAura(SPELL_POWER_OF_SHADRON, temp);
-                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, ShadronPositions[1]);
-                                break;
-                            case NPC_VESPERON:
-                                textId = SAY_SARTHARION_CALL_VESPERON;
-                                temp->AddAura(SPELL_POWER_OF_VESPERON, temp);
-                                temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, VesperonPositions[1]);
-                                break;
-                        }
-
-                        Talk(textId);
+                        case NPC_TENEBRON:
+                            textId = SAY_SARTHARION_CALL_TENEBRON;
+                            temp->AddAura(SPELL_POWER_OF_TENEBRON, temp);
+                            temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, TenebronPositions[1]);
+                            break;
+                        case NPC_SHADRON:
+                            textId = SAY_SARTHARION_CALL_SHADRON;
+                            temp->AddAura(SPELL_POWER_OF_SHADRON, temp);
+                            temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, ShadronPositions[1]);
+                            break;
+                        case NPC_VESPERON:
+                            textId = SAY_SARTHARION_CALL_VESPERON;
+                            temp->AddAura(SPELL_POWER_OF_VESPERON, temp);
+                            temp->GetMotionMaster()->MovePoint(POINT_ID_LAND, VesperonPositions[1]);
+                            break;
                     }
+
+                    Talk(textId);
                 }
             }
         }

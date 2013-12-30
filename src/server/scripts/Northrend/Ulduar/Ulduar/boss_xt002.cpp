@@ -218,9 +218,6 @@ class boss_xt002 : public CreatureScript
                 _phase = 1;
                 _heartExposed = 0;
 
-                if (!instance)
-                    return;
-
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
@@ -234,9 +231,6 @@ class boss_xt002 : public CreatureScript
                 events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                 //Tantrum is cast a bit slower the first time.
                 events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2);
-
-                if (!instance)
-                    return;
 
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }

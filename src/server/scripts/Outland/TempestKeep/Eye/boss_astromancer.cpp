@@ -146,8 +146,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Wrath_Timer = 20000+rand()%5000;//twice in phase one
                 Phase = 1;
 
-                if (instance)
-                    instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
+                instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
 
                 me->SetArmor(defaultarmor);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -168,8 +167,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
+                instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -177,8 +175,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
 
-                if (instance)
-                    instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
+                instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
             }
 
             void SummonMinion(uint32 entry, float x, float y, float z)
@@ -467,8 +464,7 @@ class npc_solarium_priest : public CreatureScript
                     switch (urand(0, 1))
                     {
                         case 0:
-                            if (instance)
-                                target = Unit::GetUnit(*me, instance->GetData64(DATA_ASTROMANCER));
+                            target = Unit::GetUnit(*me, instance->GetData64(DATA_ASTROMANCER));
                             break;
                         case 1:
                             target = me;

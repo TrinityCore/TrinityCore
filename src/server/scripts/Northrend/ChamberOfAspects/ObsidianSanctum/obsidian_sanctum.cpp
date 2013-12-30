@@ -350,22 +350,19 @@ struct dummy_dragonAI : public ScriptedAI
         Talk(SAY_DEATH);
         me->RemoveAurasDueToSpell(spellId);
 
-        if (instance)
-        {
-            instance->DoRemoveAurasDueToSpellOnPlayers(spellId);
+        instance->DoRemoveAurasDueToSpellOnPlayers(spellId);
 
-            // not if solo mini-boss fight
-            if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                return;
+        // not if solo mini-boss fight
+        if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
+            return;
 
-            // Twilight Revenge to main boss
-            if (Unit* sartharion = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
-                if (sartharion->IsAlive())
-                {
-                    sartharion->RemoveAurasDueToSpell(spellId);
-                    DoCast(sartharion, SPELL_TWILIGHT_REVENGE, true);
-                }
-        }
+        // Twilight Revenge to main boss
+        if (Unit* sartharion = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
+            if (sartharion->IsAlive())
+            {
+                sartharion->RemoveAurasDueToSpell(spellId);
+                DoCast(sartharion, SPELL_TWILIGHT_REVENGE, true);
+            }
     }
 
     void UpdateAI(uint32 diff) OVERRIDE

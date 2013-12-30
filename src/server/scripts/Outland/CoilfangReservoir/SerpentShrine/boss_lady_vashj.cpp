@@ -215,8 +215,7 @@ public:
                 }
             }
 
-            if (instance)
-                instance->SetData(DATA_LADYVASHJEVENT, NOT_STARTED);
+            instance->SetData(DATA_LADYVASHJEVENT, NOT_STARTED);
 
             me->SetCorpseDelay(1000*60*60);
         }
@@ -237,8 +236,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_LADYVASHJEVENT, DONE);
+            instance->SetData(DATA_LADYVASHJEVENT, DONE);
         }
 
         void StartEvent()
@@ -247,21 +245,17 @@ public:
 
             Phase = 1;
 
-            if (instance)
-                instance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
+            instance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
         }
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            if (instance)
-            {
-                // remove old tainted cores to prevent cheating in phase 2
-                Map* map = me->GetMap();
-                Map::PlayerList const &PlayerList = map->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                    if (Player* player = itr->GetSource())
-                        player->DestroyItemCount(31088, 1, true);
-            }
+            // remove old tainted cores to prevent cheating in phase 2
+            Map* map = me->GetMap();
+            Map::PlayerList const &PlayerList = map->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+                if (Player* player = itr->GetSource())
+                    player->DestroyItemCount(31088, 1, true);
             StartEvent(); // this is EnterCombat(), so were are 100% in combat, start the event
 
             if (Phase != 2)
@@ -580,8 +574,6 @@ public:
             Move = 0;
             Phase = 1;
 
-            VashjGUID = 0;
-
             X = ElementWPPos[0][0];
             Y = ElementWPPos[0][1];
             Z = ElementWPPos[0][2];
@@ -597,8 +589,7 @@ public:
                 }
             }
 
-            if (instance)
-                VashjGUID = instance->GetData64(DATA_LADYVASHJ);
+            VashjGUID = instance->GetData64(DATA_LADYVASHJ);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
@@ -608,9 +599,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (!VashjGUID)
                 return;
 
@@ -674,9 +662,8 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                if (Creature* vashj = Unit::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
-                    CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
+            if (Creature* vashj = Unit::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
+                CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
         void EnterCombat(Unit* who) OVERRIDE
@@ -790,17 +777,14 @@ public:
             // CheckTimer
             if (CheckTimer <= diff)
             {
-                if (instance)
+                // check if vashj is death
+                Unit* Vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
+                if (!Vashj || !Vashj->IsAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                 {
-                    // check if vashj is death
-                    Unit* Vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
-                    if (!Vashj || !Vashj->IsAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
-                    {
-                        // remove
-                        me->setDeathState(DEAD);
-                        me->RemoveCorpse();
-                        me->setFaction(35);
-                    }
+                    // remove
+                    me->setDeathState(DEAD);
+                    me->RemoveCorpse();
+                    me->setFaction(35);
                 }
 
                 CheckTimer = 1000;
@@ -847,9 +831,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (CheckTimer <= diff)
             {
                 Unit* vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));

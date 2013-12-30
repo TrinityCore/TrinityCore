@@ -113,9 +113,6 @@ public:
         {
             if (phase == PHASE_INTRO)
             {
-                if (!instance)
-                    return;
-
                 events.Update(diff);
                 switch (events.ExecuteEvent())
                 {
@@ -239,9 +236,6 @@ public:
         {
             if (phase == PHASE_INTRO)
             {
-                if (!instance)
-                    return;
-
                 events.Update(diff);
                 switch (events.ExecuteEvent())
                 {
