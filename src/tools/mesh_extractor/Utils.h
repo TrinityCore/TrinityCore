@@ -261,13 +261,13 @@ public:
     
     ~LiquidData()
     {
-        for (uint32 i = 0; i < CountXVertices; ++i)
+        /*for (uint32 i = 0; i < CountXVertices; ++i)
             delete[] HeightMap[i];
         delete[] HeightMap;
 
         for (uint32 i = 0; i < Width; ++i)
             delete[] RenderFlags[i];
-        delete[] RenderFlags;
+        delete[] RenderFlags;*/
     }
 
     float** HeightMap;
