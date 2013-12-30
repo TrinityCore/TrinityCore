@@ -58,7 +58,10 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     _sourceUnit->GetPosition(x, y, z);
 
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
+    {
+        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() called with invalid map coords, destX: %f destY: %f destZ: %f x: %f y: %f z: %f for creature %u", destX, destY, destZ, x, y, z, _sourceUnit->GetGUIDLow());
         return false;
+    }
 
     G3D::Vector3 dest(destX, destY, destZ);
     SetEndPosition(dest);
@@ -72,6 +75,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
     if (!_navMesh || !_navMeshQuery || _sourceUnit->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING))
     {
+        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() navmesh is not initialized for %u \n", _sourceUnit->GetGUIDLow());
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
         return true;
     }
@@ -136,7 +140,10 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     SmoothPath(polyPickExt, resultHopCount, straightPath); // Separate the path from the walls
 
     for (uint32 i = 0; i < resultHopCount; ++i)
+    {
+        TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u path point %u: (%f, %f, %f)", _sourceUnit->GetGUIDLow(), i, _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
         _pathPoints.push_back(G3D::Vector3(-straightPath[i * 3 + 2], -straightPath[i * 3 + 0], straightPath[i * 3 + 1]));
+    }
 
     return true;
 }
