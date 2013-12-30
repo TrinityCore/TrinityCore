@@ -31,7 +31,7 @@ WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : GroupIndex(
     Load(path);
 }
 
-WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupIndex)
+WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupIndex) : GroupIndex(groupIndex), MOBA(NULL), IsBad(false), HasLiquidData(false)
 {
     Data = new ChunkedData(stream, stream->GetSize());
     Load(path);
