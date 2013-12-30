@@ -204,6 +204,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             SendPacket(&data);
         }
 
+#ifdef ELUNA
+        sHookMgr->OnLootMoney(player, loot->gold);
+#endif
         loot->gold = 0;
 
         // Delete the money loot record from the DB

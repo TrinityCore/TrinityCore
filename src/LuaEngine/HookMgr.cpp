@@ -35,6 +35,19 @@ void HookMgr::OnLootItem(Player* pPlayer, Item* pItem, uint32 count, uint64 guid
     }
 }
 
+void HookMgr::OnLootMoney(Player* pPlayer, uint32 amount)
+{
+    for (std::vector<int>::const_iterator itr = sEluna->PlayerEventBindings[PLAYER_EVENT_ON_LOOT_MONEY].begin();
+        itr != sEluna->PlayerEventBindings[PLAYER_EVENT_ON_LOOT_MONEY].end(); ++itr)
+    {
+        sEluna->BeginCall((*itr));
+        sEluna->Push(sEluna->L, PLAYER_EVENT_ON_LOOT_MONEY);
+        sEluna->Push(sEluna->L, pPlayer);
+        sEluna->Push(sEluna->L, amount);
+        sEluna->ExecuteCall(3, 0);
+    }
+}
+
 void HookMgr::OnFirstLogin(Player* pPlayer)
 {
     for (std::vector<int>::const_iterator itr = sEluna->PlayerEventBindings[PLAYER_EVENT_ON_FIRST_LOGIN].begin();

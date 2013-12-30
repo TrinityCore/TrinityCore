@@ -132,6 +132,7 @@ enum PlayerEvents
     PLAYER_EVENT_ON_LEAVE_COMBAT            =     34,       // (event, player)
     PLAYER_EVENT_ON_REPOP                   =     35,       // (event, player)
     PLAYER_EVENT_ON_RESURRECT               =     36,       // (event, player)
+    PLAYER_EVENT_ON_LOOT_MONEY              =     37,       // (event, player, amount)
 
     PLAYER_EVENT_COUNT
 };
@@ -272,6 +273,7 @@ struct HookMgr
     /* Misc */
     void OnWorldUpdate(uint32 diff);
     void OnLootItem(Player* pPlayer, Item* pItem, uint32 count, uint64 guid);
+    void OnLootMoney(Player* pPlayer, uint32 amount);
     void OnFirstLogin(Player* pPlayer);
     void OnEquip(Player* pPlayer, Item* pItem, uint8 bag, uint8 slot);
     void OnRepop(Player* pPlayer);
