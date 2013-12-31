@@ -7049,9 +7049,13 @@ void ObjectMgr::LoadQuestPOI()
         uint32 unk4               = fields[7].GetUInt32();
 
         QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
-        POI.points = POIs[questId][id];
-
-        _questPOIStore[questId].push_back(POI);
+        if (questId < POIs.size() && id < POIs[questId].size())
+        {
+            POI.points = POIs[questId][id];
+            _questPOIStore[questId].push_back(POI);
+        }
+        else
+            TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %u POI id %u", questId, id);
 
         ++count;
     } while (result->NextRow());
