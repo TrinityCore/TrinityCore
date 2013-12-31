@@ -62,7 +62,7 @@ void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
     Utils::CreateDir(basePath);
 
     DBC* dbc = MPQHandler->GetDBC("Map");
-    printf("Map.dbc contains %u rows.\n", dbc->Records.size());
+    printf("Map.dbc contains " SIZEFMTD " rows.\n", dbc->Records.size());
     for (std::vector<Record*>::iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
     {
         uint32 mapId = (*itr)->Values[0];

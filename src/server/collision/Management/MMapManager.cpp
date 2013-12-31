@@ -222,7 +222,7 @@ namespace MMAP
             else
             {
                 --_loadedTiles;
-                TC_LOG_INFO("maps", "MMAP::UnloadMap: Unloaded mmtile [%02u, %02u] from %03u", mapId, x, y, mapId);
+                TC_LOG_INFO("maps", "MMAP::UnloadMap: Unloaded mmtile [%02u, %02u] from %03u", x, y, mapId);
             }
         }
 
