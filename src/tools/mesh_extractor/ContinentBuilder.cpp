@@ -110,8 +110,8 @@ void ContinentBuilder::Build()
     }
     else
     {
-        params.maxPolys = 32768;
-        params.maxTiles = 4096;
+        params.maxPolys = 1024;
+        params.maxTiles = TileMap->TileTable.size();
         rcVcopy(params.orig, Constants::Origin);
         params.tileHeight = Constants::TileSize;
         params.tileWidth = Constants::TileSize;

@@ -102,8 +102,9 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
         for (uint32 i = 0; i < group->Triangles.size(); ++i)
         {
             // only include colliding tris
-            if ((group->TriangleFlags[i] & 0x04) != 0 && group->TriangleMaterials[i] != 0xFF)
+            if ((group->TriangleFlags[i] & 0x04) != 0 || group->TriangleMaterials[i] == 0xFF)
                 continue;
+
             Triangle<uint16> tri = group->Triangles[i];
             tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WMO, tri.V0 + vertOffset, tri.V1 + vertOffset, tri.V2 + vertOffset));
         }
