@@ -453,7 +453,7 @@ int main(int argc, char* argv[])
         dtPolyRef m_startRef;
         dtPolyRef m_endRef;
 
-        FILE* mmap = fopen("mmaps/389.mmap", "rb");
+        FILE* mmap = fopen("mmaps/631.mmap", "rb");
         dtNavMeshParams params;
         int count = fread(&params, sizeof(dtNavMeshParams), 1, mmap);
         fclose(mmap);
@@ -472,7 +472,7 @@ int main(int argc, char* argv[])
             for (int j = 0; j <= 32; ++j)
             {
                 char buff[100];
-                sprintf(buff, "mmaps/389%02i%02i.mmtile", i, j);
+                sprintf(buff, "mmaps/631%02i%02i.mmtile", i, j);
                 LoadTile(navMesh, buff);
             }
         }
