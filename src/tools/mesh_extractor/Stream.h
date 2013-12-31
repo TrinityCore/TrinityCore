@@ -25,6 +25,12 @@ public:
         _position += size;
     }
 
+    template<typename T>
+    void Skip()
+    {
+        _position += sizeof(T);
+    }
+
     char* Read(uint32 size);
     std::string ReadString();
 

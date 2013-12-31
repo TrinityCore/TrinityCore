@@ -91,7 +91,7 @@ void TileBuilder::AddGeometry(WorldModelRoot* root, const WorldModelDefinition& 
     OutputDebugVertices();
 }
 
-uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
+uint8* TileBuilder::BuildInstance( dtNavMeshParams& /*navMeshParams*/ )
 {
     float* bmin = NULL, *bmax = NULL;
 

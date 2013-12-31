@@ -56,7 +56,6 @@ void MPQManager::InitializeDBC()
 {
     BaseLocale = -1;
     uint32 size = sizeof(Languages) / sizeof(char*);
-    MPQArchive* _baseLocale = NULL;
     for (uint32 i = 0; i < size; ++i)
     {
         std::string _fileName = "Data/" + std::string(Languages[i]) + "/locale-" + std::string(Languages[i]) + ".MPQ";
