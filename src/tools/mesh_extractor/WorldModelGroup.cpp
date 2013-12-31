@@ -39,6 +39,10 @@ WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupInde
 
 WorldModelGroup::~WorldModelGroup()
 {
+    // Temporarily delete the underlying stream, it is the same pointer for both Data and SubData.
+    // @TODO: Remove this code once the ChunkedData destructor properly releases _Stream
+    delete Data->_Stream;
+
     delete Data;
     delete SubData;
     delete[] MOBA;
