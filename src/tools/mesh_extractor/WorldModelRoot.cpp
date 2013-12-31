@@ -33,11 +33,10 @@ WorldModelRoot::WorldModelRoot( std::string path )
 WorldModelRoot::~WorldModelRoot()
 {
     delete Data;
-    /* @ToDo: uncomment this once the ~WorldModelGroup() doesn't cause a crash anymore
     for (std::vector<WorldModelGroup*>::iterator group = Groups.begin(); group != Groups.end(); ++group)
         delete *group;
 
-    Groups.clear();*/
+    Groups.clear();
 }
 
 void WorldModelRoot::ReadGroups()
