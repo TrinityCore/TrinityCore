@@ -63,16 +63,14 @@ public:
             LungBurst_Timer = 7000;
             EnvelopingWinds_Timer = 9000;
 
-            if (instance)
-                instance->SetBossState(DATA_HYDROMANCER_THESPIA, NOT_STARTED);
+            instance->SetBossState(DATA_HYDROMANCER_THESPIA, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEAD);
 
-            if (instance)
-                instance->SetBossState(DATA_HYDROMANCER_THESPIA, DONE);
+            instance->SetBossState(DATA_HYDROMANCER_THESPIA, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -84,8 +82,7 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetBossState(DATA_HYDROMANCER_THESPIA, IN_PROGRESS);
+            instance->SetBossState(DATA_HYDROMANCER_THESPIA, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

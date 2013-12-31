@@ -464,8 +464,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                SathGUID = instance->GetData64(DATA_SATHROVARR);
+            SathGUID = instance->GetData64(DATA_SATHROVARR);
 
             RevitalizeTimer = 5000;
             HeroicStrikeTimer = 3000;
@@ -605,11 +604,8 @@ public:
         {
             me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
-            if (instance)
-            {
-                KalecgosGUID = instance->GetData64(DATA_KALECGOS_DRAGON);
-                instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
-            }
+            KalecgosGUID = instance->GetData64(DATA_KALECGOS_DRAGON);
+            instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
             if (KalecGUID)
             {
                 if (Creature* Kalec = ObjectAccessor::GetCreature(*me, KalecGUID))
@@ -674,8 +670,7 @@ public:
                 CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = true;
             }
 
-            if (instance)
-                instance->SetBossState(DATA_KALECGOS, DONE);
+            instance->SetBossState(DATA_KALECGOS, DONE);
         }
 
         void TeleportAllPlayersBack()

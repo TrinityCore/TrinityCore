@@ -278,11 +278,8 @@ class boss_drakkari_elemental : public CreatureScript
                 if (killer == me)
                     return;
 
-                if (instance)
-                {
-                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
-                        killer->Kill(colossus);
-                }
+                if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                    killer->Kill(colossus);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -317,12 +314,9 @@ class boss_drakkari_elemental : public CreatureScript
                 {
                     case ACTION_RETURN_TO_COLOSSUS:
                         DoCast(SPELL_SURGE_VISUAL);
-                        if (instance)
-                        {
-                            if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
-                                // what if the elemental is more than 80 yards from drakkari colossus ?
-                                DoCast(colossus, SPELL_MERGE, true);
-                        }
+                        if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                            // what if the elemental is more than 80 yards from drakkari colossus ?
+                            DoCast(colossus, SPELL_MERGE, true);
                         break;
                 }
            }

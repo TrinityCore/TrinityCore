@@ -95,24 +95,21 @@ class boss_anomalus : public CreatureScript
                 uiChaoticRiftGUID = 0;
                 chaosTheory = true;
 
-                if (instance)
-                    instance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
+                instance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
 
-                if (instance)
-                    instance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
 
-                if (instance)
-                    instance->SetData(DATA_ANOMALUS_EVENT, DONE);
+                instance->SetData(DATA_ANOMALUS_EVENT, DONE);
             }
 
             uint32 GetData(uint32 type) const OVERRIDE

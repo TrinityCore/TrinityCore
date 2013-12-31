@@ -102,15 +102,13 @@ public:
              uiSleepTimer = urand(15000, 20000);
              uiOutroTimer = 1000;
 
-             if (instance)
-                 instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
+             instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
@@ -154,8 +152,7 @@ public:
                         {
                             EnterEvadeMode();
                             me->DisappearAndDie();
-                            if (instance)
-                                instance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
+                            instance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
                         }
 
                     if (uiCarrionSwarmTimer < diff)
@@ -228,13 +225,10 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
-                DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
-                // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
-                DoCastAOE(SPELL_KILL_CREDIT);
-            }
+            instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
+            DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
+            // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
+            DoCastAOE(SPELL_KILL_CREDIT);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

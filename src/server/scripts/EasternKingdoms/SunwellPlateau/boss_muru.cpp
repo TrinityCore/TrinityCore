@@ -405,9 +405,8 @@ public:
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {
-            if (instance)
-                if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
-                    summoned->AI()->AttackStart(Target);
+            if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+                summoned->AI()->AttackStart(Target);
 
             Summons.Summon(summoned);
         }

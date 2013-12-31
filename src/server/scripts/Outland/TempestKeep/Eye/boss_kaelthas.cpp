@@ -344,8 +344,7 @@ class boss_kaelthas : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                if (instance)
-                    instance->SetData(DATA_KAELTHASEVENT, 0);
+                instance->SetData(DATA_KAELTHASEVENT, 0);
             }
 
             void PrepareAdvisors()
@@ -364,9 +363,6 @@ class boss_kaelthas : public CreatureScript
 
             void StartEvent()
             {
-                if (!instance)
-                    return;
-
                 m_auiAdvisorGuid[0] = instance->GetData64(DATA_THALADREDTHEDARKENER);
                 m_auiAdvisorGuid[1] = instance->GetData64(DATA_LORDSANGUINAR);
                 m_auiAdvisorGuid[2] = instance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
@@ -468,8 +464,7 @@ class boss_kaelthas : public CreatureScript
 
                 summons.DespawnAll();
 
-                if (instance)
-                    instance->SetData(DATA_KAELTHASEVENT, 0);
+                instance->SetData(DATA_KAELTHASEVENT, 0);
 
                 for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                 {
@@ -633,8 +628,7 @@ class boss_kaelthas : public CreatureScript
                                 if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
                                 {
                                     Phase = 2;
-                                    if (instance)
-                                        instance->SetData(DATA_KAELTHASEVENT, 2);
+                                    instance->SetData(DATA_KAELTHASEVENT, 2);
 
                                     Talk(SAY_PHASE2_WEAPON);
 
@@ -678,8 +672,7 @@ class boss_kaelthas : public CreatureScript
                             if (Phase_Timer <= diff)
                             {
                                 Talk(SAY_PHASE3_ADVANCE);
-                                if (instance)
-                                    instance->SetData(DATA_KAELTHASEVENT, 3);
+                                instance->SetData(DATA_KAELTHASEVENT, 3);
                                 Phase = 3;
                                 PhaseSubphase = 0;
                             }
@@ -716,8 +709,7 @@ class boss_kaelthas : public CreatureScript
                             Talk(SAY_PHASE4_INTRO2);
                             Phase = 4;
 
-                            if (instance)
-                                instance->SetData(DATA_KAELTHASEVENT, 4);
+                            instance->SetData(DATA_KAELTHASEVENT, 4);
 
                             // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
                             DoResetThreat();
@@ -821,8 +813,7 @@ class boss_kaelthas : public CreatureScript
                         {
                             if (HealthBelowPct(50))
                             {
-                                if (instance)
-                                    instance->SetData(DATA_KAELTHASEVENT, 4);
+                                instance->SetData(DATA_KAELTHASEVENT, 4);
                                 Phase = 5;
                                 Phase_Timer = 10000;
 

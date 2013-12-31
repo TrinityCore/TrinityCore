@@ -246,8 +246,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_TERON_GOREFIEND, NOT_STARTED);
+            instance->SetBossState(DATA_TERON_GOREFIEND, NOT_STARTED);
 
             IncinerateTimer = urand(20000, 31000);
             SummonDoomBlossomTimer = 12000;
@@ -275,8 +274,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {
-                    if (instance)
-                        instance->SetBossState(DATA_TERON_GOREFIEND, IN_PROGRESS);
+                    instance->SetBossState(DATA_TERON_GOREFIEND, IN_PROGRESS);
 
                     me->GetMotionMaster()->Clear(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -297,8 +295,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_TERON_GOREFIEND, DONE);
+            instance->SetBossState(DATA_TERON_GOREFIEND, DONE);
 
             Talk(SAY_DEATH);
         }

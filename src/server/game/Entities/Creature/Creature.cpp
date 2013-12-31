@@ -1074,15 +1074,17 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
 
     //damage
+
+    float basedamage = stats->GenerateBaseDamage(cinfo);
+
+    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, ((basedamage + (stats->AttackPower / 14)) * cinfo->dmg_multiplier) * (cinfo->baseattacktime / 1000));
+    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (((basedamage * 1.5) + (stats->AttackPower / 14)) * cinfo->dmg_multiplier) * (cinfo->baseattacktime / 1000));
+    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (basedamage + (stats->RangedAttackPower / 14)) * (cinfo->rangeattacktime / 1000));
+    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, ((basedamage * 1.5) + (stats->RangedAttackPower / 14)) * (cinfo->rangeattacktime / 1000));
+
     float damagemod = 1.0f;//_GetDamageMod(rank);
 
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
-
-    SetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, cinfo->minrangedmg * damagemod);
-    SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, cinfo->maxrangedmg * damagemod);
-
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, cinfo->attackpower * damagemod);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower * damagemod);
 
 }
 
@@ -1477,7 +1479,7 @@ void Creature::setDeathState(DeathState s)
 
         CreatureTemplate const* cinfo = GetCreatureTemplate();
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
-        ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+        ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
         Motion_Initialize();

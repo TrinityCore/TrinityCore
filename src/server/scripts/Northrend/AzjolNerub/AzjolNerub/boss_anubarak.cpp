@@ -130,11 +130,8 @@ public:
 
             Summons.DespawnAll();
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_ANUBARAK, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-            }
+            instance->SetBossState(DATA_ANUBARAK, NOT_STARTED);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         Creature* DoSummonImpaleTarget(Unit* target)
@@ -158,14 +155,12 @@ public:
         {
             Talk(SAY_AGGRO);
             DelayTimer = 0;
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void DelayEventStart()
         {
-            if (instance)
-                instance->SetBossState(DATA_ANUBARAK, IN_PROGRESS);
+            instance->SetBossState(DATA_ANUBARAK, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -335,8 +330,7 @@ public:
         {
             Talk(SAY_DEATH);
             Summons.DespawnAll();
-            if (instance)
-                instance->SetBossState(DATA_ANUBARAK, DONE);
+            instance->SetBossState(DATA_ANUBARAK, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

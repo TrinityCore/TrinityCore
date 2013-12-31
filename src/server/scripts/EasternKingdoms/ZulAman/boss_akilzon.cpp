@@ -116,8 +116,7 @@ class boss_akilzon : public CreatureScript
 
                 Talk(SAY_AGGRO);
                 //DoZoneInCombat();
-                if (instance)
-                    instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
+                instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE

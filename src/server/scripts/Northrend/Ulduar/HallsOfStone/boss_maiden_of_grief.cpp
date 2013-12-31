@@ -77,22 +77,16 @@ public:
             ShockOfSorrowTimer = 20000+rand()%5000;
             PillarOfWoeTimer = urand(5000, 15000);
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_MAIDEN_OF_GRIEF, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
-            }
+            instance->SetBossState(DATA_MAIDEN_OF_GRIEF, NOT_STARTED);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_MAIDEN_OF_GRIEF, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
-            }
+            instance->SetBossState(DATA_MAIDEN_OF_GRIEF, IN_PROGRESS);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -145,8 +139,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetBossState(DATA_MAIDEN_OF_GRIEF, DONE);
+            instance->SetBossState(DATA_MAIDEN_OF_GRIEF, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

@@ -138,14 +138,12 @@ public:
             if (me->IsAlive())
                 SpawnAdds();
 
-            if (instance)
-                instance->SetData(TYPE_MOROES, NOT_STARTED);
+            instance->SetData(TYPE_MOROES, NOT_STARTED);
         }
 
         void StartEvent()
         {
-            if (instance)
-                instance->SetData(TYPE_MOROES, IN_PROGRESS);
+            instance->SetData(TYPE_MOROES, IN_PROGRESS);
 
             DoZoneInCombat();
         }
@@ -168,14 +166,12 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(TYPE_MOROES, DONE);
+            instance->SetData(TYPE_MOROES, DONE);
 
             DeSpawnAdds();
 
             //remove aura from spell Garrote when Moroes dies
-            if (instance)
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
         }
 
         void SpawnAdds()
@@ -349,15 +345,11 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void Reset() OVERRIDE
     {
-        if (instance)
-            instance->SetData(TYPE_MOROES, NOT_STARTED);
+        instance->SetData(TYPE_MOROES, NOT_STARTED);
     }
 
     void AcquireGUID()
     {
-        if (!instance)
-            return;
-
         if (Creature* Moroes = Unit::GetCreature(*me, instance->GetData64(DATA_MOROES)))
             for (uint8 i = 0; i < 4; ++i)
                 if (uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
