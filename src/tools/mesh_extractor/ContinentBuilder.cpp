@@ -23,7 +23,7 @@
 #include "Recast.h"
 #include "DetourCommon.h"
 
-void ContinentBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax)
+void ContinentBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax) const
 {
     // this is for elevation
     if (verts && vertCount)

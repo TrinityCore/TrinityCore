@@ -56,7 +56,7 @@ void DoodadHandler::ProcessInternal(MapChunk* mcnk)
             continue;
 
         std::string path = (*_paths)[doodad.MmidIndex];
-        Model* model = Cache->ModelCache.Get(path);
+        Model const* model = Cache->ModelCache.Get(path);
         if (!model->IsCollidable)
             continue;
 
@@ -100,14 +100,14 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
     }
 }
 
-void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* model)
+void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model const* model)
 {
     uint32 vertOffset = Vertices.size();
     
-    for (std::vector<Vector3>::iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
+    for (std::vector<Vector3>::const_iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
         Vertices.push_back(Utils::TransformDoodadVertex(def, *itr)); // Vertices have to be converted based on the information from the DoodadDefinition struct
 
-    for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
+    for (std::vector<Triangle<uint16> >::const_iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
 }
 

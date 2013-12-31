@@ -17,6 +17,8 @@
 
 #include "LiquidHandler.h"
 #include "Utils.h"
+#include "DBC.h"
+#include "MPQManager.h"
 
 LiquidHandler::LiquidHandler( ADT* adt ) : Source(adt)
 {
@@ -58,6 +60,11 @@ void LiquidHandler::HandleNewLiquid()
         stream->Seek(chunk->Offset + h.OffsetInformation, SEEK_SET);
         H2OInformation information = H2OInformation::Read(stream);
 
+        // Load the LiquidTypes DBC
+        DBC const* liquidTypes = MPQHandler->GetDBC("LiquidTypes");
+        Record const* liquid = liquidTypes->GetRecordById(information.LiquidType);
+        ASSERT(liquid);
+
         // This pointer will be passed to the MCNKLiquidData constructor, from that point on, it is the job of MCNKLiquidData's destructor to release it.
         float** heights = new float*[9];
         for (int j = 0; j < 9; ++j)
@@ -65,9 +72,9 @@ void LiquidHandler::HandleNewLiquid()
             heights[j] = new float[9];
             memset(heights[j], 0, sizeof(float) * 9);
         }
-
+        
         H2ORenderMask renderMask;
-        if (information.LiquidType != 2 && information.LiquidType != 6 && information.LiquidType != 10) // Skip Ocean, Slow Ocean and Fast Ocean
+        if (liquid->GetValue<uint32>(3) != 1) // Read the liquid type and skip Ocean, Slow Ocean and Fast Ocean
         {
             stream->Seek(chunk->Offset + h.OffsetRender, SEEK_SET);
             renderMask = H2ORenderMask::Read(stream);
@@ -120,25 +127,16 @@ void LiquidHandler::HandleNewLiquid()
                 
                 // Define the liquid type
                 Constants::TriangleType type = Constants::TRIANGLE_TYPE_UNKNOWN;
-                switch (information.LiquidType)
+                switch (liquid->GetValue<uint32>(3))
                 {
-                    case 1: // Water
-                    case 2: // Ocean
-                    case 5: // Slow Water
-                    case 6: // Slow Ocean
-                    case 9: // Fast Water
-                    case 10: // Fast Ocean
-                    default:
+                    case 0: // Water
+                    case 1: // Ocean
                         type = Constants::TRIANGLE_TYPE_WATER;
                         break;
-                    case 3: // Magma
-                    case 7: // Slow Magma
-                    case 11: // Fast Magma
+                    case 2: // Magma
                         type = Constants::TRIANGLE_TYPE_MAGMA;
                         break;
-                    case 4: // Slime
-                    case 8: // Slow Slime
-                    case 12: // Fast Slime
+                    case 3: // Slime
                         type = Constants::TRIANGLE_TYPE_SLIME;
                         break;
                 }

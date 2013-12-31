@@ -92,7 +92,7 @@ Vector3 Utils::TransformDoodadVertex(const IDefinition& def, Vector3 vec, bool t
     return ret;
 }
 
-Vector3 Utils::TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& /*root*/, Vector3& vec, bool translate )
+Vector3 Utils::TransformWmoDoodad(const DoodadInstance& inst, const WorldModelDefinition& /*root*/, const Vector3& vec, bool translate)
 {
     G3D::Quat quat = G3D::Quat(-inst.QuatY, inst.QuatZ, -inst.QuatX, inst.QuatW);
 
@@ -374,7 +374,7 @@ void LiquidData::Read(Stream* stream, LiquidHeader& header)
     {
         for (uint32 x = 0; x < header.CountXVertices; x++)
         {
-            stream->Read<uint32>(); // Dummy value
+            stream->Skip<uint32>();
             HeightMap[x][y] = stream->Read<float>();
         }
     }

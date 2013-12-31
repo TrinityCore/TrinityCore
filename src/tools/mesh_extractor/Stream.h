@@ -41,12 +41,12 @@ public:
 
     void Seek(uint32 position, uint32 type);
 
-    uint32 GetSize()
+    uint32 GetSize() const
     {
         return _size;
     }
 
-    uint32 GetPos()
+    uint32 GetPos() const
     {
         return _position;
     }

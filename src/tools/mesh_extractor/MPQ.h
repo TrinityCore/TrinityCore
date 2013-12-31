@@ -83,17 +83,17 @@ public:
     ~MPQFile() { close(); }
     size_t Read(void* dest, size_t bytes);
     Stream* GetFileStream();
-    size_t getSize() { return size; }
-    size_t getPos() { return pointer; }
+    size_t getSize() const { return size; }
+    size_t getPos() const { return pointer; }
     char* getBuffer() { return buffer; }
     char* getPointer() { return buffer + pointer; }
-    bool isEof() { return eof; }
+    bool isEof() const { return eof; }
     void seek(int offset);
     void seekRelative(int offset);
     void close();
 };
 
-inline void flipcc(char *fcc)
+inline void flipcc(char* fcc)
 {
     char t;
     t=fcc[0];

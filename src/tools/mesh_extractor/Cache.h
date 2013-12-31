@@ -31,7 +31,7 @@ class GenericCache
 public:
     GenericCache() {}
 
-    T* Get(K key)
+    T const* Get(K key)
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
         typename std::map<K, T*>::iterator itr = _items.find(key);

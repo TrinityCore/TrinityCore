@@ -36,8 +36,8 @@ public:
     bool IsValid;
     std::string ModelFile;
     WorldModelDefinition ModelDefinition;
-    WorldModelRoot* Model;
-    bool HasTile(int x, int y);
+    WorldModelRoot const* Model;
+    bool HasTile(int x, int y) const;
 private:
     void ReadGlobalModel();
     void ReadTileTable();
