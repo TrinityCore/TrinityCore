@@ -155,7 +155,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x07E*/ { "SMSG_PARTY_MEMBER_STATS",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x07F*/ { "SMSG_PARTY_COMMAND_RESULT",                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x080*/ { "UMSG_UPDATE_GROUP_MEMBERS",                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
-    /*0x081*/ { "CMSG_GUILD_CREATE",                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildCreateOpcode         },
+    /*0x081*/ { "CMSG_GUILD_CREATE",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x082*/ { "CMSG_GUILD_INVITE",                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildInviteOpcode         },
     /*0x083*/ { "SMSG_GUILD_INVITE",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x084*/ { "CMSG_GUILD_ACCEPT",                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildAcceptOpcode         },
