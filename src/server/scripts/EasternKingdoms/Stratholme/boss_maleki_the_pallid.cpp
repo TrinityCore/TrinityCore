@@ -72,8 +72,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(TYPE_PALLID, IN_PROGRESS);
+            instance->SetData(TYPE_PALLID, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

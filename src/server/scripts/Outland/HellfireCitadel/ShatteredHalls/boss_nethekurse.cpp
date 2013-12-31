@@ -109,8 +109,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
             {
                 Talk(SAY_DIE);
 
-                if (instance)
-                    instance->SetBossState(DATA_NETHEKURSE, DONE);
+                instance->SetBossState(DATA_NETHEKURSE, DONE);
             }
 
             void SetData(uint32 data, uint32 value) OVERRIDE
@@ -184,8 +183,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                         IntroOnce = true;
                         IsIntroEvent = true;
 
-                        if (instance)
-                            instance->SetBossState(DATA_NETHEKURSE, IN_PROGRESS);
+                        instance->SetBossState(DATA_NETHEKURSE, IN_PROGRESS);
                     }
 
                     if (IsIntroEvent || !IsMainEvent)
@@ -219,9 +217,6 @@ class boss_grand_warlock_nethekurse : public CreatureScript
             {
                 if (IsIntroEvent)
                 {
-                    if (!instance)
-                        return;
-
                     if (instance->GetBossState(DATA_NETHEKURSE) == IN_PROGRESS)
                     {
                         if (IntroEvent_Timer <= diff)
@@ -328,22 +323,18 @@ class npc_fel_orc_convert : public CreatureScript
             {
                 events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
 
-                if (instance)
-                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
-                        if (Kurse && me->IsWithinDist(Kurse, 45.0f))
-                            Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_AGGRO);
+                if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                    if (me->IsWithinDist(Kurse, 45.0f))
+                        Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_AGGRO);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                {
-                    if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
-                        return;
+                if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
+                    return;
 
-                    if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
-                        Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
-                }
+                if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
+                    Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE

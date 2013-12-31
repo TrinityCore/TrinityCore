@@ -401,8 +401,7 @@ public:
                             uiPhase = 5;
                             break;
                         case 5:
-                            if (instance)
-                                instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
+                            instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
                             me->SetReactState(REACT_PASSIVE);
                             uiTimer = 0;
                             uiPhase = 0;
@@ -585,9 +584,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance) //Massive usage of instance, global check
-                return;
-
             if (instance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
@@ -660,22 +656,19 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_WAVE_COUNT, instance->GetData(DATA_WAVE_COUNT)+1);
+            instance->SetData(DATA_WAVE_COUNT, instance->GetData(DATA_WAVE_COUNT)+1);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {
             listOfMobs.Summon(summoned);
-            if (instance)
-                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+            instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) OVERRIDE
         {
             listOfMobs.Despawn(summoned);
-            if (instance)
-                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+            instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
 
@@ -687,8 +680,7 @@ struct violet_hold_trashAI : public npc_escortAI
     {
         instance = creature->GetInstanceScript();
         bHasGotMovingPoints = false;
-        if (instance)
-            portalLocationID = instance->GetData(DATA_PORTAL_LOCATION);
+        portalLocationID = instance->GetData(DATA_PORTAL_LOCATION);
         Reset();
     }
 
@@ -788,16 +780,14 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void JustDied(Unit* /*killer*/) OVERRIDE
     {
-        if (instance)
-            instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
+        instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
     }
 
     void CreatureStartAttackDoor()
     {
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_DESTROY_DOOR_SEAL);
-        if (instance)
-            instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD, 1);
+        instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD, 1);
     }
 
 };

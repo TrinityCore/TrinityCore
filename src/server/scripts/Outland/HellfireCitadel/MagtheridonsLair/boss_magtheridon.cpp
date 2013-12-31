@@ -249,11 +249,8 @@ class boss_magtheridon : public CreatureScript
 
             void JustReachedHome() OVERRIDE
             {
-                if (instance)
-                {
-                    instance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
-                    instance->SetData(DATA_COLLAPSE, false);
-                }
+                instance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
+                instance->SetData(DATA_COLLAPSE, false);
             }
 
             void SetClicker(uint64 cubeGUID, uint64 clickerGUID)
@@ -314,8 +311,7 @@ class boss_magtheridon : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
+                instance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
 
                 Talk(SAY_DEATH);
             }
@@ -331,8 +327,7 @@ class boss_magtheridon : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
                 DoZoneInCombat();
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -429,8 +424,7 @@ class boss_magtheridon : public CreatureScript
                     DoCast(me, SPELL_CAMERA_SHAKE, true);
                     DoCast(me, SPELL_DEBRIS_KNOCKDOWN, true);
 
-                    if (instance)
-                        instance->SetData(DATA_COLLAPSE, true);
+                    instance->SetData(DATA_COLLAPSE, true);
                 }
 
                 if (Phase3)
@@ -498,8 +492,7 @@ class npc_hellfire_channeler : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
 
                 me->InterruptNonMeleeSpells(false);
                 DoZoneInCombat();
@@ -507,8 +500,7 @@ class npc_hellfire_channeler : public CreatureScript
 
             void JustReachedHome() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
+                instance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
 
                 DoCast(me, SPELL_SHADOW_GRASP_C, false);
             }
@@ -526,8 +518,7 @@ class npc_hellfire_channeler : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_CHANNELER_EVENT, DONE);
+                instance->SetData(DATA_CHANNELER_EVENT, DONE);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE

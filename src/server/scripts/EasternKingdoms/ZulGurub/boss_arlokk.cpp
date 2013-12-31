@@ -101,25 +101,19 @@ class boss_arlokk : public CreatureScript
                 me->RemoveAllAuras();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
-                if (instance)
-                {
-                    if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
-                        gate->SetGoState(GO_STATE_READY);
-                    me->SetWalk(false);
-                    me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0]);
-                }
+                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
+                    gate->SetGoState(GO_STATE_READY);
+                me->SetWalk(false);
+                me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0]);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
                 me->RemoveAllAuras();
-                if (instance)
-                {
-                    if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
-                        gate->SetGoState(GO_STATE_ACTIVE);
-                    instance->SetBossState(DATA_ARLOKK, DONE);
-                }
+                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
+                    gate->SetGoState(GO_STATE_ACTIVE);
+                instance->SetBossState(DATA_ARLOKK, DONE);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -127,8 +121,7 @@ class boss_arlokk : public CreatureScript
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(7000, 9000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
-                if (instance)
-                    events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6000, 0, PHASE_ALL);
+                events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6000, 0, PHASE_ALL);
                 events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, urand(9000, 11000), 0, PHASE_ALL);
                 events.ScheduleEvent(EVENT_TRANSFORM, urand(15000, 20000), 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
@@ -161,14 +154,11 @@ class boss_arlokk : public CreatureScript
 
             void EnterEvadeMode() OVERRIDE
             {
-                if (instance)
-                {
-                    if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
-                        object->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_GONG_OF_BETHEKK)))
-                        object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    instance->SetBossState(DATA_ARLOKK, NOT_STARTED);
-                }
+                if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
+                    object->SetGoState(GO_STATE_ACTIVE);
+                if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_GONG_OF_BETHEKK)))
+                    object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                instance->SetBossState(DATA_ARLOKK, NOT_STARTED);
                 me->DespawnOrUnsummon(4000);
             }
 
@@ -254,8 +244,7 @@ class boss_arlokk : public CreatureScript
                         case EVENT_VANISH:
                             DoCast(me, SPELL_SUPER_INVIS);
                             me->SetWalk(false);
-                            if (instance)
-                                me->GetMotionMaster()->MovePoint(0, frand(-11551.0f, -11508.0f), frand(-1638.0f, -1617.0f), me->GetPositionZ());
+                            me->GetMotionMaster()->MovePoint(0, frand(-11551.0f, -11508.0f), frand(-1638.0f, -1617.0f), me->GetPositionZ());
                             events.ScheduleEvent(EVENT_VANISH_2, 9000, 0, PHASE_ONE);
                             break;
                         case EVENT_VANISH_2:

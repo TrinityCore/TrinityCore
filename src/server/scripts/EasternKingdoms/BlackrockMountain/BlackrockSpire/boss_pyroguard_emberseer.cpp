@@ -79,23 +79,20 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                events.Reset();
-                // Apply auras on spawn and reset
-                // DoCast(me, SPELL_FIRE_SHIELD_TRIGGER); // Need to find this in old DBC if possible
-                me->RemoveAura(SPELL_EMBERSEER_FULL_STRENGTH);
-                me->RemoveAura(SPELL_EMBERSEER_GROWING);
-                me->RemoveAura(SPELL_EMBERSEER_GROWING_TRIGGER);
-                events.ScheduleEvent(EVENT_RESPAWN, 5000);
-                // Hack for missing trigger spell
-                events.ScheduleEvent(EVENT_FIRE_SHIELD, 3000);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+            events.Reset();
+            // Apply auras on spawn and reset
+            // DoCast(me, SPELL_FIRE_SHIELD_TRIGGER); // Need to find this in old DBC if possible
+            me->RemoveAura(SPELL_EMBERSEER_FULL_STRENGTH);
+            me->RemoveAura(SPELL_EMBERSEER_GROWING);
+            me->RemoveAura(SPELL_EMBERSEER_GROWING_TRIGGER);
+            events.ScheduleEvent(EVENT_RESPAWN, 5000);
+            // Hack for missing trigger spell
+            events.ScheduleEvent(EVENT_FIRE_SHIELD, 3000);
 
-                // Open doors on reset
-                if (instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
-                    OpenDoors(false); // Opens 2 entrance doors
-            }
+            // Open doors on reset
+            if (instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
+                OpenDoors(false); // Opens 2 entrance doors
         }
 
         void SetData(uint32 /*type*/, uint32 data) OVERRIDE
@@ -132,15 +129,12 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                // Activate all the runes
-                UpdateRunes(GO_STATE_READY);
-                // Opens all 3 doors
-                OpenDoors(true);
-                // Complete encounter
-                instance->SetBossState(DATA_PYROGAURD_EMBERSEER, DONE);
-            }
+            // Activate all the runes
+            UpdateRunes(GO_STATE_READY);
+            // Opens all 3 doors
+            OpenDoors(true);
+            // Complete encounter
+            instance->SetBossState(DATA_PYROGAURD_EMBERSEER, DONE);
         }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
@@ -185,24 +179,21 @@ public:
 
         void UpdateRunes(GOState state)
         {
-            if (instance)
-            {
-                // update all runes
-                if (GameObject* rune1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_1)))
-                    rune1->SetGoState(state);
-                if (GameObject* rune2 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_2)))
-                    rune2->SetGoState(state);
-                if (GameObject* rune3 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_3)))
-                    rune3->SetGoState(state);
-                if (GameObject* rune4 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_4)))
-                    rune4->SetGoState(state);
-                if (GameObject* rune5 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_5)))
-                    rune5->SetGoState(state);
-                if (GameObject* rune6 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_6)))
-                    rune6->SetGoState(state);
-                if (GameObject* rune7 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_7)))
-                    rune7->SetGoState(state);
-            }
+            // update all runes
+            if (GameObject* rune1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_1)))
+                rune1->SetGoState(state);
+            if (GameObject* rune2 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_2)))
+                rune2->SetGoState(state);
+            if (GameObject* rune3 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_3)))
+                rune3->SetGoState(state);
+            if (GameObject* rune4 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_4)))
+                rune4->SetGoState(state);
+            if (GameObject* rune5 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_5)))
+                rune5->SetGoState(state);
+            if (GameObject* rune6 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_6)))
+                rune6->SetGoState(state);
+            if (GameObject* rune7 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_RUNE_7)))
+                rune7->SetGoState(state);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

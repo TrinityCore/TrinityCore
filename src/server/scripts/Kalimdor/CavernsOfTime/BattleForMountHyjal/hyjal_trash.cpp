@@ -195,8 +195,7 @@ void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
     if (done_by->GetTypeId() == TYPEID_PLAYER || done_by->IsPet())
     {
         damageTaken += damage;
-        if (instance)
-            instance->SetData(DATA_RAIDDAMAGE, damage);//store raid's damage
+        instance->SetData(DATA_RAIDDAMAGE, damage);//store raid's damage
     }
 }
 
@@ -399,9 +398,6 @@ void hyjal_trashAI::UpdateAI(uint32 /*diff*/)
 
 void hyjal_trashAI::JustDied(Unit* /*killer*/)
 {
-    if (!instance)
-        return;
-
     if (IsEvent && !me->isWorldBoss())
         instance->SetData(DATA_TRASH, 0);//signal trash is dead
 
@@ -488,16 +484,13 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetDisplayId(me->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
                     CanMove = true;
-                    if (instance)
+                    if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
                     {
-                        if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
-                        {
-                            Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
-                            if (target && target->IsAlive())
-                                me->AddThreat(target, 0.0f);
-                        } else if (instance->GetData(DATA_ALLIANCE_RETREAT) && instance->GetData(DATA_HORDE_RETREAT)){
-                            //do overrun
-                        }
+                        Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
+                        if (target && target->IsAlive())
+                            me->AddThreat(target, 0.0f);
+                    } else if (instance->GetData(DATA_ALLIANCE_RETREAT) && instance->GetData(DATA_HORDE_RETREAT)){
+                        //do overrun
                     }
                 } else spawnTimer -= diff;
             }
@@ -510,12 +503,9 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
-                    {
-                        AddWaypoint(0, HordeWPs[7][0]+irand(-3, 3),    HordeWPs[7][1]+irand(-3, 3),    HordeWPs[7][2]);//HordeWPs[7] infront of thrall
-                        Start(true, true);
-                        SetDespawnAtEnd(false);
-                    }
+                    AddWaypoint(0, HordeWPs[7][0]+irand(-3, 3),    HordeWPs[7][1]+irand(-3, 3),    HordeWPs[7][2]);//HordeWPs[7] infront of thrall
+                    Start(true, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -606,21 +596,18 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
-                        if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }else//use alliance WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }else//use alliance WPs
+                    {
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }
@@ -709,21 +696,18 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
-                        if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }else//use alliance WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }else//use alliance WPs
+                    {
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }
@@ -834,21 +818,18 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
-                        if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                            Start(true, true);
-                            SetDespawnAtEnd(false);
-                        }else//use alliance WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                            Start(true, true);
-                            SetDespawnAtEnd(false);
-                        }
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
+                        Start(true, true);
+                        SetDespawnAtEnd(false);
+                    }else//use alliance WPs
+                    {
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
+                        Start(true, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }
@@ -930,21 +911,18 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
-                        if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }else//use alliance WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }else//use alliance WPs
+                    {
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }
@@ -1029,22 +1007,18 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
-                        if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }else//use alliance WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }
-
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }else//use alliance WPs
+                    {
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }
@@ -1119,22 +1093,18 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
-                        if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }else//use alliance WPs
-                        {
-                            for (uint8 i = 0; i < 8; ++i)
-                                AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }
-
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }else//use alliance WPs
+                    {
+                        for (uint8 i = 0; i < 8; ++i)
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }
@@ -1221,20 +1191,17 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (!useFlyPath)
                     {
-                        if (!useFlyPath)
-                        {
-                            for (uint8 i = 0; i < 3; ++i)
-                                AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }else{//fly path FlyPathWPs
-                            for (uint8 i = 0; i < 3; ++i)
-                                AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }
+                        for (uint8 i = 0; i < 3; ++i)
+                            AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }else{//fly path FlyPathWPs
+                        for (uint8 i = 0; i < 3; ++i)
+                            AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }
@@ -1334,20 +1301,17 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
+                    if (!useFlyPath)
                     {
-                        if (!useFlyPath)
-                        {
-                            for (uint8 i = 0; i < 3; ++i)
-                                AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }else{//fly path FlyPathWPs
-                            for (uint8 i = 0; i < 3; ++i)
-                                AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                            Start(false, true);
-                            SetDespawnAtEnd(false);
-                        }
+                        for (uint8 i = 0; i < 3; ++i)
+                            AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }else{//fly path FlyPathWPs
+                        for (uint8 i = 0; i < 3; ++i)
+                            AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
                     }
                 }
             }

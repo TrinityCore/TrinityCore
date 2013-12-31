@@ -86,16 +86,14 @@ public:
             Summon50 = false;
             Summon25 = false;
 
-            if (instance)
-                instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, NOT_STARTED);
+            instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, DONE);
+            instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -107,8 +105,7 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
+            instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
         }
 
         //no known summon spells exist

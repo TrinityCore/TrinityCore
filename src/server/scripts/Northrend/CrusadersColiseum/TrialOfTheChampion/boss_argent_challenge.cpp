@@ -196,8 +196,7 @@ public:
             if (MovementType != POINT_MOTION_TYPE)
                 return;
 
-            if (instance)
-                instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+            instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
 
             me->DisappearAndDie();
         }
@@ -320,8 +319,7 @@ public:
             if (MovementType != POINT_MOTION_TYPE || Point != 0)
                 return;
 
-            if (instance)
-                instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
+            instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
 
             me->DisappearAndDie();
         }
@@ -582,8 +580,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+            instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
     };
 

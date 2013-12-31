@@ -161,8 +161,7 @@ class boss_majordomo : public CreatureScript
                                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 break;
                             case EVENT_OUTRO_2:
-                                if (instance)
-                                    instance->instance->SummonCreature(NPC_RAGNAROS, RagnarosSummonPos);
+                                instance->instance->SummonCreature(NPC_RAGNAROS, RagnarosSummonPos);
                                 break;
                             case EVENT_OUTRO_3:
                                 Talk(SAY_ARRIVAL2_MAJ);

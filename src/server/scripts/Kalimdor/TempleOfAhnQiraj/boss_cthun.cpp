@@ -161,8 +161,6 @@ public:
         eye_of_cthunAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            if (!instance)
-                TC_LOG_ERROR("scripts", "No Instance eye_of_cthunAI");
 
             SetCombatMovement(false);
         }
@@ -206,8 +204,7 @@ public:
             me->SetVisible(true);
 
             //Reset Phase
-            if (instance)
-                instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
+            instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
 
             //to avoid having a following void zone
             Creature* pPortal= me->FindNearestCreature(NPC_CTHUN_PORTAL, 10);
@@ -218,8 +215,7 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             DoZoneInCombat();
-            if (instance)
-                instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
+            instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
         }
 
         void SpawnEyeTentacle(float x, float y)
@@ -234,10 +230,6 @@ public:
         {
             //Check if we have a target
             if (!UpdateVictim())
-                return;
-
-            //No instance
-            if (!instance)
                 return;
 
             uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
@@ -404,10 +396,6 @@ public:
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
-            //No instance
-            if (!instance)
-                return;
-
             switch (instance->GetData(DATA_CTHUN_PHASE))
             {
                 case PHASE_EYE_GREEN_BEAM:
@@ -469,8 +457,6 @@ public:
             SetCombatMovement(false);
 
             instance = creature->GetInstanceScript();
-            if (!instance)
-                TC_LOG_ERROR("scripts", "No Instance eye_of_cthunAI");
         }
 
         InstanceScript* instance;
@@ -528,8 +514,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->SetVisible(false);
 
-            if (instance)
-                instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
+            instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -614,10 +599,6 @@ public:
             }
 
             me->SetTarget(0);
-
-            //No instance
-            if (!instance)
-                return;
 
             uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
             if (currentPhase == PHASE_CTHUN_STOMACH || currentPhase == PHASE_CTHUN_WEAK)
@@ -861,16 +842,11 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
+            instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
-            //No instance
-            if (!instance)
-                return;
-
             switch (instance->GetData(DATA_CTHUN_PHASE))
             {
                 case PHASE_CTHUN_STOMACH:

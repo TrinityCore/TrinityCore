@@ -267,14 +267,11 @@ class npc_batrider : public CreatureScript
                 //Check_Timer
                 if (Check_Timer <= diff)
                 {
-                    if (instance)
+                    if (instance->GetBossState(DATA_JEKLIK) == DONE)
                     {
-                        if (instance->GetBossState(DATA_JEKLIK) == DONE)
-                        {
-                            me->setDeathState(JUST_DIED);
-                            me->RemoveCorpse();
-                            return;
-                        }
+                        me->setDeathState(JUST_DIED);
+                        me->RemoveCorpse();
+                        return;
                     }
 
                     Check_Timer = 1000;

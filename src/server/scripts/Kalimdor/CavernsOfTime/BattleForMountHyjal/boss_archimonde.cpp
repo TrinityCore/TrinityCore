@@ -102,8 +102,7 @@ public:
         {
             CheckTimer = 1000;
 
-            if (instance)
-                ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
+            ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -275,8 +274,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
+            instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
             DoomfireSpiritGUID = 0;
             damageTaken = 0;
@@ -308,8 +306,7 @@ public:
             Talk(SAY_AGGRO);
             DoZoneInCombat();
 
-            if (instance)
-                instance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
+            instance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -350,8 +347,7 @@ public:
             hyjal_trashAI::JustDied(killer);
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_ARCHIMONDEEVENT, DONE);
+            instance->SetData(DATA_ARCHIMONDEEVENT, DONE);
         }
 
         bool CanUseFingerOfDeath()
@@ -471,19 +467,16 @@ public:
         {
             if (!me->IsInCombat())
             {
-                if (instance)
+                // Do not let the raid skip straight to Archimonde. Visible and hostile ONLY if Azagalor is finished.
+                if ((instance->GetData(DATA_AZGALOREVENT) < DONE) && (me->IsVisible() || (me->getFaction() != 35)))
                 {
-                    // Do not let the raid skip straight to Archimonde. Visible and hostile ONLY if Azagalor is finished.
-                    if ((instance->GetData(DATA_AZGALOREVENT) < DONE) && (me->IsVisible() || (me->getFaction() != 35)))
-                    {
-                        me->SetVisible(false);
-                        me->setFaction(35);
-                    }
-                    else if ((instance->GetData(DATA_AZGALOREVENT) >= DONE) && (!me->IsVisible() || (me->getFaction() == 35)))
-                    {
-                        me->setFaction(1720);
-                        me->SetVisible(true);
-                    }
+                    me->SetVisible(false);
+                    me->setFaction(35);
+                }
+                else if ((instance->GetData(DATA_AZGALOREVENT) >= DONE) && (!me->IsVisible() || (me->getFaction() == 35)))
+                {
+                    me->setFaction(1720);
+                    me->SetVisible(true);
                 }
 
                 if (DrainNordrassilTimer <= diff)

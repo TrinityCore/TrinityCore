@@ -78,8 +78,7 @@ public:
                     mob->AI()->AttackStart(me->SelectNearestTarget(100.0f));
             }
 
-            if (instance)
-                instance->SetData(TYPE_RAMSTEIN, DONE);
+            instance->SetData(TYPE_RAMSTEIN, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
