@@ -243,7 +243,7 @@ public:
 class LiquidHeader
 {
 public:
-    LiquidHeader() {}
+    LiquidHeader() : CountXVertices(0), CountYVertices(0), Width(0), Height(0), BaseLocation(0,0,0), MaterialId(0) {}
     uint32 CountXVertices;
     uint32 CountYVertices;
     uint32 Width;
@@ -257,17 +257,17 @@ public:
 class LiquidData
 {
 public:
-    LiquidData() {}
+    LiquidData() : HeightMap(NULL), RenderFlags(NULL), CountXVertices(0), Width(0) {}
     
     ~LiquidData()
     {
-        /*for (uint32 i = 0; i < CountXVertices; ++i)
+        for (uint32 i = 0; i < CountXVertices; ++i)
             delete[] HeightMap[i];
         delete[] HeightMap;
 
         for (uint32 i = 0; i < Width; ++i)
             delete[] RenderFlags[i];
-        delete[] RenderFlags;*/
+        delete[] RenderFlags;
     }
 
     float** HeightMap;

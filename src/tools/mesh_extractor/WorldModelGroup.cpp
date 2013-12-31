@@ -20,7 +20,7 @@
 #include "Chunk.h"
 #include "Utils.h"
 
-WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : GroupIndex(groupIndex), MOBA(NULL), IsBad(false), HasLiquidData(false)
+WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : SubData(NULL), GroupIndex(groupIndex), MOBA(NULL), MOBALength(0), IsBad(false), HasLiquidData(false)
 {
     Data = new ChunkedData(path);
     if (!Data->_Stream)
@@ -31,7 +31,7 @@ WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : GroupIndex(
     Load(path);
 }
 
-WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupIndex) : GroupIndex(groupIndex), MOBA(NULL), IsBad(false), HasLiquidData(false)
+WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupIndex) : SubData(NULL), GroupIndex(groupIndex), MOBA(NULL), MOBALength(0), IsBad(false), HasLiquidData(false)
 {
     Data = new ChunkedData(stream, stream->GetSize());
     Load(path);
@@ -39,12 +39,10 @@ WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupInde
 
 WorldModelGroup::~WorldModelGroup()
 {
-    /*
-    @ToDo: Uncomment this when emplace_back is properly used in void WorldModelRoot::ReadGroups() or replace with smart pointers
     delete Data;
     delete SubData;
     delete[] MOBA;
-    */
+    
 }
 
 void WorldModelGroup::Load(std::string& path)
