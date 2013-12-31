@@ -75,7 +75,7 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
             continue;
 
         std::string path = (*_paths)[wmo.MwidIndex];
-        WorldModelRoot* model = Cache->WorldModelCache.Get(path);
+        WorldModelRoot const* model = Cache->WorldModelCache.Get(path);
 
         Vertices.reserve(1000);
         Triangles.reserve(1000);
@@ -86,13 +86,13 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
     stream->Seek(mcnk->Source->Offset, SEEK_SET);
 }
 
-void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root, bool translate )
+void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot const* root, bool translate )
 {
-    for (std::vector<WorldModelGroup*>::iterator groupItr =  root->Groups.begin(); groupItr != root->Groups.end(); ++groupItr)
+    for (std::vector<WorldModelGroup*>::const_iterator groupItr =  root->Groups.begin(); groupItr != root->Groups.end(); ++groupItr)
     {
-        WorldModelGroup* group = *groupItr;
+        WorldModelGroup const* group = *groupItr;
         uint32 vertOffset = verts.size();
-        for (std::vector<Vector3>::iterator itr2 = group->Vertices.begin(); itr2 != group->Vertices.end(); ++itr2)
+        for (std::vector<Vector3>::const_iterator itr2 = group->Vertices.begin(); itr2 != group->Vertices.end(); ++itr2)
         {
             Vector3 v = Utils::TransformDoodadVertex(def, *itr2, translate);
             // If translate is false, then we were called directly from the TileBuilder to add data to it's _Geometry member, hence, we have to manually convert the vertices to Recast format.
@@ -123,34 +123,33 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
 
         for (std::vector<DoodadInstance>::iterator instance = instances.begin(); instance != instances.end(); ++instance)
         {
-            Model* model = Cache->ModelCache.Get(instance->File);
+            Model const* model = Cache->ModelCache.Get(instance->File);
 
             if (!model->IsCollidable)
                 continue;
             int vertOffset = verts.size();
-            for (std::vector<Vector3>::iterator itr2 = model->Vertices.begin(); itr2 != model->Vertices.end(); ++itr2)
+            for (std::vector<Vector3>::const_iterator itr2 = model->Vertices.begin(); itr2 != model->Vertices.end(); ++itr2)
             {
                 Vector3 v = Utils::TransformDoodadVertex(def, Utils::TransformWmoDoodad(*instance, def, *itr2, false), translate);
                 verts.push_back(translate ? v : Utils::ToRecast(v));
             }
-            for (std::vector<Triangle<uint16> >::iterator itr2 = model->Triangles.begin(); itr2 != model->Triangles.end(); ++itr2)
+            for (std::vector<Triangle<uint16> >::const_iterator itr2 = model->Triangles.begin(); itr2 != model->Triangles.end(); ++itr2)
                 tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WMO, itr2->V0 + vertOffset, itr2->V1 + vertOffset, itr2->V2 + vertOffset));
         }
 
-        for (std::vector<WorldModelGroup*>::iterator groupItr =  root->Groups.begin(); groupItr != root->Groups.end(); ++groupItr)
+        for (std::vector<WorldModelGroup*>::const_iterator groupItr = root->Groups.begin(); groupItr != root->Groups.end(); ++groupItr)
         {
-            WorldModelGroup* group = *groupItr;
+            WorldModelGroup const* group = *groupItr;
             if (!group->HasLiquidData)
                 continue;
 
             const LiquidHeader& liquidHeader = group->LiquidDataHeader;
-            LiquidData& liquidDataGeometry = group->LiquidDataGeometry;
+            const LiquidData& liquidDataGeometry = group->LiquidDataGeometry;
 
             for (uint32 y = 0; y < liquidHeader.Height; y++)
             {
                 for (uint32 x = 0; x < liquidHeader.Width; x++)
                 {
-
                     if (!liquidDataGeometry.ShouldRender(x, y))
                         continue;
 

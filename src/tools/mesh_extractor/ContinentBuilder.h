@@ -36,7 +36,7 @@ public:
         {}
 
     void Build();
-    void getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax);
+    void getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax) const;
     void CalculateTileBounds();
     float bmin[3];
     float bmax[3];

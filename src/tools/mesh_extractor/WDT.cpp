@@ -64,9 +64,9 @@ void WDT::ReadTileTable()
     }
 }
 
-bool WDT::HasTile( int x, int y )
+bool WDT::HasTile( int x, int y ) const
 {
-    for (std::vector<TilePos>::iterator itr = TileTable.begin(); itr != TileTable.end(); ++itr)
+    for (std::vector<TilePos>::const_iterator itr = TileTable.begin(); itr != TileTable.end(); ++itr)
         if (itr->X == x && itr->Y == y)
             return true;
     return false;

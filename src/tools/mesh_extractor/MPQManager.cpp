@@ -109,10 +109,18 @@ Stream* MPQManager::GetFile(const std::string& path )
     return file.GetFileStream();
 }
 
-DBC* MPQManager::GetDBC(const std::string& name )
+DBC const* MPQManager::GetDBC(const std::string& name )
 {
+    std::map<std::string, DBC*>::const_iterator itr = LoadedDBCs.find(name);
+    if (itr != LoadedDBCs.end())
+        return itr->second;
+
     std::string path = "DBFilesClient\\" + name + ".dbc";
-    return new DBC(GetFile(path));
+    DBC* dbc = new DBC(GetFile(path));
+    
+    LoadedDBCs[name] = dbc;
+
+    return dbc;
 }
 
 Stream* MPQManager::GetFileFromLocale( const std::string& path, uint32 locale )

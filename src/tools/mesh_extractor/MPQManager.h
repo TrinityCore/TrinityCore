@@ -36,7 +36,7 @@ public:
     Stream* GetFileFrom(const std::string& path, MPQArchive* file);
     Stream* GetFileFromLocale(const std::string& path, uint32 locale);
 
-    DBC* GetDBC(const std::string& name);
+    DBC const* GetDBC(const std::string& name);
     std::vector<std::string> GetAllFiles(std::string extension);
 
     std::deque<MPQArchive*> Archives;
@@ -51,6 +51,7 @@ protected:
     void InitializeDBC();
 private:
     ACE_Thread_Mutex mutex;
+    std::map<std::string, DBC*> LoadedDBCs;
 };
 
 extern MPQManager* MPQHandler;

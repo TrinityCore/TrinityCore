@@ -71,7 +71,7 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
     Context = new rcContext;
 }
 
-void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshParams& /*navMeshParams*/ )
+void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshParams& /*navMeshParams*/ ) const
 {
     bmin = new float[3];
     bmax = new float[3];
@@ -81,7 +81,7 @@ void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshPara
     bmax[2] = Constants::Origin[2] /*navMeshParams.orig[2]*/ + (Constants::TileSize * (Y + 1));
 }
 
-void TileBuilder::AddGeometry(WorldModelRoot* root, const WorldModelDefinition& def)
+void TileBuilder::AddGeometry(WorldModelRoot const* root, const WorldModelDefinition& def)
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
@@ -226,7 +226,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     adt->Read();
     _Geometry->AddAdt(adt);
     delete adt;
-
+    
     if (_Geometry->Vertices.empty() && _Geometry->Triangles.empty())
         return NULL;
 
@@ -387,7 +387,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     return NULL;
 }
 
-void TileBuilder::OutputDebugVertices()
+void TileBuilder::OutputDebugVertices() const
 {
     if (Constants::Debug)
     {

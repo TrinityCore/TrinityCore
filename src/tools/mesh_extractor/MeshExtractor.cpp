@@ -61,9 +61,9 @@ void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
     std::string basePath = "mmaps/";
     Utils::CreateDir(basePath);
 
-    DBC* dbc = MPQHandler->GetDBC("Map");
+    DBC const* dbc = MPQHandler->GetDBC("Map");
     printf("Map.dbc contains " SIZEFMTD " rows.\n", dbc->Records.size());
-    for (std::vector<Record*>::iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
+    for (std::vector<Record*>::const_iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
     {
         uint32 mapId = (*itr)->Values[0];
 
@@ -146,8 +146,8 @@ void ExtractGameobjectModels()
         return;
     }
 
-    DBC* dbc = MPQHandler->GetDBC("GameObjectDisplayInfo");
-    for (std::vector<Record*>::iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
+    DBC const* dbc = MPQHandler->GetDBC("GameObjectDisplayInfo");
+    for (std::vector<Record*>::const_iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
     {
         std::string path = (*itr)->GetString(1);
         std::string fileName = Utils::GetPlainName(path.c_str());

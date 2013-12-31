@@ -59,7 +59,7 @@ public:
 
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;
-    bool IsSane() { return _definitions && _paths; }
+    bool IsSane() const { return _definitions && _paths; }
 
 
 protected:
@@ -68,7 +68,7 @@ protected:
 private:
     void ReadDoodadDefinitions(Chunk* chunk);
     void ReadDoodadPaths(Chunk* id, Chunk* data);
-    void InsertModelGeometry(const DoodadDefinition& def, Model* model);
+    void InsertModelGeometry(const DoodadDefinition& def, Model const* model);
     std::set<uint32> _drawn;
     std::vector<DoodadDefinition>* _definitions;
     std::vector<std::string>* _paths;
