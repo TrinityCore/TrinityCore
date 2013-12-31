@@ -23,6 +23,13 @@ LiquidHandler::LiquidHandler( ADT* adt ) : Source(adt)
     HandleNewLiquid();
 }
 
+LiquidHandler::~LiquidHandler()
+{
+    for (std::vector<MCNKLiquidData*>::iterator itr = MCNKData.begin(); itr != MCNKData.end(); ++itr)
+        delete *itr;
+    MCNKData.clear();
+}
+
 void LiquidHandler::HandleNewLiquid()
 {
     Chunk* chunk = Source->Data->GetChunkByName("MH2O");
@@ -44,12 +51,13 @@ void LiquidHandler::HandleNewLiquid()
         if (h.LayerCount == 0)
         {
             // Need to fill in missing data with dummies.
-            MCNKData.push_back(MCNKLiquidData(NULL, H2ORenderMask()));
+            MCNKData.push_back(new MCNKLiquidData(NULL, H2ORenderMask()));
             continue;
         }
         stream->Seek(chunk->Offset + h.OffsetInformation, SEEK_SET);
         H2OInformation information = H2OInformation::Read(stream);
 
+        // This pointer will be passed to the MCNKLiquidData constructor, from that point on, it is the job of MCNKLiquidData's destructor to release it.
         float** heights = new float*[9];
         for (int j = 0; j < 9; ++j)
         {
@@ -88,7 +96,7 @@ void LiquidHandler::HandleNewLiquid()
                     heights[x][y] = information.HeightLevel1;
         }
 
-        MCNKData.push_back(MCNKLiquidData(heights, renderMask));
+        MCNKData.push_back(new MCNKLiquidData(heights, renderMask));
 
         for (int y = information.OffsetY; y < (information.OffsetY + information.Height); y++)
         {
@@ -108,15 +116,27 @@ void LiquidHandler::HandleNewLiquid()
                 Vertices.push_back(Vector3(location.x - Constants::UnitSize, location.y, location.z));
                 Vertices.push_back(Vector3(location.x, location.y - Constants::UnitSize, location.z));
                 Vertices.push_back(Vector3(location.x - Constants::UnitSize, location.y - Constants::UnitSize, location.z));
+                
+                // Define the liquid type
+                Constants::TriangleType type = Constants::TRIANGLE_TYPE_UNKNOWN;
+                switch (information.LiquidType)
+                {
+                    case 1: // Water
+                    case 2: // Ocean
+                    default:
+                        type = Constants::TRIANGLE_TYPE_WATER;
+                        break;
+                    case 3:
+                        type = Constants::TRIANGLE_TYPE_MAGMA;
+                        break;
+                    case 4:
+                        type = Constants::TRIANGLE_TYPE_SLIME;
+                        break;
+                }
 
-                Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset, vertOffset+2, vertOffset + 1));
-                Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));
+                Triangles.push_back(Triangle<uint32>(type, vertOffset, vertOffset+2, vertOffset + 1));
+                Triangles.push_back(Triangle<uint32>(type, vertOffset + 2, vertOffset + 3, vertOffset + 1));
             }
         }
-
-        // At this stage, heights is no longer needed, so we deallocate it
-        for (int j = 0; j < 9; ++j)
-            delete[] heights[j];
-        delete[] heights;
     }
 }

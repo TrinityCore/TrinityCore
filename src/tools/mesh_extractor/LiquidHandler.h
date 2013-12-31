@@ -27,11 +27,12 @@ class LiquidHandler
 {
 public:
     LiquidHandler(ADT* adt);
+    ~LiquidHandler();
 
     ADT* Source;
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;
-    std::vector<MCNKLiquidData> MCNKData;
+    std::vector<MCNKLiquidData*> MCNKData;
 private:
     void HandleNewLiquid();
 };
