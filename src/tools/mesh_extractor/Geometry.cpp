@@ -20,6 +20,7 @@
 #include "ADT.h"
 #include "WorldModelHandler.h"
 #include "DoodadHandler.h"
+#include "LiquidHandler.h"
 #include <limits.h>
 
 Geometry::Geometry() : Transform(false)
@@ -142,5 +143,8 @@ void Geometry::AddAdt( ADT* adt )
 
     if (!adt->_WorldModelHandler->Triangles.empty())
         AddData(adt->_WorldModelHandler->Vertices, adt->_WorldModelHandler->Triangles);
+
+    if (!adt->_LiquidHandler->Triangles.empty())
+        AddData(adt->_LiquidHandler->Vertices, adt->_LiquidHandler->Triangles);
 }
 

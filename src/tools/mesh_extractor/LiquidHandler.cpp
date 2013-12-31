@@ -21,6 +21,7 @@
 LiquidHandler::LiquidHandler( ADT* adt ) : Source(adt)
 {
     HandleNewLiquid();
+    HandleOldLiquid();
 }
 
 LiquidHandler::~LiquidHandler()
@@ -66,7 +67,7 @@ void LiquidHandler::HandleNewLiquid()
         }
 
         H2ORenderMask renderMask;
-        if (information.LiquidType != 2)
+        if (information.LiquidType != 2 && information.LiquidType != 6 && information.LiquidType != 10) // Skip Ocean, Slow Ocean and Fast Ocean
         {
             stream->Seek(chunk->Offset + h.OffsetRender, SEEK_SET);
             renderMask = H2ORenderMask::Read(stream);
@@ -123,13 +124,21 @@ void LiquidHandler::HandleNewLiquid()
                 {
                     case 1: // Water
                     case 2: // Ocean
+                    case 5: // Slow Water
+                    case 6: // Slow Ocean
+                    case 9: // Fast Water
+                    case 10: // Fast Ocean
                     default:
                         type = Constants::TRIANGLE_TYPE_WATER;
                         break;
-                    case 3:
+                    case 3: // Magma
+                    case 7: // Slow Magma
+                    case 11: // Fast Magma
                         type = Constants::TRIANGLE_TYPE_MAGMA;
                         break;
-                    case 4:
+                    case 4: // Slime
+                    case 8: // Slow Slime
+                    case 12: // Fast Slime
                         type = Constants::TRIANGLE_TYPE_SLIME;
                         break;
                 }
@@ -138,5 +147,16 @@ void LiquidHandler::HandleNewLiquid()
                 Triangles.push_back(Triangle<uint32>(type, vertOffset + 2, vertOffset + 3, vertOffset + 1));
             }
         }
+    }
+}
+
+void LiquidHandler::HandleOldLiquid()
+{
+    for (uint32 i = 0; i < 256; ++i)
+    {
+        MapChunk* mapChunk = Source->MapChunks[i];
+        if (!mapChunk->Header.OffsetMCLQ || mapChunk->Header.SizeMCLQ <= 8)
+            continue;
+        printf("Found old liquid");
     }
 }
