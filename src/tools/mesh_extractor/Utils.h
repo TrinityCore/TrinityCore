@@ -300,8 +300,9 @@ public:
 class MCNKLiquidData
 {
 public:
-    MCNKLiquidData() {}
+    MCNKLiquidData() : Heights(NULL) {}
     MCNKLiquidData(float** heights, H2ORenderMask mask) : Heights(heights), Mask(mask) {}
+    ~MCNKLiquidData();
 
     float** Heights;
     H2ORenderMask Mask;

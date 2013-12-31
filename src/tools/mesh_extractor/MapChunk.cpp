@@ -47,12 +47,12 @@ void MapChunk::GenerateTriangles()
             Constants::TriangleType triangleType = Constants::TRIANGLE_TYPE_TERRAIN;
             if (Adt->_LiquidHandler && !Adt->_LiquidHandler->MCNKData.empty())
             {
-                MCNKLiquidData& data = Adt->_LiquidHandler->MCNKData[Index];
+                MCNKLiquidData* data = Adt->_LiquidHandler->MCNKData[Index];
                 float maxHeight = std::max(
                     std::max(
                     std::max(std::max(Vertices[topLeft].z, Vertices[topRight].z), Vertices[bottomLeft].z),
                     Vertices[bottomRight].z), Vertices[center].z);
-                if (data.IsWater(x, y, maxHeight))
+                if (data->IsWater(x, y, maxHeight))
                     triangleType = Constants::TRIANGLE_TYPE_WATER;
             }
 

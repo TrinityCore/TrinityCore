@@ -403,6 +403,17 @@ bool MCNKLiquidData::IsWater(int x, int y, float height)
     return false;
 }
 
+MCNKLiquidData::~MCNKLiquidData()
+{
+    if (!Heights)
+        return;
+
+    for (uint32 i = 0; i < 9; ++i)
+        delete[] Heights[i];
+    delete[] Heights;
+    Heights = NULL;
+}
+
 H2OHeader H2OHeader::Read(Stream* stream)
 {
     H2OHeader ret;
