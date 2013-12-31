@@ -253,8 +253,9 @@ void ExtractGameobjectModels()
             fwrite(&model.Header.WmoId, sizeof(uint32), 1, output);
 
             const char grp[] = { 'G' , 'R' , 'P', ' ' };
-            for (std::vector<WorldModelGroup>::iterator itr2 = model.Groups.begin(); itr2 != model.Groups.end(); ++itr2)
+            for (std::vector<WorldModelGroup*>::iterator groupItr = model.Groups.begin(); groupItr != model.Groups.end(); ++groupItr)
             {
+                WorldModelGroup* itr2 = *groupItr;
                 const WMOGroupHeader& header = itr2->Header;
                 fwrite(&header.Flags, sizeof(uint32), 1, output);
                 fwrite(&header.WmoId, sizeof(uint32), 1, output);
