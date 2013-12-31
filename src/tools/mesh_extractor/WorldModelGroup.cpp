@@ -20,7 +20,7 @@
 #include "Chunk.h"
 #include "Utils.h"
 
-WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : SubData(NULL), GroupIndex(groupIndex), MOBA(NULL), MOBALength(0), IsBad(false), HasLiquidData(false)
+WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : SubData(NULL), GroupIndex(groupIndex), MOBA(NULL), MOBALength(0), HasLiquidData(false), IsBad(false)
 {
     Data = new ChunkedData(path);
     if (!Data->_Stream)
@@ -31,7 +31,7 @@ WorldModelGroup::WorldModelGroup(std::string path, int groupIndex) : SubData(NUL
     Load(path);
 }
 
-WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupIndex) : SubData(NULL), GroupIndex(groupIndex), MOBA(NULL), MOBALength(0), IsBad(false), HasLiquidData(false)
+WorldModelGroup::WorldModelGroup(Stream* stream, std::string path, int groupIndex) : SubData(NULL), GroupIndex(groupIndex), MOBA(NULL), MOBALength(0), HasLiquidData(false), IsBad(false)
 {
     Data = new ChunkedData(stream, stream->GetSize());
     Load(path);

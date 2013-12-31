@@ -55,7 +55,7 @@ void WDT::ReadTileTable()
         {
             const uint32 hasTileFlag = 0x1;
             uint32 flags = stream->Read<uint32>();
-            uint32 discard = stream->Read<uint32>();
+            stream->Skip<uint32>();
 
             if (flags & hasTileFlag)
                 TileTable.push_back(TilePos(x, y));

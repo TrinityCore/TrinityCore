@@ -54,7 +54,7 @@ private:
 class TileBuildRequest : public ACE_Method_Request
 {
 public:
-    TileBuildRequest(ContinentBuilder* builder, std::string& continent, uint32 x, uint32 y, uint32 mapId, dtNavMeshParams& params) : _builder(builder), _continent(continent), X(x), Y(y), _mapId(mapId), _params(params) { }
+    TileBuildRequest(ContinentBuilder* builder, std::string& continent, uint32 x, uint32 y, uint32 mapId, dtNavMeshParams& params) : _mapId(mapId), _builder(builder), _continent(continent), X(x), Y(y), _params(params) { }
 
     virtual int call();
 
