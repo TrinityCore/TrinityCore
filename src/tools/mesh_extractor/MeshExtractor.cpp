@@ -422,8 +422,8 @@ int main(int argc, char* argv[])
 
     if (extractFlags & Constants::EXTRACT_FLAG_TEST)
     {
-        float start[] = { -1.37402868f, -21.7641087f, -20.1751060f };
-        float end[] = { -22.756405f, -62.745014f, -21.371508f };
+        float start[] = { -45.4745407f, -29.5000954f, -21.4456501f };
+        float end[] = { -107.686218f, -32.3544769f, -30.3459435f };
 
         //
         float m_spos[3];
@@ -489,24 +489,38 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        int hops;
-        dtPolyRef* hopBuffer = new dtPolyRef[8192];
-        dtStatus status = navMeshQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, hopBuffer, &hops, 8192);
+        dtStatus status;
+        status = navMeshQuery->initSlicedFindPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter);
+        while (status != DT_SUCCESS)
+            status = navMeshQuery->updateSlicedFindPath(1, 0);
         
-        int resultHopCount;
-        float* straightPath = new float[2048*3];
-        unsigned char* pathFlags = new unsigned char[2048];
         dtPolyRef* pathRefs = new dtPolyRef[2048];
+        int pcount = 0;
+        int resultHopCount = 0;
+        float* straightPath = new float[2048 * 3];
+        unsigned char* pathFlags = new unsigned char[2048];
+        dtPolyRef* hopBuffer = new dtPolyRef[8192];
 
-        status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
+        navMeshQuery->finalizeSlicedFindPath(pathRefs, &pcount, 200);
         std::vector<Vector3> FinalPath;
+
+        for (int i = 0; i < pcount; ++i)
+        {
+            navMeshQuery->findStraightPath(m_spos, m_epos, &pathRefs[i], 1,
+                straightPath, pathFlags,
+                hopBuffer, &resultHopCount, 200);
+            Vector3 finalV = Utils::ToWoWCoords(Vector3(straightPath[0 * 3 + 0], straightPath[0 * 3 + 1], straightPath[0 * 3 + 2]));
+            FinalPath.push_back(finalV);
+            printf("Point %f %f %f\n", finalV.x, finalV.y, finalV.z);
+        }
+        /*
         FinalPath.reserve(resultHopCount);
         for (int i = 0; i < resultHopCount; ++i)
         {
             Vector3 finalV = Utils::ToWoWCoords(Vector3(straightPath[i * 3 + 0], straightPath[i * 3 + 1], straightPath[i * 3 + 2]));
             FinalPath.push_back(finalV);
             printf("Point %f %f %f\n", finalV.x, finalV.y, finalV.z);
-        }
+        }*/
     }
 
     return 0;

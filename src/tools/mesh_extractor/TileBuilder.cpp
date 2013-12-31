@@ -43,8 +43,8 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
     Config.detailSampleDist = 3.0f;
     Config.detailSampleMaxError = 1.25f;
     Config.walkableClimb = 1.0f / Config.ch;
-    Config.walkableHeight = 2.1 / Config.ch;
-    Config.walkableRadius = 0.6f / Config.cs;
+    Config.walkableHeight = 2.1;
+    Config.walkableRadius = 0.6f;
     Config.maxEdgeLen = Config.walkableRadius * 8;
     Config.borderSize = Config.walkableRadius + 8;
     Config.tileSize = 1800;
@@ -61,8 +61,8 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
     InstanceConfig.detailSampleDist = 3.0f;
     InstanceConfig.detailSampleMaxError = 1.25f;
     InstanceConfig.walkableClimb = 1.0f / InstanceConfig.ch;
-    InstanceConfig.walkableHeight = 2.1f / InstanceConfig.ch;
-    InstanceConfig.walkableRadius = 0.6f / InstanceConfig.cs;
+    InstanceConfig.walkableHeight = 2.1f;
+    InstanceConfig.walkableRadius = 0.6f;
     InstanceConfig.maxEdgeLen = 8 * InstanceConfig.walkableRadius;
     InstanceConfig.maxVertsPerPoly = 6;
     InstanceConfig.maxSimplificationError = 1.3f;
