@@ -88,8 +88,9 @@ void WorldModelHandler::ProcessInternal( MapChunk* mcnk )
 
 void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root, bool translate )
 {
-    for (std::vector<WorldModelGroup>::iterator group =  root->Groups.begin(); group != root->Groups.end(); ++group)
+    for (std::vector<WorldModelGroup*>::iterator groupItr =  root->Groups.begin(); groupItr != root->Groups.end(); ++groupItr)
     {
+        WorldModelGroup* group = *groupItr;
         uint32 vertOffset = verts.size();
         for (std::vector<Vector3>::iterator itr2 = group->Vertices.begin(); itr2 != group->Vertices.end(); ++itr2)
         {
@@ -136,8 +137,9 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
                 tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WMO, itr2->V0 + vertOffset, itr2->V1 + vertOffset, itr2->V2 + vertOffset));
         }
 
-        for (std::vector<WorldModelGroup>::iterator group =  root->Groups.begin(); group != root->Groups.end(); ++group)
+        for (std::vector<WorldModelGroup*>::iterator groupItr =  root->Groups.begin(); groupItr != root->Groups.end(); ++groupItr)
         {
+            WorldModelGroup* group = *groupItr;
             if (!group->HasLiquidData)
                 continue;
 

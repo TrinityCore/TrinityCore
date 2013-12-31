@@ -33,6 +33,11 @@ WorldModelRoot::WorldModelRoot( std::string path )
 WorldModelRoot::~WorldModelRoot()
 {
     delete Data;
+    /* @ToDo: uncomment this once the ~WorldModelGroup() doesn't cause a crash anymore
+    for (std::vector<WorldModelGroup*>::iterator group = Groups.begin(); group != Groups.end(); ++group)
+        delete *group;
+
+    Groups.clear();*/
 }
 
 void WorldModelRoot::ReadGroups()
@@ -46,7 +51,7 @@ void WorldModelRoot::ReadGroups()
         Stream* stream = MPQHandler->GetFile(name);
         if (!stream)
             continue;
-        Groups.emplace_back(WorldModelGroup(stream, name, i)); // @ToDo: Use the real signature of emplace_back with variadic templates once we make the full switch to C++11 (At least Visual Studio 2012)
+        Groups.push_back(new WorldModelGroup(stream, name, i));
     }
 }
 
