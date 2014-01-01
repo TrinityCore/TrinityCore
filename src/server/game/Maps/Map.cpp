@@ -121,11 +121,11 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    bool mmapLoadResult = false;
-    if (GetEntry()->Instanceable())
-        mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), 0, 0); // Ignore the tile entry for instances, as they only have 1 tile.
-    else
-        mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), gx, gy);
+    // Try to load the given grid coordinates first.
+    bool mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), gx, gy);
+
+    if (!mmapLoadResult) // If there was an error, try to load the file [0,0], this case is valid for most instances and a few other maps.
+        mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), 0, 0);
 
     if (mmapLoadResult)
         TC_LOG_INFO("maps", "MMAP loaded name: %s, id: %d, x: %d, y: %d", GetMapName(), GetId(), gx, gy);
