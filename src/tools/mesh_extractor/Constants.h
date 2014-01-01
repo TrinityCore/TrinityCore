@@ -59,6 +59,7 @@ public:
     };
 
     static const float TileSize;
+    static const float TileVoxelSize;
     static const float MaxXY;
     static const float ChunkSize;
     static const float UnitSize;

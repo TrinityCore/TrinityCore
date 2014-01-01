@@ -35,7 +35,7 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
 {
     // Config for normal maps
     memset(&Config, 0, sizeof(rcConfig));
-    Config.cs = Constants::TileSize / 1778.0f; // TileSize / voxelSize
+    Config.cs = Constants::TileSize / Constants::TileVoxelSize; // TileSize / voxelSize
     Config.ch = 0.3f;
     Config.minRegionArea = 36;
     Config.mergeRegionArea = 144;
@@ -275,7 +275,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     bmax[2] += Config.borderSize * Config.cs;
 
     rcHeightfield* hf = rcAllocHeightfield();
-    int width = Config.tileSize + (Config.borderSize * 2);
+    int width = Constants::TileVoxelSize + (Config.borderSize * 2);
     rcCreateHeightfield(Context, *hf, width, width, bmin, bmax, Config.cs, Config.ch);
 
     rcClearUnwalkableTriangles(Context, Config.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
