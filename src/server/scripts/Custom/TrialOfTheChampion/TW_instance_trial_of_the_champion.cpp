@@ -81,6 +81,7 @@ public:
         EventMap events;
 
         bool bDone;
+        bool HasChestSpawned;
 
         void Initialize() OVERRIDE
         {
@@ -106,6 +107,7 @@ public:
             uiArgentChampionGUID          = 0;
 
             bDone = false;
+            HasChestSpawned = false;
 
             VehicleList.clear();
 
@@ -301,10 +303,11 @@ public:
                     } else if (uiData == DONE)
                     {
                         ++uiGrandChampionsDeaths;
-                        if (uiGrandChampionsDeaths >= 3)
+                        if (uiGrandChampionsDeaths >= 3 && !HasChestSpawned)
                         {
                             if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                             {
+                                HasChestSpawned = true;
                                 pAnnouncer->AI()->SetData(DATA_RESET,0);
                                 m_auiEncounter[0] = uiData;
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
