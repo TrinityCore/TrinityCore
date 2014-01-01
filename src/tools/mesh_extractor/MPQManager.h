@@ -29,7 +29,7 @@ class MPQManager
 {
 public:
     MPQManager() {}
-    ~MPQManager() {}
+    ~MPQManager();
 
     void Initialize();
     Stream* GetFile(const std::string& path);

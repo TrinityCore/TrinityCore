@@ -29,6 +29,14 @@ WDT::WDT(std::string file) : IsGlobalModel(false), IsValid(false), Model(NULL)
     ReadGlobalModel();
 }
 
+WDT::~WDT()
+{
+    // Temporarily delete the underlying stream
+    // @TODO: Remove this code once the ChunkedData destructor properly releases _Stream
+    delete Data->_Stream;
+    delete Data;
+}
+
 void WDT::ReadGlobalModel()
 {
     Chunk* fileChunk = Data->GetChunkByName("MWMO");

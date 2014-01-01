@@ -29,6 +29,7 @@ class WDT
 {
 public:
     WDT(std::string file);
+    ~WDT();
 
     ChunkedData* Data;
     std::vector<TilePos> TileTable;

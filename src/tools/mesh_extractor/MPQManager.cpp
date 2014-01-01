@@ -40,6 +40,19 @@ char const* MPQManager::LocalePatchFiles[] = {
 
 char const* MPQManager::Languages[] = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 
+MPQManager::~MPQManager()
+{
+    for (std::map<std::string, DBC*>::iterator itr = LoadedDBCs.begin(); itr != LoadedDBCs.end(); ++itr)
+        delete itr->second;
+    LoadedDBCs.clear();
+
+    for (std::deque<MPQArchive*>::iterator itr = Archives.begin(); itr != Archives.end(); ++itr)
+        delete *itr;
+    Archives.clear();
+    LocaleFiles.clear();
+
+}
+
 void MPQManager::Initialize()
 {
     InitializeDBC();

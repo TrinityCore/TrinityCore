@@ -32,7 +32,11 @@ WorldModelRoot::WorldModelRoot( std::string path )
 
 WorldModelRoot::~WorldModelRoot()
 {
+    // Temporarily delete the underlying stream
+    // @TODO: Remove this code once the ChunkedData destructor properly releases _Stream
+    delete Data->_Stream;
     delete Data;
+
     for (std::vector<WorldModelGroup*>::iterator group = Groups.begin(); group != Groups.end(); ++group)
         delete *group;
 
