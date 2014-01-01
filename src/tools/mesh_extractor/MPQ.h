@@ -36,6 +36,10 @@ public:
     std::vector<std::string> Files;
 
     MPQArchive(const char* filename);
+    ~MPQArchive()
+    {
+        close();
+    }
     void close();
 
     void GetFileListTo(std::vector<std::string>& filelist) {
