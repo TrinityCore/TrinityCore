@@ -61,7 +61,7 @@ void LiquidHandler::HandleNewLiquid()
         H2OInformation information = H2OInformation::Read(stream);
 
         // Load the LiquidTypes DBC
-        DBC const* liquidTypes = MPQHandler->GetDBC("LiquidTypes");
+        DBC const* liquidTypes = MPQHandler->GetDBC("LiquidType");
         Record const* liquid = liquidTypes->GetRecordById(information.LiquidType);
         ASSERT(liquid);
 
