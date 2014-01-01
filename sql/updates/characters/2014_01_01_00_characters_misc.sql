@@ -1,2 +1,1 @@
-ALTER TABLE `guild_rank` CHANGE `rname` `rname` VARCHAR(15) NOT NULL DEFAULT '';
 ALTER TABLE `guild` CHANGE `info` `info` VARCHAR(500) NOT NULL DEFAULT '';
