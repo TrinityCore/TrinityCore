@@ -46,6 +46,7 @@ DBC::DBC(Stream* stream) : StringBlock(NULL), StringBlockSize(0), IsFaulty(true)
         }
     }
     StringBlock = (uint8*)stream->Read(StringBlockSize);
+    delete stream;
 }
 
 DBC::~DBC()
