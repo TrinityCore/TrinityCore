@@ -419,6 +419,13 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     if (_player->GetLootGUID() != lootguid)
         return;
 
+    if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
+    {
+        TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
+        return;
+    }
+
+
     Loot* loot = NULL;
 
     if (IS_CRE_OR_VEH_GUID(GetPlayer()->GetLootGUID()))
