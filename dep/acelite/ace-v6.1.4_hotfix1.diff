@@ -4,7 +4,7 @@ index 0000000..acd3d5a
 --- /dev/null
 +++ b/dep/acelite/ace/CMakeLists.txt
 @@ -0,0 +1,348 @@
-+# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
++# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 +#
 +# This file is free software; as a special exception the author gives
 +# unlimited permission to copy and/or distribute it, with or without

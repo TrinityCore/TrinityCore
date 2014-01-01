@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -193,8 +193,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     {
         if (creature->IsStopped())
             Stop(STOP_TIME_FOR_PLAYER);
-         // Checking just before reaching waypoint gives smother movement than using FinalDestination
-        else if (creature->movespline->timeElapsed() < 150)
+        else if (creature->movespline->Finalized())
         {
             OnArrived(creature);
             return StartMove(creature);
