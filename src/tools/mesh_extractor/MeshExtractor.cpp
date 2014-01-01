@@ -385,8 +385,7 @@ void LoadTile(dtNavMesh*& navMesh, const char* tile)
     if (fread(nav, header.size, 1, f) != 1)
         return;
 
-    navMesh->addTile(nav, header.size, DT_TILE_FREE_DATA, 0, NULL);
-
+    dtStatus status = navMesh->addTile(nav, header.size, DT_TILE_FREE_DATA, 0, NULL);
     fclose(f);
 }
 
@@ -423,8 +422,8 @@ int main(int argc, char* argv[])
 
     if (extractFlags & Constants::EXTRACT_FLAG_TEST)
     {
-        float start[] = { -45.4745407f, -29.5000954f, -21.4456501f };
-        float end[] = { -107.686218f, -32.3544769f, -30.3459435f };
+        float start[] = { -554.538330f, 2211.998779f, 49.802097f };
+        float end[] = { -530.584839f, 2211.550781f, 61.736004f };
 
         //
         float m_spos[3];
@@ -481,8 +480,8 @@ int main(int argc, char* argv[])
 
         float nearestPt[3];
 
-        navMeshQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, nearestPt);
-        navMeshQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, nearestPt);
+        dtStatus status = navMeshQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, nearestPt);
+        status = navMeshQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, nearestPt);
 
         if ( !m_startRef || !m_endRef )
         {
@@ -490,7 +489,6 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        dtStatus status;
         status = navMeshQuery->initSlicedFindPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter);
         while (status != DT_SUCCESS)
             status = navMeshQuery->updateSlicedFindPath(1, 0);
@@ -524,5 +522,8 @@ int main(int argc, char* argv[])
         }*/
     }
 
+    Cache->Clear();
+    delete Cache;
+    delete MPQHandler;
     return 0;
 }

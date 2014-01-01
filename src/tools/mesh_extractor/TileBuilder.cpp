@@ -35,7 +35,7 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
 {
     // Config for normal maps
     memset(&Config, 0, sizeof(rcConfig));
-    Config.cs = Constants::TileSize / 1800.0f; // TileSize / voxelSize
+    Config.cs = Constants::TileSize / 1778.0f; // TileSize / voxelSize
     Config.ch = 0.3f;
     Config.minRegionArea = 36;
     Config.mergeRegionArea = 144;
@@ -47,7 +47,7 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
     Config.walkableRadius = 0.6f;
     Config.maxEdgeLen = Config.walkableRadius * 8;
     Config.borderSize = Config.walkableRadius + 8;
-    Config.tileSize = 1800;
+    Config.tileSize = Constants::TileSize;
     Config.maxSimplificationError = 1.3f;
     Config.maxVertsPerPoly = 6;
 
@@ -357,6 +357,8 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     delete[] areas;
     delete[] bmin;
     delete[] bmax;
+    delete[] bmin2;
+    delete[] bmax2;
 
     if (!params.polyCount || !params.polys || Constants::TilesPerMap * Constants::TilesPerMap == params.polyCount)
     {

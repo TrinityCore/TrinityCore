@@ -30,7 +30,7 @@
     #include <unistd.h>
 #endif
 
-const float Constants::TileSize = 533.0f + (1/3.0f);
+const float Constants::TileSize = 533.0f + (1.0f / 3.0f);
 const float Constants::MaxXY = 32.0f * Constants::TileSize;
 const float Constants::ChunkSize = Constants::TileSize / 16.0f;
 const float Constants::UnitSize = Constants::ChunkSize / 8.0f;
