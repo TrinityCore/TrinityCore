@@ -259,15 +259,14 @@ class TW_boss_eadric : public CreatureScript
 
         void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            uiBasePoints = spell->Effects[0].BasePoints;
-            if (IsHeroic() && !bDone)
-            {
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                    if (spell->Id == SPELL_HAMMER_THROWBACK_DMG && me->GetHealth() <= uiBasePoints)
-                    {
-                        _theFaceRoller = true;
-                        HandleSpellOnPlayersInInstanceToC5(me, SPELL_EADRIC_ACHIEVEMENT);
-                    }
+            if (IsHeroic() && !bDone && spell->Id == SPELL_HAMMER_THROWBACK_DMG && caster->GetTypeId() == TYPEID_PLAYER)
+            {            
+                uiBasePoints = spell->Effects[0].BasePoints;
+                if (me->GetHealth() <= uiBasePoints)
+                {
+                    _theFaceRoller = true;
+                    HandleSpellOnPlayersInInstanceToC5(me, SPELL_EADRIC_ACHIEVEMENT);
+                }
             }
         }
 
