@@ -19,22 +19,18 @@
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
-//Spells
 enum Spells
 {
     SPELL_CORROSIVE_SALIVA                     = 54527,
-    SPELL_OPTIC_LINK                           = 54396
+    SPELL_OPTIC_LINK                           = 54396,
+    SPELL_RAY_OF_PAIN                          = 59525,
+    SPELL_RAY_OF_SUFFERING                     = 54417
 };
 
 class boss_moragg : public CreatureScript
 {
 public:
     boss_moragg() : CreatureScript("boss_moragg") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetInstanceAI<boss_moraggAI>(creature);
-    }
 
     struct boss_moraggAI : public ScriptedAI
     {
@@ -45,6 +41,8 @@ public:
 
         uint32 uiOpticLinkTimer;
         uint32 uiCorrosiveSalivaTimer;
+        uint32 uiRayOfPainTimer;
+        uint32 uiRayOfSufferingTimer;
 
         InstanceScript* instance;
 
@@ -52,25 +50,27 @@ public:
         {
             uiOpticLinkTimer = 10000;
             uiCorrosiveSalivaTimer = 5000;
+            uiRayOfPainTimer = 12000;
+            uiRayOfSufferingTimer = 5000;
 
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_MORAGG_CELL)))
+            if (GameObject* pDoor = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_MORAGG_CELL)))
                 if (pDoor->GetGoState() == GO_STATE_READY)
                 {
                     EnterEvadeMode();
                     return;
                 }
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -89,7 +89,6 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-
         void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
@@ -105,27 +104,47 @@ public:
 
             if (uiCorrosiveSalivaTimer <= diff)
             {
-                DoCastVictim(SPELL_CORROSIVE_SALIVA);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_CORROSIVE_SALIVA);
                 uiCorrosiveSalivaTimer = 10000;
             } else uiCorrosiveSalivaTimer -= diff;
 
+            if (uiRayOfPainTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_RAY_OF_PAIN);
+                uiRayOfPainTimer = 4000;
+            } else uiRayOfPainTimer -= diff;
+
+            if (uiRayOfSufferingTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_RAY_OF_SUFFERING);
+                uiRayOfSufferingTimer = urand(3000, 5000);
+            } else uiRayOfSufferingTimer -= diff;
+
             DoMeleeAttackIfReady();
         }
+
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 7);
             }
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
             {
-                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetInstanceAI<boss_moraggAI>(creature);
+    }
 };
 
 void AddSC_boss_moragg()
