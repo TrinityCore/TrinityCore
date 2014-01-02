@@ -451,14 +451,18 @@ Spell* Eluna::CHECK_SPELL(lua_State* L, int narg)
 
 uint64 Eluna::CHECK_ULONG(lua_State* L, int narg)
 {
+    uint64 l = 0;
     const char* c_str = luaL_optstring(L, narg, "0x0");
-    return strtoul(c_str, NULL, 0);
+    sscanf(c_str, "%I64X", &l);
+    return l;
 }
 
 int64 Eluna::CHECK_LONG(lua_State* L, int narg)
 {
+    int64 l = 0;
     const char* c_str = luaL_optstring(L, narg, "0x0");
-    return strtol(c_str, NULL, 0);
+    sscanf(c_str, "%I64X", &l);
+    return l;
 }
 
 Item* Eluna::CHECK_ITEM(lua_State* L, int narg)
