@@ -315,7 +315,7 @@ private:
 
         bool LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data) const;
+        void WritePacket(WorldPacket& data, bool sendOfficerNote) const;
 
         uint64 GetGUID() const { return m_guid; }
         std::string const& GetName() const { return m_name; }

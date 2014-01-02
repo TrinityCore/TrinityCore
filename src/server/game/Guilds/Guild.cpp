@@ -701,7 +701,7 @@ bool Guild::Member::CheckStats() const
     return true;
 }
 
-void Guild::Member::WritePacket(WorldPacket& data) const
+void Guild::Member::WritePacket(WorldPacket& data, bool sendOfficerNote) const
 {
     data << uint64(m_guid)
          << uint8(m_flags)
@@ -715,8 +715,12 @@ void Guild::Member::WritePacket(WorldPacket& data) const
     if (!m_flags)
         data << float(float(::time(NULL) - m_logoutTime) / DAY);
 
-    data << m_publicNote
-         << m_officerNote;
+    data << m_publicNote;
+
+    if (sendOfficerNote)
+        data << m_officerNote;
+    else
+        data << "";
 }
 
 // Decreases amount of money/slots left for today.
@@ -1312,7 +1316,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         ritr->WritePacket(data);
 
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-        itr->second->WritePacket(data);
+        itr->second->WritePacket(data, _HasRankRight(session->GetPlayer(), GR_RIGHT_VIEWOFFNOTE));
 
     if (session)
     {
