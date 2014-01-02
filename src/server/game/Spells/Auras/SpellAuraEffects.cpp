@@ -5601,6 +5601,21 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                     case 46736:
                         triggerSpellId = 46737;
                         break;
+                    case 65418:					//Well Fed - Candied Sweet Potatoes
+						triggerSpellId = 65410;	//Haste and Stamina increased for 1 hour
+						break;
+					case 65419:					//Well Fed - Spice Bread Stuffing
+						triggerSpellId = 65416;	//Hit and Stamina increased for 1 hour
+						break;
+					case 65420:					//Well Fed - Cranberry Chutney
+						triggerSpellId = 65412;	//Spell power and Stamina increased for 1 hour
+						break;
+					case 65421:					//Well Fed - Pumpkin Pie
+						triggerSpellId = 65415;	//Spirit and Stamina increased for 1 hour
+						break;
+					case 65422:					//Well Fed - Slow-Roasted Turkey
+						triggerSpellId = 65414;	//Attack power and Stamina increased for 1 hour
+						break;
                 }
                 break;
             }
