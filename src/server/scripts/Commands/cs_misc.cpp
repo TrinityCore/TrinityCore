@@ -808,12 +808,16 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-            sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
-        else
-            handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+        char const* kickReason = strtok(NULL, "\r");
+        std::string kickReasonStr = "No reason";
+        if (kickReason != NULL)
+            kickReasonStr = kickReason;
 
-        target->GetSession()->KickPlayer();
+            if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+                sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
+            else
+                handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+                target->GetSession()->KickPlayer();
 
         return true;
     }
@@ -1835,7 +1839,17 @@ public:
             int64 muteTime = time(NULL) + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
-            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
+            std::string nameLink = handler->playerLink(targetName);
+            
+            if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
+            {
+                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
+            }
+            else
+            {
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
+            }
         }
         else
         {
@@ -1850,8 +1864,10 @@ public:
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
-        handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
-
+            if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
+                sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, handler->GetSession()->GetPlayerName().c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
+            else
+                handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
         return true;
     }
 
