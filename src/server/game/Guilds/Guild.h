@@ -658,6 +658,8 @@ public:
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
 
+    uint32 GetMemberSize() const { return m_members.size(); }
+
     bool SetName(std::string const& name);
 
     // Handle client commands
