@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -111,8 +111,7 @@ class boss_halazzi : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
+                instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
 
                 LynxGUID = 0;
                 TransformCount = 0;
@@ -127,8 +126,7 @@ class boss_halazzi : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
+                instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
                 me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_AGGRO);
@@ -333,8 +331,7 @@ class boss_halazzi : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HALAZZIEVENT, DONE);
+                instance->SetData(DATA_HALAZZIEVENT, DONE);
 
                 me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_DEATH);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -130,16 +130,14 @@ public:
             Earthquake = false;
             Phase2 = false;
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
         }
 
         void StartEvent()
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -151,8 +149,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE

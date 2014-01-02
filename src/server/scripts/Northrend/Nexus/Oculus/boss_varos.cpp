@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -217,17 +217,14 @@ class npc_azure_ring_captain : public CreatureScript
                 switch (action)
                 {
                    case ACTION_CALL_DRAGON_EVENT:
-                        if (instance)
+                        if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROS)))
                         {
-                            if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROS)))
+                            if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                {
-                                    me->SetReactState(REACT_PASSIVE);
-                                    me->SetWalk(false);
-                                    me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 20.0f);
-                                    targetGUID = victim->GetGUID();
-                                }
+                                me->SetReactState(REACT_PASSIVE);
+                                me->SetWalk(false);
+                                me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 20.0f);
+                                targetGUID = victim->GetGUID();
                             }
                         }
                         break;

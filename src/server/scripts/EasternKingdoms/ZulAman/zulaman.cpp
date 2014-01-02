@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -74,33 +74,30 @@ class npc_forest_frog : public CreatureScript
 
             void DoSpawnRandom()
             {
-                if (instance)
+                uint32 cEntry = 0;
+                switch (rand()%10)
                 {
-                    uint32 cEntry = 0;
-                    switch (rand()%10)
-                    {
-                        case 0: cEntry = 24397; break;          //Mannuth
-                        case 1: cEntry = 24403; break;          //Deez
-                        case 2: cEntry = 24404; break;          //Galathryn
-                        case 3: cEntry = 24405; break;          //Adarrah
-                        case 4: cEntry = 24406; break;          //Fudgerick
-                        case 5: cEntry = 24407; break;          //Darwen
-                        case 6: cEntry = 24445; break;          //Mitzi
-                        case 7: cEntry = 24448; break;          //Christian
-                        case 8: cEntry = 24453; break;          //Brennan
-                        case 9: cEntry = 24455; break;          //Hollee
-                    }
-
-                    if (!instance->GetData(TYPE_RAND_VENDOR_1))
-                        if (rand()%10 == 1) cEntry = 24408;      //Gunter
-                    if (!instance->GetData(TYPE_RAND_VENDOR_2))
-                        if (rand()%10 == 1) cEntry = 24409;      //Kyren
-
-                    if (cEntry) me->UpdateEntry(cEntry);
-
-                    if (cEntry == 24408) instance->SetData(TYPE_RAND_VENDOR_1, DONE);
-                    if (cEntry == 24409) instance->SetData(TYPE_RAND_VENDOR_2, DONE);
+                    case 0: cEntry = 24397; break;          //Mannuth
+                    case 1: cEntry = 24403; break;          //Deez
+                    case 2: cEntry = 24404; break;          //Galathryn
+                    case 3: cEntry = 24405; break;          //Adarrah
+                    case 4: cEntry = 24406; break;          //Fudgerick
+                    case 5: cEntry = 24407; break;          //Darwen
+                    case 6: cEntry = 24445; break;          //Mitzi
+                    case 7: cEntry = 24448; break;          //Christian
+                    case 8: cEntry = 24453; break;          //Brennan
+                    case 9: cEntry = 24455; break;          //Hollee
                 }
+
+                if (!instance->GetData(TYPE_RAND_VENDOR_1))
+                    if (rand()%10 == 1) cEntry = 24408;      //Gunter
+                if (!instance->GetData(TYPE_RAND_VENDOR_2))
+                    if (rand()%10 == 1) cEntry = 24409;      //Kyren
+
+                if (cEntry) me->UpdateEntry(cEntry);
+
+                if (cEntry == 24408) instance->SetData(TYPE_RAND_VENDOR_1, DONE);
+                if (cEntry == 24409) instance->SetData(TYPE_RAND_VENDOR_2, DONE);
             }
 
             void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
@@ -320,8 +317,7 @@ class npc_harrison_jones : public CreatureScript
                     me->SetTarget(0);
                     me->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_DEAD);
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                    if (instance)
-                        instance->SetData(DATA_GONGEVENT, DONE);
+                    instance->SetData(DATA_GONGEVENT, DONE);
                 }
             }
 
@@ -331,9 +327,6 @@ class npc_harrison_jones : public CreatureScript
                 {
                     if (_gongTimer <= diff)
                     {
-                        if (!instance)
-                            return;
-
                         switch (_gongEvent)
                         {
                             case GONG_EVENT_1:

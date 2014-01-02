@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -116,8 +116,7 @@ class boss_jaraxxus : public CreatureScript
             void JustReachedHome() OVERRIDE
             {
                 _JustReachedHome();
-                if (instance)
-                    instance->SetBossState(BOSS_JARAXXUS, FAIL);
+                instance->SetBossState(BOSS_JARAXXUS, FAIL);
                 DoCast(me, SPELL_JARAXXUS_CHAINS);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -127,8 +126,7 @@ class boss_jaraxxus : public CreatureScript
                 if (who->GetTypeId() == TYPEID_PLAYER)
                 {
                     Talk(SAY_KILL_PLAYER);
-                    if (instance)
-                        instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
+                    instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
                 }
             }
 

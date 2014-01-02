@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -405,9 +405,8 @@ public:
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {
-            if (instance)
-                if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
-                    summoned->AI()->AttackStart(Target);
+            if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+                summoned->AI()->AttackStart(Target);
 
             Summons.Summon(summoned);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -167,8 +167,7 @@ public:
         {
             Talk(SAY_DOROTHEE_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -366,8 +365,7 @@ public:
         {
             Talk(SAY_STRAWMAN_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -472,8 +470,7 @@ public:
         {
             Talk(SAY_TINHEAD_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -580,8 +577,7 @@ public:
         {
             Talk(SAY_ROAR_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -675,15 +671,12 @@ public:
         {
             Talk(SAY_CRONE_DEATH);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -865,15 +858,12 @@ public:
         {
             DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -1112,14 +1102,11 @@ public:
         {
             Talk(SAY_JULIANNE_DEATH02);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -1267,15 +1254,12 @@ public:
         {
             Talk(SAY_ROMULO_DEATH);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,14 +65,12 @@ public:
 
             bBerserk = false;
 
-            if (instance)
-                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
+            instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -127,8 +125,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
+            instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
         }
     };
 
@@ -155,12 +152,9 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
-                if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
-                    me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
-            }
+            instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
+            if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
+                me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
         }
     };
 

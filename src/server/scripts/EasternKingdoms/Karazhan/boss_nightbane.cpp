@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -131,13 +131,10 @@ public:
             me->SetWalk(false);
             me->setActive(true);
 
-            if (instance)
-            {
-                if (instance->GetData(TYPE_NIGHTBANE) == DONE || instance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
-                    me->DisappearAndDie();
-                else
-                    instance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
-            }
+            if (instance->GetData(TYPE_NIGHTBANE) == DONE || instance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
+                me->DisappearAndDie();
+            else
+                instance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
 
             HandleTerraceDoors(true);
 
@@ -153,17 +150,13 @@ public:
 
         void HandleTerraceDoors(bool open)
         {
-            if (instance)
-            {
-                instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
-                instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
-            }
+            instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
+            instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
+            instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
 
             HandleTerraceDoors(false);
            Talk(YELL_AGGRO);
@@ -177,8 +170,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(TYPE_NIGHTBANE, DONE);
+            instance->SetData(TYPE_NIGHTBANE, DONE);
 
             HandleTerraceDoors(true);
         }

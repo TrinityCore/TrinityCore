@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -152,9 +152,6 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (!instance)
-                return;
-
             switch (waypointId)
             {
                 case 4:
@@ -194,13 +191,10 @@ public:
 
         void JustDied(Unit* /*slayer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(TYPE_NARALEX_EVENT, FAIL);
-                instance->SetData(TYPE_NARALEX_PART1, FAIL);
-                instance->SetData(TYPE_NARALEX_PART2, FAIL);
-                instance->SetData(TYPE_NARALEX_PART3, FAIL);
-            }
+            instance->SetData(TYPE_NARALEX_EVENT, FAIL);
+            instance->SetData(TYPE_NARALEX_PART1, FAIL);
+            instance->SetData(TYPE_NARALEX_PART2, FAIL);
+            instance->SetData(TYPE_NARALEX_PART3, FAIL);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE
@@ -213,8 +207,6 @@ public:
             if (currentEvent != TYPE_NARALEX_PART3)
                 npc_escortAI::UpdateAI(diff);
 
-            if (!instance)
-                return;
             if (eventTimer <= diff)
             {
                 eventTimer = 0;

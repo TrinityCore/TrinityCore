@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,8 +95,7 @@ public:
 
             RemovePrison(CheckContainmentSpheres());
 
-            if (instance)
-                instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
+            instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -104,16 +103,14 @@ public:
             Talk(SAY_AGGRO);
             DoCastAOE(SPELL_INTENSE_COLD);
 
-            if (instance)
-                instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
+            instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* who) OVERRIDE
@@ -124,9 +121,6 @@ public:
 
         bool CheckContainmentSpheres(bool remove_prison = false)
         {
-            if (!instance)
-                return false;
-
             auiContainmentSphereGUIDs[0] = instance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
             auiContainmentSphereGUIDs[1] = instance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
             auiContainmentSphereGUIDs[2] = instance->GetData64(TELESTRAS_CONTAINMET_SPHERE);

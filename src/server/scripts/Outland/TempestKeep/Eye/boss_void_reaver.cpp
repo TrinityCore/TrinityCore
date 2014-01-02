@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -91,16 +91,14 @@ class boss_void_reaver : public CreatureScript
                 Talk(SAY_DEATH);
                 DoZoneInCombat();
 
-                if (instance)
-                    instance->SetData(DATA_VOIDREAVEREVENT, DONE);
+                instance->SetData(DATA_VOIDREAVEREVENT, DONE);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
 
-                if (instance)
-                    instance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
+                instance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE

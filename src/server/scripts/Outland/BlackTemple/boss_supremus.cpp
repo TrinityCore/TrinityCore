@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -107,11 +107,8 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-            {
-                if (me->IsAlive())
-                    instance->SetBossState(DATA_SUPREMUS, NOT_STARTED);
-            }
+            if (me->IsAlive())
+                instance->SetBossState(DATA_SUPREMUS, NOT_STARTED);
 
             phase = 0;
 
@@ -121,8 +118,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_SUPREMUS, IN_PROGRESS);
+            instance->SetBossState(DATA_SUPREMUS, IN_PROGRESS);
 
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
@@ -158,8 +154,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_SUPREMUS, DONE);
+            instance->SetBossState(DATA_SUPREMUS, DONE);
 
             summons.DespawnAll();
         }

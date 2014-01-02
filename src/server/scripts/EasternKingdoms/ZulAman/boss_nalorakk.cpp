@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -148,8 +148,7 @@ class boss_nalorakk : public CreatureScript
                     (*me).GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);
                 }
 
-                if (instance)
-                    instance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
+                instance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
 
                 Surge_Timer = urand(15000, 20000);
                 BrutalSwipe_Timer = urand(7000, 12000);
@@ -275,8 +274,7 @@ class boss_nalorakk : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
+                instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
 
                 me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
@@ -285,8 +283,7 @@ class boss_nalorakk : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_NALORAKKEVENT, DONE);
+                instance->SetData(DATA_NALORAKKEVENT, DONE);
 
                 me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);

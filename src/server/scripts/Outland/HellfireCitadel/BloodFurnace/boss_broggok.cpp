@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,8 +71,7 @@ class boss_broggok : public CreatureScript
                 PoisonSpawn_Timer = 5000;
                 PoisonBolt_Timer = 7000;
                 DoAction(ACTION_RESET_BROGGOK);
-                if (instance)
-                    instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
+                instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -123,12 +122,9 @@ class boss_broggok : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                {
-                    instance->HandleGameObject(instance->GetData64(DATA_DOOR4), true);
-                    instance->HandleGameObject(instance->GetData64(DATA_DOOR5), true);
-                    instance->SetData(TYPE_BROGGOK_EVENT, DONE);
-                }
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR4), true);
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR5), true);
+                instance->SetData(TYPE_BROGGOK_EVENT, DONE);
             }
 
             void DoAction(int32 action) OVERRIDE

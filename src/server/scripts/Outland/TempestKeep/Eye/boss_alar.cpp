@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,8 +109,7 @@ class boss_alar : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ALAREVENT, NOT_STARTED);
+                instance->SetData(DATA_ALAREVENT, NOT_STARTED);
 
                 Berserk_Timer = 1200000;
                 Platforms_Move_Timer = 0;
@@ -136,8 +135,7 @@ class boss_alar : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ALAREVENT, IN_PROGRESS);
+                instance->SetData(DATA_ALAREVENT, IN_PROGRESS);
 
                 me->SetDisableGravity(true); // after enterevademode will be set walk movement
                 DoZoneInCombat();
@@ -146,8 +144,7 @@ class boss_alar : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ALAREVENT, DONE);
+                instance->SetData(DATA_ALAREVENT, DONE);
             }
 
             void JustSummoned(Creature* summon) OVERRIDE

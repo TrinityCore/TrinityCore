@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,8 +64,7 @@ public:
         boss_salrammAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            if (instance)
-                Talk(SAY_SPAWN);
+            Talk(SAY_SPAWN);
         }
 
         uint32 uiCurseFleshTimer;
@@ -84,16 +83,14 @@ public:
              uiStealFleshTimer = 12345;
              uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
 
-             if (instance)
-                 instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
+             instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                 instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -142,8 +139,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_SALRAMM_EVENT, DONE);
+            instance->SetData(DATA_SALRAMM_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

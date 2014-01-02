@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -78,26 +78,23 @@ public:
             HolyLight_Timer = 20000;
             DivineShield_Timer = 20000;
 
-            if (instance)
+            switch (me->GetEntry())
             {
-                switch (me->GetEntry())
-                {
-                    case SH_AELMAR:
-                        instance->SetData(TYPE_SH_AELMAR, 0);
-                        break;
-                    case SH_CATHELA:
-                        instance->SetData(TYPE_SH_CATHELA, 0);
-                        break;
-                    case SH_GREGOR:
-                        instance->SetData(TYPE_SH_GREGOR, 0);
-                        break;
-                    case SH_NEMAS:
-                        instance->SetData(TYPE_SH_NEMAS, 0);
-                        break;
-                    case SH_VICAR:
-                        instance->SetData(TYPE_SH_VICAR, 0);
-                        break;
-                }
+                case SH_AELMAR:
+                    instance->SetData(TYPE_SH_AELMAR, 0);
+                    break;
+                case SH_CATHELA:
+                    instance->SetData(TYPE_SH_CATHELA, 0);
+                    break;
+                case SH_GREGOR:
+                    instance->SetData(TYPE_SH_GREGOR, 0);
+                    break;
+                case SH_NEMAS:
+                    instance->SetData(TYPE_SH_NEMAS, 0);
+                    break;
+                case SH_VICAR:
+                    instance->SetData(TYPE_SH_VICAR, 0);
+                    break;
             }
         }
 
@@ -107,9 +104,6 @@ public:
 
         void JustDied(Unit* killer) OVERRIDE
         {
-            if (!instance)
-                return;
-
             switch (me->GetEntry())
             {
                 case SH_AELMAR:

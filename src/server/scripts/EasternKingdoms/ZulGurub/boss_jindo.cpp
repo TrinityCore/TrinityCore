@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -217,12 +217,9 @@ class npc_healing_ward : public CreatureScript
                 //Heal_Timer
                 if (Heal_Timer <= diff)
                 {
-                    if (instance)
-                    {
-                        Unit* pJindo = Unit::GetUnit(*me, instance->GetData64(DATA_JINDO));
-                        if (pJindo)
-                            DoCast(pJindo, SPELL_HEAL);
-                    }
+                    Unit* pJindo = Unit::GetUnit(*me, instance->GetData64(DATA_JINDO));
+                    if (pJindo)
+                        DoCast(pJindo, SPELL_HEAL);
                     Heal_Timer = 3000;
                 } else Heal_Timer -= diff;
 

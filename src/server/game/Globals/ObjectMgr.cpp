@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -7049,9 +7049,13 @@ void ObjectMgr::LoadQuestPOI()
         uint32 unk4               = fields[7].GetUInt32();
 
         QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
-        POI.points = POIs[questId][id];
-
-        _questPOIStore[questId].push_back(POI);
+        if (questId < POIs.size() && id < POIs[questId].size())
+        {
+            POI.points = POIs[questId][id];
+            _questPOIStore[questId].push_back(POI);
+        }
+        else
+            TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %u POI id %u", questId, id);
 
         ++count;
     } while (result->NextRow());
@@ -8528,7 +8532,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor FROM creature_classlevelstats");
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8551,6 +8555,12 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         stats.BaseMana = fields[5].GetInt16();
         stats.BaseArmor = fields[6].GetInt16();
+
+        stats.AttackPower = fields[7].GetInt16();
+        stats.RangedAttackPower = fields[8].GetInt16();
+
+        for (uint8 i = 0; i < MAX_CREATURE_BASE_DAMAGE; ++i)
+            stats.BaseDamage[i] = fields[i + 9].GetFloat();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             TC_LOG_ERROR("sql.sql", "Creature base stats for level %u has invalid class %u", Level, Class);

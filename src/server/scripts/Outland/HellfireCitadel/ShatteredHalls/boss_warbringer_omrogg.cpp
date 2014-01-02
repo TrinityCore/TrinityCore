@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -167,8 +167,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 ThunderClap_Timer = 15000;
                 ResetThreat_Timer = 30000;
 
-                if (instance)
-                    instance->SetData(DATA_OMROGG, NOT_STARTED);   //End boss can use this later. O'mrogg must be defeated(DONE) or he will come to aid.
+                instance->SetData(DATA_OMROGG, NOT_STARTED);   //End boss can use this later. O'mrogg must be defeated(DONE) or he will come to aid.
             }
 
             void DoYellForThreat()
@@ -204,8 +203,7 @@ class boss_warbringer_omrogg : public CreatureScript
                     AggroYell = true;
                 }
 
-                if (instance)
-                    instance->SetBossState(DATA_OMROGG, IN_PROGRESS);
+                instance->SetBossState(DATA_OMROGG, IN_PROGRESS);
             }
 
             void JustSummoned(Creature* summoned) OVERRIDE
@@ -259,8 +257,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 RightHead->AI()->SetData(SETDATA_DATA, SETDATA_YELL);
 
-                if (instance)
-                    instance->SetBossState(DATA_OMROGG, DONE);
+                instance->SetBossState(DATA_OMROGG, DONE);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE

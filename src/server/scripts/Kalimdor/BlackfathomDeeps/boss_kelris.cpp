@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,22 +55,19 @@ public:
         {
             mindBlastTimer = urand(2000, 5000);
             sleepTimer = urand(9000, 12000);
-            if (instance)
-                instance->SetData(TYPE_KELRIS, NOT_STARTED);
+            instance->SetData(TYPE_KELRIS, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetData(TYPE_KELRIS, IN_PROGRESS);
+            instance->SetData(TYPE_KELRIS, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-            if (instance)
-                instance->SetData(TYPE_KELRIS, DONE);
+            instance->SetData(TYPE_KELRIS, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

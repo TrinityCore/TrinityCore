@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -161,8 +161,7 @@ class boss_majordomo : public CreatureScript
                                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 break;
                             case EVENT_OUTRO_2:
-                                if (instance)
-                                    instance->instance->SummonCreature(NPC_RAGNAROS, RagnarosSummonPos);
+                                instance->instance->SummonCreature(NPC_RAGNAROS, RagnarosSummonPos);
                                 break;
                             case EVENT_OUTRO_3:
                                 Talk(SAY_ARRIVAL2_MAJ);

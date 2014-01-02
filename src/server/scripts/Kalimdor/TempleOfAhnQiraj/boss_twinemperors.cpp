@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,10 +103,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     Creature* GetOtherBoss()
     {
-        if (instance)
-            return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
-        else
-            return NULL;
+        return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
     }
 
     void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
@@ -210,9 +207,6 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void TeleportToMyBrother()
     {
-        if (!instance)
-            return;
-
         Teleport_Timer = TELEPORTTIME;
 
         if (IAmVeklor())

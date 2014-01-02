@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -113,8 +113,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_MOTHER_SHAHRAZ, NOT_STARTED);
+            instance->SetBossState(DATA_MOTHER_SHAHRAZ, NOT_STARTED);
 
             for (uint8 i = 0; i<3; ++i)
                 TargetGUID[i] = 0;
@@ -136,8 +135,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_MOTHER_SHAHRAZ, IN_PROGRESS);
+            instance->SetBossState(DATA_MOTHER_SHAHRAZ, IN_PROGRESS);
 
             DoZoneInCombat();
             Talk(SAY_AGGRO);
@@ -150,8 +148,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_MOTHER_SHAHRAZ, DONE);
+            instance->SetBossState(DATA_MOTHER_SHAHRAZ, DONE);
 
             Talk(SAY_DEATH);
         }

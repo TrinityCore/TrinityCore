@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -376,8 +376,7 @@ public:
 
             SetPhase(PHASE_NOT_STARTED, true);
             me->SetReactState(REACT_PASSIVE);
-            if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         uint32 GetData(uint32 data) const OVERRIDE
@@ -568,27 +567,22 @@ public:
             // We can't call full function here since it includes DoZoneInCombat(),
             // if someone does it will be returned with a warning.
             me->setActive(true);
-            if (instance)
+            if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
             {
-                if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-
-                instance->SetBossState(DATA_MALYGOS_EVENT, IN_PROGRESS);
+                EnterEvadeMode();
+                return;
             }
+
+            instance->SetBossState(DATA_MALYGOS_EVENT, IN_PROGRESS);
 
             Talk(SAY_START_P_ONE);
             DoCast(SPELL_BERSERK); // periodic aura, first tick in 10 minutes
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void EnterEvadeMode() OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
+            instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
 
             SendLightOverride(LIGHT_GET_DEFAULT_FOR_MAP, 1*IN_MILLISECONDS);
 
@@ -628,8 +622,7 @@ public:
                     summons.DespawnAll();
             }
 
-            if (instance)
-                instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

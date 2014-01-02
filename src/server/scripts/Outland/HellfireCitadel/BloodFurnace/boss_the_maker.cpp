@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,9 +72,6 @@ class boss_the_maker : public CreatureScript
                 Domination_Timer = 120000;
                 Knockdown_Timer = 10000;
 
-                if (!instance)
-                    return;
-
                 instance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
             }
@@ -82,9 +79,6 @@ class boss_the_maker : public CreatureScript
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
-
-                if (!instance)
-                    return;
 
                 instance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), false);
@@ -98,9 +92,6 @@ class boss_the_maker : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DIE);
-
-                if (!instance)
-                    return;
 
                 instance->SetData(TYPE_THE_MAKER_EVENT, DONE);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);

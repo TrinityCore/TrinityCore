@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,8 +153,7 @@ public:
         //this mean she at some point evaded
         void JustReachedHome() OVERRIDE
         {
-            if (instance)
-                 instance->SetData(DATA_DELRISSA_EVENT, FAIL);
+            instance->SetData(DATA_DELRISSA_EVENT, FAIL);
         }
 
         void EnterCombat(Unit* who) OVERRIDE
@@ -173,8 +172,7 @@ public:
                 }
             }
 
-            if (instance)
-                instance->SetData(DATA_DELRISSA_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_DELRISSA_EVENT, IN_PROGRESS);
         }
 
         void InitializeLackeys()
@@ -240,9 +238,6 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-
-            if (!instance)
-                return;
 
             if (instance->GetData(DATA_DELRISSA_DEATH_COUNT) == MAX_ACTIVE_LACKEY)
                 instance->SetData(DATA_DELRISSA_EVENT, DONE);
@@ -393,36 +388,30 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!who)
             return;
 
-        if (instance)
+        for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
         {
-            for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
+            if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUIDs[i]))
             {
-                if (Unit* pAdd = Unit::GetUnit(*me, m_auiLackeyGUIDs[i]))
+                if (!pAdd->GetVictim() && pAdd != me)
                 {
-                    if (!pAdd->GetVictim() && pAdd != me)
-                    {
-                        who->SetInCombatWith(pAdd);
-                        pAdd->AddThreat(who, 0.0f);
-                    }
+                    who->SetInCombatWith(pAdd);
+                    pAdd->AddThreat(who, 0.0f);
                 }
             }
+        }
 
-            if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+        if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+        {
+            if (pDelrissa->IsAlive() && !pDelrissa->GetVictim())
             {
-                if (pDelrissa->IsAlive() && !pDelrissa->GetVictim())
-                {
-                    who->SetInCombatWith(pDelrissa);
-                    pDelrissa->AddThreat(who, 0.0f);
-                }
+                who->SetInCombatWith(pDelrissa);
+                pDelrissa->AddThreat(who, 0.0f);
             }
         }
     }
 
     void JustDied(Unit* /*killer*/) OVERRIDE
     {
-        if (!instance)
-            return;
-
         Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA));
         uint32 uiLackeyDeathCount = instance->GetData(DATA_DELRISSA_DEATH_COUNT);
 
@@ -452,18 +441,12 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void KilledUnit(Unit* victim) OVERRIDE
     {
-        if (!instance)
-            return;
-
         if (Creature* Delrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
             Delrissa->AI()->KilledUnit(victim);
     }
 
     void AcquireGUIDs()
     {
-        if (!instance)
-            return;
-
         if (Creature* Delrissa = (Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA))))
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)

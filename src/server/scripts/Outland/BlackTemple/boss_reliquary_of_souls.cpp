@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -158,8 +158,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, NOT_STARTED);
+            instance->SetBossState(DATA_RELIQUARY_OF_SOULS, NOT_STARTED);
 
             if (EssenceGUID)
             {
@@ -197,8 +196,7 @@ public:
         {
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
-            if (instance)
-                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, IN_PROGRESS);
+            instance->SetBossState(DATA_RELIQUARY_OF_SOULS, IN_PROGRESS);
 
             Phase = 1;
             Counter = 0;
@@ -243,8 +241,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_RELIQUARY_OF_SOULS, DONE);
+            instance->SetBossState(DATA_RELIQUARY_OF_SOULS, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

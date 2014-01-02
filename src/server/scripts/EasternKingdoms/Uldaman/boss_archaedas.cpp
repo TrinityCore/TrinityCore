@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,8 +86,7 @@ class boss_archaedas : public CreatureScript
                 bGuardiansAwake = false;
                 bVaultWalkersAwake = false;
 
-                if (instance)
-                    instance->SetData(0, 5);    // respawn any dead minions
+                instance->SetData(0, 5);    // respawn any dead minions
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -132,8 +131,6 @@ class boss_archaedas : public CreatureScript
 
             void UpdateAI(uint32 uiDiff) OVERRIDE
             {
-                if (!instance)
-                    return;
                 // we're still doing awaken animation
                 if (bWakingUp && iAwakenTimer >= 0)
                 {
@@ -196,11 +193,8 @@ class boss_archaedas : public CreatureScript
 
             void JustDied (Unit* /*killer*/)
             {
-                if (instance)
-                {
-                    instance->SetData(DATA_ANCIENT_DOOR, DONE);      // open the vault door
-                    instance->SetData(DATA_MINIONS, SPECIAL);        // deactivate his minions
-                }
+                instance->SetData(DATA_ANCIENT_DOOR, DONE);      // open the vault door
+                instance->SetData(DATA_MINIONS, SPECIAL);        // deactivate his minions
             }
         };
 
@@ -361,8 +355,7 @@ class npc_stonekeepers : public CreatureScript
             void JustDied(Unit* /*attacker*/) OVERRIDE
             {
                 DoCast (me, SPELL_SELF_DESTRUCT, true);
-                if (instance)
-                    instance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS);    // activate next stonekeeper
+                instance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS);    // activate next stonekeeper
             }
         };
 

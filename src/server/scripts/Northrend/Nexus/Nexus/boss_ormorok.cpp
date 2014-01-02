@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,8 +88,7 @@ public:
 
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) OVERRIDE
@@ -108,8 +107,7 @@ public:
 
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_ORMOROK_EVENT, DONE);
+            instance->SetData(DATA_ORMOROK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* who) OVERRIDE
