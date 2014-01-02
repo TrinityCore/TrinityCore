@@ -661,7 +661,7 @@ public:
     bool SetName(std::string const& name);
 
     // Handle client commands
-    void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
+    void HandleRoster(WorldSession* session);
     void HandleQuery(WorldSession* session);
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);
