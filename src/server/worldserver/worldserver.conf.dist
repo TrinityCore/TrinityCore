@@ -2560,6 +2560,23 @@ Guild.AllowMultipleGuildMaster = 0
 
 ShowKickInWorld = 0
 
+#     ShowMuteInWorld
+#        Description: Determines whether a message is broadcasted to the entire server when a
+#                     player gets muted.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+ShowMuteInWorld = 0
+
+#
+#     ShowBanInWorld
+#        Description: Determines whether a message is broadcasted to the entire server when a
+#                     player gets banned.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+ShowBanInWorld = 0
+
 #
 #     RecordUpdateTimeDiffInterval
 #        Description: Time (in milliseconds) update time diff is written to the log file.
