@@ -288,7 +288,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RegisterEvent", &LuaUnit::RegisterEvent},             // :RegisterEvent(function, delay, calls)
     {"RemoveEventById", &LuaUnit::RemoveEventById},         // :RemoveEventById(eventID)
     {"RemoveEvents", &LuaUnit::RemoveEvents},               // :RemoveEvents()
-    //{"AddAura", &LuaUnit::AddAura},                       // :AddAura(spellId, target) - Adds an aura to the specified target
+    {"AddAura", &LuaUnit::AddAura},                         // :AddAura(spellId, target) - Adds an aura to the specified target
     {"RemoveAura", &LuaUnit::RemoveAura},                   // :RemoveAura(spellId[, casterGUID]) - Removes an aura from the unit by the spellId, casterGUID(Original caster) is optional
     {"RemoveAllAuras", &LuaUnit::RemoveAllAuras},           // :RemoveAllAuras() - Removes all the unit's auras
     {"ClearInCombat", &LuaUnit::ClearInCombat},             // :ClearInCombat() - Clears the unit's combat list (unit will be out of combat), resets the timer to 0, etc
@@ -503,7 +503,7 @@ ElunaRegister<Player> PlayerMethods[] =
     {"HasSpellCooldown", &LuaPlayer::HasSpellCooldown},     // :HasSpellCooldown(spellId) - Returns true if the spell is on cooldown
     {"IsInWater", &LuaPlayer::IsInWater},                   // :IsInWater() - Returns true if the player is in water
     {"CanFly", &LuaPlayer::CanFly},                         // :CanFly() - Returns true if the player can fly
-    // {"HasAura", &LuaPlayer::HasAura},                    // :HasAura(spellId[, caster]) - Returns true if the unit has the aura from the spell and casted by the caster if provided
+    {"HasAura", &LuaPlayer::HasAura},                       // :HasAura(spellId) - Returns true if the unit has the aura from the spell
 
     // Gossip
     {"GossipMenuAddItem", &LuaPlayer::GossipMenuAddItem},   // :GossipMenuAddItem(icon, msg, sender, intid[, code, popup, money])
