@@ -1220,6 +1220,14 @@ namespace LuaUnit
         return 1;
     }
 
+    int HasAura(lua_State* L, Unit* unit)
+    {
+        uint32 spell = luaL_checkunsigned(L, 1);
+
+        sEluna->Push(L, unit->HasAura(spell));
+        return 1;
+    }
+
     int RemoveAura(lua_State* L, Unit* unit)
     {
         uint32 spellId = luaL_checkunsigned(L, 1);
