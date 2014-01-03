@@ -315,7 +315,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"MoveRandom", &LuaUnit::MoveRandom},                   // :MoveRandom(radius) - Moves randomly inside radius
     // {"MoveRotate", &LuaUnit::MoveRotate},                // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time
     {"SummonGameObject", &LuaUnit::SummonGameObject},       // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil
-    {"SpawnCreature", &LuaUnit::SpawnCreature},             // :SpawnCreature(entry, x, y, z, o[, despawnDelay]) - Spawns a creature to location that despawns after given time (0 for infinite). Returns the creature or nil
+    {"SpawnCreature", &LuaUnit::SpawnCreature},             // :SpawnCreature(entry, x, y, z, o[, spawnType, despawnDelay]) - Spawns a creature to location that despawns after given time (0 for infinite). Returns the creature or nil
     {"StopSpellCast", &LuaUnit::StopSpellCast},             // :StopSpellCast(spellId(optional)) - Stops the unit from casting a spell. If a spellId is defined, it will stop that unit from casting that spell
     {"InterruptSpell", &LuaUnit::InterruptSpell},           // :InterruptSpell(spellType, delayed(optional), instant(optional)) - Interrupts the unit's spell by the spellType. If delayed is true it will skip if the spell is delayed. If instant is true, it will skip that the spell has a cast time
     {"SendChatMessageToPlayer", &LuaUnit::SendChatMessageToPlayer},                                         // :SendChatMessageToPlayer(type, lang, msg, target) - Unit sends a chat message to the given target player

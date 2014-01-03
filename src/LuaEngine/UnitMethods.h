@@ -451,7 +451,7 @@ namespace LuaUnit
         float y = luaL_checknumber(L, 3);
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
-        uint32 spawnType = luaL_optunsigned(L, 6, 0);
+        uint32 spawnType = luaL_optunsigned(L, 6, 8);
         uint32 despawnTimer = luaL_optunsigned(L, 7, 0);
 
         TempSummonType type;
@@ -478,6 +478,9 @@ namespace LuaUnit
             case 8:
                 type = TEMPSUMMON_MANUAL_DESPAWN;
                 break;
+            default:
+                luaL_error(L, "Invalid spawn type (%u)", spawnType);
+                return 0;
         }
         sEluna->Push(L, unit->SummonCreature(entry, x, y, z, o, type, despawnTimer));
         return 1;
