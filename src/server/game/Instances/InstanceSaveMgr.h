@@ -195,6 +195,7 @@ class InstanceSaveManager
         InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, Difficulty difficulty, time_t resetTime,
             bool canReset, bool load = false);
         void RemoveInstanceSave(uint32 InstanceId);
+        void UnloadInstanceSave(uint32 InstanceId);
         static void DeleteInstanceFromDB(uint32 instanceid);
 
         InstanceSave* GetInstanceSave(uint32 InstanceId);
