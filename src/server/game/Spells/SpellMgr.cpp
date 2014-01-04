@@ -3690,6 +3690,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             //
             // RUBY SANCTUM SPELLS
             //
+            case 74799: // Soul Consumption
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
+                break;
             case 74769: // Twilight Cutter
             case 77844: // Twilight Cutter
             case 77845: // Twilight Cutter
