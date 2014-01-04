@@ -368,10 +368,10 @@ void Unit::Update(uint32 p_time)
 
 bool Unit::haveOffhandWeapon() const
 {
-    if (GetTypeId() == TYPEID_PLAYER)
-        return ToPlayer()->GetWeaponForAttack(OFF_ATTACK, true);
-    else
-        return m_canDualWield;
+    if (Player const* player = ToPlayer())
+        return player->GetWeaponForAttack(OFF_ATTACK, true);
+
+    return CanDualWield();
 }
 
 void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath, bool forceDestination)
@@ -2160,41 +2160,39 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
 
 uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct)
 {
-    float min_damage, max_damage;
+    float minDamage = 0.0f;
+    float maxDamage = 0.0f;
 
-    if (GetTypeId() == TYPEID_PLAYER && (normalized || !addTotalPct))
-        ToPlayer()->CalculateMinMaxDamage(attType, normalized, addTotalPct, min_damage, max_damage);
+    if (normalized || !addTotalPct)
+        CalculateMinMaxDamage(attType, normalized, addTotalPct, minDamage, maxDamage);
     else
     {
         switch (attType)
         {
             case RANGED_ATTACK:
-                min_damage = GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE);
-                max_damage = GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE);
+                minDamage = GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE);
+                maxDamage = GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE);
                 break;
             case BASE_ATTACK:
-                min_damage = GetFloatValue(UNIT_FIELD_MINDAMAGE);
-                max_damage = GetFloatValue(UNIT_FIELD_MAXDAMAGE);
+                minDamage = GetFloatValue(UNIT_FIELD_MINDAMAGE);
+                maxDamage = GetFloatValue(UNIT_FIELD_MAXDAMAGE);
                 break;
             case OFF_ATTACK:
-                min_damage = GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE);
-                max_damage = GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE);
+                minDamage = GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE);
+                maxDamage = GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE);
                 break;
-                // Just for good manner
             default:
-                min_damage = 0.0f;
-                max_damage = 0.0f;
                 break;
         }
     }
 
-    if (min_damage > max_damage)
-        std::swap(min_damage, max_damage);
+    if (minDamage > maxDamage)
+        std::swap(minDamage, maxDamage);
 
-    if (max_damage == 0.0f)
-        max_damage = 5.0f;
+    if (maxDamage == 0.0f)
+        maxDamage = 5.0f;
 
-    return urand((uint32)min_damage, (uint32)max_damage);
+    return urand(uint32(minDamage), uint32(maxDamage));
 }
 
 float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
