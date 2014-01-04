@@ -96,24 +96,21 @@ class boss_arlokk : public CreatureScript
 
             void Reset() OVERRIDE
             {
+                if (events.IsInPhase(PHASE_TWO))
+                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
+                _Reset();
                 _summonCountA = 0;
                 _summonCountB = 0;
-                me->RemoveAllAuras();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
-                    gate->SetGoState(GO_STATE_READY);
                 me->SetWalk(false);
                 me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0]);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                me->RemoveAllAuras();
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
-                    gate->SetGoState(GO_STATE_ACTIVE);
-                instance->SetBossState(DATA_ARLOKK, DONE);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -154,11 +151,9 @@ class boss_arlokk : public CreatureScript
 
             void EnterEvadeMode() OVERRIDE
             {
-                if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
-                    object->SetGoState(GO_STATE_ACTIVE);
-                if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_GONG_OF_BETHEKK)))
+                BossAI::EnterEvadeMode();
+                if (GameObject* object = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_GONG_OF_BETHEKK)))
                     object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                instance->SetBossState(DATA_ARLOKK, NOT_STARTED);
                 me->DespawnOrUnsummon(4000);
             }
 
@@ -194,7 +189,7 @@ class boss_arlokk : public CreatureScript
                         case EVENT_SUMMON_PROWLERS:
                             if (_summonCountA < MAX_PROWLERS_PER_SIDE)
                             {
-                                if (Unit* trigger = me->GetUnit(*me, _triggersSideAGUID[urand(0, 4)]))
+                                if (Unit* trigger = ObjectAccessor::GetUnit(*me, _triggersSideAGUID[urand(0, 4)]))
                                 {
                                     trigger->CastSpell(trigger, SPELL_SUMMON_PROWLER);
                                     ++_summonCountA;
@@ -202,7 +197,7 @@ class boss_arlokk : public CreatureScript
                             }
                             if (_summonCountB < MAX_PROWLERS_PER_SIDE)
                             {
-                                if (Unit* trigger = me->GetUnit(*me, _triggersSideBGUID[urand(0, 4)]))
+                                if (Unit* trigger = ObjectAccessor::GetUnit(*me, _triggersSideBGUID[urand(0, 4)]))
                                 {
                                     trigger->CastSpell(trigger, SPELL_SUMMON_PROWLER);
                                     ++_summonCountB;
@@ -225,13 +220,15 @@ class boss_arlokk : public CreatureScript
                         }
                         case EVENT_TRANSFORM:
                         {
-                            DoCast(me, SPELL_PANTHER_TRANSFORM);
+                            DoCast(me, SPELL_PANTHER_TRANSFORM); // SPELL_AURA_TRANSFORM
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_UNEQUIP));
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(EQUIP_UNEQUIP));
+                            /*
                             const CreatureTemplate* cinfo = me->GetCreatureTemplate();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
+                            */
                             me->AttackStop();
                             DoResetThreat();
                             me->SetReactState(REACT_PASSIVE);
@@ -262,6 +259,7 @@ class boss_arlokk : public CreatureScript
                             events.ScheduleEvent(EVENT_RAVAGE, urand(10000, 14000), 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM_BACK, urand(15000, 18000), 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
+                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, true); // hack
                             break;
                         case EVENT_RAVAGE:
                             DoCastVictim(SPELL_RAVAGE, true);
@@ -269,14 +267,17 @@ class boss_arlokk : public CreatureScript
                             break;
                         case EVENT_TRANSFORM_BACK:
                         {
-                            me->RemoveAura(SPELL_PANTHER_TRANSFORM);
+                            me->RemoveAura(SPELL_PANTHER_TRANSFORM); // SPELL_AURA_TRANSFORM
                             DoCast(me, SPELL_VANISH_VISUAL);
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
+                            /*
                             const CreatureTemplate* cinfo = me->GetCreatureTemplate();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg));
                             me->UpdateDamagePhysical(BASE_ATTACK);
+                            */
+                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                             events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(4000, 7000), 0, PHASE_ONE);
                             events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
                             events.ScheduleEvent(EVENT_TRANSFORM, urand(16000, 20000), 0, PHASE_ONE);

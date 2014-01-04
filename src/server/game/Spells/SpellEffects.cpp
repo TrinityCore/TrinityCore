@@ -2538,8 +2538,6 @@ void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)
         return;
 
     unitTarget->SetCanDualWield(true);
-    if (unitTarget->GetTypeId() == TYPEID_UNIT)
-        unitTarget->ToCreature()->UpdateDamagePhysical(OFF_ATTACK);
 }
 
 void Spell::EffectPull(SpellEffIndex effIndex)
@@ -5819,11 +5817,11 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         {
             if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
             {
-                summon->SetDisplayId(11686);
+                summon->SetDisplayId(11686); // modelid2
                 summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
             }
             else
-                summon->SetDisplayId(1126);
+                summon->SetDisplayId(1126); // modelid1
         }
 
         summon->AI()->EnterEvadeMode();
