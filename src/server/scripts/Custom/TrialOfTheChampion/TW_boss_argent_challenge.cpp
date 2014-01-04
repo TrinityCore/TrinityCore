@@ -300,7 +300,7 @@ class TW_boss_eadric : public CreatureScript
                     if (target && target->IsAlive())
                     {
                         Talk(SAY_EADRIC_HAMMER);
-                        Talk(SAY_EADRIC_HAMMER_TARGET, target->GetGUID());
+                        Talk(SAY_EADRIC_HAMMER_TARGET, target);
                         DoCast(target, SPELL_HAMMER_JUSTICE);
                         DoCast(target, SPELL_HAMMER_RIGHTEOUS);
                     }

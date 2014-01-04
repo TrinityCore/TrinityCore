@@ -267,7 +267,7 @@ class npc_brewmaiden : public CreatureScript
 
                 if (_brewTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
 
@@ -295,7 +295,7 @@ class npc_brewmaiden : public CreatureScript
                 {
                     if (_barrelTimer <= diff)
                     {
-                        if (!me->IsNonMeleeSpellCasted(false))
+                        if (!me->IsNonMeleeSpellCast(false))
                         {
                             DoCastVictim(SPELL_BARRELED);
                             _barrelTimer = urand(15, 18) *IN_MILLISECONDS;

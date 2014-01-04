@@ -351,19 +351,19 @@ class instance_culling_of_stratholme : public InstanceMapScript
                             if (!instance->GetPlayers().isEmpty())
                                 if (Player* player = instance->GetPlayers().getFirst()->GetSource())
                                     if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_START, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_START, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                             break;
                         case 5:
                             if (!instance->GetPlayers().isEmpty())
                                 if (Player* player = instance->GetPlayers().getFirst()->GetSource())
                                     if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                             break;
                         case 0:
                             if (!instance->GetPlayers().isEmpty())
                                 if (Player* player = instance->GetPlayers().getFirst()->GetSource())
                                     if (Creature* chromie = instance->GetCreature(_chromieGUID))
-                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_FAIL, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                        sCreatureTextMgr->SendChat(chromie, SAY_INFINITE_FAIL, player, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
 
                             if (Creature* infinite = instance->GetCreature(_infiniteGUID))
                                 if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
