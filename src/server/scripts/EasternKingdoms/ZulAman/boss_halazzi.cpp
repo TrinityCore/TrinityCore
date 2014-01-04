@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -111,8 +111,7 @@ class boss_halazzi : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
+                instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
 
                 LynxGUID = 0;
                 TransformCount = 0;
@@ -127,10 +126,9 @@ class boss_halazzi : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
+                instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
-                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
+                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_AGGRO);
 
                 EnterPhase(PHASE_LYNX);
@@ -182,7 +180,7 @@ class boss_halazzi : public CreatureScript
                     TotemTimer = 12000;
                     break;
                 case PHASE_SPLIT:
-                    me->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(me, SOUND_SPLIT);
                     DoCast(me, SPELL_TRANSFORM_SPLIT, true);
                     break;
@@ -197,7 +195,7 @@ class boss_halazzi : public CreatureScript
                 case PHASE_MERGE:
                     if (Unit* pLynx = Unit::GetUnit(*me, LynxGUID))
                     {
-                        me->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, 0);
+                        me->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, NULL);
                         DoPlaySoundToSet(me, SOUND_MERGE);
                         pLynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pLynx->GetMotionMaster()->Clear();
@@ -220,7 +218,7 @@ class boss_halazzi : public CreatureScript
 
                 if (BerserkTimer <= diff)
                 {
-                    me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(me, SOUND_BERSERK);
                     DoCast(me, SPELL_BERSERK, true);
                     BerserkTimer = 60000;
@@ -266,7 +264,7 @@ class boss_halazzi : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            if (target->IsNonMeleeSpellCasted(false))
+                            if (target->IsNonMeleeSpellCast(false))
                                 DoCast(target, SPELL_EARTHSHOCK);
                             else
                                 DoCast(target, SPELL_FLAMESHOCK);
@@ -320,12 +318,12 @@ class boss_halazzi : public CreatureScript
                 switch (urand(0, 1))
                 {
                     case 0:
-                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
+                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
                         DoPlaySoundToSet(me, SOUND_KILL_ONE);
                         break;
 
                     case 1:
-                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, 0);
+                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
                         DoPlaySoundToSet(me, SOUND_KILL_TWO);
                         break;
                 }
@@ -333,17 +331,16 @@ class boss_halazzi : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HALAZZIEVENT, DONE);
+                instance->SetData(DATA_HALAZZIEVENT, DONE);
 
-                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
+                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_DEATH);
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_halazziAI(creature);
+            return GetInstanceAI<boss_halazziAI>(creature);
         }
 };
 

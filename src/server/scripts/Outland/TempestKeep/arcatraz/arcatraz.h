@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,11 +32,11 @@ enum DataTypes
 
     // Additional Data
     DATA_CONVERSATION                           = 4,
-    DATA_WARDEN_1                               = 5, // used by EventAI
-    DATA_WARDEN_2                               = 6, // used by EventAI
-    DATA_WARDEN_3                               = 7, // used by EventAI
-    DATA_WARDEN_4                               = 8, // used by EventAI
-    DATA_WARDEN_5                               = 9, // used by EventAI
+    DATA_WARDEN_1                               = 5, // used by SmartAI
+    DATA_WARDEN_2                               = 6, // used by SmartAI
+    DATA_WARDEN_3                               = 7, // used by SmartAI
+    DATA_WARDEN_4                               = 8, // used by SmartAI
+    DATA_WARDEN_5                               = 9, // used by SmartAI
     DATA_MELLICHAR                              = 10,
     DATA_WARDENS_SHIELD                         = 11
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,7 @@ enum Spells
     SPELL_CURSE_OF_LIFE                           = 49527,
     SPELL_RAIN_OF_FIRE                            = 49518,
     SPELL_SHADOW_VOLLEY                           = 49528,
-    SPELL_DECAY_FLESH                             = 49356, // casted at end of phase 1, starts phase 2
+    SPELL_DECAY_FLESH                             = 49356, // cast at end of phase 1, starts phase 2
     // Flesh Spells (phase 2)
     SPELL_GIFT_OF_THARON_JA                       = 52509,
     SPELL_CLEAR_GIFT_OF_THARON_JA                 = 53242,

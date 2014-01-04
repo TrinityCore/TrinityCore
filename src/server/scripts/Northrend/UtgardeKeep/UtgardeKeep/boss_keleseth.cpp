@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -194,7 +194,7 @@ class boss_keleseth : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_FROST_TOMB))
                             {
                                 Talk(SAY_FROST_TOMB);
-                                Talk(SAY_FROST_TOMB_EMOTE, target->GetGUID());
+                                Talk(SAY_FROST_TOMB_EMOTE, target);
 
                                 DoCast(target, SPELL_FROST_TOMB_STUN, true);
                                 // checked from sniffs - the player casts the spell
@@ -212,7 +212,7 @@ class boss_keleseth : public CreatureScript
 
             void SummonSkeletons()
             {
-                // I could not found any spell casted for this
+                // I could not found any spell cast for this
                 for (uint8 i = 0; i < 4; ++i)
                     me->SummonCreature(NPC_SKELETON, SkeletonSpawnPoint[0][0], SkeletonSpawnPoint[0][1], SKELETONSPAWN_Z, 0);
             }

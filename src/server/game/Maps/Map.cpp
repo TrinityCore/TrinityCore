@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,15 +61,6 @@ Map::~Map()
         //ASSERT(obj->GetTypeId() == TYPEID_CORPSE);
         obj->RemoveFromWorld();
         obj->ResetMap();
-    }
-
-    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end();)
-    {
-        Transport* transport = *itr;
-        ++itr;
-
-        transport->RemoveFromWorld();
-        delete transport;
     }
 
     if (!m_scriptSchedule.empty())
@@ -562,6 +553,22 @@ bool Map::AddToMap(Transport* obj)
     obj->AddToWorld();
     _transports.insert(obj);
 
+    // Broadcast creation to players
+    if (!GetPlayers().isEmpty())
+    {
+        for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
+            if (itr->GetSource()->GetTransport() != obj)
+            {
+                UpdateData data;
+                obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
+                WorldPacket packet;
+                data.BuildPacket(&packet);
+                itr->GetSource()->SendDirectMessage(&packet);
+            }
+        }
+    }
+
     return true;
 }
 
@@ -809,6 +816,18 @@ template<>
 void Map::RemoveFromMap(Transport* obj, bool remove)
 {
     obj->RemoveFromWorld();
+
+    Map::PlayerList const& players = GetPlayers();
+    if (!players.isEmpty())
+    {
+        UpdateData data;
+        obj->BuildOutOfRangeUpdateBlock(&data);
+        WorldPacket packet;
+        data.BuildPacket(&packet);
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        if (itr->GetSource()->GetTransport() != obj)
+            itr->GetSource()->SendDirectMessage(&packet);
+    }
 
     if (_transportsUpdateIter != _transports.end())
     {
@@ -1357,6 +1376,17 @@ void Map::UnloadAll()
         ++i;
         UnloadGrid(grid, true);       // deletes the grid and removes it from the GridRefManager
     }
+
+    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end();)
+    {
+        Transport* transport = *itr;
+        ++itr;
+
+        transport->RemoveFromWorld();
+        delete transport;
+    }
+
+    _transports.clear();
 }
 
 // *****************************
@@ -2833,6 +2863,7 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
     Map::RemovePlayerFromMap(player, remove);
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
+    sInstanceSaveMgr->UnloadInstanceSave(GetInstanceId());
 }
 
 void InstanceMap::CreateInstanceData(bool load)

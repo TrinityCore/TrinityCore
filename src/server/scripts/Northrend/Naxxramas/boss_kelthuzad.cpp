@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -310,8 +310,7 @@ public:
 
             FindGameObjects();
 
-            if (instance)
-                instance->SetData(DATA_ABOMINATION_KILLED, 0);
+            instance->SetData(DATA_ABOMINATION_KILLED, 0);
 
             if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
             {
@@ -649,7 +648,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kelthuzadAI(creature);
+        return GetInstanceAI<boss_kelthuzadAI>(creature);
     }
 };
 
@@ -769,7 +768,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_kelthuzad_abominationAI(creature);
+            return GetInstanceAI<npc_kelthuzad_abominationAI>(creature);
         }
 };
 

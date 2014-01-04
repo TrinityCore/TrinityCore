@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -358,7 +358,7 @@ class boss_dalronn_the_controller : public CreatureScript
 
                 if (ShadowBolt_Timer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
@@ -370,7 +370,7 @@ class boss_dalronn_the_controller : public CreatureScript
 
                 if (Debilitate_Timer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             DoCast(target, SPELL_DEBILITATE);
@@ -384,7 +384,7 @@ class boss_dalronn_the_controller : public CreatureScript
                 {
                     if (Summon_Timer <= diff)
                     {
-                        if (!me->IsNonMeleeSpellCasted(false))
+                        if (!me->IsNonMeleeSpellCast(false))
                         {
                             DoCast(me, H_SPELL_SUMMON_SKELETONS);
                             Summon_Timer = (rand()%10000) + 20000;

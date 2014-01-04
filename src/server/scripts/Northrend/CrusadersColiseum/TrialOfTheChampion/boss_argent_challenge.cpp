@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -196,8 +196,7 @@ public:
             if (MovementType != POINT_MOTION_TYPE)
                 return;
 
-            if (instance)
-                instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+            instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
 
             me->DisappearAndDie();
         }
@@ -248,7 +247,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_eadricAI(creature);
+        return GetInstanceAI<boss_eadricAI>(creature);
     }
 };
 
@@ -320,8 +319,7 @@ public:
             if (MovementType != POINT_MOTION_TYPE || Point != 0)
                 return;
 
-            if (instance)
-                instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
+            instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
 
             me->DisappearAndDie();
         }
@@ -406,7 +404,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_paletressAI(creature);
+        return GetInstanceAI<boss_paletressAI>(creature);
     }
 };
 
@@ -582,14 +580,13 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+            instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_argent_soldierAI(creature);
+        return GetInstanceAI<npc_argent_soldierAI>(creature);
     }
 };
 

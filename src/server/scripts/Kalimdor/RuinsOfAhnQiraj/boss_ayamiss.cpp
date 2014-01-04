@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -232,7 +232,7 @@ class boss_ayamiss : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_ayamissAI(creature);
+            return GetInstanceAI<boss_ayamissAI>(creature);
         }
 };
 
@@ -286,7 +286,7 @@ class npc_hive_zara_larva : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_hive_zara_larvaAI(creature);
+            return GetInstanceAI<npc_hive_zara_larvaAI>(creature);
         }
 };
 

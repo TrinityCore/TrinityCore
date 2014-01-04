@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,7 +72,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shadowfang_prisonerAI(creature);
+        return GetInstanceAI<npc_shadowfang_prisonerAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
@@ -135,8 +135,7 @@ public:
                     else
                         Talk(SAY_POST1_DOOR_AD);
 
-                    if (instance)
-                        instance->SetData(TYPE_FREE_NPC, DONE);
+                    instance->SetData(TYPE_FREE_NPC, DONE);
                     break;
                 case 13:
                     if (me->GetEntry() != NPC_ASH)
@@ -158,7 +157,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_arugal_voidwalkerAI(creature);
+        return GetInstanceAI<npc_arugal_voidwalkerAI>(creature);
     }
 
     struct npc_arugal_voidwalkerAI : public ScriptedAI
@@ -196,8 +195,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
+            instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
         }
     };
 

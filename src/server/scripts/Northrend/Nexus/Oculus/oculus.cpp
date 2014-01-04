@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -310,17 +310,21 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_WELCOME:
-                            Talk(WHISPER_DRAKES_WELCOME, me->GetCreatorGUID());
+                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                                Talk(WHISPER_DRAKES_WELCOME, creator);
                             _events.ScheduleEvent(EVENT_ABILITIES, 5 * IN_MILLISECONDS);
                             break;
                         case EVENT_ABILITIES:
-                            Talk(WHISPER_DRAKES_ABILITIES, me->GetCreatorGUID());
+                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                                Talk(WHISPER_DRAKES_ABILITIES, creator);
                             break;
                         case EVENT_SPECIAL_ATTACK:
-                            Talk(WHISPER_DRAKES_SPECIAL, me->GetCreatorGUID());
+                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                                Talk(WHISPER_DRAKES_SPECIAL, creator);
                             break;
                         case EVENT_LOW_HEALTH:
-                            Talk(WHISPER_DRAKES_LOWHEALTH, me->GetCreatorGUID());
+                            if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                                Talk(WHISPER_DRAKES_LOWHEALTH, creator);
                             _healthWarning = false;
                             _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25000);
                             break;

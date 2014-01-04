@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -28,7 +28,6 @@ npc_mature_netherwing_drake
 npc_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
 npcs_flanis_swiftwing_and_kagrosh
-npc_murkblood_overseer
 npc_karynaku
 npc_oronok_tornheart
 npc_overlord_morghor
@@ -493,74 +492,6 @@ public:
 };
 
 /*######
-## npc_murkblood_overseer
-######*/
-
-#define QUEST_11082     11082
-
-#define GOSSIP_HMO "I am here for you, overseer."
-#define GOSSIP_SMO1 "How dare you question an overseer of the Dragonmaw!"
-#define GOSSIP_SMO2 "Who speaks of me? What are you talking about, broken?"
-#define GOSSIP_SMO3 "Continue please."
-#define GOSSIP_SMO4 "Who are these bidders?"
-#define GOSSIP_SMO5 "Well... yes."
-
-class npc_murkblood_overseer : public CreatureScript
-{
-public:
-    npc_murkblood_overseer() : CreatureScript("npc_murkblood_overseer") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+6:
-                                                                //correct id not known
-                player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-                creature->CastSpell(player, 41121, false);
-                player->AreaExploredOrEventHappens(QUEST_11082);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (player->GetQuestStatus(QUEST_11082) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_HMO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
-        return true;
-    }
-};
-
-/*######
 ## npc_oronok
 ######*/
 
@@ -762,7 +693,7 @@ public:
             {
                 Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                 if (player)
-                    Talk(OVERLORD_SAY_1, player->GetGUID());
+                    Talk(OVERLORD_SAY_1, player);
             }
             ConversationTimer = 4200;
             Step = 0;
@@ -790,7 +721,7 @@ public:
                     return 9000;
                     break;
                 case 2:
-                    Talk(OVERLORD_YELL_1, player->GetGUID());
+                    Talk(OVERLORD_YELL_1, player);
                     return 4500;
                     break;
                 case 3:
@@ -798,7 +729,7 @@ public:
                     return 3200;
                     break;
                 case 4:
-                    Talk(OVERLORD_SAY_2, player->GetGUID());
+                    Talk(OVERLORD_SAY_2, player);
                     return 2000;
                     break;
                 case 5:
@@ -837,7 +768,7 @@ public:
                     return 5000;
                     break;
                 case 11:
-                    Talk(OVERLORD_SAY_4, player->GetGUID());
+                    Talk(OVERLORD_SAY_4, player);
                     return 6000;
                     break;
                 case 12:
@@ -936,7 +867,7 @@ public:
                 case 29:
                     {
                         if (Creature* Yarzill = me->FindNearestCreature(C_YARZILL, 50.0f))
-                            Yarzill->AI()->Talk(YARZILL_THE_MERC_SAY, player->GetGUID());
+                            Yarzill->AI()->Talk(YARZILL_THE_MERC_SAY, player);
                         return 5000;
                     }
                     break;
@@ -1016,7 +947,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
         {
-            creature->AI()->Talk(SAY_WIL_START, player->GetGUID());
+            creature->AI()->Talk(SAY_WIL_START, player);
             creature->setFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
@@ -1050,14 +981,14 @@ public:
             switch (waypointId)
             {
                 case 13:
-                    Talk(SAY_WIL_PROGRESS1, player->GetGUID());
+                    Talk(SAY_WIL_PROGRESS1, player);
                     DoSpawnAssassin();
                     break;
                 case 14:
                     DoSpawnAssassin();
                     break;
                 case 15:
-                    Talk(SAY_WIL_FIND_EXIT, player->GetGUID());
+                    Talk(SAY_WIL_FIND_EXIT, player);
                     break;
                 case 19:
                     DoRandomSay();
@@ -1084,7 +1015,7 @@ public:
                     DoSpawnAssassin();
                     break;
                 case 39:
-                    Talk(SAY_WIL_JUST_AHEAD, player->GetGUID());
+                    Talk(SAY_WIL_JUST_AHEAD, player);
                     break;
                 case 43:
                     DoRandomSay();
@@ -1093,7 +1024,7 @@ public:
                     DoSpawnAssassin();
                     break;
                 case 50:
-                    Talk(SAY_WIL_END, player->GetGUID());
+                    Talk(SAY_WIL_END, player);
                     player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
                     break;
             }
@@ -2011,7 +1942,6 @@ void AddSC_shadowmoon_valley()
     new npc_dragonmaw_peon();
     new npc_drake_dealer_hurlunk();
     new npcs_flanis_swiftwing_and_kagrosh();
-    new npc_murkblood_overseer();
     new npc_karynaku();
     new npc_oronok_tornheart();
     new npc_overlord_morghor();

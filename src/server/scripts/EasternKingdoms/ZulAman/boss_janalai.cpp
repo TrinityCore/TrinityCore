@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -143,8 +143,7 @@ class boss_janalai : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_JANALAIEVENT, NOT_STARTED);
+                instance->SetData(DATA_JANALAIEVENT, NOT_STARTED);
 
                 FireBreathTimer = 8000;
                 BombTimer = 30000;
@@ -169,8 +168,7 @@ class boss_janalai : public CreatureScript
             {
                 Talk(SAY_DEATH);
 
-                if (instance)
-                    instance->SetData(DATA_JANALAIEVENT, DONE);
+                instance->SetData(DATA_JANALAIEVENT, DONE);
             }
 
             void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -180,8 +178,7 @@ class boss_janalai : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
+                instance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
 
                 Talk(SAY_AGGRO);
         //        DoZoneInCombat();
@@ -324,7 +321,7 @@ class boss_janalai : public CreatureScript
             {
                 if (isFlameBreathing)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                         isFlameBreathing = false;
                     else
                         return;
@@ -442,7 +439,7 @@ class boss_janalai : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_janalaiAI(creature);
+            return GetInstanceAI<boss_janalaiAI>(creature);
         }
 };
 
@@ -612,7 +609,7 @@ class npc_janalai_hatcher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_janalai_hatcherAI(creature);
+            return GetInstanceAI<npc_janalai_hatcherAI>(creature);
         }
 };
 
@@ -671,7 +668,7 @@ class npc_janalai_hatchling : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_janalai_hatchlingAI(creature);
+            return GetInstanceAI<npc_janalai_hatchlingAI>(creature);
         }
 };
 

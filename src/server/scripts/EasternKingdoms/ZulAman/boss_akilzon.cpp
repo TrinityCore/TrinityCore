@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -116,8 +116,7 @@ class boss_akilzon : public CreatureScript
 
                 Talk(SAY_AGGRO);
                 //DoZoneInCombat();
-                if (instance)
-                    instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
+                instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
@@ -126,9 +125,10 @@ class boss_akilzon : public CreatureScript
                 _JustDied();
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
             void SetWeather(uint32 weather, float grade)
@@ -228,10 +228,14 @@ class boss_akilzon : public CreatureScript
                         case EVENT_STATIC_DISRUPTION:
                             {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                            if (!target) target = me->GetVictim();
-                            TargetGUID = target->GetGUID();
-                            DoCast(target, SPELL_STATIC_DISRUPTION, false);
-                            me->SetInFront(me->GetVictim());
+                            if (!target) 
+                                target = me->GetVictim();
+                            if (target)
+                            {
+                                TargetGUID = target->GetGUID();
+                                DoCast(target, SPELL_STATIC_DISRUPTION, false);
+                                me->SetInFront(me->GetVictim());
+                            }
                             /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
                             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
                             events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 18000));
@@ -240,8 +244,10 @@ class boss_akilzon : public CreatureScript
                         case EVENT_GUST_OF_WIND:
                             {
                                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                                if (!target) target = me->GetVictim();
-                                DoCast(target, SPELL_GUST_OF_WIND);
+                                if (!target) 
+                                    target = me->GetVictim();
+                                if (target)
+                                    DoCast(target, SPELL_GUST_OF_WIND);
                                 events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));
                                 break;
                             }
@@ -362,7 +368,7 @@ class boss_akilzon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_akilzonAI(creature);
+            return GetInstanceAI<boss_akilzonAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -371,7 +371,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_muru_portalAI(creature);
+        return GetInstanceAI<npc_muru_portalAI>(creature);
     }
 
     struct npc_muru_portalAI : public ScriptedAI
@@ -405,9 +405,8 @@ public:
 
         void JustSummoned(Creature* summoned) OVERRIDE
         {
-            if (instance)
-                if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
-                    summoned->AI()->AttackStart(Target);
+            if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+                summoned->AI()->AttackStart(Target);
 
             Summons.Summon(summoned);
         }
@@ -571,7 +570,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_blackholeAI(creature);
+        return GetInstanceAI<npc_blackholeAI>(creature);
     }
 
     struct npc_blackholeAI : public ScriptedAI
@@ -593,6 +592,7 @@ public:
             DespawnTimer = 15000;
             SpellTimer = 5000;
             Phase = 0;
+            NeedForAHack = 0;
 
             me->AddUnitState(UNIT_STATE_STUNNED);
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);

@@ -237,10 +237,46 @@ class npc_wg_spirit_guide : public CreatureScript
         }
 };
 
+enum WGQueue
+{
+    SPELL_FROST_ARMOR                               = 12544
+};
+
 class npc_wg_queue : public CreatureScript
 {
     public:
         npc_wg_queue() : CreatureScript("npc_wg_queue") { }
+
+    struct npc_wg_queueAI : public ScriptedAI
+    {
+        npc_wg_queueAI(Creature* creature) : ScriptedAI(creature) { }
+
+        uint32 FrostArmor_Timer;
+
+        void Reset() OVERRIDE
+        {
+            FrostArmor_Timer = 0;
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (FrostArmor_Timer <= diff)
+            {
+                DoCast(me, SPELL_FROST_ARMOR);
+                FrostArmor_Timer = 180000;
+            }
+            else FrostArmor_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_wg_queueAI(creature);
+    }
 
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {

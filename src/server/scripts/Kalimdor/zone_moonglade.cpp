@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -420,7 +420,7 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                Talk(CLINTAR_SPIRIT_SAY_START, PlayerGUID);
+                                Talk(CLINTAR_SPIRIT_SAY_START, player);
                                 EventTimer = 8000;
                                 Step = 1;
                                 break;

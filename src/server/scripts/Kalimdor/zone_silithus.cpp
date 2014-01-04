@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,12 +19,11 @@
 /* ScriptData
 SDName: Silithus
 SD%Complete: 100
-SDComment: Quest support: 7785, 8304, 8507.
+SDComment: Quest support: 8304, 8507.
 SDCategory: Silithus
 EndScriptData */
 
 /* ContentData
-npc_highlord_demitrian
 npcs_rutgar_and_frankal
 quest_a_pawn_on_the_eternal_pawn
 EndContentData */
@@ -34,79 +33,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Group.h"
 #include "Player.h"
-
-/*###
-## npc_highlord_demitrian
-###*/
-
-#define GOSSIP_DEMITRIAN1 "What do you know of it?"
-#define GOSSIP_DEMITRIAN2 "I am listening, Demitrian."
-#define GOSSIP_DEMITRIAN3 "Continue, please."
-#define GOSSIP_DEMITRIAN4 "A battle?"
-#define GOSSIP_DEMITRIAN5 "<Nod>"
-#define GOSSIP_DEMITRIAN6 "Caught unaware? How?"
-#define GOSSIP_DEMITRIAN7 "So what did Ragnaros do next?"
-
-class npc_highlord_demitrian : public CreatureScript
-{
-public:
-    npc_highlord_demitrian() : CreatureScript("npc_highlord_demitrian") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-        case GOSSIP_ACTION_INFO_DEF:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(6842, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->SEND_GOSSIP_MENU(6843, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            player->SEND_GOSSIP_MENU(6844, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+3:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            player->SEND_GOSSIP_MENU(6867, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+4:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            player->SEND_GOSSIP_MENU(6868, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+5:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-            player->SEND_GOSSIP_MENU(6869, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+6:
-            player->SEND_GOSSIP_MENU(6870, creature->GetGUID());
-
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 19016, 1);
-            if (msg == EQUIP_ERR_OK)
-                player->StoreNewItem(dest, 19016, true);
-            break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
-            (player->HasItemCount(18563, 1, false) || player->HasItemCount(18564, 1, false)))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(6812, creature->GetGUID());
-            return true;
-    }
-
-};
 
 /*###
 ## npcs_rutgar_and_frankal
@@ -544,11 +470,11 @@ public:
                 switch (AnimationCount)
                 {
                     case 0:
-                        Talk(ANACHRONOS_SAY_1, Fandral->GetGUID());
+                        Talk(ANACHRONOS_SAY_1, Fandral);
                         break;
                     case 1:
                         Fandral->SetTarget(me->GetGUID());
-                        Fandral->AI()->Talk(FANDRAL_SAY_1, me->GetGUID());
+                        Fandral->AI()->Talk(FANDRAL_SAY_1, me);
                         break;
                     case 2:
                         Fandral->SetTarget(0);
@@ -618,7 +544,7 @@ public:
                     case 21:
                         break;
                     case 22:
-                        Caelestrasz->AI()->Talk(CAELESTRASZ_SAY_2, Fandral->GetGUID());
+                        Caelestrasz->AI()->Talk(CAELESTRASZ_SAY_2, Fandral);
                         break;
                     case 23:
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8065, 1530, 2.61f, 10);
@@ -640,7 +566,7 @@ public:
                         Caelestrasz->CastSpell(Caelestrasz, 54293, false);
                         break;
                     case 28:
-                        Talk(ANACHRONOS_SAY_2, Fandral->GetGUID());
+                        Talk(ANACHRONOS_SAY_2, Fandral);
                         break;
                     case 29:
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8095, 1530, 50, 42);
@@ -649,7 +575,7 @@ public:
                     case 30:
                         break;
                     case 31:
-                        Talk(ANACHRONOS_SAY_3, Fandral->GetGUID());
+                        Talk(ANACHRONOS_SAY_3, Fandral);
                         break;
                     case 32:
                         Caelestrasz->SetVisible(false);
@@ -678,7 +604,7 @@ public:
                         me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
                         break;
                     case 39:
-                        Talk(ANACHRONOS_SAY_5, Fandral->GetGUID());
+                        Talk(ANACHRONOS_SAY_5, Fandral);
                         break;
                     case 40:
                         Fandral->CastSpell(me, 25167, true);
@@ -708,10 +634,10 @@ public:
                         Talk(ANACHRONOS_EMOTE_1);
                         break;
                     case 48:
-                        Fandral->AI()->Talk(FANDRAL_SAY_4, me->GetGUID());
+                        Fandral->AI()->Talk(FANDRAL_SAY_4, me);
                         break;
                     case 49:
-                        Fandral->AI()->Talk(FANDRAL_SAY_5, me->GetGUID());
+                        Fandral->AI()->Talk(FANDRAL_SAY_5, me);
                         break;
                     case 50:
                         Fandral->AI()->Talk(FANDRAL_EMOTE_2);
@@ -734,7 +660,7 @@ public:
                     }
                     case 52:
                         Fandral->GetMotionMaster()->MoveCharge(-8028.75f, 1538.795f, 2.61f, 4);
-                        Fandral->AI()->Talk(ANACHRONOS_SAY_9, me->GetGUID());
+                        Fandral->AI()->Talk(ANACHRONOS_SAY_9, me);
                         break;
                     case 53:
                         Fandral->AI()->Talk(FANDRAL_SAY_6);
@@ -760,7 +686,7 @@ public:
                         break;
                     case 60:
                         if (player)
-                            Talk(ANACHRONOS_SAY_10, player->GetGUID());
+                            Talk(ANACHRONOS_SAY_10, player);
                         me->GetMotionMaster()->MoveCharge(-8113.46f, 1524.16f, 2.89f, 4);
                         break;
                     case 61:
@@ -1508,7 +1434,6 @@ void AddSC_silithus()
     new npc_anachronos_quest_trigger();
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
-    new npc_highlord_demitrian();
     new npcs_rutgar_and_frankal();
     new go_wind_stone();
 }

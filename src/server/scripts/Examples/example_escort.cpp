@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -100,9 +100,9 @@ class example_escort : public CreatureScript
                         if (Player* player = GetPlayerForEscort())
                         {
                             //pTmpPlayer is the target of the text
-                            Talk(SAY_WP_3, player->GetGUID());
+                            Talk(SAY_WP_3, player);
                             //pTmpPlayer is the source of the text
-                            sCreatureTextMgr->SendChat(me, SAY_WP_4, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                            sCreatureTextMgr->SendChat(me, SAY_WP_4, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                         }
                         break;
                 }
@@ -113,7 +113,7 @@ class example_escort : public CreatureScript
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
                     if (Player* player = GetPlayerForEscort())
-                        Talk(SAY_AGGRO1, player->GetGUID());
+                        Talk(SAY_AGGRO1, player);
                 }
                 else
                     Talk(SAY_AGGRO2);
@@ -133,9 +133,9 @@ class example_escort : public CreatureScript
                     {
                         // not a likely case, code here for the sake of example
                         if (killer == me)
-                            Talk(SAY_DEATH_1, player->GetGUID());
+                            Talk(SAY_DEATH_1, player);
                         else
-                            Talk(SAY_DEATH_2, player->GetGUID());
+                            Talk(SAY_DEATH_2, player);
                     }
                 }
                 else

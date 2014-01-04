@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -99,7 +99,7 @@ class boss_instructor_malicia : public CreatureScript
                             events.ScheduleEvent(EVENT_RENEW, 10000);
                             break;
                         case EVENT_FLASHHEAL:
-                            //5 Flashheals will be casted
+                            //5 Flashheals will be cast
                             DoCast(me, SPELL_FLASHHEAL);
                             if (FlashCounter < 2)
                             {
@@ -113,7 +113,7 @@ class boss_instructor_malicia : public CreatureScript
                             }
                             break;
                         case EVENT_HEALINGTOUCH:
-                            //3 Healing Touch will be casted
+                            //3 Healing Touch will be cast
                             DoCast(me, SPELL_HEALINGTOUCH);
                             if (TouchCounter < 2)
                             {

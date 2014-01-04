@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -220,9 +220,6 @@ class boss_xt002 : public CreatureScript
                 _phase = 1;
                 _heartExposed = 0;
 
-                if (!instance)
-                    return;
-
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
@@ -234,11 +231,8 @@ class boss_xt002 : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                 events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
-                //Tantrum is casted a bit slower the first time.
+                //Tantrum is cast a bit slower the first time.
                 events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2);
-
-                if (!instance)
-                    return;
 
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
@@ -483,7 +477,7 @@ class npc_xt002_heart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_xt002_heartAI(creature);
+            return GetInstanceAI<npc_xt002_heartAI>(creature);
         }
 };
 
@@ -499,7 +493,7 @@ class npc_scrapbot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_scrapbotAI(creature);
+            return GetInstanceAI<npc_scrapbotAI>(creature);
         }
 
         struct npc_scrapbotAI : public ScriptedAI
@@ -549,7 +543,7 @@ class npc_pummeller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_pummellerAI(creature);
+            return GetInstanceAI<npc_pummellerAI>(creature);
         }
 
         struct npc_pummellerAI : public ScriptedAI
@@ -651,7 +645,7 @@ class npc_boombot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_boombotAI(creature);
+            return GetInstanceAI<npc_boombotAI>(creature);
         }
 
         struct npc_boombotAI : public ScriptedAI

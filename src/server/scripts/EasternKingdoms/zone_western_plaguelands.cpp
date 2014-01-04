@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -371,18 +371,18 @@ public:
                     if (Ughost)
                     {
                         Ughost->SetDisableGravity(true);
-                        Ughost->AI()->Talk(SAY_WP_4, me->GetGUID());
+                        Ughost->AI()->Talk(SAY_WP_4, me);
                     }
                     m_uiChatTimer = 4000;
                     break;
                 case 24:
                     if (Ughost)
-                        Ughost->AI()->Talk(SAY_WP_5, me->GetGUID());
+                        Ughost->AI()->Talk(SAY_WP_5, me);
                     m_uiChatTimer = 4000;
                     break;
                 case 25:
                     if (Ughost)
-                        Ughost->AI()->Talk(SAY_WP_6, me->GetGUID());
+                        Ughost->AI()->Talk(SAY_WP_6, me);
                     m_uiChatTimer = 4000;
                     break;
                 case 26:

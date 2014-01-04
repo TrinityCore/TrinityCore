@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,7 +50,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_infinite_corruptorAI(creature);
+        return GetInstanceAI<boss_infinite_corruptorAI>(creature);
     }
 
     struct boss_infinite_corruptorAI : public ScriptedAI
@@ -65,8 +65,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
+            instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
 
             if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 30.0f))
                 DoCast(guardian, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
@@ -75,8 +74,7 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 20*IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_VOID_STRIKE, 15*IN_MILLISECONDS);         
@@ -111,8 +109,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-            if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, DONE);
+            instance->SetData(DATA_INFINITE_EVENT, DONE);
             
             if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -628,7 +628,7 @@ class npc_rotting_frost_giant : public CreatureScript
                         case EVENT_DEATH_PLAGUE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                Talk(EMOTE_DEATH_PLAGUE_WARNING, target->GetGUID());
+                                Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
                                 DoCast(target, SPELL_DEATH_PLAGUE);
                             }
                             _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
@@ -841,7 +841,7 @@ class boss_sister_svalna : public CreatureScript
                 if (spell->Id == SPELL_HURL_SPEAR && me->HasAura(SPELL_AETHER_SHIELD))
                 {
                     me->RemoveAurasDueToSpell(SPELL_AETHER_SHIELD);
-                    Talk(EMOTE_SVALNA_BROKEN_SHIELD, caster->GetGUID());
+                    Talk(EMOTE_SVALNA_BROKEN_SHIELD, caster);
                 }
             }
 
@@ -867,7 +867,7 @@ class boss_sister_svalna : public CreatureScript
                     case SPELL_IMPALING_SPEAR:
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
                         {
-                            Talk(EMOTE_SVALNA_IMPALE, target->GetGUID());
+                            Talk(EMOTE_SVALNA_IMPALE, target);
                             summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, 1, target, false);
                             summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                         }
