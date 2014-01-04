@@ -89,6 +89,8 @@ class boss_thekal : public CreatureScript
 
             void Reset() OVERRIDE
             {
+                if (events.IsInPhase(PHASE_TWO))
+                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                 _Reset();
                 Enraged = false;
                 WasDead = false;
@@ -141,15 +143,17 @@ class boss_thekal : public CreatureScript
                             //Thekal will transform to Tiger if he died and was not resurrected after 10 seconds.
                             if (WasDead)
                             {
-                                DoCast(me, SPELL_TIGER_FORM);
+                                DoCast(me, SPELL_TIGER_FORM); // SPELL_AURA_TRANSFORM
                                 me->SetObjectScale(2.00f);
                                 me->SetStandState(UNIT_STAND_STATE_STAND);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetFullHealth();
+                                /*
                                 const CreatureTemplate* cinfo = me->GetCreatureTemplate();
                                 me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
                                 me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
                                 me->UpdateDamagePhysical(BASE_ATTACK);
+                                */
+                                me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 40.0f, true); // hack
                                 DoResetThreat();
                                 events.ScheduleEvent(EVENT_FRENZY, 30000, 0, PHASE_TWO);          // Phase 2
                                 events.ScheduleEvent(EVENT_FORCEPUNCH, 4000, 0, PHASE_TWO);       // Phase 2
