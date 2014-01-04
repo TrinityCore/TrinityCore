@@ -182,8 +182,8 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
-        if (m_zoneScript)
-            m_zoneScript->OnCreatureCreate(this);
+        if (GetZoneScript())
+            GetZoneScript()->OnCreatureCreate(this);
         sObjectAccessor->AddObject(this);
         Unit::AddToWorld();
         SearchFormation();
@@ -197,8 +197,8 @@ void Creature::RemoveFromWorld()
 {
     if (IsInWorld())
     {
-        if (m_zoneScript)
-            m_zoneScript->OnCreatureRemove(this);
+        if (GetZoneScript())
+            GetZoneScript()->OnCreatureRemove(this);
         if (m_formation)
             sFormationMgr->RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();
@@ -312,7 +312,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (!minfo)                                             // Cancel load if no model defined
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", entry);
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid model %u defined in table `creature_template`, can't load.", entry, displayID);
         return false;
     }
 
@@ -367,7 +367,6 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     if (!GetCreatureAddon())
         SetSheath(SHEATH_STATE_MELEE);
 
-    SelectLevel(GetCreatureTemplate());
     if (team == HORDE)
         setFaction(cInfo->faction_H);
     else
@@ -381,16 +380,18 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     else
         SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
 
-    SetAttackTime(BASE_ATTACK,  cInfo->baseattacktime);
-    SetAttackTime(OFF_ATTACK,   cInfo->baseattacktime);
-    SetAttackTime(RANGED_ATTACK, cInfo->rangeattacktime);
-
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
     SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+    SetAttackTime(BASE_ATTACK,   cInfo->baseattacktime);
+    SetAttackTime(OFF_ATTACK,    cInfo->baseattacktime);
+    SetAttackTime(RANGED_ATTACK, cInfo->rangeattacktime);
+
+    SelectLevel(GetCreatureTemplate());
 
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
@@ -1073,19 +1074,24 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
     SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
 
-    //damage
+    // damage
 
     float basedamage = stats->GenerateBaseDamage(cinfo);
 
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, ((basedamage + (stats->AttackPower / 14)) * cinfo->dmg_multiplier) * (cinfo->baseattacktime / 1000));
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (((basedamage * 1.5) + (stats->AttackPower / 14)) * cinfo->dmg_multiplier) * (cinfo->baseattacktime / 1000));
-    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (basedamage + (stats->RangedAttackPower / 14)) * (cinfo->rangeattacktime / 1000));
-    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, ((basedamage * 1.5) + (stats->RangedAttackPower / 14)) * (cinfo->rangeattacktime / 1000));
+    float weaponBaseMinDamage = basedamage;
+    float weaponBaseMaxDamage = basedamage * 1.5;
 
-    float damagemod = 1.0f;//_GetDamageMod(rank);
+    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower * damagemod);
+    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
 
+    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+
+    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
 }
 
 float Creature::_GetHealthMod(int32 Rank)
@@ -1154,9 +1160,9 @@ float Creature::GetSpellDamageMod(int32 Rank) const
 bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data)
 {
     SetZoneScript();
-    if (m_zoneScript && data)
+    if (GetZoneScript() && data)
     {
-        Entry = m_zoneScript->GetCreatureEntry(guidlow, data);
+        Entry = GetZoneScript()->GetCreatureEntry(guidlow, data);
         if (!Entry)
             return false;
     }
@@ -1256,6 +1262,12 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
     return true;
+}
+
+void Creature::SetCanDualWield(bool value)
+{
+    Unit::SetCanDualWield(value);
+    UpdateDamagePhysical(OFF_ATTACK);
 }
 
 void Creature::LoadEquipment(int8 id, bool force /*= true*/)
@@ -1965,7 +1977,7 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
     if (IsAIEnabled && !AI()->CanAIAttack(victim))
         return false;
 
-    if (sMapStore.LookupEntry(GetMapId())->IsDungeon())
+    if (GetMap()->IsDungeon())
         return true;
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
@@ -2427,7 +2439,7 @@ void Creature::SetPosition(float x, float y, float z, float o)
         return;
     }
 
-    GetMap()->CreatureRelocation(ToCreature(), x, y, z, o);
+    GetMap()->CreatureRelocation(this, x, y, z, o);
     if (IsVehicle())
         GetVehicleKit()->RelocatePassengers();
 }

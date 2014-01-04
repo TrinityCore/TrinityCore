@@ -27,6 +27,12 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "zulgurub.h"
 
+DoorData const doorData[] =
+{
+    { GO_FORCEFIELD, DATA_ARLOKK, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { 0,             0,           DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+};
+
 class instance_zulgurub : public InstanceMapScript
 {
     public: instance_zulgurub(): InstanceMapScript(ZGScriptName, 309) { }
@@ -36,6 +42,7 @@ class instance_zulgurub : public InstanceMapScript
             instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
             }
 
             void Initialize() OVERRIDE
@@ -46,7 +53,6 @@ class instance_zulgurub : public InstanceMapScript
                 _jindoTheHexxerGUID = 0;
                 _vilebranchSpeakerGUID = 0;
                 _arlokkGUID = 0;
-                _goForcefieldGUID = 0;
                 _goGongOfBethekkGUID = 0;
             }
 
@@ -86,7 +92,7 @@ class instance_zulgurub : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_FORCEFIELD:
-                        _goForcefieldGUID = go->GetGUID();
+                        AddDoor(go, true);
                         break;
                     case GO_GONG_OF_BETHEKK:
                         _goGongOfBethekkGUID = go->GetGUID();
@@ -94,6 +100,18 @@ class instance_zulgurub : public InstanceMapScript
                             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_FORCEFIELD:
+                        AddDoor(go, false);
                         break;
                     default:
                         break;
@@ -118,9 +136,6 @@ class instance_zulgurub : public InstanceMapScript
                         break;
                     case NPC_ARLOKK:
                         return _arlokkGUID;
-                        break;
-                    case GO_FORCEFIELD:
-                        return _goForcefieldGUID;
                         break;
                     case GO_GONG_OF_BETHEKK:
                         return _goGongOfBethekkGUID;
@@ -181,7 +196,6 @@ class instance_zulgurub : public InstanceMapScript
             uint64 _jindoTheHexxerGUID;
             uint64 _vilebranchSpeakerGUID;
             uint64 _arlokkGUID;
-            uint64 _goForcefieldGUID;
             uint64 _goGongOfBethekkGUID;
         };
 

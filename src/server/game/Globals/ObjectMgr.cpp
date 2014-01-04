@@ -883,7 +883,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             const_cast<CreatureTemplate*>(cInfo)->scale = 1.0f;
     }
 
-    if (cInfo->expansion > (MAX_CREATURE_BASE_HP - 1))
+    if (cInfo->expansion > (MAX_EXPANSIONS - 1))
     {
         TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with expansion %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansion);
         const_cast<CreatureTemplate*>(cInfo)->expansion = 0;
@@ -1772,7 +1772,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, const Position& pos)
         // We use spawn coords to spawn
         if (!map->Instanceable() && map->IsGridLoaded(data.posX, data.posY))
         {
-            Creature* creature = new Creature;
+            Creature* creature = new Creature();
             if (!creature->LoadCreatureFromDB(guid, map))
             {
                 TC_LOG_ERROR("misc", "MoveCreData: Cannot add creature guid %u to map", guid);
@@ -1824,7 +1824,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
         // We use spawn coords to spawn
         if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
         {
-            Creature* creature = new Creature;
+            Creature* creature = new Creature();
             if (!creature->LoadCreatureFromDB(guid, map))
             {
                 TC_LOG_ERROR("misc", "AddCreature: Cannot add creature entry %u to map", entry);
@@ -3044,8 +3044,8 @@ void ObjectMgr::LoadPetLevelInfo()
         {
             if (pInfo[level].health == 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature %u has no data for Level %i pet stats data, using data of Level %i.", itr->first, level+1, level);
-                pInfo[level] = pInfo[level-1];
+                TC_LOG_ERROR("sql.sql", "Creature %u has no data for Level %i pet stats data, using data of Level %i.", itr->first, level + 1, level);
+                pInfo[level] = pInfo[level - 1];
             }
         }
     }
@@ -3266,7 +3266,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            TC_LOG_ERROR("server.loading", ">> Loaded 0 player create spells. DB table `%s` is empty.", sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell");
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 player create spells. DB table `%s` is empty.", tableName.c_str());
         }
         else
         {
@@ -3281,13 +3281,13 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `playercreateinfo_spell` table, ignoring.", raceMask);
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `%s` table, ignoring.", raceMask, tableName.c_str());
                     continue;
                 }
 
                 if (classMask != 0 && !(classMask & CLASSMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `playercreateinfo_spell` table, ignoring.", classMask);
+                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `%s` table, ignoring.", classMask, tableName.c_str());
                     continue;
                 }
 
@@ -3307,7 +3307,7 @@ void ObjectMgr::LoadPlayerInfo()
                                 // We need something better here, the check is not accounting for spells used by multiple races/classes but not all of them.
                                 // Either split the masks per class, or per race, which kind of kills the point yet.
                                 // else if (raceMask != 0 && classMask != 0)
-                                //     TC_LOG_ERROR("sql.sql", "Racemask/classmask (%u/%u) combination was found containing an invalid race/class combination (%u/%u) in `playercreateinfo_spell` (Spell %u), ignoring.", raceMask, classMask, raceIndex, classIndex, spellId);
+                                //     TC_LOG_ERROR("sql.sql", "Racemask/classmask (%u/%u) combination was found containing an invalid race/class combination (%u/%u) in `%s` (Spell %u), ignoring.", raceMask, classMask, raceIndex, classIndex, tableName.c_str(), spellId);
                             }
                         }
                     }
@@ -3374,7 +3374,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            TC_LOG_ERROR("server.loading", ">> Loaded 0 level health/mana definitions. DB table `game_event_condition` is empty.");
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 level health/mana definitions. DB table `player_classlevelstats` is empty.");
             exit(1);
         }
 
@@ -3437,8 +3437,8 @@ void ObjectMgr::LoadPlayerInfo()
             {
                 if (pClassInfo->levelInfo[level].basehealth == 0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Class %i Level %i does not have health/mana data. Using stats data of level %i.", class_, level+1, level);
-                    pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level-1];
+                    TC_LOG_ERROR("sql.sql", "Class %i Level %i does not have health/mana data. Using stats data of level %i.", class_, level + 1, level);
+                    pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level - 1];
                 }
             }
         }
@@ -3498,9 +3498,9 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!info->levelInfo)
                     info->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
 
-                PlayerLevelInfo& levelInfo = info->levelInfo[current_level-1];
+                PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
                 for (int i = 0; i < MAX_STATS; i++)
-                    levelInfo.stats[i] = fields[i+3].GetUInt8();
+                    levelInfo.stats[i] = fields[i + 3].GetUInt8();
             }
 
             ++count;
@@ -3525,11 +3525,11 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
 
                 // skip expansion races if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < 1 && (race == RACE_BLOODELF || race == RACE_DRAENEI))
+                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_THE_BURNING_CRUSADE && (race == RACE_BLOODELF || race == RACE_DRAENEI))
                     continue;
 
                 // skip expansion classes if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < 2 && class_ == CLASS_DEATH_KNIGHT)
+                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_WRATH_OF_THE_LICH_KING && class_ == CLASS_DEATH_KNIGHT)
                     continue;
 
                 // fatal error if no level 1 data
@@ -3544,8 +3544,8 @@ void ObjectMgr::LoadPlayerInfo()
                 {
                     if (info->levelInfo[level].stats[0] == 0)
                     {
-                        TC_LOG_ERROR("sql.sql", "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level+1, level);
-                        info->levelInfo[level] = info->levelInfo[level-1];
+                        TC_LOG_ERROR("sql.sql", "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level + 1, level);
+                        info->levelInfo[level] = info->levelInfo[level - 1];
                     }
                 }
             }
@@ -3603,8 +3603,8 @@ void ObjectMgr::LoadPlayerInfo()
         {
             if (_playerXPperLevel[level] == 0)
             {
-                TC_LOG_ERROR("sql.sql", "Level %i does not have XP for level data. Using data of level [%i] + 100.", level+1, level);
-                _playerXPperLevel[level] = _playerXPperLevel[level-1]+100;
+                TC_LOG_ERROR("sql.sql", "Level %i does not have XP for level data. Using data of level [%i] + 100.", level + 1, level);
+                _playerXPperLevel[level] = _playerXPperLevel[level - 1] + 100;
             }
         }
 
@@ -7468,9 +7468,9 @@ void ObjectMgr::LoadGameObjectForQuests()
     {
         switch (itr->second.type)
         {
-            // scan GO chest with loot including quest items
             case GAMEOBJECT_TYPE_CHEST:
             {
+                // scan GO chest with loot including quest items
                 uint32 loot_id = (itr->second.GetLootId());
 
                 // find quest loot for GO
@@ -7486,7 +7486,7 @@ void ObjectMgr::LoadGameObjectForQuests()
                 if (itr->second._generic.questID > 0)            //quests objects
                 {
                     _gameObjectForQuestStore.insert(itr->second.entry);
-                    count++;
+                    ++count;
                 }
                 break;
             }
@@ -7495,7 +7495,7 @@ void ObjectMgr::LoadGameObjectForQuests()
                 if (itr->second.goober.questId > 0)              //quests objects
                 {
                     _gameObjectForQuestStore.insert(itr->second.entry);
-                    count++;
+                    ++count;
                 }
                 break;
             }
@@ -8519,13 +8519,18 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
         DefaultCreatureBaseStats()
         {
             BaseArmor = 1;
-            for (uint8 j = 0; j < MAX_CREATURE_BASE_HP; ++j)
+            for (uint8 j = 0; j < MAX_EXPANSIONS; ++j)
+            {
                 BaseHealth[j] = 1;
+                BaseDamage[j] = 0.0f;
+            }
             BaseMana = 0;
+            AttackPower = 0;
+            RangedAttackPower = 0;
         }
     };
-    static const DefaultCreatureBaseStats def_stats;
-    return &def_stats;
+    static const DefaultCreatureBaseStats defStats;
+    return &defStats;
 }
 
 void ObjectMgr::LoadCreatureClassLevelStats()
@@ -8545,34 +8550,37 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     {
         Field* fields = result->Fetch();
 
-        uint8 Level = fields[0].GetInt8();
-        uint8 Class = fields[1].GetInt8();
-
-        CreatureBaseStats stats;
-
-        for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
-            stats.BaseHealth[i] = fields[i + 2].GetInt16();
-
-        stats.BaseMana = fields[5].GetInt16();
-        stats.BaseArmor = fields[6].GetInt16();
-
-        stats.AttackPower = fields[7].GetInt16();
-        stats.RangedAttackPower = fields[8].GetInt16();
-
-        for (uint8 i = 0; i < MAX_CREATURE_BASE_DAMAGE; ++i)
-            stats.BaseDamage[i] = fields[i + 9].GetFloat();
+        uint8 Level = fields[0].GetUInt8();
+        uint8 Class = fields[1].GetUInt8();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             TC_LOG_ERROR("sql.sql", "Creature base stats for level %u has invalid class %u", Level, Class);
 
-        for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
+        CreatureBaseStats stats;
+
+        for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            if (stats.BaseHealth[i] < 1)
+            stats.BaseHealth[i] = fields[2 + i].GetUInt16();
+
+            if (stats.BaseHealth[i] == 0)
             {
                 TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid zero base HP[%u] - set to 1", Class, Level, i);
                 stats.BaseHealth[i] = 1;
             }
+
+            stats.BaseDamage[i] = fields[9 + i].GetFloat();
+            if (stats.BaseDamage[i] < 0.0f)
+            {
+                TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);
+                stats.BaseDamage[i] = 0.0f;
+            }
         }
+
+        stats.BaseMana = fields[5].GetUInt16();
+        stats.BaseArmor = fields[6].GetUInt16();
+
+        stats.AttackPower = fields[7].GetUInt16();
+        stats.RangedAttackPower = fields[8].GetUInt16();
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 

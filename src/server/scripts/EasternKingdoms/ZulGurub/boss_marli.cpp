@@ -64,11 +64,6 @@ enum Phases
     PHASE_THREE               = 3
 };
 
-enum ModelId
-{
-    MODEL_MARLI               = 15220
-};
-
 class boss_marli : public CreatureScript
 {
     public: boss_marli() : CreatureScript("boss_marli") { }
@@ -79,6 +74,8 @@ class boss_marli : public CreatureScript
 
             void Reset() OVERRIDE
             {
+                if (events.IsInPhase(PHASE_THREE))
+                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                 _Reset();
             }
 
@@ -155,11 +152,14 @@ class boss_marli : public CreatureScript
                         case EVENT_TRANSFORM:
                         {
                             Talk(SAY_TRANSFORM);
-                            DoCast(me, SPELL_SPIDER_FORM);
+                            DoCast(me, SPELL_SPIDER_FORM); // SPELL_AURA_TRANSFORM
+                            /*
                             CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
+                            */
+                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, true); // hack
                             DoCastVictim(SPELL_ENVOLWINGWEB);
                             if (DoGetThreat(me->GetVictim()))
                                 DoModifyThreatPercent(me->GetVictim(), -100);
@@ -188,11 +188,14 @@ class boss_marli : public CreatureScript
                         }
                         case EVENT_TRANSFORM_BACK:
                         {
-                            me->SetDisplayId(MODEL_MARLI);
+                            me->RemoveAura(SPELL_SPIDER_FORM);
+                            /*
                             CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
+                            */
+                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 15000);
