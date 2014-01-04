@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../Northrend/Ulduar/Ulduar/Ulduar.h"
+#include "../../Northrend/Ulduar/Ulduar/ulduar.h"
 
 // Thorim Spells
 enum Spells
