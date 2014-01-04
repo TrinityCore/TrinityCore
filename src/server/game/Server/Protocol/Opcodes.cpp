@@ -526,7 +526,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x1F1*/ { "MSG_SAVE_GUILD_EMBLEM",                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSaveGuildEmblemOpcode     },
     /*0x1F2*/ { "MSG_TABARDVENDOR_ACTIVATE",                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTabardVendorActivateOpcode},
     /*0x1F3*/ { "SMSG_PLAY_SPELL_VISUAL",                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x1F4*/ { "CMSG_ZONEUPDATE",                              STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleZoneUpdateOpcode          },
+    /*0x1F4*/ { "CMSG_ZONEUPDATE",                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleZoneUpdateOpcode          },
     /*0x1F5*/ { "SMSG_PARTYKILLLOG",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x1F6*/ { "SMSG_COMPRESSED_UPDATE_OBJECT",                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x1F7*/ { "SMSG_PLAY_SPELL_IMPACT",                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
