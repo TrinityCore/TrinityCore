@@ -393,7 +393,7 @@ void TileBuilder::OutputDebugVertices() const
     if (Constants::Debug)
     {
         char buff[100];
-        sprintf(buff, "mmaps/%s_%02u%02u.obj", World.c_str(), Y, X);
+        sprintf(buff, "mmaps/map%03u%02u%02u.obj", MapId, Y, X);
         FILE* debug = fopen(buff, "wb");
         for (uint32 i = 0; i < _Geometry->Vertices.size(); ++i)
         {
