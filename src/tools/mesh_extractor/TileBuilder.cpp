@@ -114,16 +114,16 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& /*navMeshParams*/ )
     rcCreateHeightfield(Context, *hf, InstanceConfig.width, InstanceConfig.height, InstanceConfig.bmin, InstanceConfig.bmax, InstanceConfig.cs, InstanceConfig.ch);
 
     rcClearUnwalkableTriangles(Context, InstanceConfig.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
-    rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, InstanceConfig.walkableClimb);
+    rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, ceilf(InstanceConfig.walkableClimb / InstanceConfig.ch));
 
-    rcFilterLowHangingWalkableObstacles(Context, InstanceConfig.walkableClimb, *hf);
-    rcFilterLedgeSpans(Context, InstanceConfig.walkableHeight, InstanceConfig.walkableClimb, *hf);
-    rcFilterWalkableLowHeightSpans(Context, InstanceConfig.walkableHeight, *hf);
+    rcFilterLowHangingWalkableObstacles(Context, ceilf(InstanceConfig.walkableClimb / InstanceConfig.ch), *hf);
+    rcFilterLedgeSpans(Context, ceilf(InstanceConfig.walkableHeight / InstanceConfig.ch), ceilf(InstanceConfig.walkableClimb / InstanceConfig.ch), *hf);
+    rcFilterWalkableLowHeightSpans(Context, ceilf(InstanceConfig.walkableHeight / InstanceConfig.ch), *hf);
 
     rcCompactHeightfield* chf = rcAllocCompactHeightfield();
-    rcBuildCompactHeightfield(Context, InstanceConfig.walkableHeight, InstanceConfig.walkableClimb, *hf, *chf);
+    rcBuildCompactHeightfield(Context, ceilf(InstanceConfig.walkableHeight / InstanceConfig.ch), ceilf(InstanceConfig.walkableClimb / InstanceConfig.ch), *hf, *chf);
 
-    rcErodeWalkableArea(Context, InstanceConfig.walkableRadius, *chf);
+    rcErodeWalkableArea(Context, ceilf(InstanceConfig.walkableRadius / InstanceConfig.cs), *chf);
     rcBuildDistanceField(Context, *chf);
     rcBuildRegions(Context, *chf, InstanceConfig.borderSize, InstanceConfig.minRegionArea, InstanceConfig.minRegionArea);
 
@@ -234,8 +234,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     CalculateTileBounds(bmin, bmax, navMeshParams);
     _Geometry->CalculateMinMaxHeight(bmin[1], bmax[1]);
 
-    // This is commented out to reduce the size of the resulting files (and the time it takes to generate them), we shouldn't need to load 4 more ADTs each time.
-    /*// again, we load everything - wasteful but who cares
+    // again, we load everything - wasteful but who cares
     for (int ty = Y - 1; ty <= Y + 1; ty++)
     {
         for (int tx = X - 1; tx <= X + 1; tx++)
@@ -255,7 +254,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
             _Geometry->AddAdt(_adt);
             delete _adt;
         }
-    }*/
+    }
 
     OutputDebugVertices();
     
@@ -279,16 +278,16 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     rcCreateHeightfield(Context, *hf, width, width, bmin, bmax, Config.cs, Config.ch);
 
     rcClearUnwalkableTriangles(Context, Config.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
-    rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, Config.walkableClimb);
+    rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, ceilf(Config.walkableClimb / Config.ch));
 
-    rcFilterLowHangingWalkableObstacles(Context, Config.walkableClimb, *hf);
-    rcFilterLedgeSpans(Context, Config.walkableHeight, Config.walkableClimb, *hf);
-    rcFilterWalkableLowHeightSpans(Context, Config.walkableHeight, *hf);
+    rcFilterLowHangingWalkableObstacles(Context, ceilf(Config.walkableClimb / Config.ch), *hf);
+    rcFilterLedgeSpans(Context, ceilf(Config.walkableHeight / Config.ch), ceilf(Config.walkableClimb / Config.ch), *hf);
+    rcFilterWalkableLowHeightSpans(Context, ceilf(Config.walkableHeight / Config.ch), *hf);
 
     rcCompactHeightfield* chf = rcAllocCompactHeightfield();
-    rcBuildCompactHeightfield(Context, Config.walkableHeight, Config.walkableClimb, *hf, *chf);
+    rcBuildCompactHeightfield(Context, ceilf(Config.walkableHeight / Config.ch), ceilf(Config.walkableClimb / Config.ch), *hf, *chf);
 
-    rcErodeWalkableArea(Context, Config.walkableRadius, *chf);
+    rcErodeWalkableArea(Context, ceilf(Config.walkableRadius / Config.cs), *chf);
     rcBuildDistanceField(Context, *chf);
     rcBuildRegions(Context, *chf, Config.borderSize, Config.minRegionArea, Config.mergeRegionArea);
 
