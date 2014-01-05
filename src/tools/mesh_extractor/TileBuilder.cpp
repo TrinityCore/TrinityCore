@@ -166,9 +166,9 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& /*navMeshParams*/ )
     // General settings
     params.ch = InstanceConfig.ch;
     params.cs = InstanceConfig.cs;
-    params.walkableClimb = InstanceConfig.walkableClimb * InstanceConfig.ch;
-    params.walkableHeight = InstanceConfig.walkableHeight * InstanceConfig.ch;
-    params.walkableRadius = InstanceConfig.walkableRadius * InstanceConfig.cs;
+    params.walkableClimb = InstanceConfig.walkableClimb;
+    params.walkableHeight = InstanceConfig.walkableHeight;
+    params.walkableRadius = InstanceConfig.walkableRadius;
     params.tileX = X;
     params.tileY = Y;
     params.tileLayer = 0;
@@ -329,9 +329,9 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     // General settings
     params.ch = Config.ch;
     params.cs = Config.cs;
-    params.walkableClimb = Config.walkableClimb * Config.ch;
-    params.walkableHeight = Config.walkableHeight * Config.ch;
-    params.walkableRadius = Config.walkableRadius * Config.cs;
+    params.walkableClimb = Config.walkableClimb;
+    params.walkableHeight = Config.walkableHeight;
+    params.walkableRadius = Config.walkableRadius;
     params.tileX = X;
     params.tileY = Y;
     params.tileLayer = 0;
