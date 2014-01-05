@@ -39,6 +39,9 @@ include(CheckIncludeFiles)
 # set default buildoptions and print them
 include(cmake/options.cmake)
 
+# Define the 64bits poly refs in RecastNavigation
+add_definitions(-DDT_POLYREF64)
+
 # turn off PCH totally if enabled (hidden setting, mainly for devs)
 if( NOPCH )
   set(USE_COREPCH 0)

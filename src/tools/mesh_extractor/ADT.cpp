@@ -35,8 +35,10 @@ ADT::~ADT()
 {
     // Temporarily delete the underlying streams, they are guaranteed to be different
     // @TODO: Remove this code once the ChunkedData destructor properly releases _Stream
-    delete ObjectData->_Stream;
-    delete Data->_Stream;
+    if (ObjectData)
+        delete ObjectData->_Stream;
+    if (Data)
+        delete Data->_Stream;
 
     delete ObjectData;
     delete Data;
