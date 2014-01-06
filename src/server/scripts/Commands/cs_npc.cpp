@@ -744,7 +744,7 @@ public:
 
         for (uint8 i = 0; i < NPCFLAG_COUNT; i++)
             if (npcflags & npcFlagTexts[i].Value)
-                handler->PSendSysMessage(npcFlagTexts[i].Name);
+                handler->PSendSysMessage(npcFlagTexts[i].Name, npcFlagTexts[i].Value);
 
         handler->PSendSysMessage(LANG_NPCINFO_MECHANIC_IMMUNE, mechanicImmuneMask);
         for (uint8 i = 0; i < MAX_MECHANIC; ++i)
