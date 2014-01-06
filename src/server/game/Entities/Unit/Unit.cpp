@@ -405,7 +405,7 @@ void Unit::UpdateSplinePosition()
     m_movesplineTimer.Reset(positionUpdateDelay);
     Movement::Location loc = movespline->ComputePosition();
 
-    if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+    if (movespline->onTransport)
     {
         Position& pos = m_movementInfo.transport.pos;
         pos.m_positionX = loc.x;
@@ -15544,7 +15544,7 @@ void Unit::SetStunned(bool apply)
 
         // Creature specific
         if (GetTypeId() != TYPEID_PLAYER)
-            ToCreature()->StopMoving();
+            StopMoving();
         else
             SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -15602,7 +15602,7 @@ void Unit::SetRooted(bool apply)
             WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
             data.append(GetPackGUID());
             SendMessageToSet(&data, true);
-            ToCreature()->StopMoving();
+            StopMoving();
         }
     }
     else

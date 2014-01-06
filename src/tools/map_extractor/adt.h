@@ -255,7 +255,7 @@ public:
         if (h->offsData2a)
             return *((uint64 *)((uint8*)this + 8 + h->offsData2a));
         else
-            return 0xFFFFFFFFFFFFFFFFLL;
+            return 0xFFFFFFFFFFFFFFFFuLL;
     }
 
 };
