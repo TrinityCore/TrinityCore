@@ -70,7 +70,11 @@ private:
 class BuilderThreadPool
 {
 public:
-    BuilderThreadPool() : _queue(new ACE_Activation_Queue()) {}
+    BuilderThreadPool() : _queue(new ACE_Activation_Queue()) 
+    {
+        _queue->queue()->high_water_mark(ACE_Message_Queue_Base::DEFAULT_HWM * 2);
+        _queue->queue()->low_water_mark(ACE_Message_Queue_Base::DEFAULT_HWM * 2);
+    }
     ~BuilderThreadPool() { _queue->queue()->close(); delete _queue; }
 
     void Enqueue(TileBuildRequest* request)

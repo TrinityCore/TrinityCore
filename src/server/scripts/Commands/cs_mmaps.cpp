@@ -289,7 +289,7 @@ public:
 
         status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
         FixPath(const_cast<dtNavMesh*>(navMesh), const_cast<dtNavMeshQuery*>(navMeshQuery), m_polyPickExt, m_filter, resultHopCount, straightPath);
-        for (uint32 i = 0; i < resultHopCount; ++i)
+        for (int i = 0; i < resultHopCount; ++i)
             player->SummonCreature(VISUAL_WAYPOINT, -straightPath[i * 3 + 2], -straightPath[i * 3 + 0], straightPath[i * 3 + 1], 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
 
         if (!player->IsGameMaster())
@@ -323,7 +323,7 @@ public:
         float const* min = navmesh->getParams()->orig;
         float x, y, z;
         player->GetPosition(x, y, z);
-        float location[] = {y, z, x};
+        float location[] = {-y, z, -x};
         float extents[] = {3.0f, 5.0f, 3.0f};
 
         int32 tilex = int32((y - min[0]) / SIZE_OF_GRIDS);
