@@ -34,17 +34,18 @@ public:
 
     enum PolyArea
     {
-        POLY_AREA_TERRAIN = 1,
-        POLY_AREA_WATER = 2,
-        POLY_AREA_ROAD = 3,
-        POLY_AREA_DANGER = 4,
+        POLY_AREA_TERRAIN   = 1,
+        POLY_AREA_WATER     = 2,
+        POLY_AREA_MAGMA     = 3,
+        POLY_AREA_SLIME     = 4
     };
 
     enum PolyFlag
     {
-        POLY_FLAG_WALK  = 1,
-        POLY_FLAG_SWIM  = 2,
-        POLY_FLAG_FLIGHTMASTER = 4
+        POLY_FLAG_WALK         = 1,
+        POLY_FLAG_WATER        = 2,
+        POLY_FLAG_MAGMA        = 4,
+        POLY_FLAG_SLIME        = 8
     };
 
     enum ExtractFlags

@@ -422,8 +422,9 @@ int main(int argc, char* argv[])
 
     if (extractFlags & Constants::EXTRACT_FLAG_TEST)
     {
-        float start[] = { -230.133f, 191.085f, -24.9191f };
-        float end[] = { -265.208f, 100.599f, -24.9443f };
+        float start[] = { -554.538330f, 2211.998779f, 49.802097f };
+        float end[] = { -530.584839f, 2211.550781f, 61.736004f };
+        //float start[] = { -530.584839f, 2211.550781f, 61.736004f };
 
         //
         float m_spos[3];
@@ -439,8 +440,8 @@ int main(int argc, char* argv[])
 
         //
         dtQueryFilter m_filter;
-        m_filter.setIncludeFlags(Constants::POLY_AREA_ROAD | Constants::POLY_AREA_TERRAIN);
-        m_filter.setExcludeFlags(Constants::POLY_AREA_WATER);
+        m_filter.setIncludeFlags(Constants::POLY_AREA_WATER | Constants::POLY_AREA_ROAD | Constants::POLY_AREA_TERRAIN);
+        //m_filter.setExcludeFlags(Constants::POLY_AREA_WATER);
 
         //
         float m_polyPickExt[3];
@@ -452,7 +453,7 @@ int main(int argc, char* argv[])
         dtPolyRef m_startRef;
         dtPolyRef m_endRef;
 
-        FILE* mmap = fopen("mmaps/389.mmap", "rb");
+        FILE* mmap = fopen("mmaps/631.mmap", "rb");
         dtNavMeshParams params;
         int count = fread(&params, sizeof(dtNavMeshParams), 1, mmap);
         fclose(mmap);
@@ -466,12 +467,12 @@ int main(int argc, char* argv[])
         dtNavMeshQuery* navMeshQuery = new dtNavMeshQuery();
 
         navMesh->init(&params);
-        for (int i = 0; i <= 32; ++i)
+        for (int i = 0; i <= 64; ++i)
         {
-            for (int j = 0; j <= 32; ++j)
+            for (int j = 0; j <= 64; ++j)
             {
                 char buff[100];
-                sprintf(buff, "mmaps/389%02i%02i.mmtile", i, j);
+                sprintf(buff, "mmaps/631%02i%02i.mmtile", i, j);
                 LoadTile(navMesh, buff);
             }
         }

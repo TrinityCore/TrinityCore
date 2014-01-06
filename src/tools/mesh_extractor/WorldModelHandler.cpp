@@ -170,8 +170,37 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
                     verts.push_back(translate ? v3 : Utils::ToRecast(v3));
                     verts.push_back(translate ? v4 : Utils::ToRecast(v4));
 
-                    tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset, vertOffset + 2, vertOffset + 1));
-                    tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));
+                    Constants::TriangleType triangleType = Constants::TRIANGLE_TYPE_WATER                                    ;
+
+                    // Taken from WoWDev wiki
+                    uint32 liquidEntry = 0;
+                    if (root->Header.LiquidTypeRelated & 4)
+                        liquidEntry = group->Header.LiquidTypeRelated;
+                    else
+                    {
+                        if (group->Header.LiquidTypeRelated == 15) // Green Lava
+                            liquidEntry = 0;
+                        else
+                            liquidEntry = group->Header.LiquidTypeRelated + 1;
+                    }
+                    if (liquidEntry && liquidEntry < 21)
+                    {
+                        switch ((liquidEntry - 1) & 3)
+                        {
+                            case 0:
+                            case 1:
+                                triangleType = Constants::TRIANGLE_TYPE_WATER;
+                                break;
+                            case 2:
+                                triangleType = Constants::TRIANGLE_TYPE_MAGMA;
+                                break;
+                            case 3:
+                                triangleType = Constants::TRIANGLE_TYPE_SLIME;
+                                break;
+                        }
+                    }
+                    tris.push_back(Triangle<uint32>(triangleType, vertOffset, vertOffset + 2, vertOffset + 1));
+                    tris.push_back(Triangle<uint32>(triangleType, vertOffset + 2, vertOffset + 3, vertOffset + 1));
 
                 }
             }

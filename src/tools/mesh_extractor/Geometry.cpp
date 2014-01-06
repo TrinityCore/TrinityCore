@@ -120,6 +120,12 @@ void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas ) const
             case Constants::TRIANGLE_TYPE_WATER:
                 areas[i] = Constants::POLY_AREA_WATER;
                 break;
+            case Constants::TRIANGLE_TYPE_MAGMA:
+                areas[i] = Constants::POLY_AREA_MAGMA;
+                break;
+            case Constants::TRIANGLE_TYPE_SLIME:
+                areas[i] = Constants::POLY_AREA_SLIME;
+                break;
             default:
                 areas[i] = Constants::POLY_AREA_TERRAIN;
                 break;

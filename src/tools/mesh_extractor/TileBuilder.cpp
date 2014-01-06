@@ -136,13 +136,17 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& /*navMeshParams*/ )
     rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
     rcBuildPolyMeshDetail(Context, *pmesh, *chf, InstanceConfig.detailSampleDist, InstanceConfig.detailSampleMaxError, *dmesh);
 
-    // Set flags according to area types (e.g. Swim for Water)
+    // Set flags according to area types
     for (int i = 0; i < pmesh->npolys; i++)
     {
-        if (pmesh->areas[i] == Constants::POLY_AREA_ROAD || pmesh->areas[i] == Constants::POLY_AREA_TERRAIN)
+        if (pmesh->areas[i] == Constants::POLY_AREA_TERRAIN)
             pmesh->flags[i] = Constants::POLY_FLAG_WALK;
         else if (pmesh->areas[i] == Constants::POLY_AREA_WATER)
-            pmesh->flags[i] = Constants::POLY_FLAG_SWIM;
+            pmesh->flags[i] = Constants::POLY_FLAG_WATER;
+        else if (pmesh->areas[i] == Constants::POLY_AREA_MAGMA)
+            pmesh->flags[i] = Constants::POLY_FLAG_MAGMA;
+        else if (pmesh->areas[i] == Constants::POLY_AREA_SLIME)
+            pmesh->flags[i] = Constants::POLY_FLAG_SLIME;
     }
 
     dtNavMeshCreateParams params;
@@ -300,13 +304,17 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
     rcBuildPolyMeshDetail(Context, *pmesh, *chf, Config.detailSampleDist, Config.detailSampleMaxError, *dmesh);
 
-    // Set flags according to area types (e.g. Swim for Water)
+    // Set flags according to area types
     for (int i = 0; i < pmesh->npolys; i++)
     {
-        if (pmesh->areas[i] == Constants::POLY_AREA_ROAD || pmesh->areas[i] == Constants::POLY_AREA_TERRAIN)
+        if (pmesh->areas[i] == Constants::POLY_AREA_TERRAIN)
             pmesh->flags[i] = Constants::POLY_FLAG_WALK;
         else if (pmesh->areas[i] == Constants::POLY_AREA_WATER)
-            pmesh->flags[i] = Constants::POLY_FLAG_SWIM;
+            pmesh->flags[i] = Constants::POLY_FLAG_WATER;
+        else if (pmesh->areas[i] == Constants::POLY_AREA_MAGMA)
+            pmesh->flags[i] = Constants::POLY_FLAG_MAGMA;
+        else if (pmesh->areas[i] == Constants::POLY_AREA_SLIME)
+            pmesh->flags[i] = Constants::POLY_FLAG_SLIME;
     }
 
     dtNavMeshCreateParams params;
