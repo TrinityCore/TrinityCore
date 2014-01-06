@@ -93,7 +93,7 @@ class boss_maiden_of_grief : public CreatureScript
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
-                return;
+                    return;
 
                 events.Update(diff);
 
