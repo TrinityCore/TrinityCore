@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -280,6 +280,41 @@ SummonLocation giantAddLocations[]=
     {2230.93f, -434.27f, 412.26f, 1.931f, 33110}
 };
 
+// Forwarding definition, since required by add-location and predicates
+enum ArenaAddEntries
+{
+    NPC_DARK_RUNE_CHAMPION      = 32876,
+    NPC_DARK_RUNE_COMMONER      = 32904,
+    NPC_DARK_RUNE_EVOKER        = 32878,
+    NPC_DARK_RUNE_WARBRINGER    = 32877,
+    NPC_IRON_RING_GUARD         = 32874,
+    NPC_IRON_HONOR_GUARD        = 32875,
+    NPC_DARK_RUNE_ACOLYTE_ARENA = 32886,
+    NPC_DARK_RUNE_ACOLYTE_TUNNEL= 33110
+};
+
+struct BerserkSelector
+{
+    bool operator() (WorldObject* unit)
+    {
+        if (unit->GetTypeId() != TYPEID_PLAYER)
+        {
+            // This doesn't work
+            /*for (uint8 i = 0; i < 8; i++)
+                if (unit->GetEntry() == (uint32)ArenaAddEntries(i))
+                    return false;*/
+
+            // Terribly ugly - TODO: conditions at database?
+            if (unit->GetEntry() == NPC_THORIM || unit->GetEntry() == NPC_RUNIC_COLOSSUS || unit->GetEntry() == NPC_RUNE_GIANT || 
+                unit->GetEntry() == NPC_DARK_RUNE_CHAMPION || unit->GetEntry() == NPC_DARK_RUNE_COMMONER || unit->GetEntry() == NPC_DARK_RUNE_EVOKER ||
+                unit->GetEntry() == NPC_DARK_RUNE_WARBRINGER || unit->GetEntry() == NPC_IRON_RING_GUARD || unit->GetEntry() == NPC_IRON_HONOR_GUARD ||
+                unit->GetEntry() == NPC_DARK_RUNE_ACOLYTE_ARENA || unit->GetEntry() == NPC_DARK_RUNE_ACOLYTE_TUNNEL)
+                return false;
+        }
+
+        return true;
+    }
+};
 
 class TW_boss_thorim : public CreatureScript
 {
@@ -473,7 +508,7 @@ public:
                             events.ScheduleEvent(EVENT_STORMHAMMER, urand(15, 20) *IN_MILLISECONDS, 0, PHASE_1);
                             break;
                         case EVENT_CHARGE_ORB:
-                            DoCastAOE(SPELL_CHARGE_ORB);
+                            me->CastCustomSpell(SPELL_CHARGE_ORB, SPELLVALUE_MAX_TARGETS, 3, NULL);
                             events.ScheduleEvent(EVENT_CHARGE_ORB, urand(15, 20) *IN_MILLISECONDS, 0, PHASE_1);
                             break;
                         case EVENT_SUMMON_WARBRINGER:
@@ -1279,6 +1314,36 @@ class TW_go_thorim_lever : public GameObjectScript
        }
 };
 
+class TW_spell_thorim_berserk : public SpellScriptLoader
+{
+    public:
+        TW_spell_thorim_berserk() : SpellScriptLoader("TW_spell_thorim_berserk") {}
+
+        class TW_spell_thorim_berserk_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(TW_spell_thorim_berserk_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(BerserkSelector());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_thorim_berserk_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_thorim_berserk_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+
+            private:
+                WorldObject* _target;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new TW_spell_thorim_berserk_SpellScript();
+        }
+};
+
 void AddSC_TW_boss_thorim()
 {
     new TW_boss_thorim();
@@ -1290,4 +1355,5 @@ void AddSC_TW_boss_thorim()
     new TW_npc_sif();
     new TW_spell_stormhammer_targeting();
     new TW_go_thorim_lever();
+    new TW_spell_thorim_berserk();
 }

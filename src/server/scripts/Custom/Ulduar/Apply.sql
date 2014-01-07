@@ -38,3 +38,12 @@ DELETE FROM `creature_addon` WHERE `guid`IN (136059, 136816);
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 ('136059','0','0','0','1','0','40775 0'),
 ('136816','0','0','0','1','0','40775 0');
+
+DELETE FROM `conditions` WHERE `SourceEntry` = 62016 AND `SourceTypeOrReferenceId` = 13;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`)VALUES
+(13, 7, 62016, 0, 0, 31, 0, 3, 32780, 0, 0, 0, 0,'','Thorim - Charge Orb');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=62560;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62560, 'TW_spell_thorim_berserk');
+
