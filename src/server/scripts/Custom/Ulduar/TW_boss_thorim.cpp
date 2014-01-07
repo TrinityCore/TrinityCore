@@ -56,7 +56,8 @@ enum Events
     EVENT_UNBALANCING_STRIKE,
     EVENT_CHAIN_LIGHTNING,
     EVENT_TRANSFER_ENERGY,
-    EVENT_RELEASE_ENERGY
+    EVENT_RELEASE_ENERGY,
+    EVENT_CLOSE_ARENA_DOOR
 };
 
 enum Yells
@@ -121,9 +122,14 @@ const uint32 SPELL_PRE_SECONDARY_N[]            = {SPELL_SWEEP,     SPELL_HEROIC
 const uint32 SPELL_PRE_SECONDARY_H[]            = {SPELL_SWEEP_H,   SPELL_HEROIC_SWIPE,     SPELL_SHOOT,    SPELL_GREATER_HEAL_H,   SPELL_HEROIC_SWIPE, SPELL_SHOOT};
 #define SPELL_HOLY_SMITE                        RAID_MODE(62335, 62443)
 
-#define ACTION_INCREASE_PREADDS_COUNT           1
-#define ACTION_RUNIC_SMASH                      2
-#define ACTION_BERSERK                          3
+enum Actions
+{
+    ACTION_INCREASE_PREADDS_COUNT          = 1,
+    ACTION_RUNIC_SMASH                     = 2,
+    ACTION_BERSERK                         = 3,
+    ACTION_CLOSE_ARENA_DOOR                = 4
+};
+
 #define MAX_HARD_MODE_TIME                      180000 // 3 Minutes
 
 // Achievements
@@ -289,8 +295,6 @@ public:
     {
         TW_boss_thorimAI(Creature* creature) : BossAI(creature, 3)
         {
-            Wipe = false;
-            EncounterFinished = false;
             homePosition = creature->GetHomePosition();
         }
 
@@ -320,10 +324,11 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
 
             phase = PHASE_NULL;
-            Wipe = false;
             HardMode = false;
             OrbSummoned = false;
             summonChampion = false;
+            Wipe = false;
+            EncounterFinished = false;
             _checkTargetTimer = 7000;
             PreAddsCount = 0;
 
@@ -376,7 +381,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            //Talk(SAY_AGGRO_1);
+            Talk(SAY_AGGRO_1);
             _EnterCombat();
 
             // Spawn Thunder Orbs
@@ -496,6 +501,9 @@ public:
                             DoCast(me, SPELL_SUMMON_LIGHTNING_ORB, true);
                             Talk(SAY_BERSERK);
                             break;
+                        case EVENT_CLOSE_ARENA_DOOR:
+                            instance->DoUseDoorOrButton(instance->GetData(GO_THORIM_DARK_IRON_PROTCULLIS));
+                            break;
                     }
                 }
             }
@@ -552,6 +560,9 @@ public:
                     return;
                 case ACTION_INCREASE_PREADDS_COUNT:
                     ++PreAddsCount;
+                    break;
+                case ACTION_CLOSE_ARENA_DOOR:
+                    events.ScheduleEvent(EVENT_CLOSE_ARENA_DOOR, 10000);
                     break;
             }
 
@@ -1248,6 +1259,26 @@ class TW_spell_stormhammer_targeting : public SpellScriptLoader
         }
 };
 
+class TW_go_thorim_lever : public GameObjectScript
+{
+    public:
+       TW_go_thorim_lever() : GameObjectScript("TW_go_thorim_lever") { }
+
+       bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
+       {
+           if (GameObject* porticullis = go->FindNearestGameObject(GO_THORIM_DARK_IRON_PROTCULLIS, 50.0f))
+               go->GetInstanceScript()->DoUseDoorOrButton(porticullis->GetGUID());
+
+           if (Creature* thorim = go->FindNearestCreature(BOSS_THORIM, 50.0f))
+               thorim->AI()->DoAction(ACTION_CLOSE_ARENA_DOOR);
+
+           go->UseDoorOrButton();
+           go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+           
+           return true;
+       }
+};
+
 void AddSC_TW_boss_thorim()
 {
     new TW_boss_thorim();
@@ -1258,4 +1289,5 @@ void AddSC_TW_boss_thorim()
     new TW_npc_ancient_rune_giant();
     new TW_npc_sif();
     new TW_spell_stormhammer_targeting();
+    new TW_go_thorim_lever();
 }
