@@ -836,7 +836,7 @@ class TW_npc_thorim_arena_phase : public CreatureScript
                 else
                     _ChargeTimer -= diff;
 
-                if (_id == DARK_RUNE_ACOLYTE)
+                if (_id == DARK_RUNE_WARBRINGER)
                     DoSpellAttackIfReady(SPELL_HOLY_SMITE);
                 else
                     DoMeleeAttackIfReady();
