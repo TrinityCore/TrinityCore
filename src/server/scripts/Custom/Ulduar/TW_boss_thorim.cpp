@@ -392,7 +392,7 @@ public:
                 return;
 
             EncounterFinished = true;
-            //Talk(SAY_DEATH);
+            Talk(SAY_DEATH);
             me->setFaction(35);
             me->DespawnOrUnsummon(7000);
             EnterEvadeMode();
@@ -437,10 +437,7 @@ public:
             events.ScheduleEvent(EVENT_SAY_AGGRO_2, 10000, 0, PHASE_1);
 
             if (Creature* runic = me->GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS)))
-            {
-                runic->setActive(true);
                 runic->AI()->DoAction(ACTION_RUNIC_SMASH);
-            }
 
             if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -918,7 +915,6 @@ class TW_npc_runic_colossus : public CreatureScript
 
                 me->setActive(false);
                 me->GetMotionMaster()->MoveTargetedHome();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 // Runed Door closed
                 if (instance)

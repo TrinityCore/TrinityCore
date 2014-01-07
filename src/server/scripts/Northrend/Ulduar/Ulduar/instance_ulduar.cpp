@@ -112,6 +112,8 @@ class instance_ulduar : public InstanceMapScript
             // TW 
             uint64 RunicDoorGUID;
             uint64 StoneDoorGUID;
+            uint64 RunicColossusGUID;
+            uint64 RuneGiantGUID;
 
             std::set<uint64> mRubbleSpawns;
 
@@ -163,6 +165,8 @@ class instance_ulduar : public InstanceMapScript
 
                 RunicDoorGUID                    = 0;
                 StoneDoorGUID                    = 0;
+                RunicColossusGUID                = 0;
+                RuneGiantGUID                    = 0;
 
                 memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
                 memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
@@ -419,6 +423,13 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_UNLEASHED_DARK_MATTER:
                         if (Creature* algalon = instance->GetCreature(AlgalonGUID))
                             algalon->AI()->JustSummoned(creature);
+                        break;
+
+                    case NPC_RUNIC_COLOSSUS:
+                        RunicColossusGUID = creature->GetGUID();
+                        break;
+                    case NPC_RUNE_GIANT:
+                        RuneGiantGUID = creature->GetGUID();
                         break;
                 }
             }
@@ -925,6 +936,12 @@ class instance_ulduar : public InstanceMapScript
                         return AlgalonTrapdoorGUID;
                     case DATA_BRANN_BRONZEBEARD_ALG:
                         return BrannBronzebeardAlgGUID;
+
+                    // TW
+                    case DATA_RUNIC_COLOSSUS:
+                        return RunicColossusGUID;
+                    case DATA_RUNE_GIANT:
+                        return RuneGiantGUID;
                 }
 
                 return 0;

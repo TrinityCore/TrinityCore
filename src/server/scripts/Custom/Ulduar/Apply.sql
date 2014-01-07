@@ -47,3 +47,4 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=62560;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62560, 'TW_spell_thorim_berserk');
 
+UPDATE `creature_template` SET `ScriptName` = 'TW_npc_runic_smash' WHERE `entry` = 33140; -- Creature had no ScriptName set
