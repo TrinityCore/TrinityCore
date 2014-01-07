@@ -109,6 +109,10 @@ class instance_ulduar : public InstanceMapScript
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
 
+            // TW 
+            uint64 RunicDoorGUID;
+            uint64 StoneDoorGUID;
+
             std::set<uint64> mRubbleSpawns;
 
             void Initialize() OVERRIDE
@@ -156,6 +160,9 @@ class instance_ulduar : public InstanceMapScript
                 Unbroken                         = true;
                 _algalonSummoned                 = false;
                 _summonAlgalon                   = false;
+
+                RunicDoorGUID                    = 0;
+                StoneDoorGUID                    = 0;
 
                 memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
                 memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
@@ -547,6 +554,12 @@ class instance_ulduar : public InstanceMapScript
                     case GO_GIFT_OF_THE_OBSERVER_25:
                         GiftOfTheObserverGUID = gameObject->GetGUID();
                         break;
+                    case GO_THORIM_RUNIC_DOOR:
+                        RunicDoorGUID = gameObject->GetGUID();
+                        break;
+                    case GO_THORIM_STONE_DOOR:
+                        StoneDoorGUID = gameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -787,6 +800,12 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case DATA_ALGALON_SUMMON_STATE:
                         _algalonSummoned = true;
+                        break;
+                    case DATA_RUNIC_DOOR:
+                        DoUseDoorOrButton(RunicDoorGUID);
+                        break;
+                    case DATA_STONE_DOOR:
+                        DoUseDoorOrButton(StoneDoorGUID);
                         break;
                     default:
                         break;
