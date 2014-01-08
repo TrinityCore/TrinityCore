@@ -34,7 +34,10 @@ enum Spells
     SPELL_LIGHTNING_PILLAR                      = 62976,
     SPELL_UNBALANCING_STRIKE                    = 62130,
     SPELL_BERSERK_PHASE_1                       = 62560,
-    SPELL_BERSERK_PHASE_2                       = 26662
+    SPELL_BERSERK_PHASE_2                       = 26662,
+
+    SPELL_ACHIEVEMENT_CHECK                     = 64985,
+    SPELL_ACHIEVEMENT_SIFFED                    = 64980
 };
 
 enum Phases
@@ -130,8 +133,6 @@ enum Actions
     ACTION_CLOSE_ARENA_DOOR                = 4
 };
 
-#define MAX_HARD_MODE_TIME                      180000 // 3 Minutes
-
 // Achievements
 #define ACHIEVEMENT_SIFFED                      RAID_MODE(2977, 2978)
 #define ACHIEVEMENT_LOSE_ILLUSION               RAID_MODE(3176, 3183)
@@ -149,10 +150,14 @@ enum ArenaAdds
 
 enum Creatures
 {
-    NPC_SIF                         = 33196,
     NPC_LIGHTNING_ORB               = 33138,
     NPC_POWER_SOURCE                = 34055, // bad id
     NPC_GOLEM_BUNNY                 = 33140  // 33141
+};
+
+enum Data
+{
+    DATA_LOSE_YOUR_ILLUSION,
 };
 
 const uint32 ARENA_PHASE_ADD[]                  = {32876, 32904, 32878, 32877, 32874, 32875, 33110};
@@ -351,7 +356,10 @@ public:
                 return;
 
             if (Wipe)
+            {
+                instance->SetBossState(BOSS_THORIM, FAIL);
                 Talk(SAY_WIPE);
+            }
 
             _Reset();
 
@@ -399,18 +407,17 @@ public:
 
             if (instance)
             {
-                // Kill credit
-                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 64985);
                 // Lose Your Illusion
                 if (HardMode)
                 {
-                    //instance->DoCompleteAchievement(ACHIEVEMENT_LOSE_ILLUSION);
+                    DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_HARDMODE_10, CACHE_OF_STORMS_HARDMODE_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
                 }
                 else
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
+            
+                instance->SetBossState(BOSS_THORIM, DONE);
             }
-
             _JustDied();
         }
 
@@ -441,6 +448,9 @@ public:
 
             if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+            if (instance)
+                instance->SetBossState(BOSS_THORIM, IN_PROGRESS);
         }
 
         void EnterEvadeMode() OVERRIDE
@@ -451,6 +461,14 @@ public:
             me->SetHomePosition(homePosition);
             me->GetMotionMaster()->MoveTargetedHome();
             Reset();
+        }
+
+        uint32 GetData(uint32 type) const OVERRIDE
+        {
+            if (type == DATA_LOSE_YOUR_ILLUSION)
+                return HardMode;
+
+            return 0;
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -644,14 +662,12 @@ public:
                     events.ScheduleEvent(EVENT_TRANSFER_ENERGY, 20000, 0, PHASE_2);
                     events.ScheduleEvent(EVENT_BERSERK, 300000, 0, PHASE_2);
                     // Hard Mode
-                    if (EncounterTime <= MAX_HARD_MODE_TIME)
+                    if (EncounterTime <= 3*MINUTE*IN_MILLISECONDS)
                     {
                         HardMode = true;
                         // Summon Sif
+                        DoCastAOE(SPELL_ACHIEVEMENT_SIFFED);
                         me->SummonCreature(NPC_SIF, 2149.27f, -260.55f, 419.69f, 2.527f, TEMPSUMMON_CORPSE_DESPAWN);
-                        // Achievement Siffed
-                        /*if (instance)
-                            instance->DoCompleteAchievement(ACHIEVEMENT_SIFFED);*/
                     }
                     else
                         me->AddAura(SPELL_TOUCH_OF_DOMINION, me);
@@ -1178,13 +1194,16 @@ public:
     {
         TW_npc_sifAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            instance = me->GetInstanceScript();
         }
 
         uint32 FrostTimer;
         uint32 VolleyTimer;
         uint32 BlizzardTimer;
         uint32 NovaTimer;
+
+        InstanceScript* instance;
 
         void Reset() OVERRIDE
         {
@@ -1232,6 +1251,9 @@ public:
                 NovaTimer = urand(20000, 25000);
             }
             else NovaTimer -= diff;
+
+            if (instance->GetBossState(BOSS_THORIM) != IN_PROGRESS)
+                me->DespawnOrUnsummon();
         }
     };
 };
@@ -1340,6 +1362,26 @@ class TW_spell_thorim_berserk : public SpellScriptLoader
         }
 };
 
+class TW_achievement_siffed_and_lose_your_illusion : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_siffed_and_lose_your_illusion() : AchievementCriteriaScript("TW_achievement_siffed_and_lose_your_illusion")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Thorim = target->ToCreature())
+                if (Thorim->AI()->GetData(DATA_LOSE_YOUR_ILLUSION))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_TW_boss_thorim()
 {
     new TW_boss_thorim();
@@ -1352,4 +1394,5 @@ void AddSC_TW_boss_thorim()
     new TW_spell_stormhammer_targeting();
     new TW_go_thorim_lever();
     new TW_spell_thorim_berserk();
+    new TW_achievement_siffed_and_lose_your_illusion();
 }

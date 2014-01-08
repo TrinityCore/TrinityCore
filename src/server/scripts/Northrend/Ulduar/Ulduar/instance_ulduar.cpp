@@ -114,6 +114,8 @@ class instance_ulduar : public InstanceMapScript
             uint64 StoneDoorGUID;
             uint64 RunicColossusGUID;
             uint64 RuneGiantGUID;
+            uint64 SifGUID;
+            uint64 ThorimLightningFieldGUID;
 
             std::set<uint64> mRubbleSpawns;
 
@@ -167,6 +169,8 @@ class instance_ulduar : public InstanceMapScript
                 StoneDoorGUID                    = 0;
                 RunicColossusGUID                = 0;
                 RuneGiantGUID                    = 0;
+                SifGUID                          = 0;
+                ThorimLightningFieldGUID         = 0;
 
                 memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
                 memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
@@ -431,6 +435,9 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_RUNE_GIANT:
                         RuneGiantGUID = creature->GetGUID();
                         break;
+                    case NPC_SIF:
+                        SifGUID = creature->GetGUID();
+                        break;
                 }
             }
 
@@ -570,6 +577,9 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_THORIM_STONE_DOOR:
                         StoneDoorGUID = gameObject->GetGUID();
+                        break;
+                    case GO_THORIM_LIGHTNING_FIELD:
+                        ThorimLightningFieldGUID = gameObject->GetGUID();
                         break;
                     default:
                         break;
@@ -716,7 +726,14 @@ class instance_ulduar : public InstanceMapScript
                                 gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
 
                             instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
+
+                            if (Creature* Sif = instance->GetCreature(SifGUID))
+                                Sif->DespawnOrUnsummon();
+
+                            DoUseDoorOrButton(ThorimLightningFieldGUID);
                         }
+                        else if (state == IN_PROGRESS)
+                            DoUseDoorOrButton(ThorimLightningFieldGUID);
                         break;
                     case BOSS_ALGALON:
                         if (state == DONE)

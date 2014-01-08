@@ -165,7 +165,8 @@ enum UlduarNPCs
 
     // Thorim
     NPC_THORIM_CTRL                         = 32879,
-    NPC_THORIM_IMAGE                        = 33413,
+    NPC_THORIM_IMAGE                        = 33413, 
+    NPC_SIF                                 = 33196,
     // Thorim_PrePhaseAddEntries
     NPC_JORMUNGAR_BEHEMOTH                  = 32882,
     NPC_MERCENARY_CAPTAIN_A                 = 32908,
