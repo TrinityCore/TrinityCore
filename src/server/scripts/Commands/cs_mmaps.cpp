@@ -210,24 +210,17 @@ public:
             return true;
         }
 
-        char* para = strtok((char*)args, " ");
-
-        bool useStraightPath = false;
-        if (para && strcmp(para, "true") == 0)
-            useStraightPath = true;
-
         // unit locations
         float x, y, z;
         player->GetPosition(x, y, z);
 
         // path
-        /*PathGenerator path(target);
-        path.SetUseStraightPath(useStraightPath);
+        PathGenerator path(target);
         bool result = path.CalculatePath(x, y, z);
         
         Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
-        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
+        handler->PSendSysMessage("Building: %s", "StraightPath");
         handler->PSendSysMessage("Result: %s - Length: " SIZEFMTD " - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
         G3D::Vector3 const &start = path.GetStartPosition();
@@ -237,63 +230,12 @@ public:
         handler->PSendSysMessage("StartPosition     (%.3f, %.3f, %.3f)", start.x, start.y, start.z);
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
         handler->PSendSysMessage("ActualEndPosition (%.3f, %.3f, %.3f)", actualEnd.x, actualEnd.y, actualEnd.z);
-        */
-        float m_spos[3];
-        m_spos[0] = -y;
-        m_spos[1] = z;
-        m_spos[2] = -x;
-
-        //
-        float m_epos[3];
-        m_epos[0] = -target->GetPositionY();
-        m_epos[1] = target->GetPositionZ();
-        m_epos[2] = -target->GetPositionX();
-
-        //
-        dtQueryFilter m_filter;
-        m_filter.setIncludeFlags(3);
-        m_filter.setExcludeFlags(2);
-
-        //
-        float m_polyPickExt[3];
-        m_polyPickExt[0] = 2.5f;
-        m_polyPickExt[1] = 2.5f;
-        m_polyPickExt[2] = 2.5f;
-
-        //
-        dtPolyRef m_startRef;
-        dtPolyRef m_endRef;
-
-        const dtNavMesh* navMesh = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMesh(player->GetMapId());
-        const dtNavMeshQuery* navMeshQuery = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMeshQuery(player->GetMapId(), handler->GetSession()->GetPlayer()->GetInstanceId());
-
-        float nearestPt[3];
-
-        navMeshQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, nearestPt);
-        navMeshQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, nearestPt);
-
-        if ( !m_startRef || !m_endRef )
-        {
-            std::cerr << "Could not find any nearby poly's (" << m_startRef << "," << m_endRef << ")" << std::endl;
-            return 0;
-        }
-
-        int hops;
-        dtPolyRef* hopBuffer = new dtPolyRef[8192];
-        dtStatus status = navMeshQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, hopBuffer, &hops, 8192);
-
-        int resultHopCount;
-        float* straightPath = new float[2048*3];
-        unsigned char* pathFlags = new unsigned char[2048];
-        dtPolyRef* pathRefs = new dtPolyRef[2048];
-
-        status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
-        FixPath(const_cast<dtNavMesh*>(navMesh), const_cast<dtNavMeshQuery*>(navMeshQuery), m_polyPickExt, m_filter, resultHopCount, straightPath);
-        for (int i = 0; i < resultHopCount; ++i)
-            player->SummonCreature(VISUAL_WAYPOINT, -straightPath[i * 3 + 2], -straightPath[i * 3 + 0], straightPath[i * 3 + 1], 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
 
         if (!player->IsGameMaster())
             handler->PSendSysMessage("Enable GM mode to see the path points.");
+
+        for (uint32 i = 0; i < pointPath.size(); ++i)
+            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
 
         return true;
     }
