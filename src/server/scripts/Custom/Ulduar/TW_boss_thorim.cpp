@@ -809,6 +809,12 @@ class TW_npc_thorim_arena_phase : public CreatureScript
                 _ChargeTimer = 8000;
             }
 
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+            {
+                if (me->IsWithinDistInMap(who, 10.0f))
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+            }
+
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (_id == DARK_RUNE_WARBRINGER)
@@ -941,6 +947,12 @@ class TW_npc_runic_colossus : public CreatureScript
                 for (uint8 i = 0; i < 6; i++)
                     me->SummonCreature(colossusAddLocations[i].entry, colossusAddLocations[i].x, colossusAddLocations[i].y, colossusAddLocations[i].z,
                     colossusAddLocations[i].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+            }
+
+            void MoveInLineOfSight(Unit* who) OVERRIDE
+            {
+                if (me->IsWithinDistInMap(who, 10.0f))
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
@@ -1134,6 +1146,12 @@ public:
             summons.DespawnAll();
             for (uint8 i = 0; i < 5; i++)
                 me->SummonCreature(giantAddLocations[i].entry,giantAddLocations[i].x,giantAddLocations[i].y,giantAddLocations[i].z,giantAddLocations[i].o,TEMPSUMMON_CORPSE_TIMED_DESPAWN,3000);
+        }
+
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+        {
+            if (me->IsWithinDistInMap(who, 10.0f))
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void JustSummoned(Creature *summon) OVERRIDE
