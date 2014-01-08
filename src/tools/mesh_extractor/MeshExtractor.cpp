@@ -440,7 +440,7 @@ int main(int argc, char* argv[])
 
         //
         dtQueryFilter m_filter;
-        m_filter.setIncludeFlags(Constants::POLY_AREA_WATER | Constants::POLY_AREA_ROAD | Constants::POLY_AREA_TERRAIN);
+        m_filter.setIncludeFlags(Constants::POLY_AREA_WATER | Constants::POLY_AREA_TERRAIN);
         //m_filter.setExcludeFlags(Constants::POLY_AREA_WATER);
 
         //
