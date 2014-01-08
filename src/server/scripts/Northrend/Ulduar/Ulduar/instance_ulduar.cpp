@@ -830,10 +830,12 @@ class instance_ulduar : public InstanceMapScript
                         _algalonSummoned = true;
                         break;
                     case DATA_RUNIC_DOOR:
-                        DoUseDoorOrButton(RunicDoorGUID);
+                        if (GameObject* go = instance->GetGameObject(RunicDoorGUID))
+                            go->SetGoState(GOState(data));
                         break;
                     case DATA_STONE_DOOR:
-                        DoUseDoorOrButton(StoneDoorGUID);
+                        if (GameObject* go = instance->GetGameObject(StoneDoorGUID))
+                            go->SetGoState(GOState(data));
                         break;
                     default:
                         break;
