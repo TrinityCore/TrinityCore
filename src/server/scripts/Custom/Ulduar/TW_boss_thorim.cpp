@@ -358,6 +358,8 @@ public:
             if (Wipe)
             {
                 instance->SetBossState(BOSS_THORIM, FAIL);
+                if (GameObject* lightning = me->FindNearestGameObject(GO_THORIM_LIGHTNING_FIELD, 500))
+                    lightning->SetGoState(GO_STATE_ACTIVE);
                 Talk(SAY_WIPE);
             }
 
