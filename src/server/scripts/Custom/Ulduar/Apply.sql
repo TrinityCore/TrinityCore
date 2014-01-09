@@ -59,3 +59,9 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 (10457, 11, 0, 0, 'TW_achievement_siffed_and_lose_your_illusion'),
 (10289, 11, 0, 0, 'TW_achievement_siffed_and_lose_your_illusion'),
 (10314, 11, 0, 0, 'TW_achievement_siffed_and_lose_your_illusion');
+
+DELETE FROM `conditions` WHERE `SourceEntry` = 64098 AND `SourceTypeOrReferenceId` = 13;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`)VALUES
+(13, 1, 64098, 0, 0, 31, 0, 3, 32865, 0, 0, 0, 0,'','Thorim Charged Pillar - Lightning Bolt'),
+(13, 1, 64098, 0, 1, 31, 0, 3, 33147, 0, 0, 0, 0,'','Thorim Charged Pillar - Lightning Bolt');
+
