@@ -158,6 +158,7 @@ enum Creatures
 enum Data
 {
     DATA_LOSE_YOUR_ILLUSION,
+    DATA_DONT_STAND_IN_THE_LIGHTNING,
 };
 
 const uint32 ARENA_PHASE_ADD[]                  = {32876, 32904, 32878, 32877, 32874, 32875, 33110};
@@ -348,6 +349,7 @@ public:
         bool OrbSummoned;
         bool EncounterFinished;
         bool summonChampion;
+        bool LightningAchievement;
         Position homePosition;
 
         void Reset() OVERRIDE
@@ -372,6 +374,7 @@ public:
             HardMode = false;
             OrbSummoned = false;
             summonChampion = false;
+            LightningAchievement = true;
             Wipe = false;
             EncounterFinished = false;
             _checkTargetTimer = 7000;
@@ -467,10 +470,23 @@ public:
 
         uint32 GetData(uint32 type) const OVERRIDE
         {
-            if (type == DATA_LOSE_YOUR_ILLUSION)
-                return HardMode;
+            switch (type)
+            {
+                case DATA_LOSE_YOUR_ILLUSION:
+                    return HardMode;
+                case DATA_DONT_STAND_IN_THE_LIGHTNING:
+                    return LightningAchievement;
+                default:
+                    break;
+            }
 
             return 0;
+        }
+
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
+        {
+            if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_LIGHTNING_RELEASE)
+                LightningAchievement = false;
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -1402,6 +1418,26 @@ class TW_achievement_siffed_and_lose_your_illusion : public AchievementCriteriaS
         }
 };
 
+class TW_achievement_dont_stand_in_the_lightning : public AchievementCriteriaScript
+{
+    public:
+        TW_achievement_dont_stand_in_the_lightning() : AchievementCriteriaScript("TW_achievement_dont_stand_in_the_lightning")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
+        {
+            if (!target)
+                return false;
+
+            if (Creature* Thorim = target->ToCreature())
+                if (Thorim->AI()->GetData(DATA_DONT_STAND_IN_THE_LIGHTNING))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_TW_boss_thorim()
 {
     new TW_boss_thorim();
@@ -1415,4 +1451,5 @@ void AddSC_TW_boss_thorim()
     new TW_go_thorim_lever();
     new TW_spell_thorim_berserk();
     new TW_achievement_siffed_and_lose_your_illusion();
+    new TW_achievement_dont_stand_in_the_lightning();
 }

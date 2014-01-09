@@ -65,3 +65,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 64098, 0, 0, 31, 0, 3, 32865, 0, 0, 0, 0,'','Thorim Charged Pillar - Lightning Bolt'),
 (13, 1, 64098, 0, 1, 31, 0, 3, 33147, 0, 0, 0, 0,'','Thorim Charged Pillar - Lightning Bolt');
 
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10305, 10309) AND `type` IN (18, 11);
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(10305, 11, 0, 0, 'TW_achievement_dont_stand_in_the_lightning'),
+(10309, 11, 0, 0, 'TW_achievement_dont_stand_in_the_lightning');
