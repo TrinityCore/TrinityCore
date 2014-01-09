@@ -546,7 +546,7 @@ namespace LuaGlobalFunctions
         if (all_Events)
             sEluna->m_EventMgr.RemoveEvents();
         else
-            sEluna->m_EventMgr.RemoveEvents(&sEluna->m_EventMgr.GlobalEvents);
+            sEluna->m_EventMgr.GlobalEvents.KillAllEvents(true);
         return 0;
     }
 

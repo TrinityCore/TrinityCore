@@ -227,7 +227,7 @@ struct EventMgr
     typedef std::map<EventProcessor*, EventSet> EventMap;
     typedef UNORDERED_MAP<uint64, EventProcessor> ProcessorMap;
 
-    EventMap LuaEvents; // LuaEvents[events] = {LuaEvents}
+    EventMap LuaEvents; // LuaEvents[processor] = {LuaEvent, LuaEvent...}
     ProcessorMap Processors; // Processors[guid] = processor
     EventProcessor GlobalEvents;
 
@@ -276,19 +276,21 @@ struct EventMgr
         EventMap::const_iterator it = LuaEvents.find(events); // Get event set
         if (it == LuaEvents.end())
             return;
-        for (EventSet::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr) // Loop events
-            (*itr)->to_Abort = true; // Abort event
+        for (EventSet::const_iterator itr = it->second.begin(); itr != it->second.end();) // Loop events
+            (*(itr++))->to_Abort = true; // Abort event
     }
 
     // Remove all timed events
     void RemoveEvents()
     {
-        for (ProcessorMap::iterator it = Processors.begin(); it != Processors.end(); ++it)
-            it->second.KillAllEvents(true);
-        Processors.clear();
-        for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end(); ++it) // loop processors
-            KillAllEvents(it->first);
-        LuaEvents.clear(); // remove pointer sets
+        for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end();) // loop processors
+            KillAllEvents((it++)->first);
+        LuaEvents.clear(); // remove pointers
+        // This is handled automatically on delete
+        /*for (ProcessorMap::iterator it = Processors.begin(); it != Processors.end();)
+            (it++)->second.KillAllEvents(true);*/
+        Processors.clear(); // remove guid saved processors
+        GlobalEvents.KillAllEvents(true);
     }
     
     // Remove timed events from processor
@@ -303,9 +305,9 @@ struct EventMgr
     // Remove timed events from guid
     void RemoveEvents(uint64 guid)
     {
-        if (Processors.find(guid) == Processors.end())
-            return;
-        Processors[guid].KillAllEvents(true); // remove events
+        if (Processors.find(guid) != Processors.end())
+            LuaEvents.erase(&Processors[guid]);
+        //Processors[guid].KillAllEvents(true); // remove events
         Processors.erase(guid); // remove processor
     }
 
@@ -350,7 +352,7 @@ struct EventMgr
         if (!luaEvent)
             return false;
         luaEvent->to_Abort = true; // Set to remove on next call
-        // LuaEvents[events].erase(luaEvent); // Remove pointer
+        LuaEvents[events].erase(luaEvent); // Remove pointer
         return true;
     }
 
@@ -367,9 +369,14 @@ struct EventMgr
     {
         if (!eventId)
             return;
-        for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end(); ++it) // loop processors
-            if (RemoveEvent(it->first, eventId))
+        for (EventMap::const_iterator it = LuaEvents.begin(); it != LuaEvents.end();) // loop processors
+            if (RemoveEvent((it++)->first, eventId))
                 break; // succesfully remove the event, stop loop.
+    }
+
+    ~EventMgr()
+    {
+        RemoveEvents();
     }
 };
 
