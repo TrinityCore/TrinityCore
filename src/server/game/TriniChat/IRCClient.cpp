@@ -48,15 +48,15 @@ void IRCClient::run()
     // before we begin we wait a few 
     // mangos is still starting up.
     ACE_Based::Thread::Sleep(500);
-    sLog->outError(LOG_FILTER_GENERAL, "\n%s\n%s\n%s\n%s",
+    TC_LOG_ERROR("misc", "\n%s\n%s\n%s\n%s",
         "***************************************",
         "**   TriniChat2 Threaded IRC Client   **",
         "**     With Enhanced GM Control.     **",
         "***************************************");
-    sLog->outError(LOG_FILTER_GENERAL, "****** TriniChat: %s ********", sIRC._Mver.c_str());
+    TC_LOG_ERROR("misc", "****** TriniChat: %s ********", sIRC._Mver.c_str());
     int cCount = 1;
     // Clean Up MySQL Tables
-    sLog->outError(LOG_FILTER_GENERAL, "*** TriniChat: Cleaning Up Inchan Table*");
+    TC_LOG_ERROR("misc", "*** TriniChat: Cleaning Up Inchan Table*");
     WorldDatabase.PExecute("DELETE FROM `irc_inchan`");
     sIRC._Max_Script_Inst = 0;
     // Create a loop to keep the thread running untill active is set to false
@@ -66,20 +66,20 @@ void IRCClient::run()
         if (this->InitSock())
         {
             // Connect To The IRC Server
-            sLog->outError(LOG_FILTER_GENERAL, "*** TriniChat: Connecting to %s Try # %d ******", sIRC._Host.c_str(), cCount);
+            TC_LOG_ERROR("misc", "*** TriniChat: Connecting to %s Try # %d ******", sIRC._Host.c_str(), cCount);
            if (this->Connect(sIRC._Host.c_str(), sIRC._Port))
            {
                // On connection success reset the connection counter
                cCount = 0;
-               sLog->outError(LOG_FILTER_GENERAL, "*** TriniChat: Connected And Logging In*");
+               TC_LOG_ERROR("misc", "*** TriniChat: Connected And Logging In*");
                 // Login to the IRC server
                 if (this->Login(sIRC._Nick, sIRC._User, sIRC._Pass))
                 {
-                    sLog->outError(LOG_FILTER_GENERAL, "*** TriniChat: Logged In And Running!! *");
+                    TC_LOG_ERROR("misc", "*** TriniChat: Logged In And Running!! *");
                     // While we are connected to the irc server keep listening for data on the socket
                     while (sIRC.Connected && !World::IsStopped()){ sIRC.SockRecv(); }
                 }
-                sLog->outError(LOG_FILTER_GENERAL, "*** TriniChat: Connection To IRC Server Lost! ***");
+                TC_LOG_ERROR("misc", "*** TriniChat: Connection To IRC Server Lost! ***");
             }
             // When an error occures or connection lost cleanup
             Disconnect();
@@ -96,7 +96,7 @@ void IRCClient::run()
         {
             // Socket could not initialize cancel
             sIRC.Active = false;
-            sLog->outError(LOG_FILTER_GENERAL, "** TriniChat: Could not initialize socket");
+            TC_LOG_ERROR("misc", "** TriniChat: Could not initialize socket");
         }
     }
     while (!World::IsStopped()){};

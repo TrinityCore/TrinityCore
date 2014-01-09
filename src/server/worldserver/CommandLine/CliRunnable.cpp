@@ -119,9 +119,9 @@ void commandFinished(void*, bool /*success*/)
 //Reconnect TriniChat to IRC server via CLI command
 bool HandleIRCRelogCommand(bool, const char *args)
 {
-	sLog->outError(LOG_FILTER_GENERAL, "TriniChat is dropping from IRC Server");
+	TC_LOG_ERROR("misc", "TriniChat is dropping from IRC Server");
 	sIRC.ResetIRC();
-	sLog->outError(LOG_FILTER_GENERAL, "TriniChat is reconnecting to IRC Server");
+	TC_LOG_ERROR("misc", "TriniChat is reconnecting to IRC Server");
 	return true;
 }
 

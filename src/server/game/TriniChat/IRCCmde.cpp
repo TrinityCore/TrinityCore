@@ -348,7 +348,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
         }
         if (_PARAMS[1] == "combatstop")
         {
-            if (!plr->isInCombat())
+            if (!plr->IsInCombat())
             {
                 plr->CombatStop();
                 Send_IRCA(ChanOrPM(CD), MakeMsg("\00313[%s] : Was Dropped From Combat",_PARAMS[0].c_str()), true, CD->TYPE);
@@ -447,22 +447,23 @@ void IRCCmd::Char_Player(_CDATA *CD)
                     {
                         uint32 creature = pQuest->RequiredNpcOrGo[i];
                         uint32 creaturecount = pQuest->RequiredNpcOrGoCount[i];
-                        if (uint32 spell_id = pQuest->RequiredSpellCast[i])
+                        /*if (uint32 spell_id = pQuest->RequiredSpellCast[i])
                         {
                             for (uint16 z = 0; z < creaturecount; ++z)
                                 plr->CastedCreatureOrGO(creature,0,spell_id);
                         }
-                        else if (creature > 0)
+                        else */
+                        if (creature > 0)
                         {
                             if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
                                 for (uint16 z = 0; z < creaturecount; ++z)
                                     plr->KilledMonster(cInfo,0);
                         }
-                        else if (creature < 0)
+                        /*else if (creature < 0)
                         {
                             for (uint16 z = 0; z < creaturecount; ++z)
                                 plr->CastedCreatureOrGO(creature,0,0);
-                        }
+                        }*/
                     }
 
                     if (uint32 repFaction = pQuest->GetRepObjectiveFaction())
@@ -677,9 +678,9 @@ void IRCCmd::Info_Server(_CDATA *CD)
     std::string str = secsToTimeString(sWorld->GetUptime());
     std::string svnrev = _FULLVERSION;
 
-    float rdm = (ConfigMgr::GetFloatDefault("Rate.Drop.Money", 1.0f));
-    float rxk = (ConfigMgr::GetFloatDefault("Rate.XP.Kill", 1.0f));
-    float rxq = (ConfigMgr::GetFloatDefault("Rate.XP.Quest", 1.0f));    
+    float rdm = (sConfigMgr->GetFloatDefault("Rate.Drop.Money", 1.0f));
+    float rxk = (sConfigMgr->GetFloatDefault("Rate.XP.Kill", 1.0f));
+    float rxq = (sConfigMgr->GetFloatDefault("Rate.XP.Quest", 1.0f));    
     Send_IRCA(ChanOrPM(CD), "\00310Number Of Players Online: \xF"+(std::string)clientsNum+" | \00310Max Since Last Restart: \xF"+(std::string)maxClientsNum+" |\00310 UpTime: \xF"+str, true, CD->TYPE);
     Send_IRCA(ChanOrPM(CD), "\00310Server: \xF"+svnrev+" |\00310 Update Time: \xF"+(std::string)ircupdt, true, CD->TYPE);
     Send_IRCA(ChanOrPM(CD), MakeMsg("\00310Server Rates - \xF[Monster XP: %u][Quest XP: %u][Money Drop Rate: %u]", int(rxk), int(rxq), int(rdm)), true, CD->TYPE);
@@ -893,7 +894,7 @@ void IRCCmd::Kill_Player(_CDATA *CD)
     }
     if (Player* plr = GetPlayer(_PARAMS[0]))
     {
-        if (plr->isAlive())
+        if (plr->IsAlive())
         {
             plr->DealDamage(plr, plr->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             plr->SaveToDB();
@@ -1557,7 +1558,7 @@ void IRCCmd::Level_Player(_CDATA *CD)
         return;
     } else if (i_newlvl < 1 || i_newlvl > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
-        Send_IRCA(CD->USER, MakeMsg("Level Must Be Between 1 And %i!",ConfigMgr::GetIntDefault("MaxPlayerLevel", 70)), true, "ERROR");
+        Send_IRCA(CD->USER, MakeMsg("Level Must Be Between 1 And %i!",sConfigMgr->GetIntDefault("MaxPlayerLevel", 70)), true, "ERROR");
         return;
     } else
     {
@@ -1580,17 +1581,20 @@ void IRCCmd::Level_Player(_CDATA *CD)
 						std::stringstream ss;
             ChatHandler CH(chr->GetSession());
             if (i_oldlvl == i_newlvl)
-                CH.FillSystemMessageData(&data, "Your level progress has been reset.");
+                //CH.FillSystemMessageData(&data, "Your level progress has been reset.");
+                CH.BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, "Your level progress has been reset.");
             else
             if (i_oldlvl < i_newlvl)
             {
 						  ss << "You have been leveled up" << i_newlvl-i_oldlvl;
-							CH.FillSystemMessageData(&data, ss.str().c_str());
+						  //CH.FillSystemMessageData(&data, ss.str().c_str());
+                          CH.BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, ss.str().c_str());
 						}
             else if (i_oldlvl > i_newlvl)
 						{
 						 ss << "You have been leveled down" << i_newlvl-i_oldlvl;
-						 CH.FillSystemMessageData(&data, ss.str().c_str());
+						 //CH.FillSystemMessageData(&data, ss.str().c_str());
+                         CH.BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, ss.str().c_str());
              chr->GetSession()->SendPacket(&data);
 						}
         }
@@ -1649,7 +1653,7 @@ void IRCCmd::Money_Player(_CDATA *CD)
             sprintf(s_newmoney,"%d",newmoney);
             if (addmoney < 0)
             {
-                sLog->outError(LOG_FILTER_GENERAL, "USER1: %i, ADD: %i, DIF: %i\\n", moneyuser, addmoney, newmoney);
+                TC_LOG_ERROR("misc", "USER1: %i, ADD: %i, DIF: %i\\n", moneyuser, addmoney, newmoney);
                 if (newmoney <= 0)
                 {
                     Send_IRCA(ChanOrPM(CD), "\00313["+player+"] : Has Had All Money Taken By: "+CD->USER.c_str()+".", true, CD->TYPE);
@@ -1993,7 +1997,7 @@ void IRCCmd::Tele_Player(_CDATA *CD)
     Player* plr = GetPlayer(_PARAMS[0]);
     if (plr)
     {
-        if (plr->isInFlight() || plr->isInCombat())
+        if (plr->IsInFlight() || plr->IsInCombat())
         {
             Send_IRCA(CD->USER, MakeMsg("%s Is Busy And Cannot Be Teleported! They Could Be In Combat, Or Flying.",_PARAMS[0].c_str()), true, "ERROR");
             return;

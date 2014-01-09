@@ -371,7 +371,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
 						std::string logchan = "#";
 						logchan += sIRC.logchan;
 						std::stringstream ss;
-						ss << sIRC.iLog.GetLogDateTimeStr() << ": [ " << p->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target: [" << GUID_LOPART(sel_guid) << "]";
+						ss << sIRC.iLog.GetLogDateTimeStr() << ": [ " << player->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target: [" << GUID_LOPART(player->GetGUID()) << "]";
 						sIRC.Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
 					}
             }

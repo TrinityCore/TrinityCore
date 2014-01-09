@@ -26,7 +26,7 @@
 
 IRCLog::IRCLog()
 {
-    std::string logsDir = ConfigMgr::GetStringDefault("LogsDir","");
+    std::string logsDir = sConfigMgr->GetStringDefault("LogsDir","");
     std::string ircLogName = logsDir + "/IRC_";
     std::string ircLogTimestamp = GetLogDateStr();
         ircLogName += ircLogTimestamp +".log";

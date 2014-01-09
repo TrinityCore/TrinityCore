@@ -42,6 +42,7 @@ class Log
         ~Log();
 
     public:
+        static std::string GetTimestampStr();
         void LoadFromConfig();
         void Close();
         bool ShouldLog(std::string const& type, LogLevel level);
@@ -55,7 +56,6 @@ class Log
         void SetRealmId(uint32 id);
 
     private:
-        static std::string GetTimestampStr();
         void vlog(std::string const& f, LogLevel level, char const* str, va_list argptr);
         void write(LogMessage* msg);
 

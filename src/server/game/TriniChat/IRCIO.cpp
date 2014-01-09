@@ -275,7 +275,7 @@ void IRCClient::Handle_WoW_Channel(std::string Channel, Player *plr, int nAction
             bool DoGMAnnounce = false;
             if (plr->GetSession()->GetSecurity() > 0 && (sIRC.BOTMASK & 8)!= 0)
                 DoGMAnnounce = true;
-            if (plr->isGameMaster() && (sIRC.BOTMASK & 16)!= 0)
+            if (plr->IsGameMaster() && (sIRC.BOTMASK & 16)!= 0)
                 DoGMAnnounce = true;
             if (DoGMAnnounce)
             {

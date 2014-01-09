@@ -283,7 +283,7 @@ int Master::Run()
 		irc.setPriority ((ACE_Based::Priority)2);
 	}
 	else
-		sLog->outError(LOG_FILTER_GENERAL, "*** TriniChat Is Disabled. *");
+		TC_LOG_ERROR("misc", "*** TriniChat Is Disabled. *");
 
     ///- Start up freeze catcher thread
     if (uint32 freezeDelay = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))

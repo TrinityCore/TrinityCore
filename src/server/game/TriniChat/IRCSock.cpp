@@ -38,19 +38,19 @@ bool IRCClient::InitSock()
     WSADATA wsaData;                                        //WSAData
     if (WSAStartup(MAKEWORD(2,0),&wsaData) != 0)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "IRC Error: Winsock Initialization Error");
+        TC_LOG_ERROR("misc", "IRC Error: Winsock Initialization Error");
         return false;
     }
     #endif
     if ((sIRC.SOCKET = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "IRC Error: Socket Error");
+        TC_LOG_ERROR("misc", "IRC Error: Socket Error");
         return false;
     }
     int on = 1;
     if (setsockopt (sIRC.SOCKET, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof (on)) == -1)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "IRC Error: Invalid Socket");
+        TC_LOG_ERROR("misc", "IRC Error: Invalid Socket");
         return false;
     }
     #ifdef _WIN32
@@ -69,7 +69,7 @@ bool IRCClient::Connect(const char *cHost, int nPort)
     struct hostent *he;
     if ((he=gethostbyname(cHost)) == NULL)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "IRCLIENT: Could not resolve host: %s", cHost);
+        TC_LOG_ERROR("misc", "IRCLIENT: Could not resolve host: %s", cHost);
         return false;
     }
     struct sockaddr_in their_addr;
@@ -79,7 +79,7 @@ bool IRCClient::Connect(const char *cHost, int nPort)
     memset(&(their_addr.sin_zero), '\0', 8);
     if (::connect(sIRC.SOCKET, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "IRCLIENT: Cannot connect to %s", cHost);
+        TC_LOG_ERROR("misc", "IRCLIENT: Cannot connect to %s", cHost);
         return false;
     }
     //FD_ZERO(&sIRC.sfdset);
@@ -106,7 +106,7 @@ bool IRCClient::SendData(const char *data)
     {
         if (send(sIRC.SOCKET, data, strlen(data), 0) == -1)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "IRC Error: Socket Receieve ** \n");
+            TC_LOG_ERROR("misc", "IRC Error: Socket Receieve ** \n");
             //Disconnect();
             return false;
         }
@@ -144,14 +144,14 @@ void IRCClient::SockRecv()
     int nBytesRecv = ::recv(sIRC.SOCKET, szBuffer, MAXDATASIZE - 1, 0);
     if (nBytesRecv == -1)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Connection lost.");
+        TC_LOG_ERROR("misc", "Connection lost.");
         sIRC.Connected = false;
     }
     else
     {
         if (-1 == nBytesRecv)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Error occurred while receiving from socket.");
+            TC_LOG_ERROR("misc", "Error occurred while receiving from socket.");
         }
         else
         {
