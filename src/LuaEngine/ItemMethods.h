@@ -330,11 +330,10 @@ namespace LuaItem
     {
         uint32 enchant_slot = luaL_checkunsigned(L, 1);
 
-        EnchantmentSlot slot = EnchantmentSlot(luaL_checkunsigned(L, 2));
-        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
-            sEluna->Push(L, 0);
-        else
-            sEluna->Push(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
+        if (enchant_slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+            return 0;
+
+        sEluna->Push(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
         return 1;
     }
 
