@@ -23,12 +23,9 @@ enum Spells
 {
     SPELL_ARCANE_VACUUM                         = 58694,
     SPELL_BLIZZARD                              = 58693,
-    H_SPELL_BLIZZARD                            = 59369,
     SPELL_MANA_DESTRUCTION                      = 59374,
     SPELL_TAIL_SWEEP                            = 58690,
-    H_SPELL_TAIL_SWEEP                          = 59283,
     SPELL_UNCONTROLLABLE_ENERGY                 = 58688,
-    H_SPELL_UNCONTROLLABLE_ENERGY               = 59281,
     SPELL_TRANSFORM                             = 58668
 };
 
@@ -47,11 +44,6 @@ class boss_cyanigosa : public CreatureScript
 {
 public:
     boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetInstanceAI<boss_cyanigosaAI>(creature);
-    }
 
     struct boss_cyanigosaAI : public ScriptedAI
     {
@@ -75,22 +67,20 @@ public:
             uiManaDestructionTimer = 30000;
             uiTailSweepTimer = 20000;
             uiUncontrollableEnergyTimer = 25000;
-            instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_CYANIGOSA, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-
-            instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_CYANIGOSA, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
+            if (instance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
                 instance->SetData(DATA_REMOVE_NPC, 0);
@@ -102,7 +92,7 @@ public:
 
             if (uiArcaneVacuumTimer <= diff)
             {
-                DoCast(SPELL_ARCANE_VACUUM);
+                DoCastAOE(SPELL_ARCANE_VACUUM);
                 uiArcaneVacuumTimer = 10000;
             } else uiArcaneVacuumTimer -= diff;
 
@@ -141,8 +131,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-
-            instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
+            instance->SetBossState(DATA_CYANIGOSA, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -154,6 +143,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetInstanceAI<boss_cyanigosaAI>(creature);
+    }
 };
 
 class achievement_defenseless : public AchievementCriteriaScript

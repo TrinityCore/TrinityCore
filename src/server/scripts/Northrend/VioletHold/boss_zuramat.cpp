@@ -22,18 +22,14 @@
 enum Spells
 {
     SPELL_SHROUD_OF_DARKNESS                    = 54524,
-    H_SPELL_SHROUD_OF_DARKNESS                  = 59745,
     SPELL_SUMMON_VOID_SENTRY                    = 54369,
     SPELL_VOID_SHIFT                            = 54361,
-    H_SPELL_VOID_SHIFT                          = 59743,
-
-    SPELL_ZURAMAT_ADD_2                         = 54342,
-    H_SPELL_ZURAMAT_ADD_2                       = 59747
+    SPELL_ZURAMAT_ADD_2                         = 54342
 };
 
 enum Creatures
 {
-    NPC_VOID_SENTRY                        = 29364
+    NPC_VOID_SENTRY                             = 29364
 };
 
 enum Yells
@@ -56,11 +52,6 @@ class boss_zuramat : public CreatureScript
 public:
     boss_zuramat() : CreatureScript("boss_zuramat") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetInstanceAI<boss_zuramatAI>(creature);
-    }
-
     struct boss_zuramatAI : public ScriptedAI
     {
         boss_zuramatAI(Creature* creature) : ScriptedAI(creature)
@@ -78,9 +69,9 @@ public:
         void Reset() OVERRIDE
         {
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
             SpellShroudOfDarknessTimer = 22000;
             SpellVoidShiftTimer = 15000;
@@ -105,20 +96,19 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ZURAMAT_CELL)))
+            if (GameObject* pDoor = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ZURAMAT_CELL)))
                 if (pDoor->GetGoState() == GO_STATE_READY)
                 {
                     EnterEvadeMode();
                     return;
                 }
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
-
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -130,20 +120,20 @@ public:
             {
                 DoCastVictim(SPELL_SUMMON_VOID_SENTRY, false);
                 SpellSummonVoidTimer = 20000;
-            } else SpellSummonVoidTimer -=diff;
+            } else SpellSummonVoidTimer -= diff;
 
             if (SpellVoidShiftTimer <= diff)
             {
-                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(unit, SPELL_VOID_SHIFT);
                 SpellVoidShiftTimer = 20000;
-            } else SpellVoidShiftTimer -=diff;
+            } else SpellVoidShiftTimer -= diff;
 
             if (SpellShroudOfDarknessTimer <= diff)
             {
                 DoCastVictim(SPELL_SHROUD_OF_DARKNESS);
                 SpellShroudOfDarknessTimer = 20000;
-            } else SpellShroudOfDarknessTimer -=diff;
+            } else SpellShroudOfDarknessTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -168,12 +158,12 @@ public:
 
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 7);
             }
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
             {
-                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
@@ -194,6 +184,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetInstanceAI<boss_zuramatAI>(creature);
+    }
 };
 
 class achievement_void_dance : public AchievementCriteriaScript
