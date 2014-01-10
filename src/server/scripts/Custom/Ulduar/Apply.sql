@@ -73,3 +73,12 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 DELETE FROM `conditions` WHERE `SourceEntry` = 62466 AND `SourceTypeOrReferenceId` = 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`)VALUES
 (13, 4, 62466, 0, 0, 31, 0, 3, 32780, 0, 0, 0, 0,'','Thorim - Lightning Charge');
+
+-- Properly script his trap bunnies
+DELETE FROM `creature_addon` WHERE `guid` IN (136059, 136816) AND `auras` = 40775; -- clean up wrong addon data
+UPDATE `creature_template` SET `ScriptName` = 'TW_thorim_trap_bunny' WHERE `entry` IN (33725, 33054);
+
+-- Thorim Runic Fortification
+DELETE FROM `spell_script_names` WHERE `spell_id`=62942;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62942, 'TW_spell_thorim_runic_fortification');

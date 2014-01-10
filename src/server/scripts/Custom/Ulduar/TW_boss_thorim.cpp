@@ -37,7 +37,11 @@ enum Spells
     SPELL_BERSERK_PHASE_2                       = 26662,
 
     SPELL_ACHIEVEMENT_CHECK                     = 64985,
-    SPELL_ACHIEVEMENT_SIFFED                    = 64980
+    SPELL_ACHIEVEMENT_SIFFED                    = 64980,
+
+    // Used by traps
+    SPELL_PARALYTIC_FIELD           = 63540,
+    SPELL_PARALYTIC_FIELD2          = 62241,
 };
 
 enum Phases
@@ -60,7 +64,8 @@ enum Events
     EVENT_CHAIN_LIGHTNING,
     EVENT_TRANSFER_ENERGY,
     EVENT_RELEASE_ENERGY,
-    EVENT_CLOSE_ARENA_DOOR
+    EVENT_CLOSE_ARENA_DOOR,
+    EVENT_BUNNY_VISUAL_CHECK
 };
 
 enum Yells
@@ -1298,6 +1303,52 @@ public:
     };
 };
 
+class TW_thorim_trap_bunny : public CreatureScript
+{
+public:
+    TW_thorim_trap_bunny() : CreatureScript("TW_thorim_trap_bunny") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new TW_thorim_trap_bunnyAI(creature);
+    }
+
+    struct TW_thorim_trap_bunnyAI : public ScriptedAI
+    {
+        TW_thorim_trap_bunnyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->AddUnitState(UNIT_STATE_ROOT);
+            instance = me->GetInstanceScript();
+            HasStunAura = false;
+        }
+
+        InstanceScript* instance;
+        EventMap events;
+        bool HasStunAura;
+
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+        {
+            if (who->IsWithinDistInMap(me, 12.0f) && who->GetTypeId() == TYPEID_PLAYER && !HasStunAura)
+            {
+                DoCast(me, SPELL_PARALYTIC_FIELD);
+                HasStunAura = true;
+                events.ScheduleEvent(EVENT_BUNNY_VISUAL_CHECK, 15000);
+            }
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                if (eventId == EVENT_BUNNY_VISUAL_CHECK && HasStunAura)
+                    HasStunAura = false;                  
+            }
+        }
+    };
+};
+
 class NotInArenaCheck
 {
     public:
@@ -1402,6 +1453,34 @@ class TW_spell_thorim_berserk : public SpellScriptLoader
         }
 };
 
+class TW_spell_thorim_runic_fortification : public SpellScriptLoader
+{
+    public:
+        TW_spell_thorim_runic_fortification() : SpellScriptLoader("TW_spell_thorim_runic_fortification") { }
+
+        class TW_spell_thorim_runic_fortification_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(TW_spell_thorim_runic_fortification_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(NoPlayerOrPetCheck());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(TW_spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new TW_spell_thorim_runic_fortification_SpellScript();
+        }
+};
+
 class TW_achievement_siffed_and_lose_your_illusion : public AchievementCriteriaScript
 {
     public:
@@ -1456,4 +1535,7 @@ void AddSC_TW_boss_thorim()
     new TW_spell_thorim_berserk();
     new TW_achievement_siffed_and_lose_your_illusion();
     new TW_achievement_dont_stand_in_the_lightning();
+    new TW_spell_thorim_runic_fortification();
+    new TW_thorim_trap_bunny();
 }
+
