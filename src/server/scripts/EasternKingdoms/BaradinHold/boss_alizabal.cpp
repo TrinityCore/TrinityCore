@@ -166,7 +166,7 @@ class boss_alizabal : public CreatureScript
                                         {
                                             DoCast(target, SPELL_SKEWER, true);
                                             Talk(SAY_SKEWER);
-                                            Talk(SAY_SKEWER_ANNOUNCE, target->GetGUID());
+                                            Talk(SAY_SKEWER_ANNOUNCE, target);
                                         }
                                         _skewer = true;
                                         events.ScheduleEvent(EVENT_RANDOM_CAST, urand(7000, 10000));

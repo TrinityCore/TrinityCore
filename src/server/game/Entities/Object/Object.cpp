@@ -2193,11 +2193,6 @@ void WorldObject::MonsterWhisper(int32 textId, Player const* target, bool IsBoss
     ChatHandler::BuildChatPacket(data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, text, 0, "", loc_idx);
 
     target->GetSession()->SendPacket(&data);
-    if (msgtype == CHAT_MSG_RAID_BOSS_EMOTE || msgtype == CHAT_MSG_RAID_BOSS_WHISPER)
-    {
-        *data << float(0);
-        *data << uint8(0);
-    }
 }
 
 void WorldObject::SendMessageToSet(WorldPacket* data, bool self)
