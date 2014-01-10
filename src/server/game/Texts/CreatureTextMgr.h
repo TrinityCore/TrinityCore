@@ -144,7 +144,7 @@ class CreatureTextLocalizer
             {
                 messageTemplate = new WorldPacket();
                 whisperGUIDpos = _builder(messageTemplate, loc_idx);
-                ASSERT(messageTemplate->GetOpcode() != MSG_NULL_ACTION);
+                ASSERT(messageTemplate->GetOpcode() != NULL_OPCODE);
                 _packetCache[loc_idx] = new std::pair<WorldPacket*, size_t>(messageTemplate, whisperGUIDpos);
             }
             else
