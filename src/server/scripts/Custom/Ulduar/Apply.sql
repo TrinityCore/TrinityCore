@@ -41,7 +41,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 
 DELETE FROM `conditions` WHERE `SourceEntry` = 62016 AND `SourceTypeOrReferenceId` = 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`)VALUES
-(13, 7, 62016, 0, 0, 31, 0, 3, 33378, 0, 0, 0, 0,'','Thorim - Charge Orb');
+(13, 1, 62016, 0, 0, 31, 0, 3, 33378, 0, 0, 0, 0,'','Thorim - Charge Orb');
 
 DELETE FROM `spell_script_names` WHERE `spell_id`=62560;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -69,3 +69,7 @@ DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10305, 10309) AN
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (10305, 11, 0, 0, 'TW_achievement_dont_stand_in_the_lightning'),
 (10309, 11, 0, 0, 'TW_achievement_dont_stand_in_the_lightning');
+
+DELETE FROM `conditions` WHERE `SourceEntry` = 62466 AND `SourceTypeOrReferenceId` = 13;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`)VALUES
+(13, 4, 62466, 0, 0, 31, 0, 3, 32780, 0, 0, 0, 0,'','Thorim - Lightning Charge');
