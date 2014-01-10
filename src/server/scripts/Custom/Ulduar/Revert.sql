@@ -1,0 +1,49 @@
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32865;
+
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=62042;
+
+-- Pre adds
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32885;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32883;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32908;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32907;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32882;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32886;
+
+-- Thorim Mini bosses
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32872;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 32873;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 33196;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` IN (32876, 32904, 32878, 32877, 32874, 32875, 33110);
+
+DELETE FROM `creature_addon` WHERE `guid`IN (136059, 136816);
+
+DELETE FROM `conditions` WHERE `SourceEntry` = 62016 AND `SourceTypeOrReferenceId` = 13;
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=62560;
+
+UPDATE `creature_template` SET `ScriptName` = 'npc_runic_smash' WHERE `entry` = 33140; -- Creature had no ScriptName set
+
+DELETE FROM `spell_dbc` WHERE `Id` IN (64980);
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10440, 10457, 10314, 10289) AND `type` IN (18, 11);
+
+DELETE FROM `conditions` WHERE `SourceEntry` = 64098 AND `SourceTypeOrReferenceId` = 13;
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10305, 10309) AND `type` IN (18, 11);
+
+DELETE FROM `conditions` WHERE `SourceEntry` = 62466 AND `SourceTypeOrReferenceId` = 13;
+
+-- Properly script his trap bunnies
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` IN (33725, 33054);
+
+-- Thorim Runic Fortification
+DELETE FROM `spell_script_names` WHERE `spell_id`=62942;
+
+-- Revert chests
+UPDATE `gameobject_template` SET `data1` = 27073 WHERE `entry` = 194312;
+UPDATE `gameobject_template` SET `data1` = 27073 WHERE `entry` = 194313;
+UPDATE `gameobject_template` SET `data1` = 26956 WHERE `entry` = 194315;
+UPDATE `gameobject_template` SET `data1` = 26955 WHERE `entry` = 194314;
+
+DELETE FROM `gameobject_loot_template` WHERE `entry` BETWEEN 196000 AND 196003;
