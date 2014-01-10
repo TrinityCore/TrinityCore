@@ -339,17 +339,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) OVERRIDE
-        {
-        }
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-        }
-
-        void OnCharmed(bool /*apply*/) OVERRIDE
-        {
-        }
+        void WaypointReached(uint32 /*waypointId*/) OVERRIDE { }
+        void JustDied(Unit* /*killer*/) OVERRIDE { }
+        void OnCharmed(bool /*apply*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -414,7 +406,6 @@ class npc_hyldsmeet_protodrake : public CreatureScript
         }
 };
 
-
 /*#####
 # npc_brann_bronzebeard for Quest 13285 "Forging the Keystone"
 #####*/
@@ -438,19 +429,19 @@ enum BrannBronzebeard
     SAY_VOICE_4           = 3,
     SAY_VOICE_5           = 4,
 
-    EVENT_SCRIPT_1        = 1,
-    EVENT_SCRIPT_2        = 2,
-    EVENT_SCRIPT_3        = 3,
-    EVENT_SCRIPT_4        = 4,
-    EVENT_SCRIPT_5        = 5,
-    EVENT_SCRIPT_6        = 6,
-    EVENT_SCRIPT_7        = 7,
-    EVENT_SCRIPT_8        = 8,
-    EVENT_SCRIPT_9        = 9,
-    EVENT_SCRIPT_10       = 10,
-    EVENT_SCRIPT_11       = 11,
-    EVENT_SCRIPT_12       = 12,
-    EVENT_SCRIPT_13       = 13
+    EVENT_SCRIPT_1        = 3,
+    EVENT_SCRIPT_2        = 4,
+    EVENT_SCRIPT_3        = 5,
+    EVENT_SCRIPT_4        = 6,
+    EVENT_SCRIPT_5        = 7,
+    EVENT_SCRIPT_6        = 8,
+    EVENT_SCRIPT_7        = 9,
+    EVENT_SCRIPT_8        = 10,
+    EVENT_SCRIPT_9        = 11,
+    EVENT_SCRIPT_10       = 12,
+    EVENT_SCRIPT_11       = 13,
+    EVENT_SCRIPT_12       = 14,
+    EVENT_SCRIPT_13       = 15
 };
 
 class npc_brann_bronzebeard_keystone : public CreatureScript
@@ -588,6 +579,230 @@ public:
     }
 };
 
+/*#####
+# Quest 13010 Krolmir, Hammer of Storms
+#####*/
+
+enum JokkumScriptcast
+{
+    NPC_KINGJOKKUM                   = 30331,
+    NPC_THORIM                       = 30390,
+    PATH_JOKKUM                      = 2072200,
+    PATH_JOKKUM_END                  = 2072201,
+    SAY_HOLD_ON                      = 0,
+    SAY_JOKKUM_1                     = 1,
+    SAY_JOKKUM_2                     = 2,
+    SAY_JOKKUM_3                     = 3,
+    SAY_JOKKUM_4                     = 4,
+    SAY_JOKKUM_5                     = 5,
+    SAY_JOKKUM_6                     = 6,
+    SAY_JOKKUM_7                     = 7,
+    SAY_JOKKUM_8                     = 8,
+    SAY_THORIM_1                     = 0,
+    SAY_THORIM_2                     = 1,
+    SAY_THORIM_3                     = 2,
+    SAY_THORIM_4                     = 3,
+    SPELL_JOKKUM_SUMMON              = 56541,
+    SPELL_JOKKUM_KILL_CREDIT         = 56545,
+    SPELL_EJECT_ALL_PASSENGERS       = 50630,
+    SPELL_PLAYER_CAST_VERANUS_SUMMON = 56650,
+    SPELL_SUMMON_VERANUS_AND_THORIM  = 56649,
+    EVENT_KROLMIR_1                  = 16,
+    EVENT_KROLMIR_2                  = 17,
+    EVENT_KROLMIR_3                  = 18,
+    EVENT_KROLMIR_4                  = 19,
+    EVENT_KROLMIR_5                  = 20,
+    EVENT_KROLMIR_6                  = 21,
+    EVENT_KROLMIR_7                  = 22,
+    EVENT_KROLMIR_8                  = 23,
+    EVENT_KROLMIR_9                  = 24,
+};
+
+class npc_king_jokkum_vehicle : public CreatureScript
+{
+public:
+    npc_king_jokkum_vehicle() : CreatureScript("npc_king_jokkum_vehicle") { }
+
+    struct npc_king_jokkum_vehicleAI : public VehicleAI
+    {
+        npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature) { }
+
+        void Reset() OVERRIDE
+        {
+            playerGUID = 0;
+            pathEnd    = false;
+        }
+
+        void OnCharmed(bool /*apply*/) OVERRIDE { }
+
+        void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) OVERRIDE
+        {
+            if (apply)
+            {
+                playerGUID = who->GetGUID();
+                Talk(SAY_HOLD_ON, playerGUID);
+                me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        {
+            if (type != WAYPOINT_MOTION_TYPE)
+                return;
+
+            if (pathEnd)
+            {
+                if (id == 4)
+                {
+
+                }
+            }
+            else
+            {
+                if (id == 19)
+                {
+                    pathEnd = true;
+                    me->SetFacingTo(0.418879f);
+                    Talk(SAY_JOKKUM_1);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                        me->CastSpell(player, SPELL_PLAYER_CAST_VERANUS_SUMMON);
+                    me->CastSpell(me, SPELL_EJECT_ALL_PASSENGERS);
+
+                }
+            }
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (!pathEnd)
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_KROLMIR_1:
+                        Talk(SAY_JOKKUM_2);
+                        events.ScheduleEvent(EVENT_KROLMIR_2, 4000);
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        uint64 playerGUID;
+        bool pathEnd;
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_king_jokkum_vehicleAI(creature);
+    }
+};
+
+class spell_jokkum_scriptcast : public SpellScriptLoader
+{
+    public: spell_jokkum_scriptcast() : SpellScriptLoader("spell_jokkum_scriptcast") { }
+
+        class spell_jokkum_scriptcast_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_jokkum_scriptcast_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_JOKKUM_SUMMON))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, SPELL_JOKKUM_SUMMON, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_jokkum_scriptcast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_jokkum_scriptcast_AuraScript();
+        }
+};
+
+class spell_veranus_summon : public SpellScriptLoader
+{
+    public: spell_veranus_summon() : SpellScriptLoader("spell_veranus_summon") { }
+
+        class spell_veranus_summon_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_veranus_summon_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VERANUS_AND_THORIM))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, SPELL_SUMMON_VERANUS_AND_THORIM, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_veranus_summon_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_veranus_summon_AuraScript();
+        }
+};
+
+/*#####
+# spell_jokkum_eject_all
+#####*/
+
+class spell_jokkum_eject_all : public SpellScriptLoader
+{
+    public: spell_jokkum_eject_all() : SpellScriptLoader("spell_jokkum_eject_all") { }
+
+        class spell_jokkum_eject_all_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_jokkum_eject_all_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->IsVehicle())
+                        caster->GetVehicleKit()->RemoveAllPassengers();
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_jokkum_eject_all_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_jokkum_eject_all_SpellScript();
+        }
+};
+
 enum CloseRift
 {
     SPELL_DESPAWN_RIFT          = 61665
@@ -635,91 +850,6 @@ class spell_close_rift : public SpellScriptLoader
         }
 };
 
-/*#####
-# Krolmir, Hammer of Storms
-#####*/
-
-enum JokkumScriptcast
-{
-    SPELL_JOKKUM_KILL_CREDIT    = 56545,
-    SPELL_JOKKUM_SUMMON         = 56541,
-    NPC_KINGJOKKUM              = 30331,
-    SAY_HOLD_ON                 = 0,
-    PATH_JOKKUM                 = 2072200
-};
-
-class spell_jokkum_scriptcast : public SpellScriptLoader
-{
-    public: spell_jokkum_scriptcast() : SpellScriptLoader("spell_jokkum_scriptcast") { }
-
-        class spell_jokkum_scriptcast_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_jokkum_scriptcast_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_JOKKUM_SUMMON))
-                    return false;
-                return true;
-            }
-
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->CastSpell(target, SPELL_JOKKUM_SUMMON, true);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_jokkum_scriptcast_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_jokkum_scriptcast_AuraScript();
-        }
-};
-
-class npc_king_jokkum_vehicle : public CreatureScript
-{
-    public:
-        npc_king_jokkum_vehicle() : CreatureScript("npc_king_jokkum_vehicle") { }
-
-        struct npc_king_jokkum_vehicleAI : public VehicleAI
-        {
-            npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature) { }
-
-            void OnCharmed(bool /*apply*/) OVERRIDE { }
-
-            void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) OVERRIDE
-            {
-                if (apply)
-                {
-                    Talk(SAY_HOLD_ON, who->GetGUID());
-                    me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                    me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
-                }
-            }
-
-            void MovementInform(uint32 type, uint32 id) OVERRIDE
-            {
-                if (type != WAYPOINT_MOTION_TYPE)
-                    return;
-
-                // PointId in WaypointMovementGenerator doesn't match with PointId in DB
-                if (id == 19)
-                    me->GetVehicleKit()->RemoveAllPassengers();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
-        {
-            return new npc_king_jokkum_vehicleAI(creature);
-        }
-};
-
 void AddSC_storm_peaks()
 {
     new npc_injured_goblin();
@@ -729,7 +859,9 @@ void AddSC_storm_peaks()
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
     new npc_brann_bronzebeard_keystone();
-    new spell_close_rift();
-    new spell_jokkum_scriptcast();
     new npc_king_jokkum_vehicle();
+    new spell_jokkum_scriptcast();
+    new spell_veranus_summon();
+    new spell_jokkum_eject_all();
+    new spell_close_rift();
 }
