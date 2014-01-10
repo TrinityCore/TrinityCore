@@ -598,7 +598,10 @@ public:
                             break;
                         case EVENT_RELEASE_ENERGY:
                             if (Creature* source = me->FindNearestCreature(NPC_POWER_SOURCE, 100.0f))
+                            {
+                                me->SetOrientation(me->GetAngle(source));
                                 DoCast(source, SPELL_LIGHTNING_RELEASE);
+                            }
                             DoCast(me, SPELL_LIGHTNING_CHARGE, true);
                             events.ScheduleEvent(EVENT_TRANSFER_ENERGY, 8000, 0, PHASE_2);
                             break;
