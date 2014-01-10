@@ -147,9 +147,8 @@ class boss_ragnaros : public CreatureScript
                             break;
                         case EVENT_INTRO_4:
                             Talk(SAY_ARRIVAL5_RAG);
-                            if (instance)
-                                if (Creature* executus = Unit::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
-                                    me->Kill(executus);
+                            if (Creature* executus = Unit::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
+                                me->Kill(executus);
                             break;
                         case EVENT_INTRO_5:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -163,29 +162,26 @@ class boss_ragnaros : public CreatureScript
                 }
                 else
                 {
-                    if (instance)
+                    if (_isBanished && ((_emergeTimer <= diff) || (instance->GetData(DATA_RAGNAROS_ADDS)) > 8))
                     {
-                        if (_isBanished && ((_emergeTimer <= diff) || (instance->GetData(DATA_RAGNAROS_ADDS)) > 8))
-                        {
-                            //Become unbanished again
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            me->setFaction(14);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                AttackStart(target);
-                            instance->SetData(DATA_RAGNAROS_ADDS, 0);
+                        //Become unbanished again
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->setFaction(14);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            AttackStart(target);
+                        instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
-                            //DoCast(me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
-                            _isBanished = false;
-                        }
-                        else if (_isBanished)
-                        {
-                            _emergeTimer -= diff;
-                            //Do nothing while banished
-                            return;
-                        }
+                        //DoCast(me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
+                        _isBanished = false;
+                    }
+                    else if (_isBanished)
+                    {
+                        _emergeTimer -= diff;
+                        //Do nothing while banished
+                        return;
                     }
 
                     //Return since we have no target
@@ -306,7 +302,7 @@ class boss_ragnaros : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_ragnarosAI(creature);
+            return GetInstanceAI<boss_ragnarosAI>(creature);
         }
 };
 
@@ -324,8 +320,7 @@ class npc_son_of_flame : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_RAGNAROS_ADDS, 1);
+                instance->SetData(DATA_RAGNAROS_ADDS, 1);
             }
 
             void UpdateAI(uint32 /*diff*/) OVERRIDE
@@ -342,7 +337,7 @@ class npc_son_of_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_son_of_flameAI(creature);
+            return GetInstanceAI<npc_son_of_flameAI>(creature);
         }
 };
 

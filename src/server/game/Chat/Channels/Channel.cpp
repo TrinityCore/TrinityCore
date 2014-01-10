@@ -600,14 +600,6 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     if (what.empty())
         return;
 
-    uint8 chatTag = 0;
-    bool isGM = false;
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
-    {
-        chatTag = player->GetChatTag();
-        isGM = player->GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_GM_CHAT);
-    }
-
     // TODO: Add proper RBAC check
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
@@ -629,7 +621,11 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     }
 
     WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, chatTag, "", "", 0, isGM, _name);
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
+    else
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, 0, "", "", 0, false, _name);
+
     SendToAll(&data, !playersStore[guid].IsModerator() ? guid : false);
 }
 

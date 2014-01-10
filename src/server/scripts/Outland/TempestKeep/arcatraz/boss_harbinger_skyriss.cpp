@@ -137,7 +137,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
             void DoSplit(uint32 val)
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 Talk(SAY_IMAGE);
@@ -211,7 +211,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
                 if (Fear_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         return;
 
                     Talk(SAY_FEAR);
@@ -228,7 +228,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
                 if (Domination_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         return;
 
                     Talk(SAY_MIND);
@@ -247,7 +247,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 {
                     if (ManaBurn_Timer <= diff)
                     {
-                        if (me->IsNonMeleeSpellCasted(false))
+                        if (me->IsNonMeleeSpellCast(false))
                             return;
 
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))

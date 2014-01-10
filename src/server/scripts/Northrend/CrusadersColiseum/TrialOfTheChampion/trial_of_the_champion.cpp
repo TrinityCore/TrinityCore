@@ -236,11 +236,8 @@ public:
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* unit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss1 = unit->GetGUID();
-                        if (instance)
-                        {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
-                            instance->SetData64(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
-                        }
+                        instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
+                        instance->SetData64(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
                         pBoss->AI()->SetData(1, 0);
                         break;
                     }
@@ -251,11 +248,8 @@ public:
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* unit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss2 = unit->GetGUID();
-                        if (instance)
-                        {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
-                            instance->SetData64(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
-                        }
+                        instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
+                        instance->SetData64(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
                         pBoss->AI()->SetData(2, 0);
                         break;
                     }
@@ -266,11 +260,8 @@ public:
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* unit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss3 = unit->GetGUID();
-                        if (instance)
-                        {
-                            instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
-                            instance->SetData64(DATA_GRAND_CHAMPION_3, uiGrandChampionBoss3);
-                        }
+                        instance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
+                        instance->SetData64(DATA_GRAND_CHAMPION_3, uiGrandChampionBoss3);
                         pBoss->AI()->SetData(3, 0);
                         break;
                     }
@@ -359,9 +350,6 @@ public:
 
         void StartEncounter()
         {
-            if (!instance)
-                return;
-
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
             if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
@@ -472,7 +460,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_announcer_toc5AI(creature);
+        return GetInstanceAI<npc_announcer_toc5AI>(creature);
     }
 
     bool OnGossipHello(Player* player, Creature* creature) OVERRIDE

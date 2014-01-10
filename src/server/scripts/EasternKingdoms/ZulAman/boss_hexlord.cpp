@@ -100,7 +100,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return GetZulAmanAI<boss_hex_lord_malacrassAI>(creature);
+            return GetInstanceAI<boss_hex_lord_malacrassAI>(creature);
         }
 };
 

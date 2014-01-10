@@ -101,15 +101,12 @@ public:
             bCanDown = false;
             volunteerWork = true;
 
-            if (instance)
-            {
-                if (!bFirstTime)
-                    instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, FAIL);
+            if (!bFirstTime)
+                instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, FAIL);
 
-                instance->SetData64(DATA_PL_JEDOGA_TARGET, 0);
-                instance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
-                instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
-            }
+            instance->SetData64(DATA_PL_JEDOGA_TARGET, 0);
+            instance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
+            instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
             MoveUp();
 
             bFirstTime = false;
@@ -144,8 +141,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(TEXT_DEATH);
-            if (instance)
-                instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, DONE);
+            instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, DONE);
         }
 
         void DoAction(int32 action) OVERRIDE
@@ -197,9 +193,6 @@ public:
 
         void MoveDown()
         {
-            if (!instance)
-                return;
-
             bOpFerokFail = false;
 
             instance->SetData(DATA_JEDOGA_TRIGGER_SWITCH, 0);
@@ -233,9 +226,6 @@ public:
 
         void MoveUp()
         {
-            if (!instance)
-                return;
-
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
@@ -255,9 +245,6 @@ public:
 
         void OpferRufen()
         {
-            if (!instance)
-                return;
-
             uint64 opfer = instance->GetData64(DATA_ADD_JEDOGA_INITIAND);
 
             if (opfer)
@@ -281,9 +268,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) != IN_PROGRESS && instance->GetData(DATA_ALL_INITIAND_DEAD))
                 MoveDown();
 
@@ -337,7 +321,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_jedoga_shadowseekerAI(creature);
+        return GetInstanceAI<boss_jedoga_shadowseekerAI>(creature);
     }
 };
 
@@ -361,9 +345,6 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (!instance)
-                return;
-
             bWalking = false;
             bCheckTimer = 2*IN_MILLISECONDS;
 
@@ -503,7 +484,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_jedoga_initiandAI(creature);
+        return GetInstanceAI<npc_jedoga_initiandAI>(creature);
     }
 };
 
@@ -528,8 +509,8 @@ public:
             instance    = creature->GetInstanceScript();
             bRemoved    = false;
             bRemoved2   = false;
-            bCasted     = false;
-            bCasted2    = false;
+            bCast     = false;
+            bCast2    = false;
 
             SetCombatMovement(false);
         }
@@ -538,8 +519,8 @@ public:
 
         bool bRemoved;
         bool bRemoved2;
-        bool bCasted;
-        bool bCasted2;
+        bool bCast;
+        bool bCast2;
 
         void Reset() OVERRIDE { }
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
@@ -549,9 +530,6 @@ public:
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (!bRemoved && me->GetPositionX() > 440.0f)
             {
                 if (instance->GetBossState(DATA_PRINCE_TALDARAM) == DONE)
@@ -560,23 +538,23 @@ public:
                     bRemoved = true;
                     return;
                 }
-                if (!bCasted)
+                if (!bCast)
                 {
                     DoCast(me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1, false);
-                    bCasted = true;
+                    bCast = true;
                 }
             }
             if (!bRemoved2 && me->GetPositionX() < 440.0f)
             {
-                if (!bCasted2 && instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
+                if (!bCast2 && instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
                 {
                     DoCast(me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2, false);
-                    bCasted2 = true;
+                    bCast2 = true;
                 }
-                if (bCasted2 && !instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
+                if (bCast2 && !instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
                 {
                     me->InterruptNonMeleeSpells(true);
-                    bCasted2 = false;
+                    bCast2 = false;
                 }
                 if (!bRemoved2 && instance->GetBossState(DATA_JEDOGA_SHADOWSEEKER) == DONE)
                 {
@@ -589,7 +567,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_jedogas_aufseher_triggerAI(creature);
+        return GetInstanceAI<npc_jedogas_aufseher_triggerAI>(creature);
     }
 };
 

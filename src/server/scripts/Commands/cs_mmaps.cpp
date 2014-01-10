@@ -30,11 +30,13 @@
 #include "PointMovementGenerator.h"
 #include "PathGenerator.h"
 #include "MMapFactory.h"
+#include "DetourCommon.h"
 #include "Map.h"
 #include "TargetedMovementGenerator.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "MMapManager.h"
 
 class mmaps_commandscript : public CommandScript
 {
@@ -61,9 +63,137 @@ public:
         return commandTable;
     }
 
+    static float Fix_GetXZArea(float* verts, int nv)
+    {
+        float area = 0;
+        for(int i=0; i<nv-1; i++)
+            area+=(verts[i*3]*verts[i*3+5]-verts[i*3+3]*verts[i*3+2]);
+        area += (verts[(nv-1)*3]*verts[2] - verts[0]*verts[(nv-1)*3+2]);
+        return area*0.5f;
+    }
+
+
+    //dtPointInPolygon will return false when the point is too close to the edge,so we rewite the test function.
+    static bool Fix_PointIsInPoly(float* pos,float* verts,int nv,float err)
+    {
+        //poly area
+        float area = abs(Fix_GetXZArea(verts,nv));
+
+        //calculate each area of triangles
+        float TestTri[9];
+        memcpy(TestTri,pos,sizeof(float)*3);
+        float area1 = 0;
+        for(int i=0;i<nv-1;++i)
+        {
+            memcpy(&TestTri[3],&verts[i*3],sizeof(float)*3);
+            memcpy(&TestTri[6],&verts[i*3+3],sizeof(float)*3);
+            area1+= abs(Fix_GetXZArea(TestTri,3));
+            if(area1-err>area)
+                return false;
+        }
+
+        //last one
+        memcpy(&TestTri[3],verts,sizeof(float)*3);
+        memcpy(&TestTri[6],&verts[nv*3-3],sizeof(float)*3);
+        area1+= abs(Fix_GetXZArea(TestTri,3));
+
+        return abs(area1-area)<err;
+    }
+
+
+    static float DistanceToWall(dtNavMeshQuery* navQuery, dtNavMesh* navMesh, float* polyPickExt, dtQueryFilter& filter, float* pos,float* hitPos,float* hitNormal)
+    {
+        float distanceToWall=0;
+        dtPolyRef ref;
+        if(dtStatusSucceed(navQuery->findNearestPoly(pos, polyPickExt, &filter, &ref, 0))==false || ref ==0)
+            return -1;
+
+        const dtMeshTile* tile = 0;
+        const dtPoly* poly = 0;
+        if (dtStatusFailed(navMesh->getTileAndPolyByRef(ref, &tile, &poly)))
+            return -1;
+
+        // Collect vertices.
+        float verts[DT_VERTS_PER_POLYGON*3];
+        int nv = 0;
+        for (int i = 0; i < (int)poly->vertCount; ++i)
+        {
+            dtVcopy(&verts[nv*3], &tile->verts[poly->verts[i]*3]);
+            nv++;
+        }		
+
+        bool inside = Fix_PointIsInPoly(pos, verts, nv,0.05f);
+        if(inside == false)
+            return -1;
+
+        if(dtStatusSucceed(navQuery->findDistanceToWall(ref, pos, 100.0f, &filter, &distanceToWall, hitPos, hitNormal))==false)
+            return -1;
+
+        return distanceToWall;
+    }
+
+    #define MIN_WALL_DISTANCE 1.5f    //set this value bigger to make the path point far way from wall
+
+    //Try to fix the path,
+    static void FixPath(dtNavMesh* navMesh, dtNavMeshQuery* navQuery, float* polyPickExt, dtQueryFilter& filter, int pathLength, float*& straightPath)
+    {
+        float hitPos[3];
+        float hitNormal[3];
+        float TestPos[3];
+        float distanceToWall=0;
+        float up[3]={0,1,0};
+        float origDis = 0;
+
+        for(int i=1;i<pathLength-1;++i)
+        {
+            dtPolyRef pt;
+            float* pCurPoi=&straightPath[i*3];
+            distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter, pCurPoi,hitPos,hitNormal);
+
+            if(distanceToWall<MIN_WALL_DISTANCE && distanceToWall>=0)
+            {
+                float vec[3];
+                dtVsub(vec,&straightPath[i*3-3],&straightPath[i*3]);
+                //distanceToWall is 0 means the point is in the edge.so we can't get the hitpos.
+                if(distanceToWall == 0)
+                {
+                    //test left side
+                    dtVcross(TestPos,vec,up);
+                    dtVadd(TestPos,TestPos,pCurPoi);
+                    float ft = MIN_WALL_DISTANCE/dtVdist(TestPos,pCurPoi);
+                    dtVlerp(TestPos,pCurPoi,TestPos,ft);
+                    distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter,TestPos,hitPos,hitNormal);
+                    if(abs(MIN_WALL_DISTANCE - distanceToWall)>0.1f)
+                    {
+                        //test right side
+                        dtVcross(TestPos,up,vec);
+                        dtVadd(TestPos,TestPos,pCurPoi);
+                        ft = MIN_WALL_DISTANCE/dtVdist(TestPos,pCurPoi);
+                        dtVlerp(TestPos,pCurPoi,TestPos,ft);
+                        distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter,TestPos,hitPos,hitNormal);
+                    }
+
+                    //if test point is better than the orig point,replace it.
+                    if(abs(distanceToWall-MIN_WALL_DISTANCE)<0.1f)
+                        dtVcopy(pCurPoi,TestPos);
+                }
+                else
+                {
+                    //ok,we get the hitpos,just make a ray
+                    float ft = MIN_WALL_DISTANCE/distanceToWall;
+                    dtVlerp(TestPos,hitPos,pCurPoi,ft);
+                    distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter, TestPos,hitPos,hitNormal);
+
+                    if(abs(distanceToWall-MIN_WALL_DISTANCE)<0.1f)
+                        dtVcopy(pCurPoi,TestPos);
+                }
+            }
+        }
+    }
+
     static bool HandleMmapPathCommand(ChatHandler* handler, char const* args)
     {
-        if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId()))
+        if (!MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId()))
         {
             handler->PSendSysMessage("NavMesh not loaded for current map.");
             return true;
@@ -91,10 +221,10 @@ public:
         player->GetPosition(x, y, z);
 
         // path
-        PathGenerator path(target);
+        /*PathGenerator path(target);
         path.SetUseStraightPath(useStraightPath);
         bool result = path.CalculatePath(x, y, z);
-
+        
         Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
@@ -107,12 +237,63 @@ public:
         handler->PSendSysMessage("StartPosition     (%.3f, %.3f, %.3f)", start.x, start.y, start.z);
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
         handler->PSendSysMessage("ActualEndPosition (%.3f, %.3f, %.3f)", actualEnd.x, actualEnd.y, actualEnd.z);
+        */
+        float m_spos[3];
+        m_spos[0] = -y;
+        m_spos[1] = z;
+        m_spos[2] = -x;
+
+        //
+        float m_epos[3];
+        m_epos[0] = -target->GetPositionY();
+        m_epos[1] = target->GetPositionZ();
+        m_epos[2] = -target->GetPositionX();
+
+        //
+        dtQueryFilter m_filter;
+        m_filter.setIncludeFlags(3);
+        m_filter.setExcludeFlags(2);
+
+        //
+        float m_polyPickExt[3];
+        m_polyPickExt[0] = 2.5f;
+        m_polyPickExt[1] = 2.5f;
+        m_polyPickExt[2] = 2.5f;
+
+        //
+        dtPolyRef m_startRef;
+        dtPolyRef m_endRef;
+
+        const dtNavMesh* navMesh = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMesh(player->GetMapId());
+        const dtNavMeshQuery* navMeshQuery = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMeshQuery(player->GetMapId(), handler->GetSession()->GetPlayer()->GetInstanceId());
+
+        float nearestPt[3];
+
+        navMeshQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, nearestPt);
+        navMeshQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, nearestPt);
+
+        if ( !m_startRef || !m_endRef )
+        {
+            std::cerr << "Could not find any nearby poly's (" << m_startRef << "," << m_endRef << ")" << std::endl;
+            return 0;
+        }
+
+        int hops;
+        dtPolyRef* hopBuffer = new dtPolyRef[8192];
+        dtStatus status = navMeshQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, hopBuffer, &hops, 8192);
+
+        int resultHopCount;
+        float* straightPath = new float[2048*3];
+        unsigned char* pathFlags = new unsigned char[2048];
+        dtPolyRef* pathRefs = new dtPolyRef[2048];
+
+        status = navMeshQuery->findStraightPath(m_spos, m_epos, hopBuffer, hops, straightPath, pathFlags, pathRefs, &resultHopCount, 2048);
+        FixPath(const_cast<dtNavMesh*>(navMesh), const_cast<dtNavMeshQuery*>(navMeshQuery), m_polyPickExt, m_filter, resultHopCount, straightPath);
+        for (uint32 i = 0; i < resultHopCount; ++i)
+            player->SummonCreature(VISUAL_WAYPOINT, -straightPath[i * 3 + 2], -straightPath[i * 3 + 0], straightPath[i * 3 + 1], 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
 
         if (!player->IsGameMaster())
             handler->PSendSysMessage("Enable GM mode to see the path points.");
-
-        for (uint32 i = 0; i < pointPath.size(); ++i)
-            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
 
         return true;
     }
@@ -131,8 +312,8 @@ public:
         handler->PSendSysMessage("gridloc [%i, %i]", gx, gy);
 
         // calculate navmesh tile location
-        dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
-        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(handler->GetSession()->GetPlayer()->GetMapId(), player->GetInstanceId());
+        dtNavMesh const* navmesh = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
+        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMeshQuery(handler->GetSession()->GetPlayer()->GetMapId(), player->GetInstanceId());
         if (!navmesh || !navmeshquery)
         {
             handler->PSendSysMessage("NavMesh not loaded for current map.");
@@ -142,8 +323,8 @@ public:
         float const* min = navmesh->getParams()->orig;
         float x, y, z;
         player->GetPosition(x, y, z);
-        float location[VERTEX_SIZE] = {y, z, x};
-        float extents[VERTEX_SIZE] = {3.0f, 5.0f, 3.0f};
+        float location[] = {y, z, x};
+        float extents[] = {3.0f, 5.0f, 3.0f};
 
         int32 tilex = int32((y - min[0]) / SIZE_OF_GRIDS);
         int32 tiley = int32((x - min[2]) / SIZE_OF_GRIDS);
@@ -152,14 +333,14 @@ public:
 
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
-        dtPolyRef polyRef = INVALID_POLYREF;
+        dtPolyRef polyRef = 0;
         if (dtStatusFailed(navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL)))
         {
             handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
             return true;
         }
 
-        if (polyRef == INVALID_POLYREF)
+        if (polyRef == 0)
             handler->PSendSysMessage("Dt     [??, ??] (invalid poly, probably no tile loaded)");
         else
         {
@@ -183,8 +364,8 @@ public:
     static bool HandleMmapLoadedTilesCommand(ChatHandler* handler, char const* /*args*/)
     {
         uint32 mapid = handler->GetSession()->GetPlayer()->GetMapId();
-        dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(mapid);
-        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(mapid, handler->GetSession()->GetPlayer()->GetInstanceId());
+        dtNavMesh const* navmesh = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMesh(mapid);
+        dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::CreateOrGetMMapManager()->GetNavMeshQuery(mapid, handler->GetSession()->GetPlayer()->GetInstanceId());
         if (!navmesh || !navmeshquery)
         {
             handler->PSendSysMessage("NavMesh not loaded for current map.");
@@ -211,8 +392,8 @@ public:
         handler->PSendSysMessage("mmap stats:");
         handler->PSendSysMessage("  global mmap pathfinding is %sabled", MMAP::MMapFactory::IsPathfindingEnabled(mapId) ? "en" : "dis");
 
-        MMAP::MMapManager* manager = MMAP::MMapFactory::createOrGetMMapManager();
-        handler->PSendSysMessage(" %u maps loaded with %u tiles overall", manager->getLoadedMapsCount(), manager->getLoadedTilesCount());
+        MMAP::MMapManager* manager = MMAP::MMapFactory::CreateOrGetMMapManager();
+        handler->PSendSysMessage(" %u maps loaded with %u tiles overall", manager->GetLoadedMapsCount(), manager->GetLoadedTilesCount());
 
         dtNavMesh const* navmesh = manager->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
         if (!navmesh)

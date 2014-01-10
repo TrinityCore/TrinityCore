@@ -73,7 +73,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_blackfathom_deeps_eventAI(creature);
+        return GetInstanceAI<npc_blackfathom_deeps_eventAI>(creature);
     }
 
     struct npc_blackfathom_deeps_eventAI : public ScriptedAI
@@ -182,8 +182,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (me->IsSummon()) //we are not a normal spawn.
-                if (instance)
-                    instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
+                instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
         }
     };
 };

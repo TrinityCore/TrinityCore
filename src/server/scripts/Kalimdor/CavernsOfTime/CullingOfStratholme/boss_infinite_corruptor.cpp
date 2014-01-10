@@ -39,7 +39,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_infinite_corruptorAI(creature);
+        return GetInstanceAI<boss_infinite_corruptorAI>(creature);
     }
 
     struct boss_infinite_corruptorAI : public ScriptedAI
@@ -53,15 +53,13 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
+            instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE
@@ -76,8 +74,7 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-            if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, DONE);
+            instance->SetData(DATA_INFINITE_EVENT, DONE);
         }
     };
 

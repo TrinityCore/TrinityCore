@@ -24,6 +24,7 @@
 #include <ace/Atomic_Op.h>
 
 #include "DBCStores.h"
+#include "QuestDef.h"
 #include "SharedDefines.h"
 #include "World.h"
 #include "Weather.h"
@@ -446,7 +447,7 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
         virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return 100; }
+        virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
@@ -481,7 +482,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return 100; }
+        virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
 
         // Called when the game object is destroyed (destructible buildings only).
         virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }

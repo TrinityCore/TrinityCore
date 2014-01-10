@@ -104,8 +104,7 @@ public:
             uiMindFlayTimer = 15*IN_MILLISECONDS;
             uiCurseFatigueTimer = 12*IN_MILLISECONDS;
 
-            if (instance)
-                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, NOT_STARTED);
+            instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -114,8 +113,7 @@ public:
             Summon();
             uiSummonTimer = 15*IN_MILLISECONDS;
 
-            if (instance)
-                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, IN_PROGRESS);
+            instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, IN_PROGRESS);
         }
 
         void Summon()
@@ -175,8 +173,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, DONE);
+            instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -195,7 +192,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_krik_thirAI(creature);
+        return GetInstanceAI<boss_krik_thirAI>(creature);
     }
 };
 

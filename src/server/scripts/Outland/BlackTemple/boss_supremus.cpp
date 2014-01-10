@@ -90,7 +90,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_supremusAI(creature);
+        return GetInstanceAI<boss_supremusAI>(creature);
     }
 
     struct boss_supremusAI : public ScriptedAI
@@ -107,11 +107,8 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-            {
-                if (me->IsAlive())
-                    instance->SetBossState(DATA_SUPREMUS, NOT_STARTED);
-            }
+            if (me->IsAlive())
+                instance->SetBossState(DATA_SUPREMUS, NOT_STARTED);
 
             phase = 0;
 
@@ -121,8 +118,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_SUPREMUS, IN_PROGRESS);
+            instance->SetBossState(DATA_SUPREMUS, IN_PROGRESS);
 
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
@@ -158,8 +154,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_SUPREMUS, DONE);
+            instance->SetBossState(DATA_SUPREMUS, DONE);
 
             summons.DespawnAll();
         }

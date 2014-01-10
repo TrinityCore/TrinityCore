@@ -86,7 +86,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_hydross_the_unstableAI(creature);
+        return GetInstanceAI<boss_hydross_the_unstableAI>(creature);
     }
 
     struct boss_hydross_the_unstableAI : public ScriptedAI
@@ -134,8 +134,7 @@ public:
 
             me->SetDisplayId(MODEL_CLEAN);
 
-            if (instance)
-                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
+            instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
             beam = false;
             Summons.DespawnAll();
         }
@@ -174,8 +173,7 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
+            instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -208,8 +206,7 @@ public:
         {
             Talk(CorruptedForm ? SAY_CORRUPT_DEATH : SAY_CLEAN_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
+            instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
             Summons.DespawnAll();
         }
 

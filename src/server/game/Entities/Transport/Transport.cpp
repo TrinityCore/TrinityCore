@@ -90,8 +90,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetPeriod(tInfo->pathTime);
     SetEntry(goinfo->entry);
     SetDisplayId(goinfo->displayId);
-    SetGoState(GO_STATE_READY);
-    _pendingStop = goinfo->moTransport.canBeStopped != 0;
+    SetGoState(!goinfo->moTransport.canBeStopped ? GO_STATE_READY : GO_STATE_ACTIVE);
     SetGoType(GAMEOBJECT_TYPE_MO_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
@@ -111,7 +110,8 @@ void Transport::Update(uint32 diff)
     if (GetKeyFrames().size() <= 1)
         return;
 
-    m_goValue.Transport.PathProgress += diff;
+    if (IsMoving() || !_pendingStop)
+        m_goValue.Transport.PathProgress += diff;
 
     uint32 timer = m_goValue.Transport.PathProgress % GetPeriod();
 
@@ -132,18 +132,15 @@ void Transport::Update(uint32 diff)
             if (timer < _currentFrame->DepartureTime)
             {
                 SetMoving(false);
-                if (_pendingStop)
+                if (_pendingStop && GetGoState() != GO_STATE_READY)
+                {
                     SetGoState(GO_STATE_READY);
+                    m_goValue.Transport.PathProgress = (m_goValue.Transport.PathProgress / GetPeriod());
+                    m_goValue.Transport.PathProgress *= GetPeriod();
+                    m_goValue.Transport.PathProgress += _currentFrame->ArriveTime;
+                }
                 break;  // its a stop frame and we are waiting
             }
-        }
-
-        if (_pendingStop && timer >= _currentFrame->DepartureTime && GetGoState() == GO_STATE_READY)
-        {
-            m_goValue.Transport.PathProgress = (m_goValue.Transport.PathProgress / GetPeriod());
-            m_goValue.Transport.PathProgress *= GetPeriod();
-            m_goValue.Transport.PathProgress += _currentFrame->ArriveTime;
-            break;
         }
 
         if (timer >= _currentFrame->DepartureTime && !_triggeredDepartureEvent)
@@ -152,11 +149,6 @@ void Transport::Update(uint32 diff)
             _triggeredDepartureEvent = true;
         }
 
-        if (timer >= _currentFrame->DepartureTime && timer < _currentFrame->NextArriveTime)
-            break;  // found current waypoint
-
-        MoveToNextWaypoint();
-
         // not waiting anymore
         SetMoving(true);
 
@@ -164,13 +156,18 @@ void Transport::Update(uint32 diff)
         if (GetGOInfo()->moTransport.canBeStopped)
             SetGoState(GO_STATE_ACTIVE);
 
+        if (timer >= _currentFrame->DepartureTime && timer < _currentFrame->NextArriveTime)
+            break;  // found current waypoint
+
+        MoveToNextWaypoint();
+
         sScriptMgr->OnRelocate(this, _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
 
         TC_LOG_DEBUG("entities.transport", "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName().c_str(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
 
         // Departure event
         if (_currentFrame->IsTeleportFrame())
-            if (TeleportTransport(_nextFrame->Node->mapid, _nextFrame->Node->x, _nextFrame->Node->y, _nextFrame->Node->z))
+            if (TeleportTransport(_nextFrame->Node->mapid, _nextFrame->Node->x, _nextFrame->Node->y, _nextFrame->Node->z, _nextFrame->InitialOrientation))
                 return; // Update more in new map thread
     }
 
@@ -185,7 +182,18 @@ void Transport::Update(uint32 diff)
             G3D::Vector3 pos, dir;
             _currentFrame->Spline->evaluate_percent(_currentFrame->Index, t, pos);
             _currentFrame->Spline->evaluate_derivative(_currentFrame->Index, t, dir);
-            UpdatePosition(pos.x, pos.y, pos.z, atan2(dir.x, dir.y));
+            UpdatePosition(pos.x, pos.y, pos.z, atan2(dir.y, dir.x) + M_PI);
+        }
+        else
+        {
+            /* There are four possible scenarios that trigger loading/unloading passengers:
+              1. transport moves from inactive to active grid
+              2. the grid that transport is currently in becomes active
+              3. transport moves from active to inactive grid
+              4. the grid that transport is currently in unloads
+            */
+            if (_staticPassengers.empty() && GetMap()->IsGridLoaded(GetPositionX(), GetPositionY())) // 2.
+                LoadStaticPassengers();
         }
     }
 
@@ -313,7 +321,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
       3. transport moves from active to inactive grid
       4. the grid that transport is currently in unloads
     */
-    if (_staticPassengers.empty() && newActive) // 1. and 2.
+    if (_staticPassengers.empty() && newActive) // 1.
         LoadStaticPassengers();
     else if (!_staticPassengers.empty() && !newActive && Cell(x, y).DiffGrid(Cell(GetPositionX(), GetPositionY()))) // 3.
         UnloadStaticPassengers();
@@ -403,44 +411,16 @@ float Transport::CalculateSegmentPos(float now)
     return segmentPos / frame.NextDistFromPrev;
 }
 
-bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
+bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, float o)
 {
     Map const* oldMap = GetMap();
 
     if (oldMap->GetId() != newMapid)
     {
         Map* newMap = sMapMgr->CreateBaseMap(newMapid);
-        Map::PlayerList const& oldPlayers = GetMap()->GetPlayers();
-        if (!oldPlayers.isEmpty())
-        {
-            UpdateData data(GetMapId());
-            BuildOutOfRangeUpdateBlock(&data);
-            WorldPacket packet;
-            data.BuildPacket(&packet);
-            for (Map::PlayerList::const_iterator itr = oldPlayers.begin(); itr != oldPlayers.end(); ++itr)
-                if (itr->GetSource()->GetTransport() != this)
-                    itr->GetSource()->SendDirectMessage(&packet);
-        }
-
         UnloadStaticPassengers();
         GetMap()->RemoveFromMap<Transport>(this, false);
         SetMap(newMap);
-
-        Map::PlayerList const& newPlayers = GetMap()->GetPlayers();
-        if (!newPlayers.isEmpty())
-        {
-            for (Map::PlayerList::const_iterator itr = newPlayers.begin(); itr != newPlayers.end(); ++itr)
-            {
-                if (itr->GetSource()->GetTransport() != this)
-                {
-                    UpdateData data(newMapid);
-                    BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
-                    WorldPacket packet;
-                    data.BuildPacket(&packet);
-                    itr->GetSource()->SendDirectMessage(&packet);
-                }
-            }
-        }
 
         for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end();)
         {
@@ -448,7 +428,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
             float destX, destY, destZ, destO;
             obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
-            TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, GetOrientation());
+            TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
 
             switch (obj->GetTypeId())
             {
@@ -474,7 +454,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
             }
         }
 
-        Relocate(x, y, z, GetOrientation());
+        Relocate(x, y, z, o);
         GetMap()->AddToMap<Transport>(this);
         return true;
     }
@@ -487,13 +467,13 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
             {
                 float destX, destY, destZ, destO;
                 (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
-                TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, GetOrientation());
+                TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
 
                 (*itr)->ToUnit()->NearTeleportTo(destX, destY, destZ, destO);
             }
         }
 
-        UpdatePosition(x, y, z, GetOrientation());
+        UpdatePosition(x, y, z, o);
         return false;
     }
 }

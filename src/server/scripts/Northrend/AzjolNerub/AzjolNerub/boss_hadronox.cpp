@@ -102,14 +102,12 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_HADRONOX, DONE);
+            instance->SetBossState(DATA_HADRONOX, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_HADRONOX, IN_PROGRESS);
+            instance->SetBossState(DATA_HADRONOX, IN_PROGRESS);
             me->SetInCombatWithZone();
         }
 
@@ -192,7 +190,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_hadronoxAI(creature);
+        return GetInstanceAI<boss_hadronoxAI>(creature);
     }
 };
 

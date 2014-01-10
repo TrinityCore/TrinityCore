@@ -207,7 +207,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_wrathbone_flayerAI(creature);
+        return GetInstanceAI<npc_wrathbone_flayerAI>(creature);
     }
 };
 

@@ -83,15 +83,13 @@ public:
             uiStompTimer = urand(20000, 29000);
             uiShatterTimer = 0;
 
-            if (instance)
-                instance->SetBossState(DATA_KRYSTALLUS, NOT_STARTED);
+            instance->SetBossState(DATA_KRYSTALLUS, NOT_STARTED);
         }
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetBossState(DATA_KRYSTALLUS, IN_PROGRESS);
+            instance->SetBossState(DATA_KRYSTALLUS, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -143,8 +141,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetBossState(DATA_KRYSTALLUS, DONE);
+            instance->SetBossState(DATA_KRYSTALLUS, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

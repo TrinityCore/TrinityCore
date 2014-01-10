@@ -106,8 +106,8 @@ enum Spells
     SPELL_ARCANE_STORM_P_I                   = 61693,
     SPELL_VORTEX_1                           = 56237, // seems that frezze object animation
     SPELL_VORTEX_2                           = 55873, // visual effect
-    SPELL_VORTEX_3                           = 56105, // this spell must handle all the script - casted by the boss and to himself
-    SPELL_VORTEX_6                           = 73040, // teleport - (casted to all raid), caster vortex bunnies, targets players.
+    SPELL_VORTEX_3                           = 56105, // this spell must handle all the script - cast by the boss and to himself
+    SPELL_VORTEX_6                           = 73040, // teleport - (cast to all raid), caster vortex bunnies, targets players.
 
     // Phase II
     SPELL_TELEPORT_VISUAL_ONLY               = 41232, // Light blue animation cast by arcane NPCs when spawned on Hover Disks
@@ -117,7 +117,7 @@ enum Spells
     SPELL_SUMMON_ARCANE_BOMB                 = 56429,
     SPELL_ARCANE_BOMB_TRIGGER                = 56430,
     SPELL_ARCANE_BOMB_KNOCKBACK_DAMAGE       = 56431,
-    SPELL_ARCANE_OVERLOAD_1                  = 56432, // casted by npc Arcane Overload ID: 30282
+    SPELL_ARCANE_OVERLOAD_1                  = 56432, // cast by npc Arcane Overload ID: 30282
     // SPELL_ARCANE_OVERLOAD_2               = 56435, // Triggered by 56432 - resizing target
     // SPELL_ARCANE_OVERLOAD_3               = 56438, // Triggered by 56432 - damage reduction
     SPELL_SURGE_OF_POWER_P_II                = 56505,
@@ -376,8 +376,7 @@ public:
 
             SetPhase(PHASE_NOT_STARTED, true);
             me->SetReactState(REACT_PASSIVE);
-            if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         uint32 GetData(uint32 data) const OVERRIDE
@@ -568,27 +567,22 @@ public:
             // We can't call full function here since it includes DoZoneInCombat(),
             // if someone does it will be returned with a warning.
             me->setActive(true);
-            if (instance)
+            if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
             {
-                if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-
-                instance->SetBossState(DATA_MALYGOS_EVENT, IN_PROGRESS);
+                EnterEvadeMode();
+                return;
             }
+
+            instance->SetBossState(DATA_MALYGOS_EVENT, IN_PROGRESS);
 
             Talk(SAY_START_P_ONE);
             DoCast(SPELL_BERSERK); // periodic aura, first tick in 10 minutes
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void EnterEvadeMode() OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
+            instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
 
             SendLightOverride(LIGHT_GET_DEFAULT_FOR_MAP, 1*IN_MILLISECONDS);
 
@@ -628,8 +622,7 @@ public:
                     summons.DespawnAll();
             }
 
-            if (instance)
-                instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -1074,7 +1067,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_malygosAI(creature);
+        return GetInstanceAI<boss_malygosAI>(creature);
     }
 };
 
@@ -1127,7 +1120,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_portal_eoeAI(creature);
+        return GetInstanceAI<npc_portal_eoeAI>(creature);
     }
 };
 
@@ -1190,7 +1183,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_power_sparkAI(creature);
+        return GetInstanceAI<npc_power_sparkAI>(creature);
     }
 };
 
@@ -1292,7 +1285,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_melee_hover_diskAI(creature);
+        return GetInstanceAI<npc_melee_hover_diskAI>(creature);
     }
 };
 
@@ -1374,7 +1367,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_caster_hover_diskAI(creature);
+        return GetInstanceAI<npc_caster_hover_diskAI>(creature);
     }
 };
 
@@ -1450,7 +1443,7 @@ class npc_nexus_lord : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_nexus_lordAI(creature);
+            return GetInstanceAI<npc_nexus_lordAI>(creature);
         }
 };
 
@@ -1517,7 +1510,7 @@ class npc_scion_of_eternity : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_scion_of_eternityAI(creature);
+            return GetInstanceAI<npc_scion_of_eternityAI>(creature);
         }
 };
 
@@ -1575,7 +1568,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_arcane_overloadAI(creature);
+        return GetInstanceAI<npc_arcane_overloadAI>(creature);
     }
 };
 
@@ -1907,7 +1900,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
                             if (InstanceScript* instance = caster->GetInstanceScript())
                             {
-                                // Teleport spell - I'm not sure but might be it must be casted by each vehicle when it's passenger leaves it.
+                                // Teleport spell - I'm not sure but might be it must be cast by each vehicle when it's passenger leaves it.
                                 if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetData64(DATA_TRIGGER)))
                                     trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
                             }

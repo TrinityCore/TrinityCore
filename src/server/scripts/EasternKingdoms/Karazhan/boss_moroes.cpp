@@ -98,7 +98,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_moroesAI(creature);
+        return GetInstanceAI<boss_moroesAI>(creature);
     }
 
     struct boss_moroesAI : public ScriptedAI
@@ -138,14 +138,12 @@ public:
             if (me->IsAlive())
                 SpawnAdds();
 
-            if (instance)
-                instance->SetData(TYPE_MOROES, NOT_STARTED);
+            instance->SetData(TYPE_MOROES, NOT_STARTED);
         }
 
         void StartEvent()
         {
-            if (instance)
-                instance->SetData(TYPE_MOROES, IN_PROGRESS);
+            instance->SetData(TYPE_MOROES, IN_PROGRESS);
 
             DoZoneInCombat();
         }
@@ -168,14 +166,12 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(TYPE_MOROES, DONE);
+            instance->SetData(TYPE_MOROES, DONE);
 
             DeSpawnAdds();
 
             //remove aura from spell Garrote when Moroes dies
-            if (instance)
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
         }
 
         void SpawnAdds()
@@ -349,15 +345,11 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void Reset() OVERRIDE
     {
-        if (instance)
-            instance->SetData(TYPE_MOROES, NOT_STARTED);
+        instance->SetData(TYPE_MOROES, NOT_STARTED);
     }
 
     void AcquireGUID()
     {
-        if (!instance)
-            return;
-
         if (Creature* Moroes = Unit::GetCreature(*me, instance->GetData64(DATA_MOROES)))
             for (uint8 i = 0; i < 4; ++i)
                 if (uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
@@ -393,7 +385,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baroness_dorothea_millstipeAI(creature);
+        return GetInstanceAI<boss_baroness_dorothea_millstipeAI>(creature);
     }
 
     struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
@@ -456,7 +448,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baron_rafe_dreugerAI(creature);
+        return GetInstanceAI<boss_baron_rafe_dreugerAI>(creature);
     }
 
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
@@ -513,7 +505,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_catriona_von_indiAI(creature);
+        return GetInstanceAI<boss_lady_catriona_von_indiAI>(creature);
     }
 
     struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
@@ -583,7 +575,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_keira_berrybuckAI(creature);
+        return GetInstanceAI<boss_lady_keira_berrybuckAI>(creature);
     }
 
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
@@ -657,7 +649,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_robin_darisAI(creature);
+        return GetInstanceAI<boss_lord_robin_darisAI>(creature);
     }
 
     struct boss_lord_robin_darisAI : public boss_moroes_guestAI
@@ -713,7 +705,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_crispin_ferenceAI(creature);
+        return GetInstanceAI<boss_lord_crispin_ferenceAI>(creature);
     }
 
     struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI

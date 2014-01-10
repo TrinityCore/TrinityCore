@@ -39,7 +39,7 @@ public:
     uint16 Flags;
     uint16 DoodadSet;
 
-    static WorldModelDefinition Read(FILE* file);
+    static WorldModelDefinition Read(Stream* file);
 };
 
 class WorldModelHandler : public ObjectDataHandler
@@ -50,8 +50,8 @@ public:
 
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;
-    bool IsSane() { return _definitions && _paths; }
-    static void InsertModelGeometry(std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot* root, bool translate = true);
+    bool IsSane() const { return _definitions && _paths; }
+    static void InsertModelGeometry(std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, const WorldModelDefinition& def, WorldModelRoot const* root, bool translate = true);
 protected:
     void ProcessInternal(MapChunk* data);
 private:

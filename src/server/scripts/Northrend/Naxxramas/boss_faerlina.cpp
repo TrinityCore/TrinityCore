@@ -216,7 +216,7 @@ class npc_faerlina_add : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_faerlina_addAI(creature);
+            return GetInstanceAI<npc_faerlina_addAI>(creature);
         }
 };
 

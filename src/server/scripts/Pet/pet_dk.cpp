@@ -47,13 +47,14 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
 
             void InitializeAI() OVERRIDE
             {
+                // Not needed to be despawned now
+                _despawnTimer = 0;
+
                 CasterAI::InitializeAI();
                 uint64 ownerGuid = me->GetOwnerGUID();
                 if (!ownerGuid)
                     return;
-
-                // Not needed to be despawned now
-                _despawnTimer = 0;
+                
                 // Find victim of Summon Gargoyle spell
                 std::list<Unit*> targets;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);

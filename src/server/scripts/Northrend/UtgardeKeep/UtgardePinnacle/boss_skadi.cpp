@@ -133,7 +133,7 @@ enum Spells
 {
     // Skadi Spells
     SPELL_CRUSH             = 50234,
-    SPELL_POISONED_SPEAR    = 50225, //isn't being casted =/
+    SPELL_POISONED_SPEAR    = 50225, //isn't being cast
     SPELL_WHIRLWIND         = 50228, //random target, but not the tank approx. every 20s
     SPELL_RAPID_FIRE        = 56570,
     SPELL_HARPOON_DAMAGE    = 56578,
@@ -162,7 +162,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_skadiAI(creature);
+        return GetInstanceAI<boss_skadiAI>(creature);
     }
 
     struct boss_skadiAI : public ScriptedAI
@@ -208,11 +208,8 @@ public:
             me->SetSpeed(MOVE_FLIGHT, 3.0f);
             if ((Unit::GetCreature(*me, m_uiGraufGUID) == NULL) && !me->IsMounted())
                  me->SummonCreature(NPC_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
-            if (instance)
-            {
-                instance->SetBossState(DATA_SKADI_THE_RUTHLESS, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-            }
+            instance->SetBossState(DATA_SKADI_THE_RUTHLESS, NOT_STARTED);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void JustReachedHome() OVERRIDE
@@ -235,15 +232,12 @@ public:
             m_uiMovementTimer = 1000;
             m_uiSummonTimer = 10000;
             me->SetInCombatWithZone();
-            if (instance)
-            {
-                instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-                me->GetMotionMaster()->MoveJump(Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 5.0f, 10.0f);
-                me->SetWalk(false);
-                m_uiMountTimer = 1000;
-                Summons.DespawnEntry(NPC_GRAUF);
-            }
+            instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            me->GetMotionMaster()->MoveJump(Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 5.0f, 10.0f);
+            me->SetWalk(false);
+            m_uiMountTimer = 1000;
+            Summons.DespawnEntry(NPC_GRAUF);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE
@@ -411,13 +405,13 @@ public:
         {
             Talk(SAY_DEATH);
             Summons.DespawnAll();
-            if (instance)
-                instance->SetBossState(DATA_SKADI_THE_RUTHLESS, DONE);
+            instance->SetBossState(DATA_SKADI_THE_RUTHLESS, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_KILL);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_KILL);
         }
 
         void SpawnMobs()

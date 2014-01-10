@@ -78,7 +78,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ichoronAI(creature);
+        return GetInstanceAI<boss_ichoronAI>(creature);
     }
 
     struct boss_ichoronAI : public ScriptedAI
@@ -110,13 +110,10 @@ public:
             me->SetVisible(true);
             DespawnWaterElements();
 
-            if (instance)
-            {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-            }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -125,19 +122,16 @@ public:
 
             DoCast(me, SPELL_PROTECTIVE_BUBBLE);
 
-            if (instance)
-            {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ICHORON_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-            }
+            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ICHORON_CELL)))
+                if (pDoor->GetGoState() == GO_STATE_READY)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -289,18 +283,15 @@ public:
 
             DespawnWaterElements();
 
-            if (instance)
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                {
-                    instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 7);
-                }
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                {
-                    instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 13);
-                }
+                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 7);
+            }
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+            {
+                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
 
@@ -342,7 +333,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ichor_globuleAI(creature);
+        return GetInstanceAI<npc_ichor_globuleAI>(creature);
     }
 
     struct npc_ichor_globuleAI : public ScriptedAI
@@ -371,16 +362,13 @@ public:
         {
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (instance)
+                if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
                 {
-                    if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
+                    if (me->IsWithinDist(pIchoron, 2.0f, false))
                     {
-                        if (me->IsWithinDist(pIchoron, 2.0f, false))
-                        {
-                            if (pIchoron->AI())
-                                pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);
-                            me->DespawnOrUnsummon();
-                        }
+                        if (pIchoron->AI())
+                            pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);
+                        me->DespawnOrUnsummon();
                     }
                 }
                 uiRangeCheck_Timer = 1000;

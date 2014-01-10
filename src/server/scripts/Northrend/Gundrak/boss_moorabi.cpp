@@ -54,7 +54,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_moorabiAI(creature);
+        return GetInstanceAI<boss_moorabiAI>(creature);
     }
 
     struct boss_moorabiAI : public ScriptedAI
@@ -81,8 +81,7 @@ public:
             uiTransformationTImer = 12*IN_MILLISECONDS;
             bPhase = false;
 
-            if (instance)
-                instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
+            instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -90,8 +89,7 @@ public:
             Talk(SAY_AGGRO);
             DoCast(me, SPELL_MOJO_FRENZY, true);
 
-            if (instance)
-                instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE
@@ -157,8 +155,7 @@ public:
          {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_MOORABI_EVENT, DONE);
+            instance->SetData(DATA_MOORABI_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

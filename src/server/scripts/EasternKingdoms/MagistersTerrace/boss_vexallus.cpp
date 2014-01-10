@@ -76,7 +76,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_vexallusAI(creature);
+        return GetInstanceAI<boss_vexallusAI>(creature);
     };
 
     struct boss_vexallusAI : public BossAI
@@ -103,8 +103,7 @@ public:
             IntervalHealthAmount = 1;
             Enraged = false;
 
-            if (instance)
-                instance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
+            instance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -115,16 +114,14 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             summons.DespawnAll();
-            if (instance)
-                instance->SetData(DATA_VEXALLUS_EVENT, DONE);
+            instance->SetData(DATA_VEXALLUS_EVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE

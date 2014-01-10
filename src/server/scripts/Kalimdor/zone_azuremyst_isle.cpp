@@ -48,9 +48,7 @@ EndContentData */
 enum draeneiSurvivor
 {
     SAY_HEAL            = 0,
-
     SAY_HELP            = 1,
-
     SPELL_IRRIDATION    = 35046,
     SPELL_STUNNED       = 28630
 };
@@ -59,11 +57,6 @@ class npc_draenei_survivor : public CreatureScript
 {
 public:
     npc_draenei_survivor() : CreatureScript("npc_draenei_survivor") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_draenei_survivorAI(creature);
-    }
 
     struct npc_draenei_survivorAI : public ScriptedAI
     {
@@ -167,6 +160,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_draenei_survivorAI(creature);
+    }
 };
 
 /*######
@@ -186,38 +183,10 @@ enum Overgrind
     SPELL_DYNAMITE  = 7978
 };
 
-#define GOSSIP_FIGHT "Traitor! You will be brought to justice!"
-
 class npc_engineer_spark_overgrind : public CreatureScript
 {
 public:
     npc_engineer_spark_overgrind() : CreatureScript("npc_engineer_spark_overgrind") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->setFaction(FACTION_HOSTILE);
-            CAST_AI(npc_engineer_spark_overgrind::npc_engineer_spark_overgrindAI, creature->AI())->AttackStart(player);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (player->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_engineer_spark_overgrindAI(creature);
-    }
 
     struct npc_engineer_spark_overgrindAI : public ScriptedAI
     {
@@ -229,14 +198,6 @@ public:
             if (creature->GetAreaId() == AREA_COVE || creature->GetAreaId() == AREA_ISLE)
                 IsTreeEvent = true;
         }
-
-        uint32 NormFaction;
-        uint32 NpcFlags;
-
-        uint32 DynamiteTimer;
-        uint32 EmoteTimer;
-
-        bool IsTreeEvent;
 
         void Reset() OVERRIDE
         {
@@ -252,6 +213,13 @@ public:
         void EnterCombat(Unit* who) OVERRIDE
         {
             Talk(ATTACK_YELL, who);
+        }
+
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) OVERRIDE
+        {
+            player->CLOSE_GOSSIP_MENU();
+            me->setFaction(FACTION_HOSTILE);
+            me->Attack(player, true);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -279,8 +247,19 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        uint32 NormFaction;
+        uint32 NpcFlags;
+        uint32 DynamiteTimer;
+        uint32 EmoteTimer;
+        bool   IsTreeEvent;
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_engineer_spark_overgrindAI(creature);
+    }
 };
 
 /*######
@@ -291,11 +270,6 @@ class npc_injured_draenei : public CreatureScript
 {
 public:
     npc_injured_draenei() : CreatureScript("npc_injured_draenei") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_injured_draeneiAI(creature);
-    }
 
     struct npc_injured_draeneiAI : public ScriptedAI
     {
@@ -321,10 +295,13 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-
         void UpdateAI(uint32 /*diff*/) OVERRIDE { }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_injured_draeneiAI(creature);
+    }
 };
 
 /*######
@@ -339,8 +316,8 @@ enum Magwin
     SAY_END1                    = 3,
     SAY_END2                    = 4,
     EMOTE_HUG                   = 5,
-
-    QUEST_A_CRY_FOR_SAY_HELP    = 9528
+    QUEST_A_CRY_FOR_SAY_HELP    = 9528,
+    FACTION_QUEST               = 113
 };
 
 class npc_magwin : public CreatureScript
@@ -348,25 +325,25 @@ class npc_magwin : public CreatureScript
 public:
     npc_magwin() : CreatureScript("npc_magwin") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
-    {
-        if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
-        {
-            creature->setFaction(113);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_escortAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_magwinAI(creature);
-    }
-
     struct npc_magwinAI : public npc_escortAI
     {
         npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
+
+        void Reset() OVERRIDE { }
+
+        void EnterCombat(Unit* who) OVERRIDE
+        {
+            Talk(SAY_AGGRO, who);
+        }
+
+        void sQuestAccept(Player* player, Quest const* quest)
+        {
+            if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
+            {
+                me->setFaction(FACTION_QUEST);
+                npc_escortAI::Start(true, false, player->GetGUID());
+            }
+        }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -391,15 +368,12 @@ public:
                 }
             }
         }
-
-        void EnterCombat(Unit* who) OVERRIDE
-        {
-            Talk(SAY_AGGRO, who);
-        }
-
-        void Reset() OVERRIDE { }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_magwinAI(creature);
+    }
 };
 
 /*######
@@ -432,11 +406,6 @@ class npc_geezle : public CreatureScript
 {
 public:
     npc_geezle() : CreatureScript("npc_geezle") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_geezleAI(creature);
-    }
 
     struct npc_geezleAI : public ScriptedAI
     {
@@ -568,6 +537,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_geezleAI(creature);
+    }
 };
 
 enum RavegerCage
@@ -605,11 +578,6 @@ class npc_death_ravager : public CreatureScript
 {
 public:
     npc_death_ravager() : CreatureScript("npc_death_ravager") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_death_ravagerAI(creature);
-    }
 
     struct npc_death_ravagerAI : public ScriptedAI
     {
@@ -650,6 +618,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_death_ravagerAI(creature);
+    }
 };
 
 /*########

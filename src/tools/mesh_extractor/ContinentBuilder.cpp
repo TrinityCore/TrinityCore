@@ -16,80 +16,21 @@
  */
 
 #include "ContinentBuilder.h"
-#include "TileBuilder.h"
 #include "WDT.h"
 #include "Utils.h"
 #include "DetourNavMesh.h"
 #include "Cache.h"
-#include "ace/Task.h"
 #include "Recast.h"
 #include "DetourCommon.h"
 
-class BuilderThread : public ACE_Task_Base
-{
-private:
-    int X, Y, MapId;
-    std::string Continent;
-    dtNavMeshParams Params;
-    ContinentBuilder* cBuilder;
-public:
-    BuilderThread(ContinentBuilder* _cBuilder, dtNavMeshParams& params) : Params(params), cBuilder(_cBuilder), Free(true) {}
-    
-    void SetData(int x, int y, int map, const std::string& cont) 
-    { 
-        X = x; 
-        Y = y; 
-        MapId = map; 
-        Continent = cont; 
-    }
-
-    int svc()
-    {
-        Free = false;
-        printf("[%02i,%02i] Building tile\n", X, Y);
-        TileBuilder builder(cBuilder, Continent, X, Y, MapId);
-        char buff[100];
-        sprintf(buff, "mmaps/%03u%02i%02i.mmtile", MapId, Y, X);
-        FILE* f = fopen(buff, "r");
-        if (f) // Check if file already exists.
-        {
-            printf("[%02i,%02i] Tile skipped, file already exists\n", X, Y);
-            fclose(f);
-            Free = true;
-            return 0;
-        }
-        uint8* nav = builder.BuildTiled(Params);
-        if (nav)
-        {
-            f = fopen(buff, "wb");
-            if (!f)
-            {
-                printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
-                return 0;
-            }
-            MmapTileHeader header;
-            header.size = builder.DataSize;
-            fwrite(&header, sizeof(MmapTileHeader), 1, f);
-            fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
-            fclose(f);
-        }
-        dtFree(nav);
-        printf("[%02i,%02i] Tile Built!\n", X, Y);
-        Free = true;
-        return 0;
-    }
-
-    bool Free;
-};
-
-void ContinentBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax)
+void ContinentBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax) const
 {
     // this is for elevation
     if (verts && vertCount)
         rcCalcBounds(verts, vertCount, bmin, bmax);
     else
     {
-        bmin[1] = FLT_MIN;
+        bmin[1] = -FLT_MAX;
         bmax[1] = FLT_MAX;
     }
 
@@ -128,8 +69,6 @@ void ContinentBuilder::Build()
 
     dtNavMeshParams params;
     
-    std::vector<BuilderThread*> Threads;
-
     if (TileMap->IsGlobalModel)
     {
         printf("Map %s ( %u ) is a WMO. Building with 1 thread.\n", Continent.c_str(), MapId);
@@ -159,6 +98,7 @@ void ContinentBuilder::Build()
             }
 
             MmapTileHeader mheader;
+            Utils::InitializeMmapTileHeader(mheader);
             mheader.size = builder->DataSize;
             fwrite(&mheader, sizeof(MmapTileHeader), 1, f);
             fwrite(nav, sizeof(unsigned char), builder->DataSize, f);
@@ -170,44 +110,70 @@ void ContinentBuilder::Build()
     }
     else
     {
-        params.maxPolys = 32768;
-        params.maxTiles = 4096;
+        params.maxPolys = 1024;
+        params.maxTiles = TileMap->TileTable.size();
         rcVcopy(params.orig, Constants::Origin);
         params.tileHeight = Constants::TileSize;
         params.tileWidth = Constants::TileSize;
         fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
         fclose(mmap);
 
-        for (uint32 i = 0; i < NumberOfThreads; ++i)
-            Threads.push_back(new BuilderThread(this, params));
+        std::vector<BuilderThread*> _threads;
+        BuilderThreadPool* pool = NumberOfThreads > 0 ? new BuilderThreadPool() : NULL;
+
         printf("Map %s ( %u ) has %u tiles. Building them with %u threads\n", Continent.c_str(), MapId, uint32(TileMap->TileTable.size()), NumberOfThreads);
+
         for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
+            pool->Enqueue(new TileBuildRequest(this, Continent, itr->X, itr->Y, MapId, params));
+
+        for (uint32 i = 0; i < NumberOfThreads; ++i)
+            _threads.push_back(new BuilderThread(this, pool->Queue()));
+
+        // Free memory
+        for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
         {
-            bool next = false;
-            while (!next)
-            {
-                for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
-                {
-                    if ((*_th)->Free)
-                    {
-                        (*_th)->SetData(itr->X, itr->Y, MapId, Continent);
-                        (*_th)->activate();
-                        next = true;
-                        break;
-                    }
-                }
-                // Wait for 20 seconds
-                ACE_OS::sleep(ACE_Time_Value (0, 20000));
-            }
+            (*_th)->wait();
+            delete *_th;
         }
+
+        delete pool;
     }
 
     Cache->Clear();
+}
 
-    // Free memory
-    for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
+int TileBuildRequest::call()
+{
+    printf("[%02i,%02i] Building tile\n", X, Y);
+    // Build the tile and return negative on error
+    TileBuilder tile(_builder, _continent, X, Y, _mapId);
+    char buff[100];
+    sprintf(buff, "mmaps/%03u%02i%02i.mmtile", _mapId, Y, X);
+    FILE* f = fopen(buff, "r");
+    if (f) // Check if file already exists.
     {
-        (*_th)->wait();
-        delete *_th;
+        printf("[%02i,%02i] Tile skipped, file already exists\n", X, Y);
+        fclose(f);
+        return 0;
     }
+    uint8* nav = tile.BuildTiled(_params);
+    if (nav)
+    {
+        f = fopen(buff, "wb");
+        if (!f)
+        {
+            printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
+            dtFree(nav);
+            return -1;
+        }
+        MmapTileHeader header;
+        Utils::InitializeMmapTileHeader(header);
+        header.size = tile.DataSize;
+        fwrite(&header, sizeof(MmapTileHeader), 1, f);
+        fwrite(nav, sizeof(unsigned char), tile.DataSize, f);
+        fclose(f);
+    }
+    dtFree(nav);
+    printf("[%02i,%02i] Tile Built!\n", X, Y);
+    return 0;
 }

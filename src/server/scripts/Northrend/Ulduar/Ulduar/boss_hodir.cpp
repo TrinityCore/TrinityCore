@@ -235,7 +235,7 @@ class npc_flash_freeze : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_flash_freezeAI(creature);
+            return GetInstanceAI<npc_flash_freezeAI>(creature);
         }
 };
 
@@ -296,7 +296,7 @@ class npc_ice_block : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_ice_blockAI(creature);
+            return GetInstanceAI<npc_ice_blockAI>(creature);
         }
 };
 

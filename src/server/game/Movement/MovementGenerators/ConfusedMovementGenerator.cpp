@@ -86,7 +86,6 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* unit, uint32 diff)
             unit->MovePositionToFirstCollision(pos, dest, 0.0f);
 
             PathGenerator path(unit);
-            path.SetPathLengthLimit(30.0f);
             bool result = path.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             if (!result || (path.GetPathType() & PATHFIND_NOPATH))
             {

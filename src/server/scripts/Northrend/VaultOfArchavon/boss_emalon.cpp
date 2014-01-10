@@ -268,7 +268,7 @@ class npc_tempest_minion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_tempest_minionAI(creature);
+            return GetInstanceAI<npc_tempest_minionAI>(creature);
         }
 };
 

@@ -52,7 +52,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_falricAI(creature);
+        return GetInstanceAI<boss_falricAI>(creature);
     }
 
     struct boss_falricAI : public boss_horAI
@@ -67,15 +67,13 @@ public:
 
             uiHopelessnessCount = 0;
 
-            if (instance)
-                instance->SetBossState(DATA_FALRIC_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetBossState(DATA_FALRIC_EVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_FALRIC_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
@@ -86,8 +84,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetBossState(DATA_FALRIC_EVENT, DONE);
+            instance->SetBossState(DATA_FALRIC_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE

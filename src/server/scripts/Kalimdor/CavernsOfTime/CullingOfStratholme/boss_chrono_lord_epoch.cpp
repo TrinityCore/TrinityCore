@@ -52,7 +52,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_epochAI(creature);
+        return GetInstanceAI<boss_epochAI>(creature);
     }
 
     struct boss_epochAI : public ScriptedAI
@@ -81,16 +81,14 @@ public:
             uiTimeStopTimer = 21300;
             uiWoundingStrikeTimer = 5300;
 
-            if (instance)
-                instance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
+            instance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -132,8 +130,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_EPOCH_EVENT, DONE);
+            instance->SetData(DATA_EPOCH_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

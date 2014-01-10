@@ -81,8 +81,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(TYPE_RIFT, SPECIAL);
+            instance->SetData(TYPE_RIFT, SPECIAL);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
@@ -143,7 +142,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_temporusAI(creature);
+        return GetInstanceAI<boss_temporusAI>(creature);
     }
 };
 

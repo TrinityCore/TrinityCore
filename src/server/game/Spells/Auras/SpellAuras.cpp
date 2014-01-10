@@ -114,12 +114,12 @@ void AuraApplication::_Remove()
 
 void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
 {
-    // mark as selfcasted if needed
+    // mark as selfcast if needed
     _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
 
-    // aura is casted by self or an enemy
+    // aura is cast by self or an enemy
     // one negative effect and we know aura is negative
-    if (IsSelfcasted() || !caster || !caster->IsFriendlyTo(GetTarget()))
+    if (IsSelfcast() || !caster || !caster->IsFriendlyTo(GetTarget()))
     {
         bool negativeFound = false;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -132,7 +132,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
         }
         _flags |= negativeFound ? AFLAG_NEGATIVE : AFLAG_POSITIVE;
     }
-    // aura is casted by friend
+    // aura is cast by friend
     // one positive effect and we know aura is positive
     else
     {
@@ -315,7 +315,7 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owne
     // check if aura can be owned by owner
     if (owner->isType(TYPEMASK_UNIT))
         if (!owner->IsInWorld() || ((Unit*)owner)->IsDuringRemoveFromWorld())
-            // owner not in world so don't allow to own not self casted single target auras
+            // owner not in world so don't allow to own not self cast single target auras
             if (casterGUID != owner->GetGUID() && spellproto->IsSingleTarget())
                 return NULL;
 
@@ -1284,7 +1284,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             case SPELLFAMILY_ROGUE:
-                // Sprint (skip non player casted spells by category)
+                // Sprint (skip non player cast spells by category)
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x40 && GetSpellInfo()->GetCategory() == 44)
                     // in official maybe there is only one icon?
                     if (target->HasAura(58039)) // Glyph of Blurred Speed
@@ -1500,7 +1500,7 @@ bool Aura::CanBeAppliedOn(Unit* target)
         // area auras mustn't be applied
         if (GetOwner() != target)
             return false;
-        // not selfcasted single target auras mustn't be applied
+        // do not apply non-selfcast single target auras
         if (GetCasterGUID() != GetOwner()->GetGUID() && GetSpellInfo()->IsSingleTarget())
             return false;
         return true;

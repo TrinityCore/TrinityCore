@@ -248,7 +248,7 @@ class boss_urom : public CreatureScript
                         arcaneExplosionTimer -= diff;
                 }
 
-                if (!me->IsNonMeleeSpellCasted(false, true, true))
+                if (!me->IsNonMeleeSpellCast(false, true, true))
                 {
                     if (frostBombTimer <= diff)
                     {

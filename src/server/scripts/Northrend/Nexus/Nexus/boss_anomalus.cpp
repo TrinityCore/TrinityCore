@@ -95,24 +95,21 @@ class boss_anomalus : public CreatureScript
                 uiChaoticRiftGUID = 0;
                 chaosTheory = true;
 
-                if (instance)
-                    instance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
+                instance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 Talk(SAY_AGGRO);
 
-                if (instance)
-                    instance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 Talk(SAY_DEATH);
 
-                if (instance)
-                    instance->SetData(DATA_ANOMALUS_EVENT, DONE);
+                instance->SetData(DATA_ANOMALUS_EVENT, DONE);
             }
 
             uint32 GetData(uint32 type) const OVERRIDE
@@ -187,7 +184,7 @@ class boss_anomalus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_anomalusAI(creature);
+            return GetInstanceAI<boss_anomalusAI>(creature);
         }
 };
 
@@ -255,7 +252,7 @@ class npc_chaotic_rift : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_chaotic_riftAI(creature);
+            return GetInstanceAI<npc_chaotic_riftAI>(creature);
         }
 };
 

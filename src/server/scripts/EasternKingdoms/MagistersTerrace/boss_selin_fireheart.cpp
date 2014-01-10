@@ -66,7 +66,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_selin_fireheartAI(creature);
+        return GetInstanceAI<boss_selin_fireheartAI>(creature);
     };
 
     struct boss_selin_fireheartAI : public ScriptedAI
@@ -77,16 +77,13 @@ public:
 
             Crystals.clear();
             //GUIDs per instance is static, so we only need to load them once.
-            if (instance)
+            uint32 size = instance->GetData(DATA_FEL_CRYSTAL_SIZE);
+            for (uint8 i = 0; i < size; ++i)
             {
-                uint32 size = instance->GetData(DATA_FEL_CRYSTAL_SIZE);
-                for (uint8 i = 0; i < size; ++i)
-                {
-                    instance->SetData64(DATA_FEL_CRYSTAL, i);
-                    uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
-                    TC_LOG_DEBUG("scripts", "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
-                    Crystals.push_back(guid);
-                }
+                instance->SetData64(DATA_FEL_CRYSTAL, i);
+                uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
+                TC_LOG_DEBUG("scripts", "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
+                Crystals.push_back(guid);
             }
         }
 
@@ -107,25 +104,22 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
+            //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
+            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
-                //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-                for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+                //Unit* unit = Unit::GetUnit(*me, FelCrystals[i]);
+                if (Creature* creature = Unit::GetCreature(*me, *itr))
                 {
-                    //Unit* unit = Unit::GetUnit(*me, FelCrystals[i]);
-                    if (Creature* creature = Unit::GetCreature(*me, *itr))
-                    {
-                        if (!creature->IsAlive())
-                            creature->Respawn();      // Let the core handle setting death state, etc.
+                    if (!creature->IsAlive())
+                        creature->Respawn();      // Let the core handle setting death state, etc.
 
-                        // Only need to set unselectable flag. You can't attack unselectable units so non_attackable flag is not necessary here.
-                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    }
+                    // Only need to set unselectable flag. You can't attack unselectable units so non_attackable flag is not necessary here.
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
+            }
 
-                // Set Inst data for encounter
-                instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
-            } else TC_LOG_ERROR("scripts", ERROR_INST_DATA);
+            // Set Inst data for encounter
+            instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
 
             DrainLifeTimer = urand(3000, 7000);
             DrainManaTimer = DrainLifeTimer + 5000;
@@ -200,8 +194,7 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetData(DATA_SELIN_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_SELIN_EVENT, IN_PROGRESS);
          }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -234,9 +227,6 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-
-            if (!instance)
-                return;
 
             instance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
             ShatterRemainingCrystals();
@@ -271,7 +261,7 @@ public:
 
                 if (FelExplosionTimer <= diff)
                 {
-                    if (!me->IsNonMeleeSpellCasted(false))
+                    if (!me->IsNonMeleeSpellCast(false))
                     {
                         DoCast(me, SPELL_FEL_EXPLOSION);
                         FelExplosionTimer = 2000;

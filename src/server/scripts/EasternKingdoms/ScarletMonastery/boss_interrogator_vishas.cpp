@@ -48,7 +48,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_interrogator_vishasAI(creature);
+        return GetInstanceAI<boss_interrogator_vishasAI>(creature);
     }
 
     struct boss_interrogator_vishasAI : public ScriptedAI
@@ -67,6 +67,8 @@ public:
         void Reset() OVERRIDE
         {
             ShadowWordPain_Timer = 5000;
+            Yell60 = false;
+            Yell30 = false;
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -81,9 +83,6 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (!instance)
-                return;
-
             //Any other Actions to do with vorrel? setStandState?
             if (Creature* vorrel = Creature::GetCreature(*me, instance->GetData64(DATA_VORREL)))
                 vorrel->AI()->Talk(SAY_TRIGGER_VORREL);

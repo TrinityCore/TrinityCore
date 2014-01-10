@@ -52,7 +52,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_epoch_hunterAI(creature);
+        return GetInstanceAI<boss_epoch_hunterAI>(creature);
     }
 
     struct boss_epoch_hunterAI : public ScriptedAI
@@ -104,7 +104,7 @@ public:
             //Sand Breath
             if (SandBreath_Timer <= diff)
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 DoCastVictim(SPELL_SAND_BREATH);

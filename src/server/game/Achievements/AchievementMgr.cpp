@@ -1149,7 +1149,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD: /* FIXME: for online player only currently */
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED:
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CAST:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
                 SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
                 break;

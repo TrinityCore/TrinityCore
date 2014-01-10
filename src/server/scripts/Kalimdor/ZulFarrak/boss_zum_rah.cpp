@@ -78,8 +78,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_ZUM_RAH, DONE);
+            instance->SetData(DATA_ZUM_RAH, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -150,7 +149,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_zum_rahAI(creature);
+        return GetInstanceAI<boss_zum_rahAI>(creature);
     }
 };
 

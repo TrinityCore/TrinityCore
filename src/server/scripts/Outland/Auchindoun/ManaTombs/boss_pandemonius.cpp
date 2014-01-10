@@ -106,7 +106,7 @@ public:
             {
                 if (DarkShell_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(true);
 
                     Talk(EMOTE_DARK_SHELL);

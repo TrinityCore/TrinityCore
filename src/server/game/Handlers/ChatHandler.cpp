@@ -415,7 +415,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, uint8(type), Language(lang), _player, NULL, msg);
+            ChatHandler::BuildChatPacket(data, type, Language(lang), _player, NULL, msg);
             group->BroadcastPacket(&data, false);
         } break;
         case CHAT_MSG_RAID_WARNING:
@@ -445,7 +445,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, uint8(type), Language(lang), _player, NULL, msg);;
+            ChatHandler::BuildChatPacket(data, type, Language(lang), _player, NULL, msg);;
             group->BroadcastPacket(&data, false);
         } break;
         case CHAT_MSG_CHANNEL:
@@ -614,7 +614,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
                 return;
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, type, uint32(LANG_ADDON), this, this, message, 0, "", DEFAULT_LOCALE, prefix.c_str());
+            ChatHandler::BuildChatPacket(data, type, LANG_ADDON, this, this, message, 0, "", DEFAULT_LOCALE, prefix.c_str());
             group->BroadcastAddonMessagePacket(&data, prefix, false);
             break;
         }
@@ -647,7 +647,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
                 break;
 
             WorldPacket data;
-            ChatHandler::BuildChatPacket(data, type, uint32(LANG_ADDON), this, this, message, 0, "", DEFAULT_LOCALE, prefix.c_str());
+            ChatHandler::BuildChatPacket(data, type, LANG_ADDON, this, this, message, 0, "", DEFAULT_LOCALE, prefix.c_str());
             group->BroadcastAddonMessagePacket(&data, prefix, true, -1, group->GetMemberGroup(sender->GetGUID()));
             break;
         }

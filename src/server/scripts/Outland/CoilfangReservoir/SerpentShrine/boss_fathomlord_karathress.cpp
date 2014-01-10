@@ -104,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomlord_karathressAI(creature);
+        return GetInstanceAI<boss_fathomlord_karathressAI>(creature);
     }
 
     struct boss_fathomlord_karathressAI : public ScriptedAI
@@ -135,27 +135,24 @@ public:
 
             BlessingOfTides = false;
 
-            if (instance)
-            {
-                uint64 RAdvisors[MAX_ADVISORS];
-                RAdvisors[0] = instance->GetData64(DATA_SHARKKIS);
-                RAdvisors[1] = instance->GetData64(DATA_TIDALVESS);
-                RAdvisors[2] = instance->GetData64(DATA_CARIBDIS);
-                //Respawn of the 3 Advisors
-                Creature* pAdvisor = NULL;
-                for (int i=0; i<MAX_ADVISORS; ++i)
-                    if (RAdvisors[i])
+            uint64 RAdvisors[MAX_ADVISORS];
+            RAdvisors[0] = instance->GetData64(DATA_SHARKKIS);
+            RAdvisors[1] = instance->GetData64(DATA_TIDALVESS);
+            RAdvisors[2] = instance->GetData64(DATA_CARIBDIS);
+            //Respawn of the 3 Advisors
+            Creature* pAdvisor = NULL;
+            for (int i=0; i<MAX_ADVISORS; ++i)
+                if (RAdvisors[i])
+                {
+                    pAdvisor = (Unit::GetCreature((*me), RAdvisors[i]));
+                    if (pAdvisor && !pAdvisor->IsAlive())
                     {
-                        pAdvisor = (Unit::GetCreature((*me), RAdvisors[i]));
-                        if (pAdvisor && !pAdvisor->IsAlive())
-                        {
-                            pAdvisor->Respawn();
-                            pAdvisor->AI()->EnterEvadeMode();
-                            pAdvisor->GetMotionMaster()->MoveTargetedHome();
-                        }
+                        pAdvisor->Respawn();
+                        pAdvisor->AI()->EnterEvadeMode();
+                        pAdvisor->GetMotionMaster()->MoveTargetedHome();
                     }
-                instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
-            }
+                }
+            instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
 
         }
 
@@ -179,9 +176,6 @@ public:
 
         void GetAdvisors()
         {
-            if (!instance)
-                return;
-
             Advisors[0] = instance->GetData64(DATA_SHARKKIS);
             Advisors[1] = instance->GetData64(DATA_TIDALVESS);
             Advisors[2] = instance->GetData64(DATA_CARIBDIS);
@@ -189,9 +183,6 @@ public:
 
         void StartEvent(Unit* who)
         {
-            if (!instance)
-                return;
-
             GetAdvisors();
 
             Talk(SAY_AGGRO);
@@ -210,8 +201,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
+            instance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
             //support for quest 10944
             me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
@@ -312,7 +302,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomguard_sharkkisAI(creature);
+        return GetInstanceAI<boss_fathomguard_sharkkisAI>(creature);
     }
 
     struct boss_fathomguard_sharkkisAI : public ScriptedAI
@@ -320,6 +310,7 @@ public:
         boss_fathomguard_sharkkisAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            SummonedPet = 0;
         }
 
         InstanceScript* instance;
@@ -350,26 +341,19 @@ public:
 
             SummonedPet = 0;
 
-            if (instance)
-                instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
+            instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS))))
-                    CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
-            }
+            if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS))))
+                CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
         }
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
-                instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
-            }
+            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -459,7 +443,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomguard_tidalvessAI(creature);
+        return GetInstanceAI<boss_fathomguard_tidalvessAI>(creature);
     }
 
     struct boss_fathomguard_tidalvessAI : public ScriptedAI
@@ -483,26 +467,19 @@ public:
             PoisonCleansing_Timer = 30000;
             Earthbind_Timer = 45000;
 
-            if (instance)
-                instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
+            instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
-                    CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
-            }
+            if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
+                CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
         }
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
-                instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
-            }
+            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
             DoCast(me, SPELL_WINDFURY_WEAPON);
         }
 
@@ -582,7 +559,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_fathomguard_caribdisAI(creature);
+        return GetInstanceAI<boss_fathomguard_caribdisAI>(creature);
     }
 
     struct boss_fathomguard_caribdisAI : public ScriptedAI
@@ -606,26 +583,19 @@ public:
             Heal_Timer = 55000;
             Cyclone_Timer = 30000+rand()%10000;
 
-            if (instance)
-                instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
+            instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
-                    CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
-            }
+            if (Creature* Karathress = Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)))
+                CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
         }
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
-                instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
-            }
+            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -705,24 +675,21 @@ public:
         Unit* selectAdvisorUnit()
         {
             Unit* unit = NULL;
-            if (instance)
+            switch (rand()%4)
             {
-                switch (rand()%4)
-                {
-                case 0:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
-                    break;
-                case 1:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
-                    break;
-                case 2:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
-                    break;
-                case 3:
-                    unit = me;
-                    break;
-                }
-            } else unit = me;
+            case 0:
+                unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
+                break;
+            case 1:
+                unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
+                break;
+            case 2:
+                unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
+                break;
+            case 3:
+                unit = me;
+                break;
+            }
             return unit;
         }
     };

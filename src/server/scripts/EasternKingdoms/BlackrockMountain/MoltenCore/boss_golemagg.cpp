@@ -179,7 +179,7 @@ class npc_core_rager : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_core_ragerAI(creature);
+            return GetInstanceAI<npc_core_ragerAI>(creature);
         }
 };
 

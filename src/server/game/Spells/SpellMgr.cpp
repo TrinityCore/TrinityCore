@@ -1528,8 +1528,8 @@ void SpellMgr::LoadSpellLearnSpells()
                 if (!GetSpellInfo(dbc_node.spell))
                     continue;
 
-                // talent or passive spells or skill-step spells auto-casted and not need dependent learning,
-                // pet teaching spells must not be dependent learning (casted)
+                // talent or passive spells or skill-step spells auto-cast and not need dependent learning,
+                // pet teaching spells must not be dependent learning (cast)
                 // other required explicit dependent learning
                 dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
@@ -3725,7 +3725,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // This would never crit on retail and it has attribute for SPELL_ATTR3_NO_DONE_BONUS because is handled from player,
             // until someone figures how to make scions not critting without hack and without making them main casters this should stay here.
-            case 63934: // Arcane Barrage (casted by players and NONMELEEDAMAGELOG with caster Scion of Eternity (original caster)).
+            case 63934: // Arcane Barrage (cast by players and NONMELEEDAMAGELOG with caster Scion of Eternity (original caster)).
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
             // ENDOF EYE OF ETERNITY SPELLS

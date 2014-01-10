@@ -50,7 +50,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_naga_distillerAI(creature);
+        return GetInstanceAI<npc_naga_distillerAI>(creature);
     }
 
     struct npc_naga_distillerAI : public ScriptedAI
@@ -68,13 +68,10 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             //hack, due to really weird spell behaviour :(
-            if (instance)
+            if (instance->GetData(DATA_DISTILLER) == IN_PROGRESS)
             {
-                if (instance->GetData(DATA_DISTILLER) == IN_PROGRESS)
-                {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
         }
 
@@ -87,15 +84,13 @@ public:
 
             DoCast(me, SPELL_WARLORDS_RAGE_NAGA, true);
 
-            if (instance)
-                instance->SetData(DATA_DISTILLER, IN_PROGRESS);
+            instance->SetData(DATA_DISTILLER, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) OVERRIDE
         {
             if (me->GetHealth() <= damage)
-                if (instance)
-                    instance->SetData(DATA_DISTILLER, DONE);
+                instance->SetData(DATA_DISTILLER, DONE);
         }
     };
 
@@ -108,7 +103,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_warlord_kalithreshAI(creature);
+        return GetInstanceAI<boss_warlord_kalithreshAI>(creature);
     }
 
     struct boss_warlord_kalithreshAI : public ScriptedAI
@@ -132,16 +127,14 @@ public:
             Rage_Timer = 45000;
             CanRage = false;
 
-            if (instance)
-                instance->SetBossState(DATA_WARLORD_KALITHRESH, NOT_STARTED);
+            instance->SetBossState(DATA_WARLORD_KALITHRESH, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetBossState(DATA_WARLORD_KALITHRESH, IN_PROGRESS);
+            instance->SetBossState(DATA_WARLORD_KALITHRESH, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -153,17 +146,15 @@ public:
         {
             //hack :(
             if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
-                if (instance)
-                    if (instance->GetData(DATA_DISTILLER) == DONE)
-                        me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
+                if (instance->GetData(DATA_DISTILLER) == DONE)
+                    me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetBossState(DATA_WARLORD_KALITHRESH, DONE);
+            instance->SetBossState(DATA_WARLORD_KALITHRESH, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

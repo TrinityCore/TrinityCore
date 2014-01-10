@@ -78,7 +78,7 @@ class Transport : public GameObject, public TransportBase
     private:
         void MoveToNextWaypoint();
         float CalculateSegmentPos(float perc);
-        bool TeleportTransport(uint32 newMapid, float x, float y, float z);
+        bool TeleportTransport(uint32 newMapid, float x, float y, float z, float o);
         void UpdatePassengerPositions(std::set<WorldObject*>& passengers);
         void DoEventIfAny(KeyFrame const& node, bool departure);
 

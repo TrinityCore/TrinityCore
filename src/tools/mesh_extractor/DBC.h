@@ -20,17 +20,19 @@
 #include <vector>
 #include <string>
 #include "Define.h"
+#include "Stream.h"
 
 class Record;
 
 class DBC
 {
 public:
-    DBC(FILE* stream);
+    DBC(Stream* stream);
+    ~DBC();
 
-    std::string GetStringByOffset(int offset);
+    std::string GetStringByOffset(int offset) const;
 
-    Record* GetRecordById(int id);
+    Record const* GetRecordById(int id) const;
 
     std::string Name;
     std::vector<Record*> Records;
@@ -50,18 +52,18 @@ public:
     DBC* Source;
     std::vector<int> Values;
 
-    int operator[](int index)
+    int operator[](int index) const
     {
         return Values[index];
     }
 
     template <typename T>
-    T GetValue(int index)
+    T GetValue(int index) const
     {
         return *(T*)(&Values[index]);
     }
 
-    std::string GetString(int index)
+    const std::string GetString(int index) const
     {
         return Source->GetStringByOffset(Values[index]);
     }

@@ -308,7 +308,7 @@ class boss_kaelthas : public CreatureScript
             uint32 Phase;
             uint32 PhaseSubphase;                                   //generic
             uint32 Phase_Timer;                                     //generic timer
-            uint32 PyrosCasted;
+            uint32 PyrosCast;
 
             bool InGravityLapse;
             bool IsCastingFireball;
@@ -330,7 +330,7 @@ class boss_kaelthas : public CreatureScript
                 GravityLapse_Phase = 0;
                 NetherBeam_Timer = 8000;
                 NetherVapor_Timer = 10000;
-                PyrosCasted = 0;
+                PyrosCast = 0;
                 Phase = 0;
                 InGravityLapse = false;
                 IsCastingFireball = false;
@@ -344,8 +344,7 @@ class boss_kaelthas : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                if (instance)
-                    instance->SetData(DATA_KAELTHASEVENT, 0);
+                instance->SetData(DATA_KAELTHASEVENT, 0);
             }
 
             void PrepareAdvisors()
@@ -364,9 +363,6 @@ class boss_kaelthas : public CreatureScript
 
             void StartEvent()
             {
-                if (!instance)
-                    return;
-
                 m_auiAdvisorGuid[0] = instance->GetData64(DATA_THALADREDTHEDARKENER);
                 m_auiAdvisorGuid[1] = instance->GetData64(DATA_LORDSANGUINAR);
                 m_auiAdvisorGuid[2] = instance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
@@ -468,8 +464,7 @@ class boss_kaelthas : public CreatureScript
 
                 summons.DespawnAll();
 
-                if (instance)
-                    instance->SetData(DATA_KAELTHASEVENT, 0);
+                instance->SetData(DATA_KAELTHASEVENT, 0);
 
                 for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                 {
@@ -633,8 +628,7 @@ class boss_kaelthas : public CreatureScript
                                 if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
                                 {
                                     Phase = 2;
-                                    if (instance)
-                                        instance->SetData(DATA_KAELTHASEVENT, 2);
+                                    instance->SetData(DATA_KAELTHASEVENT, 2);
 
                                     Talk(SAY_PHASE2_WEAPON);
 
@@ -678,8 +672,7 @@ class boss_kaelthas : public CreatureScript
                             if (Phase_Timer <= diff)
                             {
                                 Talk(SAY_PHASE3_ADVANCE);
-                                if (instance)
-                                    instance->SetData(DATA_KAELTHASEVENT, 3);
+                                instance->SetData(DATA_KAELTHASEVENT, 3);
                                 Phase = 3;
                                 PhaseSubphase = 0;
                             }
@@ -716,8 +709,7 @@ class boss_kaelthas : public CreatureScript
                             Talk(SAY_PHASE4_INTRO2);
                             Phase = 4;
 
-                            if (instance)
-                                instance->SetData(DATA_KAELTHASEVENT, 4);
+                            instance->SetData(DATA_KAELTHASEVENT, 4);
 
                             // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
                             DoResetThreat();
@@ -750,7 +742,7 @@ class boss_kaelthas : public CreatureScript
                             {
                                 if (!IsCastingFireball)
                                 {
-                                    if (!me->IsNonMeleeSpellCasted(false))
+                                    if (!me->IsNonMeleeSpellCast(false))
                                     {
                                         //interruptable
                                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
@@ -821,8 +813,7 @@ class boss_kaelthas : public CreatureScript
                         {
                             if (HealthBelowPct(50))
                             {
-                                if (instance)
-                                    instance->SetData(DATA_KAELTHASEVENT, 4);
+                                instance->SetData(DATA_KAELTHASEVENT, 4);
                                 Phase = 5;
                                 Phase_Timer = 10000;
 
@@ -844,19 +835,19 @@ class boss_kaelthas : public CreatureScript
                             {
                                 DoCast(me, SPELL_SHOCK_BARRIER);
                                 ChainPyros = true;
-                                PyrosCasted = 0;
+                                PyrosCast = 0;
                                 ShockBarrier_Timer = 60000;
                             }
                             else
                                 ShockBarrier_Timer -= diff;
 
                             //Chain Pyros (3 of them max)
-                            if (ChainPyros && !me->IsNonMeleeSpellCasted(false))
+                            if (ChainPyros && !me->IsNonMeleeSpellCast(false))
                             {
-                                if (PyrosCasted < 3)
+                                if (PyrosCast < 3)
                                 {
                                     DoCastVictim(SPELL_PYROBLAST);
-                                    ++PyrosCasted;
+                                    ++PyrosCast;
                                 }
                                 else
                                 {
@@ -1011,7 +1002,7 @@ class boss_kaelthas : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_kaelthasAI(creature);
+            return GetInstanceAI<boss_kaelthasAI>(creature);
         }
 };
 
@@ -1109,7 +1100,7 @@ class boss_thaladred_the_darkener : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_thaladred_the_darkenerAI(creature);
+            return GetInstanceAI<boss_thaladred_the_darkenerAI>(creature);
         }
 };
 
@@ -1177,7 +1168,7 @@ class boss_lord_sanguinar : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_lord_sanguinarAI(creature);
+            return GetInstanceAI<boss_lord_sanguinarAI>(creature);
         }
 };
 //Grand Astromancer Capernian AI
@@ -1321,7 +1312,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_grand_astromancer_capernianAI(creature);
+            return GetInstanceAI<boss_grand_astromancer_capernianAI>(creature);
         }
 };
 
@@ -1404,7 +1395,7 @@ class boss_master_engineer_telonicus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_master_engineer_telonicusAI(creature);
+            return GetInstanceAI<boss_master_engineer_telonicusAI>(creature);
         }
 };
 

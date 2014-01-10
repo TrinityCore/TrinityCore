@@ -140,7 +140,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_doomrelAI(creature);
+        return GetInstanceAI<boss_doomrelAI>(creature);
     }
 
     struct boss_doomrelAI : public ScriptedAI
@@ -170,13 +170,10 @@ public:
             // was set before event start, so set again
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
-            if (instance)
-            {
-                if (instance->GetData(DATA_GHOSTKILL) >= 7)
-                    me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                else
-                    me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            }
+            if (instance->GetData(DATA_GHOSTKILL) >= 7)
+                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+            else
+                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -192,14 +189,12 @@ public:
             if (me->IsAlive())
                 me->GetMotionMaster()->MoveTargetedHome();
             me->SetLootRecipient(NULL);
-            if (instance)
-                instance->SetData64(DATA_EVENSTARTER, 0);
+            instance->SetData64(DATA_EVENSTARTER, 0);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_GHOSTKILL, 1);
+            instance->SetData(DATA_GHOSTKILL, 1);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

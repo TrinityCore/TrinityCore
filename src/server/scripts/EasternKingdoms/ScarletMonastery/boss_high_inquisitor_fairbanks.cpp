@@ -83,7 +83,7 @@ public:
                 return;
 
             //If we are <25% hp cast Heal
-            if (!HealthAbovePct(25) && !me->IsNonMeleeSpellCasted(false) && Heal_Timer <= diff)
+            if (!HealthAbovePct(25) && !me->IsNonMeleeSpellCast(false) && Heal_Timer <= diff)
             {
                 DoCast(me, SPELL_HEAL);
                 Heal_Timer = 30000;

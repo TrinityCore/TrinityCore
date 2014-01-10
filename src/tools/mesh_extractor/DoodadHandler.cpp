@@ -34,20 +34,18 @@ DoodadHandler::DoodadHandler( ADT* adt ) :
         ReadDoodadPaths(mmid, mmdx);
 }
 
-void DoodadHandler::ProcessInternal( MapChunk* mcnk )
+void DoodadHandler::ProcessInternal(MapChunk* mcnk)
 {
     if (!IsSane())
         return;
     
     uint32 refCount = mcnk->Header.DoodadRefs;
-    FILE* stream = mcnk->Source->GetStream();
-    fseek(stream, mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
+    Stream* stream = mcnk->Source->GetStream();
+    stream->Seek(mcnk->Source->Offset + mcnk->Header.OffsetMCRF, SEEK_SET);
+
     for (uint32 i = 0; i < refCount; i++)
     {
-        int32 index;
-        int32 count;
-        if ((count = fread(&index, sizeof(int32), 1, stream)) != 1)
-            printf("DoodadHandler::ProcessInternal: Failed to read some data expected 1, read %d\n", count);
+        int32 index = stream->Read<int32>();
         if (index < 0 || uint32(index) >= _definitions->size())
             continue;
         DoodadDefinition doodad = (*_definitions)[index];
@@ -58,12 +56,7 @@ void DoodadHandler::ProcessInternal( MapChunk* mcnk )
             continue;
 
         std::string path = (*_paths)[doodad.MmidIndex];
-        Model* model = Cache->ModelCache.Get(path);
-        if (!model)
-        {
-            model = new Model(path);
-            Cache->ModelCache.Insert(path, model);
-        }
+        Model const* model = Cache->ModelCache.Get(path);
         if (!model->IsCollidable)
             continue;
 
@@ -73,7 +66,7 @@ void DoodadHandler::ProcessInternal( MapChunk* mcnk )
         InsertModelGeometry(doodad, model);
     }
     // Restore the stream position
-    fseek(stream, mcnk->Source->Offset, SEEK_SET);
+    stream->Seek(mcnk->Source->Offset, SEEK_SET);
 }
 
 void DoodadHandler::ReadDoodadDefinitions( Chunk* chunk )
@@ -81,7 +74,7 @@ void DoodadHandler::ReadDoodadDefinitions( Chunk* chunk )
     int32 count = chunk->Length / 36;
     _definitions = new std::vector<DoodadDefinition>;
     _definitions->reserve(count);
-    FILE* stream = chunk->GetStream();
+    Stream* stream = chunk->GetStream();
     for (int i = 0; i < count; i++)
     {
         DoodadDefinition def;
@@ -97,25 +90,24 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
     _paths->reserve(paths);
     for (int i = 0; i < paths; i++)
     {
-        FILE* idStream = id->GetStream();
-        fseek(idStream, i * 4, SEEK_CUR);
-        uint32 offset;
-        if (fread(&offset, sizeof(uint32), 1, idStream) != 1)
-            printf("DoodadHandler::ReadDoodadPaths: Failed to read some data expected 1, read 0\n");
-        FILE* dataStream = data->GetStream();
-        fseek(dataStream, offset + data->Offset, SEEK_SET);
-        _paths->push_back(Utils::ReadString(dataStream));
+        Stream* idStream = id->GetStream();
+        idStream->Seek(i * 4, SEEK_CUR);
+        uint32 offset = idStream->Read<uint32>();
+
+        Stream* dataStream = data->GetStream();
+        dataStream->Seek(offset + data->Offset, SEEK_SET);
+        _paths->push_back(dataStream->ReadString());
     }
 }
 
-void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* model)
+void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model const* model)
 {
     uint32 vertOffset = Vertices.size();
     
-    for (std::vector<Vector3>::iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
+    for (std::vector<Vector3>::const_iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
         Vertices.push_back(Utils::TransformDoodadVertex(def, *itr)); // Vertices have to be converted based on the information from the DoodadDefinition struct
 
-    for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
+    for (std::vector<Triangle<uint16> >::const_iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
 }
 

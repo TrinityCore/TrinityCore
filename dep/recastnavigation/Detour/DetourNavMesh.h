@@ -22,37 +22,39 @@
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
+// Undefine (or define in a build cofnig) the following line to use 64bit polyref.
+// Generally not needed, useful for very large worlds.
+// Note: tiles build using 32bit refs are not compatible with 64bit refs!
+//#define DT_POLYREF64 1
 
-// Edited by TC
-#if defined(WIN32) && !defined(__MINGW32__)
-typedef unsigned __int64    uint64;
-#else
+#ifdef DT_POLYREF64
+// TODO: figure out a multiplatform version of uint64_t
+// - maybe: https://code.google.com/p/msinttypes/
+// - or: http://www.azillionmonkeys.com/qed/pstdint.h
 #include <stdint.h>
-#ifndef uint64_t
-#ifdef __linux__
-#include <linux/types.h>
 #endif
-#endif
-typedef uint64_t            uint64;
-#endif 
 
 // Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
 // It is also recommended that you change dtHashRef() to a proper 64-bit hash.
 
-// Edited by TC
-// We cannot have over 31 bits for either tile nor poly
-// without changing polyCount to use 64bits too.
-static const int STATIC_SALT_BITS = 12;
-static const int STATIC_TILE_BITS = 21;
-static const int STATIC_POLY_BITS = 31; 
-
 /// A handle to a polygon within a navigation mesh tile.
 /// @ingroup detour
-typedef uint64 dtPolyRef; // Edited by TC
+#ifdef DT_POLYREF64
+static const unsigned int DT_SALT_BITS = 16;
+static const unsigned int DT_TILE_BITS = 28;
+static const unsigned int DT_POLY_BITS = 20;
+typedef uint64_t dtPolyRef;
+#else
+typedef unsigned int dtPolyRef;
+#endif
 
 /// A handle to a tile within a navigation mesh.
 /// @ingroup detour
-typedef uint64 dtTileRef; // Edited by TC
+#ifdef DT_POLYREF64
+typedef uint64_t dtTileRef;
+#else
+typedef unsigned int dtTileRef;
+#endif
 
 /// The maximum number of vertices per navigation polygon.
 /// @ingroup detour
@@ -490,7 +492,11 @@ public:
 	///  @param[in]	ip		The index of the polygon within the tile.
 	inline dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
 	{
+#ifdef DT_POLYREF64
+		return ((dtPolyRef)salt << (DT_POLY_BITS+DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
+#else
 		return ((dtPolyRef)salt << (m_polyBits+m_tileBits)) | ((dtPolyRef)it << m_polyBits) | (dtPolyRef)ip;
+#endif
 	}
 	
 	/// Decodes a standard polygon reference.
@@ -502,12 +508,21 @@ public:
 	///  @see #encodePolyId
 	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+		salt = (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
+		it = (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
+		ip = (unsigned int)(ref & polyMask);
+#else
 		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
 		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
 		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
 		salt = (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
 		it = (unsigned int)((ref >> m_polyBits) & tileMask);
 		ip = (unsigned int)(ref & polyMask);
+#endif
 	}
 
 	/// Extracts a tile's salt value from the specified polygon reference.
@@ -516,8 +531,13 @@ public:
 	///  @see #encodePolyId
 	inline unsigned int decodePolyIdSalt(dtPolyRef ref) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
+		return (unsigned int)((ref >> (DT_POLY_BITS+DT_TILE_BITS)) & saltMask);
+#else
 		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
 		return (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
+#endif
 	}
 	
 	/// Extracts the tile's index from the specified polygon reference.
@@ -526,8 +546,13 @@ public:
 	///  @see #encodePolyId
 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
+		return (unsigned int)((ref >> DT_POLY_BITS) & tileMask);
+#else
 		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
 		return (unsigned int)((ref >> m_polyBits) & tileMask);
+#endif
 	}
 	
 	/// Extracts the polygon's index (within its tile) from the specified polygon reference.
@@ -536,8 +561,13 @@ public:
 	///  @see #encodePolyId
 	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
 	{
+#ifdef DT_POLYREF64
+		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;
+		return (unsigned int)(ref & polyMask);
+#else
 		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
 		return (unsigned int)(ref & polyMask);
+#endif
 	}
 
 	/// @}
@@ -597,9 +627,11 @@ private:
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
 		
+#ifndef DT_POLYREF64
 	unsigned int m_saltBits;			///< Number of salt bits in the tile ID.
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
+#endif
 };
 
 /// Allocates a navigation mesh object using the Detour allocator.

@@ -98,8 +98,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(TYPE_RIFT, SPECIAL);
+            instance->SetData(TYPE_RIFT, SPECIAL);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -145,7 +144,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_chrono_lord_dejaAI(creature);
+        return GetInstanceAI<boss_chrono_lord_dejaAI>(creature);
     }
 };
 

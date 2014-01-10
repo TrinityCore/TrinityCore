@@ -2409,7 +2409,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
-                            //Spells with this flag cannot trigger if effect is casted on self
+                            //Spells with this flag cannot trigger if effect is cast on self
     bool canEffectTrigger = !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_CANT_TRIGGER_PROC) && unitTarget->CanProc() && CanExecuteTriggersOnHit(mask);
     Unit* spellHitTarget = NULL;
 
@@ -3000,7 +3000,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count)
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCast(false, true, true) && m_cast_count)
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -3067,7 +3067,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     else
         m_casttime = m_spellInfo->CalcCastTime(m_caster->getLevel(), this);
 
-    // don't allow channeled spells / spells with cast time to be casted while moving
+    // don't allow channeled spells / spells with cast time to be cast while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
     if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() &&
@@ -3084,7 +3084,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     TC_LOG_DEBUG("spells", "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
 
     //Containers for channeled spells have to be set
-    /// @todoApply this to all casted spells if needed
+    /// @todoApply this to all cast spells if needed
     // Why check duration? 29350: channelled triggers channelled
     if ((_triggeredCastFlags & TRIGGERED_CAST_DIRECTLY) && (!m_spellInfo->IsChanneled() || !m_spellInfo->GetMaxDuration()))
         cast(true);
@@ -3103,7 +3103,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
                 }
         }
 
-        m_caster->SetCurrentCastedSpell(this);
+        m_caster->SetCurrentCastSpell(this);
         SendSpellStart();
 
         // set target for proper facing
@@ -3213,7 +3213,7 @@ void Spell::cast(bool skipCheck)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         // Set spell which will drop charges for triggered cast spells
-        // if not successfully casted, will be remove in finish(false)
+        // if not successfully cast, will be remove in finish(false)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
@@ -3250,7 +3250,7 @@ void Spell::cast(bool skipCheck)
                 {
                     if (!my_trade->IsInAcceptProcess())
                     {
-                        // Spell will be casted at completing the trade. Silently ignore at this place
+                        // Spell will be cast after completing the trade. Silently ignore at this place
                         my_trade->SetSpell(m_spellInfo->Id, m_CastItem);
                         SendCastResult(SPELL_FAILED_DONT_REPORT);
                         SendInterrupted(0);
@@ -3340,7 +3340,7 @@ void Spell::cast(bool skipCheck)
         m_spellState = SPELL_STATE_DELAYED;
         SetDelayStart(0);
 
-        if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+        if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCast(false, false, true))
             m_caster->ClearUnitState(UNIT_STATE_CASTING);
     }
     else
@@ -3667,7 +3667,7 @@ void Spell::finish(bool ok)
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
 
-    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCast(false, false, true))
         m_caster->ClearUnitState(UNIT_STATE_CASTING);
 
     // Unsummon summon as possessed creatures on spell cancel
@@ -4029,7 +4029,7 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
     {
-        /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
+        /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST cast by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
@@ -4975,7 +4975,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if ((m_spellInfo->AttributesCu & SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
                 return SPELL_FAILED_NOT_INFRONT;
 
-            if (m_caster->GetEntry() != WORLD_TRIGGER) // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
+            if (m_caster->GetEntry() != WORLD_TRIGGER) // Ignore LOS for gameobjects casts (wrongly cast by a trigger)
                 if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOSInMap(target))
                     return SPELL_FAILED_LINE_OF_SIGHT;
         }
@@ -5007,7 +5007,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    // Spell casted only on battleground
+    // Spell cast only in battleground
     if ((m_spellInfo->AttributesEx3 & SPELL_ATTR3_BATTLEGROUND) &&  m_caster->GetTypeId() == TYPEID_PLAYER)
         if (!m_caster->ToPlayer()->InBattleground())
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
@@ -5230,7 +5230,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                     target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                     target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
 
-                    m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
                     bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                     if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                         return SPELL_FAILED_OUT_OF_RANGE;
@@ -5554,7 +5553,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!m_targets.GetUnitTarget())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                // can be casted at non-friendly unit or own pet/charm
+                // can be cast at non-friendly unit or own pet/charm
                 if (m_caster->IsFriendlyTo(m_targets.GetUnitTarget()))
                     return SPELL_FAILED_TARGET_FRIENDLY;
 
@@ -5783,7 +5782,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                 }
             }
         }
-        // You are prevented from casting and the spell casted does not grant immunity. Return a failed error.
+        // You are prevented from casting and the spell cast does not grant immunity. Return a failed error.
         else
             return prevented_reason;
     }
@@ -6190,19 +6189,39 @@ SpellCastResult Spell::CheckItems()
                     }
                 }
 
-                SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(m_spellInfo->Effects[i].MiscValue);
+                SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(m_spellInfo->Effects[i].MiscValue);
                 // do not allow adding usable enchantments to items that have use effect already
-                if (pEnchant && isItemUsable)
+                if (enchantEntry)
+                {
                     for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
-                        if (pEnchant->type[s] == ITEM_ENCHANTMENT_TYPE_USE_SPELL)
-                            return SPELL_FAILED_ON_USE_ENCHANT;
+                    {
+                        switch (enchantEntry->type[s])
+                        {
+                            case ITEM_ENCHANTMENT_TYPE_USE_SPELL:
+                                if (isItemUsable)
+                                    return SPELL_FAILED_ON_USE_ENCHANT;
+                                break;
+                            case ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET:
+                            {
+                                uint32 numSockets = 0;
+                                for (uint32 socket = 0; socket < MAX_ITEM_PROTO_SOCKETS; ++socket)
+                                    if (targetItem->GetTemplate()->Socket[socket].Color)
+                                        ++numSockets;
+
+                                if (numSockets == MAX_ITEM_PROTO_SOCKETS || targetItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
+                                    return SPELL_FAILED_MAX_SOCKETS;
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 // Not allow enchant in trade slot for some enchant type
                 if (targetItem->GetOwner() != m_caster)
                 {
-                    if (!pEnchant)
+                    if (!enchantEntry)
                         return SPELL_FAILED_ERROR;
-                    if (pEnchant->slot & ENCHANTMENT_CAN_SOULBOUND)
+                    if (enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
                         return SPELL_FAILED_NOT_TRADEABLE;
                 }
                 break;
@@ -6671,11 +6690,11 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 /*
                 if (m_Spell->m_spellInfo->IsChanneled())
                 {
-                    // evented channeled spell is processed separately, casted once after delay, and not destroyed till finish
+                    // evented channeled spell is processed separately, cast once after delay, and not destroyed till finish
                     // check, if we have casting anything else except this channeled spell and autorepeat
-                    if (m_Spell->GetCaster()->IsNonMeleeSpellCasted(false, true, true))
+                    if (m_Spell->GetCaster()->IsNonMeleeSpellCast(false, true, true))
                     {
-                        // another non-melee non-delayed spell is casted now, abort
+                        // another non-melee non-delayed spell is cast now, abort
                         m_Spell->cancel();
                     }
                     else
@@ -6898,7 +6917,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                         0 : m_caster->ToPlayer()->GetSkillValue(skillId);
 
                     // skill bonus provided by casting spell (mostly item spells)
-                    // add the effect base points modifier from the spell casted (cheat lock / skeleton key etc.)
+                    // add the effect base points modifier from the spell cast (cheat lock / skeleton key etc.)
                     if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET)
                         skillValue += m_spellInfo->Effects[effIndex].CalcValue();
 
@@ -7199,7 +7218,7 @@ bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToC
 bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura) const
 {
     bool only_on_caster = (triggeredByAura && (triggeredByAura->AttributesEx4 & SPELL_ATTR4_PROC_ONLY_ON_CASTER));
-    // If triggeredByAura has SPELL_ATTR4_PROC_ONLY_ON_CASTER then it can only proc on a casted spell with TARGET_UNIT_CASTER
+    // If triggeredByAura has SPELL_ATTR4_PROC_ONLY_ON_CASTER then it can only proc on a cast spell with TARGET_UNIT_CASTER
     for (uint8 i = 0;i < MAX_SPELL_EFFECTS; ++i)
     {
         if ((effMask & (1 << i)) && (!only_on_caster || (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)))
@@ -7289,7 +7308,7 @@ void Spell::TriggerGlobalCooldown()
             return;
 
     // Global cooldown can't leave range 1..1.5 secs
-    // There are some spells (mostly not casted directly by player) that have < 1 sec and > 1.5 sec global cooldowns
+    // There are some spells (mostly not cast directly by player) that have < 1 sec and > 1.5 sec global cooldowns
     // but as tests show are not affected by any spell mods.
     if (m_spellInfo->StartRecoveryTime >= MIN_GCD && m_spellInfo->StartRecoveryTime <= MAX_GCD)
     {

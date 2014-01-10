@@ -38,7 +38,7 @@ typedef UNORDERED_MAP<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {
-    explicit KeyFrame(TaxiPathNodeEntry const& _node) : Index(0), Node(&_node),
+    explicit KeyFrame(TaxiPathNodeEntry const& _node) : Index(0), Node(&_node), InitialOrientation(0.0f),
         DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f),
         Teleport(false), ArriveTime(0), DepartureTime(0), Spline(NULL), NextDistFromPrev(0.0f), NextArriveTime(0)
     {
@@ -46,6 +46,7 @@ struct KeyFrame
 
     uint32 Index;
     TaxiPathNodeEntry const* Node;
+    float InitialOrientation;
     float DistSinceStop;
     float DistUntilStop;
     float DistFromPrev;

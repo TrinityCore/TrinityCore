@@ -32,7 +32,7 @@ enum Spells
     SPELL_CLEAVE       = 26350,
     SPELL_TOXIC_VOLLEY = 25812,
     SPELL_POISON_CLOUD = 38718, //Only Spell with right dmg.
-    SPELL_ENRAGE       = 34624, //Changed cause 25790 is casted on gamers too. Same prob with old explosion of twin emperors.
+    SPELL_ENRAGE       = 34624, //Changed cause 25790 is cast on gamers too. Same prob with old explosion of twin emperors.
 
     SPELL_CHARGE       = 26561,
     SPELL_KNOCKBACK    = 26027,
@@ -48,7 +48,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kriAI(creature);
+        return GetInstanceAI<boss_kriAI>(creature);
     }
 
     struct boss_kriAI : public ScriptedAI
@@ -83,14 +83,10 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)
-                                                                // Unlootable if death
-                    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                instance->SetData(DATA_BUG_TRIO_DEATH, 1);
-            }
+            instance->SetData(DATA_BUG_TRIO_DEATH, 1);
         }
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -145,7 +141,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_vemAI(creature);
+        return GetInstanceAI<boss_vemAI>(creature);
     }
 
     struct boss_vemAI : public ScriptedAI
@@ -174,14 +170,10 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(DATA_VEM_DEATH, 0);
-                if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)
-                                                                // Unlootable if death
-                    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                instance->SetData(DATA_BUG_TRIO_DEATH, 1);
-            }
+            instance->SetData(DATA_VEM_DEATH, 0);
+            if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            instance->SetData(DATA_BUG_TRIO_DEATH, 1);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -238,7 +230,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_yaujAI(creature);
+        return GetInstanceAI<boss_yaujAI>(creature);
     }
 
     struct boss_yaujAI : public ScriptedAI
@@ -267,13 +259,9 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)
-                                                                // Unlootable if death
-                    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                instance->SetData(DATA_BUG_TRIO_DEATH, 1);
-            }
+            if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            instance->SetData(DATA_BUG_TRIO_DEATH, 1);
 
             for (uint8 i = 0; i < 10; ++i)
             {
@@ -306,22 +294,19 @@ public:
             //Casting Heal to other twins or herself.
             if (Heal_Timer <= diff)
             {
-                if (instance)
+                switch (urand(0, 2))
                 {
-                    switch (urand(0, 2))
-                    {
-                        case 0:
-                            if (Creature* kri = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRI)))
-                                DoCast(kri, SPELL_HEAL);
-                            break;
-                        case 1:
-                            if (Creature* vem = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VEM)))
-                                DoCast(vem, SPELL_HEAL);
-                            break;
-                        case 2:
-                            DoCast(me, SPELL_HEAL);
-                            break;
-                    }
+                    case 0:
+                        if (Creature* kri = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRI)))
+                            DoCast(kri, SPELL_HEAL);
+                        break;
+                    case 1:
+                        if (Creature* vem = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VEM)))
+                            DoCast(vem, SPELL_HEAL);
+                        break;
+                    case 2:
+                        DoCast(me, SPELL_HEAL);
+                        break;
                 }
 
                 Heal_Timer = 15000+rand()%15000;
@@ -332,13 +317,10 @@ public:
             {
                 if (!VemDead)
                 {
-                    if (instance)
+                    if (instance->GetData(DATA_VEMISDEAD))
                     {
-                        if (instance->GetData(DATA_VEMISDEAD))
-                        {
-                            DoCast(me, SPELL_ENRAGE);
-                            VemDead = true;
-                        }
+                        DoCast(me, SPELL_ENRAGE);
+                        VemDead = true;
                     }
                 }
                 Check_Timer = 2000;

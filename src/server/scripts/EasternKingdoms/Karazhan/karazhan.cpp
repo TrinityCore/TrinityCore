@@ -158,15 +158,11 @@ public:
 
             PerformanceReady = false;
 
-            if (instance)
-                m_uiEventId = instance->GetData(DATA_OPERA_PERFORMANCE);
+            m_uiEventId = instance->GetData(DATA_OPERA_PERFORMANCE);
         }
 
         void StartEvent()
         {
-            if (!instance)
-                return;
-
             instance->SetData(TYPE_OPERA, IN_PROGRESS);
 
             //resets count for this event, in case earlier failed
@@ -180,9 +176,6 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (!instance)
-                return;
-
             switch (waypointId)
             {
                 case 0:
@@ -412,7 +405,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_barnesAI(creature);
+        return GetInstanceAI<npc_barnesAI>(creature);
     }
 };
 
@@ -476,7 +469,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_image_of_medivhAI(creature);
+        return GetInstanceAI<npc_image_of_medivhAI>(creature);
     }
 
     struct npc_image_of_medivhAI : public ScriptedAI
@@ -500,6 +493,8 @@ public:
         void Reset() OVERRIDE
         {
             ArcanagosGUID = 0;
+            EventStarted = false;
+            YellTimer = 0;
 
             if (instance && instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
             {

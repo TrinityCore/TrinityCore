@@ -277,7 +277,7 @@ class npc_frozen_orb_stalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_frozen_orb_stalkerAI(creature);
+            return GetInstanceAI<npc_frozen_orb_stalkerAI>(creature);
         }
 };
 

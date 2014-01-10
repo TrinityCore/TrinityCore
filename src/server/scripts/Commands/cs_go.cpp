@@ -112,7 +112,7 @@ public:
             {
                 std::string name = param1;
                 WorldDatabase.EscapeString(name);
-                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name "_LIKE_" '" << name << '\'';
+                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name " _LIKE_" '" << name << '\'';
             }
             else
                 whereClause <<  "WHERE guid = '" << guid << '\'';

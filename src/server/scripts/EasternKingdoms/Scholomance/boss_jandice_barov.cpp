@@ -32,7 +32,7 @@ enum Spells
     //SPELL_ILLUSION              = 17773,
 
     // Spells of Illusion of Jandice Barov
-    SPELL_CLEAVE                = 15584
+    SPELL_CLEAVE                = 15284
 };
 
 class boss_jandice_barov : public CreatureScript

@@ -59,18 +59,6 @@ class npc_aged_dying_ancient_kodo : public CreatureScript
 public:
     npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
-        {
-            player->TalkedToCreature(creature->GetEntry(), 0);
-            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-        }
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
     struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
         npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { }
@@ -108,6 +96,18 @@ public:
         }
     };
 
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    {
+        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+        {
+            player->TalkedToCreature(creature->GetEntry(), 0);
+            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
+        }
+
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
+    }
+
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_aged_dying_ancient_kodoAI(creature);
@@ -122,8 +122,7 @@ public:
 enum DemonPortal
 {
     NPC_DEMON_GUARDIAN          = 11937,
-
-    QUEST_PORTAL_OF_THE_LEGION  = 5581,
+    QUEST_PORTAL_OF_THE_LEGION  = 5581
 };
 
 class go_demon_portal : public GameObjectScript
