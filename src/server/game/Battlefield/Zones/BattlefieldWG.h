@@ -1133,7 +1133,7 @@ struct BfWGGameObjectBuilding
                 m_WG->SendUpdateWorldState(m_WorldState, m_State);
             }
             UpdateCreatureAndGo();
-            build->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_Team]);
+            build->SetFaction(WintergraspFaction[m_Team]);
         }
     }
 
