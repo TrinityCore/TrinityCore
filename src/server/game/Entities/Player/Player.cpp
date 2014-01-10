@@ -20712,13 +20712,13 @@ void Player::TextEmote(const std::string& text)
 void Player::WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver)
 {
     std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, _text, receiver);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_ADDON, _text, receiver);
 
     if (!receiver->GetSession()->IsAddonRegistered(prefix))
         return;
 
     WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_UNIVERSAL, this, this, text, 0, "", DEFAULT_LOCALE, prefix.c_str());
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix.c_str());
     receiver->GetSession()->SendPacket(&data);
 }
 

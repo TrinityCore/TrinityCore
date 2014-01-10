@@ -694,12 +694,13 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
                 data << channelName;
             }
 
-            if (chatType == CHAT_MSG_ADDON))
+            if (language == LANG_ADDON)
             {
                 ASSERT(addonPrefix);
                 data << addonPrefix;
             }
-            else
+
+            if (receiverGUIDPos != 0)
             {
                 receiverGUIDPos = data.wpos();
                 data << uint64(receiverGUID);
