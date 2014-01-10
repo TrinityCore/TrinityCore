@@ -85,7 +85,7 @@ class boss_buru : public CreatureScript
             void EnterCombat(Unit* who) OVERRIDE
             {
                 _EnterCombat();
-                Talk(EMOTE_TARGET, who->GetGUID());
+                Talk(EMOTE_TARGET, who);
                 DoCast(me, SPELL_THORNS);
 
                 events.ScheduleEvent(EVENT_DISMEMBER, 5000);
@@ -122,7 +122,7 @@ class boss_buru : public CreatureScript
                 {
                     DoResetThreat();
                     AttackStart(victim);
-                    Talk(EMOTE_TARGET, victim->GetGUID());
+                    Talk(EMOTE_TARGET, victim);
                 }
             }
 

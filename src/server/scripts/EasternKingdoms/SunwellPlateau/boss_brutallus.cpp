@@ -190,12 +190,12 @@ public:
                 case 1:
                     me->SetInFront(Madrigosa);
                     Madrigosa->SetInFront(me);
-                    Madrigosa->AI()->Talk(YELL_MADR_INTRO, me->GetGUID());
+                    Madrigosa->AI()->Talk(YELL_MADR_INTRO, me);
                     IntroPhaseTimer = 9000;
                     ++IntroPhase;
                     break;
                 case 2:
-                    Talk(YELL_INTRO, Madrigosa->GetGUID());
+                    Talk(YELL_INTRO, Madrigosa);
                     IntroPhaseTimer = 13000;
                     ++IntroPhase;
                     break;

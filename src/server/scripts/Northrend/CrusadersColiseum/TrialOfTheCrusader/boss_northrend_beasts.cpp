@@ -1068,7 +1068,8 @@ class boss_icehowl : public CreatureScript
                     case 4:
                         me->StopMoving();
                         me->AttackStop();
-                        Talk(EMOTE_TRAMPLE_START, _trampleTargetGUID);
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, _trampleTargetGUID))
+                            Talk(EMOTE_TRAMPLE_START, target);
                         me->GetMotionMaster()->MoveCharge(_trampleTargetX, _trampleTargetY, _trampleTargetZ, 42, 1);
                         me->SetTarget(0);
                         _stage = 5;

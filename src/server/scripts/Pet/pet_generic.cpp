@@ -62,7 +62,7 @@ class npc_pet_gen_mojo : public CreatureScript
                     return;
                 }
 
-                Talk(SAY_MOJO, player->GetGUID());
+                Talk(SAY_MOJO, player);
 
                 if (_victimGUID)
                     if (Player* victim = ObjectAccessor::GetPlayer(*me, _victimGUID))

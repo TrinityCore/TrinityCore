@@ -140,7 +140,7 @@ class boss_anzu : public CreatureScript
                                 if (target->getPowerType() == POWER_MANA)
                                 {
                                     DoCast(target, SPELL_SPELL_BOMB);
-                                    Talk(SAY_SPELL_BOMB, target->GetGUID());
+                                    Talk(SAY_SPELL_BOMB, target);
                                 }
                             }
                             break;

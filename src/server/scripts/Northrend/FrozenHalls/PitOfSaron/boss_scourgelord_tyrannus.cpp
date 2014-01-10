@@ -265,7 +265,7 @@ class boss_tyrannus : public CreatureScript
                             Talk(SAY_MARK_RIMEFANG_1);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                Talk(SAY_MARK_RIMEFANG_2, target->GetGUID());
+                                Talk(SAY_MARK_RIMEFANG_2, target);
                                 DoCast(target, SPELL_MARK_OF_RIMEFANG);
                             }
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(24000, 26000));

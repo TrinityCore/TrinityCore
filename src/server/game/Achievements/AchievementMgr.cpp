@@ -21,6 +21,7 @@
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
@@ -49,19 +50,11 @@ namespace Trinity
         public:
             AchievementChatBuilder(Player const& player, ChatMsg msgtype, int32 textId, uint32 ach_id)
                 : i_player(player), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) { }
+
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
-
-                data << uint8(i_msgtype);
-                data << uint32(LANG_UNIVERSAL);
-                data << uint64(i_player.GetGUID());
-                data << uint32(5);
-                data << uint64(i_player.GetGUID());
-                data << uint32(strlen(text)+1);
-                data << text;
-                data << uint8(0);
-                data << uint32(i_achievementId);
+                std::string text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
+                ChatHandler::BuildChatPacket(data, i_msgtype, LANG_UNIVERSAL, &i_player, &i_player, text, i_achievementId);
             }
 
         private:

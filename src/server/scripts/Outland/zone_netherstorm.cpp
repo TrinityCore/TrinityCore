@@ -245,7 +245,7 @@ public:
                         {
                             Unit* u = Unit::GetUnit(*me, someplayer);
                             if (u && u->GetTypeId() == TYPEID_PLAYER)
-                                Talk(EMOTE_START, u->GetGUID());
+                                Talk(EMOTE_START, u);
                         }
                         Event_Timer = 60000;
                         Wave = true;
@@ -667,7 +667,7 @@ public:
 
     //OnQuestAccept:
     //if (quest->GetQuestId() == QUEST_DIMENSIUS)
-        //creature->AI()->Talk(WHISPER_DABIRI, player->GetGUID());
+        //creature->AI()->Talk(WHISPER_DABIRI, player);
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
@@ -896,7 +896,7 @@ public:
                     break;
                 case 13:
                     if (me->FindNearestCreature(N_THADELL, 30))
-                        Talk(SAY_THADELL_2, player->GetGUID());
+                        Talk(SAY_THADELL_2, player);
                     break;
             }
         }

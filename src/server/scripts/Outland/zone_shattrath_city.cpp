@@ -342,70 +342,70 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    Talk(SAY1, player->GetGUID());
+                    Talk(SAY1, player);
                     break;
                 case 4:
-                    Talk(WHISP1, player->GetGUID());
+                    Talk(WHISP1, player);
                     break;
                 case 6:
-                    Talk(WHISP2, player->GetGUID());
+                    Talk(WHISP2, player);
                     break;
                 case 7:
-                    Talk(WHISP3, player->GetGUID());
+                    Talk(WHISP3, player);
                     break;
                 case 8:
-                    Talk(WHISP4, player->GetGUID());
+                    Talk(WHISP4, player);
                     break;
                 case 17:
-                    Talk(WHISP5, player->GetGUID());
+                    Talk(WHISP5, player);
                     break;
                 case 18:
-                    Talk(WHISP6, player->GetGUID());
+                    Talk(WHISP6, player);
                     break;
                 case 19:
-                    Talk(WHISP7, player->GetGUID());
+                    Talk(WHISP7, player);
                     break;
                 case 33:
-                    Talk(WHISP8, player->GetGUID());
+                    Talk(WHISP8, player);
                     break;
                 case 34:
-                    Talk(WHISP9, player->GetGUID());
+                    Talk(WHISP9, player);
                     break;
                 case 35:
-                    Talk(WHISP10, player->GetGUID());
+                    Talk(WHISP10, player);
                     break;
                 case 36:
-                    Talk(WHISP11, player->GetGUID());
+                    Talk(WHISP11, player);
                     break;
                 case 43:
-                    Talk(WHISP12, player->GetGUID());
+                    Talk(WHISP12, player);
                     break;
                 case 44:
-                    Talk(WHISP13, player->GetGUID());
+                    Talk(WHISP13, player);
                     break;
                 case 49:
-                    Talk(WHISP14, player->GetGUID());
+                    Talk(WHISP14, player);
                     break;
                 case 50:
-                    Talk(WHISP15, player->GetGUID());
+                    Talk(WHISP15, player);
                     break;
                 case 51:
-                    Talk(WHISP16, player->GetGUID());
+                    Talk(WHISP16, player);
                     break;
                 case 52:
-                    Talk(WHISP17, player->GetGUID());
+                    Talk(WHISP17, player);
                     break;
                 case 53:
-                    Talk(WHISP18, player->GetGUID());
+                    Talk(WHISP18, player);
                     break;
                 case 54:
-                    Talk(WHISP19, player->GetGUID());
+                    Talk(WHISP19, player);
                     break;
                 case 55:
-                    Talk(WHISP20, player->GetGUID());
+                    Talk(WHISP20, player);
                     break;
                 case 56:
-                    Talk(WHISP21, player->GetGUID());
+                    Talk(WHISP21, player);
                     player->GroupEventHappens(10211, me);
                     break;
             }

@@ -446,12 +446,12 @@ public:
             if (roll == 1) // friendly version
             {
                 tree->CastSpell(player, SPELL_CREATE_ITEM_BARK);
-                tree->AI()->Talk(SAY_WALKER_FRIENDLY, player->GetGUID());
+                tree->AI()->Talk(SAY_WALKER_FRIENDLY, player);
                 tree->DespawnOrUnsummon(1000);
             }
             else if (roll == 0) // enemy version
             {
-                tree->AI()->Talk(SAY_WALKER_ENEMY, player->GetGUID());
+                tree->AI()->Talk(SAY_WALKER_ENEMY, player);
                 tree->setFaction(FACTION_WALKER_ENEMY);
                 tree->Attack(player, true);
             }
@@ -603,13 +603,13 @@ class npc_wyrmrest_defender : public CreatureScript
                 switch (spell->Id)
                 {
                     case SPELL_WYRMREST_DEFENDER_MOUNT:
-                        Talk(WHISPER_MOUNTED, me->GetCharmerOrOwnerGUID());
+                        Talk(WHISPER_MOUNTED, me->GetCharmerOrOwner());
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                         break;
                     // Both below are for checking low hp warning
                     case SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE:
-                        Talk(BOSS_EMOTE_ON_LOW_HEALTH, me->GetCharmerOrOwnerGUID());
+                        Talk(BOSS_EMOTE_ON_LOW_HEALTH, me->GetCharmerOrOwner());
                         break;
                     case SPELL_RENEW:
                         if (!hpWarningReady && RenewRecoveryChecker <= 100)
@@ -663,7 +663,7 @@ class npc_torturer_lecraft : public CreatureScript
                 _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
 
                 if (Player* player = who->ToPlayer())
-                    Talk (SAY_AGGRO, player->GetGUID());
+                    Talk (SAY_AGGRO, player);
             }
 
             void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
@@ -679,7 +679,7 @@ class npc_torturer_lecraft : public CreatureScript
                     if (_playerGUID != player->GetGUID())
                         return;
 
-                    Talk(_textCounter, player->GetGUID());
+                    Talk(_textCounter, player);
 
                     if (_textCounter == 5)
                         player->KilledMonsterCredit(NPC_TORTURER_LECRAFT, 0);

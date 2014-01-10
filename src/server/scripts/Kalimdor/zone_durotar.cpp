@@ -79,7 +79,7 @@ public:
             if (player && player->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
             {
                 player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-                Talk(SAY_SPELL_HIT, caster->GetGUID());
+                Talk(SAY_SPELL_HIT, caster);
                 me->RemoveAllAuras();
                 if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))
                     me->GetMotionMaster()->MovePoint(1, Lumberpile->GetPositionX()-1, Lumberpile->GetPositionY(), Lumberpile->GetPositionZ());
