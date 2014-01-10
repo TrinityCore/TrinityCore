@@ -711,16 +711,14 @@ class WorldObject : public Object, public WorldLocation
 
         virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-        void MonsterSay(const char* text, uint32 language, uint64 TargetGuid);
-        void MonsterYell(const char* text, uint32 language, uint64 TargetGuid);
-        void MonsterTextEmote(const char* text, uint64 TargetGuid, bool IsBossEmote = false);
-        void MonsterWhisper(const char* text, uint64 receiver, bool IsBossWhisper = false);
-        void MonsterSay(int32 textId, uint32 language, uint64 TargetGuid);
-        void MonsterYell(int32 textId, uint32 language, uint64 TargetGuid);
-        void MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote = false);
-        void MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisper = false);
-        void MonsterYellToZone(int32 textId, uint32 language, uint64 TargetGuid);
-        void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, std::string const& name, uint64 TargetGuid) const;
+        void MonsterSay(const char* text, uint32 language, WorldObject const* target);
+        void MonsterYell(const char* text, uint32 language, WorldObject const* target);
+        void MonsterTextEmote(const char* text, WorldObject const* target, bool IsBossEmote = false);
+        void MonsterWhisper(const char* text, Player const* target, bool IsBossWhisper = false);
+        void MonsterSay(int32 textId, uint32 language, WorldObject const* target);
+        void MonsterYell(int32 textId, uint32 language, WorldObject const* target);
+        void MonsterTextEmote(int32 textId, WorldObject const* target, bool IsBossEmote = false);
+        void MonsterWhisper(int32 textId, Player const* target, bool IsBossWhisper = false);
 
         void PlayDistanceSound(uint32 sound_id, Player* target = NULL);
         void PlayDirectSound(uint32 sound_id, Player* target = NULL);

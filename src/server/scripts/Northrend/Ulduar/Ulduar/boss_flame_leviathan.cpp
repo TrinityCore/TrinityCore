@@ -1530,7 +1530,7 @@ class spell_auto_repair : public SpellScriptLoader
                 if (!driver)
                     return;
 
-                driver->MonsterTextEmote(EMOTE_REPAIR, driver->GetGUID(), true);
+                driver->MonsterTextEmote(EMOTE_REPAIR, driver, true);
 
                 InstanceScript* instance = driver->GetInstanceScript();
                 if (!instance)
@@ -1690,9 +1690,9 @@ class spell_pursue : public SpellScriptLoader
 
                 for (SeatMap::const_iterator itr = caster->GetVehicleKit()->Seats.begin(); itr != caster->GetVehicleKit()->Seats.end(); ++itr)
                 {
-                    if (IS_PLAYER_GUID(itr->second.Passenger.Guid))
+                    if (Player* passenger = ObjectAccessor::GetPlayer(*caster, itr->second.Passenger.Guid))
                     {
-                        caster->AI()->Talk(EMOTE_PURSUE, itr->second.Passenger.Guid);
+                        caster->AI()->Talk(EMOTE_PURSUE, passenger);
                         return;
                     }
                 }

@@ -693,7 +693,7 @@ public:
             {
                 Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                 if (player)
-                    Talk(OVERLORD_SAY_1, player->GetGUID());
+                    Talk(OVERLORD_SAY_1, player);
             }
             ConversationTimer = 4200;
             Step = 0;
@@ -721,7 +721,7 @@ public:
                     return 9000;
                     break;
                 case 2:
-                    Talk(OVERLORD_YELL_1, player->GetGUID());
+                    Talk(OVERLORD_YELL_1, player);
                     return 4500;
                     break;
                 case 3:
@@ -729,7 +729,7 @@ public:
                     return 3200;
                     break;
                 case 4:
-                    Talk(OVERLORD_SAY_2, player->GetGUID());
+                    Talk(OVERLORD_SAY_2, player);
                     return 2000;
                     break;
                 case 5:
@@ -768,7 +768,7 @@ public:
                     return 5000;
                     break;
                 case 11:
-                    Talk(OVERLORD_SAY_4, player->GetGUID());
+                    Talk(OVERLORD_SAY_4, player);
                     return 6000;
                     break;
                 case 12:
@@ -867,7 +867,7 @@ public:
                 case 29:
                     {
                         if (Creature* Yarzill = me->FindNearestCreature(C_YARZILL, 50.0f))
-                            Yarzill->AI()->Talk(YARZILL_THE_MERC_SAY, player->GetGUID());
+                            Yarzill->AI()->Talk(YARZILL_THE_MERC_SAY, player);
                         return 5000;
                     }
                     break;
@@ -947,7 +947,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
         {
-            creature->AI()->Talk(SAY_WIL_START, player->GetGUID());
+            creature->AI()->Talk(SAY_WIL_START, player);
             creature->setFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
@@ -981,14 +981,14 @@ public:
             switch (waypointId)
             {
                 case 13:
-                    Talk(SAY_WIL_PROGRESS1, player->GetGUID());
+                    Talk(SAY_WIL_PROGRESS1, player);
                     DoSpawnAssassin();
                     break;
                 case 14:
                     DoSpawnAssassin();
                     break;
                 case 15:
-                    Talk(SAY_WIL_FIND_EXIT, player->GetGUID());
+                    Talk(SAY_WIL_FIND_EXIT, player);
                     break;
                 case 19:
                     DoRandomSay();
@@ -1015,7 +1015,7 @@ public:
                     DoSpawnAssassin();
                     break;
                 case 39:
-                    Talk(SAY_WIL_JUST_AHEAD, player->GetGUID());
+                    Talk(SAY_WIL_JUST_AHEAD, player);
                     break;
                 case 43:
                     DoRandomSay();
@@ -1024,7 +1024,7 @@ public:
                     DoSpawnAssassin();
                     break;
                 case 50:
-                    Talk(SAY_WIL_END, player->GetGUID());
+                    Talk(SAY_WIL_END, player);
                     player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
                     break;
             }

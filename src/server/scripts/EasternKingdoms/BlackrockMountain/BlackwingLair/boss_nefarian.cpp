@@ -423,7 +423,7 @@ public:
             if (rand()%5)
                 return;
 
-            Talk(SAY_SLAY, victim->GetGUID());
+            Talk(SAY_SLAY, victim);
         }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE

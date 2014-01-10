@@ -149,7 +149,7 @@ public:
                 {
                     FocusedTargetGUID = target->GetGUID();
                     me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
-                    Talk(EMOTE_FOCUSED, FocusedTargetGUID);
+                    Talk(EMOTE_FOCUSED, target);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);
             } else FocusFire_Timer -= diff;

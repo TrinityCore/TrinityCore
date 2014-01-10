@@ -239,7 +239,7 @@ public:
                         if (!SisterDeath)
                         {
                             if (target)
-                                Talk(EMOTE_SHADOW_NOVA, target->GetGUID());
+                                Talk(EMOTE_SHADOW_NOVA, target);
                             Talk(YELL_SHADOW_NOVA);
                         }
                         ShadownovaTimer = 30000+(rand()%5000);
@@ -571,7 +571,7 @@ public:
                         if (!SisterDeath)
                         {
                             if (target)
-                                Talk(EMOTE_CONFLAGRATION, target->GetGUID());
+                                Talk(EMOTE_CONFLAGRATION, target);
                             Talk(YELL_CANFLAGRATION);
                         }
 

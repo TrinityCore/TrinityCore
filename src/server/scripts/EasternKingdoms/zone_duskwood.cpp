@@ -57,7 +57,7 @@ public:
             {
                 CorrupterSpeaker->SetName("Twilight Corrupter");
                 CorrupterSpeaker->SetVisible(true);
-                CorrupterSpeaker->AI()->Talk(YELL_TWILIGHTCORRUPTOR_RESPAWN, player->GetGUID());
+                CorrupterSpeaker->AI()->Talk(YELL_TWILIGHTCORRUPTOR_RESPAWN, player);
             }
         }
         return false;
@@ -109,7 +109,7 @@ public:
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
                 ++KillCount;
-                Talk(YELL_TWILIGHTCORRUPTOR_KILL, victim->GetGUID());
+                Talk(YELL_TWILIGHTCORRUPTOR_KILL, victim);
 
                 if (KillCount == 3)
                 {

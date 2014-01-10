@@ -87,7 +87,6 @@ SmartScript::SmartScript()
     mTargetStorage = new ObjectListMap();
     mTextTimer = 0;
     mLastTextID = 0;
-    mTextGUID = 0;
     mUseTextTimer = false;
     mTalkerEntry = 0;
     mTemplate = SMARTAI_TEMPLATE_BASIC;
@@ -189,17 +188,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             mTalkerEntry = talker->GetEntry();
             mLastTextID = e.action.talk.textGroupID;
             mTextTimer = e.action.talk.duration;
+            Unit* talkTarget = NULL;
             if (IsPlayer(GetLastInvoker())) // used for $vars in texts and whisper target
-                mTextGUID = GetLastInvoker()->GetGUID();
+                talkTarget = GetLastInvoker();
             else if (targetPlayer)
-                mTextGUID = targetPlayer->GetGUID();
-            else
-                mTextGUID = 0;
+                talkTarget = targetPlayer;
 
             mUseTextTimer = true;
-            sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), mTextGUID);
+            sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), talkTarget);
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: %s (GuidLow: %u), textGuid: %u",
-                talker->GetName().c_str(), talker->GetGUIDLow(), GUID_LOPART(mTextGUID));
+                talker->GetName().c_str(), talker->GetGUIDLow(), talkTarget ? talkTarget->GetGUIDLow() : 0);
             break;
         }
         case SMART_ACTION_SIMPLE_TALK:
@@ -210,11 +208,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
                     if (IsCreature(*itr))
-                        sCreatureTextMgr->SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(GetLastInvoker())? GetLastInvoker()->GetGUID() : 0);
+                        sCreatureTextMgr->SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(GetLastInvoker())? GetLastInvoker() : 0);
                     else if (IsPlayer(*itr) && me)
                     {
                         Unit* templastInvoker = GetLastInvoker();
-                        sCreatureTextMgr->SendChat(me, uint8(e.action.talk.textGroupID), IsPlayer(templastInvoker) ? templastInvoker->GetGUID() : 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, (*itr)->ToPlayer());
+                        sCreatureTextMgr->SendChat(me, uint8(e.action.talk.textGroupID), IsPlayer(templastInvoker) ? templastInvoker : 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, (*itr)->ToPlayer());
                     }
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SIMPLE_TALK: talker: %s (GuidLow: %u), textGroupId: %u",
                         (*itr)->GetName().c_str(), (*itr)->GetGUIDLow(), uint8(e.action.talk.textGroupID));

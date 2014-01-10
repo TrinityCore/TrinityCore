@@ -447,52 +447,18 @@ void Battlefield::BroadcastPacketToWar(WorldPacket& data) const
                 player->GetSession()->SendPacket(&data);
 }
 
-WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
-{
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
-
-    data << uint8(CHAT_MSG_RAID_BOSS_EMOTE);
-    data << uint32(LANG_UNIVERSAL);
-    data << uint64(0);
-    data << uint32(0);                                      // 2.1.0
-    data << uint32(1);
-    data << uint8(0);
-    data << uint64(0);
-    data << uint32(msg.length() + 1);
-    data << msg;
-    data << uint8(0);
-    data << float(0);
-    data << uint8(0);
-
-    return data;
-}
-
 void Battlefield::SendWarningToAllInZone(uint32 entry)
 {
     if (Creature* stalker = GetCreature(StalkerGuid))
         // FIXME: replaced CHAT_TYPE_END with CHAT_MSG_BG_SYSTEM_NEUTRAL to fix compile, it's a guessed change :/
-        sCreatureTextMgr->SendChat(stalker, (uint8) entry, 0, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_ADDON, TEXT_RANGE_ZONE);
+        sCreatureTextMgr->SendChat(stalker, (uint8) entry, NULL, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_ADDON, TEXT_RANGE_ZONE);
 }
-
-/*void Battlefield::SendWarningToAllInWar(int32 entry, ...)
-{
-    const char *format = sObjectMgr->GetTrinityStringForDBCLocale(entry);
-    va_list ap;
-    char str [1024];
-    va_start(ap, entry);
-    vsnprintf(str, 1024, format, ap);
-    va_end(ap);
-    std::string msg = (std::string)str;
-
-    WorldPacket data = BuildWarningAnnPacket(msg);
-    BroadcastPacketWar(data);
-}*/
 
 void Battlefield::SendWarningToPlayer(Player* player, uint32 entry)
 {
     if (player)
         if (Creature* stalker = GetCreature(StalkerGuid))
-            sCreatureTextMgr->SendChat(stalker, (uint8)entry, player->GetGUID());
+            sCreatureTextMgr->SendChat(stalker, (uint8)entry, player);
 }
 
 void Battlefield::SendUpdateWorldState(uint32 field, uint32 value)

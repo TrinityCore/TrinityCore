@@ -76,7 +76,7 @@ public:
             {
                 SetGazeOn(who);
                 /// @todo use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
+                me->MonsterTextEmote(EMOTE_NEARBY, NULL, true);
             }
             else
                 BossAI::MoveInLineOfSight(who);

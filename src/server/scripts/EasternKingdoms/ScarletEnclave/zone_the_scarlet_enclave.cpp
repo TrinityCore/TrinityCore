@@ -103,7 +103,7 @@ public:
                         {
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
                             DoCast(player, SPELL_REVIVE, true);
-                            Talk(WHISPER_REVIVE, player->GetGUID());
+                            Talk(WHISPER_REVIVE, player);
                         }
                         FlyBackTimer = 5000;
                         break;

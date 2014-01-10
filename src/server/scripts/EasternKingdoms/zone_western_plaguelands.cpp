@@ -371,18 +371,18 @@ public:
                     if (Ughost)
                     {
                         Ughost->SetDisableGravity(true);
-                        Ughost->AI()->Talk(SAY_WP_4, me->GetGUID());
+                        Ughost->AI()->Talk(SAY_WP_4, me);
                     }
                     m_uiChatTimer = 4000;
                     break;
                 case 24:
                     if (Ughost)
-                        Ughost->AI()->Talk(SAY_WP_5, me->GetGUID());
+                        Ughost->AI()->Talk(SAY_WP_5, me);
                     m_uiChatTimer = 4000;
                     break;
                 case 25:
                     if (Ughost)
-                        Ughost->AI()->Talk(SAY_WP_6, me->GetGUID());
+                        Ughost->AI()->Talk(SAY_WP_6, me);
                     m_uiChatTimer = 4000;
                     break;
                 case 26:

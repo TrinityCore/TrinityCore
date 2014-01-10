@@ -375,7 +375,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void JustDied(Unit* killer) OVERRIDE
             {
-                Talk(SAY_STAGE_1_06, killer->GetGUID());
+                Talk(SAY_STAGE_1_06, killer);
                 _instance->SetData(TYPE_EVENT, 1180);
                 if (Creature* temp = Unit::GetCreature(*me, _instance->GetData64(NPC_JARAXXUS)))
                 {

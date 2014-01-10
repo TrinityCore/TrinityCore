@@ -98,12 +98,11 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (CanSayHelp && who->GetTypeId() == TYPEID_PLAYER && me->IsFriendlyTo(who) && me->IsWithinDistInMap(who, 25.0f))
             {
                 //Random switch between 4 texts
-                Talk(SAY_HELP, who->GetGUID());
+                Talk(SAY_HELP, who);
 
                 SayHelpTimer = 20000;
                 CanSayHelp = false;
@@ -135,7 +134,7 @@ public:
 
                     if (Player* player = ObjectAccessor::GetPlayer(*me, pCaster))
                     {
-                        Talk(SAY_HEAL, player->GetGUID());
+                        Talk(SAY_HEAL, player);
 
                         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
                     }
@@ -252,7 +251,7 @@ public:
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(ATTACK_YELL, who->GetGUID());
+            Talk(ATTACK_YELL, who);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -376,17 +375,17 @@ public:
                 switch (waypointId)
                 {
                     case 0:
-                        Talk(SAY_START, player->GetGUID());
+                        Talk(SAY_START, player);
                         break;
                     case 17:
-                        Talk(SAY_PROGRESS, player->GetGUID());
+                        Talk(SAY_PROGRESS, player);
                         break;
                     case 28:
-                        Talk(SAY_END1, player->GetGUID());
+                        Talk(SAY_END1, player);
                         break;
                     case 29:
-                        Talk(EMOTE_HUG, player->GetGUID());
-                        Talk(SAY_END2, player->GetGUID());
+                        Talk(EMOTE_HUG, player);
+                        Talk(SAY_END2, player);
                         player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
                         break;
                 }
@@ -395,7 +394,7 @@ public:
 
         void EnterCombat(Unit* who) OVERRIDE
         {
-            Talk(SAY_AGGRO, who->GetGUID());
+            Talk(SAY_AGGRO, who);
         }
 
         void Reset() OVERRIDE { }
@@ -489,7 +488,7 @@ public:
                     Spark->AI()->Talk(EMOTE_SPARK);
                     return 1000;
                 case 2:
-                    Talk(GEEZLE_SAY_1, SparkGUID);
+                    Talk(GEEZLE_SAY_1, Spark);
                     Spark->SetInFront(me);
                     me->SetInFront(Spark);
                     return 5000;
@@ -500,7 +499,7 @@ public:
                     Spark->AI()->Talk(SPARK_SAY_3);
                     return 8000;
                 case 5:
-                    Talk(GEEZLE_SAY_4, SparkGUID);
+                    Talk(GEEZLE_SAY_4, Spark);
                     return 8000;
                 case 6:
                     Spark->AI()->Talk(SPARK_SAY_5);
@@ -509,11 +508,11 @@ public:
                     Spark->AI()->Talk(SPARK_SAY_6);
                     return 8000;
                 case 8:
-                    Talk(GEEZLE_SAY_7, SparkGUID);
+                    Talk(GEEZLE_SAY_7, Spark);
                     return 2000;
                 case 9:
                     me->GetMotionMaster()->MoveTargetedHome();
-                     Spark->GetMotionMaster()->MovePoint(0, SparkPos);
+                    Spark->GetMotionMaster()->MovePoint(0, SparkPos);
                     CompleteQuest();
                     return 9000;
                 case 10:
@@ -694,7 +693,7 @@ class npc_stillpine_capitive : public CreatureScript
             {
                 if (owner)
                 {
-                    Talk(CAPITIVE_SAY, owner->GetGUID());
+                    Talk(CAPITIVE_SAY, owner);
                     _player = owner;
                 }
                 Position pos;

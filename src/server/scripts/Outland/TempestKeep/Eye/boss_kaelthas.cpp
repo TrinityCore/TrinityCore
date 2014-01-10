@@ -1078,7 +1078,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                     {
                         DoResetThreat();
                         me->AddThreat(target, 5000000.0f);
-                        Talk(EMOTE_THALADRED_GAZE, target->GetGUID());
+                        Talk(EMOTE_THALADRED_GAZE, target);
                         Gaze_Timer = 8500;
                     }
                 }

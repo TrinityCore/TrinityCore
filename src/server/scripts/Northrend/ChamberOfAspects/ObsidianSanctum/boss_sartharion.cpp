@@ -412,7 +412,7 @@ public:
                     if (!PlayerList.isEmpty())
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             if (i->GetSource() && i->GetSource()->IsAlive())
-                                Talk(WHISPER_LAVA_CHURN, i->GetSource()->GetGUID());
+                                Talk(WHISPER_LAVA_CHURN, i->GetSource());
                 }
         }
 

@@ -755,7 +755,7 @@ public:
                     }
                     else
                     {
-                        me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, 0);
+                        me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, NULL);
                         EnterEvadeMode();
                         return;
                     }

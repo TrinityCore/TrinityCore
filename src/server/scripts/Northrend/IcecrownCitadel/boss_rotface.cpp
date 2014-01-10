@@ -538,7 +538,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                     if (Unit* target = GetHitUnit())
-                        caster->AI()->Talk(EMOTE_MUTATED_INFECTION, target->GetGUID());
+                        caster->AI()->Talk(EMOTE_MUTATED_INFECTION, target);
             }
 
             void Register() OVERRIDE

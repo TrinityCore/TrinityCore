@@ -84,7 +84,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 switch (waypointId)
                 {
                     case 6:
-                        Talk(SAY_PROGRESS_2, player->GetGUID());
+                        Talk(SAY_PROGRESS_2, player);
                         events.ScheduleEvent(EVENT_SAY_3, 3000);
                         break;
                     case 8:
@@ -97,7 +97,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                         events.ScheduleEvent(EVENT_SAY_6, 11000);
                         break;
                     case 17:
-                        Talk(SAY_PROGRESS_7, player->GetGUID());
+                        Talk(SAY_PROGRESS_7, player);
                         events.ScheduleEvent(EVENT_SAY_8, 6000);
                         break;
                 }
@@ -154,7 +154,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
         {
             if (quest->GetQuestId() == QUEST_GOGGLE_BOGGLE)
             {
-                creature->AI()->Talk(SAY_PROGRESS_1, player->GetGUID());
+                creature->AI()->Talk(SAY_PROGRESS_1, player);
                 if (npc_escortAI* pEscortAI = CAST_AI(npc_professor_phizzlethorpeAI, (creature->AI())))
                     pEscortAI->Start(false, false, player->GetGUID(), quest);
 

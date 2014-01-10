@@ -425,7 +425,7 @@ public:
             {
                 if (who->HasAura(SPELL_LASHHAN_CHANNEL) && me->IsWithinDistInMap(who, 10.0f))
                 {
-                    Talk(SAY_SPELL_INFLUENCE, who->GetGUID());
+                    Talk(SAY_SPELL_INFLUENCE, who);
                     /// @todo Move the below to updateAI and run if this statement == true
                     DoCast(who, 37028, true);
                 }

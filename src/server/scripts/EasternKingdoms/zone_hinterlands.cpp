@@ -69,7 +69,7 @@ public:
             else if (player->GetTeam() == HORDE)
                 creature->setFaction(FACTION_ESCORTEE_H);
 
-            creature->AI()->Talk(SAY_OOX_START, player->GetGUID());
+            creature->AI()->Talk(SAY_OOX_START, player);
 
             if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest);

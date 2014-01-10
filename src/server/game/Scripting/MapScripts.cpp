@@ -335,7 +335,7 @@ void Map::ScriptsProcess()
             }
         }
 
-        Object* target = NULL;
+        WorldObject* target = NULL;
         if (step.targetGUID)
         {
             switch (GUID_HIPART(step.targetGUID))
@@ -421,28 +421,28 @@ void Map::ScriptsProcess()
                         switch (step.script->Talk.ChatType)
                         {
                             case CHAT_TYPE_SAY:
-                                cSource->Say(step.script->Talk.TextID, LANG_UNIVERSAL, targetGUID);
+                                cSource->MonsterSay(step.script->Talk.TextID, LANG_UNIVERSAL, target);
                                 break;
                             case CHAT_TYPE_YELL:
-                                cSource->Yell(step.script->Talk.TextID, LANG_UNIVERSAL, targetGUID);
+                                cSource->MonsterYell(step.script->Talk.TextID, LANG_UNIVERSAL, target);
                                 break;
                             case CHAT_TYPE_TEXT_EMOTE:
-                                cSource->TextEmote(step.script->Talk.TextID, targetGUID);
+                                cSource->MonsterTextEmote(step.script->Talk.TextID, target);
                                 break;
                             case CHAT_TYPE_BOSS_EMOTE:
-                                cSource->MonsterTextEmote(step.script->Talk.TextID, targetGUID, true);
+                                cSource->MonsterTextEmote(step.script->Talk.TextID, target, true);
                                 break;
                             case CHAT_TYPE_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
                                     TC_LOG_ERROR("scripts", "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
-                                    cSource->Whisper(step.script->Talk.TextID, targetGUID);
+                                    cSource->MonsterWhisper(step.script->Talk.TextID, target->ToPlayer());
                                 break;
                             case CHAT_MSG_RAID_BOSS_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
                                     TC_LOG_ERROR("scripts", "%s attempt to raidbosswhisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
-                                    cSource->MonsterWhisper(step.script->Talk.TextID, targetGUID, true);
+                                    cSource->MonsterWhisper(step.script->Talk.TextID, target->ToPlayer(), true);
                                 break;
                             default:
                                 break;                              // must be already checked at load

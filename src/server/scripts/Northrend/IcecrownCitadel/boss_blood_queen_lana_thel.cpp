@@ -412,7 +412,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         case EVENT_SWARMING_SHADOWS:
                             if (Player* target = SelectRandomTarget(false))
                             {
-                                Talk(EMOTE_SWARMING_SHADOWS, target->GetGUID());
+                                Talk(EMOTE_SWARMING_SHADOWS, target);
                                 Talk(SAY_SWARMING_SHADOWS);
                                 DoCast(target, SPELL_SWARMING_SHADOWS);
                             }
@@ -601,7 +601,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
-                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST, GetTarget()->GetGUID());
+                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST, GetTarget());
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

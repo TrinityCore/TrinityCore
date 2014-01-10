@@ -1338,8 +1338,6 @@ class Player : public Unit, public GridObject<Player>
         /// Handles whispers from Addons and players based on sender, receiver's guid and language.
         void Whisper(std::string const& text, const uint32 language, uint64 receiver);
         void WhisperAddon(std::string const& text, std::string const& prefix, Player* receiver);
-        /// Constructs the player Chat data for the specific functions to use
-        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, std::string const& text, uint32 language, const char* addonPrefix = NULL) const;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
