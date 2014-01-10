@@ -108,18 +108,16 @@ class boss_kelidan_the_breaker : public CreatureScript
                 SummonChannelers();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
-                if (instance)
-                    instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
+                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who) OVERRIDE
             {
                 Talk(SAY_WAKE);
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
-                if (instance)
-                    instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
+                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
             }
 
             void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -193,9 +191,6 @@ class boss_kelidan_the_breaker : public CreatureScript
             {
                 Talk(SAY_DIE);
 
-                if (!instance)
-                    return;
-
                 instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR1), true);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR6), true);
@@ -207,7 +202,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 {
                     if (check_Timer <= diff)
                     {
-                        if (!me->IsNonMeleeSpellCasted(false))
+                        if (!me->IsNonMeleeSpellCast(false))
                             DoCast(me, SPELL_EVOCATION);
                         check_Timer = 5000;
                     }
@@ -248,7 +243,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                 if (BurningNova_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(true);
 
                     Talk(SAY_NOVA);
@@ -275,7 +270,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_kelidan_the_breakerAI(creature);
+            return GetInstanceAI<boss_kelidan_the_breakerAI>(creature);
         }
 };
 
@@ -311,7 +306,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                 ShadowBolt_Timer = 1000+rand()%1000;
                 MarkOfShadow_Timer = 5000+rand()%2000;
                 check_Timer = 0;
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
             }
 
@@ -319,7 +314,7 @@ class npc_shadowmoon_channeler : public CreatureScript
             {
                 if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                     CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
             }
@@ -336,7 +331,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                 {
                     if (check_Timer <= diff)
                     {
-                        if (!me->IsNonMeleeSpellCasted(false))
+                        if (!me->IsNonMeleeSpellCast(false))
                             if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                             {
                                 uint64 channeler = CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
@@ -373,7 +368,7 @@ class npc_shadowmoon_channeler : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_shadowmoon_channelerAI(creature);
+            return GetInstanceAI<npc_shadowmoon_channelerAI>(creature);
         }
 };
 

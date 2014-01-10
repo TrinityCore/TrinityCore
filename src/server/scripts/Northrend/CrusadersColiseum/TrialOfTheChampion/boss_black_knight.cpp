@@ -293,14 +293,13 @@ public:
         {
             DoCast(me, SPELL_KILL_CREDIT);
 
-            if (instance)
-                instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_black_knightAI(creature);
+        return GetInstanceAI<boss_black_knightAI>(creature);
     }
 };
 

@@ -110,7 +110,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_thaddiusAI(creature);
+        return GetInstanceAI<boss_thaddiusAI>(creature);
     }
 
     struct boss_thaddiusAI : public BossAI
@@ -230,15 +230,13 @@ public:
                 {
                     if (!checkStalaggAlive)
                     {
-                        if (instance)
-                            if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
-                                pStalagg->Respawn();
+                        if (Creature* pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+                            pStalagg->Respawn();
                     }
                     else
                     {
-                        if (instance)
-                            if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
-                                pFeugen->Respawn();
+                        if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                            pFeugen->Respawn();
                     }
                 }
             }
@@ -285,7 +283,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_stalaggAI(creature);
+        return GetInstanceAI<npc_stalaggAI>(creature);
     }
 
     struct npc_stalaggAI : public ScriptedAI
@@ -302,10 +300,9 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
-                    if (pThaddius->AI())
-                        pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
+            if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (pThaddius->AI())
+                    pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
             powerSurgeTimer = urand(20000, 25000);
             magneticPullTimer = 20000;
         }
@@ -325,10 +322,9 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_STAL_DEATH);
-            if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
-                    if (pThaddius->AI())
-                        pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
+            if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (pThaddius->AI())
+                    pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE
@@ -379,7 +375,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_feugenAI(creature);
+        return GetInstanceAI<npc_feugenAI>(creature);
     }
 
     struct npc_feugenAI : public ScriptedAI
@@ -395,10 +391,9 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
-                    if (pThaddius->AI())
-                        pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
+            if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (pThaddius->AI())
+                    pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
             staticFieldTimer = 5000;
         }
 
@@ -417,10 +412,9 @@ public:
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_FEUG_DEATH);
-            if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
-                    if (pThaddius->AI())
-                        pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
+            if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (pThaddius->AI())
+                    pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE

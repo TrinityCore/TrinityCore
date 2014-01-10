@@ -182,14 +182,11 @@ class npc_ragin_flames : public CreatureScript
                     //Check_Timer
                     if (Check_Timer <= diff)
                     {
-                        if (instance)
+                        if (instance->GetData(DATA_NETHERMANCER_SEPRETHREA) != IN_PROGRESS)
                         {
-                            if (instance->GetData(DATA_NETHERMANCER_SEPRETHREA) != IN_PROGRESS)
-                            {
-                                //remove
-                                me->setDeathState(JUST_DIED);
-                                me->RemoveCorpse();
-                            }
+                            //remove
+                            me->setDeathState(JUST_DIED);
+                            me->RemoveCorpse();
                         }
                         Check_Timer = 1000;
                     } else Check_Timer -= diff;
@@ -223,7 +220,7 @@ class npc_ragin_flames : public CreatureScript
             };
             CreatureAI* GetAI(Creature* creature) const OVERRIDE
             {
-                return new npc_ragin_flamesAI(creature);
+                return GetInstanceAI<npc_ragin_flamesAI>(creature);
             }
 };
 

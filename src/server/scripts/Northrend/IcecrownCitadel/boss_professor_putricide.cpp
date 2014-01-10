@@ -739,7 +739,7 @@ class npc_putricide_oozeAI : public ScriptedAI
             if (!UpdateVictim() && !_newTargetSelectTimer)
                 return;
 
-            if (!_newTargetSelectTimer && !me->IsNonMeleeSpellCasted(false, false, true, false, true))
+            if (!_newTargetSelectTimer && !me->IsNonMeleeSpellCast(false, false, true, false, true))
                 _newTargetSelectTimer = 1000;
 
             DoMeleeAttackIfReady();

@@ -76,7 +76,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_slad_ranAI(creature);
+        return GetInstanceAI<boss_slad_ranAI>(creature);
     }
 
     struct boss_slad_ranAI : public ScriptedAI
@@ -109,16 +109,14 @@ public:
 
             lSummons.DespawnAll();
 
-            if (instance)
-                instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
+            instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -180,13 +178,13 @@ public:
             Talk(SAY_DEATH);
             lSummons.DespawnAll();
 
-            if (instance)
-                instance->SetData(DATA_SLAD_RAN_EVENT, DONE);
+            instance->SetData(DATA_SLAD_RAN_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE

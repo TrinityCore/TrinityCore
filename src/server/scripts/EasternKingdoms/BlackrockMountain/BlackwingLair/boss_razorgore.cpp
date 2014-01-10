@@ -75,8 +75,7 @@ public:
             _Reset();
 
             secondPhase = false;
-            if (instance)
-                instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
+            instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
@@ -84,8 +83,7 @@ public:
             _JustDied();
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
+            instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
         }
 
         void DoChangePhase()
@@ -156,7 +154,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_razorgoreAI(creature);
+        return GetInstanceAI<boss_razorgoreAI>(creature);
     }
 };
 

@@ -363,7 +363,7 @@ class WorldSession
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
         void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
-        uint32 getDialogStatus(Player* player, Object* questgiver, uint32 defstatus);
+        uint32 getDialogStatus(Player* player, Object* questgiver);
 
         ACE_Atomic_Op<ACE_Thread_Mutex, time_t> m_timeOutTime;
         void UpdateTimeOutTime(uint32 diff)

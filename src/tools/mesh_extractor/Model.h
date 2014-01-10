@@ -19,6 +19,7 @@
 #define MODEL_H
 #include <vector>
 #include "Utils.h"
+#include "Stream.h"
 
 class Model
 {
@@ -34,7 +35,7 @@ public:
     std::vector<Vector3> Normals;
     std::vector<Triangle<uint16> > Triangles;
     bool IsCollidable;
-    FILE* Stream;
+    Stream* _Stream;
     bool IsBad;
 };
 #endif

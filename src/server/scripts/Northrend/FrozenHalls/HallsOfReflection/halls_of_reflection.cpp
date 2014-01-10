@@ -1283,7 +1283,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ghostly_priestAI(creature);
+        return GetInstanceAI<npc_ghostly_priestAI>(creature);
     }
 };
 
@@ -1355,7 +1355,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_phantom_mageAI(creature);
+        return GetInstanceAI<npc_phantom_mageAI>(creature);
     }
 };
 
@@ -1377,7 +1377,7 @@ public:
 
         void EnterEvadeMode() OVERRIDE
         {
-            if (!me->GetOwner()->HasAura(AURA_HALLUCINATION))
+            if (me->GetOwner() && !me->GetOwner()->HasAura(AURA_HALLUCINATION))
                 npc_phantom_mage::npc_phantom_mageAI::EnterEvadeMode();
         }
 
@@ -1447,7 +1447,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_shadowy_mercenaryAI(creature);
+        return GetInstanceAI<npc_shadowy_mercenaryAI>(creature);
     }
 };
 
@@ -1499,7 +1499,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_spectral_footmanAI(creature);
+        return GetInstanceAI<npc_spectral_footmanAI>(creature);
     }
 };
 
@@ -1558,7 +1558,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_tortured_riflemanAI(creature);
+        return GetInstanceAI<npc_tortured_riflemanAI>(creature);
     }
 };
 
@@ -1674,7 +1674,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_frostworn_generalAI(creature);
+        return GetInstanceAI<npc_frostworn_generalAI>(creature);
     }
 };
 
@@ -1901,7 +1901,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_raging_ghoulAI(creature);
+        return GetInstanceAI<npc_raging_ghoulAI>(creature);
     }
 };
 
@@ -2021,7 +2021,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_risen_witch_doctorAI(creature);
+        return GetInstanceAI<npc_risen_witch_doctorAI>(creature);
     }
 };
 
@@ -2111,7 +2111,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_lumbering_abominationAI(creature);
+        return GetInstanceAI<npc_lumbering_abominationAI>(creature);
     }
 };
 

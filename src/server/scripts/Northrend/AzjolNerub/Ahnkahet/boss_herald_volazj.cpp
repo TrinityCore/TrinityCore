@@ -33,7 +33,7 @@ enum Spells
     SPELL_MIND_FLAY                               = 57941,
     SPELL_SHADOW_BOLT_VOLLEY                      = 57942,
     SPELL_SHIVER                                  = 57949,
-    SPELL_CLONE_PLAYER                            = 57507, //casted on player during insanity
+    SPELL_CLONE_PLAYER                            = 57507, //cast on player during insanity
     SPELL_INSANITY_PHASING_1                      = 57508,
     SPELL_INSANITY_PHASING_2                      = 57509,
     SPELL_INSANITY_PHASING_3                      = 57510,
@@ -149,11 +149,8 @@ public:
             uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
             uiShiverTimer = 15*IN_MILLISECONDS;
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_HERALD_VOLAZJ, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
-            }
+            instance->SetBossState(DATA_HERALD_VOLAZJ, NOT_STARTED);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
 
             // Visible for all players in insanity
             me->SetPhaseMask((1|16|32|64|128|256), true);
@@ -172,11 +169,8 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_HERALD_VOLAZJ, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
-            }
+            instance->SetBossState(DATA_HERALD_VOLAZJ, IN_PROGRESS);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
         }
 
         void JustSummoned(Creature* summon) OVERRIDE
@@ -295,22 +289,22 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetBossState(DATA_HERALD_VOLAZJ, DONE);
+            instance->SetBossState(DATA_HERALD_VOLAZJ, DONE);
 
             Summons.DespawnAll();
             ResetPlayersPhaseMask();
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_volazjAI(creature);
+        return GetInstanceAI<boss_volazjAI>(creature);
     }
 };
 

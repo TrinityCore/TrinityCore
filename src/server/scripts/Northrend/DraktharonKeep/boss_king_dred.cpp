@@ -27,7 +27,7 @@ enum Spells
 {
     SPELL_BELLOWING_ROAR                          = 22686, // fears the group, can be resisted/dispelled
     SPELL_GRIEVOUS_BITE                           = 48920,
-    SPELL_MANGLING_SLASH                          = 48873, // casted on the current tank, adds debuf
+    SPELL_MANGLING_SLASH                          = 48873, // cast on the current tank, adds debuf
     SPELL_FEARSOME_ROAR                           = 48849,
     SPELL_PIERCING_SLASH                          = 48878, // debuff --> Armor reduced by 75%
     SPELL_RAPTOR_CALL                             = 59416, // dummy

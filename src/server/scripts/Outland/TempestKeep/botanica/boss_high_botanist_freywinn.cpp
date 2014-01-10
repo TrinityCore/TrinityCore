@@ -126,7 +126,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                 {
                     Talk(SAY_TREE);
 
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(true);
 
                     me->RemoveAllAuras();

@@ -69,7 +69,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lokenAI(creature);
+        return GetInstanceAI<boss_lokenAI>(creature);
     }
 
     struct boss_lokenAI : public ScriptedAI
@@ -95,38 +95,30 @@ public:
 
             m_uiHealthAmountModifier = 1;
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_LOKEN, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
-            }
+            instance->SetBossState(DATA_LOKEN, NOT_STARTED);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_LOKEN, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
-            }
+            instance->SetBossState(DATA_LOKEN, IN_PROGRESS);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-            {
-                instance->SetBossState(DATA_LOKEN, DONE);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
-            }
+            instance->SetBossState(DATA_LOKEN, DONE);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE

@@ -220,7 +220,7 @@ class spell_ex_66244 : public SpellScriptLoader
             // we initialize local variables if needed
             bool Load() OVERRIDE
             {
-                // do not load script if aura is casted by player or caster not avalible
+                // do not load script if aura is cast by player or caster not avalible
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_PLAYER)
                         return true;

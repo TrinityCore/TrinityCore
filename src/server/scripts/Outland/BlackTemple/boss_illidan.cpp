@@ -541,9 +541,6 @@ public:
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            if (!instance)
-                return;
-
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, DONE);
 
             for (uint8 i = DATA_GO_ILLIDAN_DOOR_R; i < DATA_GO_ILLIDAN_DOOR_L + 1; ++i)
@@ -974,7 +971,7 @@ public:
                 break;
             }
 
-            if (me->IsNonMeleeSpellCasted(false))
+            if (me->IsNonMeleeSpellCast(false))
                 return;
 
             if (Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || (Phase == PHASE_NORMAL_MAIEV && !me->HasAura(SPELL_CAGED)))
@@ -1126,7 +1123,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_illidan_stormrageAI(creature);
+        return GetInstanceAI<boss_illidan_stormrageAI>(creature);
     }
 };
 
@@ -1368,37 +1365,27 @@ public:
         void Reset() OVERRIDE
         {
             WalkCount = 0;
-            if (instance)
+            instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
+
+            IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
+            GateGUID = instance->GetData64(DATA_GO_ILLIDAN_GATE);
+            DoorGUID[0] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_R);
+            DoorGUID[1] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_L);
+
+            if (JustCreated) // close all doors at create
             {
-                instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
+                instance->HandleGameObject(GateGUID, false);
 
-                IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
-                GateGUID = instance->GetData64(DATA_GO_ILLIDAN_GATE);
-                DoorGUID[0] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_R);
-                DoorGUID[1] = instance->GetData64(DATA_GO_ILLIDAN_DOOR_L);
-
-                if (JustCreated) // close all doors at create
-                {
-                    instance->HandleGameObject(GateGUID, false);
-
-                    for (uint8 i = 0; i < 2; ++i)
-                        instance->HandleGameObject(DoorGUID[i], false);
-                }
-                else // open all doors, raid wiped
-                {
-                    instance->HandleGameObject(GateGUID, true);
-                    WalkCount = 1; // skip first wp
-
-                    for (uint8 i = 0; i < 2; ++i)
-                        instance->HandleGameObject(DoorGUID[i], true);
-                }
+                for (uint8 i = 0; i < 2; ++i)
+                    instance->HandleGameObject(DoorGUID[i], false);
             }
-            else
+            else // open all doors, raid wiped
             {
-                IllidanGUID = 0;
-                GateGUID    = 0;
-                DoorGUID[0] = 0;
-                DoorGUID[1] = 0;
+                instance->HandleGameObject(GateGUID, true);
+                WalkCount = 1; // skip first wp
+
+                for (uint8 i = 0; i < 2; ++i)
+                    instance->HandleGameObject(DoorGUID[i], true);
             }
 
             ChannelGUID   = 0;
@@ -1461,9 +1448,6 @@ public:
 
         void BeginTalk()
         {
-            if (!instance)
-                return;
-
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, IN_PROGRESS);
             for (uint8 i = 0; i < 2; ++i)
                 instance->HandleGameObject(DoorGUID[i], false);
@@ -1515,8 +1499,6 @@ public:
 
         void EnterPhase(PhaseAkama NextPhase)
         {
-            if (!instance)
-                return;
             switch (NextPhase)
             {
             case PHASE_CHANNEL:
@@ -1634,8 +1616,7 @@ public:
                 me->InterruptNonMeleeSpells(true);
                 Spirit[0]->InterruptNonMeleeSpells(true);
                 Spirit[1]->InterruptNonMeleeSpells(true);
-                if (instance)
-                    instance->HandleGameObject(GateGUID, true);
+                instance->HandleGameObject(GateGUID, true);
                 Timer = 2000;
                 break;
             case 4:
@@ -1664,8 +1645,7 @@ public:
             {
             case 6:
                 for (uint8 i = 0; i < 2; ++i)
-                    if (instance)
-                        instance->HandleGameObject(DoorGUID[i], true);
+                    instance->HandleGameObject(DoorGUID[i], true);
                 break;
             case 8:
                 if (Phase == PHASE_WALK)
@@ -1794,14 +1774,13 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_akama_illidanAI(creature);
+        return GetInstanceAI<npc_akama_illidanAI>(creature);
     }
 };
 
 void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
 {
-    if (instance)
-        instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
+    instance->SetBossState(DATA_ILLIDAN_STORMRAGE, NOT_STARTED);
 
     if (Creature* akama = ObjectAccessor::GetCreature(*me, AkamaGUID))
     {
@@ -2160,10 +2139,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-                IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
-            else
-                IllidanGUID = 0;
+            IllidanGUID = instance->GetData64(DATA_ILLIDAN_STORMRAGE);
 
             CheckTimer = 5000;
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);
@@ -2228,7 +2204,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_parasitic_shadowfiendAI(creature);
+        return GetInstanceAI<npc_parasitic_shadowfiendAI>(creature);
     }
 };
 

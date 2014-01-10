@@ -17,6 +17,7 @@
 
 #include "MPQ.h"
 #include "MPQManager.h"
+#include "Stream.h"
 #include <deque>
 #include <cstdio>
 
@@ -125,15 +126,8 @@ void MPQFile::close()
     eof = true;
 }
 
-FILE* MPQFile::GetFileStream()
+Stream* MPQFile::GetFileStream()
 {
-    FILE* file = tmpfile();
-    if (!file)
-    {
-        printf("Could not create temporary file. Please run as Administrator or root\n");
-        exit(1);
-    }
-    fwrite(buffer, sizeof(char), size, file);
-    fseek(file, 0, SEEK_SET);
-    return file;
+    Stream* stream = new Stream(buffer, size);
+    return stream;
 }

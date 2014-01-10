@@ -1627,7 +1627,8 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
-        if (data.spawnMask & ~spawnMasks[data.mapid])
+        // Skip spawnMask check for transport maps
+        if (!_transportMaps.count(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u) spawnMasks[data.mapid]: %u.", guid, data.spawnMask, data.mapid, spawnMasks[data.mapid]);
 
         bool ok = true;
@@ -1962,7 +1963,7 @@ void ObjectMgr::LoadGameobjects()
 
         data.spawnMask      = fields[14].GetUInt8();
 
-        if (data.spawnMask & ~spawnMasks[data.mapid])
+        if (!_transportMaps.count(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         data.phaseMask      = fields[15].GetUInt32();
@@ -4071,21 +4072,21 @@ void ObjectMgr::LoadQuests()
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpellCast` = %u but spell %u does not exist, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
-                qinfo->RewardSpellCast = 0;                    // no spell will be casted on player
+                qinfo->RewardSpellCast = 0;                    // no spell will be cast on player
             }
 
             else if (!SpellMgr::IsSpellValid(spellInfo))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpellCast` = %u but spell %u is broken, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
-                qinfo->RewardSpellCast = 0;                    // no spell will be casted on player
+                qinfo->RewardSpellCast = 0;                    // no spell will be cast on player
             }
 
             else if (GetTalentSpellCost(qinfo->RewardSpellCast))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u is talent, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
-                qinfo->RewardSpellCast = 0;                    // no spell will be casted on player
+                qinfo->RewardSpellCast = 0;                    // no spell will be cast on player
             }
         }
 
@@ -6471,6 +6472,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                         TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u GoType: %u) have data0=%u but TaxiPath (Id: %u) not exist.",
                         entry, got.type, got.moTransport.taxiPathId, got.moTransport.taxiPathId);
                 }
+                if (uint32 transportMap = got.moTransport.mapID)
+                    _transportMaps.insert(transportMap);
                 break;
             }
             case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          //18
@@ -8545,8 +8548,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                                   0      1        2        3        4        5         6          7
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basemana, basearmor FROM creature_classlevelstats");
+    //                                                 0      1        2        3        4        5         6        7            8              9              10           11           12
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8569,6 +8572,12 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         stats.BaseMana = fields[6].GetUInt32();
         stats.BaseArmor = fields[7].GetUInt32();
+
+        stats.AttackPower = fields[8].GetInt16();
+        stats.RangedAttackPower = fields[9].GetInt16();
+
+        for (uint8 i = 0; i < MAX_CREATURE_BASE_DAMAGE; ++i)
+            stats.BaseDamage[i] = fields[i + 10].GetFloat();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             TC_LOG_ERROR("sql.sql", "Creature base stats for level %u has invalid class %u", Level, Class);

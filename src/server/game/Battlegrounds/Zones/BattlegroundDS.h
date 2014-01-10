@@ -58,7 +58,7 @@ enum BattlegroundDSCreatures
 enum BattlegroundDSSpells
 {
     BG_DS_SPELL_FLUSH             = 57405, // Visual and target selector for the starting knockback from the pipe
-    BG_DS_SPELL_FLUSH_KNOCKBACK   = 61698, // Knockback effect for previous spell (triggered, not need to be casted)
+    BG_DS_SPELL_FLUSH_KNOCKBACK   = 61698, // Knockback effect for previous spell (triggered, not needed to be cast)
     BG_DS_SPELL_WATER_SPOUT       = 58873  // Knockback effect of the central waterfall
 };
 

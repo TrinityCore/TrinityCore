@@ -63,19 +63,12 @@ Map::~Map()
         obj->ResetMap();
     }
 
-    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end();)
-    {
-        Transport* transport = *itr;
-        ++itr;
-
-        transport->RemoveFromWorld();
-        delete transport;
-    }
-
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
-    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
+    MMAP::MMapManager* manager = MMAP::MMapFactory::CreateOrGetMMapManager();
+    manager->UnloadMapInstance(GetId(), i_InstanceId); // Delete the dtNavMeshQuery
+    manager->UnloadMap(GetId()); // Unload the loaded tiles and delete the dtNavMesh
 }
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
@@ -128,12 +121,16 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
+    bool mmapLoadResult = false;
+    if (GetEntry()->Instanceable())
+        mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), 0, 0); // Ignore the tile entry for instances, as they only have 1 tile.
+    else
+        mmapLoadResult = MMAP::MMapFactory::CreateOrGetMMapManager()->LoadMapTile(GetId(), gx, gy);
 
     if (mmapLoadResult)
-        TC_LOG_INFO("maps", "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_INFO("maps", "MMAP loaded name: %s, id: %d, x: %d, y: %d", GetMapName(), GetId(), gx, gy);
     else
-        TC_LOG_INFO("maps", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_INFO("maps", "Could not load MMAP name: %s, id: %d, x: %d, y: %d", GetMapName(), GetId(), gx, gy);
 }
 
 void Map::LoadVMap(int gx, int gy)
@@ -235,9 +232,9 @@ i_gridExpiry(expiry),
 i_scriptLock(false)
 {
     m_parentMap = (_parent ? _parent : this);
-    for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
+    for (unsigned int idx = 0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
-        for (unsigned int j=0; j < MAX_NUMBER_OF_GRIDS; ++j)
+        for (unsigned int j = 0; j < MAX_NUMBER_OF_GRIDS; ++j)
         {
             //z code
             GridMaps[idx][j] =NULL;
@@ -562,6 +559,22 @@ bool Map::AddToMap(Transport* obj)
     obj->AddToWorld();
     _transports.insert(obj);
 
+    // Broadcast creation to players
+    if (!GetPlayers().isEmpty())
+    {
+        for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
+            if (itr->GetSource()->GetTransport() != obj)
+            {
+                UpdateData data;
+                obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
+                WorldPacket packet;
+                data.BuildPacket(&packet);
+                itr->GetSource()->SendDirectMessage(&packet);
+            }
+        }
+    }
+
     return true;
 }
 
@@ -809,6 +822,18 @@ template<>
 void Map::RemoveFromMap(Transport* obj, bool remove)
 {
     obj->RemoveFromWorld();
+
+    Map::PlayerList const& players = GetPlayers();
+    if (!players.isEmpty())
+    {
+        UpdateData data;
+        obj->BuildOutOfRangeUpdateBlock(&data);
+        WorldPacket packet;
+        data.BuildPacket(&packet);
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        if (itr->GetSource()->GetTransport() != obj)
+            itr->GetSource()->SendDirectMessage(&packet);
+    }
 
     if (_transportsUpdateIter != _transports.end())
     {
@@ -1317,7 +1342,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
                 delete GridMaps[gx][gy];
             }
             VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
-            MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
+            MMAP::MMapFactory::CreateOrGetMMapManager()->UnloadMapTile(GetId(), gx, gy);
         }
         else
             ((MapInstanced*)m_parentMap)->RemoveGridMapReference(GridCoord(gx, gy));
@@ -1357,6 +1382,17 @@ void Map::UnloadAll()
         ++i;
         UnloadGrid(grid, true);       // deletes the grid and removes it from the GridRefManager
     }
+
+    for (TransportsContainer::iterator itr = _transports.begin(); itr != _transports.end();)
+    {
+        Transport* transport = *itr;
+        ++itr;
+
+        transport->RemoveFromWorld();
+        delete transport;
+    }
+
+    _transports.clear();
 }
 
 // *****************************

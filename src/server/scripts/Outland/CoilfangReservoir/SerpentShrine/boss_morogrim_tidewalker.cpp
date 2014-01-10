@@ -91,7 +91,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_morogrim_tidewalkerAI(creature);
+        return GetInstanceAI<boss_morogrim_tidewalkerAI>(creature);
     }
 
     struct boss_morogrim_tidewalkerAI : public ScriptedAI
@@ -130,16 +130,14 @@ public:
             Earthquake = false;
             Phase2 = false;
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
         }
 
         void StartEvent()
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -151,8 +149,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE

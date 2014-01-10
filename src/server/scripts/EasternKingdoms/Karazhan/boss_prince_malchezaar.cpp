@@ -179,7 +179,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_malchezaarAI(creature);
+        return GetInstanceAI<boss_malchezaarAI>(creature);
     }
 
     struct boss_malchezaarAI : public ScriptedAI
@@ -239,8 +239,7 @@ public:
             SunderArmorTimer = urand(5000, 10000);
             phase = 1;
 
-            if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -260,16 +259,14 @@ public:
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
 
-            if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+            instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
         }
 
         void InfernalCleanup()
@@ -569,7 +566,7 @@ public:
 
         void DoMeleeAttacksIfReady()
         {
-            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCasted(false))
+            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCast(false))
             {
                 //Check for base attack
                 if (me->isAttackReady() && me->GetVictim())

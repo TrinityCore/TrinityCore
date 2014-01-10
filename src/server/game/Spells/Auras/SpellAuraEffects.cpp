@@ -804,7 +804,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
             {
                 Aura* aura = iter->second->GetBase();
                 // only passive and permament auras-active auras should have amount set on spellcast and not be affected
-                // if aura is casted by others, it will not be affected
+                // if aura is cast by others, it will not be affected
                 if ((aura->IsPassive() || aura->IsPermanent()) && aura->GetCasterGUID() == guid && aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
                 {
                     if (GetMiscValue() == SPELLMOD_ALL_EFFECTS)
@@ -4704,7 +4704,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         case 42783: // Wrath of the Astromancer
                             target->CastSpell(target, GetAmount(), true, NULL, this);
                             break;
-                        case 46308: // Burning Winds casted only at creatures at spawn
+                        case 46308: // Burning Winds cast only at creatures at spawn
                             target->CastSpell(target, 47287, true, NULL, this);
                             break;
                         case 52172:  // Coyote Spirit Despawn Aura

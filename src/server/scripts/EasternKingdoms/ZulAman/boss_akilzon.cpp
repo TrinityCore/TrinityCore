@@ -56,10 +56,10 @@ class boss_akilzon : public CreatureScript
                 _JustDied();
             }
 
-            void KilledUnit(Unit* victim) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_PLAYER_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -88,7 +88,7 @@ class boss_akilzon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return GetZulAmanAI<boss_akilzonAI>(creature);
+            return GetInstanceAI<boss_akilzonAI>(creature);
         }
 };
 

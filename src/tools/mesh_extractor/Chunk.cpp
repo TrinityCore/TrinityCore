@@ -25,24 +25,24 @@ int32 Chunk::FindSubChunkOffset(std::string name)
     if (name.size() != 4)
         return -1;
 
-    FILE* stream = GetStream();
+    Stream* stream = GetStream();
     uint32 matched = 0;
-    while (uint32(ftell(stream)) < Utils::Size(stream))
+    while (stream->GetPos() < stream->GetSize())
     {
-        char b = 0;
-        if (fread(&b, sizeof(char), 1, stream) != 1 || b != name[matched])
+        char b = stream->Read<char>();
+        if (b != name[matched])
             matched = 0;
         else
             ++matched;
 
         if (matched == 4)
-            return ftell(stream) - 4;
+            return stream->GetPos() - 4;
     }
     return -1;
 }
 
-FILE* Chunk::GetStream()
+Stream* Chunk::GetStream()
 {
-    fseek(Stream, Offset, SEEK_SET);
-    return Stream;
+    _Stream->Seek(Offset, SEEK_SET);
+    return _Stream;
 }

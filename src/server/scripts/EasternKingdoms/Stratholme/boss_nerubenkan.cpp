@@ -42,7 +42,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_nerubenkanAI(creature);
+        return GetInstanceAI<boss_nerubenkanAI>(creature);
     }
 
     struct boss_nerubenkanAI : public ScriptedAI
@@ -73,8 +73,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(TYPE_NERUB, IN_PROGRESS);
+            instance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
         void RaiseUndeadScarab(Unit* victim)

@@ -35,8 +35,8 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_TRESPASSER_A = 54028,
-    SPELL_TRESPASSER_H = 54029,
+    SPELL_TRESPASSER_A                     = 54028,
+    SPELL_TRESPASSER_H                     = 54029,
 
     SPELL_SUNREAVER_DISGUISE_FEMALE        = 70973,
     SPELL_SUNREAVER_DISGUISE_MALE          = 70974,
@@ -46,8 +46,10 @@ enum Spells
 
 enum NPCs // All outdoor guards are within 35.0f of these NPCs
 {
-    NPC_APPLEBOUGH_A = 29547,
-    NPC_SWEETBERRY_H = 29715,
+    NPC_APPLEBOUGH_A                       = 29547,
+    NPC_SWEETBERRY_H                       = 29715,
+    NPC_SILVER_COVENANT_GUARDIAN_MAGE      = 29254,
+    NPC_SUNREAVER_GUARDIAN_MAGE            = 29255,
 };
 
 class npc_mageguard_dalaran : public CreatureScript
@@ -89,7 +91,7 @@ public:
 
             switch (me->GetEntry())
             {
-                case 29254:
+                case NPC_SILVER_COVENANT_GUARDIAN_MAGE:
                     if (player->GetTeam() == HORDE)              // Horde unit found in Alliance area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 32.0f))
@@ -101,7 +103,7 @@ public:
                             DoCast(who, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
                     }
                     break;
-                case 29255:
+                case NPC_SUNREAVER_GUARDIAN_MAGE:
                     if (player->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 32.0f))

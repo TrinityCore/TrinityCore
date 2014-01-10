@@ -63,7 +63,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_xevozzAI(creature);
+        return GetInstanceAI<boss_xevozzAI>(creature);
     }
 
     struct boss_xevozzAI : public ScriptedAI
@@ -81,13 +81,10 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-            {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-            }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
 
             uiSummonEtherealSphere_Timer = urand(10000, 12000);
             uiArcaneBarrageVolley_Timer = urand(20000, 22000);
@@ -137,19 +134,16 @@ public:
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-            {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_XEVOZZ_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-            }
+            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_XEVOZZ_CELL)))
+                if (pDoor->GetGoState() == GO_STATE_READY)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
@@ -199,18 +193,15 @@ public:
 
             DespawnSphere();
 
-            if (instance)
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                {
-                    instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 7);
-                }
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                {
-                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-                    instance->SetData(DATA_WAVE_COUNT, 13);
-                }
+                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 7);
+            }
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+            {
+                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
         void KilledUnit(Unit* victim) OVERRIDE
@@ -231,7 +222,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_ethereal_sphereAI(creature);
+        return GetInstanceAI<npc_ethereal_sphereAI>(creature);
     }
 
     struct npc_ethereal_sphereAI : public ScriptedAI
@@ -263,16 +254,13 @@ public:
 
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (instance)
+                if (Creature* pXevozz = Unit::GetCreature(*me, instance->GetData64(DATA_XEVOZZ)))
                 {
-                    if (Creature* pXevozz = Unit::GetCreature(*me, instance->GetData64(DATA_XEVOZZ)))
-                    {
-                        float fDistance = me->GetDistance2d(pXevozz);
-                        if (fDistance <= 3)
-                            DoCast(pXevozz, SPELL_ARCANE_POWER);
-                        else
-                            DoCast(me, 35845); //Is it blizzlike?
-                    }
+                    float fDistance = me->GetDistance2d(pXevozz);
+                    if (fDistance <= 3)
+                        DoCast(pXevozz, SPELL_ARCANE_POWER);
+                    else
+                        DoCast(me, 35845); //Is it blizzlike?
                 }
                 uiRangeCheck_Timer = 1000;
             }

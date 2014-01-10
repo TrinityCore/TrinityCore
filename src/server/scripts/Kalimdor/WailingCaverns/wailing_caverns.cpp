@@ -81,7 +81,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_disciple_of_naralexAI(creature);
+        return GetInstanceAI<npc_disciple_of_naralexAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
@@ -152,9 +152,6 @@ public:
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (!instance)
-                return;
-
             switch (waypointId)
             {
                 case 4:
@@ -194,13 +191,10 @@ public:
 
         void JustDied(Unit* /*slayer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(TYPE_NARALEX_EVENT, FAIL);
-                instance->SetData(TYPE_NARALEX_PART1, FAIL);
-                instance->SetData(TYPE_NARALEX_PART2, FAIL);
-                instance->SetData(TYPE_NARALEX_PART3, FAIL);
-            }
+            instance->SetData(TYPE_NARALEX_EVENT, FAIL);
+            instance->SetData(TYPE_NARALEX_PART1, FAIL);
+            instance->SetData(TYPE_NARALEX_PART2, FAIL);
+            instance->SetData(TYPE_NARALEX_PART3, FAIL);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE
@@ -213,8 +207,6 @@ public:
             if (currentEvent != TYPE_NARALEX_PART3)
                 npc_escortAI::UpdateAI(diff);
 
-            if (!instance)
-                return;
             if (eventTimer <= diff)
             {
                 eventTimer = 0;

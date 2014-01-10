@@ -619,7 +619,7 @@ class boss_flame_leviathan_seat : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_flame_leviathan_seatAI(creature);
+            return GetInstanceAI<boss_flame_leviathan_seatAI>(creature);
         }
 };
 
@@ -898,7 +898,7 @@ class npc_colossus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_colossusAI(creature);
+            return GetInstanceAI<npc_colossusAI>(creature);
         }
 };
 
@@ -1179,7 +1179,7 @@ class npc_lorekeeper : public CreatureScript
                             if (Creature* Branz = creature->FindNearestCreature(NPC_BRANZ_BRONZBEARD, 1000, true))
                             {
                                 Delorah->GetMotionMaster()->MovePoint(0, Branz->GetPositionX()-4, Branz->GetPositionY(), Branz->GetPositionZ());
-                                /// @todo Delorah->AI()->Talk(xxxx, Branz->GetGUID()); when reached at branz
+                                /// @todo Delorah->AI()->Talk(xxxx, Branz); when reached at branz
                             }
                         }
                     }

@@ -92,7 +92,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ebonrocAI(creature);
+        return GetInstanceAI<boss_ebonrocAI>(creature);
     }
 };
 

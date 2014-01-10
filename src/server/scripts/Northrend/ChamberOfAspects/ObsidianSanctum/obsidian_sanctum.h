@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_OBSIDIAN_SANCTUM_H
-#define DEF_OBSIDIAN_SANCTUM_H
+#ifndef OBSIDIAN_SANCTUM_H_
+#define OBSIDIAN_SANCTUM_H_
 
 #define OSScriptName "instance_obsidian_sanctum"
 
@@ -45,4 +45,10 @@ enum GameObjectIds
     GO_TWILIGHT_PORTAL          = 193988
 };
 
-#endif
+template<class AI>
+AI* GetObsidianSanctumAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, OSScriptName);
+}
+
+#endif // OBSIDIAN_SANCTUM_H_

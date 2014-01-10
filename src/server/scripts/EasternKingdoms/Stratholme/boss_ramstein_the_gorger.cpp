@@ -45,7 +45,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ramstein_the_gorgerAI(creature);
+        return GetInstanceAI<boss_ramstein_the_gorgerAI>(creature);
     }
 
     struct boss_ramstein_the_gorgerAI : public ScriptedAI
@@ -78,8 +78,7 @@ public:
                     mob->AI()->AttackStart(me->SelectNearestTarget(100.0f));
             }
 
-            if (instance)
-                instance->SetData(TYPE_RAMSTEIN, DONE);
+            instance->SetData(TYPE_RAMSTEIN, DONE);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

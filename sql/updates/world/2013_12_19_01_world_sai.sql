@@ -53,7 +53,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,6,0,100,0,0,0,0,0,1,1,0,0,0,0,0,2,0,0,0,0,0,0,0,"Bloodmaul Warlock - On Death - Say text 1 CONDITIONED"),
 (@ENTRY,0,1,0,1,0,100,0,1000,1000,1800000,1800000,11,13787,1,1,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Warlock - Out Of Combat - Cast Demon Armor"),
-(@ENTRY,0,2,0,1,0,100,0,3000,3000,0,0,11,11939,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Warlock - Out Of Combat - Cast Summon Imp"),
+(@ENTRY,0,2,0,1,0,100,1,3000,3000,0,0,11,11939,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Warlock - Out Of Combat - Cast Summon Imp"),
 (@ENTRY,0,3,0,4,0,35,0,0,0,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,"Bloodmaul Warlock - On Aggro - Say text 0"),
 (@ENTRY,0,4,0,0,0,100,0,0,0,2400,3800,11,20825,64,0,0,0,0,2,0,0,0,0,0,0,0,"Bloodmaul Warlock - In Combat - Cast Shadow Bolt"),
 (@ENTRY,0,5,0,2,0,100,1,0,20,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Warlock - Between 0-20% Health - Flee for assist");
@@ -430,7 +430,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,6,0,100,0,0,0,0,0,1,1,0,0,0,0,0,2,0,0,0,0,0,0,0,"Bloodmaul Soothsayer - On Death - Say text 1 CONDITIONED"),
 (@ENTRY,0,1,0,1,0,100,0,1000,1000,1800000,1800000,11,13787,1,1,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Soothsayer - Out Of Combat - Cast Demon Armor"),
-(@ENTRY,0,2,0,1,0,100,0,3000,3000,0,0,11,11939,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Soothsayer - Out Of Combat - Cast Summon Imp"),
+(@ENTRY,0,2,0,1,0,100,1,3000,3000,0,0,11,11939,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Soothsayer - Out Of Combat - Cast Summon Imp"),
 (@ENTRY,0,3,0,4,0,35,0,0,0,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,"Bloodmaul Soothsayer - On Aggro - Say text 0"),
 (@ENTRY,0,4,0,0,0,100,0,0,0,2400,3800,11,20825,64,0,0,0,0,2,0,0,0,0,0,0,0,"Bloodmaul Soothsayer - In Combat - Cast Shadow Bolt"),
 (@ENTRY,0,5,0,2,0,100,1,0,20,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bloodmaul Soothsayer - Between 0-20% Health - Flee for assist");

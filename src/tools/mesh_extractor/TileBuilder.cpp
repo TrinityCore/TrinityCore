@@ -43,8 +43,8 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
     Config.detailSampleDist = 3.0f;
     Config.detailSampleMaxError = 1.25f;
     Config.walkableClimb = 1.0f / Config.ch;
-    Config.walkableHeight = 2.1 / Config.ch;
-    Config.walkableRadius = 0.6f / Config.cs;
+    Config.walkableHeight = 2.1;
+    Config.walkableRadius = 0.6f;
     Config.maxEdgeLen = Config.walkableRadius * 8;
     Config.borderSize = Config.walkableRadius + 8;
     Config.tileSize = 1800;
@@ -59,19 +59,19 @@ TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, 
     InstanceConfig.mergeRegionArea = 100;
     InstanceConfig.walkableSlopeAngle = 50.0f;
     InstanceConfig.detailSampleDist = 3.0f;
-    InstanceConfig.detailSampleMaxError = 1.5f;
+    InstanceConfig.detailSampleMaxError = 1.25f;
     InstanceConfig.walkableClimb = 1.0f / InstanceConfig.ch;
-    InstanceConfig.walkableHeight = 2.1f / InstanceConfig.ch;
-    InstanceConfig.walkableRadius = 0.6f / InstanceConfig.cs;
+    InstanceConfig.walkableHeight = 2.1f;
+    InstanceConfig.walkableRadius = 0.6f;
     InstanceConfig.maxEdgeLen = 8 * InstanceConfig.walkableRadius;
     InstanceConfig.maxVertsPerPoly = 6;
-    InstanceConfig.maxSimplificationError = 1.25f;
+    InstanceConfig.maxSimplificationError = 1.3f;
     InstanceConfig.borderSize = 0;
 
     Context = new rcContext;
 }
 
-void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshParams& /*navMeshParams*/ )
+void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshParams& /*navMeshParams*/ ) const
 {
     bmin = new float[3];
     bmax = new float[3];
@@ -81,7 +81,7 @@ void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshPara
     bmax[2] = Constants::Origin[2] /*navMeshParams.orig[2]*/ + (Constants::TileSize * (Y + 1));
 }
 
-void TileBuilder::AddGeometry(WorldModelRoot* root, const WorldModelDefinition& def)
+void TileBuilder::AddGeometry(WorldModelRoot const* root, const WorldModelDefinition& def)
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
@@ -91,7 +91,7 @@ void TileBuilder::AddGeometry(WorldModelRoot* root, const WorldModelDefinition& 
     OutputDebugVertices();
 }
 
-uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
+uint8* TileBuilder::BuildInstance( dtNavMeshParams& /*navMeshParams*/ )
 {
     float* bmin = NULL, *bmax = NULL;
 
@@ -183,11 +183,11 @@ uint8* TileBuilder::BuildInstance( dtNavMeshParams& navMeshParams )
     rcFreeHeightField(hf);
     rcFreeCompactHeightfield(chf);
     rcFreeContourSet(contours);
-    delete vertices;
-    delete triangles;
-    delete areas;
-    delete bmin;
-    delete bmax;
+    delete[] vertices;
+    delete[] triangles;
+    delete[] areas;
+    delete[] bmin;
+    delete[] bmax;
 
     if (!params.polyCount || !params.polys || Constants::TilesPerMap * Constants::TilesPerMap == params.polyCount)
     {
@@ -226,7 +226,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     adt->Read();
     _Geometry->AddAdt(adt);
     delete adt;
-
+    
     if (_Geometry->Vertices.empty() && _Geometry->Triangles.empty())
         return NULL;
 
@@ -234,7 +234,8 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     CalculateTileBounds(bmin, bmax, navMeshParams);
     _Geometry->CalculateMinMaxHeight(bmin[1], bmax[1]);
 
-    // again, we load everything - wasteful but who cares
+    // This is commented out to reduce the size of the resulting files (and the time it takes to generate them), we shouldn't need to load 4 more ADTs each time.
+    /*// again, we load everything - wasteful but who cares
     for (int ty = Y - 1; ty <= Y + 1; ty++)
     {
         for (int tx = X - 1; tx <= X + 1; tx++)
@@ -245,7 +246,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
 
             ADT* _adt = new ADT(Utils::GetAdtPath(World, tx, ty), tx, ty);
             // If this condition is met, it means that this WDT does not contain the ADT
-            if (!_adt->Data->Stream)
+            if (!_adt->Data->_Stream)
             {
                 delete _adt;
                 continue;
@@ -254,7 +255,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
             _Geometry->AddAdt(_adt);
             delete _adt;
         }
-    }
+    }*/
 
     OutputDebugVertices();
     
@@ -351,11 +352,11 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     rcFreeHeightField(hf);
     rcFreeCompactHeightfield(chf);
     rcFreeContourSet(contours);
-    delete vertices;
-    delete triangles;
-    delete areas;
-    delete bmin;
-    delete bmax;
+    delete[] vertices;
+    delete[] triangles;
+    delete[] areas;
+    delete[] bmin;
+    delete[] bmax;
 
     if (!params.polyCount || !params.polys || Constants::TilesPerMap * Constants::TilesPerMap == params.polyCount)
     {
@@ -386,7 +387,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     return NULL;
 }
 
-void TileBuilder::OutputDebugVertices()
+void TileBuilder::OutputDebugVertices() const
 {
     if (Constants::Debug)
     {

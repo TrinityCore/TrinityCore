@@ -126,7 +126,6 @@ class npc_voljin_zulaman : public CreatureScript
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 _events.Update(diff);
-
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -214,7 +213,7 @@ class npc_voljin_zulaman : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return GetZulAmanAI<npc_voljin_zulamanAI>(creature);
+            return GetInstanceAI<npc_voljin_zulamanAI>(creature);
         }
 };
 

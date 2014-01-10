@@ -249,6 +249,16 @@ AI* GetInstanceAI(T* obj, char const* scriptName)
                 return new AI(obj);
 
     return NULL;
-}
+};
+
+template<class AI, class T>
+AI* GetInstanceAI(T* obj)
+{
+    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            return new AI(obj);
+
+    return NULL;
+};
 
 #endif // TRINITY_INSTANCE_DATA_H

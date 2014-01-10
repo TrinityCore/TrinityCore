@@ -24,6 +24,10 @@ class WorldModelGroup
 {
 public:
     WorldModelGroup(std::string path, int groupIndex);
+    WorldModelGroup(Stream* stream, std::string path, int groupIndex);
+    ~WorldModelGroup();
+    void Load(std::string& path);
+
     ChunkedData* Data;
     ChunkedData* SubData;
     int GroupIndex;

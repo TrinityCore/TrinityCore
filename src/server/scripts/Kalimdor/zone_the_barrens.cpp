@@ -340,10 +340,7 @@ public:
             BigWill = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
-
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!who || !who->IsAlive() || EventInProgress)
                 return;
@@ -356,8 +353,6 @@ public:
                         EventInProgress = true;
                     }
         }
-
-        void KilledUnit(Unit* /*victim*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

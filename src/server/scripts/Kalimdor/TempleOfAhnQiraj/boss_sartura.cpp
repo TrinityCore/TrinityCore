@@ -160,7 +160,7 @@ public:
                 //If she is 20% enrage
                 if (!Enraged)
                 {
-                    if (!HealthAbovePct(20) && !me->IsNonMeleeSpellCasted(false))
+                    if (!HealthAbovePct(20) && !me->IsNonMeleeSpellCast(false))
                     {
                         DoCast(me, SPELL_ENRAGE);
                         Enraged = true;

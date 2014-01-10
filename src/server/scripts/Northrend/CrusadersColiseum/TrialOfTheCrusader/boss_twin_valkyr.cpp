@@ -165,8 +165,7 @@ struct boss_twin_baseAI : public BossAI
 
     void JustReachedHome() OVERRIDE
     {
-        if (instance)
-            instance->SetBossState(BOSS_VALKIRIES, FAIL);
+        instance->SetBossState(BOSS_VALKIRIES, FAIL);
 
         summons.DespawnAll();
         me->DespawnOrUnsummon();
@@ -193,8 +192,7 @@ struct boss_twin_baseAI : public BossAI
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             Talk(SAY_KILL_PLAYER);
-            if (instance)
-                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
+            instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
         }
     }
 
@@ -227,21 +225,18 @@ struct boss_twin_baseAI : public BossAI
     void JustDied(Unit* /*killer*/) OVERRIDE
     {
         Talk(SAY_DEATH);
-        if (instance)
+        if (Creature* pSister = GetSister())
         {
-            if (Creature* pSister = GetSister())
+            if (!pSister->IsAlive())
             {
-                if (!pSister->IsAlive())
-                {
-                    me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    _JustDied();
-                }
-                else
-                {
-                    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    instance->SetBossState(BOSS_VALKIRIES, SPECIAL);
-                }
+                me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                _JustDied();
+            }
+            else
+            {
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                instance->SetBossState(BOSS_VALKIRIES, SPECIAL);
             }
         }
         summons.DespawnAll();
@@ -256,15 +251,12 @@ struct boss_twin_baseAI : public BossAI
     void EnterCombat(Unit* /*who*/) OVERRIDE
     {
         me->SetInCombatWithZone();
-        if (instance)
+        if (Creature* pSister = GetSister())
         {
-            if (Creature* pSister = GetSister())
-            {
-                me->AddAura(MyEmphatySpellId, pSister);
-                pSister->SetInCombatWithZone();
-            }
-            instance->SetBossState(BOSS_VALKIRIES, IN_PROGRESS);
+            me->AddAura(MyEmphatySpellId, pSister);
+            pSister->SetInCombatWithZone();
         }
+        instance->SetBossState(BOSS_VALKIRIES, IN_PROGRESS);
 
         Talk(SAY_AGGRO);
         DoCast(me, SurgeSpellId);
@@ -420,15 +412,13 @@ class boss_fjola : public CreatureScript
                 TouchSpellId = SPELL_LIGHT_TOUCH;
                 SpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
 
-                if (instance)
-                    instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
                 boss_twin_baseAI::Reset();
             }
 
             void EnterCombat(Unit* who) OVERRIDE
             {
-                if (instance)
-                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
 
                 me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
                 boss_twin_baseAI::EnterCombat(who);
@@ -442,8 +432,7 @@ class boss_fjola : public CreatureScript
 
             void JustReachedHome() OVERRIDE
             {
-                if (instance)
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
 
                 boss_twin_baseAI::JustReachedHome();
             }
@@ -451,7 +440,7 @@ class boss_fjola : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_fjolaAI(creature);
+            return GetInstanceAI<boss_fjolaAI>(creature);
         }
 };
 
@@ -486,7 +475,7 @@ class boss_eydis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_eydisAI(creature);
+            return GetInstanceAI<boss_eydisAI>(creature);
         }
 };
 

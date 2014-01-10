@@ -1367,7 +1367,7 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
         }
 };
 
-// ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (casted from Azure Dragons and Azure Drakes on death)
+// ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
 class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 {
     public:

@@ -160,7 +160,7 @@ public:
 
         bool bActive;
         bool bWiped;
-        bool bIsDoorSpellCasted;
+        bool bIsDoorSpellCast;
         bool bCrystalActivated;
         bool defenseless;
 
@@ -210,7 +210,7 @@ public:
             uiCyanigosaEventTimer = 3*IN_MILLISECONDS;
 
             bActive = false;
-            bIsDoorSpellCasted = false;
+            bIsDoorSpellCast = false;
             bCrystalActivated = false;
             defenseless = true;
             uiMainEventPhase = NOT_STARTED;

@@ -23,6 +23,38 @@ SDComment:
 SDCategory: Burning Steppes
 EndScriptData */
 
+enum RaggedJohn
+{
+    QUEST_THE_TRUE_MASTERS        = 4224,
+    QUEST_MOTHERS_MILK            = 4866,
+    SPELL_MOTHERS_MILK            = 16468,
+    SPELL_WICKED_MILKING          = 16472
+};
+
+    struct npc_ragged_johnAI : public ScriptedAI
+    {
+        npc_ragged_johnAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() OVERRIDE { }
+
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+        {
+            if (who->HasAura(SPELL_MOTHERS_MILK))
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 15) && who->isInAccessiblePlaceFor(me))
+                {
+                    DoCast(who, SPELL_WICKED_MILKING);
+                    if (Player* player = who->ToPlayer())
+                        player->AreaExploredOrEventHappens(QUEST_MOTHERS_MILK);
+                }
+            }
+
+            ScriptedAI::MoveInLineOfSight(who);
+        }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+    };
+
 void AddSC_burning_steppes()
 {
 

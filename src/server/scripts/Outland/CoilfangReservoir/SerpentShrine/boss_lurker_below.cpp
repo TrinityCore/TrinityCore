@@ -81,7 +81,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_the_lurker_belowAI(creature);
+        return GetInstanceAI<boss_the_lurker_belowAI>(creature);
     }
 
     struct boss_the_lurker_belowAI : public ScriptedAI
@@ -138,11 +138,8 @@ public:
 
             Summons.DespawnAll();
 
-            if (instance)
-            {
-                instance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
-                instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
-            }
+            instance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
+            instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
             DoCast(me, SPELL_SUBMERGE); // submerge anim
             me->SetVisible(false); // we start invis under water, submerged
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -151,19 +148,15 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(DATA_THELURKERBELOWEVENT, DONE);
-                instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
-            }
+            instance->SetData(DATA_THELURKERBELOWEVENT, DONE);
+            instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
 
             Summons.DespawnAll();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+            instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
