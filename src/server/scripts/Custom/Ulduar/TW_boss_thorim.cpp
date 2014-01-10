@@ -152,7 +152,8 @@ enum Creatures
 {
     NPC_LIGHTNING_ORB               = 33138,
     NPC_POWER_SOURCE                = 34055, // bad id
-    NPC_GOLEM_BUNNY                 = 33140  // 33141
+    NPC_GOLEM_BUNNY                 = 33140,  // 33141
+    NPC_CHARGED_ORB                 = 33378
 };
 
 enum Data
@@ -433,7 +434,7 @@ public:
 
             // Spawn Thunder Orbs
             for (uint8 n = 0; n < 7; ++n)
-                me->SummonCreature(33378, PosOrbs[n], TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(NPC_CHARGED_ORB, PosOrbs[n], TEMPSUMMON_CORPSE_DESPAWN);
 
             Wipe = true;
             EncounterTime = 0;
@@ -541,7 +542,7 @@ public:
                             events.ScheduleEvent(EVENT_STORMHAMMER, urand(15, 20) *IN_MILLISECONDS, 0, PHASE_1);
                             break;
                         case EVENT_CHARGE_ORB:
-                            me->CastCustomSpell(SPELL_CHARGE_ORB, SPELLVALUE_MAX_TARGETS, 3, NULL);
+                            me->CastCustomSpell(SPELL_CHARGE_ORB, SPELLVALUE_MAX_TARGETS, 1, NULL);
                             events.ScheduleEvent(EVENT_CHARGE_ORB, urand(15, 20) *IN_MILLISECONDS, 0, PHASE_1);
                             break;
                         case EVENT_SUMMON_WARBRINGER:
