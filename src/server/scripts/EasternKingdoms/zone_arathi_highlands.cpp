@@ -93,7 +93,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                         me->SummonCreature(NPC_VENGEFUL_SURGE, -2059.249f, -2134.88f, 21.51582f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         break;
                     case 11:
-                        Talk(SAY_PROGRESS_5, player->GetGUID());
+                        Talk(SAY_PROGRESS_5, player);
                         events.ScheduleEvent(EVENT_SAY_6, 11000);
                         break;
                     case 17:
@@ -126,15 +126,15 @@ class npc_professor_phizzlethorpe : public CreatureScript
                     switch (event)
                     {
                         case EVENT_SAY_3:
-                            Talk(SAY_PROGRESS_3, player->GetGUID());
+                            Talk(SAY_PROGRESS_3, player);
                             break;
                         case EVENT_SAY_6:
-                            Talk(SAY_PROGRESS_6, player->GetGUID());
+                            Talk(SAY_PROGRESS_6, player);
                             SetRun();
                             break;
                         case EVENT_SAY_8:
                             Talk(EMOTE_PROGRESS_8);
-                            Talk(SAY_PROGRESS_9, player->GetGUID());
+                            Talk(SAY_PROGRESS_9, player);
                             player->GroupEventHappens(QUEST_GOGGLE_BOGGLE, me);
                             break;
                     }
