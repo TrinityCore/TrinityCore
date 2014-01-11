@@ -1851,6 +1851,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
+        uint32 GetLastPotionId() { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
