@@ -614,15 +614,15 @@ public:
                     {
                          case EVENT_END_NORMAL_1:
                              Talk(SAY_END_NORMAL_1);
-                             events.ScheduleEvent(EVENT_END_NORMAL_2, 10000);
+                             events.ScheduleEvent(EVENT_END_NORMAL_2, 15000);
                              break;
                          case EVENT_END_NORMAL_2:
                              Talk(SAY_END_NORMAL_2);
-                             events.ScheduleEvent(EVENT_END_NORMAL_3, 10000);
+                             events.ScheduleEvent(EVENT_END_NORMAL_3, 15000);
                              break;
                         case EVENT_END_NORMAL_3:
                             Talk(SAY_END_NORMAL_3);
-                            me->DespawnOrUnsummon(2000);
+                            me->DespawnOrUnsummon(10000);
                             _JustDied();
                             break;
                         case EVENT_END_HARD_1:
@@ -631,19 +631,19 @@ public:
                             {
                                 DoCast(Sif, SPELL_STORMHAMMER);
                                 Sif->SetVisible(false);
-                                if (Creature* tentacle = me->SummonCreature(NPC_TENTACLE_OF_YOGG_SARON, Sif->GetPositionX(), Sif->GetPositionY(), Sif->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 7000))
+                                if (Creature* tentacle = me->SummonCreature(NPC_TENTACLE_OF_YOGG_SARON, Sif->GetPositionX(), Sif->GetPositionY(), Sif->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
                                     tentacle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                 Sif->DespawnOrUnsummon();
                             }
-                            events.ScheduleEvent(EVENT_END_HARD_2, 10000);
+                            events.ScheduleEvent(EVENT_END_HARD_2, 15000);
                             break;
                         case EVENT_END_HARD_2:
                             Talk(SAY_END_HARD_2);
-                            events.ScheduleEvent(EVENT_END_HARD_3, 10000);
+                            events.ScheduleEvent(EVENT_END_HARD_3, 15000);
                             break;
                         case EVENT_END_HARD_3:
                             Talk(SAY_END_HARD_3);
-                            me->DespawnOrUnsummon(5000);
+                            me->DespawnOrUnsummon(10000);
                             _JustDied();
                             break;
                     }
