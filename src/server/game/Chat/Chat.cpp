@@ -366,14 +366,14 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                     areaId, areaName.c_str(), zoneName.c_str(), GetLogNameForGuid(guid),
                     (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
                     GUID_LOPART(guid));
-					if ((sIRC.logmask & 2) != 0)
-					{
-						std::string logchan = "#";
-						logchan += sIRC.logchan;
-						std::stringstream ss;
-						ss << sIRC.iLog.GetLogDateTimeStr() << ": [ " << player->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target: [" << GUID_LOPART(player->GetGUID()) << "]";
-						sIRC.Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
-					}
+                if ((sIRC.logmask & 2) != 0)
+                    {
+                        std::string logchan = "#";
+                        logchan += sIRC.logchan;
+                        std::stringstream ss;
+                        ss << sIRC.iLog.GetLogDateTimeStr() << ": [ " << player->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target: [" << GUID_LOPART(player->GetGUID()) << "]";
+                        sIRC.Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
+                    }
             }
         }
         // some commands have custom error messages. Don't send the default one in these cases.

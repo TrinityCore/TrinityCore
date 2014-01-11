@@ -10,7 +10,7 @@ CREATE TABLE `irc_commands` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='IRC Module System';
 
 /*
-* Records 
+* Records
 */
 INSERT INTO `irc_commands` VALUES ('acct', '[acct <Player> <(un)lock/email/pass/rename/gmlevel>] : Perform Action To <Player> Account.', '3');
 INSERT INTO `irc_commands` VALUES ('ban', '[ban <Player/IP> <ip/acct/unban/reason>] : Ban/Unban <Player>', '3');
@@ -56,7 +56,7 @@ CREATE TABLE `irc_inchan` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='IRC Module System';
 
 /*
-* Records 
+* Records
 */
 /*
 * Table structure for irc_autoannounce
@@ -70,7 +70,7 @@ CREATE TABLE `irc_autoannounce` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='IRC Module System';
 
 /*
-* Records 
+* Records
 */
 INSERT INTO `irc_autoannounce` VALUES ('1', 'Welcome to IRC Channel', '');
 
