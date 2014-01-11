@@ -17435,6 +17435,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     m_atLoginFlags = fields[33].GetUInt16();
 
+    if (HasAtLoginFlag(AT_LOGIN_RENAME))
+    {
+        TC_LOG_ERROR("entities.player", "Player (GUID: %u) tried to login while forced to rename, can't load.'", GetGUIDLow());
+        return false;
+    }
+
     // Honor system
     // Update Honor kills data
     m_lastHonorUpdateTime = logoutTime;
