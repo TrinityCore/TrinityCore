@@ -106,7 +106,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 			smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
 			sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Created\003] %s", " %s" , smsg.str().c_str()) , true);
             //begin // because newlines don't show on irc
-            std::string tmsg = ticket->GetMessageA().c_str();
+            std::string tmsg = ticket->GetMessage().c_str();
             int position = tmsg.find( "\n" ); // find first newline
             while ( position != string::npos ) 
             {
@@ -153,7 +153,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
             smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
             sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Updated\003] %s", " %s" , smsg.str().c_str()) , true);
             //begin // because newlines don't show on irc
-            std::string tmsg = ticket->GetMessageA().c_str();
+            std::string tmsg = ticket->GetMessage().c_str();
             int position = tmsg.find( "\n" ); // find first newline
             while ( position != string::npos ) 
             {
