@@ -172,8 +172,8 @@ class IRCClient : public ACE_Based::Runnable
         string  ojGM4;
         string  ojGM5;
         string  ojGM6;
-	    string  ojGM7;
-	    string  ojGM8;
+        string  ojGM7;
+        string  ojGM8;
         string  logfile;
         string  logchan;
         string  logchanpw;
@@ -209,7 +209,7 @@ class IRCClient : public ACE_Based::Runnable
         int     CSYSMSG;
         int     CTELE;
         int     CTOP;
-		int     CPLAYER;
+        int     CPLAYER;
         int     CWHO;
         // BotMask
         int     BOTMASK;
