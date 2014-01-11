@@ -1,6 +1,8 @@
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 #include "Channel.h"
+#include <functional>
+#include <locale>
 
 /*######
 ## TW_npc_argent_squire
@@ -927,8 +929,9 @@ public:
                          channel->HasFlag(CHANNEL_FLAG_CITY) ||
                          channel->HasFlag(CHANNEL_FLAG_LFG));
 
-        std::string chan(channel->GetName());
-        std::transform(chan.begin(), chan.end(), chan.begin(), tolower);
+        std::string chan = channel->GetName();
+        //std::transform(chan.begin(), chan.end(), chan.begin(), ::tolower);
+        std::transform(chan.begin(), chan.end(), chan.begin(), std::bind2nd(std::ptr_fun(&std::tolower<char>), std::locale("")));
 
         if (!isSystem && (chan == "world"))
         {
