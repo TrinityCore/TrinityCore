@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,23 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Object.h"
 
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "Opcodes.h"
-#include "Player.h"
 
-//This send to player windows for invite player to join the war
-//Param1:(guid) the guid of Bf
-//Param2:(ZoneId) the zone where the battle is (4197 for wg)
-//Param3:(time) Time in second that the player have for accept
-void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pTime)
+/**
+ * @fn void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 acceptTime)
+ *
+ * @brief This send to player windows for invite player to join the war.
+ *
+ * @param guid          The guid of Bf
+ * @param zoneId        The zone where the battle is (4197 for wg)
+ * @param acceptTime    Time in second that the player have for accept
+ */
+void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 acceptTime)
 {
     ObjectGuid guidBytes = guid;
 
@@ -53,15 +57,19 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pT
     data.WriteByteSeq(guidBytes[4]);
     data.WriteByteSeq(guidBytes[2]);
     data.WriteByteSeq(guidBytes[0]);
-    data << uint32(time(NULL) + pTime); // Invite lasts until
+    data << uint32(time(NULL) + acceptTime); // Invite lasts until
     data.WriteByteSeq(guidBytes[7]);
     data.WriteByteSeq(guidBytes[5]);
-
-    //Sending the packet to player
     SendPacket(&data);
 }
 
-//This send invitation to player to join the queue
+/**
+ * @fn void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
+ *
+ * @brief This send invitation to player to join the queue.
+ *
+ * @param guid           The guid of Bf
+ */
 void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
 {
     ObjectGuid guidBytes = guid;
@@ -95,17 +103,20 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
     data.WriteByteSeq(guidBytes[4]);
     data.WriteByteSeq(guidBytes[1]);
     data.WriteByteSeq(guidBytes[7]);
-
-    //Sending packet to player
     SendPacket(&data);
 }
 
-//This send packet for inform player that he join queue
-//Param1:(guid) the guid of Bf
-//Param2:(ZoneId) the zone where the battle is (4197 for wg)
-//Param3:(CanQueue) if able to queue
-//Param4:(Full) on log in is full
-void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool CanQueue, bool Full)
+/**
+ * @fn void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 zoneId, bool canQueue, bool full)
+ *
+ * @brief This send packet for inform player that he join queue.
+ *
+ * @param guid          The guid of Bf
+ * @param zoneId        The zone where the battle is (4197 for wg)
+ * @param canQueue      if able to queue
+ * @param full          on log in is full
+ */
+void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 zoneId, bool canQueue, bool full)
 {
     const bool hasSecondGuid = false;
     const bool warmup = true;
@@ -117,7 +128,7 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool Ca
     data.WriteBit(guidBytes[6]);
     data.WriteBit(guidBytes[5]);
     data.WriteBit(guidBytes[7]);
-    data.WriteBit(Full);  // Logging In, VERIFYME
+    data.WriteBit(full);  // Logging In, VERIFYME
     data.WriteBit(guidBytes[0]);
     data.WriteBit(!hasSecondGuid);
     data.WriteBit(guidBytes[4]);
@@ -131,7 +142,7 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool Ca
 
     data.FlushBits();
 
-    data << uint8(CanQueue);  // Accepted
+    data << uint8(canQueue);  // Accepted
 
     data.WriteByteSeq(guidBytes[1]);
     data.WriteByteSeq(guidBytes[3]);
@@ -145,12 +156,18 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool Ca
     data.WriteByteSeq(guidBytes[4]);
     data.WriteByteSeq(guidBytes[5]);
 
-    data << uint32(ZoneId);
+    data << uint32(zoneId);
 
     SendPacket(&data);
 }
 
-//This is call when player accept to join war
+/**
+ * @fn void WorldSession::SendBfEntered(uint64 guid)
+ *
+ * @brief This is call when player accept to join war.
+ *
+ * @param guid           The guid of Bf
+ */
 void WorldSession::SendBfEntered(uint64 guid)
 {
     uint8 isAFK = _player->isAFK() ? 1 : 0;
@@ -184,7 +201,15 @@ void WorldSession::SendBfEntered(uint64 guid)
     SendPacket(&data);
 }
 
-void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason)
+/**
+ * @fn void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason)
+ *
+ * @brief This is call when player leave battlefield zone.
+ *
+ * @param guid          The guid of Bf
+ * @param reason        Reason why player left battlefield
+ */
+void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
 {
     ObjectGuid guidBytes = guid;
 
@@ -216,7 +241,11 @@ void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason)
     SendPacket(&data);
 }
 
-//Send by client when he click on accept for queue
+/**
+ * @fn void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
+ *
+ * @brief Send by client when he click on accept for queue.
+ */
 void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
 {
     uint8 accepted;
@@ -251,7 +280,11 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
         bf->PlayerAcceptInviteToQueue(_player);
 }
 
-//Send by client on clicking in accept or refuse of invitation windows for join game
+/**
+ * @fn void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
+ *
+ * @brief Send by client on clicking in accept or refuse of invitation windows for join game.
+ */
 void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
 {
     uint8 accepted;
@@ -282,13 +315,23 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
     if (!bf)
         return;
 
+    // If player accept invitation
     if (accepted)
+    {
         bf->PlayerAcceptInviteToWar(_player);
+    }
     else
+    {
         if (_player->GetZoneId() == bf->GetZoneId())
             bf->KickPlayerFromBattlefield(_player->GetGUID());
+    }
 }
 
+/**
+ * @fn void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+ *
+ * @brief Send by client when exited battlefield
+ */
 void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
 {
     ObjectGuid guid;
@@ -313,6 +356,9 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
 
     TC_LOG_ERROR("misc", "HandleBfExitRequest: GUID:"UI64FMTD" ", (uint64)guid);
 
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
-        bf->AskToLeaveQueue(_player);
+    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
+    if (!bf)
+        return;
+
+    bf->AskToLeaveQueue(_player);
 }

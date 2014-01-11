@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -236,7 +236,7 @@ class SmartAI : public CreatureAI
 class SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) { }
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff);
@@ -250,7 +250,6 @@ class SmartGameObjectAI : public GameObjectAI
         bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/);
         bool QuestAccept(Player* player, Quest const* quest);
         bool QuestReward(Player* player, Quest const* quest, uint32 opt);
-        uint32 GetDialogStatus(Player* /*player*/);
         void Destroyed(Player* player, uint32 eventId);
         void SetData(uint32 id, uint32 value);
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
@@ -258,8 +257,7 @@ class SmartGameObjectAI : public GameObjectAI
         void OnStateChanged(uint32 state, Unit* unit);
         void EventInform(uint32 eventId);
 
-    protected:
-        GameObject* const go;
+    private:
         SmartScript mScript;
 };
 #endif

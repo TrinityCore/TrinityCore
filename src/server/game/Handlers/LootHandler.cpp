@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -427,6 +427,13 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     if (_player->GetLootGUID() != lootguid)
         return;
+
+    if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
+    {
+        TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
+        return;
+    }
+
 
     Loot* loot = NULL;
 

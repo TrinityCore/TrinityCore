@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID());
 
     if (ticket && ticket->IsCompleted())
-        sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());;
+        sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());
 
     // Player must not have ticket
     if (!ticket || ticket->IsClosed())

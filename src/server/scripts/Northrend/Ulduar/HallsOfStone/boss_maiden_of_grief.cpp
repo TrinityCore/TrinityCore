@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,146 +15,130 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: Boss maiden_of_grief
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
-SDCategory:
-Script Data End */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "halls_of_stone.h"
 
-enum Spells
-{
-    SPELL_PARTING_SORROW                          = 59723,
-    SPELL_STORM_OF_GRIEF_N                        = 50752,
-    SPELL_STORM_OF_GRIEF_H                        = 59772,
-    SPELL_SHOCK_OF_SORROW_N                       = 50760,
-    SPELL_SHOCK_OF_SORROW_H                       = 59726,
-    SPELL_PILLAR_OF_WOE_N                         = 50761,
-    SPELL_PILLAR_OF_WOE_H                         = 59727
-};
-
 enum Yells
 {
-    SAY_AGGRO                                     = 0,
-    SAY_SLAY                                      = 1,
-    SAY_DEATH                                     = 2,
-    SAY_STUN                                      = 3
+    SAY_AGGRO                           = 0,
+    SAY_SLAY                            = 1,
+    SAY_DEATH                           = 2,
+    SAY_STUN                            = 3
+};
+
+enum Spells
+{
+    SPELL_PARTING_SORROW                = 59723,
+    SPELL_STORM_OF_GRIEF                = 50752,
+    SPELL_SHOCK_OF_SORROW               = 50760,
+    SPELL_PILLAR_OF_WOE                 = 50761
+};
+
+enum Events
+{
+    EVENT_PARTING_SORROW = 1,
+    EVENT_STORM_OF_GRIEF,
+    EVENT_SHOCK_OF_SORROW,
+    EVENT_PILLAR_OF_WOE
 };
 
 enum Achievements
 {
-    ACHIEV_GOOD_GRIEF_START_EVENT                 = 20383,
+    ACHIEV_GOOD_GRIEF_START_EVENT       = 20383,
 };
 
 class boss_maiden_of_grief : public CreatureScript
 {
-public:
-    boss_maiden_of_grief() : CreatureScript("boss_maiden_of_grief") { }
+    public:
+        boss_maiden_of_grief() : CreatureScript("boss_maiden_of_grief") { }
 
-    struct boss_maiden_of_griefAI : public ScriptedAI
-    {
-        boss_maiden_of_griefAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_maiden_of_griefAI : public BossAI
         {
-            instance = me->GetInstanceScript();
-        }
+            boss_maiden_of_griefAI(Creature* creature) : BossAI(creature, DATA_MAIDEN_OF_GRIEF) { }
 
-        InstanceScript* instance;
-
-        uint32 PartingSorrowTimer;
-        uint32 StormOfGriefTimer;
-        uint32 ShockOfSorrowTimer;
-        uint32 PillarOfWoeTimer;
-
-        void Reset() OVERRIDE
-        {
-            PartingSorrowTimer = urand(25000, 30000);
-            StormOfGriefTimer = 10000;
-            ShockOfSorrowTimer = 20000+rand()%5000;
-            PillarOfWoeTimer = urand(5000, 15000);
-
-            instance->SetBossState(DATA_MAIDEN_OF_GRIEF, NOT_STARTED);
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE
-        {
-            Talk(SAY_AGGRO);
-
-            instance->SetBossState(DATA_MAIDEN_OF_GRIEF, IN_PROGRESS);
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
-        }
-
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (IsHeroic())
+            void Reset() OVERRIDE
             {
-                if (PartingSorrowTimer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_PARTING_SORROW);
+                _Reset();
 
-                    PartingSorrowTimer = urand(30000, 40000);
-                } else PartingSorrowTimer -= diff;
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_PARTING_SORROW, urand(25000, 30000));
+                events.ScheduleEvent(EVENT_STORM_OF_GRIEF, 10000);
+                events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 25000));
+                events.ScheduleEvent(EVENT_PILLAR_OF_WOE, urand(5000, 15000));
+
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
 
-            if (StormOfGriefTimer <= diff)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                DoCastVictim(SPELL_STORM_OF_GRIEF_N, true);
-                StormOfGriefTimer = urand(15000, 20000);
-            } else StormOfGriefTimer -= diff;
+                _EnterCombat();
+                Talk(SAY_AGGRO);
 
-            if (ShockOfSorrowTimer <= diff)
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+            }
+
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                DoResetThreat();
-                Talk(SAY_STUN);
-                DoCast(me, SPELL_SHOCK_OF_SORROW_N);
-                ShockOfSorrowTimer = urand(20000, 30000);
-            } else ShockOfSorrowTimer -= diff;
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
 
-            if (PillarOfWoeTimer <= diff)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
 
-                if (target)
-                    DoCast(target, SPELL_PILLAR_OF_WOE_N);
-                else
-                    DoCastVictim(SPELL_PILLAR_OF_WOE_N);
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
 
-                PillarOfWoeTimer = urand(5000, 25000);
-            } else PillarOfWoeTimer -= diff;
+                events.Update(diff);
 
-            DoMeleeAttackIfReady();
-        }
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_PARTING_SORROW:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                DoCast(target, SPELL_PARTING_SORROW);
+                            events.ScheduleEvent(EVENT_PARTING_SORROW, urand(30000, 40000));
+                            break;
+                        case EVENT_STORM_OF_GRIEF:
+                            DoCastVictim(SPELL_STORM_OF_GRIEF, true);
+                            events.ScheduleEvent(EVENT_STORM_OF_GRIEF, urand(15000, 20000));
+                            break;
+                        case EVENT_SHOCK_OF_SORROW:
+                            DoResetThreat();
+                            Talk(SAY_STUN);
+                            DoCastAOE(SPELL_SHOCK_OF_SORROW);
+                            events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 30000));
+                            break;
+                        case EVENT_PILLAR_OF_WOE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                                DoCast(target, SPELL_PILLAR_OF_WOE);
+                            else
+                                DoCastVictim(SPELL_PILLAR_OF_WOE);
+                            events.ScheduleEvent(EVENT_PILLAR_OF_WOE, urand(5000, 25000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            Talk(SAY_DEATH);
-
-            instance->SetBossState(DATA_MAIDEN_OF_GRIEF, DONE);
+            return GetHallsOfStoneAI<boss_maiden_of_griefAI>(creature);
         }
-
-        void KilledUnit(Unit* victim) OVERRIDE
-        {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Talk(SAY_SLAY);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return GetHallsOfStoneAI<boss_maiden_of_griefAI>(creature);
-    }
 };
 
 void AddSC_boss_maiden_of_grief()

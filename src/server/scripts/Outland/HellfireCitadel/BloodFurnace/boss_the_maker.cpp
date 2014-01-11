@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,20 +45,11 @@ enum Spells
 class boss_the_maker : public CreatureScript
 {
     public:
+        boss_the_maker() : CreatureScript("boss_the_maker") { }
 
-        boss_the_maker()
-            : CreatureScript("boss_the_maker")
+        struct boss_the_makerAI : public BossAI
         {
-        }
-
-        struct boss_the_makerAI : public ScriptedAI
-        {
-            boss_the_makerAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
+            boss_the_makerAI(Creature* creature) : BossAI(creature, DATA_THE_MAKER) { }
 
             uint32 AcidSpray_Timer;
             uint32 ExplodingBreaker_Timer;
@@ -67,37 +58,30 @@ class boss_the_maker : public CreatureScript
 
             void Reset() OVERRIDE
             {
+                _Reset();
                 AcidSpray_Timer = 15000;
                 ExplodingBreaker_Timer = 6000;
                 Domination_Timer = 120000;
                 Knockdown_Timer = 10000;
-
-                instance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
-
-                instance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), false);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_KILL);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
+                _JustDied();
                 Talk(SAY_DIE);
-
-                instance->SetData(TYPE_THE_MAKER_EVENT, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR3), true);
-
-             }
+            }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
@@ -147,7 +131,7 @@ class boss_the_maker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return GetInstanceAI<boss_the_makerAI>(creature);
+            return GetBloodFurnaceAI<boss_the_makerAI>(creature);
         }
 };
 
