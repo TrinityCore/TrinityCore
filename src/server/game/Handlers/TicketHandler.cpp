@@ -105,12 +105,12 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 			ircchan += sIRC._irc_chan[sIRC.ticann].c_str();
 			smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
 			sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Created\003] %s", " %s" , smsg.str().c_str()) , true);
-			if (ticket->GetMessage().size() <= 400)
-				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Massage\003]: %s ", " %s", ticket->GetMessage().c_str()), true);
+			if (ticket->GetMessageA().size() <= 400)
+				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message\003]: %s ", " %s", ticket->GetMessageA().c_str()), true);
 			else
 			{
-				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Massage(1/2)\003]: %s ", " %s", ticket->GetMessage().substr(0, 399).c_str()), true);
-				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Massage(2/2)\003]: %s ", " %s", ticket->GetMessage().substr(400, 800).c_str()), true);
+				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", ticket->GetMessageA().substr(0, 399).c_str()), true);
+				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", ticket->GetMessageA().substr(400, 800).c_str()), true);
 			}
 		}
     }
@@ -143,12 +143,12 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
             ircchan += sIRC._irc_chan[sIRC.ticann].c_str();
             smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
             sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Updated\003] %s", " %s" , smsg.str().c_str()) , true);
-            if (ticket->GetMessage().size() <= 400)
-                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Massage\003]: %s ", " %s", ticket->GetMessage().c_str()), true);
+            if (ticket->GetMessageA().size() <= 400)
+                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message\003]: %s ", " %s", ticket->GetMessageA().c_str()), true);
             else
             {
-                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Massage(1/2)\003]: %s ", " %s", ticket->GetMessage().substr(0, 399).c_str()), true);
-                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Massage(2/2)\003]: %s ", " %s", ticket->GetMessage().substr(400, 800).c_str()), true);
+                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", ticket->GetMessageA().substr(0, 399).c_str()), true);
+                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", ticket->GetMessageA().substr(400, 800).c_str()), true);
             }
         }
     }

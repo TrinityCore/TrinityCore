@@ -370,7 +370,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
                 {
                     QName = cQName+1;
                     WorldDatabase.EscapeString(QName);
-                    QueryResult result = WorldDatabase.PQuery("SELECT entry FROM quest_template WHERE name = '%s'", QName.c_str());
+                    QueryResult result = WorldDatabase.PQuery("SELECT id FROM quest_template WHERE name = '%s'", QName.c_str());
                     if (!result)
                     {
                         Send_IRCA(CD->USER, "Quest Not Found!", true, "ERROR");
@@ -383,7 +383,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
             else
             {
                 qId = atoi(args);
-                QueryResult result = WorldDatabase.PQuery("SELECT title FROM quest_template WHERE entry = '%d'", qId);
+                QueryResult result = WorldDatabase.PQuery("SELECT title FROM quest_template WHERE id = '%d'", qId);
                 if (!result)
                 {
                     Send_IRCA(CD->USER, "Quest Not Found!", true, "ERROR");
@@ -825,7 +825,7 @@ void IRCCmd::Jail_Player(_CDATA *CD)
                 float rposx, rposy, rposz, rposo = 0;
                 uint32 rmapid = 0;
                 CharacterDatabase.EscapeString(_PARAMS[0]);
-                QueryResult result = CharacterDatabase.PQuery("SELECT `map`, `position_x`, `position_y`, `position_z` FROM `character_homebind` WHERE `guid` = '" UI64FMTD "'", plr->GetGUID());
+                QueryResult result = CharacterDatabase.PQuery("SELECT `mapId`, `posX`, `posY`, `posZ` FROM `character_homebind` WHERE `guid` = '" UI64FMTD "'", plr->GetGUID());
                 if (result)
                 {
                     Field *fields = result->Fetch();
@@ -1371,7 +1371,7 @@ void IRCCmd::Lookup_Player(_CDATA *CD)
         if (atoi(quest.c_str()) > 0)
         {
             WorldDatabase.EscapeString(_PARAMS[1]);
-            QueryResult result = WorldDatabase.PQuery("SELECT entry, Title FROM quest_template WHERE entry = '%s';", _PARAMS[1].c_str(), _PARAMS[1].c_str());
+            QueryResult result = WorldDatabase.PQuery("SELECT id, Title FROM quest_template WHERE id = '%s';", _PARAMS[1].c_str(), _PARAMS[1].c_str());
             if (result)
             {
                 QueryResult result2 = CharacterDatabase.PQuery("SELECT count(*) FROM character_queststatus WHERE quest = '%s' AND status = '1';", _PARAMS[1].c_str());
@@ -1390,7 +1390,7 @@ void IRCCmd::Lookup_Player(_CDATA *CD)
         }
         else
         {
-            QueryResult result = WorldDatabase.PQuery("SELECT entry, Title FROM quest_template WHERE Title LIKE '%%%s%%' LIMIT 10", _PARAMS[1].c_str());
+            QueryResult result = WorldDatabase.PQuery("SELECT id, Title FROM quest_template WHERE Title LIKE '%%%s%%' LIMIT 10", _PARAMS[1].c_str());
             if (result)
             {
                 Field *fields = result->Fetch();
@@ -2181,7 +2181,7 @@ void IRCCmd::Tele_Player(_CDATA *CD)
     }
     else if (_PARAMS[1] == "homebind")
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,map FROM `character_homebind` WHERE guid = '%d'", plr->GetGUID());
+        QueryResult result = CharacterDatabase.PQuery("SELECT posX,posY,posZ,mapId FROM `character_homebind` WHERE guid = '%d'", plr->GetGUID());
         if (!result)
         {
           Send_IRCA(CD->USER, "Unexpected Error Loading Homebind Location", true, "ERROR");
