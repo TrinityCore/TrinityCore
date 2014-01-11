@@ -163,6 +163,7 @@ ElunaRegister<WorldObject> WorldObjectMethods[] =
     {"GetNearestPlayer", &LuaWorldObject::GetNearestPlayer},// :GetNearestPlayer([range]) - Returns nearest player in sight or given range.
     {"GetNearestGameObject", &LuaWorldObject::GetNearestGameObject},        // :GetNearestGameObject([range, entry]) - Returns nearest gameobject with given entry in sight or given range entry can be 0 or nil for any.
     {"GetNearestCreature", &LuaWorldObject::GetNearestCreature},            // :GetNearestCreature([range, entry]) - Returns nearest creature with given entry in sight or given range entry can be 0 or nil for any.
+    {"GetNearObject", &LuaWorldObject::GetNearObject},      // :GetNearObject([nearest, range, typemask, entry, hostile]) - Returns nearest WorldObject or table of objects in given range with given typemask (can contain several types) with given entry if given. Hostile can be 0 for any, 1 hostile, 2 friendly
     {"GetWorldObject", &LuaWorldObject::GetWorldObject},    // :GetWorldObject(guid) - Returns a world object (creature, player, gameobject) from the guid. The world object returned must be on the same map as the world object in the arguments.
 
     {NULL, NULL},
@@ -334,6 +335,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"AddUnitState", &LuaUnit::AddUnitState},               // :AddUnitState(state)
     {"DisableMelee", &LuaUnit::DisableMelee},               // :DisableMelee([disable]) - if true, enables
     {"SummonGuardian", &LuaUnit::SummonGuardian},           // :SummonGuardian(entry, x, y, z, o[, duration]) - summons a guardian to location. Scales with summoner, is friendly to him and guards him.
+    {"NearTeleport", &LuaUnit::NearTeleport},               // :NearTeleport(x, y, z, o) - Teleports to give coordinates. Does not leave combat or unsummon pet.
 
     /* Vehicle */
     {"GetVehicle", &LuaUnit::GetVehicle},                 // :GetVehicle() - Returns the unit's vehicle (if it is a vehicle)

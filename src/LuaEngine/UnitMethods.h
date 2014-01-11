@@ -1468,6 +1468,17 @@ namespace LuaUnit
         return 1;
     }
 
+    int NearTeleport(lua_State* L, Unit* unit)
+    {
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+        float o = luaL_checknumber(L, 4);
+
+        unit->NearTeleportTo(x, y, z, o);
+        return 1;
+    }
+
     int DisableMelee(lua_State* L, Unit* unit)
     {
         bool apply = luaL_optbool(L, 1, true);

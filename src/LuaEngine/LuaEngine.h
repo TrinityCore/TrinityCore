@@ -412,15 +412,15 @@ class Eluna
         void LoadDirectory(char* directory, LoadedScripts* scr);
         // Pushes
         void Push(lua_State*); // nil
-        void Push(lua_State*, uint64);
-        void Push(lua_State*, int64);
-        void Push(lua_State*, uint32);
-        void Push(lua_State*, int32);
-        void Push(lua_State*, bool);
-        void Push(lua_State*, float);
-        void Push(lua_State*, double);
+        void Push(lua_State*, const uint64);
+        void Push(lua_State*, const int64);
+        void Push(lua_State*, const uint32);
+        void Push(lua_State*, const int32);
+        void Push(lua_State*, const bool);
+        void Push(lua_State*, const float);
+        void Push(lua_State*, const double);
         void Push(lua_State*, const char*);
-        void Push(lua_State*, std::string);
+        void Push(lua_State*, const std::string);
         template<typename T> void Push(lua_State* L, T const* ptr)
         {
             ElunaTemplate<T>::push(L, ptr);
@@ -675,12 +675,12 @@ class Eluna
         struct WorldObjectInRangeCheck
         {
             WorldObjectInRangeCheck(bool nearest, WorldObject const* obj, float range,
-                                    TypeID typeId = TYPEID_OBJECT, uint32 entry = 0) : i_nearest(nearest),
-                i_obj(obj), i_range(range), i_typeId(typeId), i_entry(entry) {}
+                uint16 typeMask = 0, uint32 entry = 0, uint32 hostile = 0) : i_nearest(nearest),
+                i_obj(obj), i_range(range), i_typeMask(typeMask), i_entry(entry), i_hostile(hostile) {}
             WorldObject const& GetFocusObject() const { return *i_obj; }
             bool operator()(WorldObject* u)
             {
-                if (i_typeId && u->GetTypeId() != i_typeId)
+                if (i_typeMask && !u->isType(TypeMask(i_typeMask)))
                     return false;
                 if (i_entry && u->GetEntry() != i_entry)
                     return false;
@@ -689,8 +689,18 @@ class Eluna
                 if (!i_obj->IsWithinDistInMap(u, i_range))
                     return false;
                 if (Unit* unit = u->ToUnit())
+                {
                     if (!unit->IsAlive())
                         return false;
+                    if (i_hostile)
+                    {
+                        if (const Unit* obj = i_obj->ToUnit())
+                        {
+                            if ((i_hostile == 1) != obj->IsHostileTo(unit))
+                                return false;
+                        }
+                    }
+                }
                 if (i_nearest)
                     i_range = i_obj->GetDistance(u);
                 return true;
@@ -698,9 +708,10 @@ class Eluna
 
             WorldObject const* i_obj;
             float i_range;
-            TypeID i_typeId;
+            uint16 i_typeMask;
             uint32 i_entry;
             bool i_nearest;
+            uint32 i_hostile;
 
             WorldObjectInRangeCheck(WorldObjectInRangeCheck const&);
         };

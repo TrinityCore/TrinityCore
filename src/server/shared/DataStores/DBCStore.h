@@ -80,19 +80,18 @@ class DBCStorage
 
         T const* LookupEntry(uint32 id) const
         {
-            if(loaded)
+            if (loaded)
             {
                 typename std::map<uint32, T const*>::const_iterator it = data.find(id);
-                if (it == data.end())
-                    return NULL;
-                return it->second;
+                if (it != data.end())
+                    return it->second;
             }
             return (id >= nCount) ? NULL : indexTable.asT[id];
         }
 
         void SetEntry(uint32 id, T* t)
         {
-            if(!loaded)
+            if (!loaded)
             {
                 for (uint32 i = 0; i < GetNumRows(); ++i)
                 {
@@ -103,12 +102,10 @@ class DBCStorage
                 }
                 loaded = true;
             }
-            if (id > nCount)
-                nCount = id+1;
             data[id] = t;
         }
 
-        uint32  GetNumRows() const { return nCount; }
+        uint32  GetNumRows() const { return loaded ? data.size() : nCount; }
         char const* GetFormat() const { return fmt; }
         uint32 GetFieldCount() const { return fieldCount; }
 

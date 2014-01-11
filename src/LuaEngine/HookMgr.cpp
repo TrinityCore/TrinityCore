@@ -4,8 +4,8 @@
 * Please see the included DOCS/LICENSE.TXT for more information
 */
 
-#include "HookMgr.h"
 #include "LuaEngine.h"
+#include "HookMgr.h"
 
 void HookMgr::OnWorldUpdate(uint32 diff)
 {

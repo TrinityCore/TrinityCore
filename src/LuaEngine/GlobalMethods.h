@@ -285,7 +285,11 @@ namespace LuaGlobalFunctions
     // GetGameTime() - Gets ingame time as seconds (server time?)
     int GetGameTime(lua_State* L)
     {
-        sEluna->Push(L, sWorld->GetGameTime());
+        time_t time = sWorld->GetGameTime();
+        if (time < 0)
+            sEluna->Push(L, int32(time));
+        else
+            sEluna->Push(L, uint32(time));
         return 1;
     }
 

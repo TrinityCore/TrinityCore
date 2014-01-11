@@ -328,46 +328,46 @@ void Eluna::Push(lua_State* L)
     lua_pushnil(L);
 }
 
-void Eluna::Push(lua_State* L, uint64 l)
+void Eluna::Push(lua_State* L, const uint64 l)
 {
     std::ostringstream ss;
     ss << l;
     sEluna->Push(L, ss.str());
 }
 
-void Eluna::Push(lua_State* L, int64 l)
+void Eluna::Push(lua_State* L, const int64 l)
 {
     std::ostringstream ss;
     ss << l;
     sEluna->Push(L, ss.str());
 }
 
-void Eluna::Push(lua_State* L, uint32 u)
+void Eluna::Push(lua_State* L, const uint32 u)
 {
     lua_pushunsigned(L, u);
 }
 
-void Eluna::Push(lua_State* L, int32 i)
+void Eluna::Push(lua_State* L, const int32 i)
 {
     lua_pushinteger(L, i);
 }
 
-void Eluna::Push(lua_State* L, double d)
+void Eluna::Push(lua_State* L, const double d)
 {
     lua_pushnumber(L, d);
 }
 
-void Eluna::Push(lua_State* L, float f)
+void Eluna::Push(lua_State* L, const float f)
 {
     lua_pushnumber(L, f);
 }
 
-void Eluna::Push(lua_State* L, bool b)
+void Eluna::Push(lua_State* L, const bool b)
 {
     lua_pushboolean(L, b);
 }
 
-void Eluna::Push(lua_State* L, std::string str)
+void Eluna::Push(lua_State* L, const std::string str)
 {
     lua_pushstring(L, str.c_str());
 }
