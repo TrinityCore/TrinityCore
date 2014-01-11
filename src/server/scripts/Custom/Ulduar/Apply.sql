@@ -23,7 +23,7 @@ OR guid IN (136694, 136695, 136666, 136706, 136754, 136653, 136756, 136757, 1367
 -- Pre adds
 UPDATE `creature_template` SET `ScriptName` = 'TW_npc_thorim_pre_phase' WHERE `entry` = 32885;
 UPDATE `creature_template` SET `ScriptName` = 'TW_npc_thorim_pre_phase' WHERE `entry` = 32883;
-UPDATE `creature_template` SET `ScriptName` = 'TW_npc_thorim_pre_phase' WHERE `entry` = 32908;;
+UPDATE `creature_template` SET `ScriptName` = 'TW_npc_thorim_pre_phase' WHERE `entry` = 32908;
 UPDATE `creature_template` SET `ScriptName` = 'TW_npc_thorim_pre_phase' WHERE `entry` = 32907;
 UPDATE `creature_template` SET `ScriptName` = 'TW_npc_thorim_pre_phase' WHERE `entry` = 32882;
 UPDATE `creature_template` SET `ScriptName` = 'TW_npc_thorim_pre_phase' WHERE `entry` = 32886;
