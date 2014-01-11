@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2302,7 +2302,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED:
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CAST:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
         case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
@@ -2961,8 +2961,8 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
             return "HIT_RECEIVED";
         case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
             return "TOTAL_DAMAGE_RECEIVED";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED:
-            return "HIGHEST_HEAL_CASTED";
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CAST:
+            return "HIGHEST_HEAL_CAST";
         case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
             return "TOTAL_HEALING_RECEIVED";
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:

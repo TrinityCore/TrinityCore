@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -521,6 +521,13 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
 
     if (_me->IsInWorld())
         unit->m_movementInfo.ResetTransport();
+        if (!_me->GetTransport())
+        {
+            unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            unit->m_movementInfo.transport.Reset();
+        }
+        else
+            unit->m_movementInfo.transport = _me->m_movementInfo.transport;
 
     // only for flyable vehicles
     if (unit->IsFlying())
