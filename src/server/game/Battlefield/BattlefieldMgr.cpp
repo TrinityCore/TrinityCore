@@ -134,7 +134,7 @@ ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
 
 Battlefield* BattlefieldMgr::GetBattlefieldByGUID(uint64 guid)
 {
-    for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
+    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
         if ((*itr)->GetGUID() == guid)
             return (*itr);
 

@@ -59,7 +59,7 @@ class boss_akilzon : public CreatureScript
             void KilledUnit(Unit* who) OVERRIDE
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_KILL);
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
