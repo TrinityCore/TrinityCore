@@ -82,3 +82,11 @@ UPDATE `creature_template` SET `ScriptName` = 'TW_thorim_trap_bunny' WHERE `entr
 DELETE FROM `spell_script_names` WHERE `spell_id`=62942;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62942, 'TW_spell_thorim_runic_fortification');
+
+-- Some work around Thorim's speech
+DELETE FROM `creature_text` WHERE `entry` = 32865 AND `groupid` IN (20, 21);
+INSERT INTO `creature_text` (`entry`,`groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+
+(32865, 20, 0, 'I remember you... In the mountains... But you... what is this? Where am--', 14, 0, 100, 0, 0,  15734, 'Thorim SAY_AGGRO_2'),
+(32865,	21, 0, 'Interlopers! You mortals who dare TO interfere WITH my sport will pay... WAIT--you...', 14, 0, 100, 0, 0, 15733, 'Thorim SAY_AGGRO_1');
+

@@ -47,3 +47,5 @@ UPDATE `gameobject_template` SET `data1` = 26956 WHERE `entry` = 194315;
 UPDATE `gameobject_template` SET `data1` = 26955 WHERE `entry` = 194314;
 
 DELETE FROM `gameobject_loot_template` WHERE `entry` BETWEEN 196000 AND 196003;
+
+DELETE FROM `creature_text` WHERE `entry` = 32865 AND `groupid` = 20;

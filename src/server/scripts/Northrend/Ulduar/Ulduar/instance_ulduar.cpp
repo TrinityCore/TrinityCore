@@ -727,9 +727,6 @@ class instance_ulduar : public InstanceMapScript
 
                             instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
 
-                            if (Creature* Sif = instance->GetCreature(SifGUID))
-                                Sif->DespawnOrUnsummon();
-
                             DoUseDoorOrButton(ThorimLightningFieldGUID);
                         }
                         else if (state == IN_PROGRESS)

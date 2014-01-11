@@ -48,7 +48,8 @@ enum Phases
 {
     PHASE_NULL,
     PHASE_1,
-    PHASE_2
+    PHASE_2,
+    PHASE_OUTRO,
 };
 
 enum Events
@@ -64,13 +65,20 @@ enum Events
     EVENT_CHAIN_LIGHTNING,
     EVENT_TRANSFER_ENERGY,
     EVENT_RELEASE_ENERGY,
+
     EVENT_CLOSE_ARENA_DOOR,
-    EVENT_BUNNY_VISUAL_CHECK
+    EVENT_BUNNY_VISUAL_CHECK,
+    EVENT_END_NORMAL_1,
+    EVENT_END_NORMAL_2,
+    EVENT_END_NORMAL_3,
+    EVENT_END_HARD_1,
+    EVENT_END_HARD_2,
+    EVENT_END_HARD_3,
 };
 
 enum Yells
 {
-    SAY_AGGRO_1                                 = 0,
+    SAY_AGGRO_1                                 = 21,
     SAY_SPECIAL_1                               = 1,
     SAY_SPECIAL_2                               = 2,
     SAY_SPECIAL_3                               = 3,
@@ -86,6 +94,8 @@ enum Yells
     SAY_END_HARD_2                              = 13,
     SAY_END_HARD_3                              = 14,
     //SAY_YS_HELP                               = -1603287 -- Not sure what would be this one
+
+    SAY_AGGRO_2                                 = 20,
 };
 
 #define EMOTE_BARRIER                           "Runic Colossus surrounds itself with a crackling Runic Barrier!"
@@ -158,7 +168,8 @@ enum Creatures
     NPC_LIGHTNING_ORB               = 33138,
     NPC_POWER_SOURCE                = 34055, // bad id
     NPC_GOLEM_BUNNY                 = 33140,  // 33141
-    NPC_CHARGED_ORB                 = 33378
+    NPC_CHARGED_ORB                 = 33378,
+    NPC_TENTACLE_OF_YOGG_SARON      = 34266
 };
 
 enum Data
@@ -174,8 +185,8 @@ const uint32 ARENA_PHASE_ADD[]                  = {32876, 32904, 32878, 32877, 3
 const uint32 SPELL_ARENA_PRIMARY_N[]            = {35054, 62326, 62327, 62322, 64151, 42724, 62333};
 const uint32 SPELL_ARENA_PRIMARY_H[]            = {35054, 62326, 62445, 62322, 64151, 42724, 62441};
 #define SPELL_ARENA_SECONDARY(i)                RAID_MODE(SPELL_ARENA_SECONDARY_N[i],SPELL_ARENA_SECONDARY_H[i])
-const uint32 SPELL_ARENA_SECONDARY_N[]          = {15578, 38313, 62321, 0, 62331, 62332, 62334};
-const uint32 SPELL_ARENA_SECONDARY_H[]          = {15578, 38313, 62529, 0, 62418, 62420, 62442};
+const uint32 SPELL_ARENA_SECONDARY_N[]          = {15578, 38313, 62321, 62331, 62332, 62334};
+const uint32 SPELL_ARENA_SECONDARY_H[]          = {15578, 38313, 62529, 62418, 62420, 62442};
 #define SPELL_AURA_OF_CELERITY                  62320
 #define SPELL_CHARGE                            32323
 #define SPELL_RUNIC_MENDING                     RAID_MODE(62328, 62446)
@@ -357,6 +368,7 @@ public:
         bool summonChampion;
         bool LightningAchievement;
         Position homePosition;
+        uint64 SifGUID;
 
         void Reset() OVERRIDE
         {
@@ -386,6 +398,10 @@ public:
             _checkTargetTimer = 7000;
             PreAddsCount = 0;
 
+            if (Creature* Sif = me->GetCreature(*me, SifGUID))
+                Sif->DespawnOrUnsummon();
+            SifGUID = 0;
+
             // Respawn Mini Bosses
             for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; ++i)
                 if (Creature* MiniBoss = me->GetCreature(*me, instance->GetData64(i)))
@@ -410,11 +426,9 @@ public:
             if (EncounterFinished)
                 return;
 
+            phase = PHASE_OUTRO;
             EncounterFinished = true;
             Talk(SAY_DEATH);
-            me->setFaction(35);
-            me->DespawnOrUnsummon(7000);
-            EnterEvadeMode();
 
             if (instance)
             {
@@ -423,13 +437,17 @@ public:
                 {
                     DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_HARDMODE_10, CACHE_OF_STORMS_HARDMODE_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
+                    events.ScheduleEvent(EVENT_END_HARD_1, 5000);
                 }
                 else
+                {
+                    events.ScheduleEvent(EVENT_END_NORMAL_1, 5000);
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
+                }
             
                 instance->SetBossState(BOSS_THORIM, DONE);
+                me->setFaction(FACTION_FRIENDLY);
             }
-            _JustDied();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -497,42 +515,8 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!UpdateVictim())
-                return;
-
-            if (phase == PHASE_2 && me->GetVictim() && !IN_ARENA(me->GetVictim()))
-            {
-                me->GetVictim()->getHostileRefManager().deleteReference(me);
-                return;
-            }
-
-            if (_checkTargetTimer < diff)
-            {
-                // workaround, see mimiron script
-                if (!SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-                _checkTargetTimer = 7000;
-            }
-            else
-                _checkTargetTimer -= diff;
-
-            // still needed?
-            if (phase == PHASE_2 && !IN_ARENA(me))
-            {
-                EnterEvadeMode();
-                return;
-            }
-
             events.Update(diff);
-            //_DoAggroPulse(diff);
-            EncounterTime += diff;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
+            
             if (phase == PHASE_1)
             {
                 while (uint32 eventId = events.ExecuteEvent())
@@ -540,7 +524,12 @@ public:
                     switch (eventId)
                     {
                         case EVENT_SAY_AGGRO_2:
-                            //Talk(SAY_AGGRO_2);
+                            Talk(SAY_AGGRO_2);
+                            if (Creature* Sif = me->SummonCreature(NPC_SIF, me->GetPositionX() + 10, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 175000))
+                            {
+                                SifGUID = Sif->GetGUID();
+                                Sif->setFaction(FACTION_FRIENDLY);
+                            }
                             break;
                         case EVENT_STORMHAMMER:
                             DoCast(SPELL_STORMHAMMER);
@@ -581,7 +570,7 @@ public:
                     }
                 }
             }
-            else
+            else if (phase == PHASE_2)
             {
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -617,6 +606,83 @@ public:
                     }
                 }
             }
+            else if (phase == PHASE_OUTRO)
+            {
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                         case EVENT_END_NORMAL_1:
+                             Talk(SAY_END_NORMAL_1);
+                             events.ScheduleEvent(EVENT_END_NORMAL_2, 10000);
+                             break;
+                         case EVENT_END_NORMAL_2:
+                             Talk(SAY_END_NORMAL_2);
+                             events.ScheduleEvent(EVENT_END_NORMAL_3, 10000);
+                             break;
+                        case EVENT_END_NORMAL_3:
+                            Talk(SAY_END_NORMAL_3);
+                            me->DespawnOrUnsummon(2000);
+                            _JustDied();
+                            break;
+                        case EVENT_END_HARD_1:
+                            Talk(SAY_END_HARD_1);
+                            if (Creature* Sif = me->FindNearestCreature(NPC_SIF, 200.0f))
+                            {
+                                DoCast(Sif, SPELL_STORMHAMMER);
+                                Sif->SetVisible(false);
+                                if (Creature* tentacle = me->SummonCreature(NPC_TENTACLE_OF_YOGG_SARON, Sif->GetPositionX(), Sif->GetPositionY(), Sif->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 7000))
+                                    tentacle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                Sif->DespawnOrUnsummon();
+                            }
+                            events.ScheduleEvent(EVENT_END_HARD_2, 10000);
+                            break;
+                        case EVENT_END_HARD_2:
+                            Talk(SAY_END_HARD_2);
+                            events.ScheduleEvent(EVENT_END_HARD_3, 10000);
+                            break;
+                        case EVENT_END_HARD_3:
+                            Talk(SAY_END_HARD_3);
+                            me->DespawnOrUnsummon(5000);
+                            _JustDied();
+                            break;
+                    }
+                }
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            if (phase == PHASE_2 && me->GetVictim() && !IN_ARENA(me->GetVictim()))
+            {
+                me->GetVictim()->getHostileRefManager().deleteReference(me);
+                return;
+            }
+
+            if (_checkTargetTimer < diff)
+            {
+                // workaround, see mimiron script
+                if (!SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+                _checkTargetTimer = 7000;
+            }
+            else
+                _checkTargetTimer -= diff;
+
+            if (phase == PHASE_2 && !IN_ARENA(me))
+            {
+                EnterEvadeMode();
+                return;
+            }
+
+            //_DoAggroPulse(diff);
+            EncounterTime += diff;
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             DoMeleeAttackIfReady();
         }
@@ -676,6 +742,9 @@ public:
                 Creature* giant = me->GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT));
                 if (colossus && colossus->isDead() && giant && giant->isDead() && me->IsWithinDistInMap(attacker, 10.0f) && attacker->ToPlayer())
                 {
+                    if (Creature* Sif = me->GetCreature(*me, SifGUID))
+                        Sif->DespawnOrUnsummon();
+
                     Talk(SAY_JUMPDOWN);
                     phase = PHASE_2;
                     events.SetPhase(PHASE_2);
@@ -1296,9 +1365,6 @@ public:
                 NovaTimer = urand(20000, 25000);
             }
             else NovaTimer -= diff;
-
-            if (instance->GetBossState(BOSS_THORIM) != IN_PROGRESS)
-                me->DespawnOrUnsummon();
         }
     };
 };
