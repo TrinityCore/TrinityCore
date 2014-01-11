@@ -638,6 +638,24 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         if (!ok2)
             continue;
 
+        if (cInfo->expansion > difficultyInfo->expansion)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, expansion %u) has different `expansion` in difficulty %u mode (Entry: %u, expansion %u).",
+                cInfo->Entry, cInfo->expansion, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->expansion);
+        }
+
+        if (cInfo->faction_A != difficultyInfo->faction_A)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, faction_A %u) has different `faction_A` in difficulty %u mode (Entry: %u, faction_A %u).",
+                cInfo->Entry, cInfo->faction_A, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->faction_A);
+        }
+
+        if (cInfo->faction_H != difficultyInfo->faction_H)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, faction_H %u) has different `faction_H` in difficulty %u mode (Entry: %u, faction_H %u).",
+                cInfo->Entry, cInfo->faction_H, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->faction_H);
+        }
+
         if (cInfo->unit_class != difficultyInfo->unit_class)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, class %u) has different `unit_class` in difficulty %u mode (Entry: %u, class %u).",
@@ -649,6 +667,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `npcflag` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
             continue;
+        }
+
+        if (cInfo->family != difficultyInfo->family)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, family %u) has different `family` in difficulty %u mode (Entry: %u, family %u).",
+                cInfo->Entry, cInfo->family, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->family);
         }
 
         if (cInfo->trainer_class != difficultyInfo->trainer_class)
@@ -673,6 +697,24 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has different `trainer_spell` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
             continue;
+        }
+
+        if (cInfo->type != difficultyInfo->type)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, type %u) has different `type` in difficulty %u mode (Entry: %u, type %u).",
+                cInfo->Entry, cInfo->type, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->type);
+        }
+
+        if (cInfo->type_flags != difficultyInfo->type_flags)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, type_flags %u) has different `type_flags` in difficulty %u mode (Entry: %u, type_flags %u).",
+                cInfo->Entry, cInfo->type_flags, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->type_flags);
+        }
+
+        if (!cInfo->VehicleId && difficultyInfo->VehicleId)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, VehicleId %u) has different `VehicleId` in difficulty %u mode (Entry: %u, VehicleId %u).",
+                cInfo->Entry, cInfo->VehicleId, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->VehicleId);
         }
 
         if (!difficultyInfo->AIName.empty())
