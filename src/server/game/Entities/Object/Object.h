@@ -537,7 +537,7 @@ class MapObject
 
     protected:
         MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE)
-        { 
+        {
             _newPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         }
 

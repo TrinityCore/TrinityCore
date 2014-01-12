@@ -228,7 +228,7 @@ class boss_akilzon : public CreatureScript
                         case EVENT_STATIC_DISRUPTION:
                             {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                            if (!target) 
+                            if (!target)
                                 target = me->GetVictim();
                             if (target)
                             {
@@ -244,7 +244,7 @@ class boss_akilzon : public CreatureScript
                         case EVENT_GUST_OF_WIND:
                             {
                                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                                if (!target) 
+                                if (!target)
                                     target = me->GetVictim();
                                 if (target)
                                     DoCast(target, SPELL_GUST_OF_WIND);

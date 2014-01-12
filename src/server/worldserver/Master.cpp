@@ -86,8 +86,8 @@ private:
     uint32 _lastChange;
     uint32 _delaytime;
 public:
-    FreezeDetectorRunnable() 
-    { 
+    FreezeDetectorRunnable()
+    {
         _loops = 0;
         _lastChange = 0;
         _delaytime = 0;

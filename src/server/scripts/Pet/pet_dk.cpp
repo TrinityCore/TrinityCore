@@ -54,7 +54,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 uint64 ownerGuid = me->GetOwnerGUID();
                 if (!ownerGuid)
                     return;
-                
+
                 // Find victim of Summon Gargoyle spell
                 std::list<Unit*> targets;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
