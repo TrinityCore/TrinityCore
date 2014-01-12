@@ -629,7 +629,7 @@ public:
                             Talk(SAY_END_HARD_1);
                             if (Creature* Sif = me->FindNearestCreature(NPC_SIF, 200.0f))
                             {
-                                DoCast(Sif, SPELL_STORMHAMMER);
+                                DoCast(Sif, SPELL_STORMHAMMER, true);
                                 Sif->SetVisible(false);
                                 if (Creature* tentacle = me->SummonCreature(NPC_TENTACLE_OF_YOGG_SARON, Sif->GetPositionX(), Sif->GetPositionY(), Sif->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
                                     tentacle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -1047,7 +1047,7 @@ class TW_npc_runic_colossus : public CreatureScript
 
             void MoveInLineOfSight(Unit* who) OVERRIDE
             {
-                if (me->IsWithinDistInMap(who, 10.0f))
+                if (me->IsWithinDistInMap(who, 30.0f))
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
@@ -1246,7 +1246,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
         {
-            if (me->IsWithinDistInMap(who, 10.0f))
+            if (me->IsWithinDistInMap(who, 30.0f))
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
