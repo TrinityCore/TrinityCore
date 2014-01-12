@@ -1321,7 +1321,56 @@ struct SmartScriptHolder
 typedef UNORDERED_MAP<uint32, WayPoint*> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
-typedef UNORDERED_MAP<uint32, ObjectList*> ObjectListMap;
+typedef std::list<uint64> GuidList;
+class ObjectGuidList
+{
+    ObjectList* m_objectList;
+    GuidList* m_guidList;
+    WorldObject* m_baseObject;
+
+public:
+    ObjectGuidList(ObjectList* objectList, WorldObject* baseObject)
+    {
+        ASSERT(objectList != NULL);
+        ASSERT(baseObject != NULL);
+        m_objectList = objectList;
+        m_baseObject = baseObject;
+        m_guidList = new GuidList();
+
+        for (ObjectList::iterator itr = objectList->begin(); itr != objectList->end(); ++itr)
+        {
+            m_guidList->push_back((*itr)->GetGUID());
+        }
+    }
+
+    ObjectList* GetObjectList()
+    {
+        //sanitize list using m_guidList
+        m_objectList->clear();
+
+        for (GuidList::iterator itr = m_guidList->begin(); itr != m_guidList->end(); ++itr)
+        {
+            if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
+                m_objectList->push_back(obj);
+            else
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: " UI64FMTD, *itr);
+        }
+
+        return m_objectList;
+    }
+
+    bool Equals(ObjectList* objectList)
+    {
+        return m_objectList == objectList;
+    }
+
+    ~ObjectGuidList()
+    {
+        delete m_objectList;
+        delete m_guidList;
+    }
+};
+typedef UNORDERED_MAP<uint32, ObjectGuidList*> ObjectListMap;
 
 class SmartWaypointMgr
 {
