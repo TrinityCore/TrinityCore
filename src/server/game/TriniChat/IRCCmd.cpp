@@ -888,8 +888,8 @@ void IRCClient::AHFunc(uint64 itmid, std::string itmnme, std::string plname, uin
             //alliance
             case 2:wowfact="|cff1589FF[Alliance Auction House]:|r";ircfact="\00304,08\037/!\\\037\017\00312 Alliance Auction House \00304,08\037/!\\\037\017";break;
         }
-        std::string wowstr = Command.MakeMsg("%s A New Item Has Been Added |cffffffff|Hitem:%s:0:0:0:0:0:0:0|h[%s]|h|r. By: %s",wowfact.c_str(), itemid.c_str(), itemname.c_str(), wowname.c_str());
-        std::string ircstr = Command.MakeMsg("%s A New Item Has Been Added [%s]. By: %s", ircfact.c_str(), itemname.c_str(), ircname.c_str());
+        std::string wowstr = Command.MakeMsg("%s Auction has been canceled |cffffffff|Hitem:%s:0:0:0:0:0:0:0|h[%s]|h|r. By: %s",wowfact.c_str(), itemid.c_str(), itemname.c_str(), wowname.c_str());
+        std::string ircstr = Command.MakeMsg("%s Auction has been canceled [%s]. By: %s", ircfact.c_str(), itemname.c_str(), ircname.c_str());
 
         sIRC.Send_WoW_Channel(sIRC._wow_chan[sIRC.Status].c_str(), wowstr.c_str());
         sIRC.Send_IRC_Channel(sIRC._irc_chan[sIRC.Status].c_str(), ircstr.c_str());
