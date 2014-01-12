@@ -857,7 +857,7 @@ std::string IRCCmd::MakeMsg(const char *sLine, ...)
     return outp;
 }
 
-void IRCClient::AHFunc(uint64 itmid, std::string itmnme, std::string plname, uint32 faction)
+void IRCClient::AHCancel(uint64 itmid, std::string itmnme, std::string plname, uint32 faction)
 {
     IRCCmd Command;
     Player* plr = Command.GetPlayer(plname);
@@ -865,7 +865,7 @@ void IRCClient::AHFunc(uint64 itmid, std::string itmnme, std::string plname, uin
     {
         std::string itemname = itmnme;
 
-        char  temp [7];
+        char temp [7];
         sprintf(temp, "%u", itmid);
         std::string itemid = temp;
 

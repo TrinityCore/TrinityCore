@@ -72,7 +72,7 @@ class IRCClient : public ACE_Based::Runnable
         void run();
     public:
         // AH Function
-        void AHFunc(uint64 itmid, std::string itmnme, std::string plname, uint32 faction);
+        void AHCancel(uint64 itmid, std::string itmnme, std::string plname, uint32 faction);
         //bool BeenToGMI(float posx, float posy, std::string player, std::string from);
         // IRCClient active
         bool    Active;

@@ -564,7 +564,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
 	if ((sIRC.BOTMASK & 2048) != 0)
 	{
         ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(auction->itemEntry);
-		sIRC.AHFunc(auction->itemEntry, pProto->Name1, player->GetName(), auction->GetHouseId());
+		sIRC.AHCancel(auction->itemEntry, pProto->Name1, player->GetName(), auction->GetHouseId());
 	}
 
     uint32 itemEntry = auction->itemEntry;
