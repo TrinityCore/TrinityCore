@@ -1,6 +1,5 @@
 SET(trinityframework_STAT_SRCS
    Policies/ObjectLifeTime.cpp
-   Utilities/EventProcessor.cpp
 )
 
 include_directories(
