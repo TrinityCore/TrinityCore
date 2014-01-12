@@ -435,7 +435,6 @@ public:
                 // Lose Your Illusion
                 if (HardMode)
                 {
-                    DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_HARDMODE_10, CACHE_OF_STORMS_HARDMODE_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
                     events.ScheduleEvent(EVENT_END_HARD_1, 5000);
                 }
@@ -445,6 +444,7 @@ public:
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
                 }
             
+                DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
                 instance->SetBossState(BOSS_THORIM, DONE);
                 me->setFaction(FACTION_FRIENDLY);
             }
