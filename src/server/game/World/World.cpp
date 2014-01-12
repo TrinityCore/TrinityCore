@@ -1298,7 +1298,7 @@ void World::LoadConfigSettings(bool reload)
     sIRC.logfile = sConfigMgr->GetStringDefault("irc.logfile.prefix", "IRC_");
     sIRC.logmask = sConfigMgr->GetIntDefault("irc.logmask", 0);
     sIRC.logchan = sConfigMgr->GetStringDefault("irc.logchannel","");
-    sIRC.logchanpw = sConfigMgr->GetStringDefault("irc.logchannelpassword","");
+    sIRC.logchanpw = sConfigMgr->GetStringDefault("irc.logchannelpw","");
     for (int i = 1; i < MAX_CONF_CHANNELS;i++)
     {
         std::ostringstream ss;
