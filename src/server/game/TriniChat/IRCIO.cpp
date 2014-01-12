@@ -68,46 +68,46 @@ void IRCClient::Handle_IRC(std::string sData)
             // if we receieved the internet connect code
             // we know for sure that were in and we can
             // authenticate ourself.
-            if (CMD == sIRC._ICC)
+            if (CMD == sIRC->_ICC)
             {
                 // _Auth is defined in trinitycore.conf (irc.auth)
                 // 0 do not authenticate
                 // 1 use nickserv
                 // 2 use quakenet
                 // aditionally you can provide you own authentication method here
-                switch(sIRC._Auth)
+                switch(sIRC->_Auth)
                 {
                     case 1:
-                        SendIRC("PRIVMSG nickserv :IDENTIFY " + sIRC._Pass);
+                        SendIRC("PRIVMSG nickserv :IDENTIFY " + sIRC->_Pass);
                         break;
                     case 2:
-                        SendIRC("PRIVMSG nickserv :IDENTIFY " + sIRC._Auth_Nick + " " + sIRC._Pass);
+                        SendIRC("PRIVMSG nickserv :IDENTIFY " + sIRC->_Auth_Nick + " " + sIRC->_Pass);
                         break;
                     case 3:
-                        SendIRC("PRIVMSG Q@CServe.quakenet.org :AUTH " + sIRC._Nick + " " + sIRC._Pass);
+                        SendIRC("PRIVMSG Q@CServe.quakenet.org :AUTH " + sIRC->_Nick + " " + sIRC->_Pass);
                         break;
                     case 4:
-                        SendIRC("PRIVMSG Q@CServe.quakenet.org :AUTH " + sIRC._Auth_Nick + " " + sIRC._Pass);
+                        SendIRC("PRIVMSG Q@CServe.quakenet.org :AUTH " + sIRC->_Auth_Nick + " " + sIRC->_Pass);
                         break;
                 }
                 // if we join a default channel leave this now.
-                if (sIRC._ldefc==1)
-                    SendIRC("PART #" + sIRC._defchan);
+                if (sIRC->_ldefc==1)
+                    SendIRC("PART #" + sIRC->_defchan);
                 // Loop thru the channel array and send a command to join them on IRC.
-                for (int i=1;i < sIRC._chan_count + 1;i++)
+                for (int i=1;i < sIRC->_chan_count + 1;i++)
                 {
-                        if (sIRC._irc_pass[i].size() > 0)
-                                SendIRC("JOIN #" + sIRC._irc_chan[i] + " " + sIRC._irc_pass[i]);
+                        if (sIRC->_irc_pass[i].size() > 0)
+                                SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
                         else
-                        SendIRC("JOIN #" + sIRC._irc_chan[i]);
+                        SendIRC("JOIN #" + sIRC->_irc_chan[i]);
                 }
                 // See if there's a logchannel available, if so: join it.
-                if (sIRC.logchan.size() > 0)
+                if (sIRC->logchan.size() > 0)
                 {
-                    if (sIRC.logchanpw.size() > 0)
-                        SendIRC("JOIN #" + sIRC.logchan + " " + sIRC.logchanpw);
+                    if (sIRC->logchanpw.size() > 0)
+                        SendIRC("JOIN #" + sIRC->logchan + " " + sIRC->logchanpw);
                     else
-                        SendIRC("JOIN #" + sIRC.logchan);
+                        SendIRC("JOIN #" + sIRC->logchan);
                 }
             }
             // someone joined the channel this could be the bot or another user
@@ -116,10 +116,10 @@ void IRCClient::Handle_IRC(std::string sData)
                 size_t p = sData.find(":", p1);
                 std::string CHAN = sData.substr(p + 1, sData.size() - p - 2);
                 // if the user is us it means we join the channel
-                if ((szUser == sIRC._Nick))
+                if ((szUser == sIRC->_Nick))
                 {
                     // its us that joined the channel
-                    Send_IRC_Channel(CHAN, MakeMsg(MakeMsg(sIRC.JoinMsg, "$Ver", sIRC._Mver.c_str()), "$Trigger", sIRC._cmd_prefx.c_str()), true);
+                    Send_IRC_Channel(CHAN, MakeMsg(MakeMsg(sIRC->JoinMsg, "$Ver", sIRC->_Mver.c_str()), "$Trigger", sIRC->_cmd_prefx.c_str()), true);
                 }
                 else
                 {
@@ -127,7 +127,7 @@ void IRCClient::Handle_IRC(std::string sData)
                     // so we construct a message and send this to the clients.
                     // TriniChat now uses Send_WoW_Channel to send to the client
                     // this makes TriniChat handle the packets instead of previously the world.
-                    if ((sIRC.BOTMASK & 2) != 0)
+                    if ((sIRC->BOTMASK & 2) != 0)
                         Send_WoW_Channel(GetWoWChannel(CHAN).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(JOIN_IRC), "$Name", szUser), "$Channel", GetWoWChannel(CHAN))));
                 }
             }
@@ -144,11 +144,11 @@ void IRCClient::Handle_IRC(std::string sData)
                     Command.Handle_Logout(&CDATA);
                 }
                 // Construct a message and inform the clients on the same channel.
-                if ((sIRC.BOTMASK & 2) != 0)
+                if ((sIRC->BOTMASK & 2) != 0)
                     Send_WoW_Channel(GetWoWChannel(CHAN).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(LEAVE_IRC), "$Name", szUser), "$Channel", GetWoWChannel(CHAN))));
             }
             // someone changed their nick
-            if (CMD == "nick" && (sIRC.BOTMASK & 128) != 0)
+            if (CMD == "nick" && (sIRC->BOTMASK & 128) != 0)
             {
                 MakeMsg(MakeMsg(GetChatLine(CHANGE_NICK), "$Name", szUser), "$NewName", sData.substr(sData.find(":", p2) + 1));
                 // If the user is logged in and changes their nick 
@@ -168,10 +168,10 @@ void IRCClient::Handle_IRC(std::string sData)
                         if ((*i)->Name == szUser)
                         {
                             (*i)->Name     = NewNick;
-                            sIRC.Send_IRC_Channel(NewNick.c_str(), "I Noticed You Changed Your Nick, I Have Updated My Internal Database Accordingly.", true, "NOTICE");
+                            sIRC->Send_IRC_Channel(NewNick.c_str(), "I Noticed You Changed Your Nick, I Have Updated My Internal Database Accordingly.", true, "NOTICE");
                             
                             // Figure why not output to the logfile, makes tracing problems easier.
-                            sIRC.iLog.WriteLog(" %s : %s Changed Nick To: %s", sIRC.iLog.GetLogDateTimeStr().c_str(), szUser.c_str(), NewNick.c_str());
+                            sIRC->iLog.WriteLog(" %s : %s Changed Nick To: %s", sIRC->iLog.GetLogDateTimeStr().c_str(), szUser.c_str(), NewNick.c_str());
                         }
                     }
                 }
@@ -188,14 +188,14 @@ void IRCClient::Handle_IRC(std::string sData)
                 std::string WHO = sData.substr(p3 + 1, p4 - p3 - 1);
                 std::string BY = sData.substr(p4 + 1, sData.size() - p4 - 1);
                 // if the one kicked was us
-                if (WHO == sIRC._Nick)
+                if (WHO == sIRC->_Nick)
                 {
                     // and autojoin is enabled
                     // return to the channel
-                    if (sIRC._autojoinkick == 1)
+                    if (sIRC->_autojoinkick == 1)
                     {
                         SendIRC("JOIN " + CHAN);
-                        Send_IRC_Channel(CHAN, sIRC.kikmsg, true);
+                        Send_IRC_Channel(CHAN, sIRC->kikmsg, true);
                     }
                 }
                 else
@@ -214,11 +214,11 @@ void IRCClient::Handle_IRC(std::string sData)
                 std::string FROM = sData.substr(p2 + 1, p - p2 - 1);
                 std::string CHAT = sData.substr(p + 2, sData.size() - p - 3);
                 // if this is our username it means we recieved a PM
-                if (FROM == sIRC._Nick)
+                if (FROM == sIRC->_Nick)
                 {
                     if (CHAT.find("\001VERSION\001") < CHAT.size())
                     {
-                        Send_IRC_Channel(szUser, MakeMsg("\001VERSION TriniChat %s ?2008-2009 |Death|, Cybrax, Machiavelli\001", "%s" , sIRC._Mver.c_str()), true, "PRIVMSG");
+                        Send_IRC_Channel(szUser, MakeMsg("\001VERSION TriniChat %s ?2008-2009 |Death|, Cybrax, Machiavelli\001", "%s" , sIRC->_Mver.c_str()), true, "PRIVMSG");
                     }
                     // a pm is required for certain commands
                     // such as login. to validate the command
@@ -251,7 +251,7 @@ void IRCClient::Handle_IRC(std::string sData)
                 bool _AmiOp;
                 _AmiOp = false;
                 //A mode was changed on us
-                if (NICK.c_str() == sIRC._Nick)
+                if (NICK.c_str() == sIRC->_Nick)
                     _AmiOp = true;
 
             }
@@ -266,30 +266,30 @@ void IRCClient::Handle_IRC(std::string sData)
 void IRCClient::Handle_WoW_Channel(std::string Channel, Player *plr, int nAction)
 {
     // make sure that we are connected
-    if (sIRC.Connected && (sIRC.BOTMASK & 1)!= 0)
+    if (sIRC->Connected && (sIRC->BOTMASK & 1)!= 0)
     {
         if (Channel_Valid(Channel))
         {
             std::string GMRank = "";
             std::string pname = plr->GetName().c_str();
             bool DoGMAnnounce = false;
-            if (plr->GetSession()->GetSecurity() > 0 && (sIRC.BOTMASK & 8)!= 0)
+            if (plr->GetSession()->GetSecurity() > 0 && (sIRC->BOTMASK & 8)!= 0)
                 DoGMAnnounce = true;
-            if (plr->IsGameMaster() && (sIRC.BOTMASK & 16)!= 0)
+            if (plr->IsGameMaster() && (sIRC->BOTMASK & 16)!= 0)
                 DoGMAnnounce = true;
             if (DoGMAnnounce)
             {
                 switch(plr->GetSession()->GetSecurity())    //switch case to determine what rank the "gm" is
                 {
                     case 0: GMRank = "";break;
-                    case 1: GMRank = "\0037"+sIRC.ojGM1;break;
-                    case 2: GMRank = "\0037"+sIRC.ojGM2;break;
-                    case 3: GMRank = "\0037"+sIRC.ojGM3;break;
-                    case 4: GMRank = "\0037"+sIRC.ojGM4;break;
-                    case 5: GMRank = "\0037"+sIRC.ojGM5;break;
-                    case 6: GMRank = "\0037"+sIRC.ojGM6;break;
-                    case 7: GMRank = "\0037"+sIRC.ojGM7;break;
-                    case 8: GMRank = "\0037"+sIRC.ojGM8;break;
+                    case 1: GMRank = "\0037"+sIRC->ojGM1;break;
+                    case 2: GMRank = "\0037"+sIRC->ojGM2;break;
+                    case 3: GMRank = "\0037"+sIRC->ojGM3;break;
+                    case 4: GMRank = "\0037"+sIRC->ojGM4;break;
+                    case 5: GMRank = "\0037"+sIRC->ojGM5;break;
+                    case 6: GMRank = "\0037"+sIRC->ojGM6;break;
+                    case 7: GMRank = "\0037"+sIRC->ojGM7;break;
+                    case 8: GMRank = "\0037"+sIRC->ojGM8;break;
                 }
             }
             std::string ChatTag = "";
@@ -324,9 +324,9 @@ void IRCClient::Send_IRC_Channel(std::string sChannel, std::string sMsg, bool No
     std::string mType = "PRIVMSG";
     if (Command.MakeUpper(nType.c_str()) == "NOTICE")
         mType = "NOTICE";
-    if (Command.MakeUpper(nType.c_str()) == "ERROR" && (sIRC.BOTMASK & 32)!= 0)
+    if (Command.MakeUpper(nType.c_str()) == "ERROR" && (sIRC->BOTMASK & 32)!= 0)
         mType = "NOTICE";
-    if (sIRC.Connected)
+    if (sIRC->Connected)
     {
         if (NoPrefix)
             SendIRC(mType + " " + sChannel + " :" + sMsg);
@@ -339,8 +339,8 @@ void IRCClient::Send_IRC_Channel(std::string sChannel, std::string sMsg, bool No
 // that TriniChat has in its configuration
 void IRCClient::Send_IRC_Channels(std::string sMsg)
 {
-    for (int i=1;i < sIRC._chan_count + 1;i++)
-        Send_IRC_Channel(sIRC._irc_chan[i], sMsg);
+    for (int i=1;i < sIRC->_chan_count + 1;i++)
+        Send_IRC_Channel(sIRC->_irc_chan[i], sMsg);
 }
 
 // This function is called in ChatHandler.cpp, any channel chat from wow will come
@@ -451,7 +451,7 @@ void IRCClient::AutoJoinChannel(Player *plr)
     // the first person that login empty server is the one with bad luck and wont be invited, 
     // if at least 1 player is online the player will be inited to the chanel
 
-    std::string m_name = sIRC.ajchan;
+    std::string m_name = sIRC->ajchan;
     WorldPacket data;
     data.Initialize(SMSG_CHANNEL_NOTIFY, 1+m_name.size()+1);
     data << uint8(CHAT_INVITE_NOTICE);

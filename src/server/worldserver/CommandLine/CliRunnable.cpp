@@ -120,7 +120,7 @@ void commandFinished(void*, bool /*success*/)
 bool HandleIRCRelogCommand(bool, const char *args)
 {
 	TC_LOG_ERROR("misc", "TriniChat is dropping from IRC Server");
-	sIRC.ResetIRC();
+	sIRC->ResetIRC();
 	TC_LOG_ERROR("misc", "TriniChat is reconnecting to IRC Server");
 	return true;
 }

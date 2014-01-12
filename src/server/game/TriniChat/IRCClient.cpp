@@ -23,9 +23,6 @@
 #include "ObjectMgr.h"
 #include "MapManager.h"
 
-#include "framework/Policies/SingletonImp.h"
-INSTANTIATE_SINGLETON_1(IRCClient);
-
 #ifdef WIN32
     #define Delay(x) Sleep(x)
 #else
@@ -35,7 +32,7 @@ INSTANTIATE_SINGLETON_1(IRCClient);
 IRCClient::IRCClient()
 {
     for (int i = 0;i > 5;i++)
-        sIRC.Script_Lock[i] = false;
+        sIRC->Script_Lock[i] = false;
 }
 // IRCClient Destructor
 IRCClient::~IRCClient(){}
@@ -43,7 +40,7 @@ IRCClient::~IRCClient(){}
 // ZThread Entry This function is called when the thread is created in Master.cpp (trinitycore)
 void IRCClient::run()
 {
-    sIRC.iLog.WriteLog(" %s : ****** Trinity Core With TriniChat Has Been Started ******", sIRC.iLog.GetLogDateTimeStr().c_str());
+    iLog.WriteLog(" %s : ****** Trinity Core With TriniChat Has Been Started ******", iLog.GetLogDateTimeStr().c_str());
 
     // before we begin we wait a few 
     // mangos is still starting up.
@@ -53,31 +50,31 @@ void IRCClient::run()
         "**   TriniChat2 Threaded IRC Client   **",
         "**     With Enhanced GM Control.     **",
         "***************************************");
-    TC_LOG_ERROR("misc", "****** TriniChat: %s ********", sIRC._Mver.c_str());
+    TC_LOG_ERROR("misc", "****** TriniChat: %s ********", sIRC->_Mver.c_str());
     int cCount = 1;
     // Clean Up MySQL Tables
     TC_LOG_ERROR("misc", "*** TriniChat: Cleaning Up Inchan Table*");
     WorldDatabase.PExecute("DELETE FROM `irc_inchan`");
-    sIRC._Max_Script_Inst = 0;
+    sIRC->_Max_Script_Inst = 0;
     // Create a loop to keep the thread running untill active is set to false
-    while (sIRC.Active && !World::IsStopped())
+    while (sIRC->Active && !World::IsStopped())
     {
         // Initialize socket library
         if (this->InitSock())
         {
             // Connect To The IRC Server
-            TC_LOG_ERROR("misc", "*** TriniChat: Connecting to %s Try # %d ******", sIRC._Host.c_str(), cCount);
-           if (this->Connect(sIRC._Host.c_str(), sIRC._Port))
+            TC_LOG_ERROR("misc", "*** TriniChat: Connecting to %s Try # %d ******", sIRC->_Host.c_str(), cCount);
+           if (this->Connect(sIRC->_Host.c_str(), sIRC->_Port))
            {
                // On connection success reset the connection counter
                cCount = 0;
                TC_LOG_ERROR("misc", "*** TriniChat: Connected And Logging In*");
                 // Login to the IRC server
-                if (this->Login(sIRC._Nick, sIRC._User, sIRC._Pass))
+                if (this->Login(sIRC->_Nick, sIRC->_User, sIRC->_Pass))
                 {
                     TC_LOG_ERROR("misc", "*** TriniChat: Logged In And Running!! *");
                     // While we are connected to the irc server keep listening for data on the socket
-                    while (sIRC.Connected && !World::IsStopped()){ sIRC.SockRecv(); }
+                    while (sIRC->Connected && !World::IsStopped()){ sIRC->SockRecv(); }
                 }
                 TC_LOG_ERROR("misc", "*** TriniChat: Connection To IRC Server Lost! ***");
             }
@@ -86,16 +83,16 @@ void IRCClient::run()
             // Increase the connection counter
             cCount++;
             // if MAX_CONNECT_ATTEMPT is reached stop trying
-            if (sIRC._MCA != 0 && cCount == sIRC._MCA)
-                sIRC.Active = false;
+            if (sIRC->_MCA != 0 && cCount == sIRC->_MCA)
+                sIRC->Active = false;
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
-            if (sIRC.Active)
-                ACE_Based::Thread::Sleep(sIRC._wct);
+            if (sIRC->Active)
+                ACE_Based::Thread::Sleep(sIRC->_wct);
         }
         else
         {
             // Socket could not initialize cancel
-            sIRC.Active = false;
+            sIRC->Active = false;
             TC_LOG_ERROR("misc", "** TriniChat: Could not initialize socket");
         }
     }
@@ -104,5 +101,5 @@ void IRCClient::run()
 
 std::string IRCClient::GetChatLine(int nItem)
 {
-    return sIRC.ILINES[nItem];
+    return sIRC->ILINES[nItem];
 }

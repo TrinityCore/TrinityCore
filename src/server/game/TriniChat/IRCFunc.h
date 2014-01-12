@@ -203,38 +203,38 @@ std::string MakeMsgA(const char *sLine, ...)
 
 std::string MakeMsgP(int CLINE, std::string Msg, Player *plr)
 {
-    std::string sMsg = sIRC.MakeMsg(sIRC.GetChatLine(CLINE), "$Msg", Msg);
+    std::string sMsg = sIRC->MakeMsg(sIRC->GetChatLine(CLINE), "$Msg", Msg);
     if (plr->GetTeam() == 67)
-        sMsg = sIRC.MakeMsg(sMsg, "$Name", MakeMsgA("\0034%s\003", plr->GetName().c_str()));
+        sMsg = sIRC->MakeMsg(sMsg, "$Name", MakeMsgA("\0034%s\003", plr->GetName().c_str()));
     else if (plr->GetTeam() == 469)
-        sMsg = sIRC.MakeMsg(sMsg, "$Name", MakeMsgA("\00312%s\003", plr->GetName().c_str()));
+        sMsg = sIRC->MakeMsg(sMsg, "$Name", MakeMsgA("\00312%s\003", plr->GetName().c_str()));
     if (plr->isAFK())
-        sMsg = sIRC.MakeMsg(sMsg, "$Tag", "<AFK>");
+        sMsg = sIRC->MakeMsg(sMsg, "$Tag", "<AFK>");
     else if (plr->isDND())
-        sMsg = sIRC.MakeMsg(sMsg, "$Tag", "<DND>");
+        sMsg = sIRC->MakeMsg(sMsg, "$Tag", "<DND>");
     else
-        sMsg = sIRC.MakeMsg(sMsg, "$Tag", "");
-    sMsg = sIRC.MakeMsg(sMsg, "$Level", MakeMsgA("%d", plr->getLevel()));
+        sMsg = sIRC->MakeMsg(sMsg, "$Tag", "");
+    sMsg = sIRC->MakeMsg(sMsg, "$Level", MakeMsgA("%d", plr->getLevel()));
     if (plr->getClass() == 1)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\0035WR\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0035WR\003"));
 	else if (plr->getClass() == 2)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\00313PA\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00313PA\003"));
 	else if (plr->getClass() == 3)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\0033HU\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0033HU\003"));
 	else if (plr->getClass() == 4)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\00310RO\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00310RO\003"));
 	else if (plr->getClass() == 5)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\00314PR\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00314PR\003"));
 	else if (plr->getClass() == 6)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\0034DK\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0034DK\003"));
 	else if (plr->getClass() == 7)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\00312SH\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00312SH\003"));
 	else if (plr->getClass() == 8)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\00311MA\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\00311MA\003"));
 	else if (plr->getClass() == 9)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\0036WL\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0036WL\003"));
 	else if (plr->getClass() == 11)
-		sMsg = sIRC.MakeMsg(sMsg, "$Class", MakeMsgA("\0037DR\003"));
+		sMsg = sIRC->MakeMsg(sMsg, "$Class", MakeMsgA("\0037DR\003"));
     sMsg = Delink(sMsg);
     sMsg = WoWcol2IRC(sMsg);
     return sMsg;
@@ -244,9 +244,9 @@ std::string MakeMsgP(int CLINE, std::string Msg, Player *plr)
 // TriniChat supports as many channels as you like
 bool Channel_Valid(std::string Channel)
 {
-    for (int i=1;i < sIRC._chan_count + 1;i++)
+    for (int i=1;i < sIRC->_chan_count + 1;i++)
     {
-        if (nocase_cmp(sIRC._wow_chan[i], Channel)==0)
+        if (nocase_cmp(sIRC->_wow_chan[i], Channel)==0)
             return true;
     }
     return false;
@@ -254,20 +254,20 @@ bool Channel_Valid(std::string Channel)
 
 std::string GetWoWChannel(std::string Channel)
 {
-    for (int i=1;i < sIRC._chan_count + 1;i++)
+    for (int i=1;i < sIRC->_chan_count + 1;i++)
     {
-        if ("#" + sIRC._irc_chan[i] == Channel)
-            return sIRC._wow_chan[i];
+        if ("#" + sIRC->_irc_chan[i] == Channel)
+            return sIRC->_wow_chan[i];
     }
     return "";
 }
 
 std::string GetIRCChannel(std::string Channel)
 {
-    for (int i=1;i < sIRC._chan_count + 1;i++)
+    for (int i=1;i < sIRC->_chan_count + 1;i++)
     {
-        if (sIRC._wow_chan[i] == Channel)
-            return sIRC._irc_chan[i];
+        if (sIRC->_wow_chan[i] == Channel)
+            return sIRC->_irc_chan[i];
     }
     return "";
 }

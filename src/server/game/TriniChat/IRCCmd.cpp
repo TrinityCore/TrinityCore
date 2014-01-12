@@ -63,7 +63,7 @@ int IRCCmd::ParamsValid(_CDATA *CD, int pCnt, int rLev)
 bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::string TYPE)
 {
     // If the first line of our chat is the command prefix we have a command
-    if (CHAT.substr(0, 1) == sIRC._cmd_prefx && CHAT.size() > 1)
+    if (CHAT.substr(0, 1) == sIRC->_cmd_prefx && CHAT.size() > 1)
     {
         _CDATA CDATA;
         bool cValid    = false;
@@ -78,38 +78,38 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         CDATA.PARAMS    = _PARAMS[1];
         if (CDATA.CMD == "LOGIN")
         {
-            if (FROM == sIRC._Nick)
+            if (FROM == sIRC->_Nick)
             {             
                 if (ParamsValid(&CDATA, 2))  
                     Handle_Login(&CDATA);
                 else
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"login <Player> <Password>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"login <Player> <Password>)", true, "ERROR");
             }
             else
-                sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Please Send A PM To Login!", true, "ERROR");
-            if (GetLevel(USER) >= sIRC.gmlog)
+                sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Please Send A PM To Login!", true, "ERROR");
+            if (GetLevel(USER) >= sIRC->gmlog)
                 dontlog = false;
             cValid = true;
         }
         else if (CDATA.CMD == "LOGOUT")
         {
-            if (FROM == sIRC._Nick)
+            if (FROM == sIRC->_Nick)
             {
                 Handle_Logout(&CDATA);
             }
             else
-                sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Please Send A PM To Logout!", true, "ERROR");
+                sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Please Send A PM To Logout!", true, "ERROR");
             cValid = true;
         }
         else if (CDATA.CMD == "ACCT")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CACCT))
+            switch(ParamsValid(&CDATA, 2, sIRC->CACCT))
             {
                 case E_OK:
                     Account_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"acct <Player> <(un)lock/email/pass/rename/gmlevel>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"acct <Player> <(un)lock/email/pass/rename/gmlevel>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -119,13 +119,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "BAN")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CBAN))
+            switch(ParamsValid(&CDATA, 2, sIRC->CBAN))
             {
                 case E_OK:
                     Ban_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"ban <Player> <acct/ip>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"ban <Player> <acct/ip>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -135,13 +135,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "CHAN")
         {
-            switch(ParamsValid(&CDATA, 1, sIRC.CCHAN))
+            switch(ParamsValid(&CDATA, 1, sIRC->CCHAN))
             {
                 case E_OK:
                     Chan_Control(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"chan <op> <IRC User>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"chan <op> <IRC User>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -151,13 +151,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "CHAR")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CCHAR))
+            switch(ParamsValid(&CDATA, 2, sIRC->CCHAR))
             {
                 case E_OK:
                     Char_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"char <Player> <mailcheat/taxicheat/maxskill/setskill/quest/mod>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"char <Player> <mailcheat/taxicheat/maxskill/setskill/quest/mod>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -167,13 +167,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "FUN")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CFUN))
+            switch(ParamsValid(&CDATA, 2, sIRC->CFUN))
             {
                 case E_OK:
                     Fun_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"fun <Player> <Sound/Say>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"fun <Player> <Sound/Say>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -183,13 +183,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "HELP")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CHELP))
+            switch(ParamsValid(&CDATA, 0, sIRC->CHELP))
             {
                 case E_OK:
                     Help_IRC(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"help <Command>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"help <Command>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -199,13 +199,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "INCHAN")
         {
-            switch(ParamsValid(&CDATA, 1, sIRC.CINCHAN))
+            switch(ParamsValid(&CDATA, 1, sIRC->CINCHAN))
             {
                 case E_OK:
                     Inchan_Server(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"inchan <Channel>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"inchan <Channel>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -215,13 +215,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "INFO")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CINFO))
+            switch(ParamsValid(&CDATA, 0, sIRC->CINFO))
             {
                 case E_OK:
                     Info_Server(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"info)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"info)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -232,13 +232,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "ITEM")
         {
             CDATA.PCOUNT = 3;
-            switch(ParamsValid(&CDATA, 2, sIRC.CITEM))
+            switch(ParamsValid(&CDATA, 2, sIRC->CITEM))
             {
                 case E_OK:
                     Item_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"item <Player> <add> <ItemID/[ItemName]> <Amount>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"item <Player> <add> <ItemID/[ItemName]> <Amount>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -249,13 +249,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "JAIL")
         {
             CDATA.PCOUNT = 3;
-            switch(ParamsValid(&CDATA, 1, sIRC.CJAIL))
+            switch(ParamsValid(&CDATA, 1, sIRC->CJAIL))
             {
                 case E_OK:
                     Jail_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"jail <Player> <release/Reason>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"jail <Player> <release/Reason>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -266,13 +266,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "KICK")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 1, sIRC.CKICK))
+            switch(ParamsValid(&CDATA, 1, sIRC->CKICK))
             {
                 case E_OK:
                     Kick_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"kick <Player> <Reason>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"kick <Player> <Reason>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -283,13 +283,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "KILL")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 1, sIRC._KILL))
+            switch(ParamsValid(&CDATA, 1, sIRC->_KILL))
             {
                 case E_OK:
                     Kill_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"kill <Player> <Reason>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"kill <Player> <Reason>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -300,13 +300,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "LEVEL")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 2, sIRC.CLEVEL))
+            switch(ParamsValid(&CDATA, 2, sIRC->CLEVEL))
             {
                 case E_OK:
                     Level_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"level <Player> <NewLevel>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"level <Player> <NewLevel>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -317,13 +317,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "LOOKUP")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 2, sIRC.CLOOKUP))
+            switch(ParamsValid(&CDATA, 2, sIRC->CLOOKUP))
             {
                 case E_OK:
                     Lookup_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"lookup <acct/char/creature/faction/go/item/quest/skill/spell/tele> <ID/Name>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"lookup <acct/char/creature/faction/go/item/quest/skill/spell/tele> <ID/Name>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -334,13 +334,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "MONEY")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 2, sIRC.CMONEY))
+            switch(ParamsValid(&CDATA, 2, sIRC->CMONEY))
             {
                 case E_OK:
                     Money_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"money <Player> <(-)Money>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"money <Player> <(-)Money>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -350,13 +350,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "MUTE")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CMUTE))
+            switch(ParamsValid(&CDATA, 2, sIRC->CMUTE))
             {
                 case E_OK:
                     Mute_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"mute <Player> <release/TimeInMins> <Reason>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"mute <Player> <release/TimeInMins> <Reason>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -366,13 +366,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "ONLINE")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CONLINE))
+            switch(ParamsValid(&CDATA, 0, sIRC->CONLINE))
             {
                 case E_OK:
                     Online_Players(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"online)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"online)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -382,13 +382,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "PM")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CPM))
+            switch(ParamsValid(&CDATA, 2, sIRC->CPM))
             {
                 case E_OK:
                     PM_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"pm <Player> <Message>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"pm <Player> <Message>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -398,10 +398,10 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "RELOAD")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CRELOAD))
+            switch(ParamsValid(&CDATA, 0, sIRC->CRELOAD))
             {
                 case E_OK:
-                    sIRC.Send_IRC_Channels("Reloading Configiguration Options.");
+                    sIRC->Send_IRC_Channels("Reloading Configiguration Options.");
                     sWorld->LoadConfigSettings(true);
                     break;
                 case E_AUTH:
@@ -412,11 +412,11 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "RECONNECT")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CRECONNECT))
+            switch(ParamsValid(&CDATA, 0, sIRC->CRECONNECT))
             {
                 case E_OK:
-                    sIRC.Send_IRC_Channels(sIRC.RstMsg);
-                    sIRC.ResetIRC();
+                    sIRC->Send_IRC_Channels(sIRC->RstMsg);
+                    sIRC->ResetIRC();
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -426,13 +426,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "RESTART")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CSHUTDOWN))
+            switch(ParamsValid(&CDATA, 0, sIRC->CSHUTDOWN))
             {
                 case E_OK:
                     Restart_Trinity(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"server <setmotd/flusharenapoints/sec_number_for_restart>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"server <setmotd/flusharenapoints/sec_number_for_restart>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -443,13 +443,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "REVIVE")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 1, sIRC.CREVIVE))
+            switch(ParamsValid(&CDATA, 1, sIRC->CREVIVE))
             {
                 case E_OK:
                     Revive_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"revive <Player>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"revive <Player>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -459,7 +459,7 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "SAVEALL")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CSAVEALL))
+            switch(ParamsValid(&CDATA, 0, sIRC->CSAVEALL))
             {
                 case E_OK:
                     Saveall_Player(&CDATA);
@@ -473,13 +473,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "SERVER")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 2, sIRC.CSERVERCMD))
+            switch(ParamsValid(&CDATA, 2, sIRC->CSERVERCMD))
             {
                 case E_OK:
                     Server(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"server <setmotd/flusharenapoints>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"server <setmotd/flusharenapoints>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -489,13 +489,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "SHUTDOWN")
         {
-            switch(ParamsValid(&CDATA, 1, sIRC.CSHUTDOWN))
+            switch(ParamsValid(&CDATA, 1, sIRC->CSHUTDOWN))
             {
                 case E_OK:
                     Shutdown_Trinity(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"shutdown <TimeInSeconds>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"shutdown <TimeInSeconds>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -505,13 +505,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "SPELL")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CSPELL))
+            switch(ParamsValid(&CDATA, 2, sIRC->CSPELL))
             {
                 case E_OK:
                     Spell_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"spell <Player> <Cast/Learn/UnLearn> <SpellID>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"spell <Player> <Cast/Learn/UnLearn> <SpellID>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -522,13 +522,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "SYSMSG")
         {
             CDATA.PCOUNT = 2;
-            switch(ParamsValid(&CDATA, 2, sIRC.CSYSMSG))
+            switch(ParamsValid(&CDATA, 2, sIRC->CSYSMSG))
             {
                 case E_OK:
                     Sysmsg_Server(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"sysmsg <a/e/n/add/del/list> <Message>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"sysmsg <a/e/n/add/del/list> <Message>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -538,13 +538,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
         else if (CDATA.CMD == "TELE")
         {
-            switch(ParamsValid(&CDATA, 2, sIRC.CTELE))
+            switch(ParamsValid(&CDATA, 2, sIRC->CTELE))
             {
                 case E_OK:
                     Tele_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"tele <Player> <l/c/r/to/cr/go/homebind> <Loc.Name/MAPID X Y Z/Recall/Player/Creature GUID/GO GUID/Homebind>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"tele <Player> <l/c/r/to/cr/go/homebind> <Loc.Name/MAPID X Y Z/Recall/Player/Creature GUID/GO GUID/Homebind>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -555,13 +555,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "TOP")
         {
             CDATA.PCOUNT = 1;
-            switch(ParamsValid(&CDATA, 1, sIRC.CTOP))
+            switch(ParamsValid(&CDATA, 1, sIRC->CTOP))
             {
                 case E_OK:
                     Top_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"top <accttime/chartime/money> <limit>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"top <accttime/chartime/money> <limit>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -572,13 +572,13 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         else if (CDATA.CMD == "PLAYER")
         {
             CDATA.PCOUNT = 1;
-            switch(ParamsValid(&CDATA, 1, sIRC.CPLAYER))
+            switch(ParamsValid(&CDATA, 1, sIRC->CPLAYER))
             {
                 case E_OK:
                     Player_Player(&CDATA);
                     break;
                 case E_SIZE:
-                    sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC._cmd_prefx+"player <PLAYER>)", true, "ERROR");
+                    sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Syntax Error! ("+sIRC->_cmd_prefx+"player <PLAYER>)", true, "ERROR");
                     break;
                 case E_AUTH:
                     AuthValid = false;
@@ -588,7 +588,7 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
         }
 		else if (CDATA.CMD == "WHO")
         {
-            switch(ParamsValid(&CDATA, 0, sIRC.CWHO))
+            switch(ParamsValid(&CDATA, 0, sIRC->CWHO))
             {
                 case E_OK:
                     Who_Logged(&CDATA);
@@ -600,19 +600,19 @@ bool IRCCmd::IsValid(std::string USER, std::string FROM, std::string CHAT, std::
             cValid = true;
         }
         if (!AuthValid && IsLoggedIn(USER))
-            sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Access Denied! Your Security Level Is Too Low To Use This Command!", true, "ERROR");
-        if (cValid == false && (sIRC.BOTMASK & 4) != 0)
-            sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : Unknown Command!", true, "ERROR");
+            sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Access Denied! Your Security Level Is Too Low To Use This Command!", true, "ERROR");
+        if (cValid == false && (sIRC->BOTMASK & 4) != 0)
+            sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : Unknown Command!", true, "ERROR");
         if (cValid && dontlog)
         {
-            sIRC.iLog.WriteLog(" %s : [ %s(%d) ] Used Command: [ %s ] With Parameters: [ %s ]", sIRC.iLog.GetLogDateTimeStr().c_str(), CDATA.USER.c_str(), GetLevel(USER), CDATA.CMD.c_str(), CDATA.PARAMS.c_str());
-            if ((sIRC.logmask & 1) != 0)
+            sIRC->iLog.WriteLog(" %s : [ %s(%d) ] Used Command: [ %s ] With Parameters: [ %s ]", sIRC->iLog.GetLogDateTimeStr().c_str(), CDATA.USER.c_str(), GetLevel(USER), CDATA.CMD.c_str(), CDATA.PARAMS.c_str());
+            if ((sIRC->logmask & 1) != 0)
             {
                 std::string logchan = "#";
-                logchan += sIRC.logchan;
+                logchan += sIRC->logchan;
                 std::stringstream ss;
-                ss << sIRC.iLog.GetLogDateTimeStr() << ": [ " << CDATA.USER << "(" << GetLevel(USER) << ") ] Used Command: [ " << CDATA.CMD << " ] With Parameters: [" << CDATA.PARAMS << " ]";
-                sIRC.Send_IRC_Channel(logchan, ss.str().c_str(), true);
+                ss << sIRC->iLog.GetLogDateTimeStr() << ": [ " << CDATA.USER << "(" << GetLevel(USER) << ") ] Used Command: [ " << CDATA.CMD << " ] With Parameters: [" << CDATA.PARAMS << " ]";
+                sIRC->Send_IRC_Channel(logchan, ss.str().c_str(), true);
             }
         }
         return cValid;
@@ -634,13 +634,13 @@ bool IRCCmd::CanUse(std::string USER, int nLevel)
         return true;
     }
     else
-        sIRC.Send_IRC_Channel(USER, "\0034[ERROR] : You Are Not Logged In!", true, "ERROR");
+        sIRC->Send_IRC_Channel(USER, "\0034[ERROR] : You Are Not Logged In!", true, "ERROR");
     return false;
 }
 
 std::string IRCCmd::ChanOrPM(_CDATA *CD)
 {
-    if (CD->FROM == sIRC._Nick)
+    if (CD->FROM == sIRC->_Nick)
         return CD->USER;
     else
         return CD->FROM;
@@ -891,7 +891,7 @@ void IRCClient::AHCancel(uint64 itmid, std::string itmnme, std::string plname, u
         std::string wowstr = Command.MakeMsg("%s Auction has been canceled |cffffffff|Hitem:%s:0:0:0:0:0:0:0|h[%s]|h|r. By: %s",wowfact.c_str(), itemid.c_str(), itemname.c_str(), wowname.c_str());
         std::string ircstr = Command.MakeMsg("%s Auction has been canceled [%s]. By: %s", ircfact.c_str(), itemname.c_str(), ircname.c_str());
 
-        sIRC.Send_WoW_Channel(sIRC._wow_chan[sIRC.Status].c_str(), wowstr.c_str());
-        sIRC.Send_IRC_Channel(sIRC._irc_chan[sIRC.Status].c_str(), ircstr.c_str());
+        sIRC->Send_WoW_Channel(sIRC->_wow_chan[sIRC->Status].c_str(), wowstr.c_str());
+        sIRC->Send_IRC_Channel(sIRC->_irc_chan[sIRC->Status].c_str(), ircstr.c_str());
     }
 }

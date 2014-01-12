@@ -41,8 +41,8 @@
 #pragma warning(disable:4804)
 #pragma warning(disable:4700)
 
-#define Send_Player(p, m)           sIRC.Send_WoW_Player(p, m)
-#define Send_IRCA(c, m, b, t)       sIRC.Send_IRC_Channel(c, m, b, t)
+#define Send_Player(p, m)           sIRC->Send_WoW_Player(p, m)
+#define Send_IRCA(c, m, b, t)       sIRC->Send_IRC_Channel(c, m, b, t)
 
 #ifdef WIN32
 #define Delay(x) Sleep(x)
@@ -76,10 +76,10 @@ void IRCCmd::Handle_Login(_CDATA *CD)
                         _CLIENTS.push_back(NewClient);
                         Send_IRCA(CD->USER, MakeMsg("You Are Now Logged In As %s.", _PARAMS[0].c_str()), true, CD->TYPE);
 
-                        if (sIRC._op_gm == 1 && GMLevel >= sIRC._op_gm_lev)
+                        if (sIRC->_op_gm == 1 && GMLevel >= sIRC->_op_gm_lev)
                         {
-                            for (int i=1;i < sIRC._chan_count + 1;i++)
-                            sIRC.SendIRC("MODE #"+sIRC._irc_chan[i]+" +o "+CD->USER);
+                            for (int i=1;i < sIRC->_chan_count + 1;i++)
+                            sIRC->SendIRC("MODE #"+sIRC->_irc_chan[i]+" +o "+CD->USER);
                         }
                     }
                 }
@@ -122,7 +122,7 @@ void IRCCmd::Handle_Logout(_CDATA *CD)
 void IRCCmd::Account_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 3);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -133,7 +133,7 @@ void IRCCmd::Account_Player(_CDATA *CD)
     account_id = sObjectMgr->GetPlayerAccountIdByGUID(guid);
     if (account_id)
     {
-        if (account_id == GetAcctIDFromName(CD->USER) || GetLevel(CD->USER) >= sIRC._op_gm_lev)
+        if (account_id == GetAcctIDFromName(CD->USER) || GetLevel(CD->USER) >= sIRC->_op_gm_lev)
         {
             Player* plr = ObjectAccessor::FindPlayer(guid);
             if (_PARAMS[1] == "lock")
@@ -195,7 +195,7 @@ void IRCCmd::Ban_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 4);
     std::string duration = SecToDay (_PARAMS[3].c_str());
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -262,7 +262,7 @@ void IRCCmd::Ban_Player(_CDATA *CD)
 void IRCCmd::Char_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 5);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -529,7 +529,7 @@ void IRCCmd::Char_Player(_CDATA *CD)
 void IRCCmd::Fun_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 3);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -646,7 +646,7 @@ void IRCCmd::Inchan_Server(_CDATA *CD)
     std::string* _PARAMS = getArray(CD->PARAMS, 1);
     if (_PARAMS[0] == "")
     {
-        Send_IRCA(CD->USER, "Syntax Error! ("+sIRC._cmd_prefx+"inchan <ChannelName>)", true, "ERROR");
+        Send_IRCA(CD->USER, "Syntax Error! ("+sIRC->_cmd_prefx+"inchan <ChannelName>)", true, "ERROR");
         return;
     }
     QueryResult result = WorldDatabase.PQuery("SELECT * FROM `irc_inchan` WHERE `channel` = '%s' ORDER BY `name`", _PARAMS[0].c_str());
@@ -718,7 +718,7 @@ void IRCCmd::Item_Player(_CDATA *CD)
             }
             else
             {
-                Send_IRCA(CD->USER, "Syntax Error! ("+sIRC._cmd_prefx+"item <Player> <add> [Exact Item Name] <Amount>)", true, "ERROR");
+                Send_IRCA(CD->USER, "Syntax Error! ("+sIRC->_cmd_prefx+"item <Player> <add> [Exact Item Name] <Amount>)", true, "ERROR");
                 return;
             }
         }
@@ -736,7 +736,7 @@ void IRCCmd::Item_Player(_CDATA *CD)
             char* cId = strtok(args, " ");
             if (!cId)
             {
-                Send_IRCA(CD->USER, "Syntax Error! ("+sIRC._cmd_prefx+"item <Player> <add> <ItemID> <Amount>)", true, "ERROR");
+                Send_IRCA(CD->USER, "Syntax Error! ("+sIRC->_cmd_prefx+"item <Player> <add> <ItemID> <Amount>)", true, "ERROR");
                 return;
             }
             itemId = atol(cId);
@@ -802,7 +802,7 @@ void IRCCmd::Item_Player(_CDATA *CD)
     }
     else
     {
-        Send_IRCA(CD->USER, "Syntax Error! ("+sIRC._cmd_prefx+"item <Player> <add> <ItemID> <Amount>)", true, "ERROR");
+        Send_IRCA(CD->USER, "Syntax Error! ("+sIRC->_cmd_prefx+"item <Player> <add> <ItemID> <Amount>)", true, "ERROR");
         return;
     }
 }
@@ -812,7 +812,7 @@ void IRCCmd::Jail_Player(_CDATA *CD)
     if (ValidParams(CD->PARAMS, 1))
     {
         std::string* _PARAMS = getArray(CD->PARAMS, 2);
-        if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+        if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
         {
             Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
             return;
@@ -866,7 +866,7 @@ void IRCCmd::Jail_Player(_CDATA *CD)
 void IRCCmd::Kick_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, CD->PCOUNT);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -878,7 +878,7 @@ void IRCCmd::Kick_Player(_CDATA *CD)
         plr->GetSession()->KickPlayer();
         Send_IRCA(ChanOrPM(CD), "\00313["+_PARAMS[0]+"] : Has Been Kicked By: "+CD->USER+". Reason: "+_PARAMS[1]+".", true, CD->TYPE);
         if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-            sIRC.Send_WoW_System("Player|cffff0000 "+_PARAMS[0]+"|r kicked by|cffff0000 "+CD->USER+"|r. Reason:|cffff0000"+_PARAMS[1]+"|r.");
+            sIRC->Send_WoW_System("Player|cffff0000 "+_PARAMS[0]+"|r kicked by|cffff0000 "+CD->USER+"|r. Reason:|cffff0000"+_PARAMS[1]+"|r.");
     }
     else
         Send_IRCA(CD->USER, ""+_PARAMS[0]+" Is Not Online!", true, "ERROR");
@@ -887,7 +887,7 @@ void IRCCmd::Kick_Player(_CDATA *CD)
 void IRCCmd::Kill_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, CD->PCOUNT);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -914,7 +914,7 @@ void IRCCmd::Player_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, CD->PCOUNT);
     uint32 plguid = atoi(_PARAMS[0].c_str());
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -1542,7 +1542,7 @@ void IRCCmd::Lookup_Player(_CDATA *CD)
 void IRCCmd::Level_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, CD->PCOUNT);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -1611,7 +1611,7 @@ void IRCCmd::Level_Player(_CDATA *CD)
 void IRCCmd::Money_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 2);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -1694,7 +1694,7 @@ void IRCCmd::Money_Player(_CDATA *CD)
 void IRCCmd::Mute_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 3);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -1745,7 +1745,7 @@ void IRCCmd::Mute_Player(_CDATA *CD)
 
 void IRCCmd::Online_Players(_CDATA *CD)
 {
-        sIRC.Script_Lock[MCS_Players_Online] = true;
+        sIRC->Script_Lock[MCS_Players_Online] = true;
         ACE_Based::Thread script(new mcs_OnlinePlayers(CD));
 }
 
@@ -1811,7 +1811,7 @@ void IRCCmd::Revive_Player(_CDATA *CD)
             plr->ResurrectPlayer(0.5f);
             plr->SpawnCorpseBones();
             plr->SaveToDB();
-            sIRC.Send_IRC_Channel(ChanOrPM(CD), " \00313["+_PARAMS[0]+"] : Has Been Revived By: " + CD->USER, true, CD->TYPE);
+            sIRC->Send_IRC_Channel(ChanOrPM(CD), " \00313["+_PARAMS[0]+"] : Has Been Revived By: " + CD->USER, true, CD->TYPE);
             Send_Player(plr, MakeMsg("You Have Been Revived By: %s.", CD->USER.c_str()));
         }
         else
@@ -1868,7 +1868,7 @@ void IRCCmd::Shutdown_Trinity(_CDATA *CD)
 void IRCCmd::Spell_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 3);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -1907,13 +1907,13 @@ void IRCCmd::Sysmsg_Server(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, CD->PCOUNT);
     std::string ircchan = "#";
-    ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
+    ircchan += sIRC->_irc_chan[sIRC->anchn].c_str();
     if (_PARAMS[0] == "a")
     {
         std::string str = _PARAMS[1];
         std::string ancmsg = MakeMsg("\00304,08\037/!\\\037\017\00304 System Message \00304,08\037/!\\\037\017 %s",_PARAMS[1].c_str());
         sWorld->SendWorldText(6620,str.c_str());
-        sIRC.Send_IRC_Channel(ircchan, ancmsg, true);
+        sIRC->Send_IRC_Channel(ircchan, ancmsg, true);
     }
     else if (_PARAMS[0] == "e")
     {
@@ -1927,7 +1927,7 @@ void IRCCmd::Sysmsg_Server(_CDATA *CD)
         sWorld->SendGlobalMessage(&data2);
         sWorld->SendGlobalMessage(&data);
         sWorld->SendWorldText(6621,str.c_str());
-        sIRC.Send_IRC_Channel(ircchan, notmsg, true);
+        sIRC->Send_IRC_Channel(ircchan, notmsg, true);
     }
     else if (_PARAMS[0] == "n")
     {
@@ -1936,7 +1936,7 @@ void IRCCmd::Sysmsg_Server(_CDATA *CD)
         WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
         data << str;
         sWorld->SendGlobalMessage(&data);
-        sIRC.Send_IRC_Channel(ircchan, notmsg, true);
+        sIRC->Send_IRC_Channel(ircchan, notmsg, true);
     }
     else if (_PARAMS[0] == "gm")
     {
@@ -1952,7 +1952,7 @@ void IRCCmd::Sysmsg_Server(_CDATA *CD)
         std::string str = _PARAMS[1];
         std::string ancmsg = MakeMsg("\00304,08\037/!\\\037\017\00304 Automatic System Message \00304,08\037/!\\\037\017 %s",_PARAMS[1].c_str());
         sWorld->SendWorldText(6622,str.c_str());
-        sIRC.Send_IRC_Channel(ircchan, ancmsg, true);
+        sIRC->Send_IRC_Channel(ircchan, ancmsg, true);
     }
     else if (_PARAMS[0] == "del")
     {
@@ -1984,7 +1984,7 @@ void IRCCmd::Sysmsg_Server(_CDATA *CD)
 void IRCCmd::Tele_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 4);
-    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC.BOTMASK & 512)!= 0)
+    if (AcctLevel(_PARAMS[0]) > GetLevel(CD->USER) && (sIRC->BOTMASK & 512)!= 0)
     {
         Send_IRCA(CD->USER, MakeMsg("You do not have access to do this to a higher ranked GM [%i]", AcctLevel(_PARAMS[0])), true, "ERROR");
         return;
@@ -2209,21 +2209,21 @@ void IRCCmd::Tele_Player(_CDATA *CD)
     {
         if (MapManager::IsValidMapCoord(mapid, pX ,pY ,pZ))
         {
-            //if (!sIRC.BeenToGMI(pX, pY, _PARAMS[0], CD->USER))
+            //if (!sIRC->BeenToGMI(pX, pY, _PARAMS[0], CD->USER))
             //{
                 //if player is online teleport them in real time, if not set the DB to our coordinates.
                 if (plr)
                 {
                     plr->SaveRecallPosition();
                     plr->TeleportTo(mapid, pX, pY, pZ, pO);
-                    sIRC.Send_IRC_Channel(ChanOrPM(CD), rMsg, true, CD->TYPE);
+                    sIRC->Send_IRC_Channel(ChanOrPM(CD), rMsg, true, CD->TYPE);
                     Send_Player(plr, wMsg);
                 }
                 else
                 {
                     uint64 guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
                     Player::SavePositionInDB(mapid,pX,pY,pZ,pO,sMapMgr->GetZoneId(mapid,pX,pY,pZ),guid);
-                    sIRC.Send_IRC_Channel(ChanOrPM(CD), rMsg + " \0034*Offline Tele.* ", true, CD->TYPE);
+                    sIRC->Send_IRC_Channel(ChanOrPM(CD), rMsg + " \0034*Offline Tele.* ", true, CD->TYPE);
                 }
             //}
         }
@@ -2231,14 +2231,14 @@ void IRCCmd::Tele_Player(_CDATA *CD)
             Send_IRCA(CD->USER, "Invalid Location!", true, "ERROR");
     }
     else
-        Send_IRCA(CD->USER, "Invalid Paramaters, Please Try Again [ "+sIRC._cmd_prefx+"help tele ] For More Information. ", true, "ERROR");
+        Send_IRCA(CD->USER, "Invalid Paramaters, Please Try Again [ "+sIRC->_cmd_prefx+"help tele ] For More Information. ", true, "ERROR");
 }
 
 void IRCCmd::Top_Player(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 2);
     uint32 limitr = 10;
-    if (atoi(_PARAMS[1].c_str()) > 0 && GetLevel(CD->USER) >= sIRC._op_gm_lev)
+    if (atoi(_PARAMS[1].c_str()) > 0 && GetLevel(CD->USER) >= sIRC->_op_gm_lev)
         limitr = atoi(_PARAMS[1].c_str());
     if (_PARAMS[0] == "accttime")
     {
@@ -2320,7 +2320,7 @@ void IRCCmd::Chan_Control(_CDATA *CD)
 
     std::string* _PARAMS = getArray(CD->PARAMS, 2);
 
-	if (CD->FROM == sIRC._Nick)
+	if (CD->FROM == sIRC->_Nick)
     {
         Send_IRCA(CD->USER, "\0034[ERROR] : You Cannot Use This Command Through A PM Yet.", true, "ERROR");
         return;
@@ -2329,32 +2329,32 @@ void IRCCmd::Chan_Control(_CDATA *CD)
 	if (_PARAMS[0] == "op")
     {
         if (_PARAMS[1].length() > 1)
-            sIRC.SendIRC("MODE "+CD->FROM+" +o "+_PARAMS[1]);
+            sIRC->SendIRC("MODE "+CD->FROM+" +o "+_PARAMS[1]);
         else
-            sIRC.SendIRC("MODE "+CD->FROM+" +o "+CD->USER);
+            sIRC->SendIRC("MODE "+CD->FROM+" +o "+CD->USER);
     }
 
 	if (_PARAMS[0] == "deop")
     {
         if (_PARAMS[1].length() > 1)
-            sIRC.SendIRC("MODE "+CD->FROM+" -o "+_PARAMS[1]);
+            sIRC->SendIRC("MODE "+CD->FROM+" -o "+_PARAMS[1]);
         else
-            sIRC.SendIRC("MODE "+CD->FROM+" -o "+CD->USER);
+            sIRC->SendIRC("MODE "+CD->FROM+" -o "+CD->USER);
     }
 
     if (_PARAMS[0] == "voice")
     {
         if (_PARAMS[1].length() > 1)
-            sIRC.SendIRC("MODE "+CD->FROM+" +v "+_PARAMS[1]);
+            sIRC->SendIRC("MODE "+CD->FROM+" +v "+_PARAMS[1]);
         else
-            sIRC.SendIRC("MODE "+CD->FROM+" +v "+CD->USER);
+            sIRC->SendIRC("MODE "+CD->FROM+" +v "+CD->USER);
     }
     if (_PARAMS[0] == "devoice")
     {
         if (_PARAMS[1].length() > 1)
-            sIRC.SendIRC("MODE "+CD->FROM+" -v "+_PARAMS[1]);
+            sIRC->SendIRC("MODE "+CD->FROM+" -v "+_PARAMS[1]);
         else
-            sIRC.SendIRC("MODE "+CD->FROM+" -v "+CD->USER);
+            sIRC->SendIRC("MODE "+CD->FROM+" -v "+CD->USER);
     }
 };
 void IRCCmd::Who_Logged(_CDATA *CD)

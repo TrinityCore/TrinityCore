@@ -210,7 +210,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
 
     JoinNotify(guid);
 
-    sIRC.Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_JOIN);
+    sIRC->Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_JOIN);
 
     // Custom channel handling
     if (!IsConstant())
@@ -262,7 +262,7 @@ void Channel::LeaveChannel(Player* player, bool send)
         SendToAll(&data);
     }
 
-    sIRC.Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_LEAVE);
+    sIRC->Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_LEAVE);
 
     LeaveNotify(guid);
 

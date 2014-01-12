@@ -1089,11 +1089,11 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     uint8 announce = mGameEvent[event_id].announce;
     if (announce == 1 || (announce == 2 && sWorld->getBoolConfig(CONFIG_EVENT_ANNOUNCE)))
         sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
-			if ((sIRC.BOTMASK & 256) != 0)
+			if ((sIRC->BOTMASK & 256) != 0)
 			{
 				std::string ircchan = "#";
-				ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
-				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 Game Event \00304,08\037/!\\\037\017 %s", "%s", mGameEvent[event_id].description.c_str()), true);
+				ircchan += sIRC->_irc_chan[sIRC->anchn].c_str();
+				sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("\00304,08\037/!\\\037\017\00304 Game Event \00304,08\037/!\\\037\017 %s", "%s", mGameEvent[event_id].description.c_str()), true);
 			}
 
     TC_LOG_INFO("gameevent", "GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());

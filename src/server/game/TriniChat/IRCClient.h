@@ -21,7 +21,7 @@
 #ifndef _IRC_CLIENT_H
 #define _IRC_CLIENT_H
 
-#include "framework/Policies/SingletonImp.h"
+#include "ace/Singleton.h"
 #include "Player.h"
 #include "IRCLog.h"
 #include "IRCCmd.h"
@@ -57,42 +57,44 @@ enum CACTION
 
 enum script_Names
 {
-    MCS_Players_Online  = 0,
+    MCS_Players_Online = 0,
 };
 
 // IRCClient main class
 class IRCClient : public ACE_Based::Runnable
 {
+    friend class ACE_Singleton<IRCClient, ACE_Null_Mutex>;
+    
     public:
         // IRCClient Constructor
         IRCClient();
         // IRCClient Destructor
         ~IRCClient();
         // ZThread Entry
-        void run();
+        void run() OVERRIDE;
     public:
         // AH Function
         void AHCancel(uint64 itmid, std::string itmnme, std::string plname, uint32 faction);
         //bool BeenToGMI(float posx, float posy, std::string player, std::string from);
         // IRCClient active
-        bool    Active;
+        bool Active;
         // Connected to IRC
-        bool    Connected;
+        bool Connected;
         // Socket indentifier
-        int     SOCKET;
-        fd_set  sfdset;
+        int SOCKET;
+        fd_set sfdset;
         // Send data to IRC, in addition the endline is added \n
-        bool    SendIRC(std::string data);
+        bool SendIRC(std::string data);
         // This function is called in ChatHandler.cpp and processes the chat from game to IRC
-        void    Send_WoW_IRC(Player *plr, std::string Channel, std::string Msg);
+        void Send_WoW_IRC(Player *plr, std::string Channel, std::string Msg);
         // Sends a message to all players on the specified channel
-        void    Send_WoW_Channel(const char *channel, std::string chat);
+        void Send_WoW_Channel(const char *channel, std::string chat);
         // Send a system message to all players
-        void    Send_WoW_System(std::string Message);
+        void Send_WoW_System(std::string Message);
         // Send a message to the specified IRC channel
-        void    Send_IRC_Channel(std::string sChannel, std::string sMsg, bool NoPrefix = false, std::string nType = "PRIVMSG");
+        void Send_IRC_Channel(std::string sChannel, std::string sMsg, bool NoPrefix = false, std::string nType = "PRIVMSG");
         // Sends a message to all IRC Channels
-        void    Send_IRC_Channels(std::string sMsg);
+        void Send_IRC_Channels(std::string sMsg);
         std::string MakeMsg(std::string msg, std::string var, std::string val)
         {
             std::size_t start = msg.find(var);
@@ -100,12 +102,12 @@ class IRCClient : public ACE_Based::Runnable
                 msg.replace(start, var.length(), val);
             return msg;
         }
-        void    Send_WoW_Player(string sPlayer, string sMsg);
-        void    Send_WoW_Player(Player *plr, string sMsg);
+        void Send_WoW_Player(string sPlayer, string sMsg);
+        void Send_WoW_Player(Player *plr, string sMsg);
 
         // This function is called in Channel.cpp and processes Join/leave messages
-        void    Handle_WoW_Channel(std::string Channel, Player *plr, int nAction);
-        void    ResetIRC();
+        void Handle_WoW_Channel(std::string Channel, Player *plr, int nAction);
+        void ResetIRC();
     public:
         void AutoJoinChannel(Player *plr);
 
@@ -116,24 +118,24 @@ class IRCClient : public ACE_Based::Runnable
     public:
         string _Mver;
         // IRC Server host
-        string  _Host;
+        string _Host;
         // IRC Server Port
         int _Port;
         // IRC Username
-        string  _User;
+        string _User;
         // IRC Password
-        string  _Pass;
+        string _Pass;
         // IRC Nickname
-        string  _Nick;
+        string _Nick;
         //Password for in-game channel
         std::string _irc_pass[MAX_CONF_CHANNELS];
         // Authentication type
         int _Auth;
         string _Auth_Nick;
         // IRC Connect code
-        string  _ICC;
+        string _ICC;
         // IRC Default channel
-        string  _defchan;
+        string _defchan;
         // IRC Leave Default channel
         int _ldefc;
         // Wait Connect Time
@@ -162,65 +164,65 @@ class IRCClient : public ACE_Based::Runnable
         // Online Command Max Results
         int onlrslt;
         // Channel OnJoin/Restart/Kick Messages
-        string  JoinMsg;
-        string  RstMsg;
-        string  kikmsg;
+        string JoinMsg;
+        string RstMsg;
+        string kikmsg;
         // Misc Options
-        string  ojGM1;
-        string  ojGM2;
-        string  ojGM3;
-        string  ojGM4;
-        string  ojGM5;
-        string  ojGM6;
-        string  ojGM7;
-        string  ojGM8;
-        string  logfile;
-        string  logchan;
-        string  logchanpw;
-        int     logmask;
-        int     games;
-        int     gmlog;
+        string ojGM1;
+        string ojGM2;
+        string ojGM3;
+        string ojGM4;
+        string ojGM5;
+        string ojGM6;
+        string ojGM7;
+        string ojGM8;
+        string logfile;
+        string logchan;
+        string logchanpw;
+        int logmask;
+        int games;
+        int gmlog;
         // IRC Commands Security Level
-        int     CACCT;
-        int     CBAN;
-        int     CCHAN;
-        int     CCHAR;
-        int     CFUN;
-        int     CHELP;
-        int     CINCHAN;
-        int     CINFO;
-        int     CITEM;
-        int     CJAIL;
-        int     CKICK;
-        int     _KILL;
-        int     CLEVEL;
-        int     CLOOKUP;
-        int     CMONEY;
-        int     CMUTE;
-        int     CONLINE;
-        int     CPM;
-        int     CRECONNECT;
-        int     CRELOAD;
-        int     CREVIVE;
-        int     CSAVEALL;
-        int     CSERVERCMD;
-        int     CSHUTDOWN;
-        int     CSPELL;
-        int     CSYSMSG;
-        int     CTELE;
-        int     CTOP;
-        int     CPLAYER;
-        int     CWHO;
+        int CACCT;
+        int CBAN;
+        int CCHAN;
+        int CCHAR;
+        int CFUN;
+        int CHELP;
+        int CINCHAN;
+        int CINFO;
+        int CITEM;
+        int CJAIL;
+        int CKICK;
+        int _KILL;
+        int CLEVEL;
+        int CLOOKUP;
+        int CMONEY;
+        int CMUTE;
+        int CONLINE;
+        int CPM;
+        int CRECONNECT;
+        int CRELOAD;
+        int CREVIVE;
+        int CSAVEALL;
+        int CSERVERCMD;
+        int CSHUTDOWN;
+        int CSPELL;
+        int CSYSMSG;
+        int CTELE;
+        int CTOP;
+        int CPLAYER;
+        int CWHO;
         // BotMask
-        int     BOTMASK;
+        int BOTMASK;
         // TicketMask
-        int     TICMASK;
+        int TICMASK;
         // Max connect attempt
-        int     _MCA;
+        int _MCA;
         // Auto rejoin when kicked from irc
-        int     _autojoinkick;
+        int _autojoinkick;
         // IRC Command prefix
-        string  _cmd_prefx;
+        string _cmd_prefx;
         int _op_gm;
         int _op_gm_lev;
         // Array that contains our chatlines from the conf file
@@ -228,8 +230,8 @@ class IRCClient : public ACE_Based::Runnable
         // Make sure the number of elements must match your items
         // (remeber this starts at 0 so 0..9 is 10 items)
         // and that you load the line in the LoadConfig function.
-        string  ILINES[MAX_CHAT_LINES];
-        string  GetChatLine(int nItem);
+        string ILINES[MAX_CHAT_LINES];
+        string GetChatLine(int nItem);
 
         int _Max_Script_Inst;
         // MAX_SCRIPT_INST
@@ -239,19 +241,20 @@ class IRCClient : public ACE_Based::Runnable
 private:
         // Returns default chatline based on enum CLINES
         // Initialize socket library
-        bool    InitSock();
+        bool InitSock();
         // Connect to IRC Server
-        bool    Connect(const char *cHost, int nPort);
+        bool Connect(const char *cHost, int nPort);
         // Login to IRC Server
-        bool    Login(std::string sNick, std::string sUser, std::string sPass);
+        bool Login(std::string sNick, std::string sUser, std::string sPass);
         // Send raw data to IRC
-        bool    SendData(const char *data);
+        bool SendData(const char *data);
         // Disconnect from IRC and cleanup socket
-        void    Disconnect();
+        void Disconnect();
         // Processes the data receieved from IRC
-        void    Handle_IRC(std::string sData);
+        void Handle_IRC(std::string sData);
         // Receieves data from the socket.
-        void    SockRecv();
+        void SockRecv();
 };
+
+#define sIRC ACE_Singleton<IRCClient, ACE_Null_Mutex>::instance()
 #endif
-#define sIRC Trinity::Singleton<IRCClient>::Instance()

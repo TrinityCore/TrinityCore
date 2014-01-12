@@ -534,8 +534,8 @@ public:
             std::size_t find1 = To.find("||", pos);
             To.replace(pos, find1 - pos + 2, "|");
         }    
-        sIRC.SendIRC("PRIVMSG "+To+" : <WoW>["+handler->GetSession()->GetPlayerName()+"] : " + Msg);
-        sIRC.Send_WoW_Player(handler->GetSession()->GetPlayer(), "|cffCC4ACCTo ["+To+"]: "+Msg);
+        sIRC->SendIRC("PRIVMSG "+To+" : <WoW>["+handler->GetSession()->GetPlayerName()+"] : " + Msg);
+        sIRC->Send_WoW_Player(handler->GetSession()->GetPlayer(), "|cffCC4ACCTo ["+To+"]: "+Msg);
         return true;
     }
 
@@ -2447,7 +2447,7 @@ public:
 	static bool HandleIRCRelogCommand(ChatHandler* handler, const char *args)
     {
         handler->SendSysMessage("TriniChat is dropping from IRC Server");
-        sIRC.ResetIRC();
+        sIRC->ResetIRC();
         handler->SendSysMessage("TriniChat is reconnecting to IRC Server");
         return true;
     }

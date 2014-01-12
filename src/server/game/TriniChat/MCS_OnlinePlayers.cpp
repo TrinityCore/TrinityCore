@@ -59,14 +59,14 @@ void mcs_OnlinePlayers::run()
             switch(plr->GetSession()->GetSecurity())
             {
                   case 0: ChatTag.append("");break;
-                  case 1: ChatTag.append("\0037"+sIRC.ojGM1);break;
-                  case 2: ChatTag.append("\0037"+sIRC.ojGM2);break;
-                  case 3: ChatTag.append("\0037"+sIRC.ojGM3);break;
-                  case 4: ChatTag.append("\0037"+sIRC.ojGM4);break;
-                  case 5: ChatTag.append("\0037"+sIRC.ojGM5);break;
-		   case 6: ChatTag.append("\0037"+sIRC.ojGM6);break;
-		   case 7: ChatTag.append("\0037"+sIRC.ojGM7);break;
-		   case 8: ChatTag.append("\0037"+sIRC.ojGM8);break;
+                  case 1: ChatTag.append("\0037"+sIRC->ojGM1);break;
+                  case 2: ChatTag.append("\0037"+sIRC->ojGM2);break;
+                  case 3: ChatTag.append("\0037"+sIRC->ojGM3);break;
+                  case 4: ChatTag.append("\0037"+sIRC->ojGM4);break;
+                  case 5: ChatTag.append("\0037"+sIRC->ojGM5);break;
+		   case 6: ChatTag.append("\0037"+sIRC->ojGM6);break;
+		   case 7: ChatTag.append("\0037"+sIRC->ojGM7);break;
+		   case 8: ChatTag.append("\0037"+sIRC->ojGM8);break;
             }
             if (plr->isAFK())
                 ChatTag.append("\002\0037<AFK>\003\002");
@@ -82,16 +82,16 @@ void mcs_OnlinePlayers::run()
 
             // after XX players have been added to the string
             // output to irc and reset for the next XX
-            if (OnlineCount % sIRC.onlrslt == 0)
+            if (OnlineCount % sIRC->onlrslt == 0)
             {
-                sIRC.Send_IRC_Channel(IRCCmd::ChanOrPM(CD), IRCCmd::MakeMsg("\002 %s", IRCOut.c_str()), true, CD->TYPE.c_str());
+                sIRC->Send_IRC_Channel(IRCCmd::ChanOrPM(CD), IRCCmd::MakeMsg("\002 %s", IRCOut.c_str()), true, CD->TYPE.c_str());
                 IRCOut = "";
                 ACE_Based::Thread::Sleep(1000);
             }
         }
     }
     // Remainder in IRCOUT && Total plyersonline
-    sIRC.Send_IRC_Channel(IRCCmd::ChanOrPM(CD), IRCCmd::MakeMsg("\002Players Online(%d):\017 %s", OnlineCount, IRCOut.c_str()), true, CD->TYPE);
+    sIRC->Send_IRC_Channel(IRCCmd::ChanOrPM(CD), IRCCmd::MakeMsg("\002Players Online(%d):\017 %s", OnlineCount, IRCOut.c_str()), true, CD->TYPE);
 
-    sIRC.Script_Lock[MCS_Players_Online] = false;
+    sIRC->Script_Lock[MCS_Players_Online] = false;
 }

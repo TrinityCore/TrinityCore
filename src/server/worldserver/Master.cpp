@@ -277,7 +277,7 @@ int Master::Run()
     }
 
 	// Start up TriniChat
-	if (sIRC.Active == 1)
+	if (sIRC->Active == 1)
 	{
 		ACE_Based::Thread irc(new IRCClient);
 		irc.setPriority ((ACE_Based::Priority)2);

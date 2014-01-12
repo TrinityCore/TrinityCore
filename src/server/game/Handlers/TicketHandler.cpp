@@ -98,13 +98,13 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 
         response = GMTICKET_RESPONSE_CREATE_SUCCESS;
 
-		if ((sIRC.TICMASK & 1) != 0 && (sIRC.BOTMASK & 1024) != 0)
+		if ((sIRC->TICMASK & 1) != 0 && (sIRC->BOTMASK & 1024) != 0)
 		{
 			std::string ircchan = "#";
 			std::ostringstream smsg;
-			ircchan += sIRC._irc_chan[sIRC.ticann].c_str();
+			ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
 			smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
-			sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Created\003] %s", " %s" , smsg.str().c_str()) , true);
+			sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Created\003] %s", " %s" , smsg.str().c_str()) , true);
             //begin // because newlines don't show on irc
             std::string tmsg = ticket->GetMessage().c_str();
             int position = tmsg.find( "\n" ); // find first newline
@@ -115,11 +115,11 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             }
             //end
 			if (tmsg.size() <= 400)
-                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message\003]: %s ", " %s", tmsg.c_str()), true);
+                sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message\003]: %s ", " %s", tmsg.c_str()), true);
 			else
 			{
-				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", tmsg.substr(0, 399).c_str()), true);
-				sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(400, 800).c_str()), true);
+				sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", tmsg.substr(0, 399).c_str()), true);
+				sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(400, 800).c_str()), true);
 			}
 		}
     }
@@ -145,13 +145,13 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
 
         response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
 
-		if ((sIRC.TICMASK & 2) != 0 && (sIRC.BOTMASK & 1024) != 0)
+		if ((sIRC->TICMASK & 2) != 0 && (sIRC->BOTMASK & 1024) != 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
-            ircchan += sIRC._irc_chan[sIRC.ticann].c_str();
+            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
             smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << "\003 ][ID: \00304" << ticket->GetId() << "\003 ]";
-            sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Updated\003] %s", " %s" , smsg.str().c_str()) , true);
+            sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Updated\003] %s", " %s" , smsg.str().c_str()) , true);
             //begin // because newlines don't show on irc
             std::string tmsg = ticket->GetMessage().c_str();
             int position = tmsg.find( "\n" ); // find first newline
@@ -162,11 +162,11 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
             }
             //end
             if (tmsg.size() <= 400)
-                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message\003]: %s ", " %s", tmsg.c_str()), true);
+                sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message\003]: %s ", " %s", tmsg.c_str()), true);
             else
             {
-                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", tmsg.substr(0, 399).c_str()), true);
-                sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(400, 800).c_str()), true);
+                sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(1/2)\003]: %s ", " %s", tmsg.substr(0, 399).c_str()), true);
+                sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00304Ticket Message(2/2)\003]: %s ", " %s", tmsg.substr(400, 800).c_str()), true);
             }
         }
     }
@@ -189,13 +189,13 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
         sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());
         sTicketMgr->SendTicket(this, NULL);
 
-		if ((sIRC.TICMASK & 4) != 0 && (sIRC.BOTMASK & 1024) != 0)
+		if ((sIRC->TICMASK & 4) != 0 && (sIRC->BOTMASK & 1024) != 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
-            ircchan += sIRC._irc_chan[sIRC.ticann].c_str();
+            ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
             smsg << "[By: \00304" << GetPlayer()->GetName().c_str() << " \003][ID: \00304" << ticket->GetId() << "\003 ]";
-            sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00311Ticket Abandoned\003] %s", " %s" , smsg.str().c_str()) , true);
+            sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00311Ticket Abandoned\003] %s", " %s" , smsg.str().c_str()) , true);
         }
     }
 }
@@ -287,14 +287,14 @@ void WorldSession::HandleReportLag(WorldPacket& recvData)
     stmt->setUInt32(7, time(NULL));
     CharacterDatabase.Execute(stmt);
 
-	if ((sIRC.TICMASK & 8) != 0 && (sIRC.BOTMASK & 1024) != 0)
+	if ((sIRC->TICMASK & 8) != 0 && (sIRC->BOTMASK & 1024) != 0)
     {
         std::string ircchan = "#";
         std::ostringstream lmsg;
         std::ostringstream ltype;
-        ircchan += sIRC._irc_chan[sIRC.ticann].c_str();
+        ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
         lmsg << "[By: \00310" << GetPlayer()->GetName().c_str() << "\003]";
-        sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("[\00310Lag Report\003] %s", " %s" , lmsg.str().c_str()) , true);
+        sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("[\00310Lag Report\003] %s", " %s" , lmsg.str().c_str()) , true);
         lmsg.str("");
         lmsg.clear();
         if (lagType == 0)
@@ -313,7 +313,7 @@ void WorldSession::HandleReportLag(WorldPacket& recvData)
             ltype << "unknown";
         lmsg << "[Type: \00310" << ltype.str().c_str() << " \003][mapid: \00310" << mapId << " \003][ X: \00310" << x << " \003][ Y: \00310" << y << " \003][ Z: \00310" << z
             << " \003][Latancy: \00310" << GetLatency() << " \003][Time: \00310" << sLog->GetTimestampStr() << "\003]";
-        sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\003 %s", " %s" , lmsg.str().c_str()) , true);
+        sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("\003 %s", " %s" , lmsg.str().c_str()) , true);
 
     }
 }
