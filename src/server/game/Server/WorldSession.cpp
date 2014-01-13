@@ -452,6 +452,51 @@ void WorldSession::LogoutPlayer(bool save)
             _player->BuildPlayerRepop();
             _player->RepopAtGraveyard();
         }
+		else if (Map* _map = _player->FindMap()) // prevent alt+f4 abuse 
+		{
+			if (_player->IsInCombat())
+			{
+				_player->CombatStop();
+				_player->getHostileRefManager().setOnlineOfflineState(false);
+				_player->RemoveAllAurasOnDeath();
+
+				// build set of players who attack _player or who have pet attacking _player
+				std::set<Player*> aset;
+				//GuidSet& attackers = _player->getAttackers();
+				for (std::set<Unit*>::const_iterator i = _player->getAttackers().begin(); i != _player->getAttackers().end();)
+				{
+					//Unit* attacker = ObjectAccessor::GetUnit(*_player, (*i)->GetGUID());
+					Unit* attacker = Unit::GetUnit(*_player, (*i++)->GetGUID());
+					if (!attacker)
+						continue;
+
+					Unit* owner = attacker->GetOwner(); // including player controlled case
+					if (owner)
+					{
+						if (owner->GetTypeId() == TYPEID_PLAYER)
+							aset.insert((Player*)owner);
+					}
+					else
+						if (attacker->GetTypeId() == TYPEID_PLAYER)
+							aset.insert((Player*)attacker);
+				}
+
+				_player->SetPvPDeath(!aset.empty());
+				_player->Kill(_player, false);
+				_player->BuildPlayerRepop();
+				_player->RepopAtGraveyard();
+
+				// give honor to all attackers
+				for (std::set<Player*>::const_iterator i = aset.begin(); i != aset.end();)
+					(*i)->RewardHonor(_player, aset.size());
+
+				// give bg rewards and update counters like kill by first from attackers
+				// this can't be called for all attackers
+				if (!aset.empty())
+					if (Battleground* bg = _player->GetBattleground())
+						bg->HandleKillPlayer(_player, *aset.begin());
+			}
+		}
         else if (_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         {
             // this will kill character by SPELL_AURA_SPIRIT_OF_REDEMPTION
