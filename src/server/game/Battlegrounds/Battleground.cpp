@@ -1032,6 +1032,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             player->SpawnCorpseBones();
         }
     }
+    else // try to resurrect the offline player. If he is alive nothing will happen
+        sObjectAccessor->ConvertCorpseForPlayer(guid);
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 

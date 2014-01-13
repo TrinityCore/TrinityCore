@@ -139,7 +139,7 @@ WorldServerPort = 8085
 
 #
 #    BindIP
-#        Description: Bind world server to IP/hostname
+#        Description: Bind world server to IP/hostname.
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)
 
 BindIP = "0.0.0.0"
@@ -153,7 +153,7 @@ BindIP = "0.0.0.0"
 #    UseProcessors
 #        Description: Processors mask for Windows and Linux based multi-processor systems.
 #        Example:     A computer with 2 CPUs:
-#                     1 - 1st CPU only, 2 - 2nd CPU only, 3 - 1st and 2nd CPU, because 1 | 2 is 3
+#                     1  - 1st CPU only, 2 - 2nd CPU only, 3 - 1st and 2nd CPU, because 1 | 2 is 3
 #        Default:     0  - (Selected by OS)
 #                     1+ - (Bit mask value of selected processors)
 
@@ -170,7 +170,7 @@ ProcessPriority = 0
 
 #
 #    Compression
-#        Description: Compression level for client update packages
+#        Description: Compression level for client update packages.
 #        Range:       1-9
 #        Default:     1   - (Speed)
 #                     9   - (Best compression)
@@ -276,7 +276,7 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 #
 #    mmap.enablePathFinding
-#        Description: Enable/Disable pathfinding using mmaps - experimental
+#        Description: Enable/Disable pathfinding using mmaps - experimental.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -396,7 +396,7 @@ PersistentCharacterCleanFlags = 0
 # SERVER LOGGING
 #
 #    PidFile
-#        Description: World daemon PID file
+#        Description: World daemon PID file.
 #        Example:     "./world.pid" - (Enabled)
 #        Default:     ""            - (Disabled)
 
@@ -441,7 +441,6 @@ ChatLogs.SysChan = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-
 ChatLogs.Party = 0
 
 #
@@ -449,7 +448,6 @@ ChatLogs.Party = 0
 #        Description: Log raid chat.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
-
 
 ChatLogs.Raid = 0
 
@@ -699,6 +697,7 @@ CharacterCreating.Disabled.ClassMask = 0
 #        Default:     50
 
 CharactersPerAccount = 50
+
 #
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
@@ -718,7 +717,7 @@ HeroicCharactersPerRealm = 1
 #
 #    CharacterCreating.MinLevelForHeroicCharacter
 #        Description: Limit creating heroic characters only for account with another
-#                     character of specific level (ignored for GM accounts)
+#                     character of specific level (ignored for GM accounts).
 #        Default:     55 - (Enabled, Requires at least another level 55 character)
 #                     0  - (Disabled)
 #                     1  - (Enabled, Requires at least another level 1 character)
@@ -746,7 +745,7 @@ MaxPlayerLevel = 85
 
 #
 #    MinDualSpecLevel
-#        Description: Level requirement for Dual Talent Specialization
+#        Description: Level requirement for Dual Talent Specialization.
 #        Default:     30
 
 MinDualSpecLevel = 30
@@ -877,6 +876,7 @@ Instance.UnloadDelay = 1800000
 #                     true  - (Enabled, show)
 
 InstancesResetAnnounce = false
+
 #
 #    Quests.LowLevelHideDiff
 #        Description: Level difference between player and quest level at which quests are
@@ -1099,7 +1099,7 @@ DBC.EnforceItemAttributes = 1
 
 #
 #   AccountInstancesPerHour
-#        Description: Controls the max amount of different instances player can enter within hour
+#        Description: Controls the max amount of different instances player can enter within hour.
 #        Default:     5
 
 AccountInstancesPerHour = 5
@@ -1787,7 +1787,7 @@ Rate.Damage.Fall = 1
 #    Rate.Auction.Deposit
 #    Rate.Auction.Cut
 #        Description: Auction rates (auction time, deposit get at auction start,
-#                     auction cut from price at auction end)
+#                     auction cut from price at auction end).
 #        Default:     1 - (Rate.Auction.Time)
 #                     1 - (Rate.Auction.Deposit)
 #                     1 - (Rate.Auction.Cut)
@@ -1986,14 +1986,14 @@ Die.Command.Mode = 1
 # STATS LIMITS
 #
 #    Stats.Limits.Enable
-#        Description: Enable or disable stats system
+#        Description: Enable or disable stats system.
 #        Default:     0 - Disabled
 
 Stats.Limits.Enable = 0
 
 #
 #    Stats.Limit.[STAT]
-#        Description: Set percentage limit for dodge, parry, block and crit rating
+#        Description: Set percentage limit for dodge, parry, block and crit rating.
 #        Default:     95.0 (95%)
 
 Stats.Limits.Dodge = 95.0
@@ -2110,7 +2110,7 @@ Battleground.Random.ResetHour = 6
 #     Battleground.RewardWinnerConquestLast
 #     Battleground.RewardLoserHonorFirst
 #     Battleground.RewardLoserHonorLast
-#        Description: Random Battlegrounds / call to the arms rewards
+#        Description: Random Battlegrounds / call to the arms rewards.
 #        Default:     30 - Battleground.RewardWinnerHonorFirst
 #                     25 - Battleground.RewardWinnerArenaFirst
 #                     15 - Battleground.RewardWinnerHonorLast
@@ -2206,7 +2206,7 @@ Arena.RatingDiscardTimer = 600000
 
 #
 #    Arena.RatedUpdateTimer
-#        Description: Time (in milliseconds) between checks for matchups in rated arena
+#        Description: Time (in milliseconds) between checks for matchups in rated arena.
 #        Default:     5000 - (5 seconds)
 
 Arena.RatedUpdateTimer = 5000
@@ -2360,7 +2360,7 @@ Ra.MinLevel = 3
 
 #
 #    SOAP.Enable
-#        Description: Enable soap service
+#        Description: Enable soap service.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -2368,7 +2368,7 @@ SOAP.Enabled = 0
 
 #
 #    SOAP.IP
-#        Description: Bind SOAP service to IP/hostname
+#        Description: Bind SOAP service to IP/hostname.
 #        Default:     "127.0.0.1" - (Bind to localhost)
 
 SOAP.IP = "127.0.0.1"
@@ -2522,7 +2522,7 @@ Guild.AllowMultipleGuildMaster = 0
 #
 #     ShowKickInWorld
 #        Description: Determines whether a message is broadcasted to the entire server when a
-#                     player gets kicked
+#                     player gets kicked.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -2537,6 +2537,7 @@ ShowKickInWorld = 0
 #                     0     - (Disabled)
 
 RecordUpdateTimeDiffInterval = 60000
+
 #
 #     MinRecordUpdateTimeDiff
 #        Description: Only record update time diff which is greater than this value.
@@ -2596,8 +2597,8 @@ PlayerDump.DisallowOverwrite = 1
 #
 #     UI.ShowQuestLevelsInDialogs
 #        Description: Show quest levels next to quest titles in UI dialogs
-#        Example: [13] Westfall Stew
-#        Default: 0 (do not show)
+#        Example:     [13] Westfall Stew
+#        Default:     0  - (Do not show)
 
 UI.ShowQuestLevelsInDialogs = 0
 
@@ -2609,7 +2610,7 @@ UI.ShowQuestLevelsInDialogs = 0
 #
 #  Appender config values: Given a appender "name"
 #    Appender.name
-#        Description: Defines 'where to log'
+#        Description: Defines 'where to log'.
 #        Format:      Type,LogLevel,Flags,optional1,optional2,optional3
 #
 #                     Type
@@ -2901,18 +2902,18 @@ Currency.ConquestPointsArenaReward = 180
 #
 #    PacketSpoof.Policy
 #        Description: Determines the course of action when packet spoofing is detected.
-#        Default:    1 - Log + kick
-#                    0 - Log only ("network")
-#                    2 - Log + kick + ban
+#        Default:     1 - (Log + kick)
+#                     0 - (Log only 'network')
+#                     2 - (Log + kick + ban)
 
 PacketSpoof.Policy = 1
 
 #
 #    PacketSpoof.BanMode
 #        Description: If PacketSpoof.Policy equals 2, this will determine the ban mode.
-#        Note: Banning by character not supported for logical reasons.
-#        Default:    0 - Ban Account
-#                    2 - Ban IP
+#        Note:        Banning by character not supported for logical reasons.
+#        Default:     0 - Ban Account
+#                     2 - Ban IP
 #
 
 PacketSpoof.BanMode = 0

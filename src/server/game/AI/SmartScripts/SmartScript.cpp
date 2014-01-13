@@ -2550,7 +2550,10 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         {
             ObjectListMap::iterator itr = mTargetStorage->find(e.target.stored.id);
             if (itr != mTargetStorage->end())
-                l->assign(itr->second->begin(), itr->second->end());
+            {
+                ObjectList* objectList = itr->second->GetObjectList();
+                l->assign(objectList->begin(), objectList->end());
+            }
 
             return l;
         }
