@@ -236,6 +236,7 @@ class boss_urom : public CreatureScript
                         me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
                         me->SetWalk(true);
+                        me->SetCanFly(false);
 
                         Talk(EMOTE_ARCANE_EXPLOSION);
                         Talk(SAY_ARCANE_EXPLOSION);
@@ -308,7 +309,7 @@ class boss_urom : public CreatureScript
                     case SPELL_TELEPORT:
                         //! Unconfirmed, previous below
                         me->SetDisableGravity(true);
-                        //me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY); // with out it the npc will fall down while is casting
+                        me->SetCanFly(true);
                         canCast = true;
                         break;
                     default:
@@ -323,7 +324,6 @@ class boss_urom : public CreatureScript
             bool canGoBack;
 
             uint8 platform;
-
             uint8 group[3];
 
             uint32 teleportTimer;
