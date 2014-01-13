@@ -380,6 +380,8 @@ public:
                 instance->SetBossState(BOSS_THORIM, FAIL);
                 if (GameObject* lightning = me->FindNearestGameObject(GO_THORIM_LIGHTNING_FIELD, 500))
                     lightning->SetGoState(GO_STATE_ACTIVE);
+                if (Creature* Sif = me->FindNearestCreature(NPC_SIF, 200.0f))
+                    Sif->DespawnOrUnsummon();
                 Talk(SAY_WIPE);
             }
 
@@ -444,6 +446,10 @@ public:
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
                 }
             
+                if (GameObject* lightning = me->FindNearestGameObject(GO_THORIM_LIGHTNING_FIELD, 500))
+                    if (lightning->GetGoState() == GO_STATE_READY)
+                        lightning->SetGoState(GO_STATE_ACTIVE);
+
                 DoCastAOE(SPELL_ACHIEVEMENT_CHECK);
                 instance->SetBossState(BOSS_THORIM, DONE);
                 me->setFaction(FACTION_FRIENDLY);
