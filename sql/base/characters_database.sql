@@ -1746,7 +1746,7 @@ CREATE TABLE `guild` (
   `BorderStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `BorderColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `BackgroundColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `info` text NOT NULL,
+  `info` VARCHAR(500) NOT NULL DEFAULT '',
   `motd` varchar(128) NOT NULL DEFAULT '',
   `createdate` int(10) unsigned NOT NULL DEFAULT '0',
   `BankMoney` bigint(20) unsigned NOT NULL DEFAULT '0',

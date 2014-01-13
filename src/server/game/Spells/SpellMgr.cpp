@@ -3120,6 +3120,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42730: // Woe Strike
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
                 break;
+            case 42436: // Drink! (Brewfest)
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+                break;
             case 59735: // Woe Strike
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;
                 break;
