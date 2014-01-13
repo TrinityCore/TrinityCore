@@ -3045,7 +3045,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
                 break;
             case 42436: // Drink! (Brewfest)
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY); 
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
             case 59735:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;

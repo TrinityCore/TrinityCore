@@ -7284,8 +7284,8 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-            if ((MapType == 1 && !InBattleground() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                || (MapType == 2 && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            if ((MapType == 1 && !InBattleground() && !IsFFAPvP())
+                || (MapType == 2 && !IsFFAPvP())
                 || (MapType == 3 && !InBattleground()))
                 return true;
 
@@ -17347,7 +17347,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     Map* map = sMapMgr->CreateMap(mapId, this);
     AreaTrigger const* areaTrigger = NULL;
     bool check = false;
-     
+
     if (!map)
     {
         areaTrigger = sObjectMgr->GetGoBackTrigger(mapId);
@@ -17366,7 +17366,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             check = true;
         }
     }
-    
+
     if (check) // in case of special event when creating map...
     {
         if (areaTrigger) // ... if we have an areatrigger, then relocate to new map/coordinates.
@@ -17384,7 +17384,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             map = NULL;
         }
     }
-     
+
     if (!map)
     {
         PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
@@ -17393,7 +17393,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         map = sMapMgr->CreateMap(mapId, this);
         if (!map)
         {
-            TC_LOG_ERROR("entities.player", "Player %s (guid: %d) Map: %u, X: %f, Y: %f, Z: %f, O: %f. Invalid default map coordinates or instance couldn't be created.", m_name, guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            TC_LOG_ERROR("entities.player", "Player %s (guid: %d) Map: %u, X: %f, Y: %f, Z: %f, O: %f. Invalid default map coordinates or instance couldn't be created.", m_name.c_str(), guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
             return false;
         }
     }
@@ -21686,14 +21686,14 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (!pvpInfo.IsInNoPvPArea && !IsGameMaster()
         && (pvpInfo.IsInFFAPvPArea || sWorld->IsFFAPvPRealm()))
     {
-        if (!HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+        if (!IsFFAPvP())
         {
             SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
             for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         }
     }
-    else if (HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+    else if (IsFFAPvP())
     {
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
