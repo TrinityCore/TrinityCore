@@ -17380,7 +17380,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         }
         else
         {
-            TC_LOG_ERROR("entities.player", "Player %s (guid: %d) Map: %u, X: %f, Y: %f, Z: %f, O: %f. Areatrigger not found.", m_name, guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            TC_LOG_ERROR("entities.player", "Player %s (guid: %d) Map: %u, X: %f, Y: %f, Z: %f, O: %f. Areatrigger not found.", m_name.c_str(), guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
             map = NULL;
         }
     }
