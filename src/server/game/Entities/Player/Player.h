@@ -834,7 +834,9 @@ enum PlayerChatTag
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
     CHAT_TAG_COM        = 0x08, // Commentator
-    CHAT_TAG_DEV        = 0x10
+    CHAT_TAG_DEV        = 0x10,
+    CHAT_TAG_BOSS_SOUND = 0x20, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
+    CHAT_TAG_MOBILE     = 0x40
 };
 
 enum PlayedTimeIndex
