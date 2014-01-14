@@ -123,20 +123,20 @@ Battlefield* BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleId)
     return NULL;
 }
 
+Battlefield* BattlefieldMgr::GetBattlefieldByGUID(uint64 guid)
+{
+    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
+        if ((*itr)->GetGUID() == guid)
+            return *itr;
+
+    return NULL;
+}
+
 ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
 {
     BattlefieldMap::iterator itr = _battlefieldMap.find(zoneId);
     if (itr != _battlefieldMap.end())
         return itr->second;
-
-    return NULL;
-}
-
-Battlefield* BattlefieldMgr::GetBattlefieldByGUID(uint64 guid)
-{
-    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
-        if ((*itr)->GetGUID() == guid)
-            return (*itr);
 
     return NULL;
 }

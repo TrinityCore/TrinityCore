@@ -120,7 +120,7 @@ public:
         {
             dtVcopy(&verts[nv*3], &tile->verts[poly->verts[i]*3]);
             nv++;
-        }		
+        }
 
         bool inside = Fix_PointIsInPoly(pos, verts, nv,0.05f);
         if(inside == false)

@@ -1,29 +1,30 @@
 /*
-* Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 3 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "baradin_hold.h"
-#include "InstanceScript.h"
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "baradin_hold.h"
 
 DoorData const doorData[] =
 {
-    { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
-    { GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
-    { GO_ALIZABAL_DOOR,       DATA_ALIZABAL, DOOR_TYPE_ROOM,  BOUNDARY_NONE },
+    { GO_ARGALOTH_DOOR,  DATA_ARGALOTH, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GO_OCCUTHAR_DOOR,  DATA_OCCUTHAR, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GO_ALIZABAL_DOOR,  DATA_ALIZABAL, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { 0,                 0,             DOOR_TYPE_ROOM, BOUNDARY_NONE }  // END
 };
 
 class instance_baradin_hold: public InstanceMapScript
