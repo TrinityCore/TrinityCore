@@ -566,7 +566,7 @@ bool Map::AddToMap(Transport* obj)
         {
             if (itr->GetSource()->GetTransport() != obj)
             {
-                UpdateData data(i_mapEntry->MapID);
+                UpdateData data(GetId());
                 obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
                 WorldPacket packet;
                 data.BuildPacket(&packet);
@@ -826,13 +826,13 @@ void Map::RemoveFromMap(Transport* obj, bool remove)
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
-        UpdateData data(i_mapEntry->MapID);
+        UpdateData data(GetId());
         obj->BuildOutOfRangeUpdateBlock(&data);
         WorldPacket packet;
         data.BuildPacket(&packet);
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        if (itr->GetSource()->GetTransport() != obj)
-            itr->GetSource()->SendDirectMessage(&packet);
+            if (itr->GetSource()->GetTransport() != obj)
+                itr->GetSource()->SendDirectMessage(&packet);
     }
 
     if (_transportsUpdateIter != _transports.end())

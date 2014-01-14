@@ -23,8 +23,6 @@
 #include "Define.h"
 #include <cassert>
 
-#define MAX_CREATURE_BASE_HP 4
-
 enum SpellEffIndex
 {
     EFFECT_0 = 0,
@@ -51,7 +49,8 @@ enum Expansions
     EXPANSION_CLASSIC                  = 0,
     EXPANSION_THE_BURNING_CRUSADE      = 1,
     EXPANSION_WRATH_OF_THE_LICH_KING   = 2,
-    MAX_EXPANSIONS                     = 3
+    EXPANSION_CATACLYSM                = 3,
+    MAX_EXPANSIONS                     = 4
 };
 
 enum Gender
