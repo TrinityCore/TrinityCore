@@ -631,7 +631,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
 size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, uint64 senderGUID, uint64 receiverGUID, std::string const& message, uint8 chatTag,
                                   std::string const& senderName /*= ""*/, std::string const& receiverName /*= ""*/,
                                   uint32 achievementId /*= 0*/, bool gmMessage /*= false*/, std::string const& channelName /*= ""*/,
-                                  const char* addonPrefix /*= NULL*/)
+                                  std::string const& addonPrefix /*= ""*/)
 {
     size_t receiverGUIDPos = 0;
     data.Initialize(!gmMessage ? SMSG_MESSAGECHAT : SMSG_GM_MESSAGECHAT);
@@ -658,12 +658,17 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
                 data << uint32(receiverName.length() + 1);
                 data << receiverName;
             }
+
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         case CHAT_MSG_WHISPER_FOREIGN:
             data << uint32(senderName.length() + 1);
             data << senderName;
             receiverGUIDPos = data.wpos();
             data << uint64(receiverGUID);
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         case CHAT_MSG_BG_SYSTEM_NEUTRAL:
         case CHAT_MSG_BG_SYSTEM_ALLIANCE:
@@ -675,11 +680,16 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
                 data << uint32(receiverName.length() + 1);
                 data << receiverName;
             }
+
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         case CHAT_MSG_ACHIEVEMENT:
         case CHAT_MSG_GUILD_ACHIEVEMENT:
             receiverGUIDPos = data.wpos();
             data << uint64(receiverGUID);
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
         default:
             if (gmMessage)
@@ -694,17 +704,11 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
                 data << channelName;
             }
 
-            if (language == LANG_ADDON)
-            {
-                ASSERT(addonPrefix);
-                data << addonPrefix;
-            }
+            receiverGUIDPos = data.wpos();
+            data << uint64(receiverGUID);
 
-            if (receiverGUIDPos != 0)
-            {
-                receiverGUIDPos = data.wpos();
-                data << uint64(receiverGUID);
-            }
+            if (language == LANG_ADDON)
+                data << addonPrefix;
             break;
     }
 
@@ -716,15 +720,15 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
         data << uint32(achievementId);
     else if (chatType == CHAT_MSG_RAID_BOSS_WHISPER || chatType == CHAT_MSG_RAID_BOSS_EMOTE)
     {
-        data << float(0.0f);                       // Added in 4.2.0, unk
-        data << uint8(0);                          // Added in 4.2.0, unk
+        data << float(0.0f);                        // Display time in middle of the screen (in seconds), defaults to 10 if not set (cannot be below 1)
+        data << uint8(0);                           // Hide in chat frame (only shows in middle of the screen)
     }
 
     return receiverGUIDPos;
 }
 
 size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message,
-                                  uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, const char* addonPrefix /*= NULL*/)
+                                  uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string const& addonPrefix /*= ""*/)
 {
     uint64 senderGUID = 0;
     std::string senderName = "";

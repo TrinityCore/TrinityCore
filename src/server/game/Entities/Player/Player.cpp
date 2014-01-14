@@ -20730,7 +20730,7 @@ void Player::WhisperAddon(const std::string& text, const std::string& prefix, Pl
         return;
 
     WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix.c_str());
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
     receiver->GetSession()->SendPacket(&data);
 }
 
