@@ -173,7 +173,7 @@ public:
             std::string ircchan = "#";
             std::ostringstream smsg;
             ircchan += sIRC->_irc_chan[sIRC->ticann].c_str();
-            smsg << "[\00304Ticket Closed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Assigned To: \00304" << player->GetName().c_str() << " \003]";
+            smsg << "[\00304Ticket Closed\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Assigned To: \00304" << player ? player->GetName().c_str() : "Console" << " \003]";
             sIRC->Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
         }
 
