@@ -1016,7 +1016,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage -= damageInfo->blocked;
             }
 
-            ApplyResilience(victim, &damage, crit);
+            ApplyResilience(victim, &damage);
             break;
         }
         // Magical Attacks
@@ -1030,7 +1030,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage = SpellCriticalDamageBonus(spellInfo, damage, victim);
             }
 
-            ApplyResilience(victim, &damage, crit);
+            ApplyResilience(victim, &damage);
             break;
         }
         default:
@@ -1242,7 +1242,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damageInfo->HitInfo |= HITINFO_AFFECTS_VICTIM;
 
     int32 resilienceReduction = damageInfo->damage;
-    ApplyResilience(victim, &resilienceReduction, damageInfo->hitOutCome == MELEE_HIT_CRIT);
+    ApplyResilience(victim, &resilienceReduction);
     resilienceReduction = damageInfo->damage - resilienceReduction;
     damageInfo->damage      -= resilienceReduction;
     damageInfo->cleanDamage += resilienceReduction;
@@ -14438,7 +14438,7 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     SendMessageToSet(&data, true);
 }
 
-void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
+void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 {
     // player mounted on multi-passenger mount is also classified as vehicle
     if (IsVehicle() || (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER))
@@ -14457,8 +14457,6 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
     if (!target)
         return;
 
-    if (isCrit)
-        *damage -= target->GetCritDamageReduction(*damage);
     *damage -= target->GetDamageReduction(*damage);
 }
 
