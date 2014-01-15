@@ -173,11 +173,6 @@ struct CreatureTemplate
 // Benchmarked: Faster than std::map (insert/find)
 typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
 
-// Represents max amount of expansions.
-/// @todo: Add MAX_EXPANSION constant.
-#define MAX_CREATURE_BASE_HP 3
-#define MAX_CREATURE_BASE_DAMAGE 3
-
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
 #pragma pack(1)
@@ -188,12 +183,12 @@ typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
 // Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage).
 struct CreatureBaseStats
 {
-    uint32 BaseHealth[MAX_CREATURE_BASE_HP];
+    uint32 BaseHealth[MAX_EXPANSIONS];
     uint32 BaseMana;
     uint32 BaseArmor;
     uint32 AttackPower;
     uint32 RangedAttackPower;
-    float BaseDamage[MAX_CREATURE_BASE_DAMAGE];
+    float BaseDamage[MAX_EXPANSIONS];
 
     // Helpers
 
@@ -444,7 +439,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
-        void SelectLevel(const CreatureTemplate* cinfo);
+        void SelectLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
@@ -521,8 +516,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) OVERRIDE;
 
+        void SetCanDualWield(bool value) OVERRIDE;
         int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
         uint8 GetCurrentEquipmentId() { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }

@@ -281,7 +281,6 @@ struct boss_twin_baseAI : public BossAI
     {
         SetEquipmentSlots(false, Weapon, mode ? Weapon : int32(EQUIP_UNEQUIP), EQUIP_UNEQUIP);
         me->SetCanDualWield(mode);
-        me->UpdateDamagePhysical(mode ? OFF_ATTACK : BASE_ATTACK);
     }
 
     void UpdateAI(uint32 diff) OVERRIDE

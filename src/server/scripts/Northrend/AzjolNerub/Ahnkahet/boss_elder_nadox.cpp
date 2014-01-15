@@ -232,7 +232,6 @@ public:
         npc_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            creature->UpdateAllStats();
         }
 
         void Reset() OVERRIDE { }

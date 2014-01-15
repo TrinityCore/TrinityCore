@@ -99,13 +99,13 @@ class SmartScript
             if (mTargetStorage->find(id) != mTargetStorage->end())
             {
                 // check if already stored
-                if ((*mTargetStorage)[id] == targets)
+                if ((*mTargetStorage)[id]->Equals(targets))
                     return;
 
                 delete (*mTargetStorage)[id];
             }
 
-            (*mTargetStorage)[id] = targets;
+            (*mTargetStorage)[id] = new ObjectGuidList(targets, GetBaseObject());
         }
 
         bool IsSmart(Creature* c = NULL)
@@ -141,7 +141,7 @@ class SmartScript
         {
             ObjectListMap::iterator itr = mTargetStorage->find(id);
             if (itr != mTargetStorage->end())
-                return (*itr).second;
+                return (*itr).second->GetObjectList();
             return NULL;
         }
 
