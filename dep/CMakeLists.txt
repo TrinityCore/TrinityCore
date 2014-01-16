@@ -52,3 +52,7 @@ if(BUILD_TESTING)
 if (USE_EXTRACTORS)
   add_subdirectory(libmpq)
 endif()
+
+if (ELUNA)
+  add_subdirectory(lualib)
+endif()
