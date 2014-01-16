@@ -991,9 +991,9 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleSetAmmoOpcode(WorldPacket& recvData)
 {
-    if (!GetPlayer()->IsAlive())
+    if (!_player->IsAlive())
     {
-        GetPlayer()->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, NULL, NULL);
         return;
     }
 
@@ -1002,10 +1002,18 @@ void WorldSession::HandleSetAmmoOpcode(WorldPacket& recvData)
 
     recvData >> item;
 
-    if (!item)
-        GetPlayer()->RemoveAmmo();
+    if (item)
+    {
+        if (!_player->GetItemCount(item))
+        {
+            _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+            return;
+        }
+
+        _player->SetAmmo(item);
+    }
     else
-        GetPlayer()->SetAmmo(item);
+        _player->RemoveAmmo();
 }
 
 void WorldSession::SendEnchantmentLog(uint64 target, uint64 caster, uint32 itemId, uint32 enchantId)
