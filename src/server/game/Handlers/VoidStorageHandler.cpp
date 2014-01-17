@@ -161,6 +161,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         itemData.WriteByteSeq(itemId[0]);
         itemData.WriteByteSeq(itemId[6]);
         itemData.WriteByteSeq(creatorGuid[0]);
+        itemData.WriteByteSeq(creatorGuid[1]);
 
         itemData << uint32(item->ItemRandomPropertyId);
 
