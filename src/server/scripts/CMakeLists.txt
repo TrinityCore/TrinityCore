@@ -22,6 +22,8 @@ include(Commands/CMakeLists.txt)
 
 include(Examples/CMakeLists.txt)
 
+include(Custom/CMakeLists.txt)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
@@ -30,7 +32,6 @@ set(scripts_STAT_SRCS
 )
 
 if(SCRIPTS)
-  include(Custom/CMakeLists.txt)
   include(World/CMakeLists.txt)
   include(OutdoorPvP/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
