@@ -146,7 +146,6 @@ public:
 
         for(int i=1;i<pathLength-1;++i)
         {
-            dtPolyRef pt;
             float* pCurPoi=&straightPath[i*3];
             distanceToWall = DistanceToWall(navQuery, navMesh, polyPickExt, filter, pCurPoi,hitPos,hitNormal);
 

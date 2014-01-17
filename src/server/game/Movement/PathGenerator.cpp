@@ -151,7 +151,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     SmoothPath(polyPickExt, resultHopCount, straightPath); // Separate the path from the walls
 
-    for (uint32 i = 0; i < resultHopCount; ++i)
+    for (int i = 0; i < resultHopCount; ++i)
     {
         _pathPoints.push_back(G3D::Vector3(-straightPath[i * 3 + 2], -straightPath[i * 3 + 0], straightPath[i * 3 + 1]));
         TC_LOG_DEBUG("maps", "PathGenerator::CalculatePath() for %u path point %u: (%f, %f, %f)", _sourceUnit->GetGUIDLow(), i, _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
@@ -263,7 +263,6 @@ void PathGenerator::SmoothPath(float* polyPickExt, int pathLength, float*& strai
 
     for (int i = 1; i < pathLength - 1; ++i)
     {
-        dtPolyRef pt;
         float* curPoi = &straightPath[i * 3];
         distanceToWall = DistanceToWall(polyPickExt, curPoi, hitPos, hitNormal);
 
