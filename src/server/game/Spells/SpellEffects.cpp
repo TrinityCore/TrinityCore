@@ -175,7 +175,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectSummonObject,                             //106 SPELL_EFFECT_SUMMON_OBJECT_SLOT3
     &Spell::EffectSummonObject,                             //107 SPELL_EFFECT_SUMMON_OBJECT_SLOT4
     &Spell::EffectDispelMechanic,                           //108 SPELL_EFFECT_DISPEL_MECHANIC
-    &Spell::EffectSummonDeadPet,                            //109 SPELL_EFFECT_SUMMON_DEAD_PET
+    &Spell::EffectResurrectPet,                             //109 SPELL_EFFECT_RESURRECT_PET
     &Spell::EffectDestroyAllTotems,                         //110 SPELL_EFFECT_DESTROY_ALL_TOTEMS
     &Spell::EffectDurabilityDamage,                         //111 SPELL_EFFECT_DURABILITY_DAMAGE
     &Spell::EffectUnused,                                   //112 SPELL_EFFECT_112
@@ -5049,7 +5049,7 @@ void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
     }
 }
 
-void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
+void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -5061,9 +5061,9 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     if (!player)
         return;
 
-
     // Maybe player dismissed dead pet or pet despawned?
     bool hadPet = true;
+
     if (!player->GetPet())
     {
         // Position passed to SummonPet is irrelevant with current implementation,
@@ -5072,13 +5072,8 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
         hadPet = false;
     }
 
-    // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
     Pet* pet = player->GetPet(); // Attempt to get current pet
-    if (!pet)
-        return;
-
-    // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
-    if (pet->IsAlive())
+    if (!pet || pet->IsAlive())
         return;
 
     // If player did have a pet before reviving, teleport it
