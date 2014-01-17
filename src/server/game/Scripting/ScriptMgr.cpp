@@ -435,6 +435,9 @@ void ScriptMgr::OnUnknownPacketReceive(WorldSocket* socket, WorldPacket packet)
 {
     ASSERT(socket);
 
+#ifdef ELUNA
+    sHookMgr->OnUnknownPacketReceive(socket->GetSession(), &packet);
+#endif
     FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(socket, packet);
 }
 

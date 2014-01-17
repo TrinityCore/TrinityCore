@@ -11,27 +11,6 @@
 #include <dirent.h>
 #endif
 
-template<typename T> const char* GetTName() { return NULL; }
-template<> const char* GetTName<Object>() { return "Object"; }
-template<> const char* GetTName<WorldObject>() { return "WorldObject"; }
-template<> const char* GetTName<Unit>() { return "Unit"; }
-template<> const char* GetTName<Player>() { return "Player"; }
-template<> const char* GetTName<Creature>() { return "Creature"; }
-template<> const char* GetTName<GameObject>() { return "GameObject"; }
-template<> const char* GetTName<Vehicle>() { return "Vehicle"; }
-template<> const char* GetTName<Group>() { return "Group"; }
-template<> const char* GetTName<Guild>() { return "Guild"; }
-template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
-template<> const char* GetTName<Aura>() { return "Aura"; }
-template<> const char* GetTName<WorldPacket>() { return "WorldPacket"; }
-template<> const char* GetTName<Item>() { return "Item"; }
-template<> const char* GetTName<Spell>() { return "Spell"; }
-template<> const char* GetTName<Quest>() { return "Quest"; }
-template<> const char* GetTName<Map>() { return "Map"; }
-template<> const char* GetTName<Corpse>() { return "Corpse"; }
-template<> const char* GetTName<Weather>() { return "Weather"; }
-template<> const char* GetTName<AuctionHouseObject>() { return "AuctionHouse"; }
-
 extern void RegisterFunctions(lua_State* L);
 extern void AddElunaScripts();
 
@@ -49,6 +28,13 @@ void StartEluna(bool restart)
         {
 
             // Remove bindings
+            for (std::map<int, std::vector<int> >::iterator itr = sEluna->PacketEventBindings.begin(); itr != sEluna->PacketEventBindings.end(); ++itr)
+            {
+                for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+                    luaL_unref(sEluna->L, LUA_REGISTRYINDEX, (*it));
+                itr->second.clear();
+            }
+
             for (std::map<int, std::vector<int> >::iterator itr = sEluna->ServerEventBindings.begin(); itr != sEluna->ServerEventBindings.end(); ++itr)
             {
                 for (std::vector<int>::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
@@ -473,6 +459,14 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
 {
     switch (regtype)
     {
+        case REGTYPE_PACKET:
+            if (evt < NUM_MSG_TYPES)
+            {
+                PacketEventBindings[evt].push_back(functionRef);
+                return;
+            }
+            break;
+
         case REGTYPE_SERVER:
             if (evt < SERVER_EVENT_COUNT)
             {
@@ -614,6 +608,8 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
 
 void Eluna::ElunaBind::Clear()
 {
+    if (Bindings.empty())
+        return;
     for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
     {
         for (ElunaBindingMap::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)

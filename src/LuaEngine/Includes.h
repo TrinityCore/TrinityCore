@@ -28,6 +28,7 @@
 #include "SystemConfig.h"
 #include "Vehicle.h"
 #include "WeatherMgr.h"
+#include "WorldPacket.h"
 #include "ReputationMgr.h"
 
 #endif

@@ -833,6 +833,7 @@ namespace LuaPlayer
         uint32 points = luaL_checkunsigned(L, 1);
 
         player->SetFreeTalentPoints(points);
+        player->SendTalentsInfoData(false);
         return 0;
     }
 

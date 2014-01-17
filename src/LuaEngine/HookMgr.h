@@ -35,9 +35,12 @@ class Transport;
 class Unit;
 class Weather;
 class WorldObject;
+class WorldPacket;
+class WorldSocket;
 
 enum RegisterTypes
 {
+    REGTYPE_PACKET,
     REGTYPE_SERVER,
     REGTYPE_PLAYER,
     REGTYPE_GUILD,
@@ -53,6 +56,11 @@ enum RegisterTypes
     REGTYPE_COUNT
 };
 
+// RegisterPacketEvent(Opcode, function)
+// SERVER_EVENT_ON_PACKET_RECEIVE          =     5,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
+// SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
+// SERVER_EVENT_ON_PACKET_SEND             =     7,       // (event, packet, player) - Player only if accessible
+
 // RegisterServerEvent(EventId, function)
 enum ServerEvents
 {
@@ -61,9 +69,9 @@ enum ServerEvents
     SERVER_EVENT_ON_NETWORK_STOP            =     2,       // Not Implemented
     SERVER_EVENT_ON_SOCKET_OPEN             =     3,       // Not Implemented
     SERVER_EVENT_ON_SOCKET_CLOSE            =     4,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE          =     5,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_SEND             =     7,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE          =     5,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
+    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     6,       // (event, packet, player) - Player only if accessible. Can return false or a new packet
+    SERVER_EVENT_ON_PACKET_SEND             =     7,       // (event, packet, player) - Player only if accessible
 
     // World
     WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     8,       // (event, open)
@@ -274,9 +282,6 @@ enum GossipEvents
 
 struct HookMgr
 {
-    struct ElunaCreatureAI;
-    struct ElunaGameObjectAI;
-    struct ElunaWorldAI;
     CreatureAI* GetAI(Creature* creature);
     GameObjectAI* GetAI(GameObject* gameObject);
 
@@ -320,6 +325,10 @@ struct HookMgr
     void OnDamaged(GameObject* pGameObject, Player* pPlayer);
     void OnLootStateChanged(GameObject* pGameObject, uint32 state, Unit* pUnit);
     void OnGameObjectStateChanged(GameObject* pGameObject, uint32 state);
+    /* Packet */
+    bool OnPacketSend(WorldSession* session, WorldPacket& packet);
+    bool OnPacketReceive(WorldSession* session, WorldPacket& packet);
+    void OnUnknownPacketReceive(WorldSession* session, WorldPacket* packet);
     /* Player */
     void OnPlayerEnterCombat(Player* pPlayer, Unit* pEnemy);
     void OnPlayerLeaveCombat(Player* pPlayer);

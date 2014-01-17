@@ -11,6 +11,24 @@ extern void StartEluna(bool restart);
 
 namespace LuaGlobalFunctions
 {
+    // RegisterPacketEvent(event, function)
+    int RegisterPacketEvent(lua_State* L)
+    {
+        lua_settop(L, 2);
+        uint32 ev = luaL_checkunsigned(L, 1);
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
+            return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
+
+        int functionRef  = lua_ref(L, true);
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_PACKET, 0, ev, functionRef);
+        return 0;
+    }
+
     // RegisterServerEvent(event, function)
     int RegisterServerEvent(lua_State* L)
     {
@@ -375,7 +393,7 @@ namespace LuaGlobalFunctions
         if (!Result)
             return 0;
 
-        sEluna->Push(L, new QueryResult(Result));
+        sEluna->Push(L, &Result);
         return 1;
     }
 
@@ -401,7 +419,7 @@ namespace LuaGlobalFunctions
         if (!Result)
             return 0;
 
-        sEluna->Push(L, new QueryResult(Result));
+        sEluna->Push(L, &Result);
         return 1;
     }
 
@@ -427,7 +445,7 @@ namespace LuaGlobalFunctions
         if (!Result)
             return 0;
 
-        sEluna->Push(L, new QueryResult(Result));
+        sEluna->Push(L, &Result);
         return 1;
     }
 
@@ -480,9 +498,9 @@ namespace LuaGlobalFunctions
     /*// FindUnit(guid)
     int FindUnit(lua_State* L)
     {
-        uint64 guid = sEluna->CHECK_ULONG(L, 1);
-        // sEluna->Push(L, sObjectAccessor->FindUnit(guid));
-        return 1;
+    uint64 guid = sEluna->CHECK_ULONG(L, 1);
+    // sEluna->Push(L, sObjectAccessor->FindUnit(guid));
+    return 1;
     }*/
 
     // GetPlayerGUID(lowguid)
@@ -669,14 +687,12 @@ namespace LuaGlobalFunctions
         size_t size = luaL_checkunsigned(L, 2);
 
         if (opcode >= NUM_MSG_TYPES)
-            luaL_error(L, "Invalid opcode type (%d)", opcode);
-        else
         {
-            WorldPacket* _packet = new WorldPacket((Opcodes)opcode, size);
-            sEluna->Push(L, _packet);
-            return 1;
+            luaL_error(L, "Invalid opcode type (%d)", opcode);
+            return 0;
         }
-        return 0;
+        sEluna->Push(L, &(WorldPacket((Opcodes)opcode, size)));
+        return 1;
     }
 
     // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost[, persist(bool)])
@@ -753,34 +769,34 @@ namespace LuaGlobalFunctions
 
         switch (banMode)
         {
-            case BAN_ACCOUNT:
-                if (!AccountMgr::normalizeString(nameOrIP))
-                    return 0;
-                break;
-            case BAN_CHARACTER:
-                if (!normalizePlayerName(nameOrIP))
-                    return 0;
-                break;
-            case BAN_IP:
-                if (!IsIPAddress(nameOrIP.c_str()))
-                    return 0;
-                break;
-            default:
+        case BAN_ACCOUNT:
+            if (!AccountMgr::normalizeString(nameOrIP))
                 return 0;
+            break;
+        case BAN_CHARACTER:
+            if (!normalizePlayerName(nameOrIP))
+                return 0;
+            break;
+        case BAN_IP:
+            if (!IsIPAddress(nameOrIP.c_str()))
+                return 0;
+            break;
+        default:
+            return 0;
         }
 
         switch (sWorld->BanAccount((BanMode)banMode, nameOrIP, duration, reason, whoBanned->GetSession() ? whoBanned->GetName() : ""))
         {
-            case BAN_SUCCESS:
-                if (duration > 0)
-                    ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(duration, true).c_str(), reason);
-                else
-                    ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reason);
-                break;
-            case BAN_SYNTAX_ERROR:
-                return 0;
-            case BAN_NOTFOUND:
-                return 0;
+        case BAN_SUCCESS:
+            if (duration > 0)
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(duration, true).c_str(), reason);
+            else
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reason);
+            break;
+        case BAN_SYNTAX_ERROR:
+            return 0;
+        case BAN_NOTFOUND:
+            return 0;
         }
         return 0;
     }
