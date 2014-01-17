@@ -4,7 +4,7 @@
 /**
  *  @file    Throughput_Stats.h
  *
- *  $Id: Throughput_Stats.h 92069 2010-09-28 11:38:59Z johnnyw $
+ *  $Id: Throughput_Stats.h 95743 2012-05-13 12:29:28Z johnnyw $
  *
  *  @author David L. Levine
  */
@@ -55,11 +55,11 @@ public:
   void accumulate (const ACE_Throughput_Stats &throughput);
 
   /// Print down the stats
-  void dump_results (const ACE_TCHAR* msg, ACE_UINT32 scale_factor);
+  void dump_results (const ACE_TCHAR* msg, scale_factor_type scale_factor);
 
   /// Dump the average throughput stats.
   static void dump_throughput (const ACE_TCHAR *msg,
-                               ACE_UINT32 scale_factor,
+                               scale_factor_type scale_factor,
                                ACE_UINT64 elapsed_time,
                                ACE_UINT32 samples_count);
 private:

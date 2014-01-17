@@ -1,15 +1,16 @@
+/**
+ *  @file Notification_Queue.h
+ *
+ *  $Id: Notification_Queue.h 95425 2012-01-09 11:09:43Z johnnyw $
+ *
+ *  @author Carlos O'Ryan <coryan@atdesk.com>
+ */
+
 #ifndef ACE_NOTIFICATION_QUEUE_H
 #define ACE_NOTIFICATION_QUEUE_H
 
 #include /**/ "ace/pre.h"
 
-/**
- *  @file Notification_Queue.h
- *
- *  $Id: Notification_Queue.h 80826 2008-03-04 14:51:23Z wotte $
- *
- *  @author Carlos O'Ryan <coryan@atdesk.com>
- */
 #include "ace/Copy_Disabled.h"
 #include "ace/Event_Handler.h"
 #include "ace/Intrusive_List.h"

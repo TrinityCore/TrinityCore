@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_netdb.h
  *
- *  $Id: OS_NS_netdb.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: OS_NS_netdb.h 93597 2011-03-21 12:54:52Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -38,20 +38,12 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 namespace ACE_OS
 {
 
-#if defined (ACE_VXWORKS) && defined (ACE_LACKS_GETHOSTBYADDR)
-  extern ACE_Export
-#else
   ACE_NAMESPACE_INLINE_FUNCTION
-#endif /* ACE_VXWORKS */
   struct hostent *gethostbyaddr (const char *addr,
                                  int length,
                                  int type);
 
-#if defined (ACE_VXWORKS) && defined (ACE_LACKS_GETHOSTBYADDR)
-  extern ACE_Export
-#else
   ACE_NAMESPACE_INLINE_FUNCTION
-#endif /* ACE_VXWORKS */
   struct hostent *gethostbyaddr_r (const char *addr,
                                    int length,
                                    int type,
@@ -59,18 +51,10 @@ namespace ACE_OS
                                    ACE_HOSTENT_DATA buffer,
                                    int *h_errnop);
 
-#if defined (ACE_VXWORKS) && defined (ACE_LACKS_GETHOSTBYNAME)
-  extern ACE_Export
-#else
   ACE_NAMESPACE_INLINE_FUNCTION
-#endif /* ACE_VXWORKS */
   struct hostent *gethostbyname (const char *name);
 
-#if defined (ACE_VXWORKS) && defined (ACE_LACKS_GETHOSTBYNAME)
-  extern ACE_Export
-#else
   ACE_NAMESPACE_INLINE_FUNCTION
-#endif /* ACE_VXWORKS */
   struct hostent *gethostbyname_r (const char *name,
                                    struct hostent *result,
                                    ACE_HOSTENT_DATA buffer,

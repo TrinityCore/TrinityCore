@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,11 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "zulfarrak.h"
+#include "Player.h"
+#include "TemporarySummon.h"
 
-#define NPC_GAHZRILLA 7273
-#define PATH_ADDS 81553
+enum Misc
+{
+    // Creatures
+    NPC_GAHZRILLA       = 7273,
+
+    // Paths
+    PATH_ADDS           = 81553
+};
 
 int const pyramidSpawnTotal = 54;
 /* list of wave spawns: 0 = wave ID, 1 = creature id, 2 = x, 3 = y
@@ -92,14 +101,14 @@ class instance_zulfarrak : public InstanceMapScript
 public:
     instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_zulfarrak_InstanceMapScript(map);
     }
 
     struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 GahzRillaEncounter;
         uint64 ZumrahGUID;
@@ -115,16 +124,28 @@ public:
         uint32 addGroupSize;
         uint32 waypoint;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             GahzRillaEncounter = NOT_STARTED;
+            ZumrahGUID = 0;
+            BlyGUID = 0;
+            WeegliGUID = 0;
+            OroGUID = 0;
+            RavenGUID = 0;
+            MurtaGUID = 0;
+            EndDoorGUID = 0;
+            PyramidPhase = 0;
+            major_wave_Timer = 0;
+            minor_wave_Timer = 0;
+            addGroupSize = 0;
+            waypoint = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
-                case ENTRY_ZUMRAH:
+                case ENTRY_ZUM_RAH:
                     ZumrahGUID = creature->GetGUID();
                     break;
                 case ENTRY_BLY:
@@ -156,7 +177,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -166,7 +187,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -176,11 +197,11 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetData64(uint32 data) const OVERRIDE
         {
             switch (data)
             {
-                case ENTRY_ZUMRAH:
+                case ENTRY_ZUM_RAH:
                     return ZumrahGUID;
                 case ENTRY_BLY:
                     return BlyGUID;
@@ -198,7 +219,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             switch (type)
             {
@@ -299,7 +320,7 @@ public:
         {
            if (Creature* npc = instance->GetCreature(GetData64(entry)))
            {
-               if (npc->isAlive())
+               if (npc->IsAlive())
                {
                     npc->SetWalk(true);
                     npc->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -328,7 +349,7 @@ public:
             {
                 if (Creature* add = instance->GetCreature((*itr)))
                 {
-                    if (add->isAlive())
+                    if (add->IsAlive())
                         return false;
                 }
             }
@@ -336,7 +357,7 @@ public:
             {
                 if (Creature* add = instance->GetCreature(((*itr))))
                 {
-                    if (add->isAlive())
+                    if (add->IsAlive())
                         return false;
                 }
             }

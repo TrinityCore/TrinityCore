@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,39 +23,44 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
-#define SAY_AGGRO                       -1532057
-#define SAY_SUMMON1                     -1532058
-#define SAY_SUMMON2                     -1532059
-#define SAY_EVOCATE                     -1532060
-#define SAY_ENRAGE                      -1532061
-#define SAY_KILL1                       -1532062
-#define SAY_KILL2                       -1532063
-#define SAY_DEATH                       -1532064
+enum Curator
+{
+    SAY_AGGRO                       = 0,
+    SAY_SUMMON                      = 1,
+    SAY_EVOCATE                     = 2,
+    SAY_ENRAGE                      = 3,
+    SAY_KILL                        = 4,
+    SAY_DEATH                       = 5,
 
-//Flare spell info
-#define SPELL_ASTRAL_FLARE_PASSIVE      30234               //Visual effect + Flare damage
+    //Flare spell info
+    SPELL_ASTRAL_FLARE_PASSIVE      = 30234,               //Visual effect + Flare damage
 
-//Curator spell info
-#define SPELL_HATEFUL_BOLT              30383
-#define SPELL_EVOCATION                 30254
-#define SPELL_ENRAGE                    30403               //Arcane Infusion: Transforms Curator and adds damage.
-#define SPELL_BERSERK                   26662
+    //Curator spell info
+    SPELL_HATEFUL_BOLT              = 30383,
+    SPELL_EVOCATION                 = 30254,
+    SPELL_ENRAGE                    = 30403,               //Arcane Infusion: Transforms Curator and adds damage.
+    SPELL_BERSERK                   = 26662,
+};
+
+
+
 
 class boss_curator : public CreatureScript
 {
 public:
     boss_curator() : CreatureScript("boss_curator") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_curatorAI (creature);
+        return new boss_curatorAI(creature);
     }
 
     struct boss_curatorAI : public ScriptedAI
     {
-        boss_curatorAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_curatorAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 AddTimer;
         uint32 HatefulBoltTimer;
@@ -64,7 +69,7 @@ public:
         bool Enraged;
         bool Evocating;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             AddTimer = 10000;
             HatefulBoltTimer = 15000;                           //This time may be wrong
@@ -75,22 +80,22 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
-            DoScriptText(RAND(SAY_KILL1, SAY_KILL2), me);
+            Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -108,7 +113,7 @@ public:
                 }
 
                 //may not be correct SAY (generic hard enrage)
-                DoScriptText(SAY_ENRAGE, me);
+                Talk(SAY_ENRAGE);
 
                 me->InterruptNonMeleeSpells(true);
                 DoCast(me, SPELL_BERSERK);
@@ -150,7 +155,7 @@ public:
                         //if this get's us below 10%, then we evocate (the 10th should be summoned now)
                         if (me->GetPower(POWER_MANA)*100 / me->GetMaxPower(POWER_MANA) < 10)
                         {
-                            DoScriptText(SAY_EVOCATE, me);
+                            Talk(SAY_EVOCATE);
                             me->InterruptNonMeleeSpells(false);
                             DoCast(me, SPELL_EVOCATION);
                             Evocating = true;
@@ -161,7 +166,7 @@ public:
                         {
                             if (urand(0, 1) == 0)
                             {
-                                DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
+                                Talk(SAY_SUMMON);
                             }
                         }
                     }
@@ -173,7 +178,7 @@ public:
                 {
                     Enraged = true;
                     DoCast(me, SPELL_ENRAGE);
-                    DoScriptText(SAY_ENRAGE, me);
+                    Talk(SAY_ENRAGE);
                 }
             }
 
@@ -186,13 +191,11 @@ public:
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
                     DoCast(target, SPELL_HATEFUL_BOLT);
-
             } else HatefulBoltTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_curator()

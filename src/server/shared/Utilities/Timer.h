@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -66,7 +66,7 @@ struct IntervalTimer
         void Reset()
         {
             if (_current >= _interval)
-                _current -= _interval;
+                _current %= _interval;
         }
 
         void SetCurrent(time_t current)

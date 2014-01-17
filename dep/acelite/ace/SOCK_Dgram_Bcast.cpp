@@ -1,4 +1,4 @@
-// $Id: SOCK_Dgram_Bcast.cpp 91685 2010-09-09 09:35:14Z johnnyw $
+// $Id: SOCK_Dgram_Bcast.cpp 93359 2011-02-11 11:33:12Z mcorino $
 
 #include "ace/SOCK_Dgram_Bcast.h"
 
@@ -181,7 +181,7 @@ ACE_SOCK_Dgram_Bcast::mk_broadcast (const ACE_TCHAR *host_name)
       // Silently skip link interfaces
       if (ifr->ifr_addr.sa_family == AF_LINK)
         continue;
-#endif /* __QNX__ */
+#endif /* __QNX__ || ACE_VXWORKS */
       // Compare host ip address with interface ip address.
       if (host_name)
         {

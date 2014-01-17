@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,9 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "AutoPtr.h"
+#include "Player.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 namespace WeatherMgr
 {
@@ -93,8 +96,7 @@ void LoadWeatherData()
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
-        sLog->outString();
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
         return;
     }
 
@@ -115,19 +117,19 @@ void LoadWeatherData()
             if (wzc.data[season].rainChance > 100)
             {
                 wzc.data[season].rainChance = 25;
-                sLog->outErrorDb("Weather for zone %u season %u has wrong rain chance > 100%%", zone_id, season);
+                TC_LOG_ERROR("sql.sql", "Weather for zone %u season %u has wrong rain chance > 100%%", zone_id, season);
             }
 
             if (wzc.data[season].snowChance > 100)
             {
                 wzc.data[season].snowChance = 25;
-                sLog->outErrorDb("Weather for zone %u season %u has wrong snow chance > 100%%", zone_id, season);
+                TC_LOG_ERROR("sql.sql", "Weather for zone %u season %u has wrong snow chance > 100%%", zone_id, season);
             }
 
             if (wzc.data[season].stormChance > 100)
             {
                 wzc.data[season].stormChance = 25;
-                sLog->outErrorDb("Weather for zone %u season %u has wrong storm chance > 100%%", zone_id, season);
+                TC_LOG_ERROR("sql.sql", "Weather for zone %u season %u has wrong storm chance > 100%%", zone_id, season);
             }
         }
 
@@ -137,8 +139,7 @@ void LoadWeatherData()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u weather definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    TC_LOG_INFO("server.loading", ">> Loaded %u weather definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SendFineWeatherUpdateToPlayer(Player* player)

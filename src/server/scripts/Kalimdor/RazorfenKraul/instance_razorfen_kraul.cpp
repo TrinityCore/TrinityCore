@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,8 +23,10 @@ SDComment:
 SDCategory: Razorfen Kraul
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "razorfen_kraul.h"
+#include "Player.h"
 
 #define WARD_KEEPERS_NR 2
 
@@ -33,19 +35,19 @@ class instance_razorfen_kraul : public InstanceMapScript
 public:
     instance_razorfen_kraul() : InstanceMapScript("instance_razorfen_kraul", 47) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_razorfen_kraul_InstanceMapScript(map);
     }
 
     struct instance_razorfen_kraul_InstanceMapScript : public InstanceScript
     {
-        instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint64 DoorWardGUID;
         int WardKeeperDeath;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             WardKeeperDeath = 0;
             DoorWardGUID = 0;
@@ -59,19 +61,20 @@ public:
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                         return player;
                 }
             }
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
+            TC_LOG_DEBUG("scripts", "Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
                 case 21099: DoorWardGUID = go->GetGUID(); break;
+                case 20920: go->SetUInt32Value(GAMEOBJECT_FACTION, 0); break; // big fat fugly hack
             }
         }
 
@@ -85,7 +88,7 @@ public:
                 }
         }
 
-        void SetData(uint32 type, uint32 /*data*/)
+        void SetData(uint32 type, uint32 /*data*/) OVERRIDE
         {
             switch (type)
             {

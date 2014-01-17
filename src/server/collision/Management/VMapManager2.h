@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,7 +53,7 @@ namespace VMAP
     class ManagedModel
     {
         public:
-            ManagedModel() : iModel(0), iRefCount(0) {}
+            ManagedModel() : iModel(0), iRefCount(0) { }
             void setModel(WorldModel* model) { iModel = model; }
             WorldModel* getModel() { return iModel; }
             void incRefCount() { ++iRefCount; }
@@ -112,6 +112,8 @@ namespace VMAP
                 return getMapFileName(mapId);
             }
             virtual bool existsMap(const char* basePath, unsigned int mapId, int x, int y);
+        public:
+            void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
     };
 }
 

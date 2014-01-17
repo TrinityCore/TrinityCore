@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,29 +23,33 @@ SDComment: Highlord Kruul are presumably no longer in-game on regular bases, how
 SDCategory: Bosses
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
-#define SPELL_SHADOWVOLLEY          21341
-#define SPELL_CLEAVE                20677
-#define SPELL_THUNDERCLAP           23931
-#define SPELL_TWISTEDREFLECTION     21063
-#define SPELL_VOIDBOLT              21066
-#define SPELL_RAGE                  21340
-#define SPELL_CAPTURESOUL           21054
+enum Spells
+{
+    SPELL_SHADOWVOLLEY          = 21341,
+    SPELL_CLEAVE                = 20677,
+    SPELL_THUNDERCLAP           = 23931,
+    SPELL_TWISTEDREFLECTION     = 21063,
+    SPELL_VOIDBOLT              = 21066,
+    SPELL_RAGE                  = 21340,
+    SPELL_CAPTURESOUL           = 21054
+};
 
 class boss_kruul : public CreatureScript
 {
 public:
     boss_kruul() : CreatureScript("boss_kruul") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kruulAI (creature);
+        return new boss_kruulAI(creature);
     }
 
     struct boss_kruulAI : public ScriptedAI
     {
-        boss_kruulAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_kruulAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowVolley_Timer;
         uint32 Cleave_Timer;
@@ -55,7 +59,7 @@ public:
         uint32 Rage_Timer;
         uint32 Hound_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ShadowVolley_Timer = 10000;
             Cleave_Timer = 14000;
@@ -66,11 +70,11 @@ public:
             Hound_Timer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             // When a player, pet or totem gets killed, Lord Kazzak casts this spell to instantly regenerate 70, 000 health.
             DoCast(me, SPELL_CAPTURESOUL);
@@ -82,7 +86,7 @@ public:
                 Hound->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -92,7 +96,7 @@ public:
             if (ShadowVolley_Timer <= diff)
             {
                 if (urand(0, 99) < 45)
-                    DoCast(me->getVictim(), SPELL_SHADOWVOLLEY);
+                    DoCastVictim(SPELL_SHADOWVOLLEY);
 
                 ShadowVolley_Timer = 5000;
             } else ShadowVolley_Timer -= diff;
@@ -101,7 +105,7 @@ public:
             if (Cleave_Timer <= diff)
             {
                 if (urand(0, 1))
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCastVictim(SPELL_CLEAVE);
 
                 Cleave_Timer = 10000;
             } else Cleave_Timer -= diff;
@@ -110,7 +114,7 @@ public:
             if (ThunderClap_Timer <= diff)
             {
                 if (urand(0, 9) < 2)
-                    DoCast(me->getVictim(), SPELL_THUNDERCLAP);
+                    DoCastVictim(SPELL_THUNDERCLAP);
 
                 ThunderClap_Timer = 12000;
             } else ThunderClap_Timer -= diff;
@@ -118,7 +122,7 @@ public:
             //TwistedReflection_Timer
             if (TwistedReflection_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TWISTEDREFLECTION);
+                DoCastVictim(SPELL_TWISTEDREFLECTION);
                 TwistedReflection_Timer = 30000;
             } else TwistedReflection_Timer -= diff;
 
@@ -126,7 +130,7 @@ public:
             if (VoidBolt_Timer <= diff)
             {
                 if (urand(0, 9) < 4)
-                    DoCast(me->getVictim(), SPELL_VOIDBOLT);
+                    DoCastVictim(SPELL_VOIDBOLT);
 
                 VoidBolt_Timer = 18000;
             } else VoidBolt_Timer -= diff;
@@ -141,9 +145,9 @@ public:
             //Hound_Timer
             if (Hound_Timer <= diff)
             {
-                SummonHounds(me->getVictim());
-                SummonHounds(me->getVictim());
-                SummonHounds(me->getVictim());
+                SummonHounds(me->GetVictim());
+                SummonHounds(me->GetVictim());
+                SummonHounds(me->GetVictim());
 
                 Hound_Timer = 45000;
             } else Hound_Timer -= diff;

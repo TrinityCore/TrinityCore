@@ -1,4 +1,4 @@
-// $Id: Message_Block.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Message_Block.cpp 94516 2011-09-21 14:51:23Z johnnyw $
 #include "ace/Message_Block.h"
 
 #if !defined (__ACE_INLINE__)
@@ -1173,80 +1173,88 @@ ACE_Message_Block::clone (Message_Flags mask) const
 {
   ACE_TRACE ("ACE_Message_Block::clone");
 
-  // Get a pointer to a "cloned" <ACE_Data_Block> (will copy the
-  // values rather than increment the reference count).
-  ACE_Data_Block *db = this->data_block ()->clone (mask);
+  const ACE_Message_Block *old_message_block = this;
+  ACE_Message_Block *new_message_block = 0;
+  ACE_Message_Block *new_previous_message_block = 0;
+  ACE_Message_Block *new_root_message_block = 0;
 
-  if (db == 0)
-    return 0;
-
-  ACE_Message_Block *nb = 0;
-
-  if(message_block_allocator_ == 0)
+  do
     {
-      ACE_NEW_RETURN (nb,
-                      ACE_Message_Block (0, // size
-                                         ACE_Message_Type (0), // type
-                                         0, // cont
-                                         0, // data
-                                         0, // allocator
-                                         0, // locking strategy
-                                         0, // flags
-                                         this->priority_, // priority
-                                         ACE_EXECUTION_TIME, // execution time
-                                         ACE_DEADLINE_TIME, // absolute time to deadline
-                                         // Get a pointer to a
-                                         // "duplicated" <ACE_Data_Block>
-                                         // (will simply increment the
-                                         // reference count).
-                                         db,
-                                         db->data_block_allocator (),
-                                         this->message_block_allocator_),
-                      0);
-    }
-  else
-    {
-      // This is the ACE_NEW_MALLOC macro with the return check removed.
-      // We need to do it this way because if it fails we need to release
-      // the cloned data block that was created above.  If we used
-      // ACE_NEW_MALLOC_RETURN, there would be a memory leak because the
-      // above db pointer would be left dangling.
-      nb = static_cast<ACE_Message_Block*> (message_block_allocator_->malloc (sizeof (ACE_Message_Block)));
-      if(nb != 0)
-        new (nb) ACE_Message_Block (0, // size
-                                    ACE_Message_Type (0), // type
-                                    0, // cont
-                                    0, // data
-                                    0, // allocator
-                                    0, // locking strategy
-                                    0, // flags
-                                    this->priority_, // priority
-                                    ACE_EXECUTION_TIME, // execution time
-                                    ACE_DEADLINE_TIME, // absolute time to deadline
-                                    db,
-                                    db->data_block_allocator (),
-                                    this->message_block_allocator_);
-    }
+      // Get a pointer to a "cloned"<ACE_Data_Block> (will copy the
+      // values rather than increment the reference count).
+      ACE_Data_Block *db = old_message_block->data_block ()->clone (mask);
 
-  if (nb == 0)
-    {
-      db->release ();
-      return 0;
-    }
+      if (db == 0)
+        return 0;
 
-  // Set the read and write pointers in the new <Message_Block> to the
-  // same relative offset as in the existing <Message_Block>.
-  nb->rd_ptr (this->rd_ptr_);
-  nb->wr_ptr (this->wr_ptr_);
+      if(old_message_block->message_block_allocator_ == 0)
+        {
+          ACE_NEW_RETURN (new_message_block,
+                          ACE_Message_Block (0, // size
+                                             ACE_Message_Type (0), // type
+                                             0, // cont
+                                             0, // data
+                                             0, // allocator
+                                             0, // locking strategy
+                                             0, // flags
+                                             old_message_block->priority_, // priority
+                                             ACE_EXECUTION_TIME, // execution time
+                                             ACE_DEADLINE_TIME, // absolute time to deadline
+                                             // Get a pointer to a
+                                             // "duplicated"<ACE_Data_Block>
+                                             // (will simply increment the
+                                             // reference count).
+                                             db,
+                                             db->data_block_allocator (),
+                                             old_message_block->message_block_allocator_),
+                          0);
+        }
+      else
+        {
+          // This is the ACE_NEW_MALLOC macro with the return check removed.
+          // We need to do it this way because if it fails we need to release
+          // the cloned data block that was created above. If we used
+          // ACE_NEW_MALLOC_RETURN, there would be a memory leak because the
+          // above db pointer would be left dangling.
+          new_message_block = static_cast<ACE_Message_Block*> (message_block_allocator_->malloc (sizeof (ACE_Message_Block)));
+          if (new_message_block != 0)
+            new (new_message_block) ACE_Message_Block (0, // size
+                                                       ACE_Message_Type (0), // type
+                                                       0, // cont
+                                                       0, // data
+                                                       0, // allocator
+                                                       0, // locking strategy
+                                                       0, // flags
+                                                       old_message_block->priority_, // priority
+                                                       ACE_EXECUTION_TIME, // execution time
+                                                       ACE_DEADLINE_TIME, // absolute time to deadline
+                                                       db,
+                                                       db->data_block_allocator (),
+                                                       old_message_block->message_block_allocator_);
+        }
 
-  // Clone all the continuation messages if necessary.
-  if (this->cont () != 0
-      && (nb->cont_ = this->cont ()->clone (mask)) == 0)
-    {
-      nb->release ();
-      return 0;
+      if (new_message_block == 0)
+        {
+          db->release ();
+          return 0;
+        }
+
+      // Set the read and write pointers in the new <Message_Block> to the
+      // same relative offset as in the existing <Message_Block>.
+      new_message_block->rd_ptr (old_message_block->rd_ptr_);
+      new_message_block->wr_ptr (old_message_block->wr_ptr_);
+      // save the root message block to return
+      if (new_root_message_block == 0)
+        new_root_message_block = new_message_block;
+      if (new_previous_message_block != 0)
+        // we're a continuation of the previous block, add ourself to its chain
+        new_previous_message_block->cont_ = new_message_block;
+      new_previous_message_block = new_message_block;
+      old_message_block = old_message_block->cont ();
     }
-  return nb;
+  while (old_message_block != 0);
+
+  return new_root_message_block;
 }
 
 // This is private.

@@ -1,4 +1,4 @@
-// $Id: SOCK_Dgram.cpp 91622 2010-09-06 08:26:30Z sma $
+// $Id: SOCK_Dgram.cpp 95533 2012-02-14 22:59:17Z wotte $
 
 #include "ace/SOCK_Dgram.h"
 
@@ -320,7 +320,7 @@ ACE_SOCK_Dgram::send (const iovec iov[],
 
   // Determine the total length of all the buffers in <iov>.
   for (i = 0; i < n; i++)
-#if ! (defined(__BORLANDC__) || defined(linux) || defined(ACE_HAS_RTEMS))
+#if ! (defined(__BORLANDC__) || defined(ACE_LINUX) || defined(ACE_HAS_RTEMS))
     // The iov_len is unsigned on Linux, RTEMS and with Borland. If we go
     // ahead and try the if, it will emit a warning.
     if (iov[i].iov_len < 0)
@@ -369,7 +369,7 @@ ACE_SOCK_Dgram::recv (iovec iov[],
   int i;
 
   for (i = 0; i < n; i++)
-#if ! (defined(__BORLANDC__) || defined(linux) || defined(ACE_HAS_RTEMS))
+#if ! (defined(__BORLANDC__) || defined(ACE_LINUX) || defined(ACE_HAS_RTEMS))
     // The iov_len is unsigned on Linux, RTEMS and with Borland. If we go
     // ahead and try the if, it will emit a warning.
     if (iov[i].iov_len < 0)
@@ -596,7 +596,7 @@ ACE_SOCK_Dgram::make_multicast_ifaddr6 (ipv6_mreq *ret_mreq,
                   0,
                   sizeof (lmreq));
 
-#if defined(__linux__)
+#if defined(ACE_LINUX)
   if (net_if != 0)
     {
       lmreq.ipv6mr_interface = ACE_OS::if_nametoindex (ACE_TEXT_ALWAYS_CHAR(net_if));
@@ -674,6 +674,6 @@ ACE_SOCK_Dgram::make_multicast_ifaddr6 (ipv6_mreq *ret_mreq,
 
   return 0;
 }
-#endif /* __linux__ && ACE_HAS_IPV6 */
+#endif /* ACE_LINUX && ACE_HAS_IPV6 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL

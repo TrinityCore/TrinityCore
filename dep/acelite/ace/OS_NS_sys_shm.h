@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_sys_shm.h
  *
- *  $Id: OS_NS_sys_shm.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: OS_NS_sys_shm.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -37,7 +37,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 namespace ACE_OS
 {
-
   //@{ @name A set of wrappers for System V shared memory.
   ACE_NAMESPACE_INLINE_FUNCTION
   void *shmat (int int_id,
@@ -56,8 +55,7 @@ namespace ACE_OS
   int shmget (key_t key,
               size_t size,
               int flags);
-  ///@}
-
+  //@}
 } /* namespace ACE_OS */
 
 ACE_END_VERSIONED_NAMESPACE_DECL

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Message_Queue_Vx.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Message_Queue_Vx.inl 96017 2012-08-08 22:18:09Z mitza $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -11,7 +11,7 @@ ACE_INLINE MSG_Q_ID
 ACE_Message_Queue_Vx::msgq (void)
 {
   // Hijack the tail_ field to store the MSG_Q_ID.
-  return reinterpret_cast<MSG_Q_ID> (tail_);
+  return static_cast<MSG_Q_ID> (reinterpret_cast<long> (tail_));
 }
 
 #endif /* ACE_VXWORKS */

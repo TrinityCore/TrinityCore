@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,56 +22,58 @@ Comment: All ban related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "Chat.h"
 #include "AccountMgr.h"
+#include "Chat.h"
+#include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 
 class ban_commandscript : public CommandScript
 {
 public:
     ban_commandscript() : CommandScript("ban_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand unbanCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleUnBanAccountCommand,          "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleUnBanCharacterCommand,        "", NULL },
-            { "playeraccount",  SEC_ADMINISTRATOR,  true,  &HandleUnBanAccountByCharCommand,    "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleUnBanIPCommand,               "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_UNBAN_ACCOUNT,       true,  &HandleUnBanAccountCommand,          "", NULL },
+            { "character",      rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     true,  &HandleUnBanCharacterCommand,        "", NULL },
+            { "playeraccount",  rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, true,  &HandleUnBanAccountByCharCommand,    "", NULL },
+            { "ip",             rbac::RBAC_PERM_COMMAND_UNBAN_IP,            true,  &HandleUnBanIPCommand,               "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand banlistCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleBanListAccountCommand,        "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleBanListCharacterCommand,      "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleBanListIPCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_BANLIST_ACCOUNT,   true,  &HandleBanListAccountCommand,        "", NULL },
+            { "character",      rbac::RBAC_PERM_COMMAND_BANLIST_CHARACTER, true,  &HandleBanListCharacterCommand,      "", NULL },
+            { "ip",             rbac::RBAC_PERM_COMMAND_BANLIST_IP,        true,  &HandleBanListIPCommand,             "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand baninfoCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleBanInfoAccountCommand,        "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleBanInfoCharacterCommand,      "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleBanInfoIPCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_BANINFO_ACCOUNT,   true,  &HandleBanInfoAccountCommand,        "", NULL },
+            { "character",      rbac::RBAC_PERM_COMMAND_BANINFO_CHARACTER, true,  &HandleBanInfoCharacterCommand,      "", NULL },
+            { "ip",             rbac::RBAC_PERM_COMMAND_BANINFO_IP,        true,  &HandleBanInfoIPCommand,             "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand banCommandTable[] =
         {
-            { "account",        SEC_ADMINISTRATOR,  true,  &HandleBanAccountCommand,            "", NULL },
-            { "character",      SEC_ADMINISTRATOR,  true,  &HandleBanCharacterCommand,          "", NULL },
-            { "playeraccount",  SEC_ADMINISTRATOR,  true,  &HandleBanAccountByCharCommand,      "", NULL },
-            { "ip",             SEC_ADMINISTRATOR,  true,  &HandleBanIPCommand,                 "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_BAN_ACCOUNT,       true,  &HandleBanAccountCommand,            "", NULL },
+            { "character",      rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,     true,  &HandleBanCharacterCommand,          "", NULL },
+            { "playeraccount",  rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT, true,  &HandleBanAccountByCharCommand,      "", NULL },
+            { "ip",             rbac::RBAC_PERM_COMMAND_BAN_IP,            true,  &HandleBanIPCommand,                 "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "ban",            SEC_ADMINISTRATOR,  true,  NULL,                                "", banCommandTable },
-            { "baninfo",        SEC_ADMINISTRATOR,  true,  NULL,                                "", baninfoCommandTable },
-            { "banlist",        SEC_ADMINISTRATOR,  true,  NULL,                                "", banlistCommandTable },
-            { "unban",          SEC_ADMINISTRATOR,  true,  NULL,                                "", unbanCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "ban",            rbac::RBAC_PERM_COMMAND_BAN,     true,  NULL,                                "", banCommandTable },
+            { "baninfo",        rbac::RBAC_PERM_COMMAND_BANINFO, true,  NULL,                                "", baninfoCommandTable },
+            { "banlist",        rbac::RBAC_PERM_COMMAND_BANLIST, true,  NULL,                                "", banlistCommandTable },
+            { "unban",          rbac::RBAC_PERM_COMMAND_UNBAN,   true,  NULL,                                "", unbanCommandTable },
+            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -107,7 +109,7 @@ public:
             return false;
         }
 
-        switch (sWorld->BanCharacter(name, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : ""))
+        switch (sWorld->BanCharacter(name, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : ""))
         {
             case BAN_SUCCESS:
             {
@@ -183,7 +185,7 @@ public:
                 break;
         }
 
-        switch (sWorld->BanAccount(mode, nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : ""))
+        switch (sWorld->BanAccount(mode, nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : ""))
         {
             case BAN_SUCCESS:
                 if (atoi(durationStr) > 0)
@@ -434,21 +436,23 @@ public:
                     do
                     {
                         time_t timeBan = time_t(fields2[0].GetUInt32());
-                        tm* tmBan = localtime(&timeBan);
+                        tm tmBan;
+                        ACE_OS::localtime_r(&timeBan, &tmBan);
 
                         if (fields2[0].GetUInt32() == fields2[1].GetUInt32())
                         {
                             handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|   permanent  |%-15.15s|%-15.15s|",
-                                accountName.c_str(), tmBan->tm_year%100, tmBan->tm_mon+1, tmBan->tm_mday, tmBan->tm_hour, tmBan->tm_min,
+                                accountName.c_str(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                 fields2[2].GetCString(), fields2[3].GetCString());
                         }
                         else
                         {
                             time_t timeUnban = time_t(fields2[1].GetUInt32());
-                            tm* tmUnban = localtime(&timeUnban);
+                            tm tmUnban;
+                            ACE_OS::localtime_r(&timeUnban, &tmUnban);
                             handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
-                                accountName.c_str(), tmBan->tm_year%100, tmBan->tm_mon+1, tmBan->tm_mday, tmBan->tm_hour, tmBan->tm_min,
-                                tmUnban->tm_year%100, tmUnban->tm_mon+1, tmUnban->tm_mday, tmUnban->tm_hour, tmUnban->tm_min,
+                                accountName.c_str(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
+                                tmUnban.tm_year%100, tmUnban.tm_mon+1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
                                 fields2[2].GetCString(), fields2[3].GetCString());
                         }
                     }
@@ -521,21 +525,23 @@ public:
                     do
                     {
                         time_t timeBan = time_t(banFields[0].GetUInt32());
-                        tm* tmBan = localtime(&timeBan);
+                        tm tmBan;
+                        ACE_OS::localtime_r(&timeBan, &tmBan);
 
                         if (banFields[0].GetUInt32() == banFields[1].GetUInt32())
                         {
                             handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|   permanent  |%-15.15s|%-15.15s|",
-                                char_name.c_str(), tmBan->tm_year%100, tmBan->tm_mon+1, tmBan->tm_mday, tmBan->tm_hour, tmBan->tm_min,
+                                char_name.c_str(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                 banFields[2].GetCString(), banFields[3].GetCString());
                         }
                         else
                         {
                             time_t timeUnban = time_t(banFields[1].GetUInt32());
-                            tm* tmUnban = localtime(&timeUnban);
+                            tm tmUnban;
+                            ACE_OS::localtime_r(&timeUnban, &tmUnban);
                             handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
-                                char_name.c_str(), tmBan->tm_year%100, tmBan->tm_mon+1, tmBan->tm_mday, tmBan->tm_hour, tmBan->tm_min,
-                                tmUnban->tm_year%100, tmUnban->tm_mon+1, tmUnban->tm_mday, tmUnban->tm_hour, tmUnban->tm_min,
+                                char_name.c_str(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
+                                tmUnban.tm_year%100, tmUnban.tm_mon+1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
                                 banFields[2].GetCString(), banFields[3].GetCString());
                         }
                     }
@@ -600,20 +606,22 @@ public:
                 handler->SendSysMessage("-------------------------------------------------------------------------------");
                 Field* fields = result->Fetch();
                 time_t timeBan = time_t(fields[1].GetUInt32());
-                tm* tmBan = localtime(&timeBan);
+                tm tmBan;
+                ACE_OS::localtime_r(&timeBan, &tmBan);
                 if (fields[1].GetUInt32() == fields[2].GetUInt32())
                 {
                     handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|   permanent  |%-15.15s|%-15.15s|",
-                        fields[0].GetCString(), tmBan->tm_year%100, tmBan->tm_mon+1, tmBan->tm_mday, tmBan->tm_hour, tmBan->tm_min,
+                        fields[0].GetCString(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                         fields[3].GetCString(), fields[4].GetCString());
                 }
                 else
                 {
                     time_t timeUnban = time_t(fields[2].GetUInt32());
-                    tm* tmUnban = localtime(&timeUnban);
+                    tm tmUnban;
+                    ACE_OS::localtime_r(&timeUnban, &tmUnban);
                     handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
-                        fields[0].GetCString(), tmBan->tm_year%100, tmBan->tm_mon+1, tmBan->tm_mday, tmBan->tm_hour, tmBan->tm_min,
-                        tmUnban->tm_year%100, tmUnban->tm_mon+1, tmUnban->tm_mday, tmUnban->tm_hour, tmUnban->tm_min,
+                        fields[0].GetCString(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
+                        tmUnban.tm_year%100, tmUnban.tm_mon+1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
                         fields[3].GetCString(), fields[4].GetCString());
                 }
             }

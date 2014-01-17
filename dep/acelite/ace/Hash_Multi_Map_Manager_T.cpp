@@ -3,12 +3,11 @@
 /**
  *  @file    Hash_Multi_Map_Manager_T.cpp
  *
- *  $Id: Hash_Multi_Map_Manager_T.cpp 91688 2010-09-09 11:21:50Z johnnyw $
+ *  $Id: Hash_Multi_Map_Manager_T.cpp 93736 2011-04-05 12:38:35Z johnnyw $
  *
  *  @author Shanshan Jiang <shanshan.jiang@vanderbilt.edu>
  */
 //=============================================================================
-
 
 #ifndef ACE_Hash_Multi_Map_Manager_T_CPP
 #define ACE_Hash_Multi_Map_Manager_T_CPP
@@ -26,7 +25,6 @@
 #include "ace/Malloc_Base.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 
 template <class EXT_ID, class INT_ID>
 ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::ACE_Hash_Multi_Map_Entry (ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID> *next,

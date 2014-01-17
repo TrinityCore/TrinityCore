@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,13 +17,14 @@
  */
 
 #include "Totem.h"
-#include "WorldPacket.h"
 #include "Log.h"
 #include "Group.h"
-#include "Player.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "WorldPacket.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)
 {
@@ -34,7 +35,7 @@ Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(prop
 
 void Totem::Update(uint32 time)
 {
-    if (!m_owner->isAlive() || !isAlive())
+    if (!GetOwner()->IsAlive() || !IsAlive())
     {
         UnSummon();                                         // remove self
         return;
@@ -54,19 +55,19 @@ void Totem::Update(uint32 time)
 void Totem::InitStats(uint32 duration)
 {
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-    if (m_owner->GetTypeId() == TYPEID_PLAYER
-        && m_Properties->Slot >= SUMMON_SLOT_TOTEM
-        && m_Properties->Slot < MAX_TOTEM_SLOT)
+    if (GetOwner()->GetTypeId() == TYPEID_PLAYER
+            && m_Properties->Slot >= SUMMON_SLOT_TOTEM
+            && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
         WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
         data << uint8(m_Properties->Slot - 1);
         data << uint64(GetGUID());
         data << uint32(duration);
         data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
-        m_owner->ToPlayer()->SendDirectMessage(&data);
+        GetOwner()->ToPlayer()->SendDirectMessage(&data);
 
         // set display id depending on caster's race
-        SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
+        SetDisplayId(GetOwner()->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
     }
 
     Minion::InitStats(duration);
@@ -81,12 +82,12 @@ void Totem::InitStats(uint32 duration)
 
     m_duration = duration;
 
-    SetLevel(m_owner->getLevel());
+    SetLevel(GetOwner()->getLevel());
 }
 
 void Totem::InitSummon()
 {
-    if (m_type == TOTEM_PASSIVE)
+    if (m_type == TOTEM_PASSIVE && GetSpell())
     {
         CastSpell(this, GetSpell(), true);
     }
@@ -96,25 +97,35 @@ void Totem::InitSummon()
         CastSpell(this, GetSpell(1), true);
 }
 
-void Totem::UnSummon()
+void Totem::UnSummon(uint32 msTime)
 {
+    if (msTime)
+    {
+        m_Events.AddEvent(new ForcedUnsummonDelayEvent(*this), m_Events.CalculateTime(msTime));
+        return;
+    }
+
     CombatStop();
-    RemoveAurasDueToSpell(GetSpell());
+    RemoveAurasDueToSpell(GetSpell(), GetGUID());
 
     // clear owner's totem slot
-    for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+    for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
     {
-        if (m_owner->m_SummonSlot[i] == GetGUID())
+        if (GetOwner()->m_SummonSlot[i] == GetGUID())
         {
-            m_owner->m_SummonSlot[i] = 0;
+            GetOwner()->m_SummonSlot[i] = 0;
             break;
         }
     }
 
-    m_owner->RemoveAurasDueToSpell(GetSpell());
+    GetOwner()->RemoveAurasDueToSpell(GetSpell(), GetGUID());
+
+    // Remove Sentry Totem Aura
+    if (GetEntry() == SENTRY_TOTEM_ENTRY)
+        GetOwner()->RemoveAurasDueToSpell(SENTRY_TOTEM_SPELLID);
 
     //remove aura all party members too
-    if (Player* owner = m_owner->ToPlayer())
+    if (Player* owner = GetOwner()->ToPlayer())
     {
         owner->SendAutoRepeatCancel(this);
 
@@ -125,9 +136,9 @@ void Totem::UnSummon()
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* target = itr->getSource();
+                Player* target = itr->GetSource();
                 if (target && group->SameSubGroup(owner, target))
-                    target->RemoveAurasDueToSpell(GetSpell());
+                    target->RemoveAurasDueToSpell(GetSpell(), GetGUID());
             }
         }
     }
@@ -137,7 +148,7 @@ void Totem::UnSummon()
 
 bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    // TODO: possibly all negative auras immune?
+    /// @todo possibly all negative auras immune?
     if (GetEntry() == 5925)
         return false;
 

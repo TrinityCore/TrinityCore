@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,35 +23,37 @@ SDComment: Bloodboil not working correctly, missing enrage
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "black_temple.h"
 
-//Speech'n'Sound
-#define SAY_AGGRO               -1564029
-#define SAY_SLAY1               -1564030
-#define SAY_SLAY2               -1564031
-#define SAY_SPECIAL1            -1564032
-#define SAY_SPECIAL2            -1564033
-#define SAY_ENRAGE1             -1564034
-#define SAY_ENRAGE2             -1564035
-#define SAY_DEATH               -1564036
+enum Bloodboil
+{
+    //Speech'n'Sound
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_SPECIAL                 = 2,
+    SAY_ENRAGE                  = 3,
+    SAY_DEATH                   = 4,
 
-//Spells
-#define SPELL_ACID_GEYSER        40630
-#define SPELL_ACIDIC_WOUND       40481
-#define SPELL_ARCING_SMASH       40599
-#define SPELL_BLOODBOIL          42005                      // This spell is AoE whereas it shouldn't be
-#define SPELL_FEL_ACID           40508
-#define SPELL_FEL_RAGE_SELF      40594
-#define SPELL_FEL_RAGE_TARGET    40604
-#define SPELL_FEL_RAGE_2         40616
-#define SPELL_FEL_RAGE_3         41625
-#define SPELL_BEWILDERING_STRIKE 40491
-#define SPELL_EJECT1             40486                      // 1000 Physical damage + knockback + script effect (should handle threat reduction I think)
-#define SPELL_EJECT2             40597                      // 1000 Physical damage + Stun (used in phase 2?)
-#define SPELL_TAUNT_GURTOGG      40603
-#define SPELL_INSIGNIFIGANCE     40618
-#define SPELL_BERSERK            45078
+    //Spells
+    SPELL_ACID_GEYSER           = 40630,
+    SPELL_ACIDIC_WOUND          = 40481,
+    SPELL_ARCING_SMASH          = 40599,
+    SPELL_BLOODBOIL             = 42005,                      // This spell is AoE whereas it shouldn't be
+    SPELL_FEL_ACID              = 40508,
+    SPELL_FEL_RAGE_SELF         = 40594,
+    SPELL_FEL_RAGE_TARGET       = 40604,
+    SPELL_FEL_RAGE_2            = 40616,
+    SPELL_FEL_RAGE_3            = 41625,
+    SPELL_BEWILDERING_STRIKE    = 40491,
+    SPELL_EJECT1                = 40486,                      // 1000 Physical damage + knockback + script effect (should handle threat reduction I think)
+    SPELL_EJECT2                = 40597,                      // 1000 Physical damage + Stun (used in phase 2?)
+    SPELL_TAUNT_GURTOGG         = 40603,
+    SPELL_INSIGNIFIGANCE        = 40618,
+    SPELL_BERSERK               = 45078
+};
+
 
 //This is used to sort the players by distance in preparation for the Bloodboil cast.
 
@@ -60,9 +62,9 @@ class boss_gurtogg_bloodboil : public CreatureScript
 public:
     boss_gurtogg_bloodboil() : CreatureScript("boss_gurtogg_bloodboil") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_gurtogg_bloodboilAI (creature);
+        return GetInstanceAI<boss_gurtogg_bloodboilAI>(creature);
     }
 
     struct boss_gurtogg_bloodboilAI : public ScriptedAI
@@ -91,10 +93,9 @@ public:
 
         bool Phase1;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
+            instance->SetBossState(DATA_GURTOGG_BLOODBOIL, NOT_STARTED);
 
             TargetGUID = 0;
 
@@ -117,25 +118,23 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             DoZoneInCombat();
-            DoScriptText(SAY_AGGRO, me);
-            if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
+            Talk(SAY_AGGRO);
+            instance->SetBossState(DATA_GURTOGG_BLOODBOIL, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
+            instance->SetBossState(DATA_GURTOGG_BLOODBOIL, DONE);
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         // Note: This seems like a very complicated fix. The fix needs to be handled by the core, as implementation of limited-target AoE spells are still not limited.
@@ -153,7 +152,7 @@ public:
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //only on alive players
-                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(target);
             }
 
@@ -185,9 +184,7 @@ public:
 
         void RevertThreatOnTarget(uint64 guid)
         {
-            Unit* unit = NULL;
-            unit = Unit::GetUnit(*me, guid);
-            if (unit)
+            if (Unit* unit = Unit::GetUnit(*me, guid))
             {
                 if (DoGetThreat(unit))
                     DoModifyThreatPercent(unit, -100);
@@ -196,20 +193,20 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
 
             if (ArcingSmashTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCING_SMASH);
+                DoCastVictim(SPELL_ARCING_SMASH);
                 ArcingSmashTimer = 10000;
             } else ArcingSmashTimer -= diff;
 
             if (FelAcidTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEL_ACID);
+                DoCastVictim(SPELL_FEL_ACID);
                 FelAcidTimer = 25000;
             } else FelAcidTimer -= diff;
 
@@ -218,7 +215,7 @@ public:
                 if (EnrageTimer <= diff)
                 {
                     DoCast(me, SPELL_BERSERK);
-                    DoScriptText(RAND(SAY_ENRAGE1, SAY_ENRAGE2), me);
+                    Talk(SAY_ENRAGE);
                 } else EnrageTimer -= diff;
             }
 
@@ -226,8 +223,8 @@ public:
             {
                 if (BewilderingStrikeTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BEWILDERING_STRIKE);
-                    float mt_threat = DoGetThreat(me->getVictim());
+                    DoCastVictim(SPELL_BEWILDERING_STRIKE);
+                    float mt_threat = DoGetThreat(me->GetVictim());
                     if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
                         me->AddThreat(target, mt_threat);
                     BewilderingStrikeTimer = 20000;
@@ -235,14 +232,14 @@ public:
 
                 if (EjectTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_EJECT1);
-                    DoModifyThreatPercent(me->getVictim(), -40);
+                    DoCastVictim(SPELL_EJECT1);
+                    DoModifyThreatPercent(me->GetVictim(), -40);
                     EjectTimer = 15000;
                 } else EjectTimer -= diff;
 
                 if (AcidicWoundTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ACIDIC_WOUND);
+                    DoCastVictim(SPELL_ACIDIC_WOUND);
                     AcidicWoundTimer = 10000;
                 } else AcidicWoundTimer -= diff;
 
@@ -251,7 +248,7 @@ public:
                     if (BloodboilCount < 5)                      // Only cast it five times.
                     {
                         //CastBloodboil(); // Causes issues on windows, so is commented out.
-                        DoCast(me->getVictim(), SPELL_BLOODBOIL);
+                        DoCastVictim(SPELL_BLOODBOIL);
                         ++BloodboilCount;
                         BloodboilTimer = 10000*BloodboilCount;
                     }
@@ -262,13 +259,13 @@ public:
             {
                 if (AcidGeyserTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ACID_GEYSER);
+                    DoCastVictim(SPELL_ACID_GEYSER);
                     AcidGeyserTimer = 30000;
                 } else AcidGeyserTimer -= diff;
 
                 if (EjectTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_EJECT2);
+                    DoCastVictim(SPELL_EJECT2);
                     EjectTimer = 15000;
                 } else EjectTimer -= diff;
             }
@@ -277,8 +274,7 @@ public:
             {
                 if (Phase1)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target && target->isAlive())
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         Phase1 = false;
 
@@ -301,12 +297,13 @@ public:
                         //Cast this without triggered so that it appears in combat logs and shows visual.
                         DoCast(me, SPELL_FEL_RAGE_SELF);
 
-                        DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
+                        Talk(SAY_SPECIAL);
 
                         AcidGeyserTimer = 1000;
                         PhaseChangeTimer = 30000;
                     }
-                } else                                           // Encounter is a loop pretty much. Phase 1 -> Phase 2 -> Phase 1 -> Phase 2 till death or enrage
+                }
+                else                                           // Encounter is a loop pretty much. Phase 1 -> Phase 2 -> Phase 1 -> Phase 2 till death or enrage
                 {
                     if (TargetGUID)
                         RevertThreatOnTarget(TargetGUID);

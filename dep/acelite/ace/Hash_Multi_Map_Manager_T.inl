@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Hash_Multi_Map_Manager_T.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Hash_Multi_Map_Manager_T.inl 94520 2011-09-22 14:55:20Z johnnyw $
 
 #include "ace/Guard_T.h"
 
@@ -91,7 +91,7 @@ template <class EXT_ID, class INT_ID, class HASH_KEY, class COMPARE_KEYS, class 
 ACE_Hash_Multi_Map_Manager<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>::bind_i (const EXT_ID &ext_id,
                                                                                       const INT_ID &int_id)
 {
-  ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID> *temp;
+  ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID> *temp = 0;
 
   return this->bind_i (ext_id, int_id, temp);
 }

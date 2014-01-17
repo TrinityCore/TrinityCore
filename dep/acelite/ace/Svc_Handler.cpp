@@ -1,4 +1,4 @@
-// $Id: Svc_Handler.cpp 89432 2010-03-10 10:34:51Z vzykov $
+// $Id: Svc_Handler.cpp 94310 2011-07-09 19:10:06Z schmidt $
 
 #ifndef ACE_SVC_HANDLER_CPP
 #define ACE_SVC_HANDLER_CPP
@@ -95,8 +95,7 @@ template <PR_ST_1, ACE_SYNCH_DECL> void
 ACE_Svc_Handler<PR_ST_2, ACE_SYNCH_USE>::operator delete (void *p,
                                          const ACE_nothrow_t&) throw()
 {
-  ACE_TRACE
-    ("ACE_Svc_Handler<PR_ST_2, ACE_SYNCH_USE>::operator delete(nothrow)");
+  ACE_TRACE("ACE_Svc_Handler<PR_ST_2, ACE_SYNCH_USE>::operator delete(nothrow)");
   ::delete [] static_cast <char *> (p);
 }
 #endif /* ACE_LACKS_PLACEMENT_OPERATOR_DELETE */

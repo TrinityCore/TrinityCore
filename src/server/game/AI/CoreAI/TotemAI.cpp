@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,7 +29,7 @@
 
 int TotemAI::Permissible(Creature const* creature)
 {
-    if (creature->isTotem())
+    if (creature->IsTotem())
         return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_NO;
@@ -37,24 +37,22 @@ int TotemAI::Permissible(Creature const* creature)
 
 TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid(0)
 {
-    ASSERT(c->isTotem());
+    ASSERT(c->IsTotem());
 }
 
-void TotemAI::MoveInLineOfSight(Unit* /*who*/)
-{
-}
+void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
 
 void TotemAI::EnterEvadeMode()
 {
     me->CombatStop(true);
 }
 
-void TotemAI::UpdateAI(uint32 const /*diff*/)
+void TotemAI::UpdateAI(uint32 /*diff*/)
 {
     if (me->ToTotem()->GetTotemType() != TOTEM_ACTIVE)
         return;
 
-    if (!me->isAlive() || me->IsNonMeleeSpellCasted(false))
+    if (!me->IsAlive() || me->IsNonMeleeSpellCast(false))
         return;
 
     // Search spell
@@ -73,7 +71,7 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
     if (!victim ||
         !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->canSeeOrDetect(victim))
+        me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
         victim = NULL;
         Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me, max_range);
@@ -98,12 +96,14 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
 void TotemAI::AttackStart(Unit* /*victim*/)
 {
     // Sentry totem sends ping on attack
-    if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-    {
-        WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
-        data << me->GetGUID();
-        data << me->GetPositionX();
-        data << me->GetPositionY();
-        ((Player*)me->GetOwner())->GetSession()->SendPacket(&data);
-    }
+    if (me->GetEntry() == SENTRY_TOTEM_ENTRY)
+        if (Unit* owner = me->GetOwner())
+            if (Player* player = owner->ToPlayer())
+            {
+                WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
+                data << me->GetGUID();
+                data << me->GetPositionX();
+                data << me->GetPositionY();
+                player->SendDirectMessage(&data);
+            }
 }

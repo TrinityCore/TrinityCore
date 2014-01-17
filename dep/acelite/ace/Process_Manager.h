@@ -4,7 +4,7 @@
 /**
  *  @file    Process_Manager.h
  *
- *  $Id: Process_Manager.h 91688 2010-09-09 11:21:50Z johnnyw $
+ *  $Id: Process_Manager.h 92489 2010-11-05 00:33:37Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -210,6 +210,9 @@ public:
    *
    * @note This call is potentially dangerous to use since the process
    * being terminated may not have a chance to cleanup before it shuts down.
+   * The process's entry is also not removed from this class's process
+   * table. Calling either wait() or remove() after terminate() is
+   * advisable.
    *
    * @retval 0 on success and -1 on failure.
    */
@@ -290,10 +293,9 @@ public:
 
   /**
    * Remove process @a pid from the ACE_Process_Manager's internal records.
-   * This is called automatically by the reap() method after it successfully
-   * reaps a process.  It's also possible to call this method
-   * directly from a signal handler, but don't call both reap() and
-   * remove()!
+   * This is called automatically by the wait() method if the waited process
+   * exits. This method can also be called after calling terminate() if
+   * there's no need to wait() for the terminated process.
    */
   int remove (pid_t pid);
 

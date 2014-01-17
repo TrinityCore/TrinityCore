@@ -4,12 +4,11 @@
 /**
  *  @file    Thread_Control.h
  *
- *  $Id: Thread_Control.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Thread_Control.h 94054 2011-05-11 18:28:20Z johnnyw $
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
 //=============================================================================
-
 
 #ifndef ACE_THREAD_CONTROL_H
 #define ACE_THREAD_CONTROL_H
@@ -48,7 +47,7 @@ public:
   ACE_Thread_Control (ACE_Thread_Manager *tm = 0,
                       int insert = 0);
 
-  /// Remove the thread from its associated <Thread_Manager> and exit
+  /// Remove the thread from its associated Thread_Manager and exit
   /// the thread if <do_thr_exit> is enabled.
   ~ACE_Thread_Control (void);
 
@@ -57,15 +56,15 @@ public:
   ACE_THR_FUNC_RETURN exit (ACE_THR_FUNC_RETURN status,
                             int do_thr_exit);
 
-  /// Store the <Thread_Manager> and use it to register ourselves for
+  /// Store the Thread_Manager and use it to register ourselves for
   /// correct shutdown.
-  int insert (ACE_Thread_Manager *tm, int insert = 0);
+  int insert (ACE_Thread_Manager *tm, bool insert = false);
 
-  /// Returns the current <Thread_Manager>.
+  /// Returns the current Thread_Manager.
   ACE_Thread_Manager *thr_mgr (void);
 
-  /// Atomically set a new <Thread_Manager> and return the old
-  /// <Thread_Manager>.
+  /// Atomically set a new Thread_Manager and return the old
+  /// Thread_Manager.
   ACE_Thread_Manager *thr_mgr (ACE_Thread_Manager *);
 
   /// Set the exit status (and return existing status).

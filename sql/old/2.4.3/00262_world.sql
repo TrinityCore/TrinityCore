@@ -70,23 +70,23 @@ INSERT INTO trinity_string VALUES
 (251,'Text%d (ID: %i): %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 ALTER TABLE event_scripts
   DROP datatext,
-  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2; 
+  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2;
 
 ALTER TABLE gameobject_scripts
   DROP datatext,
-  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2; 
+  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2;
 
 ALTER TABLE quest_end_scripts
   DROP datatext,
-  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2; 
+  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2;
 
 ALTER TABLE quest_start_scripts
   DROP datatext,
-  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2; 
+  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2;
 
 ALTER TABLE spell_scripts
   DROP datatext,
-  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2; 
+  ADD COLUMN dataint int(11) NOT NULL default '0' AFTER datalong2;
 
 ALTER TABLE creature_movement
   DROP `text1`,

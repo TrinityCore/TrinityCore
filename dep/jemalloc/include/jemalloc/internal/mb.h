@@ -17,7 +17,7 @@
 void	mb_write(void);
 #endif
 
-#if (defined(JEMALLOC_ENABLE_INLINE) || defined(MB_C_))
+#if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_MB_C_))
 #ifdef __i386__
 /*
  * According to the Intel Architecture Software Developer's Manual, current
@@ -54,7 +54,7 @@ mb_write(void)
 	    );
 #endif
 }
-#elif (defined(__amd64_) || defined(__x86_64__))
+#elif (defined(__amd64__) || defined(__x86_64__))
 JEMALLOC_INLINE void
 mb_write(void)
 {
@@ -86,6 +86,13 @@ mb_write(void)
 	    : /* Inputs. */
 	    : "memory" /* Clobbers. */
 	    );
+}
+#elif defined(__tile__)
+JEMALLOC_INLINE void
+mb_write(void)
+{
+
+	__sync_synchronize();
 }
 #else
 /*

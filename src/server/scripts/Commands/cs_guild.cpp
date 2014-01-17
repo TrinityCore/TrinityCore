@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,11 +22,12 @@ Comment: All guild related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
 #include "Chat.h"
+#include "Language.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
+#include "ScriptMgr.h"
 
 class guild_commandscript : public CommandScript
 {
@@ -37,21 +38,22 @@ public:
     {
         static ChatCommand guildCommandTable[] =
         {
-            { "create",         SEC_GAMEMASTER,     true,  &HandleGuildCreateCommand,           "", NULL },
-            { "delete",         SEC_GAMEMASTER,     true,  &HandleGuildDeleteCommand,           "", NULL },
-            { "invite",         SEC_GAMEMASTER,     true,  &HandleGuildInviteCommand,           "", NULL },
-            { "uninvite",       SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,         "", NULL },
-            { "rank",           SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "create",   rbac::RBAC_PERM_COMMAND_GUILD_CREATE,   true, &HandleGuildCreateCommand,           "", NULL },
+            { "delete",   rbac::RBAC_PERM_COMMAND_GUILD_DELETE,   true, &HandleGuildDeleteCommand,           "", NULL },
+            { "invite",   rbac::RBAC_PERM_COMMAND_GUILD_INVITE,   true, &HandleGuildInviteCommand,           "", NULL },
+            { "uninvite", rbac::RBAC_PERM_COMMAND_GUILD_UNINVITE, true, &HandleGuildUninviteCommand,         "", NULL },
+            { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "", NULL },
+            { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "", NULL },
+            { NULL,       0,                               false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "guild",          SEC_ADMINISTRATOR,  true, NULL,                                 "", guildCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "guild", rbac::RBAC_PERM_COMMAND_GUILD,  true, NULL, "", guildCommandTable },
+            { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }
-    
+
     /** \brief GM command level 3 - Create a guild.
      *
      * This command allows a GM (level 3) to create a guild.
@@ -116,6 +118,7 @@ public:
             return false;
 
         targetGuild->Disband();
+        delete targetGuild;
 
         return true;
     }
@@ -162,7 +165,7 @@ public:
         if (!targetGuild)
             return false;
 
-        targetGuild->DeleteMember(targetGuid, false, true);
+        targetGuild->DeleteMember(targetGuid, false, true, true);
         return true;
     }
 
@@ -190,6 +193,55 @@ public:
 
         uint8 newRank = uint8(atoi(rankStr));
         return targetGuild->ChangeMemberRank(targetGuid, newRank);
+    }
+
+    static bool HandleGuildRenameCommand(ChatHandler* handler, char const* _args)
+    {
+        if (!*_args)
+            return false;
+
+        char *args = (char *)_args;
+
+        char const* oldGuildStr = handler->extractQuotedArg(args);
+        if (!oldGuildStr)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        char const* newGuildStr = handler->extractQuotedArg(strtok(NULL, ""));
+        if (!newGuildStr)
+        {
+            handler->SendSysMessage(LANG_INSERT_GUILD_NAME);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Guild* guild = sGuildMgr->GetGuildByName(oldGuildStr);
+        if (!guild)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, oldGuildStr);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (sGuildMgr->GetGuildByName(newGuildStr))
+        {
+            handler->PSendSysMessage(LANG_GUILD_RENAME_ALREADY_EXISTS, newGuildStr);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!guild->SetName(newGuildStr))
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        handler->PSendSysMessage(LANG_GUILD_RENAME_DONE, oldGuildStr, newGuildStr);
+        return true;
     }
 };
 

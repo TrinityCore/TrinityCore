@@ -1,4 +1,4 @@
-INSERT INTO `spell_script_target` VALUES 
+INSERT INTO `spell_script_target` VALUES
 (3730,1,15263),
 (6955,1,4946),
 (7022,1,4945),
@@ -22,7 +22,7 @@ INSERT INTO `spell_script_target` VALUES
 (19749,1,12352), -- used by creature script to check if all troopers are presents, NYI
 (19773,1,12018), -- used by Ragnaros to kill Majordomo
 (21556,1,13378), -- no longer in game, but still could be used for some FUN-so why not fix it ? ;)
-(21566,1,13416), 
+(21566,1,13416),
 (22710,1,14349),
 (23168,1,14020),
 (24062,1,15010),
@@ -45,7 +45,7 @@ INSERT INTO `spell_script_target` VALUES
 (30221,1,620),
 (30232,1,15691),
 (30460,1,17404),
-(30951,1,17533), 
+(30951,1,17533),
 (31326,1,15608),
 (31611,1,17979),
 (31727,1,17536),

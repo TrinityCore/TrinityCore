@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_pwd.inl 91781 2010-09-15 12:49:15Z johnnyw $
+// $Id: OS_NS_pwd.inl 93563 2011-03-16 14:33:48Z olli $
 
 #include "ace/OS_NS_errno.h"
 
@@ -37,71 +37,31 @@ ACE_OS::getpwnam (const char *name)
 #endif /* ACE_LACKS_PWD_FUNCTIONS */
 }
 
-ACE_INLINE struct passwd *
-ACE_OS::getpwnam_r (const char *name, struct passwd *pwent,
-                    char *buffer, int buflen)
+ACE_INLINE int
+ACE_OS::getpwnam_r (const char *name,
+                    struct passwd *pwd,
+                    char *buffer,
+                    size_t bufsize,
+                    struct passwd **result)
 {
-#if defined (ACE_HAS_POSIX_GETPWNAM_R)
-  struct passwd *result = 0;
-
-  int const status = ::getpwnam_r (name, pwent, buffer, buflen, &result);
-
-  if (status != 0)
-  {
-    errno = status;
-    result = 0;
-  }
-  return result;
-#elif !defined (ACE_LACKS_PWD_FUNCTIONS)
-# if defined (ACE_HAS_REENTRANT_FUNCTIONS)
-#   if !defined (ACE_LACKS_PWD_REENTRANT_FUNCTIONS)
-#     if defined (ACE_HAS_PTHREADS) && \
-      !defined (ACE_HAS_STHREADS) || \
-      defined (HPUX_11)
-  struct passwd *result = 0;
-  int status;
-  // VAC++ doesn't correctly grok the ::getpwnam_r - the function is redefined
-  // in pwd.h, and that redefinition is used here
-#         if defined (__IBMCPP__) && (__IBMCPP__ >= 400)   /* VAC++ 4 */
-  status = _posix_getpwnam_r (name, pwent, buffer, buflen, &result);
-#         else
-  status = ::getpwnam_r (name, pwent, buffer, buflen, &result);
-#         endif /* __IBMCPP__ && (__IBMCPP__ >= 400) */
-  if (status != 0)
+#if defined (ACE_LACKS_PWD_FUNCTIONS)
+  ACE_UNUSED_ARG (name);
+  ACE_UNUSED_ARG (pwd);
+  ACE_UNUSED_ARG (buffer);
+  ACE_UNUSED_ARG (bufsize);
+  ACE_UNUSED_ARG (result);
+  ACE_NOTSUP_RETURN (0);
+#elif defined (ACE_HAS_LYNXOS4_GETPWNAM_R)
+  if (::getpwnam_r (pwd, const_cast<char*>(name), buffer, bufsize) == -1)
     {
-      errno = status;
-      result = 0;
+      *result = 0;
+      return -1;
     }
-  return result;
-#     elif defined (AIX)
-  if (::getpwnam_r (name, pwent, buffer, buflen) == -1)
-    return 0;
-  else
-    return pwent;
-#     else
-  return ::getpwnam_r (name, pwent, buffer, buflen);
-#     endif /* ACE_HAS_PTHREADS */
-#   else
-  ACE_UNUSED_ARG (name);
-  ACE_UNUSED_ARG (pwent);
-  ACE_UNUSED_ARG (buffer);
-  ACE_UNUSED_ARG (buflen);
-  ACE_NOTSUP_RETURN (0);
-#   endif /* ! ACE_LACKS_PWD_REENTRANT_FUNCTIONS */
-# else
-  ACE_UNUSED_ARG (name);
-  ACE_UNUSED_ARG (pwent);
-  ACE_UNUSED_ARG (buffer);
-  ACE_UNUSED_ARG (buflen);
-  ACE_NOTSUP_RETURN (0);
-# endif /* ACE_HAS_REENTRANT_FUNCTIONS */
+  *result = pwd;
+  return 0;
 #else
-  ACE_UNUSED_ARG (name);
-  ACE_UNUSED_ARG (pwent);
-  ACE_UNUSED_ARG (buffer);
-  ACE_UNUSED_ARG (buflen);
-  ACE_NOTSUP_RETURN (0);
-#endif /* ACE_HAS_POSIX_GETPWNAM_R */
+  return ::getpwnam_r (name, pwd, buffer, bufsize, result);
+#endif /* ACE_LACKS_PWD_FUNCTIONS */
 }
 
 ACE_INLINE void

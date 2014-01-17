@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,8 @@ struct FormationInfo
     float follow_dist;
     float follow_angle;
     uint8 groupAI;
+    uint16 point_1;
+    uint16 point_2;
 };
 
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
@@ -60,8 +62,8 @@ class CreatureGroup
 
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) {}
-        ~CreatureGroup() {}
+        explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) { }
+        ~CreatureGroup() { }
 
         Creature* getLeader() const { return m_leader; }
         uint32 GetId() const { return m_groupID; }

@@ -1,4 +1,4 @@
-// $Id: README 92182 2010-10-08 08:21:27Z olli $
+// $Id: README 93588 2011-03-18 05:18:06Z olli $
 
 ACE Portability Macros
 ----------------------
@@ -173,8 +173,6 @@ ACE_HAS_NONRECURSIVE_MUTEXES            In addition to recursive mutexes,
                                         platform has non-recursive ones also.
 ACE_HAS_RECV_TIMEDWAIT                  Platform has the MIT pthreads
                                         APIs for
-ACE_HAS_RECVFROM_TIMEDWAIT              timed send/recv operations
-ACE_HAS_RECVMSG_TIMEDWAIT
 ACE_HAS_RLIMIT_RESOURCE_ENUM            Platform has enum instead of
                                         int for first argument to
                                         ::{get,set}rlimit ().  The
@@ -201,19 +199,12 @@ ACE_SCANDIR_CMP_USES_CONST_VOIDPTR      The OS's scandir() comparator function
                                                           const void*).
 ACE_SCANDIR_SEL_LACKS_CONST             The OS's scandir() selector function
                                         is int (*selector)(ACE_DIRENT*)
-ACE_HAS_SEND_TIMEDWAIT
-ACE_HAS_SENDTO_TIMEDWAIT
-ACE_HAS_SENDMSG_TIMEDWAIT
 ACE_HAS_STDARG_THR_DEST                 Platform has void (*)(...)
                                         prototype for
                                         pthread_key_create()
                                         destructor (e.g., LynxOS).
 ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS     Platform/compiler supports
                                         Win32 structural exceptions
-ACE_HAS_READ_TIMEDWAIT
-ACE_HAS_READV_TIMEDWAIT
-ACE_HAS_WRITE_TIMEDWAIT
-ACE_HAS_WRITEV_TIMEDWAIT
 ACE_HAS_4_4BSD_SENDMSG_RECVMSG          Platform has BSD 4.4
                                         sendmsg()/recvmsg() APIs.
 ACE_HAS_P_READ_WRITE                    Platform has pread() and
@@ -261,9 +252,6 @@ ACE_HAS_BROKEN_NESTED_TEMPLATES         MSVC has trouble with defining
                                         structs and classes
 ACE_HAS_BROKEN_POSIX_TIME               Platform defines struct
                                         timespec in <sys/timers.h>
-ACE_HAS_BROKEN_RANDR                    OS/compiler's header files are
-                                        inconsistent with libC
-                                        definition of rand_r().
 ACE_HAS_BROKEN_T_ERROR                  Compiler/platform has the wrong
                                         prototype for t_error(), i.e.,
                                         t_error(char *) rather than
@@ -353,8 +341,6 @@ ACE_USES_IPV4_IPV6_MIGRATION            Enable IPv6 support in ACE on
                                         turned on by default.
 ACE_HAS_IPV6_V6ONLY                     Platform supports the IPPROTO_IPV6
                                         level IPV6_V6ONLY socket option.
-ACE_HAS_IRIX62_THREADS                  Platform supports the very odd
-                                        IRIX 6.2 threads...
 ACE_HAS_NONSTATIC_OBJECT_MANAGER        Causes the ACE_Object_Manager
                                         instance to be created in main
                                         (int, char *[]), instead of as
@@ -482,12 +468,6 @@ ACE_HAS_PTHREADS                        Platform supports POSIX
                                         one.  Also may need some
                                         ACE_HAS_... thing for
                                         extensions.
-ACE_HAS_PTHREADS_DRAFT4                 Platform's 'Pthreads' is .4a draft 4
-ACE_HAS_PTHREADS_DRAFT6                 Platform's 'Pthreads' is .4a draft 6
-ACE_HAS_PTHREADS_DRAFT7                 Platform's 'Pthreads' is .1c draft 7
-ACE_HAS_PTHREADS_STD                    Platform supports POSIX.1c-1995 threads
-                                        (This is the final standard
-                                        Pthreads).
 ACE_HAS_PTHREADS_UNIX98_EXT             Platform has the UNIX98 extensions to
                                         Pthreads (rwlocks)
 ACE_HAS_PTHREAD_ATTR_SETCREATESUSPEND_NP  Platform has
@@ -694,9 +674,6 @@ ACE_HAS_UCONTEXT_T                      Platform supports ucontext_t
 ACE_HAS_UNION_WAIT                      The wait() system call takes a
                                         (union wait *) rather than int
                                         *
-ACE_HAS_UNIXWARE_SVR4_SIGNAL_T          Has inconsistent SVR4 signal
-                                        stuff, but not the same as the
-                                        other platforms
 ACE_HAS_VALGRIND                        Running with valgrind
 ACE_HAS_VERBOSE_NOTSUP                  Prints out console message in
                                         ACE_NOTSUP.  Useful for
@@ -969,7 +946,6 @@ ACE_LACKS_PWD_REENTRANT_FUNCTIONS       Platform lacks getpwnam_r()
 ACE_LACKS_QSORT                         Compiler/platform lacks the
                                         standard C library qsort()
                                         function
-ACE_LACKS_RAND_REENTRANT_FUNCTIONS      Platform lacks rand_r()
 ACE_LACKS_READLINK                      Platform lacks the readlink() function.
 ACE_LACKS_READV                         Platform doesn't define readv,
                                         so use our own

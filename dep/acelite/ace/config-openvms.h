@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-openvms.h 91685 2010-09-09 09:35:14Z johnnyw $
+// $Id: config-openvms.h 94294 2011-07-01 09:32:25Z johnnyw $
 
 // The following configuration file is designed to work for OpenVMS 7.3-2
 
@@ -86,9 +86,6 @@
 #define ACE_LACKS_REALPATH 1
 
 #define ACE_LACKS_SYMLINKS 1
-
-#define ACE_LACKS_PWD_REENTRANT_FUNCTIONS 1
-#define ACE_LACKS_RAND_REENTRANT_FUNCTIONS 1
 
 #define ACE_HAS_P_READ_WRITE
 #define ACE_HAS_CHARPTR_DL 1
@@ -188,5 +185,8 @@
 
 #define ACE_LACKS_SETENV
 #define ACE_LACKS_UNSETENV
+
+#define ACE_HAS_SOCK_BUF_SIZE_MAX
+#define ACE_HAS_SOCK_BUF_SIZE_MAX_VALUE 65535
 
 #endif

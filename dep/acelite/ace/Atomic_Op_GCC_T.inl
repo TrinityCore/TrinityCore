@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// $Id: Atomic_Op_GCC_T.inl 89391 2010-03-08 13:53:30Z johnnyw $
+// $Id: Atomic_Op_GCC_T.inl 95225 2011-12-05 20:25:15Z shuston $
 
 #if defined (ACE_HAS_GCC_ATOMIC_BUILTINS) && (ACE_HAS_GCC_ATOMIC_BUILTINS == 1)
 
@@ -127,6 +126,13 @@ ACE_Atomic_Op_GCC<T>::operator= (
 {
   (void) __sync_lock_test_and_set (&this->value_, rhs.value_);
   return *this;
+}
+
+template <typename T>
+ACE_INLINE T
+ACE_Atomic_Op_GCC<T>::exchange (T newval)
+{
+  return __sync_val_compare_and_swap (&this->value_, this->value_, newval);
 }
 
 template <typename T>

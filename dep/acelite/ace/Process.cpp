@@ -1,4 +1,4 @@
-// $Id: Process.cpp 92218 2010-10-14 13:18:15Z mcorino $
+// $Id: Process.cpp 95567 2012-02-28 14:36:02Z johnnyw $
 
 #include "ace/Process.h"
 
@@ -24,12 +24,10 @@
 #include "ace/Vector_T.h"
 #include "ace/Tokenizer_T.h"
 
-#if defined (ACE_VXWORKS) && (ACE_VXWORKS > 0x600) && defined (__RTP__)
+#if defined (ACE_VXWORKS) && defined (__RTP__)
 # include <rtpLib.h>
 # include <taskLib.h>
 #endif
-
-
 
 // This function acts as a signal handler for SIGCHLD. We don't really want
 // to do anything with the signal - it's just needed to interrupt a sleep.
@@ -255,7 +253,7 @@ ACE_Process::spawn (ACE_Process_Options &options)
   }
 
   return this->child_id_;
-#elif (defined (ACE_VXWORKS) && (ACE_VXWORKS > 0x600)) && defined (__RTP__)
+#elif defined (ACE_VXWORKS) && defined (__RTP__)
   if (ACE_BIT_ENABLED (options.creation_flags (),
                        ACE_Process_Options::NO_EXEC))
     ACE_NOTSUP_RETURN (ACE_INVALID_PID);
@@ -519,13 +517,7 @@ ACE_Process::spawn (ACE_Process_Options &options)
           }
         else
           {
-# if defined (ghs)
-            // GreenHills 1.8.8 (for VxWorks 5.3.x) can't compile this
-            // code.  Processes aren't supported on VxWorks anyways.
-            ACE_NOTSUP_RETURN (ACE_INVALID_PID);
-# else
             result = ACE_OS::execve (procname, procargv, procenv);
-# endif /* ghs */
           }
         if (result == -1)
           {
@@ -624,7 +616,7 @@ ACE_Process::wait (const ACE_Time_Value &tv,
 # if defined (ACE_VXWORKS)
     {
       pid_t retv;
-      while ( (retv = this->wait (status)) == ACE_INVALID_PID && errno == EINTR ) ;
+      while ((retv = this->wait (status)) == ACE_INVALID_PID && errno == EINTR);
       return retv;
     }
 # else
@@ -1231,7 +1223,10 @@ ACE_Process_Options::command_line (const ACE_TCHAR *format, ...)
   va_start (argp, format);
 
   if (command_line_buf_len_ < 1)
-    return -1;
+    {
+      va_end (argp);
+      return -1;
+    }
 
 #if !defined (ACE_LACKS_VSNPRINTF) || defined (ACE_HAS_TRIO)
   // vsnprintf the format and args into command_line_buf__.
@@ -1325,7 +1320,7 @@ ACE_Process_Options::command_line_argv (void)
       do
         command_line_argv_[x] = parser.next ();
       while (command_line_argv_[x] != 0
-             // substract one for the ending zero.
+             // subtract one for the ending zero.
              && ++x < max_command_line_args_ - 1);
 
       command_line_argv_[x] = 0;

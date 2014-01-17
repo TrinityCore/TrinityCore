@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,9 +47,9 @@ class boss_kazrogal : public CreatureScript
 public:
     boss_kazrogal() : CreatureScript("boss_kazrogal") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kazrogalAI (creature);
+        return GetInstanceAI<boss_kazrogalAI>(creature);
     }
 
     struct boss_kazrogalAI : public hyjal_trashAI
@@ -66,7 +66,7 @@ public:
         uint32 MarkTimerBase;
         bool go;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             damageTaken = 0;
             CleaveTimer = 5000;
@@ -78,29 +78,29 @@ public:
                 instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             if (waypointId == 7 && instance)
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
-                if (target && target->isAlive())
+                if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) OVERRIDE
         {
             hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
@@ -108,7 +108,7 @@ public:
             DoPlaySoundToSet(me, SOUND_ONDEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (IsEvent)
             {
@@ -117,19 +117,16 @@ public:
                 if (!go)
                 {
                     go = true;
-                    if (instance)
-                    {
-                        AddWaypoint(0, 5492.91f,    -2404.61f,    1462.63f);
-                        AddWaypoint(1, 5531.76f,    -2460.87f,    1469.55f);
-                        AddWaypoint(2, 5554.58f,    -2514.66f,    1476.12f);
-                        AddWaypoint(3, 5554.16f,    -2567.23f,    1479.90f);
-                        AddWaypoint(4, 5540.67f,    -2625.99f,    1480.89f);
-                        AddWaypoint(5, 5508.16f,    -2659.2f,    1480.15f);
-                        AddWaypoint(6, 5489.62f,    -2704.05f,    1482.18f);
-                        AddWaypoint(7, 5457.04f,    -2726.26f,    1485.10f);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
-                    }
+                    AddWaypoint(0, 5492.91f,    -2404.61f,    1462.63f);
+                    AddWaypoint(1, 5531.76f,    -2460.87f,    1469.55f);
+                    AddWaypoint(2, 5554.58f,    -2514.66f,    1476.12f);
+                    AddWaypoint(3, 5554.16f,    -2567.23f,    1479.90f);
+                    AddWaypoint(4, 5540.67f,    -2625.99f,    1480.89f);
+                    AddWaypoint(5, 5508.16f,    -2659.2f,    1480.15f);
+                    AddWaypoint(6, 5489.62f,    -2704.05f,    1482.18f);
+                    AddWaypoint(7, 5457.04f,    -2726.26f,    1485.10f);
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -191,7 +188,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
                 targets.remove_if(MarkTargetFilter());
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_kazrogal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
@@ -201,7 +198,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mark_of_kazrogal_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MARK_DAMAGE))
                     return false;
@@ -220,7 +217,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_kazrogal_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
             }
@@ -231,7 +228,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
             return new spell_mark_of_kazrogal_SpellScript();
         }
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_mark_of_kazrogal_AuraScript();
         }

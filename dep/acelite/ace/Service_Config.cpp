@@ -1,4 +1,4 @@
-// $Id: Service_Config.cpp 91693 2010-09-09 12:57:54Z johnnyw $
+// $Id: Service_Config.cpp 96017 2012-08-08 22:18:09Z mitza $
 
 #include "ace/Service_Config.h"
 
@@ -601,7 +601,8 @@ void
 ACE_Service_Config::reconfig_occurred (int config_occurred)
 {
   ACE_TRACE ("ACE_Service_Config::reconfig_occurred");
-  ACE_Service_Config::reconfig_occurred_ = config_occurred;
+  ACE_Service_Config::reconfig_occurred_ =
+    static_cast<sig_atomic_t> (config_occurred);
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

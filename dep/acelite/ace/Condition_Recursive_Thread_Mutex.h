@@ -4,7 +4,7 @@
 /**
  *  @file    Condition_Recursive_Thread_Mutex.h
  *
- *  $Id: Condition_Recursive_Thread_Mutex.h 86731 2009-09-17 12:23:48Z johnnyw $
+ *  $Id: Condition_Recursive_Thread_Mutex.h 96073 2012-08-17 13:39:55Z mcorino $
  *
  *   Moved from Synch.h.
  *
@@ -26,10 +26,10 @@
 #  include "ace/Null_Condition.h"
 #else /* ACE_HAS_THREADS */
 #include "ace/Recursive_Thread_Mutex.h"
+#include "ace/Condition_Attributes.h"
+#include "ace/Condition_T.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
-template <class ACE_LOCK> class ACE_Condition;
 
 /**
  * @brief ACE_Condition template specialization written using
@@ -42,6 +42,10 @@ class ACE_Export ACE_Condition<ACE_Recursive_Thread_Mutex>
 public:
   /// Initialize the condition variable with a recursive mutex.
   ACE_Condition (ACE_Recursive_Thread_Mutex &m);
+
+  /// Initialize the condition variable.
+  ACE_Condition (ACE_Recursive_Thread_Mutex &m,
+                 const ACE_Condition_Attributes &attributes);
 
   /// Implicitly destroy the condition variable.
   ~ACE_Condition (void);
@@ -65,7 +69,7 @@ public:
    * Block on condition or until absolute time-of-day has passed.  If
    * abstime == 0 use "blocking" wait() semantics on the recursive @a mutex
    * passed as a parameter (this is useful if you need to store the
-   * <Condition> in shared memory).  Else, if <abstime> != 0 and the
+   * <Condition> in shared memory).  Else, if @a abstime != 0 and the
    * call times out before the condition is signaled <wait> returns -1
    * and sets errno to ETIME.
    */
@@ -100,13 +104,7 @@ private:
 
 };
 
-class ACE_Export ACE_Condition_Recursive_Thread_Mutex
-  : public ACE_Condition<ACE_Recursive_Thread_Mutex>
-{
-public:
-  /// Initialize the condition variable with a recursive mutex.
-  ACE_Condition_Recursive_Thread_Mutex (ACE_Recursive_Thread_Mutex &m);
-};
+typedef ACE_Condition<ACE_Recursive_Thread_Mutex> ACE_Condition_Recursive_Thread_Mutex;
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

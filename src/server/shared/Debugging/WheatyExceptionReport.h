@@ -1,7 +1,7 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
 
 #include <dbghelp.h>
 

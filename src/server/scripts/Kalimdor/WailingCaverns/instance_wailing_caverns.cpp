@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,8 @@ SDComment: Everything seems to work, still need some checking
 SDCategory: Wailing Caverns
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "wailing_caverns.h"
 
 #define MAX_ENCOUNTER   9
@@ -33,21 +34,21 @@ class instance_wailing_caverns : public InstanceMapScript
 public:
     instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_wailing_caverns_InstanceMapScript(map);
     }
 
     struct instance_wailing_caverns_InstanceMapScript : public InstanceScript
     {
-        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         bool yelled;
         uint64 NaralexGUID;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -55,13 +56,13 @@ public:
             NaralexGUID = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             if (creature->GetEntry() == DATA_NARALEX)
                 NaralexGUID = creature->GetGUID();
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             switch (type)
             {
@@ -79,7 +80,7 @@ public:
             if (data == DONE)SaveToDB();
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -97,13 +98,13 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetData64(uint32 data) const OVERRIDE
         {
             if (data == DATA_NARALEX)return NaralexGUID;
             return 0;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -116,7 +117,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Scarlet Monastery
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -37,40 +38,40 @@ class boss_azshir_the_sleepless : public CreatureScript
 public:
     boss_azshir_the_sleepless() : CreatureScript("boss_azshir_the_sleepless") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_azshir_the_sleeplessAI (creature);
+        return new boss_azshir_the_sleeplessAI(creature);
     }
 
     struct boss_azshir_the_sleeplessAI : public ScriptedAI
     {
-        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SoulSiphon_Timer;
         uint32 CallOftheGrave_Timer;
         uint32 Terrify_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             SoulSiphon_Timer = 1;
             CallOftheGrave_Timer = 30000;
             Terrify_Timer = 20000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
 
             //If we are <50% hp cast Soul Siphon rank 1
-            if (!HealthAbovePct(50) && !me->IsNonMeleeSpellCasted(false))
+            if (!HealthAbovePct(50) && !me->IsNonMeleeSpellCast(false))
             {
                 //SoulSiphon_Timer
                 if (SoulSiphon_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SOULSIPHON);
+                    DoCastVictim(SPELL_SOULSIPHON);
                     return;
 
                     //SoulSiphon_Timer = 20000;
@@ -81,7 +82,7 @@ public:
             //CallOfTheGrave_Timer
             if (CallOftheGrave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CALLOFTHEGRAVE);
+                DoCastVictim(SPELL_CALLOFTHEGRAVE);
                 CallOftheGrave_Timer = 30000;
             }
             else CallOftheGrave_Timer -= diff;
@@ -89,7 +90,7 @@ public:
             //Terrify_Timer
             if (Terrify_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TERRIFY);
+                DoCastVictim(SPELL_TERRIFY);
                 Terrify_Timer = 20000;
             }
             else Terrify_Timer -= diff;

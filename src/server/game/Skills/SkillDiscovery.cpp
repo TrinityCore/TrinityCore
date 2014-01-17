@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,10 +33,10 @@ struct SkillDiscoveryEntry
     float   chance;                                         // chance
 
     SkillDiscoveryEntry()
-        : spellId(0), reqSkillValue(0), chance(0) {}
+        : spellId(0), reqSkillValue(0), chance(0) { }
 
     SkillDiscoveryEntry(uint32 _spellId, uint32 req_skill_val, float _chance)
-        : spellId(_spellId), reqSkillValue(req_skill_val), chance(_chance) {}
+        : spellId(_spellId), reqSkillValue(req_skill_val), chance(_chance) { }
 };
 
 typedef std::list<SkillDiscoveryEntry> SkillDiscoveryList;
@@ -55,8 +55,7 @@ void LoadSkillDiscoveryTable()
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
-        sLog->outString();
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         return;
     }
 
@@ -89,7 +88,7 @@ void LoadSkillDiscoveryTable()
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
-                    sLog->outErrorDb("Spell (ID: %u) have not existed spell (ID: %i) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
+                    TC_LOG_ERROR("sql.sql", "Spell (ID: %u) have not existed spell (ID: %i) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
                     reportedReqSpells.insert(absReqSkillOrSpell);
                 }
                 continue;
@@ -102,7 +101,7 @@ void LoadSkillDiscoveryTable()
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
-                    sLog->outErrorDb("Spell (ID: %u) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc"
+                    TC_LOG_ERROR("sql.sql", "Spell (ID: %u) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc"
                         " and not 100%% chance random discovery ability but listed for spellId %u (and maybe more) in `skill_discovery_template` table",
                         absReqSkillOrSpell, spellId);
                     reportedReqSpells.insert(absReqSkillOrSpell);
@@ -118,7 +117,7 @@ void LoadSkillDiscoveryTable()
 
             if (bounds.first == bounds.second)
             {
-                sLog->outErrorDb("Spell (ID: %u) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
+                TC_LOG_ERROR("sql.sql", "Spell (ID: %u) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
                 continue;
             }
 
@@ -127,7 +126,7 @@ void LoadSkillDiscoveryTable()
         }
         else
         {
-            sLog->outErrorDb("Spell (ID: %u) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
+            TC_LOG_ERROR("sql.sql", "Spell (ID: %u) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
             continue;
         }
 
@@ -136,7 +135,7 @@ void LoadSkillDiscoveryTable()
     while (result->NextRow());
 
     if (!ssNonDiscoverableEntries.str().empty())
-        sLog->outErrorDb("Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n%s", ssNonDiscoverableEntries.str().c_str());
+        TC_LOG_ERROR("sql.sql", "Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n%s", ssNonDiscoverableEntries.str().c_str());
 
     // report about empty data for explicit discovery spells
     for (uint32 spell_id = 1; spell_id < sSpellMgr->GetSpellInfoStoreSize(); ++spell_id)
@@ -150,11 +149,10 @@ void LoadSkillDiscoveryTable()
             continue;
 
         if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
-            sLog->outErrorDb("Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
+            TC_LOG_ERROR("sql.sql", "Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
     }
 
-    sLog->outString(">> Loaded %u skill discovery definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    TC_LOG_INFO("server.loading", ">> Loaded %u skill discovery definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -34,9 +35,9 @@ class boss_lavanthor : public CreatureScript
 public:
     boss_lavanthor() : CreatureScript("boss_lavanthor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lavanthorAI (creature);
+        return GetInstanceAI<boss_lavanthorAI>(creature);
     }
 
     struct boss_lavanthorAI : public ScriptedAI
@@ -53,25 +54,20 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiFireboltTimer = 1000;
             uiFlameBreathTimer = 5000;
             uiLavaBurnTimer = 10000;
             uiCauterizingFlamesTimer = 3000;
-            if (instance)
-            {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-            }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-            {
             if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_LAVANTHOR_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
@@ -82,10 +78,9 @@ public:
                     instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
                 else if (instance->GetData(DATA_WAVE_COUNT) == 12)
                     instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-            }
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
@@ -99,9 +94,10 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(const uint32 diff)
+
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -109,19 +105,19 @@ public:
 
             if (uiFireboltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBOLT);
+                DoCastVictim(SPELL_FIREBOLT);
                 uiFireboltTimer = urand(5000, 13000);
             } else uiFireboltTimer -= diff;
 
             if (uiFlameBreathTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FLAME_BREATH);
+                DoCastVictim(SPELL_FLAME_BREATH);
                 uiFlameBreathTimer = urand(10000, 15000);
             } else uiFlameBreathTimer -= diff;
 
             if (uiLavaBurnTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_LAVA_BURN);
+                DoCastVictim(SPELL_LAVA_BURN);
                 uiLavaBurnTimer = urand(15000, 23000);
             }
 
@@ -129,7 +125,7 @@ public:
             {
                 if (uiCauterizingFlamesTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CAUTERIZING_FLAMES);
+                    DoCastVictim(SPELL_CAUTERIZING_FLAMES);
                     uiCauterizingFlamesTimer = urand(10000, 16000);
                 } else uiCauterizingFlamesTimer -= diff;
             }
@@ -137,20 +133,17 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                {
-                    instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 7);
-                }
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                {
-                    instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 13);
-                }
+                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 7);
+            }
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+            {
+                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
     };

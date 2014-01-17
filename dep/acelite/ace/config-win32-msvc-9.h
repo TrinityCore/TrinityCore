@@ -3,7 +3,7 @@
 /**
  *  @file   config-win32-msvc-9.h
  *
- *  $Id: config-win32-msvc-9.h 91685 2010-09-09 09:35:14Z johnnyw $
+ *  $Id: config-win32-msvc-9.h 95719 2012-05-01 12:54:01Z johnnyw $
  *
  *  @brief  Microsoft Visual C++ 9.0 configuration file.
  *
@@ -35,11 +35,10 @@
 #endif
 
 // Windows' timeval is non-conformant (defined in terms of long instead of
-// time_t) and VC9 (on desktop, not CE) changed time_t to a 64-bit value
-// even when compiling a 32-bit application. Therefore, ace/Time_Value
-// needs to rearrange a few things for this compiler. See Time_Value.h
-// for complete details.
-#if !defined (ACE_HAS_WINCE)
+// time_t) and VC9 changed time_t to a 64-bit value even when compiling a
+// 32-bit application. Therefore, ace/Time_Value needs to rearrange a few
+// things for this compiler. See Time_Value.h for complete details.
+#if !defined (_USE_32BIT_TIME_T)
 #  define ACE_HAS_TIME_T_LONG_MISMATCH
 #endif
 
@@ -57,14 +56,13 @@
 # define ACE_FILENO_EQUIVALENT(X) (_get_osfhandle (::_fileno (X)))
 #endif
 
-// Windows Mobile 6 doesn't do sig_atomic_t, but maybe future versions will.
-#  if !defined (_WIN32_WCE) || (_WIN32_WCE > 0x601)
+// Windows CE 7 doesn't do sig_atomic_t, but maybe future versions will.
+#  if !defined (_WIN32_WCE) || (_WIN32_WCE > 0x700)
 #    define ACE_HAS_SIG_ATOMIC_T
-#  endif /* !Win CE 6.0 or less */
+#  endif /* !Win CE 7.0 or less */
 
 #define ACE_LACKS_STRPTIME
 
-// Evaluate this with a WinCE build; maybe things have improved since VC8.
 #if !defined (ACE_HAS_WINCE)
 # define ACE_HAS_INTRIN_H
 # define ACE_HAS_INTRINSIC_INTERLOCKED

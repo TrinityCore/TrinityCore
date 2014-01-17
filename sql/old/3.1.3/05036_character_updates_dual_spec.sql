@@ -14,14 +14,14 @@ CREATE TABLE `character_glyphs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Get glyphs from correct field in data blob and insert into character_glyphs as spec = 0
-INSERT INTO `character_glyphs` 
+INSERT INTO `character_glyphs`
 SELECT `guid`, 0,
 (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1288),  ' ', -1) AS UNSIGNED)) AS `glyph1`,
 (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1289),  ' ', -1) AS UNSIGNED)) AS `glyph2`,
 (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1290),  ' ', -1) AS UNSIGNED)) AS `glyph3`,
 (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1291),  ' ', -1) AS UNSIGNED)) AS `glyph4`,
 (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1292),  ' ', -1) AS UNSIGNED)) AS `glyph5`,
-(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1293),  ' ', -1) AS UNSIGNED)) AS `glyph6` 
+(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1293),  ' ', -1) AS UNSIGNED)) AS `glyph6`
 FROM `characters`;
 
 CREATE TABLE `character_talent` (

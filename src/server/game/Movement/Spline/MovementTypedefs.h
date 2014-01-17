@@ -44,6 +44,9 @@ namespace Movement
         return ms / 1000.f;
     }
 
+    float computeFallTime(float path_length, bool isSafeFall);
+    float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f);
+
 #ifndef static_assert
     #define CONCAT(x, y) CONCAT1 (x, y)
     #define CONCAT1(x, y) x##y
@@ -54,7 +57,7 @@ namespace Movement
     class counter
     {
     public:
-        counter() { init();}
+        counter() { init(); }
 
         void Increase()
         {
@@ -64,8 +67,8 @@ namespace Movement
                 ++m_counter;
         }
 
-        T NewId() { Increase(); return m_counter;}
-        T getCurrent() const { return m_counter;}
+        T NewId() { Increase(); return m_counter; }
+        T getCurrent() const { return m_counter; }
 
     private:
         void init() { m_counter = 0; }
@@ -75,7 +78,7 @@ namespace Movement
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
     extern double gravity;
-    extern float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity);
+    extern UInt32Counter splineIdGen;
 }
 
 #endif // TRINITYSERVER_TYPEDEFS_H

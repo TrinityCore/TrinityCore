@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,8 @@ SDComment: It may need timer adjustment
 SDCategory:
 Script Data End */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
@@ -37,12 +38,10 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1595026,
-    SAY_SLAY_1                                  = -1595027,
-    SAY_SLAY_2                                  = -1595028,
-    SAY_SLAY_3                                  = -1595029,
-    SAY_SPAWN                                   = -1595030,
-    SAY_DEATH                                   = -1595031
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_SPAWN                                   = 2,
+    SAY_DEATH                                   = 3
 };
 
 class boss_meathook : public CreatureScript
@@ -50,9 +49,9 @@ class boss_meathook : public CreatureScript
 public:
     boss_meathook() : CreatureScript("boss_meathook") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_meathookAI (creature);
+        return GetInstanceAI<boss_meathookAI>(creature);
     }
 
     struct boss_meathookAI : public ScriptedAI
@@ -60,8 +59,7 @@ public:
         boss_meathookAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            if (instance)
-                DoScriptText(SAY_SPAWN, me);
+            Talk(SAY_SPAWN);
         }
 
         uint32 uiChainTimer;
@@ -70,25 +68,23 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
             uiDiseaseTimer = urand(2000, 4000);   //approx 3s
             uiFrenzyTimer = urand(21000, 26000);  //made it up
 
-            if (instance)
-                instance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
+            instance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -116,20 +112,19 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_MEATHOOK_EVENT, DONE);
+            instance->SetData(DATA_MEATHOOK_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 

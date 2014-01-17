@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: INET_Addr.inl 91685 2010-09-09 09:35:14Z johnnyw $
+// $Id: INET_Addr.inl 96017 2012-08-08 22:18:09Z mitza $
 
 
 #include "ace/OS_NS_string.h"
@@ -87,7 +87,11 @@ ACE_INET_Addr::get_port_number (void) const
   else
     return ACE_NTOHS (this->inet_addr_.in6_.sin6_port);
 #else
+# if defined (ACE_VXWORKS) && ACE_VXWORKS >= 0x690
+  return static_cast<u_short> (ACE_NTOHS (this->inet_addr_.in4_.sin_port));
+# else
   return ACE_NTOHS (this->inet_addr_.in4_.sin_port);
+# endif
 #endif /* ACE_HAS_IPV6 */
 }
 

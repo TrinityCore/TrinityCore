@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "BattlegroundIC.h"
+#include "Player.h"
 
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
@@ -24,13 +27,13 @@
 class npc_four_car_garage : public CreatureScript
 {
     public:
-        npc_four_car_garage() : CreatureScript("npc_four_car_garage") {}
+        npc_four_car_garage() : CreatureScript("npc_four_car_garage") { }
 
         struct npc_four_car_garageAI : public NullCreatureAI
         {
             npc_four_car_garageAI(Creature* creature) : NullCreatureAI(creature) { }
 
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
             {
                 if (apply)
                 {
@@ -61,7 +64,7 @@ class npc_four_car_garage : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_four_car_garageAI(creature);
         }

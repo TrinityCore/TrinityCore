@@ -4,7 +4,7 @@
 /**
  *  @file Array_Base.h
  *
- *  $Id: Array_Base.h 84477 2009-02-16 13:30:38Z johnnyw $
+ *  $Id: Array_Base.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -67,21 +67,21 @@ public:
   ACE_Array_Base (size_type size = 0,
                   ACE_Allocator * the_allocator = 0);
 
-  /// Dynamically initialize the entire array to the <default_value>.
+  /// Dynamically initialize the entire array to the @a default_value.
   ACE_Array_Base (size_type size,
                   T const & default_value,
                   ACE_Allocator * the_allocator = 0);
 
   /**
    * The copy constructor performs initialization by making an exact
-   * copy of the contents of parameter <s>, i.e., *this == s will
+   * copy of the contents of parameter @a s, i.e., *this == s will
    * return true.
    */
   ACE_Array_Base (ACE_Array_Base<T> const & s);
 
   /**
    * Assignment operator performs an assignment by making an exact
-   * copy of the contents of parameter <s>, i.e., *this == s will
+   * copy of the contents of parameter @a s, i.e., *this == s will
    * return true.  Note that if the <max_size_> of <array_> is >= than
    * <s.max_size_> we can copy it without reallocating.  However, if
    * <max_size_> is < <s.max_size_> we must delete the <array_>,

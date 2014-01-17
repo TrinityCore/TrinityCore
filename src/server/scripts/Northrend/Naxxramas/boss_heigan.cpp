@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,17 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "naxxramas.h"
+#include "Player.h"
 
-#define SAY_AGGRO           RAND(-1533109, -1533110, -1533111)
-#define SAY_SLAY            -1533112
-#define SAY_TAUNT           RAND(-1533113, -1533114, -1533115, -1533116, -1533117)
-#define SAY_DEATH           -1533118
+enum Heigan
+{
+    SPELL_DECREPIT_FEVER        = 29998, // 25-man: 55011
+    SPELL_SPELL_DISRUPTION      = 29310,
+    SPELL_PLAGUE_CLOUD          = 29350,
 
-#define SPELL_SPELL_DISRUPTION  29310
-#define SPELL_DECREPIT_FEVER    RAID_MODE(29998, 55011)
-#define SPELL_PLAGUE_CLOUD      29350
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_TAUNT                   = 2,
+    SAY_DEATH                   = 3
+};
 
 enum Events
 {
@@ -42,43 +48,46 @@ enum Phases
     PHASE_DANCE,
 };
 
-#define ACTION_SAFETY_DANCE_FAIL 1
-#define DATA_SAFETY_DANCE        19962139
+enum Misc
+{
+    ACTION_SAFETY_DANCE_FAIL        = 1,
+    DATA_SAFETY_DANCE               = 19962139
+};
 
 class boss_heigan : public CreatureScript
 {
 public:
     boss_heigan() : CreatureScript("boss_heigan") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_heiganAI (creature);
+        return GetInstanceAI<boss_heiganAI>(creature);
     }
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) {}
+        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) { }
 
         uint32 eruptSection;
         bool eruptDirection;
         bool safetyDance;
         Phases phase;
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) OVERRIDE
         {
             if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+                Talk(SAY_SLAY);
             if (who->GetTypeId() == TYPEID_PLAYER)
                 safetyDance = false;
         }
 
-        void SetData(uint32 id, uint32 data)
+        void SetData(uint32 id, uint32 data) OVERRIDE
         {
             if (id == DATA_SAFETY_DANCE)
                 safetyDance = data ? true : false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             if (type == DATA_SAFETY_DANCE)
                 return safetyDance ? 1 : 0;
@@ -86,16 +95,16 @@ public:
             return 0;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             EnterPhase(PHASE_FIGHT);
             safetyDance = true;
         }
@@ -111,7 +120,7 @@ public:
                 events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_PHASE, 90000);
                 events.ScheduleEvent(EVENT_ERUPT, 15000);
-                me->GetMotionMaster()->MoveChase(me->getVictim());
+                me->GetMotionMaster()->MoveChase(me->GetVictim());
             }
             else
             {
@@ -127,7 +136,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -147,7 +156,7 @@ public:
                         events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
                         break;
                     case EVENT_PHASE:
-                        // TODO : Add missing texts for both phase switches
+                        /// @todo Add missing texts for both phase switches
                         EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
                         break;
                     case EVENT_ERUPT:
@@ -193,13 +202,13 @@ class spell_heigan_eruption : public SpellScriptLoader
                             Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 
-            void Register()
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_heigan_eruption_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_heigan_eruption_SpellScript();
         }
@@ -212,7 +221,7 @@ class achievement_safety_dance : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

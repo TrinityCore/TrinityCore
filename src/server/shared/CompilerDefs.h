@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,12 +50,15 @@
 #  define COMPILER COMPILER_INTEL
 #elif defined( __GNUC__ )
 #  define COMPILER COMPILER_GNU
+#  define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #else
-#  pragma error "FATAL ERROR: Unknown compiler."
+#  error "FATAL ERROR: Unknown compiler."
 #endif
 
-#if COMPILER == COMPILER_MICROSOFT
-#  pragma warning( disable : 4267 )                         // conversion from 'size_t' to 'int', possible loss of data
-#  pragma warning( disable : 4786 )                         // identifier was truncated to '255' characters in the debug information
+#if defined(__cplusplus) && __cplusplus == 201103L
+#  define COMPILER_HAS_CPP11_SUPPORT 1
+#else
+#  define COMPILER_HAS_CPP11_SUPPORT 0
 #endif
+
 #endif

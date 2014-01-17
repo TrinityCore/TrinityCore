@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,17 +23,24 @@ SDComment: Show a codebox in gossip option
 SDCategory: Script Examples
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "Player.h"
 #include <cstring>
 
-enum eEnums
+enum Yells
+{
+    // These texts must be added to the creature texts of the npc for which the script is assigned.
+    SAY_NOT_INTERESTED      = 0, // "Normal select, guess you're not interested."
+    SAY_WRONG               = 1, // "Wrong!"
+    SAY_CORRECT             = 2  // "You're right, you are allowed to see my inner secrets."
+};
+
+enum Spells
 {
     SPELL_POLYMORPH         = 12826,
-    SPELL_MARK_OF_THE_WILD  = 26990,
-
-    SAY_NOT_INTERESTED      = -1999922,
-    SAY_WRONG               = -1999923,
-    SAY_CORRECT             = -1999924
+    SPELL_MARK_OF_THE_WILD  = 26990
 };
 
 #define GOSSIP_ITEM_1       "A quiz: what's your name?"
@@ -48,7 +55,7 @@ class example_gossip_codebox : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             player->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -58,19 +65,20 @@ class example_gossip_codebox : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+2)
             {
-                DoScriptText(SAY_NOT_INTERESTED, creature);
+                //Read comment in enum
+                creature->AI()->Talk(SAY_NOT_INTERESTED);
                 player->CLOSE_GOSSIP_MENU();
             }
 
             return true;
         }
 
-        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
+        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, char const* code) OVERRIDE
         {
             player->PlayerTalkClass->ClearMenus();
             if (sender == GOSSIP_SENDER_MAIN)
@@ -78,14 +86,16 @@ class example_gossip_codebox : public CreatureScript
                 switch (action)
                 {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    if (std::strcmp(code, player->GetName()) != 0)
+                    if (player->GetName() != code)
                     {
-                        DoScriptText(SAY_WRONG, creature);
+                        //Read comment in enum
+                        creature->AI()->Talk(SAY_WRONG);
                         creature->CastSpell(player, SPELL_POLYMORPH, true);
                     }
                     else
                     {
-                        DoScriptText(SAY_CORRECT, creature);
+                        //Read comment in enum
+                        creature->AI()->Talk(SAY_CORRECT);
                         creature->CastSpell(player, SPELL_MARK_OF_THE_WILD, true);
                     }
                     player->CLOSE_GOSSIP_MENU();

@@ -1,20 +1,20 @@
--- 
+--
 -- trinity_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
--- 
+--
 
 TRUNCATE `script_texts`;
 
--- 
+--
 -- -1 000 000 First 100 entries are reserved for special use, do not add regular text here.
--- 
+--
 
 INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,`comment`) VALUES
 (-1000000,'<TrinityScript Text Entry Missing!>',0,0,0,'DEFAULT_TEXT');
 
--- 
+--
 -- Normal text entries. Say/Yell/Whisper/Emote for any regular world object.
--- 
+--
 
 -- -1 000 100 GENERAL MAPS (not typical instance maps)
 
@@ -208,8 +208,8 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 -- -1 585 000 MAGISTER'S TERRACE
 
 
--- 
+--
 -- Below just for beautiful view in table, run at own desire
--- 
+--
 
 -- ALTER TABLE `script_texts` ORDER BY `entry` desc;

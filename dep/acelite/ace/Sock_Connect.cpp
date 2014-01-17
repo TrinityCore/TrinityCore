@@ -1,4 +1,4 @@
-// $Id: Sock_Connect.cpp 91685 2010-09-09 09:35:14Z johnnyw $
+// $Id: Sock_Connect.cpp 95628 2012-03-21 22:10:02Z shuston $
 
 #include "ace/Sock_Connect.h"
 #include "ace/INET_Addr.h"
@@ -29,33 +29,16 @@
 # endif /* _AIX */
 #endif /* ACE_HAS_IPV6 */
 
-# if defined (ACE_HAS_GETIFADDRS)
-#   if defined (ACE_VXWORKS)
-#     include /**/ <net/ifaddrs.h>
-#   else
-#     include /**/ <ifaddrs.h>
-#   endif /*ACE_VXWORKS */
-# endif /* ACE_HAS_GETIFADDRS */
+#if defined (ACE_HAS_GETIFADDRS)
+#  include "ace/os_include/os_ifaddrs.h"
+#endif /* ACE_HAS_GETIFADDRS */
 
-#if defined (ACE_VXWORKS) && (ACE_VXWORKS < 0x600)
-#include /**/ <inetLib.h>
-#include /**/ <netinet/in_var.h>
-#if defined (ACE_HAS_IPV6)
-#include /**/ <ifLib.h>
-extern "C" {
-  extern struct in_ifaddr* in_ifaddr;
-  extern LIST_HEAD(in_ifaddrhashhead, in_ifaddr) *in_ifaddrhashtbl;
-}
-#endif /* ACE_HAS_IPV6 */
-#include "ace/OS_NS_stdio.h"
-#endif /* ACE_VXWORKS < 0x600 */
-
-#if defined (ACE_VXWORKS) && ((ACE_VXWORKS >= 0x630) && (ACE_VXWORKS <= 0x670)) && defined (__RTP__) && defined (ACE_HAS_IPV6)
+#if defined (ACE_VXWORKS) && (ACE_VXWORKS <= 0x670) && defined (__RTP__) && defined (ACE_HAS_IPV6)
 const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 const struct in6_addr in6addr_nodelocal_allnodes = IN6ADDR_NODELOCAL_ALLNODES_INIT;
 const struct in6_addr in6addr_linklocal_allnodes = IN6ADDR_LINKLOCAL_ALLNODES_INIT;
 const struct in6_addr in6addr_linklocal_allrouters = IN6ADDR_LINKLOCAL_ALLROUTERS_INIT;
-#endif /* ACE_VXWORKS >= 0x630 && <= 0x670 && __RTP__ && ACE_HAS_IPV6 */
+#endif /* ACE_VXWORKS <= 0x670 && __RTP__ && ACE_HAS_IPV6 */
 
 #if defined (ACE_HAS_WINCE)
 #include /**/ <iphlpapi.h>
@@ -145,17 +128,6 @@ namespace
 # undef SETFAMILY
 # define SA_FAMILY sa_family
 #endif /* ACE_HAS_IPV6 */
-
-// This is a hack to work around a problem with Visual Age C++ 5 and 6 on AIX.
-// Without this, the compiler auto-instantiates the ACE_Auto_Array_Ptr for
-// ifreq (contained in this module) but only adds the #include for <net/if.h>
-// and not the one for <sys/socket.h> which is also needed.  Although we
-// don't need the template defined here, it makes the compiler pull in
-// <sys/socket.h> and the build runs clean.
-#if defined (AIX) && defined (__IBMCPP__) && (__IBMCPP__ >= 500) && (__IBMCPP__ < 700)
-static ACE_Auto_Array_Ptr<sockaddr> force_compiler_to_include_socket_h;
-#endif /* AIX && __IBMCPP__ >= 500 */
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -805,8 +777,14 @@ get_ip_interfaces_getifaddrs (size_t &count,
        p_if != 0;
        p_if = p_if->ifa_next)
     {
-      if (p_if->ifa_addr &&
-          p_if->ifa_addr->sa_family == AF_INET)
+      if (p_if->ifa_addr == 0)
+        continue;
+
+      // Check to see if it's up.
+      if ((p_if->ifa_flags & IFF_UP) != IFF_UP)
+        continue;
+
+      if (p_if->ifa_addr->sa_family == AF_INET)
         {
           struct sockaddr_in *addr =
             reinterpret_cast<sockaddr_in *> (p_if->ifa_addr);
@@ -822,8 +800,7 @@ get_ip_interfaces_getifaddrs (size_t &count,
             }
         }
 # if defined (ACE_HAS_IPV6)
-      else if (p_if->ifa_addr &&
-               p_if->ifa_addr->sa_family == AF_INET6)
+      else if (p_if->ifa_addr->sa_family == AF_INET6)
         {
           struct sockaddr_in6 *addr =
             reinterpret_cast<sockaddr_in6 *> (p_if->ifa_addr);
@@ -1094,64 +1071,7 @@ get_ip_interfaces_aix (size_t &count,
   return 0;
 }
 
-#elif defined (ACE_VXWORKS) && (ACE_VXWORKS < 0x600) && !defined (ACE_HAS_VXWORKS551_MEDUSA)
-int
-get_ip_interfaces_vxworks_lt600 (size_t &count,
-                                 ACE_INET_Addr *&addrs)
-{
-  count = 0;
-  // Loop through each address structure
-
-# if defined (ACE_HAS_IPV6) && defined (TAILQ_ENTRY)
-#   define ia_next ia_link.tqe_next
-# endif /* TAILQ_ENTRY */
-
-  for (struct in_ifaddr* ia = in_ifaddr; ia != 0; ia = ia->ia_next)
-    {
-      ++count;
-    }
-
-  // Now create and initialize output array.
-  ACE_NEW_RETURN (addrs,
-                  ACE_INET_Addr[count],
-                  -1); // caller must free
-  count = 0;
-  for (struct in_ifaddr* ia = in_ifaddr; ia != 0; ia = ia->ia_next)
-    {
-      struct ifnet* ifp = ia->ia_ifa.ifa_ifp;
-      if (ifp != 0)
-        {
-          // Get the current interface name
-          char interface[64];
-          ACE_OS::sprintf(interface, "%s%d", ifp->if_name, ifp->if_unit);
-
-          // Get the address for the current interface
-          char address [INET_ADDR_LEN];
-          STATUS status = ifAddrGet(interface, address);
-
-          if (status == OK)
-            {
-              // Concatenate a ':' at the end. This is because in
-              // ACE_INET_Addr::string_to_addr, the ip_address is
-              // obtained using ':' as the delimiter. Since, using
-              // ifAddrGet(), we just get the IP address, I am adding
-              // a ":" to get with the general case.
-              ACE_OS::strcat (address, ":");
-              addrs[count].set (address);
-            }
-          else
-            {
-              ACE_ERROR_RETURN ((LM_ERROR,
-                                 ACE_TEXT ("ACE::get_ip_interface failed\n")
-                                 ACE_TEXT ("Couldnt get the IP Address\n")),
-                                 -1);
-            }
-          ++count;
-        }
-    }
-  return 0;
-}
-#endif // ACE_WIN32 || ACE_HAS_GETIFADDRS || __hpux || _AIX || ACE_VXWORKS < 0x600
+#endif // ACE_WIN32 || ACE_HAS_GETIFADDRS || __hpux || _AIX
 
 
 // return an array of all configured IP interfaces on this host, count
@@ -1174,8 +1094,6 @@ ACE::get_ip_interfaces (size_t &count, ACE_INET_Addr *&addrs)
   return get_ip_interfaces_hpux (count, addrs);
 #elif defined (_AIX)
   return get_ip_interfaces_aix (count, addrs);
-#elif defined (ACE_VXWORKS) && (ACE_VXWORKS < 0x600) && !defined (ACE_HAS_VXWORKS551_MEDUSA)
-  return get_ip_interfaces_vxworks_lt600 (count, addrs);
 #elif (defined (__unix) || defined (__unix__) || defined (ACE_OPENVMS) || (defined (ACE_VXWORKS) && !defined (ACE_HAS_GETIFADDRS)) || defined (ACE_HAS_RTEMS)) && !defined (ACE_LACKS_NETWORKING)
   // COMMON (SVR4 and BSD) UNIX CODE
 

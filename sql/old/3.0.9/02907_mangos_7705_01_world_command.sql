@@ -1,6 +1,6 @@
 /*ALTER TABLE db_version CHANGE COLUMN required_7662_02_mangos_spell_bonus_data required_7705_01_mangos_command bit;*/
 
-DELETE FROM `command` WHERE `name` IN 
+DELETE FROM `command` WHERE `name` IN
 ('account lock','account password','chardelete','character customize','character delete','character rename','customize','lockaccount','password','rename');
 
 INSERT INTO `command` VALUES

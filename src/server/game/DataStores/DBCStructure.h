@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -76,7 +76,7 @@ struct AchievementCriteriaEntry
     union
     {
         // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE          = 0
-        // TODO: also used for player deaths..
+        /// @todo also used for player deaths..
         struct
         {
             uint32  creatureID;                             // 3
@@ -221,7 +221,8 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA              = 32
         struct
         {
-            uint32  mapID;                                  // 3 Reference to Map.dbc
+            uint32 mapID;                                   // 3 Reference to Map.dbc
+            uint32 count;                                   // 4 Number of times that the arena must be won.
         } win_arena;
 
         // ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA             = 33
@@ -287,14 +288,14 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA           = 43
         struct
         {
-            // TODO: This rank is _NOT_ the index from AreaTable.dbc
+            /// @todo This rank is _NOT_ the index from AreaTable.dbc
             uint32  areaReference;                          // 3
         } explore_area;
 
         // ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK               = 44
         struct
         {
-            // TODO: This rank is _NOT_ the index from CharTitles.dbc
+            /// @todo This rank is _NOT_ the index from CharTitles.dbc
             uint32  rank;                                   // 3
         } own_rank;
 
@@ -327,7 +328,7 @@ struct AchievementCriteriaEntry
         } visit_barber;
 
         // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM        = 49
-        // TODO: where is the required itemlevel stored?
+        /// @todo where is the required itemlevel stored?
         struct
         {
             uint32  itemSlot;                               // 3
@@ -362,7 +363,7 @@ struct AchievementCriteriaEntry
         } hk_race;
 
         // ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE               = 54
-        // TODO: where is the information about the target stored?
+        /// @todo where is the information about the target stored?
         struct
         {
             uint32  emoteID;                                // 3 enum TextEmotes
@@ -412,7 +413,7 @@ struct AchievementCriteriaEntry
         } use_gameobject;
 
         // ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL       = 70
-        // TODO: are those special criteria stored in the dbc or do we have to add another sql table?
+        /// @todo are those special criteria stored in the dbc or do we have to add another sql table?
         struct
         {
             uint32  unused;                                 // 3
@@ -595,6 +596,15 @@ struct BankBagSlotPricesEntry
     uint32  price;
 };
 
+struct BannedAddOnsEntry
+{
+    uint32 Id;
+    // uint32 NameMD5[4];
+    // uint32 VersionMD5[4];
+    // uint32 Timestamp;
+    // uint32 State;
+};
+
 struct BarberShopStyleEntry
 {
     uint32  Id;                                             // 0
@@ -628,13 +638,13 @@ struct BattlemasterListEntry
 struct CharStartOutfitEntry
 {
     //uint32 Id;                                            // 0
-    uint32 RaceClassGender;                                 // 1 (UNIT_FIELD_BYTES_0 & 0x00FFFFFF) comparable (0 byte = race, 1 byte = class, 2 byte = gender)
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 2-13
-    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 14-25 not required at server side
-    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 26-37 not required at server side
-    //uint32 Unknown1;                                      // 38, unique values (index-like with gaps ordered in other way as ids)
-    //uint32 Unknown2;                                      // 39
-    //uint32 Unknown3;                                      // 40
+    uint8 Race;                                             // 1
+    uint8 Class;                                            // 2
+    uint8 Gender;                                           // 3
+    //uint8 Unused;                                         // 4
+    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
+    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
+    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
 };
 
 struct CharTitlesEntry
@@ -664,7 +674,7 @@ struct ChrClassesEntry
                                                             // 1, unused
     uint32  powerType;                                      // 2
                                                             // 3-4, unused
-    //char*       name[16];                                 // 5-20 unused
+    char*   name[16];                                       // 5-20 unused
                                                             // 21 string flag, unused
     //char*       nameFemale[16];                           // 21-36 unused, if different from base (male) case
                                                             // 37 string flag, unused
@@ -1019,6 +1029,11 @@ struct GtChanceToSpellCritBaseEntry
     float    base;
 };
 
+struct GtNPCManaCostScalerEntry
+{
+    float    ratio;
+};
+
 struct GtChanceToSpellCritEntry
 {
     float    ratio;
@@ -1052,7 +1067,7 @@ struct GtRegenMPPerSptEntry
 /* no used
 struct HolidayDescriptionsEntry
 {
-    uint32 ID;                                              // 0, this is NOT holiday id
+    uint32 ID;                                              // 0, m_holidayDescriptionID
     //char*     name[16]                                    // 1-16 m_name_lang
                                                             // 17 name flags
 };
@@ -1061,7 +1076,7 @@ struct HolidayDescriptionsEntry
 /* no used
 struct HolidayNamesEntry
 {
-    uint32 ID;                                              // 0, this is NOT holiday id
+    uint32 ID;                                              // 0, m_holidayNameID
     //char*     name[16]                                    // 1-16 m_name_lang
     // 17 name flags
 };
@@ -1092,7 +1107,7 @@ struct ItemEntry
    uint32   ID;                                             // 0
    uint32   Class;                                          // 1
    uint32   SubClass;                                       // 2 some items have strange subclasses
-   int32    Unk0;                                           // 3
+   int32    SoundOverrideSubclass;                          // 3
    int32    Material;                                       // 4
    uint32   DisplayId;                                      // 5
    uint32   InventoryType;                                  // 6
@@ -1195,7 +1210,7 @@ struct ItemSetEntry
 struct LFGDungeonEntry
 {
     uint32  ID;                                             // 0
-    //char*   name[16];                                     // 1-17 Name lang
+    char*   name[16];                                       // 1-17 Name lang
     uint32  minlevel;                                       // 18
     uint32  maxlevel;                                       // 19
     uint32  reclevel;                                       // 20
@@ -1203,7 +1218,7 @@ struct LFGDungeonEntry
     uint32  recmaxlevel;                                    // 22
     int32   map;                                            // 23
     uint32  difficulty;                                     // 24
-    //uint32  flags;                                        // 25
+    uint32  flags;                                          // 25
     uint32  type;                                           // 26
     //uint32  unk;                                          // 27
     //char*   iconname;                                     // 28
@@ -1660,6 +1675,12 @@ struct SpellCastTimesEntry
     //int32     MinCastTime;                                // 3 unsure
 };
 
+struct SpellCategoryEntry
+{
+    uint32 Id;
+    uint32 Flags;
+};
+
 struct SpellDifficultyEntry
 {
     uint32     ID;                                          // 0
@@ -1676,9 +1697,9 @@ struct SpellFocusObjectEntry
 struct SpellRadiusEntry
 {
     uint32    ID;
-    float     radiusMin;
-    //uint32    Unk    //always 0
-    float     radiusMax;
+    float     RadiusMin;
+    float     RadiusPerLevel;
+    float     RadiusMax;
 };
 
 struct SpellRangeEntry
@@ -1860,6 +1881,28 @@ struct TotemCategoryEntry
     uint32    categoryMask;                                 // 19 (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
+struct TransportAnimationEntry
+{
+    //uint32  Id;
+    uint32  TransportEntry;
+    uint32  TimeSeg;
+    float   X;
+    float   Y;
+    float   Z;
+    //uint32  MovementId;
+};
+
+struct TransportRotationEntry
+{
+    //uint32  Id;
+    uint32  TransportEntry;
+    uint32  TimeSeg;
+    float   X;
+    float   Y;
+    float   Z;
+    float   W;
+};
+
 #define MAX_VEHICLE_SEATS 8
 
 struct VehicleEntry
@@ -1951,9 +1994,9 @@ struct VehicleSeatEntry
 
     bool CanEnterOrExit() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT; }
     bool CanSwitchFromSeat() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH; }
-    bool IsUsableByOverride() const { return (m_flags & VEHICLE_SEAT_FLAG_UNCONTROLLED)
+    bool IsUsableByOverride() const { return (m_flags & (VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18)
                                     || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
-                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4)); }
+                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4))); }
     bool IsEjectable() const { return m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE; }
 };
 
@@ -2058,8 +2101,8 @@ struct WorldStateUI
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
 {
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) {}
-    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) {}
+    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) { }
+    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) { }
 
     uint32 resetTime;
     uint32 maxPlayers;
@@ -2068,8 +2111,8 @@ struct MapDifficulty
 
 struct TalentSpellPos
 {
-    TalentSpellPos() : talent_id(0), rank(0) {}
-    TalentSpellPos(uint16 _talent_id, uint8 _rank) : talent_id(_talent_id), rank(_rank) {}
+    TalentSpellPos() : talent_id(0), rank(0) { }
+    TalentSpellPos(uint16 _talent_id, uint8 _rank) : talent_id(_talent_id), rank(_rank) { }
 
     uint16 talent_id;
     uint8  rank;
@@ -2079,8 +2122,8 @@ typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
 
 struct TaxiPathBySourceAndDestination
 {
-    TaxiPathBySourceAndDestination() : ID(0), price(0) {}
-    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) {}
+    TaxiPathBySourceAndDestination() : ID(0), price(0) { }
+    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) { }
 
     uint32    ID;
     uint32    price;
@@ -2090,8 +2133,8 @@ typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
 struct TaxiPathNodePtr
 {
-    TaxiPathNodePtr() : i_ptr(NULL) {}
-    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) {}
+    TaxiPathNodePtr() : i_ptr(NULL) { }
+    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) { }
     TaxiPathNodeEntry const* i_ptr;
     operator TaxiPathNodeEntry const& () const { return *i_ptr; }
 };

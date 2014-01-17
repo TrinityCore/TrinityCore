@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #ifndef TRINITY_CONTAINERS_H
 #define TRINITY_CONTAINERS_H
 
+#include "Define.h"
 #include <list>
 
 //! Because circular includes are bad
@@ -63,9 +64,9 @@ namespace Trinity
             std::advance(it, urand(0, container.size() - 1));
             return *it;
         }
-    };
+    }
     //! namespace Containers
-};
+}
 //! namespace Trinity
 
 #endif //! #ifdef TRINITY_CONTAINERS_H

@@ -1,0 +1,116 @@
+{
+   [1] ACE_Future::ready() race in WorldSession::ProcessQueryCallbacks(), a lock is used anyway in ACE_Future::get()/set()
+   Helgrind:Race
+   ...
+   fun:_ZN14ACE_Future_RepIN7Trinity7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEEE3setERKS4_R10ACE_FutureIS4_E
+   fun:_ZN10ACE_FutureIN7Trinity7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEEE3setERKS4_
+   fun:_ZN21PreparedStatementTask7ExecuteEv
+}
+{
+   [1] ACE_Future::ready() race in WorldSession::ProcessQueryCallbacks(), a lock is used anyway in ACE_Future::get()/set()
+   Helgrind:Race
+   ...
+   fun:_ZN14ACE_Future_RepIP14SQLQueryHolderE3setERKS1_R10ACE_FutureIS1_E
+   fun:_ZN10ACE_FutureIP14SQLQueryHolderE3setERKS1_
+   fun:_ZN18SQLQueryHolderTask7ExecuteEv
+}
+{
+   [2] ACE_Future::ready() race in WorldSession::ProcessQueryCallbacks(), a lock is used anyway in ACE_Future::get()/set()
+   Helgrind:Race
+   ...
+   fun:_ZNK14ACE_Future_RepIP14SQLQueryHolderE5readyEv
+   fun:_ZNK10ACE_FutureIP14SQLQueryHolderE5readyEv
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [3] ACE_Future::attach()/detach() false positive in WorldSession::HandleCharEnumOpcode()
+   Helgrind:Race
+   ...
+   fun:_ZN14ACE_Future_RepIN7Trinity7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEEE6attachERPS5_
+}
+{
+   [4] ACE_Future::get() race in WorldSession::ProcessQueryCallbacks() , a lock is used anyway in ACE_Future::get()/set(), the only case when this is a race is if the same ACE_Future is reused by another thread
+   Helgrind:Race
+   ...
+   fun:_ZNK14ACE_Future_RepIP14SQLQueryHolderE3getERS1_P14ACE_Time_Value
+   fun:_ZNK10ACE_FutureIP14SQLQueryHolderE3getERS1_P14ACE_Time_Value
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [4] ACE_Future::get() race in WorldSession::ProcessQueryCallbacks() , a lock is used anyway in ACE_Future::get()/set(), the only case when this is a race is if the same ACE_Future is reused by another thread
+   Helgrind:Race
+   ...
+   fun:_ZNK10ACE_FutureIN7Trinity7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEEE5readyEv
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [5] Race in WorldSession::ProcessQueryCallbacks(), added ASSERT(!m_result.ready())
+   Helgrind:Race
+   ...
+   fun:_ZN6Player10LoadFromDBEjP14SQLQueryHolder
+   fun:_ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolder
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [5] Race in WorldSession::ProcessQueryCallbacks(), added ASSERT(!m_result.ready())
+   Helgrind:Race
+   ...
+   fun:_ZN14SQLQueryHolder17GetPreparedResultEm
+   fun:_ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolder
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [5] Race in WorldSession::ProcessQueryCallbacks(), added ASSERT(!m_result.ready())
+   Helgrind:Race
+   ...
+   fun:_ZN12WorldSession15LoadAccountDataEN7Trinity7AutoPtrI17PreparedResultSet16ACE_Thread_MutexEEj
+   fun:_ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolder
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [5] Race in WorldSession::ProcessQueryCallbacks(), added ASSERT(!m_result.ready())
+   Helgrind:Race
+   ...
+   fun:_ZNK17PreparedResultSet5FetchEv
+   fun:_ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolder
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [5] Race in WorldSession::ProcessQueryCallbacks(), added ASSERT(!m_result.ready())
+   Helgrind:Race
+   ...
+   fun:_ZNK5Field9GetUInt32Ev
+   fun:_ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolder
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [5] Race in WorldSession::ProcessQueryCallbacks(), added ASSERT(!m_result.ready())
+   Helgrind:Race
+   ...
+   fun:_ZNK5Field8GetUInt8Ev
+   fun:_ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolder
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [6] False positive of possible race about ACE_Strong_Bound_Ptr
+   Helgrind:Race
+   ...
+   fun:_ZN17PreparedResultSetD1Ev
+   fun:_ZN20ACE_Strong_Bound_PtrI17PreparedResultSet16ACE_Thread_MutexED1Ev
+   fun:_ZN7Trinity7AutoPtrI17PreparedResultSet16ACE_Thread_MutexED1Ev
+   fun:_ZN12WorldSession17HandlePlayerLoginEP16LoginQueryHolder
+   fun:_ZN12WorldSession21ProcessQueryCallbacksEv
+}
+{
+   [7] Race condition on bool in ACE, ignore
+   Helgrind:Race
+   fun:_ZN11WorldSocket12handle_closeEim
+   fun:_ZN20ACE_Dev_Poll_Reactor16remove_handler_iEimP17ACE_Event_Handler
+}
+{
+   [7] Race condition on bool in ACE, ignore
+   Helgrind:Race
+   fun:_ZNK11WorldSocket8IsClosedEv
+   fun:_ZN12WorldSession6UpdateEjR12PacketFilter
+   fun:_ZN5World14UpdateSessionsEj
+}

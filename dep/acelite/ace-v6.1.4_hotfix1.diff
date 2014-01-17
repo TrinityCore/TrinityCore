@@ -1,0 +1,418 @@
+diff --git a/dep/acelite/ace/CMakeLists.txt b/dep/acelite/ace/CMakeLists.txt
+new file mode 100644
+index 0000000..acd3d5a
+--- /dev/null
++++ b/dep/acelite/ace/CMakeLists.txt
+@@ -0,0 +1,348 @@
++# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
++#
++# This file is free software; as a special exception the author gives
++# unlimited permission to copy and/or distribute it, with or without
++# modifications, as long as this notice is preserved.
++#
++# This program is distributed in the hope that it will be useful, but
++# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
++# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++
++# NOTE: Do not use glob here, it would include files we don't want
++set(ace_STAT_SRCS
++  PrecompiledHeaders/WinAcePCH.cpp
++  ACE.cpp
++  ACE_crc32.cpp
++  ACE_crc_ccitt.cpp
++  ace_wchar.cpp
++  Activation_Queue.cpp
++  Active_Map_Manager.cpp
++  Addr.cpp
++  Argv_Type_Converter.cpp
++  Assert.cpp
++  Asynch_IO.cpp
++  Asynch_IO_Impl.cpp
++  Asynch_Pseudo_Task.cpp
++  ATM_Acceptor.cpp
++  ATM_Addr.cpp
++  ATM_Connector.cpp
++  ATM_Params.cpp
++  ATM_QoS.cpp
++  ATM_Stream.cpp
++  Atomic_Op.cpp
++  Atomic_Op_Sparc.c
++  Auto_Event.cpp
++  Barrier.cpp
++  Base_Thread_Adapter.cpp
++  Based_Pointer_Repository.cpp
++  Basic_Stats.cpp
++  Basic_Types.cpp
++  Capabilities.cpp
++  CDR_Base.cpp
++  CDR_Size.cpp
++  CDR_Stream.cpp
++  Cleanup.cpp
++  Codecs.cpp
++  Codeset_IBM1047.cpp
++  Codeset_Registry.cpp
++  Codeset_Registry_db.cpp
++  Condition_Recursive_Thread_Mutex.cpp
++  Condition_Thread_Mutex.cpp
++  Configuration.cpp
++  Configuration_Import_Export.cpp
++  Connection_Recycling_Strategy.cpp
++  Containers.cpp
++  Copy_Disabled.cpp
++  Date_Time.cpp
++  DEV.cpp
++  DEV_Addr.cpp
++  DEV_Connector.cpp
++  DEV_IO.cpp
++  Dev_Poll_Reactor.cpp
++  Dirent.cpp
++  Dirent_Selector.cpp
++  DLL.cpp
++  DLL_Manager.cpp
++  Dump.cpp
++  Dynamic.cpp
++  Dynamic_Message_Strategy.cpp
++  Dynamic_Service_Base.cpp
++  Dynamic_Service_Dependency.cpp
++  Encoding_Converter.cpp
++  Encoding_Converter_Factory.cpp
++  Event.cpp
++  Event_Handler.cpp
++  Event_Handler_Handle_Timeout_Upcall.cpp
++  FIFO.cpp
++  FIFO_Recv.cpp
++  FIFO_Recv_Msg.cpp
++  FIFO_Send.cpp
++  FIFO_Send_Msg.cpp
++  FILE.cpp
++  FILE_Addr.cpp
++  FILE_Connector.cpp
++  FILE_IO.cpp
++  File_Lock.cpp
++  Filecache.cpp
++  Flag_Manip.cpp
++  Framework_Component.cpp
++  Functor.cpp
++  Functor_String.cpp
++  Get_Opt.cpp
++  Handle_Ops.cpp
++  Handle_Set.cpp
++  Hashable.cpp
++  High_Res_Timer.cpp
++  ICMP_Socket.cpp
++  INET_Addr.cpp
++  Init_ACE.cpp
++  IO_Cntl_Msg.cpp
++  IO_SAP.cpp
++  IOStream.cpp
++  IPC_SAP.cpp
++  Lib_Find.cpp
++  Local_Memory_Pool.cpp
++  Local_Name_Space.cpp
++  Local_Tokens.cpp
++  Lock.cpp
++  Log_Msg.cpp
++  Log_Msg_Backend.cpp
++  Log_Msg_Callback.cpp
++  Log_Msg_IPC.cpp
++  Log_Msg_NT_Event_Log.cpp
++  Log_Msg_UNIX_Syslog.cpp
++  Log_Record.cpp
++  Logging_Strategy.cpp
++  LSOCK.cpp
++  LSOCK_Acceptor.cpp
++  LSOCK_CODgram.cpp
++  LSOCK_Connector.cpp
++  LSOCK_Dgram.cpp
++  LSOCK_Stream.cpp
++  Malloc.cpp
++  Malloc_Allocator.cpp
++  Manual_Event.cpp
++  MEM_Acceptor.cpp
++  MEM_Addr.cpp
++  MEM_Connector.cpp
++  MEM_IO.cpp
++  Mem_Map.cpp
++  MEM_SAP.cpp
++  MEM_Stream.cpp
++  Message_Block.cpp
++  Message_Queue.cpp
++  Message_Queue_NT.cpp
++  Message_Queue_Vx.cpp
++  Method_Request.cpp
++  MMAP_Memory_Pool.cpp
++  Monitor_Admin.cpp
++  Monitor_Admin_Manager.cpp
++  Monitor_Base.cpp
++  Monitor_Control_Action.cpp
++  Monitor_Control_Types.cpp
++  Monitor_Point_Registry.cpp
++  Monitor_Size.cpp
++  Msg_WFMO_Reactor.cpp
++  Multihomed_INET_Addr.cpp
++  Mutex.cpp
++  Name_Proxy.cpp
++  Name_Request_Reply.cpp
++  Name_Space.cpp
++  Naming_Context.cpp
++  Netlink_Addr.cpp
++  Notification_Queue.cpp
++  Notification_Strategy.cpp
++  NT_Service.cpp
++  Obchunk.cpp
++  Object_Manager.cpp
++  Object_Manager_Base.cpp
++  OS_Errno.cpp
++  OS_Log_Msg_Attributes.cpp
++  OS_main.cpp
++  OS_NS_arpa_inet.cpp
++  OS_NS_ctype.cpp
++  OS_NS_dirent.cpp
++  OS_NS_dlfcn.cpp
++  OS_NS_errno.cpp
++  OS_NS_fcntl.cpp
++  OS_NS_math.cpp
++  OS_NS_netdb.cpp
++  OS_NS_poll.cpp
++  OS_NS_pwd.cpp
++  OS_NS_regex.cpp
++  OS_NS_signal.cpp
++  OS_NS_stdio.cpp
++  OS_NS_stdlib.cpp
++  OS_NS_string.cpp
++  OS_NS_strings.cpp
++  OS_NS_stropts.cpp
++  OS_NS_sys_mman.cpp
++  OS_NS_sys_msg.cpp
++  OS_NS_sys_resource.cpp
++  OS_NS_sys_select.cpp
++  OS_NS_sys_sendfile.cpp
++  OS_NS_sys_shm.cpp
++  OS_NS_sys_socket.cpp
++  OS_NS_sys_stat.cpp
++  OS_NS_sys_time.cpp
++  OS_NS_sys_uio.cpp
++  OS_NS_sys_utsname.cpp
++  OS_NS_sys_wait.cpp
++  OS_NS_Thread.cpp
++  OS_NS_time.cpp
++  OS_NS_unistd.cpp
++  OS_NS_wchar.cpp
++  OS_QoS.cpp
++  OS_Thread_Adapter.cpp
++  OS_TLI.cpp
++  Pagefile_Memory_Pool.cpp
++  Parse_Node.cpp
++  PI_Malloc.cpp
++  Ping_Socket.cpp
++  Pipe.cpp
++  POSIX_Asynch_IO.cpp
++  POSIX_CB_Proactor.cpp
++  POSIX_Proactor.cpp
++  Priority_Reactor.cpp
++  Proactor.cpp
++  Proactor_Impl.cpp
++  Process.cpp
++  Process_Manager.cpp
++  Process_Mutex.cpp
++  Process_Semaphore.cpp
++  Profile_Timer.cpp
++  Reactor.cpp
++  Reactor_Impl.cpp
++  Reactor_Notification_Strategy.cpp
++  Reactor_Timer_Interface.cpp
++  Read_Buffer.cpp
++  Recursive_Thread_Mutex.cpp
++  Recyclable.cpp
++  Registry.cpp
++  Registry_Name_Space.cpp
++  Remote_Name_Space.cpp
++  Remote_Tokens.cpp
++  Rtems_init.c
++  RW_Mutex.cpp
++  RW_Process_Mutex.cpp
++  RW_Thread_Mutex.cpp
++  Sample_History.cpp
++  Sbrk_Memory_Pool.cpp
++  Sched_Params.cpp
++  Select_Reactor_Base.cpp
++  Semaphore.cpp
++  Service_Config.cpp
++  Service_Gestalt.cpp
++  Service_Manager.cpp
++  Service_Object.cpp
++  Service_Repository.cpp
++  Service_Types.cpp
++  Shared_Memory.cpp
++  Shared_Memory_MM.cpp
++  Shared_Memory_Pool.cpp
++  Shared_Memory_SV.cpp
++  Shared_Object.cpp
++  Sig_Adapter.cpp
++  Sig_Handler.cpp
++  Signal.cpp
++  SOCK.cpp
++  SOCK_Acceptor.cpp
++  SOCK_CODgram.cpp
++  Sock_Connect.cpp
++  SOCK_Connector.cpp
++  SOCK_Dgram.cpp
++  SOCK_Dgram_Bcast.cpp
++  SOCK_Dgram_Mcast.cpp
++  SOCK_IO.cpp
++  SOCK_Netlink.cpp
++  SOCK_SEQPACK_Acceptor.cpp
++  SOCK_SEQPACK_Association.cpp
++  SOCK_SEQPACK_Connector.cpp
++  SOCK_Stream.cpp
++  SPIPE.cpp
++  SPIPE_Acceptor.cpp
++  SPIPE_Addr.cpp
++  SPIPE_Connector.cpp
++  SPIPE_Stream.cpp
++  SString.cpp
++  Stack_Trace.cpp
++  Stats.cpp
++  String_Base_Const.cpp
++  SUN_Proactor.cpp
++  SV_Message.cpp
++  SV_Message_Queue.cpp
++  SV_Semaphore_Complex.cpp
++  SV_Semaphore_Simple.cpp
++  SV_Shared_Memory.cpp
++  Svc_Conf_Lexer.cpp
++  Svc_Conf_y.cpp
++  Synch_Options.cpp
++  System_Time.cpp
++  Task.cpp
++  Thread.cpp
++  Thread_Adapter.cpp
++  Thread_Control.cpp
++  Thread_Exit.cpp
++  Thread_Hook.cpp
++  Thread_Manager.cpp
++  Thread_Mutex.cpp
++  Thread_Semaphore.cpp
++  Throughput_Stats.cpp
++  Time_Policy.cpp
++  Time_Value.cpp
++  Timeprobe.cpp
++  TLI.cpp
++  TLI_Acceptor.cpp
++  TLI_Connector.cpp
++  TLI_Stream.cpp
++  Token.cpp
++  Token_Collection.cpp
++  Token_Invariants.cpp
++  Token_Manager.cpp
++  Token_Request_Reply.cpp
++  TP_Reactor.cpp
++  Trace.cpp
++  TSS_Adapter.cpp
++  TTY_IO.cpp
++  UNIX_Addr.cpp
++  UPIPE_Acceptor.cpp
++  UPIPE_Connector.cpp
++  UPIPE_Stream.cpp
++  UTF16_Encoding_Converter.cpp
++  UTF32_Encoding_Converter.cpp
++  UTF8_Encoding_Converter.cpp
++  UUID.cpp
++  WFMO_Reactor.cpp
++  WIN32_Asynch_IO.cpp
++  WIN32_Proactor.cpp
++  XML_Svc_Conf.cpp
++  XTI_ATM_Mcast.cpp
++)
++
++if (USE_COREPCH)
++  set(ace_PCH_HDR PrecompiledHeaders/WinAcePCH.h)
++  set(ace_PCH_SRC PrecompiledHeaders/WinAcePCH.cpp)
++endif()
++
++include_directories(
++  ${CMAKE_SOURCE_DIR}/dep/acelite
++  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
++  ${CMAKE_SOURCE_DIR}/dep/zlib
++)
++
++# Needed for PCH support
++set_source_files_properties(Atomic_Op_Sparc.c Rtems_init.c PROPERTIES LANGUAGE CXX)
++
++add_definitions(-DACE_BUILD_DLL)
++
++add_library(ace SHARED
++  ${ace_STAT_SRCS}
++  ${ace_PCH_SRC}
++)
++
++# Generate precompiled header
++if( USE_COREPCH )
++  add_cxx_pch(ace ${ace_PCH_HDR} ${ace_PCH_SRC})
++endif()
++
++install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")
+diff --git a/dep/acelite/ace/PrecompiledHeaders/WinAcePCH.cpp b/dep/acelite/ace/PrecompiledHeaders/WinAcePCH.cpp
+new file mode 100644
+index 0000000..139597f
+--- /dev/null
++++ b/dep/acelite/ace/PrecompiledHeaders/WinAcePCH.cpp
+@@ -0,0 +1,2 @@
++
++
+diff --git a/dep/acelite/ace/PrecompiledHeaders/WinAcePCH.h b/dep/acelite/ace/PrecompiledHeaders/WinAcePCH.h
+new file mode 100644
+index 0000000..6ff97bf
+--- /dev/null
++++ b/dep/acelite/ace/PrecompiledHeaders/WinAcePCH.h
+@@ -0,0 +1,17 @@
++
++#ifndef WIN_ACE_PCH
++#define WIN_ACE_PCH
++
++#include "ace/ACE.h"
++
++#include "ace/Synch_Traits.h"
++#include "ace/Svc_Handler.h"
++#include "ace/SOCK_Stream.h"
++#include "ace/SOCK_Acceptor.h"
++#include "ace/Acceptor.h"
++#include "ace/Thread_Mutex.h"
++#include "ace/Guard_T.h"
++#include "ace/Unbounded_Queue.h"
++#include "ace/Message_Block.h"
++
++#endif
+diff --git a/dep/acelite/ace/config-macros.h b/dep/acelite/ace/config-macros.h
+index f18c8e0..32e5894 100644
+--- a/dep/acelite/ace/config-macros.h
++++ b/dep/acelite/ace/config-macros.h
+@@ -21,7 +21,11 @@
+ #ifndef ACE_CONFIG_MACROS_H
+ #define ACE_CONFIG_MACROS_H
+ 
+-#include "ace/config.h"
++#ifdef _WIN32
++  #include "ace/config-win32.h"
++#else
++  #include "ace/config.h"
++#endif
+ 
+ #include "ace/Version.h"
+ #include "ace/Versioned_Namespace.h"
+diff --git a/dep/acelite/ace/config-win32-common.h b/dep/acelite/ace/config-win32-common.h
+index 50645a1..098ddbd 100644
+--- a/dep/acelite/ace/config-win32-common.h
++++ b/dep/acelite/ace/config-win32-common.h
+@@ -527,9 +527,9 @@
+ #  else
+ #    pragma comment(lib, "ws2_32.lib")
+ #    pragma comment(lib, "mswsock.lib")
+-#    if defined (ACE_HAS_IPV6)
++// #    if defined (ACE_HAS_IPV6)
+ #      pragma comment(lib, "iphlpapi.lib")
+-#    endif
++// #    endif
+ #  endif /* ACE_HAS_WINCE */
+ # endif /* _MSC_VER */
+ 

@@ -4,7 +4,7 @@
 /**
  *  @file    Handle_Set.h
  *
- *  $Id: Handle_Set.h 92298 2010-10-21 11:15:17Z johnnyw $
+ *  $Id: Handle_Set.h 93736 2011-04-05 12:38:35Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -58,7 +58,6 @@ public:
     MAXSIZE = ACE_DEFAULT_SELECT_REACTOR_SIZE
   };
 
-  // = Initialization methods.
   /// Constructor, initializes the bitmask to all 0s.
   ACE_Handle_Set (void);
 

@@ -1,4 +1,4 @@
-// $Id: SOCK_Dgram_Mcast.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: SOCK_Dgram_Mcast.cpp 95679 2012-04-03 22:55:46Z shuston $
 
 #include "ace/SOCK_Dgram_Mcast.h"
 
@@ -8,13 +8,21 @@
 #include "ace/os_include/net/os_if.h"
 #include "ace/os_include/arpa/os_inet.h"
 
-#if defined (__linux__) && defined (ACE_HAS_IPV6)
+#if defined (ACE_LINUX) && defined (ACE_HAS_IPV6)
 #include "ace/OS_NS_sys_socket.h"
 #endif
 
-#if defined (ACE_HAS_IPV6) && defined (ACE_WIN32)
+#if defined (ACE_WIN32)
 #include /**/ <iphlpapi.h>
 #endif
+
+#if defined (ACE_HAS_GETIFADDRS)
+#  if defined (ACE_VXWORKS)
+#    include /**/ <net/ifaddrs.h>
+#  else
+#    include /**/ <ifaddrs.h>
+#  endif /*ACE_VXWORKS */
+#endif /* ACE_HAS_GETIFADDRS */
 
 #if !defined (__ACE_INLINE__)
 #include "ace/SOCK_Dgram_Mcast.inl"
@@ -253,135 +261,135 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
   if (ACE_BIT_ENABLED (this->opts_, OPT_NULLIFACE_ALL)
       && net_if == 0)
     {
-#if defined (ACE_HAS_IPV6)
-      if (mcast_addr.get_type () == AF_INET6)
+      int family = mcast_addr.get_type ();
+      size_t nr_subscribed = 0;
+
+#if defined (ACE_HAS_GETIFADDRS)
+
+      // Take advantage of the BSD getifaddrs function that simplifies
+      // access to connected interfaces.
+      struct ifaddrs *ifap = 0;
+      struct ifaddrs *p_if = 0;
+
+      if (::getifaddrs (&ifap) != 0)
+        return -1;
+
+      // Not every interface is for IP, and not all are up and multicast.
+      for (p_if = ifap;
+           p_if != 0;
+           p_if = p_if->ifa_next)
         {
-          size_t nr_subscribed = 0;
-# if defined(__linux__)
-          struct if_nameindex *intf;
+          // Some OSes can return interfaces with no ifa_addr if the
+          // interface has no assigned address.
+          // If there is an address but it's not the family we want, ignore it.
+          if (p_if->ifa_addr == 0 || p_if->ifa_addr->sa_family != family)
+            continue;
 
-          intf = ACE_OS::if_nameindex ();
+          // Check to see if it's up and supports multicast.
+          unsigned int wanted = IFF_UP | IFF_MULTICAST;
+          if ((p_if->ifa_flags & wanted) != wanted)
+            continue;
 
-          if (intf == 0)
-            return -1;
-
-          int index = 0;
-          while (intf[index].if_index != 0 || intf[index].if_name != 0)
+          // Sometimes the kernel returns 0.0.0.0 as the interface
+          // address, skip those...
+          if (p_if->ifa_addr->sa_family == PF_INET)
             {
-              if (this->join (mcast_addr, reuse_addr,
-                              ACE_TEXT_CHAR_TO_TCHAR(intf[index].if_name)) == 0)
-                ++nr_subscribed;
+              struct sockaddr_in *addr =
+                reinterpret_cast<sockaddr_in *> (p_if->ifa_addr);
 
-              ++index;
+              if (addr->sin_addr.s_addr == INADDR_ANY)
+                continue;
             }
+#  if defined (ACE_HAS_IPV6)
+          else if (p_if->ifa_addr->sa_family == AF_INET6)
+            {
+              struct sockaddr_in6 *addr =
+                reinterpret_cast<sockaddr_in6 *> (p_if->ifa_addr);
 
-          ACE_OS::if_freenameindex (intf);
+              // Skip the ANY address
+              if (IN6_IS_ADDR_UNSPECIFIED(&addr->sin6_addr))
+                continue;
+            }
+#  endif /* ACE_HAS_IPV6 */
+
+          // Ok, now join on this interface.
+          if (this->join (mcast_addr,
+                          reuse_addr,
+                          ACE_TEXT_CHAR_TO_TCHAR(p_if->ifa_name)) == 0)
+            ++nr_subscribed;
+        }
+
+      ::freeifaddrs (ifap);
 
 # elif defined (ACE_WIN32)
 
-          IP_ADAPTER_ADDRESSES tmp_addrs;
-          // Initial call to determine actual memory size needed
-          DWORD dwRetVal;
-          ULONG bufLen = 0;
-          if ((dwRetVal = ::GetAdaptersAddresses (AF_INET6,
-                                                  0,
-                                                  0,
-                                                  &tmp_addrs,
-                                                  &bufLen)) != ERROR_BUFFER_OVERFLOW)
-            return -1; // With output bufferlength 0 this can't be right.
-
-          // Get required output buffer and retrieve info for real.
-          PIP_ADAPTER_ADDRESSES pAddrs;
-          char *buf;
-          ACE_NEW_RETURN (buf,
-                          char[bufLen],
-                          -1);
-          pAddrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES> (buf);
-          if ((dwRetVal = ::GetAdaptersAddresses (AF_INET6,
-                                                  0,
-                                                  0,
-                                                  pAddrs,
-                                                  &bufLen)) != NO_ERROR)
-            {
-              delete[] buf; // clean up
-              return -1;
-            }
-
-          while (pAddrs)
-            {
-              if (this->join (mcast_addr, reuse_addr,
-                              ACE_TEXT_CHAR_TO_TCHAR(pAddrs->AdapterName)) == 0)
-                ++nr_subscribed;
-
-              pAddrs = pAddrs->Next;
-            }
-
-          delete[] buf; // clean up
-
-# endif /* ACE_WIN32 */
-
-          if (nr_subscribed == 0)
-            {
-              errno = ENODEV;
-              return -1;
-            }
-
-          return 1;
-        }
-      else
+      IP_ADAPTER_ADDRESSES tmp_addrs;
+      // Initial call to determine actual memory size needed
+      DWORD dwRetVal;
+      ULONG bufLen = 0;
+      // Note... GetAdaptersAddresses returns different bufLen values depending
+      // on how many multicast joins there are on the system. To avoid this,
+      // specify that we don't want to know about multicast addresses. This
+      // does not avoid multicastable interfaces and makes the size-check
+      // more reliable across varying conditions.
+      DWORD flags = GAA_FLAG_SKIP_MULTICAST;
+      if ((dwRetVal = ::GetAdaptersAddresses (family,
+                                              flags,
+                                              0,
+                                              &tmp_addrs,
+                                              &bufLen)) != ERROR_BUFFER_OVERFLOW)
         {
-          // Subscribe on all local multicast-capable network interfaces, by
-          // doing recursive calls with specific interfaces.
+          errno = dwRetVal;
+          return -1; // With output bufferlength 0 this can't be right.
+        }
 
-          ACE_INET_Addr *if_addrs = 0;
-          size_t if_cnt;
+      // Get required output buffer and retrieve info for real.
+      PIP_ADAPTER_ADDRESSES pAddrs;
+      char *buf;
+      ACE_NEW_RETURN (buf,
+                      char[bufLen],
+                      -1);
+      pAddrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES> (buf);
+      if ((dwRetVal = ::GetAdaptersAddresses (family,
+                                              flags,
+                                              0,
+                                              pAddrs,
+                                              &bufLen)) != NO_ERROR)
+        {
+          delete[] buf; // clean up
+          errno = dwRetVal;
+          return -1;
+        }
 
-          if (ACE::get_ip_interfaces (if_cnt, if_addrs) != 0)
-            return -1;
+      for (; pAddrs; pAddrs = pAddrs->Next)
+        {
+          if (pAddrs->OperStatus != IfOperStatusUp)
+            continue;
 
-          size_t nr_subscribed = 0;
-
-          if (if_cnt < 2)
+          // The ACE_SOCK_Dgram::make_multicast_ifaddr (IPv4), called by join(),
+          // can only deal with a dotted-decimal address, not an interface name.
+          if (family == AF_INET)
             {
-              if (this->join (mcast_addr,
-                              reuse_addr,
-                              ACE_TEXT ("0.0.0.0")) == 0)
+              ACE_INET_Addr intf_addr ((sockaddr_in*)(pAddrs->FirstUnicastAddress->Address.lpSockaddr),
+                                       pAddrs->FirstUnicastAddress->Address.iSockaddrLength);
+              char intf_addr_str[INET_ADDRSTRLEN];
+              intf_addr.get_host_addr (intf_addr_str, sizeof (intf_addr_str));
+              if (this->join (mcast_addr, reuse_addr,
+                              ACE_TEXT_CHAR_TO_TCHAR(intf_addr_str)) == 0)
                 ++nr_subscribed;
             }
           else
             {
-              // Iterate through all the interfaces, figure out which ones
-              // offer multicast service, and subscribe to them.
-              while (if_cnt > 0)
-                {
-                  --if_cnt;
-
-                  // Convert to 0-based for indexing, next loop check.
-                  if (if_addrs[if_cnt].get_type () != AF_INET || if_addrs[if_cnt].is_loopback ())
-                    continue;
-                  char addr_buf[INET6_ADDRSTRLEN];
-                  if (this->join (mcast_addr,
-                                  reuse_addr,
-                                  ACE_TEXT_CHAR_TO_TCHAR
-                                   (if_addrs[if_cnt].get_host_addr (addr_buf, INET6_ADDRSTRLEN))) == 0)
-                    ++nr_subscribed;
-                }
+              if (this->join (mcast_addr, reuse_addr,
+                              ACE_TEXT_CHAR_TO_TCHAR(pAddrs->AdapterName)) == 0)
+                ++nr_subscribed;
             }
-
-          delete [] if_addrs;
-
-          if (nr_subscribed == 0)
-            {
-              errno = ENODEV;
-              return -1;
-            }
-
-          // 1 indicates a "short-circuit" return.  This handles the
-          // recursive behavior of checking all the interfaces.
-          return 1;
-
         }
-#else
+
+      delete[] buf; // clean up
+
+# else
+
       // Subscribe on all local multicast-capable network interfaces, by
       // doing recursive calls with specific interfaces.
 
@@ -390,8 +398,6 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
 
       if (ACE::get_ip_interfaces (if_cnt, if_addrs) != 0)
         return -1;
-
-      size_t nr_subscribed = 0;
 
       if (if_cnt < 2)
         {
@@ -409,7 +415,7 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
               --if_cnt;
 
               // Convert to 0-based for indexing, next loop check.
-              if (if_addrs[if_cnt].is_loopback ())
+              if (if_addrs[if_cnt].get_type () != family || if_addrs[if_cnt].is_loopback ())
                 continue;
               char addr_buf[INET6_ADDRSTRLEN];
               if (this->join (mcast_addr,
@@ -422,17 +428,18 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
 
       delete [] if_addrs;
 
+# endif /* ACE_WIN32 */
+
       if (nr_subscribed == 0)
         {
           errno = ENODEV;
           return -1;
         }
 
-      // 1 indicates a "short-circuit" return.  This handles the
-      // recursive behavior of checking all the interfaces.
       return 1;
-#endif /* ACE_HAS_IPV6 */
     }
+
+  // Subscribe on a specific interface, or on the default interface.
 
 #if defined (ACE_HAS_IPV6)
   if (mcast_addr.get_type () == AF_INET6)
@@ -441,6 +448,7 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
         return -1;
     }
   else
+#endif /* ACE_HAS_IPV6 - Fall into IPv4-only case */
     {
       // Validate passed multicast addr and iface specifications.
       if (this->make_multicast_ifaddr (0,
@@ -448,13 +456,6 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
                                        net_if) == -1)
         return -1;
     }
-#else
-    // Validate passed multicast addr and iface specifications.
-    if (this->make_multicast_ifaddr (0,
-                                     mcast_addr,
-                                     net_if) == -1)
-      return -1;
-#endif /* ACE_HAS_IPV6 */
 
   return 0;
 
@@ -552,7 +553,7 @@ ACE_SOCK_Dgram_Mcast::subscribe_i (const ACE_INET_Addr &mcast_addr,
   ip_mreq  mreq;
 #if defined (ACE_HAS_IPV6)
   ipv6_mreq mreq6;
-#endif /* __linux__ && ACE_HAS_IPV6 */
+#endif /* ACE_LINUX && ACE_HAS_IPV6 */
 
   // Open the socket IFF this is the first ::subscribe and ::open
   // was not explicitly invoked.
@@ -616,7 +617,7 @@ ACE_SOCK_Dgram_Mcast::unsubscribe_ifs (const ACE_INET_Addr &mcast_addr,
       if (mcast_addr.get_type () == AF_INET6)
         {
           size_t nr_unsubscribed = 0;
-# if defined(__linux__)
+# if defined(ACE_LINUX)
 
           struct if_nameindex *intf;
 

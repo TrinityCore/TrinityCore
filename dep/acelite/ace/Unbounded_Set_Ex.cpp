@@ -1,4 +1,4 @@
-// $Id: Unbounded_Set_Ex.cpp 81702 2008-05-15 10:18:07Z johnnyw $
+// $Id: Unbounded_Set_Ex.cpp 94304 2011-07-07 15:25:58Z johnnyw $
 
 #ifndef ACE_UNBOUNDED_SET_EX_CPP
 #define ACE_UNBOUNDED_SET_EX_CPP
@@ -76,7 +76,7 @@ ACE_Unbounded_Set_Ex<T, C>::dump (void) const
 
   const_iterator const the_end = this->end ();
   for (const_iterator i (this->begin ());
-       i != end;
+       i != the_end;
        ++i)
     ACE_DEBUG ((LM_DEBUG,  ACE_TEXT ("count = %u\n"), count++));
 

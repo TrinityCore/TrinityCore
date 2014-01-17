@@ -74,7 +74,7 @@ public:
     inline Vector3int32& operator+=(const Vector3int32& other) {
         x += other.x;
         y += other.y;
-        z += other.y;
+        z += other.z;
         return *this;
     }
 

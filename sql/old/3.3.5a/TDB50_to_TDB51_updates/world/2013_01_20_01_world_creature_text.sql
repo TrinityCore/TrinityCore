@@ -1,0 +1,10 @@
+UPDATE `creature_text` SET `sound`=14344 WHERE `entry`=29310 AND `groupid`=1 AND `id`=0;
+UPDATE `creature_text` SET `sound`=14345 WHERE `entry`=29310 AND `groupid`=1 AND `id`=1;
+UPDATE `creature_text` SET `text`='Yogg-Saron! Grant me your power!', `sound`=14346 WHERE `entry`=29310 AND `groupid`=2 AND `id`=0;
+UPDATE `creature_text` SET `sound`=14347 WHERE `entry`=29310 AND `groupid`=2 AND `id`=1;
+UPDATE `creature_text` SET `sound`=14348 WHERE `entry`=29310 AND `groupid`=3 AND `id`=0;
+UPDATE `creature_text` SET `sound`=14349 WHERE `entry`=29310 AND `groupid`=3 AND `id`=1;
+UPDATE `creature_text` SET `sound`=14351 WHERE `entry`=29310 AND `groupid`=4;
+UPDATE `creature_text` SET `sound`=14354 WHERE `entry`=29310 AND `groupid`=5 AND `id`=2;
+UPDATE `creature_text` SET `sound`=14355 WHERE `entry`=29310 AND `groupid`=5 AND `id`=3;
+UPDATE `creature_text` SET `text`='The faithful shall be exalted, but there is more work to be done. We will press on until all of Azeroth lies beneath his shadow!', `sound`=14356 WHERE `entry`=29310 AND `groupid`=5 AND `id`=4;

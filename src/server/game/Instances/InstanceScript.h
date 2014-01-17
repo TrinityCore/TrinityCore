@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,14 +22,12 @@
 #include "ZoneScript.h"
 #include "World.h"
 #include "ObjectMgr.h"
-//#include "GameObject.h"
-//#include "Map.h"
 
-#define OUT_SAVE_INST_DATA             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_SAVE_INST_DATA_COMPLETE    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA(a)          sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
-#define OUT_LOAD_INST_DATA_COMPLETE    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA_FAIL        sLog->outError("TSCR: Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA(a)          TC_LOG_DEBUG("scripts", "Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
+#define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
 class Map;
 class Unit;
@@ -49,7 +47,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_ENABLE_OBJECTIVE    = 4,
     ENCOUNTER_FRAME_UPDATE_OBJECTIVE    = 5,
     ENCOUNTER_FRAME_DISABLE_OBJECTIVE   = 6,
-    ENCOUNTER_FRAME_UNK7                = 7,    // Seems to have something to do with sorting the encounter units
+    ENCOUNTER_FRAME_UNK7                = 7 // Seems to have something to do with sorting the encounter units
 };
 
 enum EncounterState
@@ -59,7 +57,7 @@ enum EncounterState
     FAIL          = 2,
     DONE          = 3,
     SPECIAL       = 4,
-    TO_BE_DECIDED = 5,
+    TO_BE_DECIDED = 5
 };
 
 enum DoorType
@@ -67,7 +65,7 @@ enum DoorType
     DOOR_TYPE_ROOM          = 0,    // Door can open if encounter is not in progress
     DOOR_TYPE_PASSAGE       = 1,    // Door can open if encounter is done
     DOOR_TYPE_SPAWN_HOLE    = 2,    // Door can open if encounter is in progress, typically used for spawning places
-    MAX_DOOR_TYPES,
+    MAX_DOOR_TYPES
 };
 
 enum BoundaryType
@@ -84,7 +82,7 @@ enum BoundaryType
     BOUNDARY_MAX_X = BOUNDARY_N,
     BOUNDARY_MIN_X = BOUNDARY_S,
     BOUNDARY_MAX_Y = BOUNDARY_W,
-    BOUNDARY_MIN_Y = BOUNDARY_E,
+    BOUNDARY_MIN_Y = BOUNDARY_E
 };
 
 typedef std::map<BoundaryType, float> BossBoundaryMap;
@@ -103,7 +101,7 @@ struct MinionData
 
 struct BossInfo
 {
-    BossInfo() : state(TO_BE_DECIDED) {}
+    BossInfo() : state(TO_BE_DECIDED) { }
     EncounterState state;
     DoorSet door[MAX_DOOR_TYPES];
     MinionSet minion;
@@ -113,7 +111,7 @@ struct BossInfo
 struct DoorInfo
 {
     explicit DoorInfo(BossInfo* _bossInfo, DoorType _type, BoundaryType _boundary)
-        : bossInfo(_bossInfo), type(_type), boundary(_boundary) {}
+        : bossInfo(_bossInfo), type(_type), boundary(_boundary) { }
     BossInfo* bossInfo;
     DoorType type;
     BoundaryType boundary;
@@ -121,25 +119,26 @@ struct DoorInfo
 
 struct MinionInfo
 {
-    explicit MinionInfo(BossInfo* _bossInfo) : bossInfo(_bossInfo) {}
+    explicit MinionInfo(BossInfo* _bossInfo) : bossInfo(_bossInfo) { }
     BossInfo* bossInfo;
 };
 
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
+typedef std::pair<DoorInfoMap::const_iterator, DoorInfoMap::const_iterator> DoorInfoMapBounds;
+
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 
 class InstanceScript : public ZoneScript
 {
     public:
+        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) { }
 
-        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) {}
-
-        virtual ~InstanceScript() {}
+        virtual ~InstanceScript() { }
 
         Map* instance;
 
         //On creation, NOT load.
-        virtual void Initialize() {}
+        virtual void Initialize() { }
 
         //On load
         virtual void Load(char const* data) { LoadBossState(data); }
@@ -149,14 +148,14 @@ class InstanceScript : public ZoneScript
 
         void SaveToDB();
 
-        virtual void Update(uint32 /*diff*/) {}
+        virtual void Update(uint32 /*diff*/) { }
 
         //Used by the map's CanEnter function.
         //This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
         //Called when a player successfully enters the instance.
-        virtual void OnPlayerEnter(Player* /*player*/) {}
+        virtual void OnPlayerEnter(Player* /*player*/) { }
 
         //Handle open / close objects
         //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -213,7 +212,7 @@ class InstanceScript : public ZoneScript
 
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
 
     protected:
         void SetBossNumber(uint32 number) { bosses.resize(number); }
@@ -234,4 +233,26 @@ class InstanceScript : public ZoneScript
         MinionInfoMap minions;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
 };
-#endif
+
+template<class AI, class T>
+AI* GetInstanceAI(T* obj, char const* scriptName)
+{
+    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(scriptName))
+                return new AI(obj);
+
+    return NULL;
+};
+
+template<class AI, class T>
+AI* GetInstanceAI(T* obj)
+{
+    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            return new AI(obj);
+
+    return NULL;
+};
+
+#endif // TRINITY_INSTANCE_DATA_H

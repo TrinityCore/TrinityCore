@@ -4,7 +4,7 @@
 /**
  *  @file   CDR_Size.h
  *
- *  $Id: CDR_Size.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: CDR_Size.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *
  * ACE Common Data Representation (CDR) size-calculating stream.
@@ -13,7 +13,7 @@
  * The current implementation assumes that the host has 1-byte,
  * 2-byte and 4-byte integral types, and that it has single
  * precision and double precision IEEE floats.
- * Those assumptions are pretty good these days, with Crays beign
+ * Those assumptions are pretty good these days, with Crays being
  * the only known exception.
  *
  *

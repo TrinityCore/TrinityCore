@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,8 +52,6 @@ typedef WINADVAPI BOOL (WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
 
 bool WinServiceInstall()
 {
-    CSD_T ChangeService_Config2;
-    HMODULE advapi32;
     SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CREATE_SERVICE);
 
     if (serviceControlManager)
@@ -79,7 +77,7 @@ bool WinServiceInstall()
                 0);                                         // no password
             if (service)
             {
-                advapi32 = GetModuleHandle("ADVAPI32.DLL");
+                HMODULE advapi32 = GetModuleHandle("ADVAPI32.DLL");
                 if (!advapi32)
                 {
                     CloseServiceHandle(service);
@@ -87,7 +85,7 @@ bool WinServiceInstall()
                     return false;
                 }
 
-                ChangeService_Config2 = (CSD_T) GetProcAddress(advapi32, "ChangeServiceConfig2A");
+                CSD_T ChangeService_Config2 = (CSD_T) GetProcAddress(advapi32, "ChangeServiceConfig2A");
                 if (!ChangeService_Config2)
                 {
                     CloseServiceHandle(service);
@@ -257,7 +255,7 @@ bool WinServiceRun()
 
     if (!StartServiceCtrlDispatcher(serviceTable))
     {
-        sLog->outError("StartService Failed. Error [%u]", ::GetLastError());
+        TC_LOG_ERROR("server.worldserver", "StartService Failed. Error [%u]", ::GetLastError());
         return false;
     }
     return true;

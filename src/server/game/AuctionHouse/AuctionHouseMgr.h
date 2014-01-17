@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,26 +34,42 @@ class WorldPacket;
 
 enum AuctionError
 {
-    AUCTION_OK = 0,
-    AUCTION_INTERNAL_ERROR = 2,
-    AUCTION_NOT_ENOUGHT_MONEY = 3,
-    AUCTION_ITEM_NOT_FOUND = 4,
-    CANNOT_BID_YOUR_AUCTION_ERROR = 10
+    ERR_AUCTION_OK                  = 0,
+    ERR_AUCTION_INVENTORY           = 1,
+    ERR_AUCTION_DATABASE_ERROR      = 2,
+    ERR_AUCTION_NOT_ENOUGHT_MONEY   = 3,
+    ERR_AUCTION_ITEM_NOT_FOUND      = 4,
+    ERR_AUCTION_HIGHER_BID          = 5,
+    ERR_AUCTION_BID_INCREMENT       = 7,
+    ERR_AUCTION_BID_OWN             = 10,
+    ERR_AUCTION_RESTRICTED_ACCOUNT  = 13
 };
 
 enum AuctionAction
 {
-    AUCTION_SELL_ITEM = 0,
-    AUCTION_CANCEL = 1,
-    AUCTION_PLACE_BID = 2
+    AUCTION_SELL_ITEM   = 0,
+    AUCTION_CANCEL      = 1,
+    AUCTION_PLACE_BID   = 2
+};
+
+enum MailAuctionAnswers
+{
+    AUCTION_OUTBIDDED           = 0,
+    AUCTION_WON                 = 1,
+    AUCTION_SUCCESSFUL          = 2,
+    AUCTION_EXPIRED             = 3,
+    AUCTION_CANCELLED_TO_BIDDER = 4,
+    AUCTION_CANCELED            = 5,
+    AUCTION_SALE_PENDING        = 6
 };
 
 struct AuctionEntry
 {
     uint32 Id;
     uint32 auctioneer;                                      // creature low guid
-    uint32 item_guidlow;
-    uint32 item_template;
+    uint32 itemGUIDLow;
+    uint32 itemEntry;
+    uint32 itemCount;
     uint32 owner;
     uint32 startbid;                                        //maybe useless
     uint32 bid;
@@ -74,6 +90,8 @@ struct AuctionEntry
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
     bool LoadFromFieldList(Field* fields);
+    std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
+    static std::string BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
 
 };
 
@@ -81,8 +99,6 @@ struct AuctionEntry
 class AuctionHouseObject
 {
   public:
-    // Initialize storage
-    AuctionHouseObject() { next = AuctionsMap.begin(); }
     ~AuctionHouseObject()
     {
         for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
@@ -104,7 +120,7 @@ class AuctionHouseObject
 
     void AddAuction(AuctionEntry* auction);
 
-    bool RemoveAuction(AuctionEntry* auction, uint32 item_template);
+    bool RemoveAuction(AuctionEntry* auction, uint32 itemEntry);
 
     void Update();
 
@@ -117,9 +133,6 @@ class AuctionHouseObject
 
   private:
     AuctionEntryMap AuctionsMap;
-
-    // storage for "next" auction item for next Update()
-    AuctionEntryMap::const_iterator next;
 };
 
 class AuctionHouseMgr

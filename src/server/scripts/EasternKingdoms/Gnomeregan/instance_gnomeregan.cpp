@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "gnomeregan.h"
+#include "Player.h"
 
 #define    MAX_ENCOUNTER  1
 
@@ -25,7 +27,7 @@ class instance_gnomeregan : public InstanceMapScript
 public:
     instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_gnomeregan_InstanceMapScript(map);
     }
@@ -43,7 +45,7 @@ public:
 
         uint64 uiBastmasterEmiShortfuseGUID;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -53,7 +55,7 @@ public:
             uiBastmasterEmiShortfuseGUID    = 0;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {
@@ -75,7 +77,7 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -83,7 +85,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -100,7 +102,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
         {
             switch (uiType)
             {
@@ -112,7 +114,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const OVERRIDE
         {
             switch (uiType)
             {
@@ -121,7 +123,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType)
+        uint64 GetData64(uint32 uiType) const OVERRIDE
         {
             switch (uiType)
             {

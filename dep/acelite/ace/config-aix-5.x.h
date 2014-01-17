@@ -1,4 +1,4 @@
-// $Id: config-aix-5.x.h 91685 2010-09-09 09:35:14Z johnnyw $
+// $Id: config-aix-5.x.h 93530 2011-03-11 12:12:40Z olli $
 //
 // Config file for AIX 5.1 and higher.
 
@@ -312,7 +312,6 @@
 #undef ACE_LACKS_NETINET_TCP_H
 
 #define ACE_HAS_3_PARAM_READDIR_R
-#define ACE_HAS_POSIX_GETPWNAM_R
 #define ACE_HAS_SCANDIR
 #define ACE_SCANDIR_CMP_USES_VOIDPTR
 #define ACE_SCANDIR_SEL_LACKS_CONST

@@ -1,4 +1,4 @@
-//$Id: UUID.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+//$Id: UUID.cpp 96017 2012-08-08 22:18:09Z mitza $
 
 #include "ace/UUID.h"
 #include "ace/Guard_T.h"
@@ -359,7 +359,7 @@ namespace ACE_Utils
     uuid.time_mid (static_cast<ACE_UINT16> ((timestamp >> 32) & 0xFFFF));
 
     ACE_UINT16 tHAV = static_cast<ACE_UINT16> ((timestamp >> 48) & 0xFFFF);
-    tHAV |= (version << 12);
+    tHAV = static_cast<ACE_UINT16> (tHAV | (version << 12));
     uuid.time_hi_and_version (tHAV);
 
     u_char cseqHAV;
@@ -367,7 +367,7 @@ namespace ACE_Utils
     cseqHAV = static_cast<u_char> ((clock_sequence & 0x3f00) >> 8);
     uuid_state_.timestamp = timestamp;
 
-    cseqHAV |= variant;
+    cseqHAV = static_cast<u_char> (cseqHAV | variant);
     uuid.clock_seq_hi_and_reserved (cseqHAV);
     uuid.node (uuid_state_.node);
 
@@ -460,13 +460,7 @@ namespace ACE_Utils
   UUID_Generator::get_systemtime (UUID_Time & timestamp)
   {
     const UUID_Time timeOffset =
-#if defined (ACE_LACKS_UNSIGNEDLONGLONG_T)
-      ACE_U_LongLong (ACE_INT64_LITERAL (0x1B21DD213814000));
-#elif defined (ACE_LACKS_LONGLONG_T)
-      ACE_U_LongLong (0x13814000u, 0x1B21DD2u);
-#else
       ACE_UINT64_LITERAL (0x1B21DD213814000);
-#endif  /* ACE_LACKS_UNSIGNEDLONGLONG_T */
 
     /// Get the time of day, convert to 100ns ticks then add the offset.
     ACE_Time_Value now = ACE_OS::gettimeofday ();

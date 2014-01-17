@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,28 +17,29 @@
  */
 
 #include "Common.h"
-#include "WorldPacket.h"
 #include "Log.h"
 #include "Corpse.h"
+#include "Creature.h"
 #include "GameObject.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
-#include "WorldSession.h"
-#include "LootMgr.h"
-#include "Object.h"
 #include "Group.h"
+#include "LootMgr.h"
+#include "ObjectAccessor.h"
+#include "Object.h"
+#include "Opcodes.h"
+#include "Player.h"
 #include "World.h"
-#include "Util.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     uint64 lguid = player->GetLootGUID();
     Loot* loot = NULL;
     uint8 lootSlot = 0;
 
-    recv_data >> lootSlot;
+    recvData >> lootSlot;
 
     if (IS_GAMEOBJECT_GUID(lguid))
     {
@@ -80,7 +81,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
         if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
         {
@@ -92,11 +93,15 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
     }
 
     player->StoreLootItem(lootSlot, loot);
+
+    // If player is removing the last LootItem, delete the empty container.
+    if (loot->isLooted() && IS_ITEM_GUID(lguid))
+        player->GetSession()->DoLootRelease(lguid);
 }
 
-void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_MONEY");
 
     Player* player = GetPlayer();
     uint64 guid = player->GetLootGUID();
@@ -143,11 +148,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
         case HIGHGUID_VEHICLE:
         {
             Creature* creature = player->GetMap()->GetCreature(guid);
-            bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+            bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
             if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
             {
                 loot = &creature->loot;
-                if (creature->isAlive())
+                if (creature->IsAlive())
                     shareMoney = false;
             }
             break;
@@ -166,7 +171,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
             std::vector<Player*> playersNear;
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* member = itr->getSource();
+                Player* member = itr->GetSource();
                 if (!member)
                     continue;
 
@@ -179,18 +184,18 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
                 (*i)->ModifyMoney(goldPerPlayer);
-                (*i)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
+                (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
                 data << uint32(goldPerPlayer);
-                data << uint8(playersNear.size() > 1 ? 0 : 1);     // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
+                data << uint8(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
                 (*i)->GetSession()->SendPacket(&data);
             }
         }
         else
         {
             player->ModifyMoney(loot->gold);
-            player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
 
             WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
             data << uint32(loot->gold);
@@ -199,30 +204,38 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
         }
 
         loot->gold = 0;
+
+        // Delete the money loot record from the DB
+        if (loot->containerID > 0)
+            loot->DeleteLootMoneyFromContainerItemDB();
+
+        // Delete container if empty
+        if (loot->isLooted() && IS_ITEM_GUID(guid))
+            player->GetSession()->DoLootRelease(guid);
     }
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket & recv_data)
+void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT");
 
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     // Check possible cheat
-    if (!_player->isAlive())
+    if (!_player->IsAlive())
         return;
 
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
 
     // interrupt cast
-    if (GetPlayer()->IsNonMeleeSpellCasted(false))
+    if (GetPlayer()->IsNonMeleeSpellCast(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
@@ -264,61 +277,15 @@ void WorldSession::DoLootRelease(uint64 lguid)
         }
         else if (loot->isLooted() || go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE)
         {
-            // GO is mineral vein? so it is not removed after its looted
-            if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST)
-            {
-                uint32 go_min = go->GetGOInfo()->chest.minSuccessOpens;
-                uint32 go_max = go->GetGOInfo()->chest.maxSuccessOpens;
-
-                // only vein pass this check
-                if (go_min != 0 && go_max > go_min)
-                {
-                    float amount_rate = sWorld->getRate(RATE_MINING_AMOUNT);
-                    float min_amount = go_min*amount_rate;
-                    float max_amount = go_max*amount_rate;
-
-                    go->AddUse();
-                    float uses = float(go->GetUseCount());
-
-                    if (uses < max_amount)
-                    {
-                        if (uses >= min_amount)
-                        {
-                            float chance_rate = sWorld->getRate(RATE_MINING_NEXT);
-
-                            int32 ReqValue = 175;
-                            LockEntry const* lockInfo = sLockStore.LookupEntry(go->GetGOInfo()->chest.lockId);
-                            if (lockInfo)
-                                ReqValue = lockInfo->Skill[0];
-                            float skill = float(player->GetSkillValue(SKILL_MINING))/(ReqValue+25);
-                            double chance = pow(0.8*chance_rate, 4*(1/double(max_amount))*double(uses));
-                            if (roll_chance_f((float)(100*chance+skill)))
-                            {
-                                go->SetLootState(GO_READY);
-                            }
-                            else                            // not have more uses
-                                go->SetLootState(GO_JUST_DEACTIVATED);
-                        }
-                        else                                // 100% chance until min uses
-                            go->SetLootState(GO_READY);
-                    }
-                    else                                    // max uses already
-                        go->SetLootState(GO_JUST_DEACTIVATED);
-                }
-                else                                        // not vein
-                    go->SetLootState(GO_JUST_DEACTIVATED);
-            }
-            else if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
+            if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
             {                                               // The fishing hole used once more
                 go->AddUse();                               // if the max usage is reached, will be despawned in next tick
-                if (go->GetUseCount() >= urand(go->GetGOInfo()->fishinghole.minSuccessOpens, go->GetGOInfo()->fishinghole.maxSuccessOpens))
-                {
+                if (go->GetUseCount() >= go->GetGOValue()->FishingHole.MaxOpens)
                     go->SetLootState(GO_JUST_DEACTIVATED);
-                }
                 else
                     go->SetLootState(GO_READY);
             }
-            else // not chest (or vein/herb/etc)
+            else
                 go->SetLootState(GO_JUST_DEACTIVATED);
 
             loot->clear();
@@ -380,15 +347,17 @@ void WorldSession::DoLootRelease(uint64 lguid)
             player->DestroyItemCount(pItem, count, true);
         }
         else
-            // FIXME: item must not be deleted in case not fully looted state. But this pre-request implement loot saving in DB at item save. Or cheating possible.
-            player->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
+        {
+            if (pItem->loot.isLooted()) // Only delete item if no loot or money (unlooted loot is saved to db)
+                player->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
+        }
         return;                                             // item can be looted only single player
     }
     else
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+        bool lootAllowed = creature && creature->IsAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
         if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
             return;
 
@@ -396,7 +365,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         if (loot->isLooted())
         {
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
-            if (!creature->isAlive())
+            if (!creature->IsAlive())
                 creature->AllLootRemovedFromCorpse();
 
             creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -428,12 +397,12 @@ void WorldSession::DoLootRelease(uint64 lguid)
     loot->RemoveLooter(player->GetGUID());
 }
 
-void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
+void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 {
     uint8 slotid;
     uint64 lootguid, target_playerguid;
 
-    recv_data >> lootguid >> slotid >> target_playerguid;
+    recvData >> lootguid >> slotid >> target_playerguid;
 
     if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
     {
@@ -445,10 +414,17 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
     if (!target)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName());
+    TC_LOG_DEBUG("network", "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName().c_str());
 
     if (_player->GetLootGUID() != lootguid)
         return;
+
+    if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
+    {
+        TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
+        return;
+    }
+
 
     Loot* loot = NULL;
 
@@ -474,7 +450,8 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
 
     if (slotid >= loot->items.size() + loot->quest_items.size())
     {
-        sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), slotid, (unsigned long)loot->items.size());
+        TC_LOG_DEBUG("loot", "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",
+            GetPlayer()->GetName().c_str(), slotid, (unsigned long)loot->items.size());
         return;
     }
 
@@ -498,9 +475,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
     // not move item from loot to target inventory
     Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);
     target->SendNewItem(newitem, uint32(item.count), false, false, true);
-    target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
-    target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);
-    target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
+    target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
+    target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);
+    target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
 
     // mark as looted
     item.count=0;

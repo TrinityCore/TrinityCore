@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "ConditionMgr.h"
 #include "Spell.h"
 #include "GridNotifiers.h"
 
@@ -46,6 +45,7 @@ class SmartScript
         void UpdateTimer(SmartScriptHolder& e, uint32 const diff);
         void InitTimer(SmartScriptHolder& e);
         void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
+        void ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
         ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = NULL);
         ObjectList* GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder const& e);
@@ -89,6 +89,7 @@ class SmartScript
         Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
         void DoFindFriendlyMissingBuff(std::list<Creature*>& list, float range, uint32 spellid);
+        Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly);
 
         void StoreTargetList(ObjectList* targets, uint32 id)
         {
@@ -98,13 +99,13 @@ class SmartScript
             if (mTargetStorage->find(id) != mTargetStorage->end())
             {
                 // check if already stored
-                if ((*mTargetStorage)[id] == targets)
+                if ((*mTargetStorage)[id]->Equals(targets))
                     return;
 
                 delete (*mTargetStorage)[id];
             }
 
-            (*mTargetStorage)[id] = targets;
+            (*mTargetStorage)[id] = new ObjectGuidList(targets, GetBaseObject());
         }
 
         bool IsSmart(Creature* c = NULL)
@@ -117,7 +118,7 @@ class SmartScript
                 smart = false;
 
             if (!smart)
-                sLog->outErrorDb("SmartScript: Action target Creature(entry: %u) is not using SmartAI, action skipped to prevent crash.", c ? c->GetEntry() : (me ? me->GetEntry() : 0));
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: %u Entry: %u) is not using SmartAI, action skipped to prevent crash.", c ? c->GetDBTableGUIDLow() : (me ? me->GetDBTableGUIDLow() : 0), c ? c->GetEntry() : (me ? me->GetEntry() : 0));
 
             return smart;
         }
@@ -131,7 +132,7 @@ class SmartScript
             if (!go || go->GetAIName() != "SmartGameObjectAI")
                 smart = false;
             if (!smart)
-                sLog->outErrorDb("SmartScript: Action target GameObject(entry: %u) is not using SmartGameObjectAI, action skipped to prevent crash.", g ? g->GetEntry() : (go ? go->GetEntry() : 0));
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: %u Entry: %u) is not using SmartGameObjectAI, action skipped to prevent crash.", g ? g->GetDBTableGUIDLow() : (go ? go->GetDBTableGUIDLow() : 0), g ? g->GetEntry() : (go ? go->GetEntry() : 0));
 
             return smart;
         }
@@ -140,7 +141,7 @@ class SmartScript
         {
             ObjectListMap::iterator itr = mTargetStorage->find(id);
             if (itr != mTargetStorage->end())
-                return (*itr).second;
+                return (*itr).second->GetObjectList();
             return NULL;
         }
 
@@ -236,14 +237,13 @@ class SmartScript
 
         uint32 mTextTimer;
         uint32 mLastTextID;
-        uint64 mTextGUID;
         uint32 mTalkerEntry;
         bool mUseTextTimer;
 
         SMARTAI_TEMPLATE mTemplate;
         void InstallEvents();
 
-        void RemoveStoredEvent (uint32 id)
+        void RemoveStoredEvent(uint32 id)
         {
             if (!mStoredEvents.empty())
             {
@@ -254,11 +254,10 @@ class SmartScript
                         mStoredEvents.erase(i);
                         return;
                     }
-
                 }
             }
         }
-        SmartScriptHolder FindLinkedEvent (uint32 link)
+        SmartScriptHolder FindLinkedEvent(uint32 link)
         {
             if (!mEvents.empty())
             {
@@ -268,7 +267,6 @@ class SmartScript
                     {
                         return (*i);
                     }
-
                 }
             }
             SmartScriptHolder s;

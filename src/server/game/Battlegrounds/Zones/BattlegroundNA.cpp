@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundNA.h"
 #include "Language.h"
 #include "Object.h"
@@ -62,11 +61,7 @@ void BattlegroundNA::StartingEventOpenDoors()
 void BattlegroundNA::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundNAScore* sc = new BattlegroundNAScore;
-
-    PlayerScores[player->GetGUID()] = sc;
-
+    PlayerScores[player->GetGUID()] = new BattlegroundScore;
     UpdateArenaWorldState();
 }
 
@@ -86,7 +81,7 @@ void BattlegroundNA::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        sLog->outError("BattlegroundNA: Killer player not found");
+        TC_LOG_ERROR("bg.battleground", "BattlegroundNA: Killer player not found");
         return;
     }
 
@@ -96,32 +91,20 @@ void BattlegroundNA::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundNA::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 4055.504395f, 2919.660645f, 13.611241f, player->GetOrientation(), false);
-    return true;
-}
-
-void BattlegroundNA::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
-    switch (Trigger)
+    switch (trigger)
     {
         case 4536:                                          // buff trigger?
         case 4537:                                          // buff trigger?
             break;
         default:
-            sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, Source);
 }
 
 void BattlegroundNA::FillInitialWorldStates(WorldPacket &data)
@@ -147,19 +130,9 @@ bool BattlegroundNA::SetupBattleground()
         || !AddObject(BG_NA_OBJECT_BUFF_1, BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941f, 2895.250000f, 13.052700f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
         || !AddObject(BG_NA_OBJECT_BUFF_2, BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
     {
-        sLog->outErrorDb("BatteGroundNA: Failed to spawn some object!");
+        TC_LOG_ERROR("sql.sql", "BatteGroundNA: Failed to spawn some object!");
         return false;
     }
 
     return true;
 }
-
-/*
-20:12:14 id:036668 [S2C] SMSG_INIT_WORLD_STATES (706 = 0x02C2) len: 86
-0000: 2f 02 00 00 72 0e 00 00 00 00 00 00 09 00 11 0a  |  /...r...........
-0010: 00 00 01 00 00 00 0f 0a 00 00 00 00 00 00 10 0a  |  ................
-0020: 00 00 00 00 00 00 d4 08 00 00 00 00 00 00 d8 08  |  ................
-0030: 00 00 00 00 00 00 d7 08 00 00 00 00 00 00 d6 08  |  ................
-0040: 00 00 00 00 00 00 d5 08 00 00 00 00 00 00 d3 08  |  ................
-0050: 00 00 00 00 00 00                                |  ......
-*/

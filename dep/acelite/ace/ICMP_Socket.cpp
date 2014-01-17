@@ -1,4 +1,4 @@
-// $Id: ICMP_Socket.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: ICMP_Socket.cpp 93560 2011-03-16 13:54:49Z johnnyw $
 
 #include "ace/ICMP_Socket.h"
 
@@ -85,9 +85,9 @@ ACE_ICMP_Socket::open (ACE_Addr const & local,
 
   // Check if icmp protocol is supported on this host
   int proto_number = -1;
-  protoent *proto;
+  protoent *proto = 0;
 
-  if (! (proto = getprotobyname ("icmp")))
+  if (! (proto = ACE_OS::getprotobyname ("icmp")))
     {
       ACE_ERROR_RETURN
         ((LM_ERROR,

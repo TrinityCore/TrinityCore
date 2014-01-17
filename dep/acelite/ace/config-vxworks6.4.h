@@ -1,5 +1,5 @@
 //* -*- C++ -*- */
-// $Id: config-vxworks6.4.h 91683 2010-09-09 09:07:49Z johnnyw $
+// $Id: config-vxworks6.4.h 93571 2011-03-17 07:37:11Z olli $
 
 // The following configuration file is designed to work for VxWorks
 // 6.4 platforms using one of these compilers:
@@ -48,7 +48,7 @@
 #elif defined (__DCC__)
 # define ACE_HAS_STANDARD_CPP_LIBRARY 1
 # define ACE_TEMPLATES_REQUIRE_SOURCE
-#else  /* ! __GNUG__ && ! ghs && !__DCC__ */
+#else  /* ! __GNUG__ && !__DCC__ */
 #  ifdef __cplusplus  /* Let it slide for C compilers. */
 #    error unsupported compiler on VxWorks
 #  endif  /* __cplusplus */
@@ -238,7 +238,6 @@
   #define ACE_LACKS_STDINT_H
   #define ACE_LACKS_UNAME
   #define ACE_LACKS_UTSNAME_T
-  #define ACE_LACKS_RAND_REENTRANT_FUNCTIONS
   #define ACE_LACKS_DLFCN_H
   #define ACE_LACKS_WAIT
   #define ACE_LACKS_WAITPID

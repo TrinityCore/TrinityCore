@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,11 +19,12 @@
 SDName: Boss mal_ganis
 SDAuthor: Tartalo
 SD%Complete: 80
-SDComment: TODO: Intro & outro
+SDComment: @todo Intro & outro
 SDCategory:
 Script Data End */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
@@ -35,28 +36,21 @@ enum Spells
     SPELL_SLEEP                                 = 52721, //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
     H_SPELL_SLEEP                               = 58849,
     SPELL_VAMPIRIC_TOUCH                        = 52723, //Heals the caster for half the damage dealt by a melee attack.
+    SPELL_MAL_GANIS_KILL_CREDIT                 = 58124, // Quest credit
     SPELL_KILL_CREDIT                           = 58630  // Non-existing spell as encounter credit, created in spell_dbc
 };
 
 enum Yells
 {
-    SAY_INTRO_1                                 = -1595009,
-    SAY_INTRO_2                                 = -1595010,
-    SAY_AGGRO                                   = -1595011,
-    SAY_KILL_1                                  = -1595012,
-    SAY_KILL_2                                  = -1595013,
-    SAY_KILL_3                                  = -1595014,
-    SAY_SLAY_1                                  = -1595015,
-    SAY_SLAY_2                                  = -1595016,
-    SAY_SLAY_3                                  = -1595017,
-    SAY_SLAY_4                                  = -1595018,
-    SAY_SLEEP_1                                 = -1595019,
-    SAY_SLEEP_2                                 = -1595020,
-    SAY_30HEALTH                                = -1595021,
-    SAY_15HEALTH                                = -1595022,
-    SAY_ESCAPE_SPEECH_1                         = -1595023,
-    SAY_ESCAPE_SPEECH_2                         = -1595024,
-    SAY_OUTRO                                   = -1595025,
+    SAY_AGGRO                                   = 2,
+    SAY_KILL                                    = 3,
+    SAY_SLAY                                    = 4,
+    SAY_SLEEP                                   = 5,
+    SAY_30HEALTH                                = 6,
+    SAY_15HEALTH                                = 7,
+    SAY_ESCAPE_SPEECH_1                         = 8,
+    SAY_ESCAPE_SPEECH_2                         = 9,
+    SAY_OUTRO                                   = 10
 };
 
 enum CombatPhases
@@ -70,9 +64,9 @@ class boss_mal_ganis : public CreatureScript
 public:
     boss_mal_ganis() : CreatureScript("boss_mal_ganis") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_mal_ganisAI (creature);
+        return GetInstanceAI<boss_mal_ganisAI>(creature);
     }
 
     struct boss_mal_ganisAI : public ScriptedAI
@@ -97,7 +91,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
              bYelled = false;
              bYelled2 = false;
@@ -108,24 +102,22 @@ public:
              uiSleepTimer = urand(15000, 20000);
              uiOutroTimer = 1000;
 
-             if (instance)
-                 instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
+             instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
-            if (instance)
-                instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
+            Talk(SAY_AGGRO);
+            instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = me->GetHealth()-1;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             switch (Phase)
             {
@@ -136,13 +128,13 @@ public:
 
                     if (!bYelled && HealthBelowPct(30))
                     {
-                        DoScriptText(SAY_30HEALTH, me);
+                        Talk(SAY_30HEALTH);
                         bYelled = true;
                     }
 
                     if (!bYelled2 && HealthBelowPct(15))
                     {
-                        DoScriptText(SAY_15HEALTH, me);
+                        Talk(SAY_15HEALTH);
                         bYelled2 = true;
                     }
 
@@ -160,8 +152,7 @@ public:
                         {
                             EnterEvadeMode();
                             me->DisappearAndDie();
-                            if (instance)
-                                instance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
+                            instance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
                         }
 
                     if (uiCarrionSwarmTimer < diff)
@@ -185,7 +176,7 @@ public:
 
                     if (uiSleepTimer < diff)
                     {
-                        DoScriptText(RAND(SAY_SLEEP_1, SAY_SLEEP_2), me);
+                        Talk(SAY_SLEEP);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(target, SPELL_SLEEP);
                         uiSleepTimer = urand(15000, 20000);
@@ -199,7 +190,7 @@ public:
                         switch (uiOutroStep)
                         {
                             case 1:
-                                DoScriptText(SAY_ESCAPE_SPEECH_1, me);
+                                Talk(SAY_ESCAPE_SPEECH_1);
                                 me->GetMotionMaster()->MoveTargetedHome();
                                 ++uiOutroStep;
                                 uiOutroTimer = 8000;
@@ -207,12 +198,12 @@ public:
                             case 2:
                                 me->SetTarget(instance ? instance->GetData64(DATA_ARTHAS) : 0);
                                 me->HandleEmoteCommand(29);
-                                DoScriptText(SAY_ESCAPE_SPEECH_2, me);
+                                Talk(SAY_ESCAPE_SPEECH_2);
                                 ++uiOutroStep;
                                 uiOutroTimer = 9000;
                                 break;
                             case 3:
-                                DoScriptText(SAY_OUTRO, me);
+                                Talk(SAY_OUTRO);
                                 ++uiOutroStep;
                                 uiOutroTimer = 16000;
                                 break;
@@ -232,23 +223,20 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
-
-                // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
-                DoCast(me, SPELL_KILL_CREDIT);
-            }
+            instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
+            DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
+            // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
+            DoCastAOE(SPELL_KILL_CREDIT);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
+            Talk(SAY_SLAY);
         }
     };
 

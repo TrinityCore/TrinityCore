@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_sys_socket.inl 91626 2010-09-07 10:59:20Z johnnyw $
+// $Id: OS_NS_sys_socket.inl 95533 2012-02-14 22:59:17Z wotte $
 
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_macros.h"
@@ -572,10 +572,21 @@ ACE_OS::send (ACE_HANDLE handle, const char *buf, size_t len, int flags)
   ACE_UNUSED_ARG (flags);
   ACE_NOTSUP_RETURN (-1);
 #elif defined (ACE_WIN32)
-  ACE_SOCKCALL_RETURN (::send ((ACE_SOCKET) handle,
-                               buf,
-                               static_cast<int> (len),
-                               flags), ssize_t, -1);
+  ssize_t result = ::send ((ACE_SOCKET) handle,
+                           buf,
+                           static_cast<int> (len),
+                           flags);
+  if (result == -1)
+    {
+      ACE_OS::set_errno_to_wsa_last_error();
+      if (errno != ENOBUFS)
+        return -1;
+
+      ACE_SOCKCALL_RETURN(send_partial_i(handle, buf, len, flags), ssize_t, -1);
+    }
+  else
+    return result;
+
 #else
   ssize_t const ace_result_ = ::send ((ACE_SOCKET) handle, buf, len, flags);
 
@@ -761,7 +772,18 @@ ACE_OS::sendv (ACE_HANDLE handle,
   if (result == SOCKET_ERROR)
     {
       ACE_OS::set_errno_to_wsa_last_error ();
-      return -1;
+      if ((errno != ENOBUFS) ||
+          (bytes_sent != 0))
+        {
+          return -1;
+        }
+      result = sendv_partial_i(handle, buffers, n);
+      if (result == SOCKET_ERROR)
+        {
+          ACE_OS::set_errno_to_wsa_last_error ();
+          return -1;
+        }
+      bytes_sent = static_cast<DWORD>(result);
     }
 # else
   for (int i = 0; i < n; ++i)
@@ -965,7 +987,7 @@ ACE_OS::socketpair (int domain, int type,
 #endif /* ACE_LACKS_SOCKETPAIR */
 }
 
-#if defined (__linux__) && defined (ACE_HAS_IPV6)
+#if defined (ACE_LINUX) && defined (ACE_HAS_IPV6)
 ACE_INLINE unsigned int
 ACE_OS::if_nametoindex (const char *ifname)
 {
@@ -994,6 +1016,6 @@ ACE_OS::if_freenameindex (struct if_nameindex *ptr)
   if (ptr != 0)
     ::if_freenameindex (ptr);
 }
-#endif /* __linux__ && ACE_HAS_IPV6 */
+#endif /* ACE_LINUX && ACE_HAS_IPV6 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 #define TRINITYCORE_COMMON_H
 
 // config.h needs to be included 1st
-// TODO this thingy looks like hack, but its not, need to
+/// @todo this thingy looks like hack, but its not, need to
 // make separate header however, because It makes mess here.
 #ifdef HAVE_CONFIG_H
 // Remove Some things that we will define
@@ -92,6 +92,7 @@
 #include <ace/Guard_T.h>
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
+#include <ace/OS_NS_time.h>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  include <ace/config-all.h>
@@ -116,7 +117,7 @@
 #define I32FMT "%08I32X"
 #define I64FMT "%016I64X"
 #define snprintf _snprintf
-#define atoll __atoi64
+#define atoll _atoi64
 #define vsnprintf _vsnprintf
 #define finite(X) _finite(X)
 #define llabs _abs64
@@ -129,14 +130,6 @@
 #define I64FMT "%016llX"
 
 #endif
-
-#define UI64FMTD ACE_UINT64_FORMAT_SPECIFIER
-#define UI64LIT(N) ACE_UINT64_LITERAL(N)
-
-#define SI64FMTD ACE_INT64_FORMAT_SPECIFIER
-#define SI64LIT(N) ACE_INT64_LITERAL(N)
-
-#define SIZEFMTD ACE_SIZE_T_FORMAT_SPECIFIER
 
 inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
 
@@ -178,7 +171,7 @@ enum LocaleConstant
 };
 
 const uint8 TOTAL_LOCALES = 9;
-const LocaleConstant DEFAULT_LOCALE = LOCALE_enUS;
+#define DEFAULT_LOCALE LOCALE_enUS
 
 #define MAX_LOCALES 8
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8

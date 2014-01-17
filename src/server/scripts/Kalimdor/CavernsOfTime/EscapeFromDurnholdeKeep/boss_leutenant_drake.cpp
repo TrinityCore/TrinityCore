@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,8 @@ SDComment: Missing proper code for patrolling area after being spawned. Script f
 SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
 
@@ -36,7 +37,7 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) OVERRIDE
     {
         if (InstanceScript* instance = go->GetInstanceScript())
         {
@@ -55,18 +56,20 @@ public:
 ## boss_lieutenant_drake
 ######*/
 
-#define SAY_ENTER               -1560006
-#define SAY_AGGRO               -1560007
-#define SAY_SLAY1               -1560008
-#define SAY_SLAY2               -1560009
-#define SAY_MORTAL              -1560010
-#define SAY_SHOUT               -1560011
-#define SAY_DEATH               -1560012
+enum LieutenantDrake
+{
+    SAY_ENTER               = 0,
+    SAY_AGGRO               = 1,
+    SAY_SLAY                = 2,
+    SAY_MORTAL              = 3,
+    SAY_SHOUT               = 4,
+    SAY_DEATH               = 5,
 
-#define SPELL_WHIRLWIND         31909
-#define SPELL_HAMSTRING         9080
-#define SPELL_MORTAL_STRIKE     31911
-#define SPELL_FRIGHTENING_SHOUT 33789
+    SPELL_WHIRLWIND         = 31909,
+    SPELL_HAMSTRING         = 9080,
+    SPELL_MORTAL_STRIKE     = 31911,
+    SPELL_FRIGHTENING_SHOUT = 33789
+};
 
 struct Location
 {
@@ -104,14 +107,14 @@ class boss_lieutenant_drake : public CreatureScript
 public:
     boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lieutenant_drakeAI (creature);
+        return new boss_lieutenant_drakeAI(creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
     {
-        boss_lieutenant_drakeAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_lieutenant_drakeAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool CanPatrol;
         uint32 wpId;
@@ -121,7 +124,7 @@ public:
         uint32 MortalStrike_Timer;
         uint32 ExplodingShout_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             CanPatrol = true;
             wpId = 0;
@@ -132,24 +135,24 @@ public:
             ExplodingShout_Timer = 25000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
-            //TODO: make this work
+            /// @todo make this work
             if (CanPatrol && wpId == 0)
             {
                 me->GetMotionMaster()->MovePoint(DrakeWP[0].wpId, DrakeWP[0].x, DrakeWP[0].y, DrakeWP[0].z);
@@ -163,23 +166,23 @@ public:
             //Whirlwind
             if (Whirlwind_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WHIRLWIND);
+                DoCastVictim(SPELL_WHIRLWIND);
                 Whirlwind_Timer = 20000+rand()%5000;
             } else Whirlwind_Timer -= diff;
 
             //Fear
             if (Fear_Timer <= diff)
             {
-                DoScriptText(SAY_SHOUT, me);
-                DoCast(me->getVictim(), SPELL_FRIGHTENING_SHOUT);
+                Talk(SAY_SHOUT);
+                DoCastVictim(SPELL_FRIGHTENING_SHOUT);
                 Fear_Timer = 25000+rand()%10000;
             } else Fear_Timer -= diff;
 
             //Mortal Strike
             if (MortalStrike_Timer <= diff)
             {
-                DoScriptText(SAY_MORTAL, me);
-                DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                Talk(SAY_MORTAL);
+                DoCastVictim(SPELL_MORTAL_STRIKE);
                 MortalStrike_Timer = 20000+rand()%10000;
             } else MortalStrike_Timer -= diff;
 

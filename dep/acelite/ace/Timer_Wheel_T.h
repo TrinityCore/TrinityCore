@@ -4,7 +4,7 @@
 /**
  *  @file    Timer_Wheel_T.h
  *
- *  $Id: Timer_Wheel_T.h 84619 2009-02-26 12:26:16Z johnnyw $
+ *  $Id: Timer_Wheel_T.h 95368 2011-12-19 13:38:49Z mcorino $
  *
  *  @author Darrell Brunsch <brunsch@cs.wustl.edu>
  */
@@ -15,6 +15,7 @@
 #include /**/ "ace/pre.h"
 
 #include "ace/Timer_Queue_T.h"
+#include "ace/Copy_Disabled.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -23,7 +24,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // Forward declaration
-template <class TYPE, class FUNCTOR, class ACE_LOCK>
+template <class TYPE, class FUNCTOR, class ACE_LOCK, typename TIME_POLICY>
 class ACE_Timer_Wheel_T;
 
 /**
@@ -35,19 +36,19 @@ class ACE_Timer_Wheel_T;
  * node of a timer queue.  Be aware that it doesn't traverse
  * in the order of timeout values.
  */
-template <class TYPE, class FUNCTOR, class ACE_LOCK>
+template <class TYPE, class FUNCTOR, class ACE_LOCK, typename TIME_POLICY = ACE_Default_Time_Policy>
 class ACE_Timer_Wheel_Iterator_T
-  : public ACE_Timer_Queue_Iterator_T <TYPE, FUNCTOR, ACE_LOCK>
+  : public ACE_Timer_Queue_Iterator_T <TYPE>
 {
 public:
-  typedef ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK> Wheel;
+  typedef ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK, TIME_POLICY> Wheel;
   typedef ACE_Timer_Node_T<TYPE> Node;
 
   /// Constructor
   ACE_Timer_Wheel_Iterator_T (Wheel &);
 
   /// Destructor
-  ~ACE_Timer_Wheel_Iterator_T (void);
+  virtual ~ACE_Timer_Wheel_Iterator_T (void);
 
   /// Positions the iterator at the earliest node in the Timer Queue
   virtual void first (void);
@@ -88,28 +89,31 @@ private:
  * Timer Facilities"
  * (http://dworkin.wustl.edu/~varghese/PAPERS/newbsd.ps.Z)
  */
-template <class TYPE, class FUNCTOR, class ACE_LOCK>
-class ACE_Timer_Wheel_T : public ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK>
+template <class TYPE, class FUNCTOR, class ACE_LOCK, typename TIME_POLICY = ACE_Default_Time_Policy>
+class ACE_Timer_Wheel_T
+  : public ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK, TIME_POLICY>
 {
 public:
   /// Type of iterator
-  typedef ACE_Timer_Wheel_Iterator_T<TYPE, FUNCTOR, ACE_LOCK> Iterator;
+  typedef ACE_Timer_Wheel_Iterator_T<TYPE, FUNCTOR, ACE_LOCK, TIME_POLICY> Iterator;
   /// Iterator is a friend
-  friend class ACE_Timer_Wheel_Iterator_T<TYPE, FUNCTOR, ACE_LOCK>;
+  friend class ACE_Timer_Wheel_Iterator_T<TYPE, FUNCTOR, ACE_LOCK, TIME_POLICY>;
   typedef ACE_Timer_Node_T<TYPE> Node;
   /// Type inherited from
-  typedef ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK> Base;
+  typedef ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK, TIME_POLICY> Base_Timer_Queue;
   typedef ACE_Free_List<Node> FreeList;
 
   /// Default constructor
-  ACE_Timer_Wheel_T (FUNCTOR* upcall_functor = 0, FreeList* freelist = 0);
+  ACE_Timer_Wheel_T (FUNCTOR* upcall_functor = 0, FreeList* freelist = 0,
+                     TIME_POLICY const & time_policy = TIME_POLICY());
 
   /// Constructor with opportunities to set the wheelsize and resolution
   ACE_Timer_Wheel_T (u_int spoke_count,
                      u_int resolution,
                      size_t prealloc = 0,
                      FUNCTOR* upcall_functor = 0,
-                     FreeList* freelist = 0);
+                     FreeList* freelist = 0,
+                     TIME_POLICY const & time_policy = TIME_POLICY());
 
   /// Destructor
   virtual ~ACE_Timer_Wheel_T (void);
@@ -139,6 +143,11 @@ public:
                       const void** act = 0,
                       int dont_call_handle_close = 1);
 
+  /**
+   * Destroy timer queue. Cancels all timers.
+   */
+  virtual int close (void);
+
   /// Run the <functor> for all timers whose values are <=
   /// <ACE_OS::gettimeofday>.  Also accounts for <timer_skew>.  Returns
   /// the number of timers canceled.
@@ -150,7 +159,7 @@ public:
   int expire (const ACE_Time_Value& current_time);
 
   /// Returns a pointer to this <ACE_Timer_Queue_T>'s iterator.
-  virtual ACE_Timer_Queue_Iterator_T<TYPE, FUNCTOR, ACE_LOCK>& iter (void);
+  virtual ACE_Timer_Queue_Iterator_T<TYPE> & iter (void);
 
   /// Removes the earliest node from the queue and returns it
   virtual ACE_Timer_Node_T<TYPE>* remove_first (void);
@@ -205,11 +214,6 @@ private:
   ACE_Time_Value wheel_time_;
   /// The total number of timers currently scheduled.
   u_int timer_count_;
-
-  // = Don't allow these operations for now, don't split into multiple lines
-  // breaks sun compilers
-  ACE_UNIMPLEMENTED_FUNC (ACE_Timer_Wheel_T (const ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK> &))
-  ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK> &))
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_stdlib.inl 91683 2010-09-09 09:07:49Z johnnyw $
+// $Id: OS_NS_stdlib.inl 95761 2012-05-15 18:23:04Z johnnyw $
 
 #include "ace/config-all.h"           /* Need ACE_TRACE */
 #include "ace/Object_Manager_Base.h"
@@ -35,12 +35,11 @@ ACE_OS::_exit (int status)
 ACE_INLINE void
 ACE_OS::abort (void)
 {
-#if !defined (ACE_HAS_WINCE)
+#if !defined (ACE_LACKS_ABORT)
   ::abort ();
 #else
-  // @@ CE doesn't support abort?
   exit (1);
-#endif /* !ACE_HAS_WINCE */
+#endif /* !ACE_LACKS_ABORT */
 }
 
 ACE_INLINE int
@@ -403,44 +402,24 @@ ACE_OS::rand (void)
   ACE_OSCALL_RETURN (::rand (), int, -1);
 }
 
-#if !defined (ACE_WIN32)
-
 ACE_INLINE int
-ACE_OS::rand_r (ACE_RANDR_TYPE &seed)
+ACE_OS::rand_r (unsigned int *seed)
 {
   ACE_OS_TRACE ("ACE_OS::rand_r");
-# if defined (ACE_HAS_REENTRANT_FUNCTIONS) && \
-    !defined (ACE_LACKS_RAND_REENTRANT_FUNCTIONS)
-#   if defined (ACE_HAS_BROKEN_RANDR)
-  ACE_OSCALL_RETURN (::rand_r (seed), int, -1);
-#   else
-  ACE_OSCALL_RETURN (::rand_r (&seed), int, -1);
-#   endif /* ACE_HAS_BROKEN_RANDR */
-# else
-  ACE_UNUSED_ARG (seed);
-  ACE_OSCALL_RETURN (::rand (), int, -1);
-# endif /* ACE_HAS_REENTRANT_FUNCTIONS */
-}
-
-#else /* ACE_WIN32 */
-
-ACE_INLINE int
-ACE_OS::rand_r (ACE_RANDR_TYPE& seed)
-{
-  ACE_OS_TRACE ("ACE_OS::rand_r");
-
-  long new_seed = (long) (seed);
+#if defined (ACE_LACKS_RAND_R)
+  long new_seed = (long) *seed;
   if (new_seed == 0)
     new_seed = 0x12345987;
   long temp = new_seed / 127773;
   new_seed = 16807 * (new_seed - temp * 127773) - 2836 * temp;
   if (new_seed < 0)
     new_seed += 2147483647;
- (seed) = (unsigned int)new_seed;
+  *seed = (unsigned int)new_seed;
   return (int) (new_seed & RAND_MAX);
+#else
+  return ::rand_r (seed);
+# endif /* ACE_LACKS_RAND_R */
 }
-
-#endif /* !ACE_WIN32 */
 
 #  if !defined (ACE_LACKS_REALPATH)
 ACE_INLINE char *
@@ -612,8 +591,6 @@ ACE_OS::system (const ACE_TCHAR *s)
   ACE_NOTSUP_RETURN (-1);
 #elif defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
   ACE_OSCALL_RETURN (::_wsystem (s), int, -1);
-#elif defined (ACE_TANDEM_T1248_PTHREADS)
-  ACE_OSCALL_RETURN (::spt_system (s), int, -1);
 #else
   ACE_OSCALL_RETURN (::system (ACE_TEXT_ALWAYS_CHAR (s)), int, -1);
 #endif /* ACE_LACKS_SYSTEM */

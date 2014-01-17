@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@ EndScriptData */
 
 enum Say
 {
-    SAY_TELEPORT            = -1000100
+    SAY_TELEPORT            = 0
 };
 
 enum Spells
@@ -47,14 +47,14 @@ class boss_azuregos : public CreatureScript
 public:
     boss_azuregos() : CreatureScript("boss_azuregos") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_azuregosAI (creature);
+        return new boss_azuregosAI(creature);
     }
 
     struct boss_azuregosAI : public ScriptedAI
     {
-        boss_azuregosAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_azuregosAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 MarkOfFrostTimer;
         uint32 ManaStormTimer;
@@ -66,7 +66,7 @@ public:
         uint32 EnrageTimer;
         bool Enraged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             MarkOfFrostTimer = 35000;
             ManaStormTimer = urand(5000, 17000);
@@ -79,9 +79,9 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -89,10 +89,10 @@ public:
 
             if (TeleportTimer <= diff)
             {
-                DoScriptText(SAY_TELEPORT, me);
-                std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                std::list<HostileReference*>::const_iterator i = threatlist.begin();
-                for (i = threatlist.begin(); i!= threatlist.end(); ++i)
+                Talk(SAY_TELEPORT);
+                ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+                ThreatContainer::StorageType::const_iterator i = threatlist.begin();
+                for (i = threatlist.begin(); i != threatlist.end(); ++i)
                 {
                     Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                     if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
@@ -108,21 +108,21 @@ public:
             //        //MarkOfFrostTimer
             //        if (MarkOfFrostTimer <= diff)
             //        {
-            //            DoCast(me->getVictim(), SPELL_MARKOFFROST);
+            //            DoCastVictim(SPELL_MARKOFFROST);
             //            MarkOfFrostTimer = 25000;
             //        } else MarkOfFrostTimer -= diff;
 
             //ChillTimer
             if (ChillTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CHILL);
+                DoCastVictim(SPELL_CHILL);
                 ChillTimer = urand(13000, 25000);
             } else ChillTimer -= diff;
 
             //BreathTimer
             if (BreathTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTBREATH);
+                DoCastVictim(SPELL_FROSTBREATH);
                 BreathTimer = urand(10000, 15000);
             } else BreathTimer -= diff;
 
@@ -144,7 +144,7 @@ public:
             //CleaveTimer
             if (CleaveTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCastVictim(SPELL_CLEAVE);
                 CleaveTimer = 7000;
             } else CleaveTimer -= diff;
 
@@ -158,7 +158,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_azuregos()

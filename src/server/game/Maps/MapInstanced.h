@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,7 +30,7 @@ class MapInstanced : public Map
         typedef UNORDERED_MAP< uint32, Map*> InstancedMaps;
 
         MapInstanced(uint32 id, time_t expiry);
-        ~MapInstanced() {}
+        ~MapInstanced() { }
 
         // functions overwrite Map versions
         void Update(const uint32);

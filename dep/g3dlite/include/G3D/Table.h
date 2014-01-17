@@ -86,12 +86,11 @@ namespace G3D {
 
   <PRE>
     template<> struct HashTrait<MyEnum> {
-        static size_t equals(const MyEnum& key) const { return reinterpret_cast<size_t>( key ); }
+        static size_t hashCode(const MyEnum& key) const { return reinterpret_cast<size_t>( key ); }
     };
   </PRE>
 
-  And rely on the default enum operator==.
-
+  and rely on the default enum operator==.
 
   Periodically check that debugGetLoad() is low (> 0.1).  When it gets near
   1.0 your hash function is badly designed and maps too many inputs to

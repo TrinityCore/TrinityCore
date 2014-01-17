@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,18 +27,20 @@ enum TotemType
     TOTEM_ACTIVE     = 1,
     TOTEM_STATUE     = 2 // copied straight from MaNGOS, may need more implementation to work
 };
+// Some Totems cast spells that are not in creature DB
+#define SENTRY_TOTEM_SPELLID  6495
 
-#define SENTRY_TOTEM_ENTRY  3968
+#define SENTRY_TOTEM_ENTRY    3968
 
 class Totem : public Minion
 {
     public:
         Totem(SummonPropertiesEntry const* properties, Unit* owner);
-        virtual ~Totem() {}
+        virtual ~Totem() { }
         void Update(uint32 time);
         void InitStats(uint32 duration);
         void InitSummon();
-        void UnSummon();
+        void UnSummon(uint32 msTime = 0);
         uint32 GetSpell(uint8 slot = 0) const { return m_spells[slot]; }
         uint32 GetTotemDuration() const { return m_duration; }
         void SetTotemDuration(uint32 duration) { m_duration = duration; }
@@ -46,12 +48,12 @@ class Totem : public Minion
 
         bool UpdateStats(Stats /*stat*/) { return true; }
         bool UpdateAllStats() { return true; }
-        void UpdateResistances(uint32 /*school*/) {}
-        void UpdateArmor() {}
-        void UpdateMaxHealth() {}
-        void UpdateMaxPower(Powers /*power*/) {}
-        void UpdateAttackPowerAndDamage(bool /*ranged*/) {}
-        void UpdateDamagePhysical(WeaponAttackType /*attType*/) {}
+        void UpdateResistances(uint32 /*school*/) { }
+        void UpdateArmor() { }
+        void UpdateMaxHealth() { }
+        void UpdateMaxPower(Powers /*power*/) { }
+        void UpdateAttackPowerAndDamage(bool /*ranged*/) { }
+        void UpdateDamagePhysical(WeaponAttackType /*attType*/) OVERRIDE { }
 
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
 

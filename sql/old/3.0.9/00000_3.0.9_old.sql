@@ -402,11 +402,11 @@ INSERT INTO `spell_bonus_data` VALUES
 -- 1135_mangos_7207_01_world_creature
 ALTER TABLE creature
   ADD COLUMN `phaseMask` smallint(5) unsigned NOT NULL default '1' AFTER `spawnMask`;
-  
+
 -- 1135_mangos_7207_02_world_gameobject
 ALTER TABLE gameobject
   ADD COLUMN `phaseMask` smallint(5) unsigned NOT NULL default '1' AFTER `spawnMask`;
-  
+
 -- 1140_mangos_7209_01_world_spell_bonus_data
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (53595);
 INSERT INTO `spell_bonus_data` VALUES
@@ -1319,7 +1319,7 @@ INSERT INTO spell_bonus_data VALUES
  (34913, 0, 0, 0, 'Mage - Molten Armor Triggered Rank 1'),
  (43043, 0, 0, 0, 'Mage - Molten Armor Triggered Rank 2'),
  (43044, 0, 0, 0, 'Mage - Molten Armor Triggered Rank 3');
- 
+
 -- 1293_mangos_7249_01_world_spell_proc_event
 DELETE FROM `spell_proc_event` WHERE `entry`='60200';
 
@@ -2267,7 +2267,7 @@ INSERT INTO `command` VALUES
 ('npc setdeathstate',2,'Syntax: .npc setdeathstate on/off\r\n\r\nSet default death state (dead/alive) for npc at spawn.');
 
 -- 1426_mangos_7292_01_world_points_of_interest
-DROP TABLE IF EXISTS `points_of_interest`; 
+DROP TABLE IF EXISTS `points_of_interest`;
 CREATE TABLE `points_of_interest` (
   `entry` mediumint(8) unsigned NOT NULL default '0',
   `x` float NOT NULL default '0',
@@ -2280,7 +2280,7 @@ CREATE TABLE `points_of_interest` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- 1426_mangos_7292_02_world_locales_points_of_interest
-DROP TABLE IF EXISTS `locales_points_of_interest`; 
+DROP TABLE IF EXISTS `locales_points_of_interest`;
 CREATE TABLE `locales_points_of_interest` (
   `entry` mediumint(8) unsigned NOT NULL default '0',
   `icon_name_loc1` text,
@@ -2489,16 +2489,16 @@ ALTER TABLE spell_area
 ALTER TABLE creature_template
   ADD COLUMN unk16 float NOT NULL default '1' AFTER InhabitType,
   ADD COLUMN unk17 float NOT NULL default '1' AFTER unk16;
-  
+
 -- 1693_world
 -- Update Proc Rate
-INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES 
+INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 ('60442', '0', '0', '0', '0', '0', '0', '0', '0', '0', '45'),
 ('57345', '0', '0', '0', '0', '0', '0', '0', '0', '0', '45'),
 ('61356', '0', '0', '0', '0', '0', '0', '0', '0', '0', '45'),
 ('54707', '0', '0', '0', '0', '0', '0', '0', '0', '0', '60'),
 ('54808', '0', '0', '0', '0', '0', '0', '0', '0', '0', '60');
--- Update Spell Coefficients 
+-- Update Spell Coefficients
 DELETE FROM `spell_bonus_data` WHERE `entry` IN ('689', '18790', '172', '42223', '42224', '42225', '42226', '42218', '47817', '47818', '1949', '5857', '11681', '11682', '27214', '47822', '27243', '30108', '17962', '6789', '48181', '29722', '5676', '686', '17877', '30283', '1120', '30294', '44425', '42208', '42209', '42210', '42211', '42212', '42213', '42198', '42937', '42938', '11113', '31661', '120', '19750', '635', '25914', '25913', '25903', '27175', '33074', '48820', '48821', '58597', '31803', '53742', '31893', '32221', '53719', '53718', '20167', '20424', '31804', '53733', '31898', '32220', '53726', '53725', '20267', '20187', '20467', '53600', '596', '2944', '8092', '27813', '27817', '27818', '33619');
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `comments`) VALUES
 ('689', '0', '0.143', '0', 'Warlock - Drain Life'),
@@ -2743,7 +2743,7 @@ UPDATE `areatrigger_teleport` SET `access_id` = '52' WHERE `id` IN ('4352','4354
 -- 1709_mangos_7393_01_world_game_event
 ALTER TABLE `game_event`
   ADD COLUMN `holiday` mediumint(8) unsigned NOT NULL default '0' COMMENT 'Client side holiday id' AFTER `length`;
-  
+
 -- 1724_mangos_7399_01_world_trinity_string
 DELETE FROM `trinity_string` WHERE `entry` IN (753, 754, 755);
 INSERT INTO `trinity_string` VALUES
@@ -2998,7 +2998,7 @@ UPDATE `command` SET `name`="ahbotoption" WHERE `name`="ahbotoptions";
 DELETE FROM `command` WHERE `name` IN ('reload tickets');
 DELETE FROM `command` WHERE `name` LIKE "path%";
 DELETE FROM `command` WHERE `name` LIKE "wp%";
-INSERT INTO `command` VALUES 
+INSERT INTO `command` VALUES
 ('wp load',2,'Syntax: .path load $pathid\nLoad pathid number for selected creature. Creature must have no waypoint data.'),
 ('wp event',2,'Syntax: .path event $subcommand\nType .path event to see the list of possible subcommands or .help path event $subcommand to see info on subcommands.'),
 ('wp event add',2,'Syntax: .path event add $subcommand\nAdd new waypoint action in DB.'),
@@ -3110,7 +3110,7 @@ INSERT INTO `command` VALUES
 UPDATE `command` SET `name`="ahbotoption" WHERE `name`="ahbotoptions";
 DELETE FROM `command` WHERE `name` LIKE "path%";
 DELETE FROM `command` WHERE `name` LIKE "wp%";
-INSERT INTO `command` VALUES 
+INSERT INTO `command` VALUES
 ('wp load',2,'Syntax: .wp load $pathid\nLoad pathid number for selected creature. Creature must have no waypoint data.'),
 ('wp event',2,'Syntax: .wp event $subcommand\nType .path event to see the list of possible subcommands or .help path event $subcommand to see info on subcommands.'),
 ('wp unload',2,'Syntax: .wp unload\nUnload path for selected creature.'),
@@ -3134,7 +3134,7 @@ INSERT INTO `command` VALUES
 -- 2276_mangos_7560_01_world_gameobject_template
 ALTER TABLE gameobject_template
   ADD COLUMN IconName varchar(100) NOT NULL default '' AFTER name;
-  
+
 -- 2280_mangos_7565_01_world_trinity_string
 DELETE FROM `trinity_string` WHERE `entry` IN (1010,1011,1012,1013,1014);
 INSERT INTO `trinity_string` VALUES
@@ -3185,7 +3185,7 @@ INSERT INTO `spell_proc_event` VALUES (24905, 0x00, 0, 0x00000000, 0x00000000, 0
 -- 2296_world
 ALTER TABLE creature_template
   ADD COLUMN `VehicleId` mediumint(8) unsigned NOT NULL default '0' AFTER `PetSpellDataId`;
-  
+
 -- 2339_world - 2346_world
 DELETE FROM `command` WHERE `name` LIKE "ahbotoption %";
 DELETE FROM `command` WHERE `name` LIKE "ahbotoptions %";
@@ -3338,7 +3338,7 @@ CREATE TABLE `achievement_criteria_data` (
 ALTER TABLE `achievement_criteria_data`
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`criteria_id`,`type`);
-  
+
 -- 2551_world_spell_bonus_data
 -- Judgement
 DELETE FROM `spell_bonus_data` WHERE `entry` = 54158;
@@ -3785,7 +3785,7 @@ INSERT INTO `spell_proc_event` VALUES
 
 -- 2686_world_command
 DELETE FROM `command` WHERE `name` IN ('go ticket');
-INSERT INTO `command` VALUES 
+INSERT INTO `command` VALUES
 ('go ticket','1','Syntax: .go ticket #ticketid\r\nTeleports the user to the location where $ticketid was created.');
 
 -- 2687_world_spell_proc_event
@@ -4058,7 +4058,7 @@ INSERT INTO `spell_proc_event` VALUES
 INSERT INTO trinity_string (entry, content_default)VALUES (6616 , "Pet spells will reset for all players at login. Strongly recommend re-login!");
 
 -- 2907_mangos_7705_01_world_command
-DELETE FROM `command` WHERE `name` IN 
+DELETE FROM `command` WHERE `name` IN
 ('account lock','account password','chardelete','character customize','character delete','character rename','customize','lockaccount','password','rename');
 INSERT INTO `command` VALUES
 ('account lock',0,'Syntax: .account lock [on|off]\r\n\r\nAllow login from account only from current used IP or remove this requirement.'),
@@ -4127,7 +4127,7 @@ INSERT INTO `spell_script_target` () VALUES (46589, 1, 30614);
 INSERT INTO `spell_script_target` () VALUES (45839, 1, 25653);
 
 DELETE FROM `creature_template` WHERE entry in (30598, 30614);
-INSERT INTO `creature_template` () VALUES 
+INSERT INTO `creature_template` () VALUES
 (30598, 0, 4449, 0, 4449, 0, 'Spike Target', '', '', 70, 70, 1, 1, 0, 0, 0, 14, 14, 0, 1, 1, 0, 0, 0, 0, 0, 2600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 0, 0, 0, 1, 0, 0, 128, ''),
 (30614, 0, 4449, 0, 4449, 0, 'Spike Target 2', '', '', 70, 70, 1, 1, 0, 0, 0, 14, 14, 0, 1, 1, 0, 0, 0, 0, 0, 2600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 0, 0, 0, 1, 0, 0, 128, '');
 

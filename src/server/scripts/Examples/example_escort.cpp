@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,29 +23,39 @@ SDComment: Script used for testing escortAI
 SDCategory: Script Examples
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
+#include "CreatureTextMgr.h"
 
-enum eEnums
+enum Yells
 {
-    NPC_FELBOAR                 = 21878,
+    SAY_AGGRO1                  = 0,
+    SAY_AGGRO2                  = 1,
+    SAY_WP_1                    = 2,
+    SAY_WP_2                    = 3,
+    SAY_WP_3                    = 4,
+    SAY_WP_4                    = 5,
+    SAY_DEATH_1                 = 6,
+    SAY_DEATH_2                 = 7,
+    SAY_DEATH_3                 = 8,
+    SAY_SPELL                   = 9,
+    SAY_RAND_1                  = 10,
+    SAY_RAND_2                  = 11
+};
 
+enum Spells
+{
     SPELL_DEATH_COIL            = 33130,
     SPELL_ELIXIR_OF_FORTITUDE   = 3593,
-    SPELL_BLUE_FIREWORK         = 11540,
+    SPELL_BLUE_FIREWORK         = 11540
+};
 
-    SAY_AGGRO1                  = -1999910,
-    SAY_AGGRO2                  = -1999911,
-    SAY_WP_1                    = -1999912,
-    SAY_WP_2                    = -1999913,
-    SAY_WP_3                    = -1999914,
-    SAY_WP_4                    = -1999915,
-    SAY_DEATH_1                 = -1999916,
-    SAY_DEATH_2                 = -1999917,
-    SAY_DEATH_3                 = -1999918,
-    SAY_SPELL                   = -1999919,
-    SAY_RAND_1                  = -1999920,
-    SAY_RAND_2                  = -1999921
+enum Creatures
+{
+    NPC_FELBOAR                 = 21878
 };
 
 #define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Run)"
@@ -69,53 +79,53 @@ class example_escort : public CreatureScript
             uint32 m_uiDeathCoilTimer;
             uint32 m_uiChatTimer;
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) OVERRIDE
             {
                 summoned->AI()->AttackStart(me);
             }
 
             // Pure Virtual Functions (Have to be implemented)
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId) OVERRIDE
             {
                 switch (waypointId)
                 {
                     case 1:
-                        DoScriptText(SAY_WP_1, me);
+                        Talk(SAY_WP_1);
                         break;
                     case 3:
-                        DoScriptText(SAY_WP_2, me);
+                        Talk(SAY_WP_2);
                         me->SummonCreature(NPC_FELBOAR, me->GetPositionX()+5.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
                         break;
                     case 4:
                         if (Player* player = GetPlayerForEscort())
                         {
                             //pTmpPlayer is the target of the text
-                            DoScriptText(SAY_WP_3, me, player);
+                            Talk(SAY_WP_3, player);
                             //pTmpPlayer is the source of the text
-                            DoScriptText(SAY_WP_4, player);
+                            sCreatureTextMgr->SendChat(me, SAY_WP_4, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                         }
                         break;
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
                     if (Player* player = GetPlayerForEscort())
-                        DoScriptText(SAY_AGGRO1, me, player);
+                        Talk(SAY_AGGRO1, player);
                 }
                 else
-                    DoScriptText(SAY_AGGRO2, me);
+                    Talk(SAY_AGGRO2);
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 m_uiDeathCoilTimer = 4000;
                 m_uiChatTimer = 4000;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) OVERRIDE
             {
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                 {
@@ -123,27 +133,27 @@ class example_escort : public CreatureScript
                     {
                         // not a likely case, code here for the sake of example
                         if (killer == me)
-                            DoScriptText(SAY_DEATH_1, me, player);
+                            Talk(SAY_DEATH_1, player);
                         else
-                            DoScriptText(SAY_DEATH_2, me, player);
+                            Talk(SAY_DEATH_2, player);
                     }
                 }
                 else
-                    DoScriptText(SAY_DEATH_3, me);
+                    Talk(SAY_DEATH_3);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff) OVERRIDE
             {
                 //Must update npc_escortAI
                 npc_escortAI::UpdateAI(uiDiff);
 
                 //Combat check
-                if (me->getVictim())
+                if (me->GetVictim())
                 {
                     if (m_uiDeathCoilTimer <= uiDiff)
                     {
-                        DoScriptText(SAY_SPELL, me);
-                        DoCast(me->getVictim(), SPELL_DEATH_COIL, false);
+                        Talk(SAY_SPELL);
+                        DoCastVictim(SPELL_DEATH_COIL, false);
                         m_uiDeathCoilTimer = 4000;
                     }
                     else
@@ -158,12 +168,12 @@ class example_escort : public CreatureScript
                         {
                             if (me->HasAura(SPELL_ELIXIR_OF_FORTITUDE, 0))
                             {
-                                DoScriptText(SAY_RAND_1, me);
+                                Talk(SAY_RAND_1);
                                 DoCast(me, SPELL_BLUE_FIREWORK, false);
                             }
                             else
                             {
-                                DoScriptText(SAY_RAND_2, me);
+                                Talk(SAY_RAND_2);
                                 DoCast(me, SPELL_ELIXIR_OF_FORTITUDE, false);
                             }
 
@@ -176,12 +186,12 @@ class example_escort : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new example_escortAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
             player->PrepareGossipMenu(creature, 0);
@@ -195,7 +205,7 @@ class example_escort : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             player->PlayerTalkClass->ClearMenus();
             npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());

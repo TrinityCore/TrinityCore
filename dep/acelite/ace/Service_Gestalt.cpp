@@ -1,4 +1,4 @@
-// $Id: Service_Gestalt.cpp 92357 2010-10-25 14:11:44Z mesnier_p $
+// $Id: Service_Gestalt.cpp 95610 2012-03-13 11:26:31Z johnnyw $
 
 #include "ace/Svc_Conf.h"
 #include "ace/Get_Opt.h"

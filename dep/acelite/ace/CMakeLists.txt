@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,6 @@
 
 # NOTE: Do not use glob here, it would include files we don't want
 set(ace_STAT_SRCS
-  PrecompiledHeaders/WinAcePCH.cpp
   ACE.cpp
   ACE_crc32.cpp
   ACE_crc_ccitt.cpp
@@ -46,6 +45,7 @@ set(ace_STAT_SRCS
   Codeset_IBM1047.cpp
   Codeset_Registry.cpp
   Codeset_Registry_db.cpp
+  Condition_Attributes.cpp
   Condition_Recursive_Thread_Mutex.cpp
   Condition_Thread_Mutex.cpp
   Configuration.cpp
@@ -53,7 +53,6 @@ set(ace_STAT_SRCS
   Connection_Recycling_Strategy.cpp
   Containers.cpp
   Copy_Disabled.cpp
-  Countdown_Time.cpp
   Date_Time.cpp
   DEV.cpp
   DEV_Addr.cpp
@@ -73,6 +72,7 @@ set(ace_STAT_SRCS
   Encoding_Converter_Factory.cpp
   Event.cpp
   Event_Handler.cpp
+  Event_Handler_Handle_Timeout_Upcall.cpp
   FIFO.cpp
   FIFO_Recv.cpp
   FIFO_Recv_Msg.cpp
@@ -89,7 +89,6 @@ set(ace_STAT_SRCS
   Functor.cpp
   Functor_String.cpp
   Get_Opt.cpp
-  gethrtime.cpp
   Handle_Ops.cpp
   Handle_Set.cpp
   Hashable.cpp
@@ -289,6 +288,7 @@ set(ace_STAT_SRCS
   Thread_Mutex.cpp
   Thread_Semaphore.cpp
   Throughput_Stats.cpp
+  Time_Policy.cpp
   Time_Value.cpp
   Timeprobe.cpp
   TLI.cpp
@@ -319,6 +319,11 @@ set(ace_STAT_SRCS
   XTI_ATM_Mcast.cpp
 )
 
+if (USE_COREPCH)
+  set(ace_PCH_HDR PrecompiledHeaders/WinAcePCH.h)
+  set(ace_PCH_SRC PrecompiledHeaders/WinAcePCH.cpp)
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/dep/acelite
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
@@ -330,8 +335,18 @@ set_source_files_properties(Atomic_Op_Sparc.c Rtems_init.c PROPERTIES LANGUAGE C
 
 add_definitions(-DACE_BUILD_DLL)
 
-add_library(ace SHARED ${ace_STAT_SRCS})
+add_library(ace SHARED
+  ${ace_STAT_SRCS}
+  ${ace_PCH_SRC}
+)
 
-add_native_precompiled_header(ace ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH)
+if (MINGW) # GCC ignores "#prama comment"
+  target_link_libraries(ace ws2_32 iphlpapi netapi32 mswsock)
+endif()
+
+# Generate precompiled header
+if( USE_COREPCH )
+  add_cxx_pch(ace ${ace_PCH_HDR} ${ace_PCH_SRC})
+endif()
 
 install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")

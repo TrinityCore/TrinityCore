@@ -4,7 +4,7 @@
 /**
  *  @file    Lock.h
  *
- *  $Id: Lock.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Lock.h 93792 2011-04-07 11:48:50Z mcorino $
  *
  *   Moved from Synch.h.
  *
@@ -43,7 +43,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_Lock
 {
 public:
-  /// CE needs a default ctor here.
+  /// CE needs a default constructor here.
   ACE_Lock (void);
 
   /// Noop virtual destructor
@@ -73,20 +73,20 @@ public:
   /**
    * Block until the thread acquires a read lock.  If the locking
    * mechanism doesn't support read locks then this just calls
-   * <acquire>.  Returns -1 on failure.
+   * acquire().  Returns -1 on failure.
    */
   virtual int acquire_read (void) = 0;
 
   /**
    * Block until the thread acquires a write lock.  If the locking
    * mechanism doesn't support read locks then this just calls
-   * <acquire>.  Returns -1 on failure.
+   * acquire().  Returns -1 on failure.
    */
   virtual int acquire_write (void) = 0;
 
   /**
    * Conditionally acquire a read lock.  If the locking mechanism
-   * doesn't support read locks then this just calls <acquire>.
+   * doesn't support read locks then this just calls acquire().
    * Returns -1 on failure.  If we "failed" because someone else
    * already had the lock, @c errno is set to @c EBUSY.
    */
@@ -94,7 +94,7 @@ public:
 
   /**
    * Conditionally acquire a write lock.  If the locking mechanism
-   * doesn't support read locks then this just calls <acquire>.
+   * doesn't support read locks then this just calls acquire().
    * Returns -1 on failure.  If we "failed" because someone else
    * already had the lock, @c errno is set to @c EBUSY.
    */
@@ -103,7 +103,7 @@ public:
   /**
    * Conditionally try to upgrade a lock held for read to a write lock.
    * If the locking mechanism doesn't support read locks then this just
-   * calls <acquire>. Returns 0 on success, -1 on failure.
+   * calls acquire(). Returns 0 on success, -1 on failure.
    */
   virtual int tryacquire_write_upgrade (void) = 0;
 };
@@ -118,13 +118,13 @@ public:
  * However, it defers our decision of what kind of lock to use
  * to the run time and delegates all locking operations to the actual
  * lock.  Users must define a constructor in their subclass to
- * initialize <lock_>.
+ * initialize @c lock_.
  */
 class ACE_Export ACE_Adaptive_Lock : public ACE_Lock
 {
 public:
   /// You must also override the destructor function to match with how
-  /// you construct the underneath <lock_>.
+  /// you construct the underneath @c lock_.
   virtual ~ACE_Adaptive_Lock (void);
 
   // = Lock/unlock operations.
@@ -142,8 +142,8 @@ public:
 
 protected:
   /**
-   * Create and initialize create the actual lcok used in the class.
-   * The default constructor simply set the <lock_> to 0 (null).  You
+   * Create and initialize create the actual lock used in the class.
+   * The default constructor simply set the @c lock_ to 0 (null).  You
    * must overwrite this method for this class to work.
    */
   ACE_Adaptive_Lock (void);

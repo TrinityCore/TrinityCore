@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,18 +30,23 @@ enum AuthResult
     WOW_FAIL_DB_BUSY                             = 0x08,
     WOW_FAIL_VERSION_INVALID                     = 0x09,
     WOW_FAIL_VERSION_UPDATE                      = 0x0A,
+    WOW_FAIL_INVALID_SERVER                      = 0x0B,
     WOW_FAIL_SUSPENDED                           = 0x0C,
+    WOW_FAIL_FAIL_NOACCESS                       = 0x0D,
     WOW_SUCCESS_SURVEY                           = 0x0E,
     WOW_FAIL_PARENTCONTROL                       = 0x0F,
     WOW_FAIL_LOCKED_ENFORCED                     = 0x10,
     WOW_FAIL_TRIAL_ENDED                         = 0x11,
     WOW_FAIL_USE_BATTLENET                       = 0x12,
-    WOW_FAIL_TOO_FAST                            = 0x16,
-    WOW_FAIL_CHARGEBACK                          = 0x17,
+    WOW_FAIL_ANTI_INDULGENCE                     = 0x13,
+    WOW_FAIL_EXPIRED                             = 0x14,
+    WOW_FAIL_NO_GAME_ACCOUNT                     = 0x15,
+    WOW_FAIL_CHARGEBACK                          = 0x16,
+    WOW_FAIL_INTERNET_GAME_ROOM_WITHOUT_BNET     = 0x17,
     WOW_FAIL_GAME_ACCOUNT_LOCKED                 = 0x18,
-    WOW_FAIL_INTERNET_GAME_ROOM_WITHOUT_BNET     = 0x19,
-    WOW_FAIL_UNLOCKABLE_LOCK                     = 0x20,
-    WOW_FAIL_DISCONNECTED                        = 0xFF,
+    WOW_FAIL_UNLOCKABLE_LOCK                     = 0x19,
+    WOW_FAIL_CONVERSION_REQUIRED                 = 0x20,
+    WOW_FAIL_DISCONNECTED                        = 0xFF
 };
 
 enum LoginResult
@@ -62,11 +67,8 @@ enum LoginResult
     LOGIN_FAILED4                                = 0x0D,
     LOGIN_CONNECTED                              = 0x0E,
     LOGIN_PARENTALCONTROL                        = 0x0F,
-    LOGIN_LOCKED_ENFORCED                        = 0x10,
+    LOGIN_LOCKED_ENFORCED                        = 0x10
 };
-
-#define POST_BC_ACCEPTED_CLIENT_BUILD            {12340, 11723, 11403, 11159, 10571, 10505, 10146, 9947, 8606, 0}
-#define PRE_BC_ACCEPTED_CLIENT_BUILD             {5875, 6005, 0}
 
 enum ExpansionFlags
 {
@@ -75,8 +77,18 @@ enum ExpansionFlags
     NO_VALID_EXP_FLAG                           = 0x0
 };
 
+struct RealmBuildInfo
+{
+    int Build;
+    int MajorVersion;
+    int MinorVersion;
+    int BugfixVersion;
+    int HotfixVersion;
+};
+
 namespace AuthHelper
 {
+    RealmBuildInfo const* GetBuildInfo(int build);
     bool IsAcceptedClientBuild(int build);
     bool IsPostBCAcceptedClientBuild(int build);
     bool IsPreBCAcceptedClientBuild(int build);

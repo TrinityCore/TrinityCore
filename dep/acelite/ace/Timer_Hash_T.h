@@ -4,7 +4,7 @@
 /**
  *  @file    Timer_Hash_T.h
  *
- *  $Id: Timer_Hash_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Timer_Hash_T.h 95807 2012-06-01 12:44:19Z johnnyw $
  *
  *  @author Darrell Brunsch <brunsch@cs.wustl.edu>
  */
@@ -25,7 +25,7 @@
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // Forward declaration.
-template <class TYPE, class FUNCTOR, class ACE_LOCK, class BUCKET>
+template <class TYPE, class FUNCTOR, class ACE_LOCK, class BUCKET, typename TIME_POLICY>
 class ACE_Timer_Hash_T;
 template <typename TYPE>
 class Hash_Token;
@@ -40,6 +40,7 @@ class Hash_Token;
  */
 template <class TYPE, class FUNCTOR, class ACE_LOCK>
 class ACE_Timer_Hash_Upcall
+  : private ACE_Copy_Disabled
 {
 public:
   typedef ACE_Timer_Queue_T<ACE_Event_Handler *,
@@ -103,10 +104,6 @@ public:
 private:
   /// Timer Queue to do the calling up to
   ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK> *timer_hash_;
-
-  // = Don't allow these operations for now.
-  ACE_UNIMPLEMENTED_FUNC (ACE_Timer_Hash_Upcall (const ACE_Timer_Hash_Upcall<TYPE, FUNCTOR, ACE_LOCK> &))
-  ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Timer_Hash_Upcall<TYPE, FUNCTOR, ACE_LOCK> &))
 };
 
 /**
@@ -118,12 +115,15 @@ private:
  * node of a timer queue.  Be aware that it doesn't transverse
  * in the order of timeout values.
  */
-template <class TYPE, class FUNCTOR, class ACE_LOCK, class BUCKET>
-class ACE_Timer_Hash_Iterator_T : public ACE_Timer_Queue_Iterator_T <TYPE, FUNCTOR, ACE_LOCK>
+template <class TYPE, class FUNCTOR, class ACE_LOCK, class BUCKET, typename TIME_POLICY = ACE_Default_Time_Policy>
+class ACE_Timer_Hash_Iterator_T : public ACE_Timer_Queue_Iterator_T <TYPE>
 {
 public:
   /// Constructor.
-  ACE_Timer_Hash_Iterator_T (ACE_Timer_Hash_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET> &);
+  typedef ACE_Timer_Hash_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET, TIME_POLICY> Hash;
+  ACE_Timer_Hash_Iterator_T (Hash &);
+
+  virtual ~ACE_Timer_Hash_Iterator_T ();
 
   /// Positions the iterator at the earliest node in the Timer Queue
   virtual void first (void);
@@ -139,13 +139,13 @@ public:
 
 protected:
   /// Pointer to the ACE_Timer_Hash that we are iterating over.
-  ACE_Timer_Hash_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET> &timer_hash_;
+  Hash & timer_hash_;
 
   /// Current position in <timer_hash_>'s table
   size_t position_;
 
   /// Current iterator used on <position>'s bucket
-  ACE_Timer_Queue_Iterator_T<TYPE, ACE_Timer_Hash_Upcall<TYPE, FUNCTOR, ACE_LOCK>, ACE_Null_Mutex> *iter_;
+  ACE_Timer_Queue_Iterator_T<TYPE> *iter_;
 };
 
 /**
@@ -156,21 +156,23 @@ protected:
  *
  * This implementation uses a hash table of BUCKETs.  The hash
  * is based on the time_value of the event.  Unlike other Timer
- * Queues, ACE_Timer_Hash does not expire events in order.
+ * Queues, ACE_Timer_Hash does not expire events in strict order,
+ * i.e., all events are expired after their deadline.  But two events
+ * may expired out of order as defined by their deadlines.
  */
-template <class TYPE, class FUNCTOR, class ACE_LOCK, class BUCKET>
-class ACE_Timer_Hash_T : public ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK>
+template <class TYPE, class FUNCTOR, class ACE_LOCK, class BUCKET, typename TIME_POLICY = ACE_Default_Time_Policy>
+class ACE_Timer_Hash_T : public ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK, TIME_POLICY>
 {
 public:
   /// Type of iterator
-  typedef ACE_Timer_Hash_Iterator_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET>
+  typedef ACE_Timer_Hash_Iterator_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET, TIME_POLICY>
           HASH_ITERATOR;
 
   /// Iterator is a friend
-  friend class ACE_Timer_Hash_Iterator_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET>;
+  friend class ACE_Timer_Hash_Iterator_T<TYPE, FUNCTOR, ACE_LOCK, BUCKET, TIME_POLICY>;
 
   /// Type inherited from
-  typedef ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK> INHERITED;
+  typedef ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK, TIME_POLICY> Base_Timer_Queue;
 
   // = Initialization and termination methods.
   /**
@@ -181,7 +183,8 @@ public:
    */
   ACE_Timer_Hash_T (size_t table_size,
                     FUNCTOR *upcall_functor = 0,
-                    ACE_Free_List<ACE_Timer_Node_T <TYPE> > *freelist = 0);
+                    ACE_Free_List<ACE_Timer_Node_T <TYPE> > *freelist = 0,
+                    TIME_POLICY const & time_policy = TIME_POLICY());
 
   /**
    * Default constructor. @a upcall_functor is the instance of the
@@ -190,7 +193,9 @@ public:
    * timer nodes.  If 0, then a default freelist will be created.  The default
    * size will be ACE_DEFAULT_TIMERS and there will be no preallocation.
    */
-  ACE_Timer_Hash_T (FUNCTOR *upcall_functor = 0, ACE_Free_List<ACE_Timer_Node_T <TYPE> > *freelist = 0);
+  ACE_Timer_Hash_T (FUNCTOR *upcall_functor = 0,
+                    ACE_Free_List<ACE_Timer_Node_T <TYPE> > *freelist = 0,
+                    TIME_POLICY const & time_policy = TIME_POLICY());
 
   /// Destructor
   virtual ~ACE_Timer_Hash_T (void);
@@ -238,8 +243,13 @@ public:
                       int dont_call_handle_close = 1);
 
   /**
+   * Destroy timer queue. Cancels all timers.
+   */
+  virtual int close (void);
+
+  /**
    * Run the <functor> for all timers whose values are <=
-   * <ACE_OS::gettimeofday>.  Also accounts for <timer_skew>.  Returns
+   * gettimeofday.  Also accounts for <timer_skew>.  Returns
    * the number of timers canceled.
    */
   virtual int expire (void);
@@ -252,7 +262,7 @@ public:
   virtual int expire (const ACE_Time_Value &current_time);
 
   /// Returns a pointer to this ACE_Timer_Queue's iterator.
-  virtual ACE_Timer_Queue_Iterator_T<TYPE, FUNCTOR, ACE_LOCK> &iter (void);
+  virtual ACE_Timer_Queue_Iterator_T<TYPE> &iter (void);
 
   /// Removes the earliest node from the queue and returns it
   virtual ACE_Timer_Node_T<TYPE> *remove_first (void);
@@ -314,8 +324,8 @@ private:
   HASH_ITERATOR *iterator_;
 
 #if defined (ACE_WIN64)
-  // Part of a hack... see comments in schedule().
-  // This is, essentially, the upper 32 bits of a 64-bit pointer on Win64.
+  /// Part of a hack... see comments in schedule().
+  /// This is, essentially, the upper 32 bits of a 64-bit pointer on Win64.
   ptrdiff_t pointer_base_;
 #endif
 

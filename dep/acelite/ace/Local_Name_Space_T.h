@@ -4,7 +4,7 @@
 /**
  *  @file    Local_Name_Space_T.h
  *
- *  $Id: Local_Name_Space_T.h 91688 2010-09-09 11:21:50Z johnnyw $
+ *  $Id: Local_Name_Space_T.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Prashant Jain <pjain@cs.wustl.edu>
  *  @author Irfan Pyarali <irfan@wuerl.wustl.edu> and
@@ -135,13 +135,13 @@ public:
   /**
    * Overwrite the value or type of an existing name in a
    * ACE_Local_Name_Space or bind a new name to the context, if it
-   * didn't exist yet. (Wide charcter strings interface).
+   * didn't exist yet. (Wide character strings interface).
    */
   virtual int rebind (const ACE_NS_WString &name,
                       const ACE_NS_WString &value,
                       const char *type = "");
 
-  /// Delete a name from a ACE_Local_Name_Space (Wide charcter strings
+  /// Delete a name from a ACE_Local_Name_Space (Wide character strings
   /// Interface).
   virtual int unbind (const ACE_NS_WString &name);
   virtual int unbind_i (const ACE_NS_WString &name);

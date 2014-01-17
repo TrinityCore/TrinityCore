@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SSL_Context.inl 83916 2008-11-28 16:32:21Z johnnyw $
+// $Id: SSL_Context.inl 96087 2012-08-21 12:26:44Z sma $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -100,12 +100,12 @@ ACE_SSL_Context::default_verify_mode (void) const
 }
 
 ACE_INLINE void
-ACE_SSL_Context::default_verify_callback (int (*callback) (int, X509_STORE_CTX*))
+ACE_SSL_Context::default_verify_callback (extern_C_CallBackVerify_t  callback)
 {
   this->default_verify_callback_ = callback;
 }
 
-ACE_INLINE int (*ACE_SSL_Context::default_verify_callback(void) const)(int,X509_STORE_CTX *)
+ACE_INLINE extern_C_CallBackVerify_t  ACE_SSL_Context::default_verify_callback(void) const
 {
   return this->default_verify_callback_;
 }

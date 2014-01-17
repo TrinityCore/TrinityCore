@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,19 +24,19 @@
  */
 
 #include "Define.h"
-#include<algorithm>
+#include <algorithm>
 
 namespace ByteConverter
 {
     template<size_t T>
-        inline void convert(char *val)
+    inline void convert(char *val)
     {
         std::swap(*val, *(val + T - 1));
         convert<T - 2>(val + 1);
     }
 
-    template<> inline void convert<0>(char *) {}
-    template<> inline void convert<1>(char *) {}            // ignore central byte
+    template<> inline void convert<0>(char *) { }
+    template<> inline void convert<1>(char *) { }           // ignore central byte
 
     template<typename T> inline void apply(T *val)
     {

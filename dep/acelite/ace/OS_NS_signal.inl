@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// $Id: OS_NS_signal.inl 87480 2009-11-11 11:38:15Z olli $
+// $Id: OS_NS_signal.inl 93651 2011-03-28 08:49:11Z johnnyw $
 
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_errno.h"

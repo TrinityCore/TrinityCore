@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_Thread.inl 92069 2010-09-28 11:38:59Z johnnyw $
+// $Id: OS_NS_Thread.inl 96074 2012-08-17 18:06:56Z johnnyw $
 
 #include "ace/OS_NS_macros.h"
 // for timespec_t, perhaps move it to os_time.h
@@ -45,7 +45,11 @@ void **&
 ACE_TSS_Emulation::tss_base ()
 {
 #    if defined (ACE_HAS_VXTHREADS)
+  #if (ACE_VXWORKS <= 0x680)
   int &spare = taskIdCurrent->ACE_VXWORKS_SPARE;
+  #else // VxWorks 6.9 updated datatype (WIND00241209) see taskLib.h
+  long  &spare = taskIdCurrent->ACE_VXWORKS_SPARE;
+  #endif
   return reinterpret_cast <void **&> (spare);
 #    else
   // Uh oh.
@@ -58,8 +62,7 @@ ACE_INLINE
 ACE_TSS_Emulation::ACE_TSS_DESTRUCTOR
 ACE_TSS_Emulation::tss_destructor (const ACE_thread_key_t key)
 {
-  ACE_KEY_INDEX (key_index, key);
-  return tss_destructor_ [key_index];
+  return tss_destructor_ [key];
 }
 
 ACE_INLINE
@@ -67,16 +70,13 @@ void
 ACE_TSS_Emulation::tss_destructor (const ACE_thread_key_t key,
                                    ACE_TSS_DESTRUCTOR destructor)
 {
-  ACE_KEY_INDEX (key_index, key);
-  tss_destructor_ [key_index] = destructor;
+  tss_destructor_ [key] = destructor;
 }
 
 ACE_INLINE
 void *&
 ACE_TSS_Emulation::ts_object (const ACE_thread_key_t key)
 {
-  ACE_KEY_INDEX (key_index, key);
-
 #    if defined (ACE_HAS_VXTHREADS)
     /* If someone wants tss_base make sure they get one.  This
        gets used if someone spawns a VxWorks task directly, not
@@ -97,7 +97,7 @@ ACE_TSS_Emulation::ts_object (const ACE_thread_key_t key)
       }
 #    endif /* ACE_HAS_VXTHREADS */
 
-  return tss_base ()[key_index];
+  return tss_base ()[key];
 }
 
 #endif /* ACE_HAS_TSS_EMULATION */
@@ -124,7 +124,7 @@ ACE_OS::thr_equal (ACE_thread_t t1, ACE_thread_t t2)
 ACE_INLINE int
 ACE_OS::condattr_destroy (ACE_condattr_t &attributes)
 {
-#if defined (ACE_HAS_THREADS)
+#if defined (ACE_HAS_THREADS) && !defined (ACE_LACKS_CONDATTR)
 #   if defined (ACE_HAS_PTHREADS)
   pthread_condattr_destroy (&attributes);
 #   else
@@ -145,23 +145,30 @@ ACE_OS::condattr_init (ACE_condattr_t &attributes, int type)
 #   if defined (ACE_HAS_PTHREADS)
   int result = -1;
 
-#   if defined (ACE_PTHREAD_CONDATTR_T_INITIALIZE)
-      /* Tests show that VxWorks 6.x pthread lib does not only
-       * require zeroing of mutex/condition objects to function correctly
-       * but also of the attribute objects.
-       */
-      ACE_OS::memset (&attributes, 0, sizeof (attributes));
-#   endif
+#   if !defined (ACE_LACKS_CONDATTR)
+#     if defined (ACE_PTHREAD_CONDATTR_T_INITIALIZE)
+  /* Tests show that VxWorks 6.x pthread lib does not only
+    * require zeroing of mutex/condition objects to function correctly
+    * but also of the attribute objects.
+    */
+  ACE_OS::memset (&attributes, 0, sizeof (attributes));
+#     endif
   if (
       ACE_ADAPT_RETVAL (pthread_condattr_init (&attributes), result) == 0
-#       if defined (_POSIX_THREAD_PROCESS_SHARED) && !defined (ACE_LACKS_CONDATTR_PSHARED)
+#     if defined (_POSIX_THREAD_PROCESS_SHARED) && !defined (ACE_LACKS_CONDATTR_PSHARED)
       && ACE_ADAPT_RETVAL (pthread_condattr_setpshared (&attributes, type),
                            result) == 0
-#       endif /* _POSIX_THREAD_PROCESS_SHARED && ! ACE_LACKS_CONDATTR_PSHARED */
+#     endif /* _POSIX_THREAD_PROCESS_SHARED && ! ACE_LACKS_CONDATTR_PSHARED */
       )
+#   else
+  if (type == USYNC_THREAD)
+#   endif /* !ACE_LACKS_CONDATTR */
      result = 0;
   else
-     result = -1;       // ACE_ADAPT_RETVAL used it for intermediate status
+    {
+      ACE_UNUSED_ARG (attributes);
+      result = -1;       // ACE_ADAPT_RETVAL used it for intermediate status
+    }
 
   return result;
 #   else
@@ -172,6 +179,36 @@ ACE_OS::condattr_init (ACE_condattr_t &attributes, int type)
 # else
   ACE_UNUSED_ARG (attributes);
   ACE_UNUSED_ARG (type);
+  ACE_NOTSUP_RETURN (-1);
+# endif /* ACE_HAS_THREADS */
+}
+
+ACE_INLINE int
+ACE_OS::condattr_setclock (ACE_condattr_t &attributes, clockid_t clock_id)
+{
+# if defined (ACE_HAS_THREADS)
+#   if defined (ACE_HAS_PTHREADS) && !defined (ACE_LACKS_CONDATTR)
+  int result = -1;
+
+#   if defined (_POSIX_CLOCK_SELECTION) && !defined (ACE_LACKS_CONDATTR_SETCLOCK)
+  ACE_OSCALL_RETURN (ACE_ADAPT_RETVAL (pthread_condattr_setclock (&attributes, clock_id),
+                                       result),
+                     int, -1);
+#   else
+  ACE_UNUSED_ARG (clock_id);
+  ACE_UNUSED_ARG (attributes);
+#   endif /* _POSIX_CLOCK_SELECTION) && !ACE_LACKS_CONDATTR_SETCLOCK */
+
+  return result;
+#   else
+  ACE_UNUSED_ARG (clock_id);
+  ACE_UNUSED_ARG (attributes);
+  ACE_NOTSUP_RETURN (-1);
+#   endif /* ACE_HAS_PTHREADS && !ACE_LACKS_CONDATTR */
+
+# else
+  ACE_UNUSED_ARG (clock_id);
+  ACE_UNUSED_ARG (attributes);
   ACE_NOTSUP_RETURN (-1);
 # endif /* ACE_HAS_THREADS */
 }
@@ -383,7 +420,7 @@ ACE_OS::cond_timedwait (ACE_cond_t *cv,
   int msec_timeout = 0;
   if (timeout != 0)
     {
-      ACE_Time_Value relative_time (*timeout - ACE_OS::gettimeofday ());
+      ACE_Time_Value relative_time = timeout->to_relative_time ();
       // Watchout for situations where a context switch has caused the
       // current time to be > the timeout.
       if (relative_time > ACE_Time_Value::zero)
@@ -2146,7 +2183,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
       {
         result = ACE_OS::sema_trywait (s);
         if (result == -1 && errno == EAGAIN)
-          expired = ACE_OS::gettimeofday () > tv;
+          expired = (tv.to_relative_time () <= ACE_Time_Value::zero);
         else
           expired = false;
 
@@ -2169,7 +2206,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
         error = ETIME;
 
 #     if defined (ACE_LACKS_COND_TIMEDWAIT_RESET)
-      tv = ACE_OS::gettimeofday ();
+      tv = tv.now ();
 #     endif /* ACE_LACKS_COND_TIMEDWAIT_RESET */
     }
 
@@ -2184,13 +2221,10 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
 #   endif /* ACE_HAS_POSIX_SEM_TIMEOUT */
 # elif defined (ACE_USES_FIFO_SEM)
   int rc;
-  ACE_Time_Value now = ACE_OS::gettimeofday ();
+  ACE_Time_Value timeout = tv.to_relative_time ();
 
-  while (tv > now)
+  while (timeout > ACE_Time_Value::zero)
     {
-      ACE_Time_Value timeout = tv;
-      timeout -= now;
-
       ACE_Handle_Set  fds_;
 
       fds_.set_bit (s->fd_[0]);
@@ -2210,7 +2244,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
 
       // we were woken for input but someone beat us to it
       // so we wait again if there is still time
-      now = ACE_OS::gettimeofday ();
+      timeout = tv.to_relative_time ();
     }
 
   // make sure errno is set right
@@ -2253,7 +2287,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
   if (result == 0)
     {
 #     if defined (ACE_LACKS_COND_TIMEDWAIT_RESET)
-      tv = ACE_OS::gettimeofday ();
+      tv = tv.now ();
 #     endif /* ACE_LACKS_COND_TIMEDWAIT_RESET */
       --s->count_;
     }
@@ -2273,7 +2307,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
       // Note that we must convert between absolute time (which is
       // passed as a parameter) and relative time (which is what
       // <WaitForSingleObjects> expects).
-      ACE_Time_Value relative_time (tv - ACE_OS::gettimeofday ());
+      ACE_Time_Value relative_time = tv.to_relative_time ();
 
       // Watchout for situations where a context switch has caused the
       // current time to be > the timeout.
@@ -2286,7 +2320,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
   switch (::WaitForSingleObject (*s, msec_timeout))
     {
     case WAIT_OBJECT_0:
-      tv = ACE_OS::gettimeofday ();     // Update time to when acquired
+      tv = tv.now ();     // Update time to when acquired
       return 0;
     case WAIT_TIMEOUT:
       errno = ETIME;
@@ -2308,10 +2342,9 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
   // as a shortcut for "now", which works on non-Windows because 0 is
   // always earlier than now. However, the need to convert to relative time
   // means we need to watch out for this case.
-  ACE_Time_Value end_time = tv;
-  if (tv == ACE_Time_Value::zero)
-    end_time = ACE_OS::gettimeofday ();
-  ACE_Time_Value relative_time = end_time - ACE_OS::gettimeofday ();
+  ACE_Time_Value relative_time (ACE_Time_Value::zero);
+  if (tv != ACE_Time_Value::zero)
+    relative_time = tv.to_relative_time ();
   int result = -1;
 
   // While we are not timeout yet. >= 0 will let this go through once
@@ -2343,7 +2376,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
           // Only return when we successfully get the semaphore.
           if (result == 0)
             {
-              tv = ACE_OS::gettimeofday ();     // Update to time acquired
+              tv = tv.now ();     // Update to time acquired
               return 0;
             }
           break;
@@ -2362,7 +2395,8 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
 
       // Haven't been able to get the semaphore yet, update the
       // timeout value to reflect the remaining time we want to wait.
-      relative_time = end_time - ACE_OS::gettimeofday ();
+      // in case of tv == 0 relative_time will now be < 0 and we will be out of time
+      relative_time = tv.to_relative_time ();
     }
 
   // We have timed out.
@@ -2373,7 +2407,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
   // Note that we must convert between absolute time (which is
   // passed as a parameter) and relative time (which is what
   // the system call expects).
-  ACE_Time_Value relative_time (tv - ACE_OS::gettimeofday ());
+  ACE_Time_Value relative_time = tv.to_relative_time ();
 
   int ticks_per_sec = ::sysClkRateGet ();
 
@@ -2391,7 +2425,7 @@ ACE_OS::sema_wait (ACE_sema_t *s, ACE_Time_Value &tv)
     }
   else
     {
-      tv = ACE_OS::gettimeofday ();  // Update to time acquired
+      tv = tv.now ();  // Update to time acquired
       return 0;
     }
 #   endif /* ACE_HAS_STHREADS */
@@ -2504,10 +2538,7 @@ ACE_OS::sigwait (sigset_t *sset, int *sig)
       // Cygwin has sigwait definition, but it is not implemented
       ACE_UNUSED_ARG (sset);
       ACE_NOTSUP_RETURN (-1);
-#   elif defined (ACE_TANDEM_T1248_PTHREADS)
-      errno = ::spt_sigwait (sset, sig);
-      return errno == 0  ?  *sig  :  -1;
-#   else   /* this is draft 7 or std */
+#   else   /* this is std */
       errno = ::sigwait (sset, sig);
       return errno == 0  ?  *sig  :  -1;
 #   endif /* CYGWIN32 */
@@ -2988,10 +3019,35 @@ ACE_OS::thr_setcancelstate (int new_state, int *old_state)
 #if defined (ACE_HAS_THREADS)
 # if defined (ACE_HAS_PTHREADS) && !defined (ACE_LACKS_PTHREAD_CANCEL)
   int result;
-  ACE_OSCALL_RETURN (ACE_ADAPT_RETVAL (pthread_setcancelstate (new_state,
-                                                               old_state),
-                                       result),
-                     int, -1);
+  int local_new, local_old;
+  switch (new_state)
+    {
+    case THR_CANCEL_ENABLE:
+      local_new = PTHREAD_CANCEL_ENABLE;
+      break;
+    case THR_CANCEL_DISABLE:
+      local_new = PTHREAD_CANCEL_DISABLE;
+      break;
+    default:
+      errno = EINVAL;
+      return -1;
+    }
+  ACE_OSCALL (ACE_ADAPT_RETVAL (pthread_setcancelstate (local_new,
+                                                        &local_old),
+                                result),
+              int, -1, result);
+  if (result == -1)
+    return -1;
+  switch (local_old)
+    {
+    case PTHREAD_CANCEL_ENABLE:
+      *old_state = THR_CANCEL_ENABLE;
+      break;
+    case PTHREAD_CANCEL_DISABLE:
+      *old_state = THR_CANCEL_DISABLE;
+      break;
+    }
+  return result;
 # elif defined (ACE_HAS_STHREADS)
   ACE_UNUSED_ARG (new_state);
   ACE_UNUSED_ARG (old_state);
@@ -3019,10 +3075,35 @@ ACE_OS::thr_setcanceltype (int new_type, int *old_type)
 #if defined (ACE_HAS_THREADS)
 # if defined (ACE_HAS_PTHREADS) && !defined (ACE_LACKS_PTHREAD_CANCEL)
   int result;
-  ACE_OSCALL_RETURN (ACE_ADAPT_RETVAL (pthread_setcanceltype (new_type,
-                                                              old_type),
-                                       result),
-                     int, -1);
+  int local_new, local_old;
+  switch (new_type)
+    {
+    case THR_CANCEL_DEFERRED:
+      local_new = PTHREAD_CANCEL_DEFERRED;
+      break;
+    case THR_CANCEL_ASYNCHRONOUS:
+      local_new = PTHREAD_CANCEL_ASYNCHRONOUS;
+      break;
+    default:
+      errno = EINVAL;
+      return -1;
+    }
+  ACE_OSCALL (ACE_ADAPT_RETVAL (pthread_setcanceltype (local_new,
+                                                       &local_old),
+                                result),
+              int, -1, result);
+  if (result == -1)
+    return -1;
+  switch (local_old)
+    {
+    case PTHREAD_CANCEL_DEFERRED:
+      *old_type = THR_CANCEL_DEFERRED;
+      break;
+    case PTHREAD_CANCEL_ASYNCHRONOUS:
+      *old_type = THR_CANCEL_ASYNCHRONOUS;
+      break;
+    }
+  return result;
 # else /* Could be ACE_HAS_PTHREADS && ACE_LACKS_PTHREAD_CANCEL */
   ACE_UNUSED_ARG (new_type);
   ACE_UNUSED_ARG (old_type);

@@ -16,6 +16,6 @@ CREATE TABLE `guild_eventlog` (
   PRIMARY KEY (`guildid`, `LogGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'Guild Eventlog';
 
--- The reason i decided for such dramatic change is that old guild_eventlog table didn't have Primary key and 
+-- The reason i decided for such dramatic change is that old guild_eventlog table didn't have Primary key and
 -- used LogGuids from 0 to infinity
 -- New system uses LogGuids from 0 to number defined in config.

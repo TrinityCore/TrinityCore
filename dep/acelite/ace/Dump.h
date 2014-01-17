@@ -4,7 +4,7 @@
 /**
  *  @file    Dump.h
  *
- *  $Id: Dump.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Dump.h 94034 2011-05-09 19:11:03Z johnnyw $
  *
  *
  * A prototype mechanism that allow all ACE objects to be registered
@@ -149,7 +149,7 @@ private:
     /// and we'll have to check for that).
     const ACE_Dumpable_Ptr dumper_;
 
-    Tuple (void) : dumper_(0) {}
+    Tuple (void) : this_ (0), dumper_(0) {}
   };
 
   /// Singleton instance of this class.

@@ -4,7 +4,7 @@
 /**
  *  @file     Arg_Shifter.h
  *
- *  $Id: Arg_Shifter.h 91459 2010-08-25 09:51:01Z mcorino $
+ *  $Id: Arg_Shifter.h 95972 2012-07-26 10:20:42Z johnnyw $
  *
  *  @author Seth Widoff
  */
@@ -211,10 +211,10 @@ private:
 
   /// The index of <argv_> in which we'll stick the next known
   /// argument.
-  int front_;
-  /* This is not really the "front" at all.  It's the point after
+  /** This is not really the "front" at all.  It's the point after
    * which the unknown arguments end and at which the known arguments begin.
    */
+  int front_;
 };
 
 typedef ACE_Arg_Shifter_T<ACE_TCHAR> ACE_Arg_Shifter;

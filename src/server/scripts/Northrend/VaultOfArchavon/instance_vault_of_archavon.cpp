@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "vault_of_archavon.h"
 
 /* Vault of Archavon encounters:
@@ -25,35 +26,32 @@
 4 - Toravon the Ice Watcher event
 */
 
-class instance_archavon : public InstanceMapScript
+class instance_vault_of_archavon : public InstanceMapScript
 {
     public:
-        instance_archavon() : InstanceMapScript("instance_archavon", 624) { }
+        instance_vault_of_archavon() : InstanceMapScript("instance_vault_of_archavon", 624) { }
 
-        struct instance_archavon_InstanceMapScript : public InstanceScript
+        struct instance_vault_of_archavon_InstanceMapScript : public InstanceScript
         {
-            instance_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_vault_of_archavon_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(EncounterCount);
+
+                EmalonGUID      = 0;
+                ToravonGUID     = 0;
+                ArchavonDeath   = 0;
+                EmalonDeath     = 0;
+                KoralonDeath    = 0;
             }
 
-            void Initialize()
-            {
-                EmalonGUID = 0;
-                ToravonGUID = 0;
-                ArchavonDeath = 0;
-                EmalonDeath = 0;
-                KoralonDeath = 0;
-            }
-
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch (creature->GetEntry())
                 {
-                    case CREATURE_EMALON:
+                    case NPC_EMALON:
                         EmalonGUID = creature->GetGUID();
                         break;
-                    case CREATURE_TORAVON:
+                    case NPC_TORAVON:
                         ToravonGUID = creature->GetGUID();
                         break;
                     default:
@@ -61,7 +59,7 @@ class instance_archavon : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetData64(uint32 identifier) const OVERRIDE
             {
                 switch (identifier)
                 {
@@ -76,7 +74,7 @@ class instance_archavon : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -105,7 +103,7 @@ class instance_archavon : public InstanceMapScript
                 return true;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/) OVERRIDE
             {
                 switch (criteria_id)
                 {
@@ -135,13 +133,13 @@ class instance_archavon : public InstanceMapScript
             time_t KoralonDeath;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
-            return new instance_archavon_InstanceMapScript(map);
+            return new instance_vault_of_archavon_InstanceMapScript(map);
         }
 };
 
-void AddSC_instance_archavon()
+void AddSC_instance_vault_of_archavon()
 {
-    new instance_archavon();
+    new instance_vault_of_archavon();
 }

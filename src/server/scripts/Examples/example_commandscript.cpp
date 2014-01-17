@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,7 @@ Comment: Short custom scripting example
 Category: Script Examples
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "Chat.h"
 
 // **** This script is designed as an example for others to build on ****
@@ -43,7 +43,7 @@ class example_commandscript : public CommandScript
             return true;
         }
 
-        ChatCommand* GetCommands() const
+        ChatCommand* GetCommands() const OVERRIDE
         {
             static ChatCommand HelloWorldCommandTable[] =
             {

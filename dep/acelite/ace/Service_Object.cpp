@@ -1,4 +1,4 @@
-// $Id: Service_Object.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Service_Object.cpp 93539 2011-03-13 09:40:44Z vzykov $
 
 #include "ace/config-all.h"
 
@@ -36,9 +36,9 @@ ACE_Service_Type::dump (void) const
   // the generated C++ code.
   ACE_OS::fprintf(stderr,
                   "// [ST] dump, this=%p, name=%s, type=%p, so=%p, active=%d\n",
-                  this,
-                  this->name_,
-                  this->type_,
+                  static_cast<void const *> (this),
+                  ACE_TEXT_ALWAYS_CHAR (this->name_),
+                  static_cast<void const *> (this->type_),
                   (this->type_ != 0) ? this->type_->object () : 0,
                   this->active_);
 

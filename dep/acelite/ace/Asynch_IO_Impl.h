@@ -4,7 +4,7 @@
 /**
  *  @file    Asynch_IO_Impl.h
  *
- *  $Id: Asynch_IO_Impl.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Asynch_IO_Impl.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *
  *  This class contains asbtract base classes for all the concrete
@@ -81,7 +81,7 @@ public:
 
   /**
    * POSIX4 real-time signal number to be used for the
-   * operation. <signal_number> ranges from SIGRTMIN to SIGRTMAX. By
+   * operation. signal_number ranges from SIGRTMIN to SIGRTMAX. By
    * default, SIGRTMIN is used to issue <aio_> calls. This is a no-op
    * on non-POSIX4 systems and returns 0.
    */

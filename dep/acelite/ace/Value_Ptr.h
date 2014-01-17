@@ -4,7 +4,7 @@
 /**
  *  @file Value_Ptr.h
  *
- *  $Id: Value_Ptr.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Value_Ptr.h 92386 2010-10-28 07:44:37Z johnnyw $
  *
  *  Value_Ptr implementation based on code in Herb Sutter's book "More
  *  Exceptional C++".
@@ -103,11 +103,6 @@ namespace ACE
       return *this;
     }
 
-#ifndef ACE_LACKS_MEMBER_TEMPLATES
-
-    // Compiler can't handle member templates so we lose converting
-    // copy operations.
-
     /// Converting copy constructor.
     template <typename U>
     Value_Ptr (Value_Ptr<U> const & other)
@@ -123,11 +118,7 @@ namespace ACE
       return *this;
     }
 
-#endif  /* !ACE_LACKS_MEMBER_TEMPLATES */
-
   private:
-
-#ifndef ACE_LACKS_MEMBER_TEMPLATES
 
     /// Copying method invoked when copy constructing.
     template <typename U>
@@ -136,24 +127,8 @@ namespace ACE
       return p ? VP_traits<U>::clone (p) : 0;
     }
 
-#else
-
-    // Compiler can't handle member templates so we lose converting
-    // copy operations.
-
-    /// Copying method invoked when copy constructing.
-    T * create_from (T const * p) const
-    {
-      return p ? VP_traits<T>::clone (p) : 0;
-    }
-
-#endif  /* !ACE_LACKS_MEMBER_TEMPLATES */
-
   private:
-
-#ifndef ACE_LACKS_MEMBER_TEMPLATES
     template <typename U> friend class Value_Ptr;
-#endif  /* !ACE_LACKS_MEMBER_TEMPLATES */
 
     /// Object owned by this @c Value_Ptr.
     T * p_;

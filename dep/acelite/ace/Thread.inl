@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Thread.inl 91693 2010-09-09 12:57:54Z johnnyw $
+// $Id: Thread.inl 95376 2011-12-20 15:39:02Z shuston $
 
 #include "ace/OS_NS_string.h"
 
@@ -171,7 +171,7 @@ ACE_Thread::disablecancel (struct cancel_state *old_state)
     {
       ACE_OS::memset (old_state,
                       0,
-                      sizeof (old_state));
+                      sizeof (*old_state));
       old_state->cancelstate = old_cstate;
     }
 

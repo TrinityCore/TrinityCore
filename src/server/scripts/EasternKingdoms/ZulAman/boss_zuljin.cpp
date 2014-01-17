@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,89 +22,73 @@ SD%Complete: 85%
 SDComment:
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "zulaman.h"
+#include "SpellInfo.h"
 
-//Speech
-const char* YELL_TRANSFORM_TO_LYNX = "Let me introduce to you my new bruddahs: fang and claw!";
-#define SOUND_TRANSFORM_TO_LYNX 12094
+enum Says
+{
+    YELL_INTRO                    = 0,
+    YELL_AGGRO                    = 1,
+    YELL_TRANSFORM_TO_BEAR        = 2,
+    YELL_TRANSFORM_TO_EAGLE       = 3,
+    YELL_TRANSFORM_TO_LYNX        = 4,
+    YELL_TRANSFORM_TO_DRAGONHAWK  = 5,
+    YELL_FIRE_BREATH              = 6,
+    YELL_BERSERK                  = 7,
+    YELL_KILL                     = 8,
+    YELL_DEATH                    = 9
+};
 
-const char* YELL_TRANSFORM_TO_BEAR = "Got me some new tricks...like me bruddah bear!";
-#define SOUND_TRANSFORM_TO_BEAR 12092
+enum Spells
+{
+    // Troll Form
+    SPELL_WHIRLWIND               = 17207,
+    SPELL_GRIEVOUS_THROW          = 43093, // remove debuff after full healed
+    // Bear Form
+    SPELL_CREEPING_PARALYSIS      = 43095, // should cast on the whole raid
+    SPELL_OVERPOWER               = 43456, // use after melee attack dodged
+    // Eagle Form
+    SPELL_ENERGY_STORM            = 43983, // enemy area aura, trigger 42577
+    SPELL_ZAP_INFORM              = 42577,
+    SPELL_ZAP_DAMAGE              = 43137, // 1250 damage
+    SPELL_SUMMON_CYCLONE          = 43112, // summon four feather vortex
+    CREATURE_FEATHER_VORTEX       = 24136,
+    SPELL_CYCLONE_VISUAL          = 43119, // trigger 43147 visual
+    SPELL_CYCLONE_PASSIVE         = 43120, // trigger 43121 (4y aoe) every second
+    // Lynx Form
+    SPELL_CLAW_RAGE_HASTE         = 42583,
+    SPELL_CLAW_RAGE_TRIGGER       = 43149,
+    SPELL_CLAW_RAGE_DAMAGE        = 43150,
+    SPELL_LYNX_RUSH_HASTE         = 43152,
+    SPELL_LYNX_RUSH_DAMAGE        = 43153,
+    // Dragonhawk Form
+    SPELL_FLAME_WHIRL             = 43213, // trigger two spells
+    SPELL_FLAME_BREATH            = 43215,
+    SPELL_SUMMON_PILLAR           = 43216, // summon 24187
+    CREATURE_COLUMN_OF_FIRE       = 24187,
+    SPELL_PILLAR_TRIGGER          = 43218, // trigger 43217
+    // Cosmetic
+    SPELL_SPIRIT_AURA             = 42466,
+    SPELL_SIPHON_SOUL             = 43501,
+    // Transforms:
+    SPELL_SHAPE_OF_THE_BEAR       = 42594, // 15% dmg
+    SPELL_SHAPE_OF_THE_EAGLE      = 42606,
+    SPELL_SHAPE_OF_THE_LYNX       = 42607, // haste melee 30%
+    SPELL_SHAPE_OF_THE_DRAGONHAWK = 42608,
 
-const char* YELL_TRANSFORM_TO_DRAGONHAWK = "Ya don' have to look to da sky to see da dragonhawk!";
-#define SOUND_TRANSFORM_TO_DRAGONHAWK 12095
+    SPELL_BERSERK                 = 45078
+};
 
-const char* YELL_TRANSFORM_TO_EAGLE = "Dere be no hidin' from da eagle!";
-#define SOUND_TRANSFORM_TO_EAGLE 12093
-
-#define YELL_KILL_ONE "Da Amani de chuka!"
-#define SOUND_KILL_ONE 12098
-
-#define YELL_KILL_TWO "Lot more gonna fall like you!"
-#define SOUND_KILL_TWO 12099
-
-#define YELL_FIRE_BREATH "Fire kill you just as quick!"
-#define SOUND_FIRE_BRETH 12096
-
-#define YELL_AGGRO "Nobody badduh dan me!"
-#define SOUND_AGGRO 12091
-
-#define YELL_BERSERK "You too slow! Me too strong!"
-#define SOUND_BERSERK 12097
-
-#define YELL_DEATH "Mebbe me fall...but da Amani empire...never gonna die..."
-#define SOUND_DEATH 12100
-
-//Still not used, need more info
-#define YELL_INTRO "Everybody always wanna take from us. Now we gonna start takin' back. Anybody who get in our way...gonna drown in their own blood! De Amani empire be back now...seekin' vengeance. And we gonna start...with you!"
-#define SOUND_INTRO 12090
-
-//Spells:
-//====== Troll Form
-#define SPELL_WHIRLWIND             17207
-#define SPELL_GRIEVOUS_THROW        43093   // remove debuff after full healed
-//====== Bear Form
-#define SPELL_CREEPING_PARALYSIS    43095   // should cast on the whole raid
-#define SPELL_OVERPOWER             43456   // use after melee attack dodged
-//====== Eagle Form
-#define SPELL_ENERGY_STORM          43983   // enemy area aura, trigger 42577
-#define SPELL_ZAP_INFORM            42577
-#define SPELL_ZAP_DAMAGE            43137   // 1250 damage
-#define SPELL_SUMMON_CYCLONE        43112   // summon four feather vortex
-#define CREATURE_FEATHER_VORTEX     24136
-#define SPELL_CYCLONE_VISUAL        43119   // trigger 43147 visual
-#define SPELL_CYCLONE_PASSIVE       43120   // trigger 43121 (4y aoe) every second
-//Lynx Form
-#define SPELL_CLAW_RAGE_HASTE       42583
-#define SPELL_CLAW_RAGE_TRIGGER     43149
-#define SPELL_CLAW_RAGE_DAMAGE      43150
-#define SPELL_LYNX_RUSH_HASTE       43152
-#define SPELL_LYNX_RUSH_DAMAGE      43153
-//Dragonhawk Form
-#define SPELL_FLAME_WHIRL           43213   // trigger two spells
-#define SPELL_FLAME_BREATH          43215
-#define SPELL_SUMMON_PILLAR         43216   // summon 24187
-#define CREATURE_COLUMN_OF_FIRE     24187
-#define SPELL_PILLAR_TRIGGER        43218   // trigger 43217
-
-//cosmetic
-#define SPELL_SPIRIT_AURA           42466
-#define SPELL_SIPHON_SOUL           43501
-
-//Transforms:
-#define SPELL_SHAPE_OF_THE_BEAR     42594   // 15% dmg
-#define SPELL_SHAPE_OF_THE_EAGLE    42606
-#define SPELL_SHAPE_OF_THE_LYNX     42607   // haste melee 30%
-#define SPELL_SHAPE_OF_THE_DRAGONHAWK   42608
-
-#define SPELL_BERSERK 45078
-
-#define PHASE_BEAR 0
-#define PHASE_EAGLE 1
-#define PHASE_LYNX 2
-#define PHASE_DRAGONHAWK 3
-#define PHASE_TROLL 4
+enum Phase
+{
+    PHASE_BEAR                    = 0,
+    PHASE_EAGLE                   = 1,
+    PHASE_LYNX                    = 2,
+    PHASE_DRAGONHAWK              = 3,
+    PHASE_TROLL                   = 4
+};
 
 //coords for going for changing form
 #define CENTER_X 120.148811f
@@ -127,17 +111,16 @@ static SpiritInfoStruct SpiritInfo[4] =
 
 struct TransformStruct
 {
-    uint32 sound;
-    std::string text;
+    uint8  text;
     uint32 spell, unaura;
 };
 
 static TransformStruct Transform[4] =
 {
-    {SOUND_TRANSFORM_TO_BEAR, YELL_TRANSFORM_TO_BEAR, SPELL_SHAPE_OF_THE_BEAR, SPELL_WHIRLWIND},
-    {SOUND_TRANSFORM_TO_EAGLE, YELL_TRANSFORM_TO_EAGLE, SPELL_SHAPE_OF_THE_EAGLE, SPELL_SHAPE_OF_THE_BEAR},
-    {SOUND_TRANSFORM_TO_LYNX, YELL_TRANSFORM_TO_LYNX, SPELL_SHAPE_OF_THE_LYNX, SPELL_SHAPE_OF_THE_EAGLE},
-    {SOUND_TRANSFORM_TO_DRAGONHAWK, YELL_TRANSFORM_TO_DRAGONHAWK, SPELL_SHAPE_OF_THE_DRAGONHAWK, SPELL_SHAPE_OF_THE_LYNX}
+    {YELL_TRANSFORM_TO_BEAR, SPELL_SHAPE_OF_THE_BEAR, SPELL_WHIRLWIND},
+    {YELL_TRANSFORM_TO_EAGLE, SPELL_SHAPE_OF_THE_EAGLE, SPELL_SHAPE_OF_THE_BEAR},
+    {YELL_TRANSFORM_TO_LYNX, SPELL_SHAPE_OF_THE_LYNX, SPELL_SHAPE_OF_THE_EAGLE},
+    {YELL_TRANSFORM_TO_DRAGONHAWK, SPELL_SHAPE_OF_THE_DRAGONHAWK, SPELL_SHAPE_OF_THE_LYNX}
 };
 
 class boss_zuljin : public CreatureScript
@@ -184,10 +167,9 @@ class boss_zuljin : public CreatureScript
 
             SummonList Summons;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
+                instance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
 
                 Phase = 0;
 
@@ -221,51 +203,37 @@ class boss_zuljin : public CreatureScript
                 //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
+                instance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
 
                 DoZoneInCombat();
 
-                me->MonsterYell(YELL_INTRO, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_INTRO);
+                Talk(YELL_INTRO);
                 SpawnAdds();
                 EnterPhase(0);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) OVERRIDE
             {
                 if (Intro_Timer)
                     return;
 
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_KILL_ONE);
-                        break;
-                    case 1:
-                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_KILL_TWO);
-                        break;
-                }
+                Talk(YELL_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ZULJINEVENT, DONE);
+                instance->SetData(DATA_ZULJINEVENT, DONE);
 
-                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_DEATH);
+                Talk(YELL_DEATH);
                 Summons.DespawnEntry(CREATURE_COLUMN_OF_FIRE);
 
                 if (Unit* Temp = Unit::GetUnit(*me, SpiritGUID[3]))
                     Temp->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit* who) OVERRIDE
             {
                 if (Phase == 2)
                     AttackStartNoMove(who);
@@ -275,20 +243,20 @@ class boss_zuljin : public CreatureScript
 
             void DoMeleeAttackIfReady()
             {
-                if (!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCast(false))
                 {
-                    if (me->isAttackReady() && me->IsWithinMeleeRange(me->getVictim()))
+                    if (me->isAttackReady() && me->IsWithinMeleeRange(me->GetVictim()))
                     {
                         if (Phase == 1 && !Overpower_Timer)
                         {
-                            uint32 health = me->getVictim()->GetHealth();
-                            me->AttackerStateUpdate(me->getVictim());
-                            if (me->getVictim() && health == me->getVictim()->GetHealth())
+                            uint32 health = me->GetVictim()->GetHealth();
+                            me->AttackerStateUpdate(me->GetVictim());
+                            if (me->GetVictim() && health == me->GetVictim()->GetHealth())
                             {
-                                DoCast(me->getVictim(), SPELL_OVERPOWER, false);
+                                DoCastVictim(SPELL_OVERPOWER, false);
                                 Overpower_Timer = 5000;
                             }
-                        } else me->AttackerStateUpdate(me->getVictim());
+                        } else me->AttackerStateUpdate(me->GetVictim());
                         me->resetAttackTimer();
                     }
                 }
@@ -314,26 +282,24 @@ class boss_zuljin : public CreatureScript
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Unit* Temp = NULL;
                     if (SpiritGUID[i])
                     {
-                        Temp = Unit::GetUnit(*me, SpiritGUID[i]);
-                        if (Temp)
+                        if (Unit* temp = Unit::GetUnit(*me, SpiritGUID[i]))
                         {
-                            Temp->SetVisible(false);
-                            Temp->setDeathState(DEAD);
+                            temp->SetVisible(false);
+                            temp->setDeathState(DEAD);
                         }
                     }
                     SpiritGUID[i] = 0;
                 }
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 Summons.Summon(summon);
             }
 
-            void SummonedCreatureDespawn(Creature* summon)
+            void SummonedCreatureDespawn(Creature* summon) OVERRIDE
             {
                 Summons.Despawn(summon);
             }
@@ -353,8 +319,7 @@ class boss_zuljin : public CreatureScript
                     me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                     me->RemoveAurasDueToSpell(Transform[Phase].unaura);
                     DoCast(me, Transform[Phase].spell);
-                    me->MonsterYell(Transform[Phase].text.c_str(), LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, Transform[Phase].sound);
+                    Talk(Transform[Phase].text);
                     if (Phase > 0)
                     {
                         if (Unit* Temp = Unit::GetUnit(*me, SpiritGUID[Phase - 1]))
@@ -381,12 +346,12 @@ class boss_zuljin : public CreatureScript
                         }
                     }
                     else
-                        me->AI()->AttackStart(me->getVictim());
+                        me->AI()->AttackStart(me->GetVictim());
                     if (NextPhase == 3)
                     {
                         me->RemoveAurasDueToSpell(SPELL_ENERGY_STORM);
                         Summons.DespawnEntry(CREATURE_FEATHER_VORTEX);
-                        me->GetMotionMaster()->MoveChase(me->getVictim());
+                        me->GetMotionMaster()->MoveChase(me->GetVictim());
                     }
                     break;
                 default:
@@ -395,7 +360,7 @@ class boss_zuljin : public CreatureScript
                 Phase = NextPhase;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!TankGUID)
                 {
@@ -409,8 +374,7 @@ class boss_zuljin : public CreatureScript
                 if (Berserk_Timer <= diff)
                 {
                     DoCast(me, SPELL_BERSERK, true);
-                    me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_BERSERK);
+                    Talk(YELL_BERSERK);
                     Berserk_Timer = 60000;
                 } else Berserk_Timer -= diff;
 
@@ -421,8 +385,7 @@ class boss_zuljin : public CreatureScript
                     {
                         if (Intro_Timer <= diff)
                         {
-                            me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
-                            DoPlaySoundToSet(me, SOUND_AGGRO);
+                            Talk(YELL_AGGRO);
                             Intro_Timer = 0;
                         } else Intro_Timer -= diff;
                     }
@@ -465,7 +428,7 @@ class boss_zuljin : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                TankGUID = me->getVictim()->GetGUID();
+                                TankGUID = me->GetVictim()->GetGUID();
                                 me->SetSpeed(MOVE_RUN, 5.0f);
                                 AttackStart(target); // change victim
                                 Claw_Rage_Timer = 0;
@@ -477,7 +440,7 @@ class boss_zuljin : public CreatureScript
                         {
                             if (Claw_Loop_Timer <= diff)
                             {
-                                Unit* target = me->getVictim();
+                                Unit* target = me->GetVictim();
                                 if (!target || !target->isTargetableForAttack()) target = Unit::GetUnit(*me, TankGUID);
                                 if (!target || !target->isTargetableForAttack()) target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                 if (target)
@@ -514,7 +477,7 @@ class boss_zuljin : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                TankGUID = me->getVictim()->GetGUID();
+                                TankGUID = me->GetVictim()->GetGUID();
                                 me->SetSpeed(MOVE_RUN, 5.0f);
                                 AttackStart(target); // change victim
                                 Lynx_Rush_Timer = 0;
@@ -523,7 +486,7 @@ class boss_zuljin : public CreatureScript
                         }
                         else if (!Lynx_Rush_Timer)
                         {
-                            Unit* target = me->getVictim();
+                            Unit* target = me->GetVictim();
                             if (!target || !target->isTargetableForAttack())
                             {
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
@@ -587,52 +550,52 @@ class boss_zuljin : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_zuljinAI(creature);
+            return GetInstanceAI<boss_zuljinAI>(creature);
         }
 };
 
-class mob_zuljin_vortex : public CreatureScript
+class npc_zuljin_vortex : public CreatureScript
 {
     public:
 
-        mob_zuljin_vortex()
-            : CreatureScript("mob_zuljin_vortex")
+        npc_zuljin_vortex()
+            : CreatureScript("npc_zuljin_vortex")
         {
         }
 
-        struct mob_zuljin_vortexAI : public ScriptedAI
+        struct npc_zuljin_vortexAI : public ScriptedAI
         {
-            mob_zuljin_vortexAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_zuljin_vortexAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() {}
+            void Reset() OVERRIDE { }
 
-            void EnterCombat(Unit* /*target*/) {}
+            void EnterCombat(Unit* /*target*/) OVERRIDE { }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell)
+            void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
             {
                 if (spell->Id == SPELL_ZAP_INFORM)
                     DoCast(caster, SPELL_ZAP_DAMAGE, true);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/) OVERRIDE
             {
                 //if the vortex reach the target, it change his target to another player
-                if (me->IsWithinMeleeRange(me->getVictim()))
+                if (me->IsWithinMeleeRange(me->GetVictim()))
                     AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_zuljin_vortexAI(creature);
+            return new npc_zuljin_vortexAI(creature);
         }
 };
 
 void AddSC_boss_zuljin()
 {
     new boss_zuljin();
-    new mob_zuljin_vortex();
+    new npc_zuljin_vortex();
 }
 

@@ -6,7 +6,7 @@
  *
  *  definitions for network database operations
  *
- *  $Id: os_netdb.h 91743 2010-09-13 18:24:51Z johnnyw $
+ *  $Id: os_netdb.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -26,10 +26,6 @@
 
 #include "ace/os_include/netinet/os_in.h"
 #include "ace/os_include/os_limits.h"
-
-#if defined (ACE_VXWORKS) && (ACE_VXWORKS < 0x620)
-#  include /**/ <hostLib.h>
-#endif /* ACE_VXWORKS */
 
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus

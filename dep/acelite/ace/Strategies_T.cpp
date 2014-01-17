@@ -1,4 +1,4 @@
-// $Id: Strategies_T.cpp 89510 2010-03-17 12:21:14Z vzykov $
+// $Id: Strategies_T.cpp 95630 2012-03-22 13:04:47Z johnnyw $
 
 #ifndef ACE_STRATEGIES_T_CPP
 #define ACE_STRATEGIES_T_CPP
@@ -1011,12 +1011,15 @@ ACE_Cached_Connect_Strategy<SVC_HANDLER, ACE_PEER_CONNECTOR_2, MUTEX>::connect_s
         return result;
     }
 
-  // For all successful cases: mark the <svc_handler> in the cache
-  // as being <in_use>.  Therefore recyclable is BUSY.
-  entry->ext_id_.recycle_state (ACE_RECYCLABLE_BUSY);
+  if (entry)
+    {
+      // For all successful cases: mark the <svc_handler> in the cache
+      // as being <in_use>.  Therefore recyclable is BUSY.
+      entry->ext_id_.recycle_state (ACE_RECYCLABLE_BUSY);
 
-  // And increment the refcount
-  entry->ext_id_.increment ();
+      // And increment the refcount
+      entry->ext_id_.increment ();
+    }
 
   return 0;
 }

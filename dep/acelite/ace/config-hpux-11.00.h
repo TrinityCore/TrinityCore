@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-hpux-11.00.h 92102 2010-09-30 08:14:15Z johnnyw $
+// $Id: config-hpux-11.00.h 96096 2012-08-23 12:34:02Z johnnyw $
 
 // The following configuration file is designed to work for HP
 // platforms running HP-UX 11.00 using aC++ or gcc (2.95 and up).
@@ -164,6 +164,9 @@
 #define ACE_HAS_CLOCK_GETTIME
 #define ACE_HAS_CLOCK_SETTIME
 
+#define ACE_LACKS_CLOCK_MONOTONIC
+#define ACE_LACKS_MONOTONIC_TIME
+
 // Prototypes for both signal() and struct sigaction are consistent.
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES
 
@@ -204,13 +207,6 @@
 
 // Compiler/platform supports poll().
 #define ACE_HAS_POLL
-
-/* Platform supports "position-independent" features provided by
-   ACE_Based_Pointer<>. */
-#define ACE_HAS_POSITION_INDEPENDENT_POINTERS 1
-
-/* Platform supports POSIX getpwnam_r() function */
-#define ACE_HAS_POSIX_GETPWNAM_R 1
 
 // Platform supports POSIX O_NONBLOCK semantics.
 #define ACE_HAS_POSIX_NONBLOCK
@@ -319,12 +315,12 @@
 #define ACE_LACKS_SUSECONDS_T
 #define ACE_LACKS_SYS_SYSCTL_H
 
-// @@ TODO: It looks like HP-UX provides strtoll, strtoull, wcstoll and
-//          wcstoull but some more work is needed to plug them in correctly.
-#define ACE_LACKS_STRTOLL
-#define ACE_LACKS_WCSTOLL
-#define ACE_LACKS_STRTOULL
-#define ACE_LACKS_WCSTOULL
+#if !(defined(__STDC_EXT__) || defined(_INCLUDE_LONGLONG) || defined(_INCLUDE_STDC__SOURCE_199901))
+#  define ACE_LACKS_STRTOLL
+#  define ACE_LACKS_WCSTOLL
+#  define ACE_LACKS_STRTOULL
+#  define ACE_LACKS_WCSTOULL
+#endif
 
 #define ACE_LACKS_ISWASCII
 
@@ -425,6 +421,7 @@
 #  define ACE_HAS_RECURSIVE_MUTEXES
 #  define ACE_HAS_THREAD_SPECIFIC_STORAGE
 #  define ACE_LACKS_PTHREAD_ATTR_SETSTACK
+#  define ACE_LACKS_CONDATTR_SETCLOCK
 #endif /* ACE_HAS_THREADS */
 
 #define ACE_HAS_POSIX_SEM

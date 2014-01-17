@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,12 @@ SQLUpdate:
 
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Cell.h"
+#include "CellImpl.h"
 #include "zulaman.h"
 #include "Weather.h"
 
@@ -33,139 +38,97 @@ enum Spells
 {
     SPELL_STATIC_DISRUPTION     = 43622,
     SPELL_STATIC_VISUAL         = 45265,
-    SPELL_CALL_LIGHTNING        = 43661, //Missing timer
+    SPELL_CALL_LIGHTNING        = 43661, // Missing timer
     SPELL_GUST_OF_WIND          = 43621,
     SPELL_ELECTRICAL_STORM      = 43648,
     SPELL_BERSERK               = 45078,
     SPELL_ELECTRICAL_OVERLOAD   = 43658,
-    SPELL_EAGLE_SWOOP           = 44732
+    SPELL_EAGLE_SWOOP           = 44732,
+    SPELL_ZAP                   = 43137,
+    SPELL_SAND_STORM            = 25160
 };
 
-//"Your death gonna be quick, strangers. You shoulda never have come to this place..."
-#define SAY_ONAGGRO "I be da predator! You da prey..."
-#define SAY_ONDEATH "You can't... kill... me spirit!"
-#define SAY_ONSLAY1 "Ya got nothin'!"
-#define SAY_ONSLAY2 "Stop your cryin'!"
-#define SAY_ONSUMMON "Feed, me bruddahs!"
-#define SAY_ONENRAGE "All you be doing is wasting my time!"
-#define SOUND_ONAGGRO 12013
-#define SOUND_ONDEATH 12019
-#define SOUND_ONSLAY1 12017
-#define SOUND_ONSLAY2 12018
-#define SOUND_ONSUMMON 12014
-#define SOUND_ONENRAGE 12016
+enum Says
+{
+    SAY_AGGRO                   = 0,
+    SAY_SUMMON                  = 1,
+    SAY_INTRO                   = 2, // Not used in script
+    SAY_ENRAGE                  = 3,
+    SAY_KILL                    = 4,
+    SAY_DEATH                   = 5
+};
 
-#define MOB_SOARING_EAGLE 24858
-#define SE_LOC_X_MAX 400
-#define SE_LOC_X_MIN 335
-#define SE_LOC_Y_MAX 1435
-#define SE_LOC_Y_MIN 1370
+enum Misc
+{
+    NPC_SOARING_EAGLE           = 24858,
+    SE_LOC_X_MAX                = 400,
+    SE_LOC_X_MIN                = 335,
+    SE_LOC_Y_MAX                = 1435,
+    SE_LOC_Y_MIN                = 1370
+};
+
+enum Events
+{
+    EVENT_STATIC_DISRUPTION     = 1,
+    EVENT_GUST_OF_WIND          = 2,
+    EVENT_CALL_LIGHTNING        = 3,
+    EVENT_ELECTRICAL_STORM      = 4,
+    EVENT_RAIN                  = 5,
+    EVENT_SUMMON_EAGLES         = 6,
+    EVENT_STORM_SEQUENCE        = 7,
+    EVENT_ENRAGE                = 8
+};
 
 class boss_akilzon : public CreatureScript
 {
     public:
+        boss_akilzon() : CreatureScript("boss_akilzon") { }
 
-        boss_akilzon()
-            : CreatureScript("boss_akilzon")
+        struct boss_akilzonAI : public BossAI
         {
-        }
-
-        struct boss_akilzonAI : public ScriptedAI
-        {
-            boss_akilzonAI(Creature* creature) : ScriptedAI(creature)
+            boss_akilzonAI(Creature* creature) : BossAI(creature, DATA_AKILZONEVENT)
             {
-                instance = creature->GetInstanceScript();
+                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
             }
-            InstanceScript* instance;
 
-            uint64 BirdGUIDs[8];
-            uint64 TargetGUID;
-            uint64 CycloneGUID;
-            uint64 CloudGUID;
-
-            uint32 StaticDisruption_Timer;
-            uint32 GustOfWind_Timer;
-            uint32 CallLighting_Timer;
-            uint32 ElectricalStorm_Timer;
-            uint32 SummonEagles_Timer;
-            uint32 Enrage_Timer;
-
-            uint32 StormCount;
-            uint32 StormSequenceTimer;
-
-            bool isRaining;
-
-            void Reset()
+            void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_AKILZONEVENT, NOT_STARTED);
-
-                StaticDisruption_Timer = urand(10000, 20000); //10 to 20 seconds (bosskillers)
-                GustOfWind_Timer = urand(20000, 30000); //20 to 30 seconds(bosskillers)
-                CallLighting_Timer = urand(10000, 20000); //totaly random timer. can't find any info on this
-                ElectricalStorm_Timer = 60000; //60 seconds(bosskillers)
-                Enrage_Timer = 10*MINUTE*IN_MILLISECONDS; //10 minutes till enrage(bosskillers)
-                SummonEagles_Timer = 99999;
+                _Reset();
 
                 TargetGUID = 0;
                 CloudGUID = 0;
                 CycloneGUID = 0;
-                DespawnSummons();
-                for (uint8 i = 0; i < 8; ++i)
-                    BirdGUIDs[i] = 0;
-
+                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
                 StormCount = 0;
-                StormSequenceTimer = 0;
-
                 isRaining = false;
 
                 SetWeather(WEATHER_STATE_FINE, 0.0f);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_ONAGGRO);
+                events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 20000)); // 10 to 20 seconds (bosskillers)
+                events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));      // 20 to 30 seconds(bosskillers)
+                events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(10000, 20000));    // totaly random timer. can't find any info on this
+                events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60000);                // 60 seconds(bosskillers)
+                events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
+                events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);      // 10 minutes till enrage(bosskillers)
+
+                Talk(SAY_AGGRO);
                 //DoZoneInCombat();
-                if (instance)
-                    instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
+                instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_ONDEATH);
-                if (instance)
-                    instance->SetData(DATA_AKILZONEVENT, DONE);
-                DespawnSummons();
+                Talk(SAY_DEATH);
+                _JustDied();
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                        break;
-                    case 1:
-                        me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                        break;
-                }
-            }
-
-            void DespawnSummons()
-            {
-                for (uint8 i = 0; i < 8; ++i)
-                {
-                    Unit* bird = Unit::GetUnit(*me, BirdGUIDs[i]);
-                    if (bird && bird->isAlive())
-                    {
-                        bird->SetVisible(false);
-                        bird->setDeathState(JUST_DIED);
-                    }
-                }
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
             void SetWeather(uint32 weather, float grade)
@@ -205,12 +168,17 @@ class boss_akilzon : public CreatureScript
                         cell.Visit(p, world_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
                         cell.Visit(p, grid_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
                     }
-                    //dealdamege
+
+                    // deal damage
                     for (std::list<Unit*>::const_iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
                     {
-                        if (!Cloud->IsWithinDist(*i, 6, false))
-                            Cloud->CastCustomSpell(*i, 43137, &bp0, NULL, NULL, true, 0, 0, me->GetGUID());
+                        if (Unit* target = (*i))
+                        {
+                            if (Cloud && !Cloud->IsWithinDist(target, 6, false))
+                                Cloud->CastCustomSpell(target, SPELL_ZAP, &bp0, NULL, NULL, true, 0, 0, me->GetGUID());
+                        }
                     }
+
                     // visual
                     float x, y, z;
                     z = me->GetPositionZ();
@@ -225,15 +193,17 @@ class boss_akilzon : public CreatureScript
                             trigger->SetHealth(100000);
                             trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             if (Cloud)
-                                Cloud->CastCustomSpell(trigger, /*43661*/43137, &bp0, NULL, NULL, true, 0, 0, Cloud->GetGUID());
+                                Cloud->CastCustomSpell(trigger, /*43661*/SPELL_ZAP, &bp0, NULL, NULL, true, 0, 0, Cloud->GetGUID());
                         }
                     }
                 }
+
                 ++StormCount;
+
                 if (StormCount > 10)
                 {
                     StormCount = 0; // finish
-                    SummonEagles_Timer = 5000;
+                    events.ScheduleEvent(EVENT_SUMMON_EAGLES, 5000);
                     me->InterruptNonMeleeSpells(false);
                     CloudGUID = 0;
                     if (Cloud)
@@ -241,180 +211,197 @@ class boss_akilzon : public CreatureScript
                     SetWeather(WEATHER_STATE_FINE, 0.0f);
                     isRaining = false;
                 }
-                StormSequenceTimer = 1000;
+                events.ScheduleEvent(EVENT_STORM_SEQUENCE, 1000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
 
-                if (StormCount)
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    Unit* target = Unit::GetUnit(*me, CloudGUID);
-                    if (!target || !target->isAlive())
+                    switch (eventId)
                     {
-                        EnterEvadeMode();
-                        return;
-                    }
-                    else if (Unit* Cyclone = Unit::GetUnit(*me, CycloneGUID))
-                        Cyclone->CastSpell(target, 25160, true); // keep casting or...
-
-                    if (StormSequenceTimer <= diff)
-                        HandleStormSequence(target);
-                    else
-                        StormSequenceTimer -= diff;
-
-                    return;
-                }
-
-                if (Enrage_Timer <= diff)
-                {
-                    me->MonsterYell(SAY_ONENRAGE, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_ONENRAGE);
-                    DoCast(me, SPELL_BERSERK, true);
-                    Enrage_Timer = 600000;
-                } else Enrage_Timer -= diff;
-
-                if (StaticDisruption_Timer <= diff)
-                {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (!target) target = me->getVictim();
-                    TargetGUID = target->GetGUID();
-                    DoCast(target, SPELL_STATIC_DISRUPTION, false);
-                    me->SetInFront(me->getVictim());
-                    StaticDisruption_Timer = (10+rand()%8)*1000; // < 20s
-
-                    /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
-                    SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
-                } else StaticDisruption_Timer -= diff;
-
-                if (GustOfWind_Timer <= diff)
-                {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (!target) target = me->getVictim();
-                    DoCast(target, SPELL_GUST_OF_WIND);
-                    GustOfWind_Timer = urand(20, 30) * 1000; //20 to 30 seconds(bosskillers)
-                } else GustOfWind_Timer -= diff;
-
-                if (CallLighting_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_CALL_LIGHTNING);
-                    CallLighting_Timer = urand(12, 17) * 1000; //totaly random timer. can't find any info on this
-                } else CallLighting_Timer -= diff;
-
-                if (!isRaining && ElectricalStorm_Timer < uint32(8000 + rand() % 5000))
-                {
-                    SetWeather(WEATHER_STATE_HEAVY_RAIN, 0.9999f);
-                    isRaining = true;
-                }
-
-                if (ElectricalStorm_Timer <= diff)
-                {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
-                    if (!target)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                    target->CastSpell(target, 44007, true);//cloud visual
-                    DoCast(target, SPELL_ELECTRICAL_STORM, false);//storm cyclon + visual
-                    float x, y, z;
-                    target->GetPosition(x, y, z);
-                    if (target)
-                    {
-                        target->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
-                        target->MonsterMoveWithSpeed(x, y, me->GetPositionZ()+15, 0);
-                    }
-                    Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
-                    if (Cloud)
-                    {
-                        CloudGUID = Cloud->GetGUID();
-                        Cloud->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
-                        Cloud->StopMoving();
-                        Cloud->SetObjectScale(1.0f);
-                        Cloud->setFaction(35);
-                        Cloud->SetMaxHealth(9999999);
-                        Cloud->SetHealth(9999999);
-                        Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    }
-                    ElectricalStorm_Timer = 60000; //60 seconds(bosskillers)
-                    StormCount = 1;
-                    StormSequenceTimer = 0;
-                } else ElectricalStorm_Timer -= diff;
-
-                if (SummonEagles_Timer <= diff)
-                {
-                    me->MonsterYell(SAY_ONSUMMON, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_ONSUMMON);
-
-                    float x, y, z;
-                    me->GetPosition(x, y, z);
-
-                    for (uint8 i = 0; i < 8; ++i)
-                    {
-                        Unit* bird = Unit::GetUnit(*me, BirdGUIDs[i]);
-                        if (!bird) //they despawned on die
-                        {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        case EVENT_STATIC_DISRUPTION:
                             {
-                                x = target->GetPositionX() + irand(-10, 10);
-                                y = target->GetPositionY() + irand(-10, 10);
-                                z = target->GetPositionZ() + urand(16, 20);
-                                if (z > 95)
-                                    z = 95.0f - urand(0, 5);
-                            }
-                            Creature* creature = me->SummonCreature(MOB_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                            if (creature)
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                            if (!target)
+                                target = me->GetVictim();
+                            if (target)
                             {
-                                creature->AddThreat(me->getVictim(), 1.0f);
-                                creature->AI()->AttackStart(me->getVictim());
-                                BirdGUIDs[i] = creature->GetGUID();
+                                TargetGUID = target->GetGUID();
+                                DoCast(target, SPELL_STATIC_DISRUPTION, false);
+                                me->SetInFront(me->GetVictim());
                             }
-                        }
+                            /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
+                            SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
+                            events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 18000));
+                            break;
+                            }
+                        case EVENT_GUST_OF_WIND:
+                            {
+                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                                if (!target)
+                                    target = me->GetVictim();
+                                if (target)
+                                    DoCast(target, SPELL_GUST_OF_WIND);
+                                events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));
+                                break;
+                            }
+                        case EVENT_CALL_LIGHTNING:
+                            DoCastVictim(SPELL_CALL_LIGHTNING);
+                            events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(12000, 17000)); // totaly random timer. can't find any info on this
+                            break;
+                        case EVENT_ELECTRICAL_STORM:
+                            {
+                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
+                                if (!target)
+                                {
+                                    EnterEvadeMode();
+                                    return;
+                                }
+                                target->CastSpell(target, 44007, true); // cloud visual
+                                DoCast(target, SPELL_ELECTRICAL_STORM, false); // storm cyclon + visual
+                                float x, y, z;
+                                target->GetPosition(x, y, z);
+                                /// @todo: fix it in correct way, that causes player to can fly until logout
+                                /*
+                                if (target)
+                                {
+                                    target->SetDisableGravity(true);
+                                    target->MonsterMoveWithSpeed(x, y, me->GetPositionZ()+15, 0);
+                                }
+                                */
+
+                                Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
+                                if (Cloud)
+                                    {
+                                        CloudGUID = Cloud->GetGUID();
+                                        Cloud->SetDisableGravity(true);
+                                        Cloud->StopMoving();
+                                        Cloud->SetObjectScale(1.0f);
+                                        Cloud->setFaction(35);
+                                        Cloud->SetMaxHealth(9999999);
+                                        Cloud->SetHealth(9999999);
+                                        Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    }
+                                StormCount = 1;
+                                events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 60000); // 60 seconds(bosskillers)
+                                events.ScheduleEvent(EVENT_RAIN, urand(47000, 52000));
+                                break;
+                            }
+                        case EVENT_RAIN:
+                            if (!isRaining)
+                            {
+                                SetWeather(WEATHER_STATE_HEAVY_RAIN, 0.9999f);
+                                isRaining = true;
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_RAIN, 1000);
+                            break;
+                        case EVENT_STORM_SEQUENCE:
+                            {
+                                Unit* target = Unit::GetUnit(*me, CloudGUID);
+                                if (!target || !target->IsAlive())
+                                {
+                                    EnterEvadeMode();
+                                    return;
+                                }
+                                else if (Unit* Cyclone = Unit::GetUnit(*me, CycloneGUID))
+                                    Cyclone->CastSpell(target, SPELL_SAND_STORM, true); // keep casting or...
+                                HandleStormSequence(target);
+                                break;
+                            }
+                        case EVENT_SUMMON_EAGLES:
+                            Talk(SAY_SUMMON);
+
+                            float x, y, z;
+                            me->GetPosition(x, y, z);
+
+                            for (uint8 i = 0; i < 8; ++i)
+                            {
+                                Unit* bird = Unit::GetUnit(*me, BirdGUIDs[i]);
+                                if (!bird) //they despawned on die
+                                {
+                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    {
+                                        x = target->GetPositionX() + irand(-10, 10);
+                                        y = target->GetPositionY() + irand(-10, 10);
+                                        z = target->GetPositionZ() + urand(16, 20);
+                                        if (z > 95)
+                                            z = 95.0f - urand(0, 5);
+                                    }
+                                    Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    if (creature)
+                                    {
+                                        creature->AddThreat(me->GetVictim(), 1.0f);
+                                        creature->AI()->AttackStart(me->GetVictim());
+                                        BirdGUIDs[i] = creature->GetGUID();
+                                    }
+                                }
+                            }
+                            break;
+                        case EVENT_ENRAGE:
+                             Talk(SAY_ENRAGE);
+                             DoCast(me, SPELL_BERSERK, true);
+                            events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                            break;
+                        default:
+                            break;
                     }
-                    SummonEagles_Timer = 999999;
-                } else SummonEagles_Timer -= diff;
+                }
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                uint64 BirdGUIDs[8];
+                uint64 TargetGUID;
+                uint64 CycloneGUID;
+                uint64 CloudGUID;
+                uint8  StormCount;
+                bool   isRaining;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_akilzonAI(creature);
+            return GetInstanceAI<boss_akilzonAI>(creature);
         }
 };
 
-class mob_akilzon_eagle : public CreatureScript
+class npc_akilzon_eagle : public CreatureScript
 {
     public:
-        mob_akilzon_eagle() : CreatureScript("mob_akilzon_eagle") { }
+        npc_akilzon_eagle() : CreatureScript("npc_akilzon_eagle") { }
 
-        struct mob_akilzon_eagleAI : public ScriptedAI
+        struct npc_akilzon_eagleAI : public ScriptedAI
         {
-            mob_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 EagleSwoop_Timer;
             bool arrived;
             uint64 TargetGUID;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 EagleSwoop_Timer = urand(5000, 10000);
                 arrived = true;
                 TargetGUID = 0;
-                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->SetDisableGravity(true);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 DoZoneInCombat();
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-            void MovementInform(uint32, uint32)
+
+            void MovementInform(uint32, uint32) OVERRIDE
             {
                 arrived = true;
                 if (TargetGUID)
@@ -427,7 +414,7 @@ class mob_akilzon_eagle : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (EagleSwoop_Timer <= diff)
                     EagleSwoop_Timer = 0;
@@ -461,15 +448,15 @@ class mob_akilzon_eagle : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_akilzon_eagleAI(creature);
+            return new npc_akilzon_eagleAI(creature);
         }
 };
 
 void AddSC_boss_akilzon()
 {
     new boss_akilzon();
-    new mob_akilzon_eagle();
+    new npc_akilzon_eagle();
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,32 +21,31 @@
 #include "ObjectMgr.h"
 #define UlduarScriptName "instance_ulduar"
 
+extern Position const ObservationRingKeepersPos[4];
+extern Position const YSKeepersPos[4];
 extern Position const AlgalonLandPos;
 
 enum UlduarBosses
 {
-    MAX_ENCOUNTER            = 20,
+    MAX_ENCOUNTER            = 17,
 
     BOSS_LEVIATHAN           = 0,
     BOSS_IGNIS               = 1,
     BOSS_RAZORSCALE          = 2,
     BOSS_XT002               = 3,
     BOSS_ASSEMBLY_OF_IRON    = 4,
-    BOSS_STEELBREAKER        = 5,
-    BOSS_MOLGEIM             = 6,
-    BOSS_BRUNDIR             = 7,
-    BOSS_KOLOGARN            = 8,
-    BOSS_AURIAYA             = 9,
-    BOSS_MIMIRON             = 10,
-    BOSS_HODIR               = 11,
-    BOSS_THORIM              = 12,
-    BOSS_FREYA               = 13,
-    BOSS_BRIGHTLEAF          = 14,
-    BOSS_IRONBRANCH          = 15,
-    BOSS_STONEBARK           = 16,
-    BOSS_VEZAX               = 17,
-    BOSS_YOGGSARON           = 18,
-    BOSS_ALGALON             = 19,
+    BOSS_KOLOGARN            = 5,
+    BOSS_AURIAYA             = 6,
+    BOSS_MIMIRON             = 7,
+    BOSS_HODIR               = 8,
+    BOSS_THORIM              = 9,
+    BOSS_FREYA               = 10,
+    BOSS_BRIGHTLEAF          = 11,
+    BOSS_IRONBRANCH          = 12,
+    BOSS_STONEBARK           = 13,
+    BOSS_VEZAX               = 14,
+    BOSS_YOGG_SARON          = 15,
+    BOSS_ALGALON             = 16,
 };
 
 enum UlduarNPCs
@@ -77,7 +76,7 @@ enum UlduarNPCs
     NPC_THORIM                              = 32865,
     NPC_FREYA                               = 32906,
     NPC_VEZAX                               = 33271,
-    NPC_YOGGSARON                           = 33288,
+    NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
 
     // Mimiron
@@ -118,6 +117,39 @@ enum UlduarNPCs
     NPC_NATURES_BLADE                       = 33527,
     NPC_GUARDIAN_OF_LIFE                    = 33528,
 
+    // Yogg-Saron
+    NPC_SARA                                = 33134,
+    NPC_GUARDIAN_OF_YOGG_SARON              = 33136,
+    NPC_HODIR_OBSERVATION_RING              = 33213,
+    NPC_FREYA_OBSERVATION_RING              = 33241,
+    NPC_THORIM_OBSERVATION_RING             = 33242,
+    NPC_MIMIRON_OBSERVATION_RING            = 33244,
+    NPC_VOICE_OF_YOGG_SARON                 = 33280,
+    NPC_OMINOUS_CLOUD                       = 33292,
+    NPC_FREYA_YS                            = 33410,
+    NPC_HODIR_YS                            = 33411,
+    NPC_MIMIRON_YS                          = 33412,
+    NPC_THORIM_YS                           = 33413,
+    NPC_SUIT_OF_ARMOR                       = 33433,
+    NPC_KING_LLANE                          = 33437,
+    NPC_THE_LICH_KING                       = 33441,
+    NPC_IMMOLATED_CHAMPION                  = 33442,
+    NPC_YSERA                               = 33495,
+    NPC_NELTHARION                          = 33523,
+    NPC_MALYGOS                             = 33535,
+    NPC_DEATH_RAY                           = 33881,
+    NPC_DEATH_ORB                           = 33882,
+    NPC_BRAIN_OF_YOGG_SARON                 = 33890,
+    NPC_INFLUENCE_TENTACLE                  = 33943,
+    NPC_TURNED_CHAMPION                     = 33962,
+    NPC_CRUSHER_TENTACLE                    = 33966,
+    NPC_CONSTRICTOR_TENTACLE                = 33983,
+    NPC_CORRUPTOR_TENTACLE                  = 33985,
+    NPC_IMMORTAL_GUARDIAN                   = 33988,
+    NPC_SANITY_WELL                         = 33991,
+    NPC_DESCEND_INTO_MADNESS                = 34072,
+    NPC_MARKED_IMMORTAL_GUARDIAN            = 36064,
+
     // Algalon the Observer
     NPC_BRANN_BRONZBEARD_ALG                = 34064,
     NPC_AZEROTH                             = 34246,
@@ -134,29 +166,52 @@ enum UlduarNPCs
 
 enum UlduarGameObjects
 {
-    GO_KOLOGARN_CHEST_HERO                  = 195047,
-    GO_KOLOGARN_CHEST                       = 195046,
-    GO_KOLOGARN_BRIDGE                      = 194232,
-    GO_KOLOGARN_DOOR                        = 194553,
-    GO_THORIM_CHEST_HERO                    = 194315,
-    GO_THORIM_CHEST                         = 194314,
-    GO_HODIR_RARE_CACHE_OF_WINTER           = 194200,
-    GO_HODIR_RARE_CACHE_OF_WINTER_HERO      = 194201,
-    GO_HODIR_CHEST_HERO                     = 194308,
-    GO_HODIR_CHEST                          = 194307,
+    // Leviathan
     GO_LEVIATHAN_DOOR                       = 194905,
     GO_LEVIATHAN_GATE                       = 194630,
-    GO_XT_002_DOOR                          = 194631,
-    GO_VEZAX_DOOR                           = 194750,
+
+    // Razorscale
     GO_MOLE_MACHINE                         = 194316,
     GO_RAZOR_HARPOON_1                      = 194542,
     GO_RAZOR_HARPOON_2                      = 194541,
     GO_RAZOR_HARPOON_3                      = 194543,
     GO_RAZOR_HARPOON_4                      = 194519,
     GO_RAZOR_BROKEN_HARPOON                 = 194565,
+
+    // XT-002
+    GO_XT_002_DOOR                          = 194631,
+
+    // Assembly of Iron
+    GO_IRON_COUNCIL_DOOR                    = 194554,
+    GO_ARCHIVUM_DOOR                        = 194556,
+
+    // Kologarn
+    GO_KOLOGARN_CHEST_HERO                  = 195047,
+    GO_KOLOGARN_CHEST                       = 195046,
+    GO_KOLOGARN_BRIDGE                      = 194232,
+    GO_KOLOGARN_DOOR                        = 194553,
+
+    // Hodir
+    GO_HODIR_ENTRANCE                       = 194442,
     GO_HODIR_DOOR                           = 194634,
     GO_HODIR_ICE_DOOR                       = 194441,
-    GO_ARCHIVUM_DOOR                        = 194556,
+    GO_HODIR_RARE_CACHE_OF_WINTER           = 194200,
+    GO_HODIR_RARE_CACHE_OF_WINTER_HERO      = 194201,
+    GO_HODIR_CHEST_HERO                     = 194308,
+    GO_HODIR_CHEST                          = 194307,
+
+    // Thorim
+    GO_THORIM_CHEST_HERO                    = 194315,
+    GO_THORIM_CHEST                         = 194314,
+
+    // Vezax
+    GO_VEZAX_DOOR                           = 194750,
+
+    // Yogg-Saron
+    GO_YOGG_SARON_DOOR                      = 194773,
+    GO_BRAIN_ROOM_DOOR_1                    = 194635,
+    GO_BRAIN_ROOM_DOOR_2                    = 194636,
+    GO_BRAIN_ROOM_DOOR_3                    = 194637,
 
     // Algalon the Observer
     GO_CELESTIAL_PLANETARIUM_ACCESS_10      = 194628,
@@ -172,12 +227,18 @@ enum UlduarGameObjects
     GO_GIFT_OF_THE_OBSERVER_25              = 194822,
 };
 
-enum LeviathanData
+enum EventIds
 {
     EVENT_TOWER_OF_STORM_DESTROYED      = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED      = 21032,
     EVENT_TOWER_OF_FLAMES_DESTROYED     = 21033,
     EVENT_TOWER_OF_LIFE_DESTROYED       = 21030,
+    EVENT_ACTIVATE_SANITY_WELL          = 21432,
+    EVENT_HODIRS_PROTECTIVE_GAZE_PROC   = 21437,
+};
+
+enum LeviathanActions
+{
     ACTION_TOWER_OF_STORM_DESTROYED     = 1,
     ACTION_TOWER_OF_FROST_DESTROYED     = 2,
     ACTION_TOWER_OF_FLAMES_DESTROYED    = 3,
@@ -187,14 +248,30 @@ enum LeviathanData
 
 enum UlduarAchievementCriteriaIds
 {
-    CRITERIA_CON_SPEED_ATORY    = 21597,
-    CRITERIA_DISARMED           = 21687,
-    CRITERIA_HERALD_OF_TITANS   = 10678,
+    CRITERIA_CON_SPEED_ATORY                 = 21597,
+    CRITERIA_DISARMED                        = 21687,
+    CRITERIA_WAITS_DREAMING_STORMWIND_25     = 10321,
+    CRITERIA_WAITS_DREAMING_CHAMBER_25       = 10322,
+    CRITERIA_WAITS_DREAMING_ICECROWN_25      = 10323,
+    CRITERIA_WAITS_DREAMING_STORMWIND_10     = 10324,
+    CRITERIA_WAITS_DREAMING_CHAMBER_10       = 10325,
+    CRITERIA_WAITS_DREAMING_ICECROWN_10      = 10326,
+    CRITERIA_DRIVE_ME_CRAZY_10               = 10185,
+    CRITERIA_DRIVE_ME_CRAZY_25               = 10296,
+    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_10 = 10410,
+    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_25 = 10414,
+    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_10   = 10388,
+    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_25   = 10415,
+    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_10    = 10409,
+    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_25    = 10416,
+    CRITERIA_ALONE_IN_THE_DARKNESS_10        = 10412,
+    CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
+    CRITERIA_HERALD_OF_TITANS                = 10678,
 };
 
 enum UlduarData
 {
-    // Collosus (Leviathan)
+    // Colossus (Leviathan)
     DATA_COLOSSUS                = 20,
 
     // Razorscale
@@ -207,8 +284,25 @@ enum UlduarData
     DATA_TOY_PILE_2,
     DATA_TOY_PILE_3,
 
+    // Assembly of Iron
+    DATA_STEELBREAKER,
+    DATA_MOLGEIM,
+    DATA_BRUNDIR,
+
     // Hodir
     DATA_HODIR_RARE_CACHE,
+
+    // Yogg-Saron
+    DATA_VOICE_OF_YOGG_SARON,
+    DATA_SARA,
+    DATA_BRAIN_OF_YOGG_SARON,
+    DATA_FREYA_YS,
+    DATA_HODIR_YS,
+    DATA_THORIM_YS,
+    DATA_MIMIRON_YS,
+    DATA_ILLUSION,
+    DATA_DRIVE_ME_CRAZY,
+    DATA_KEEPERS_COUNT,
 
     // Algalon the Observer
     DATA_ALGALON_SUMMON_STATE,
@@ -243,26 +337,17 @@ enum UlduarEvents
     ACTION_INIT_ALGALON         = 6,
 };
 
-template<class AI>
-CreatureAI* GetUlduarAI(Creature* creature)
+enum YoggSaronIllusions
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(UlduarScriptName))
-                return new AI(creature);
+    CHAMBER_ILLUSION            = 0,
+    ICECROWN_ILLUSION           = 1,
+    STORMWIND_ILLUSION          = 2,
+};
 
-    return NULL;
-}
-
-template<class AI>
-GameObjectAI* GetUlduarAI(GameObject* go)
+template<class AI, class T>
+AI* GetUlduarAI(T* obj)
 {
-    if (InstanceMap* instance = go->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(UlduarScriptName))
-                return new AI(go);
-
-    return NULL;
+    return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
 
 class PlayerOrPetCheck
@@ -271,7 +356,7 @@ class PlayerOrPetCheck
         bool operator()(WorldObject* object) const
         {
             if (object->GetTypeId() != TYPEID_PLAYER)
-                if (!object->ToCreature()->isPet())
+                if (!object->ToCreature()->IsPet())
                     return true;
 
             return false;

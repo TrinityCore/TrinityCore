@@ -1,19 +1,19 @@
 /*
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
@@ -158,16 +158,16 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
 
     int p = 0;
-    //Select root wmo files
-    const char * rchr = strrchr(plain_name, '_');
-    if(rchr != NULL)
+    // Select root wmo files
+    char const* rchr = strrchr(plain_name, '_');
+    if (rchr != NULL)
     {
         char cpy[4];
-        strncpy((char*)cpy,rchr,4);
-        for (int i=0;i < 4; ++i)
+        memcpy(cpy, rchr, 4);
+        for (int i = 0; i < 4; ++i)
         {
             int m = cpy[i];
-            if(isdigit(m))
+            if (isdigit(m))
                 p++;
         }
     }
@@ -200,7 +200,7 @@ bool ExtractSingleWmo(std::string& fname)
             strcpy(temp, fname.c_str());
             temp[fname.length()-4] = 0;
             char groupFileName[1024];
-            sprintf(groupFileName,"%s_%03d.wmo",temp, i);
+            sprintf(groupFileName, "%s_%03u.wmo", temp, i);
             //printf("Trying to open groupfile %s\n",groupFileName);
 
             string s = groupFileName;
@@ -382,9 +382,9 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
     hasInputPathParam = false;
-    bool preciseVectorData = false;
+    preciseVectorData = false;
 
-    for(int i=1; i< argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
         if(strcmp("-s",argv[i]) == 0)
         {
@@ -447,7 +447,7 @@ int main(int argc, char ** argv)
     const char *versionString = "V4.00 2012_02";
 
     // Use command line arguments, when some
-    if(!processArgv(argc, argv, versionString))
+    if (!processArgv(argc, argv, versionString))
         return 1;
 
     // some simple check if working dir is dirty
@@ -461,16 +461,15 @@ int main(int argc, char ** argv)
             printf("Your output directory seems to be polluted, please use an empty directory!\n");
             printf("<press return to exit>");
             char garbage[2];
-            scanf("%c", garbage);
-            return 1;
+            return scanf("%c", garbage);
         }
     }
 
     printf("Extract %s. Beginning work ....\n",versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
-    if(mkdir(szWorkDirWmo
-#ifdef __linux__
+    if (mkdir(szWorkDirWmo
+#if defined(__linux__) || defined(__APPLE__)
                     , 0711
 #endif
                     ))
@@ -482,11 +481,11 @@ int main(int argc, char ** argv)
     for (size_t i=0; i < archiveNames.size(); ++i)
     {
         MPQArchive *archive = new MPQArchive(archiveNames[i].c_str());
-        if(!gOpenArchives.size() || gOpenArchives.front() != archive)
+        if (gOpenArchives.empty() || gOpenArchives.front() != archive)
             delete archive;
     }
 
-    if(gOpenArchives.empty())
+    if (gOpenArchives.empty())
     {
         printf("FATAL ERROR: None MPQ archive found by path '%s'. Use -d option with proper path.\n",input_path);
         return 1;
@@ -494,15 +493,15 @@ int main(int argc, char ** argv)
     ReadLiquidTypeTableDBC();
 
     // extract data
-    if(success)
+    if (success)
         success = ExtractWmo();
 
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     //map.dbc
-    if(success)
+    if (success)
     {
         DBCFile * dbc = new DBCFile("DBFilesClient\\Map.dbc");
-        if(!dbc->open())
+        if (!dbc->open())
         {
             delete dbc;
             printf("FATAL ERROR: Map.dbc not found in data file.\n");
@@ -510,7 +509,7 @@ int main(int argc, char ** argv)
         }
         map_count=dbc->getRecordCount ();
         map_ids=new map_id[map_count];
-        for(unsigned int x=0;x<map_count;++x)
+        for (unsigned int x=0;x<map_count;++x)
         {
             map_ids[x].id=dbc->getRecord (x).getUInt(0);
             strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
@@ -527,7 +526,7 @@ int main(int argc, char ** argv)
     }
 
     printf("\n");
-    if(!success)
+    if (!success)
     {
         printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n",versionString, preciseVectorData);
         getchar();

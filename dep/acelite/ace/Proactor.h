@@ -4,7 +4,7 @@
 /**
  *  @file    Proactor.h
  *
- *  $Id: Proactor.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Proactor.h 95332 2011-12-15 11:09:41Z mcorino $
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  *  @author Tim Harrison <harrison@cs.wustl.edu>
@@ -43,6 +43,9 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Proactor_Impl;
 class ACE_Proactor_Timer_Handler;
 
+/// Type def for the timer queue.
+typedef ACE_Abstract_Timer_Queue<ACE_Handler *> ACE_Proactor_Timer_Queue;
+
 /**
  * @class ACE_Proactor_Handle_Timeout_Upcall
  *
@@ -51,15 +54,8 @@ class ACE_Proactor_Timer_Handler;
  * This class implements the functor required by the Timer
  * Queue to call <handle_timeout> on ACE_Handlers.
  */
-class ACE_Proactor_Handle_Timeout_Upcall
+class ACE_Export ACE_Proactor_Handle_Timeout_Upcall
 {
-
-  /// Type def for the timer queue.
-  typedef ACE_Timer_Queue_T<ACE_Handler *,
-                            ACE_Proactor_Handle_Timeout_Upcall,
-                            ACE_SYNCH_RECURSIVE_MUTEX>
-  TIMER_QUEUE;
-
   /// The main Proactor class has special permissions.
   friend class ACE_Proactor;
 
@@ -68,12 +64,12 @@ public:
   ACE_Proactor_Handle_Timeout_Upcall (void);
 
   /// This method is called when a timer is registered.
-  int registration (TIMER_QUEUE &timer_queue,
+  int registration (ACE_Proactor_Timer_Queue &timer_queue,
                     ACE_Handler *handler,
                     const void *arg);
 
   /// This method is called before the timer expires.
-  int preinvoke (TIMER_QUEUE &timer_queue,
+  int preinvoke (ACE_Proactor_Timer_Queue &timer_queue,
                  ACE_Handler *handler,
                  const void *arg,
                  int recurring_timer,
@@ -81,14 +77,14 @@ public:
                  const void *&upcall_act);
 
   /// This method is called when the timer expires.
-  int timeout (TIMER_QUEUE &timer_queue,
+  int timeout (ACE_Proactor_Timer_Queue &timer_queue,
                ACE_Handler *handler,
                const void *arg,
                int recurring_timer,
                const ACE_Time_Value &cur_time);
 
   /// This method is called after the timer expires.
-  int postinvoke (TIMER_QUEUE &timer_queue,
+  int postinvoke (ACE_Proactor_Timer_Queue &timer_queue,
                   ACE_Handler *handler,
                   const void *arg,
                   int recurring_timer,
@@ -96,20 +92,20 @@ public:
                   const void *upcall_act);
 
   /// This method is called when a handler is canceled.
-  int cancel_type (TIMER_QUEUE &timer_queue,
+  int cancel_type (ACE_Proactor_Timer_Queue &timer_queue,
                    ACE_Handler *handler,
                    int dont_call_handle_close,
                    int &requires_reference_counting);
 
   /// This method is called when a timer is canceled.
-  int cancel_timer (TIMER_QUEUE &timer_queue,
+  int cancel_timer (ACE_Proactor_Timer_Queue &timer_queue,
                     ACE_Handler *handler,
                     int dont_call_handle_close,
                     int requires_reference_counting);
 
   /// This method is called when the timer queue is destroyed and the
   /// timer is still contained in it.
-  int deletion (TIMER_QUEUE &timer_queue,
+  int deletion (ACE_Proactor_Timer_Queue &timer_queue,
                 ACE_Handler *handler,
                 const void *arg);
 
@@ -135,10 +131,8 @@ class ACE_Export ACE_Proactor
 {
   // = Here are the private typedefs that the ACE_Proactor uses.
 
-  typedef ACE_Timer_Queue_Iterator_T<ACE_Handler *,
-    ACE_Proactor_Handle_Timeout_Upcall,
-    ACE_SYNCH_RECURSIVE_MUTEX>
-  TIMER_QUEUE_ITERATOR;
+  typedef ACE_Timer_Queue_Iterator_T<ACE_Handler *>
+    TIMER_QUEUE_ITERATOR;
   typedef ACE_Timer_List_T<ACE_Handler *,
     ACE_Proactor_Handle_Timeout_Upcall,
     ACE_SYNCH_RECURSIVE_MUTEX>
@@ -171,12 +165,6 @@ class ACE_Export ACE_Proactor
   friend class ACE_Proactor_Timer_Handler;
 
 public:
-  /// Public type.
-  typedef ACE_Timer_Queue_T<ACE_Handler *,
-    ACE_Proactor_Handle_Timeout_Upcall,
-    ACE_SYNCH_RECURSIVE_MUTEX>
-  TIMER_QUEUE;
-
   /**
    * Constructor. If @a implementation is 0, the correct implementation
    * object will be created. @a delete_implementation flag determines
@@ -185,7 +173,7 @@ public:
    */
   ACE_Proactor (ACE_Proactor_Impl *implementation = 0,
                 bool delete_implementation = false,
-                TIMER_QUEUE *tq = 0);
+                ACE_Proactor_Timer_Queue *tq = 0);
 
   /// Destruction.
   ~ACE_Proactor (void);
@@ -323,8 +311,8 @@ public:
                                  const void *act,
                                  const ACE_Time_Value &interval);
 
-  // Same as above except @a interval it is used to reschedule the
-  // @a handler automatically.
+  /// Same as above except @a interval it is used to reschedule the
+  /// @a handler automatically.
 
   /// This combines the above two methods into one. Mostly for backward
   /// compatibility.
@@ -357,7 +345,7 @@ public:
    * @param wait_time the time to wait for an event to occur. This is
    * a relative time. On successful return, the time is updated to
    * reflect the amount of time spent waiting for event(s) to occur.
-   * @return Returns 0 if no events occur before the wait_time expires.
+   * @return Returns 0 if no events occur before the @a wait_time expires.
    * Returns 1 when a completion is dispatched. On error, returns -1
    * and sets errno accordingly.
    */
@@ -383,10 +371,10 @@ public:
   void number_of_threads (size_t threads);
 
   /// Get timer queue.
-  TIMER_QUEUE *timer_queue (void) const;
+  ACE_Proactor_Timer_Queue *timer_queue (void) const;
 
   /// Set timer queue.
-  void timer_queue (TIMER_QUEUE *timer_queue);
+  void timer_queue (ACE_Proactor_Timer_Queue *timer_queue);
 
   /**
    * Get the event handle.
@@ -614,7 +602,7 @@ protected:
   ACE_Thread_Manager thr_mgr_;
 
   /// Timer Queue.
-  TIMER_QUEUE *timer_queue_;
+  ACE_Proactor_Timer_Queue *timer_queue_;
 
   /// Flag on whether to delete the timer queue.
   int delete_timer_queue_;

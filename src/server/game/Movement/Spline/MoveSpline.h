@@ -26,10 +26,10 @@ namespace Movement
 {
     struct Location : public Vector3
     {
-        Location() : orientation(0) {}
-        Location(float x, float y, float z, float o) : Vector3(x,y,z), orientation(o) {}
-        Location(const Vector3& v) : Vector3(v), orientation(0) {}
-        Location(const Vector3& v, float o) : Vector3(v), orientation(o) {}
+        Location() : orientation(0) { }
+        Location(float x, float y, float z, float o) : Vector3(x, y, z), orientation(o) { }
+        Location(const Vector3& v) : Vector3(v), orientation(0) { }
+        Location(const Vector3& v, float o) : Vector3(v), orientation(o) { }
 
         float orientation;
     };
@@ -41,13 +41,15 @@ namespace Movement
     {
     public:
         typedef Spline<int32> MySpline;
-        enum UpdateResult{
+        enum UpdateResult
+        {
             Result_None         = 0x01,
             Result_Arrived      = 0x02,
             Result_NextCycle    = 0x04,
-            Result_NextSegment  = 0x08,
+            Result_NextSegment  = 0x08
         };
         friend class PacketBuilder;
+
     protected:
         MySpline        spline;
 
@@ -68,31 +70,30 @@ namespace Movement
         int32           point_Idx_offset;
 
         void init_spline(const MoveSplineInitArgs& args);
-    protected:
 
-        const MySpline::ControlArray& getPath() const { return spline.getPoints();}
+    protected:
+        MySpline::ControlArray const& getPath() const { return spline.getPoints(); }
         void computeParabolicElevation(float& el) const;
         void computeFallElevation(float& el) const;
 
         UpdateResult _updateState(int32& ms_time_diff);
-        int32 next_timestamp() const { return spline.length(point_Idx+1);}
-        int32 segment_time_elapsed() const { return next_timestamp()-time_passed;}
-        int32 Duration() const { return spline.length();}
-        int32 timeElapsed() const { return Duration() - time_passed;}
-        int32 timePassed() const { return time_passed;}
+        int32 next_timestamp() const { return spline.length(point_Idx + 1); }
+        int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
+        int32 timeElapsed() const { return Duration() - time_passed; }
+        int32 timePassed() const { return time_passed; }
 
     public:
-        const MySpline& _Spline() const { return spline;}
-        int32 _currentSplineIdx() const { return point_Idx;}
+        int32 Duration() const { return spline.length(); }
+        MySpline const& _Spline() const { return spline; }
+        int32 _currentSplineIdx() const { return point_Idx; }
         void _Finalize();
-        void _Interrupt() { splineflags.done = true;}
+        void _Interrupt() { splineflags.done = true; }
 
     public:
-
         void Initialize(const MoveSplineInitArgs&);
-        bool Initialized() const { return !spline.empty();}
+        bool Initialized() const { return !spline.empty(); }
 
-        explicit MoveSpline();
+        MoveSpline();
 
         template<class UpdateHandler>
         void updateState(int32 difftime, UpdateHandler& handler)
@@ -100,25 +101,27 @@ namespace Movement
             ASSERT(Initialized());
             do
                 handler(_updateState(difftime));
-            while(difftime > 0);
+            while (difftime > 0);
         }
 
         void updateState(int32 difftime)
         {
             ASSERT(Initialized());
             do _updateState(difftime);
-            while(difftime > 0);
+            while (difftime > 0);
         }
 
         Location ComputePosition() const;
 
-        uint32 GetId() const { return m_Id;}
+        uint32 GetId() const { return m_Id; }
         bool Finalized() const { return splineflags.done; }
-        bool isCyclic() const { return splineflags.cyclic;}
-        const Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3();}
-        const Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx+1) : Vector3();}
+        bool isCyclic() const { return splineflags.cyclic; }
+        bool isFalling() const { return splineflags.falling; }
+        Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
+        Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
         int32 currentPathIdx() const;
 
+        bool onTransport;
         std::string ToString() const;
     };
 }

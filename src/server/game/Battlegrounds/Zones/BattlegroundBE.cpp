@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundBE.h"
 #include "Language.h"
 #include "Object.h"
@@ -65,11 +64,7 @@ void BattlegroundBE::StartingEventOpenDoors()
 void BattlegroundBE::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundBEScore* sc = new BattlegroundBEScore;
-
-    PlayerScores[player->GetGUID()] = sc;
-
+    PlayerScores[player->GetGUID()] = new BattlegroundScore;
     UpdateArenaWorldState();
 }
 
@@ -89,7 +84,7 @@ void BattlegroundBE::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        sLog->outError("Killer player not found");
+        TC_LOG_ERROR("bg.battleground", "Killer player not found");
         return;
     }
 
@@ -99,36 +94,20 @@ void BattlegroundBE::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundBE::HandlePlayerUnderMap(Player* player)
+void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
 {
-    player->TeleportTo(GetMapId(), 6238.930176f, 262.963470f, 0.889519f, player->GetOrientation(), false);
-    return true;
-}
-
-void BattlegroundBE::HandleAreaTrigger(Player* Source, uint32 Trigger)
-{
-    // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
-    switch (Trigger)
+    switch (trigger)
     {
         case 4538:                                          // buff trigger?
-            //buff_guid = BgObjects[BG_BE_OBJECT_BUFF_1];
-            break;
         case 4539:                                          // buff trigger?
-            //buff_guid = BgObjects[BG_BE_OBJECT_BUFF_2];
             break;
         default:
-            sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, Source);
 }
 
 void BattlegroundBE::FillInitialWorldStates(WorldPacket &data)
@@ -154,7 +133,7 @@ bool BattlegroundBE::SetupBattleground()
         || !AddObject(BG_BE_OBJECT_BUFF_1, BG_BE_OBJECT_TYPE_BUFF_1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
         || !AddObject(BG_BE_OBJECT_BUFF_2, BG_BE_OBJECT_TYPE_BUFF_2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
     {
-        sLog->outErrorDb("BatteGroundBE: Failed to spawn some object!");
+        TC_LOG_ERROR("sql.sql", "BatteGroundBE: Failed to spawn some object!");
         return false;
     }
 
@@ -163,27 +142,10 @@ bool BattlegroundBE::SetupBattleground()
 
 void BattlegroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-
     BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
     //there is nothing special in this score
     Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
-
 }
-
-/*
-21:45:46 id:231310 [S2C] SMSG_INIT_WORLD_STATES (706 = 0x02C2) len: 86
-0000: 32 02 00 00 76 0e 00 00 00 00 00 00 09 00 f3 09  |  2...v...........
-0010: 00 00 01 00 00 00 f1 09 00 00 01 00 00 00 f0 09  |  ................
-0020: 00 00 02 00 00 00 d4 08 00 00 00 00 00 00 d8 08  |  ................
-0030: 00 00 00 00 00 00 d7 08 00 00 00 00 00 00 d6 08  |  ................
-0040: 00 00 00 00 00 00 d5 08 00 00 00 00 00 00 d3 08  |  ................
-0050: 00 00 00 00 00 00                                |  ......
-
-spell 32724 - Gold Team
-spell 32725 - Green Team
-35774 Gold Team
-35775 Green Team
-*/

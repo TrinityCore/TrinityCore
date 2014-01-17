@@ -1,61 +1,22 @@
 /* -*- C++ -*- */
-// $Id: config-openbsd.h 89494 2010-03-15 20:11:18Z olli $
+// $Id: config-openbsd.h 93613 2011-03-22 09:27:38Z olli $
 
 // The following configuration file is designed to work for OpenBSD
-// platforms using GNU g++.
 
 #ifndef ACE_CONFIG_H
-# define ACE_CONFIG_H
+#define ACE_CONFIG_H
 #include /**/ "ace/pre.h"
 
-// Platform specific directives
-// gcc defines __OpenBSD__ automatically for us.
-#include <sys/param.h>
+#if !defined (ACE_MT_SAFE)
+#  define ACE_MT_SAFE 1
+#endif
 
-#if defined (ACE_HAS_THREADS)
-# include /**/ <pthread.h>
-#endif /* ACE_HAS_THREADS */
+// Platform specific directives
+#include <sys/param.h>
 
 #include "ace/config-posix.h"
 
-#if !defined (__ACE_INLINE__)
-# define __ACE_INLINE__
-#endif /* !__ACE_INLINE__ */
-
-#if defined (__GNUG__)
-# include "ace/config-g++-common.h"
-#endif /* __GNUG__ */
-
-
-#if defined (ACE_HAS_THREADS)
-
-# if !defined (_THREAD_SAFE)
-#  define _THREAD_SAFE
-# endif /* _THREAD_SAFE */
-
-// And they're even POSIX pthreads
-# if !defined (ACE_MT_SAFE)
-#  define ACE_MT_SAFE 1
-# endif /* ! ACE_MT_SAFE */
-
-
-// Check if pthreads and native exceptions are being used together.
-// This causes SEGVs to tbe thrown somewhat randomly for some
-// reason.  According to newsgroup postings, it appears to be an
-// OpenBSD or gcc bug.
-# if defined (ACE_USES_NATIVE_EXCEPTIONS)
-#  error "OpenBSD pthreads and native exceptions currently do not work.  See OpenBSD bug #1750"
-# endif /* ACE_USES_NATIVE_EXCEPTIONS */
-
-#else
-// OpenBSD really has readdir_r () in single threaded mode,
-// but the #ifdefs in OS.i select one with the wrong parameter
-// sets if the ACE_HAS_POSIX_STD isn't defined (which is defined
-// when ACE_HAS_THREADS is defined.)
-# define ACE_LACKS_READDIR_R
-
-#endif /* ACE_HAS_THREADS */
-
+#include "ace/config-g++-common.h"
 
 #define ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 #define ACE_HAS_3_PARAM_READDIR_R
@@ -86,11 +47,8 @@
 #define ACE_HAS_NONCONST_SELECT_TIMEVAL
 #define ACE_HAS_NONCONST_SWAB
 #define ACE_HAS_POLL
-#define ACE_HAS_POSITION_INDEPENDENT_POINTERS 1
-#define ACE_HAS_POSIX_GETPWNAM_R
 #define ACE_HAS_POSIX_NONBLOCK
 #define ACE_HAS_POSIX_TIME
-#define ACE_HAS_PTHREADS_STD
 #define ACE_HAS_PTHREADS_UNIX98_EXT
 #define ACE_HAS_PTHREAD_ATTR_SETCREATESUSPEND_NP
 #define ACE_HAS_PTHREAD_GETCONCURRENCY
@@ -137,47 +95,19 @@
 #define ACE_HAS_VOID_UNSETENV
 #define ACE_HAS_WCHAR
 #define ACE_HAS_XPG4_MULTIBYTE_CHAR
+#define ACE_HAS_SYS_SIGINFO_H
 
-#define ACE_LACKS_CONDATTR_PSHARED
 #define ACE_LACKS_GETIPNODEBYADDR
 #define ACE_LACKS_GETIPNODEBYNAME
-#define ACE_LACKS_GETPGID
-#define ACE_LACKS_IOSTREAM_FX
 #define ACE_LACKS_ISCTYPE
-#define ACE_LACKS_ITOW
-#define ACE_LACKS_LINEBUFFERED_STREAMBUF
-#define ACE_LACKS_LOG2
-#define ACE_LACKS_MALLOC_H
-#define ACE_LACKS_MSG_ACCRIGHTS
-#define ACE_LACKS_MUTEXATTR_PSHARED
+#define ACE_LACKS_ISWASCII
 #define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
 #define ACE_LACKS_PERFECT_MULTICAST_FILTERING
-#define ACE_LACKS_PRI_T
-#define ACE_LACKS_PTHREAD_THR_SIGSETMASK
-#define ACE_LACKS_PWD_REENTRANT_FUNCTIONS
-#define ACE_LACKS_RAND_REENTRANT_FUNCTIONS
-#define ACE_LACKS_RLIMIT_PROTOTYPE
-#define ACE_LACKS_RWLOCK_T
-#define ACE_LACKS_SETPGID
-#define ACE_LACKS_SETREGID
-#define ACE_LACKS_SETREUID
 #define ACE_LACKS_SETSCHED
-#define ACE_LACKS_SIGINFO_H
-#define ACE_LACKS_STDINT_H
 #define ACE_LACKS_STROPTS_H
 #define ACE_LACKS_STRRECVFD
-#define ACE_LACKS_TERMIO_H
-#define ACE_LACKS_THREAD_PROCESS_SCOPING
-#define ACE_LACKS_TIMEDWAIT_PROTOTYPES
 #define ACE_LACKS_TIMESPEC_T
 #define ACE_LACKS_UCONTEXT_H
-#define ACE_LACKS_UNBUFFERED_STREAMBUF
-#define ACE_LACKS_U_LONGLONG_T
-#define ACE_LACKS_WCHAR_H
-#define ACE_LACKS_WCSCASECMP
-#define ACE_LACKS_WCSDUP
-#define ACE_LACKS_WCSNCASECMP
-#define ACE_LACKS_WCSNICMP
 
 #define ACE_EXPLICIT_TEMPLATE_DESTRUCTOR_TAKES_ARGS
 #define ACE_PAGE_SIZE 4096
@@ -186,22 +116,25 @@
 
 // OpenBSD 3.6
 #if (OpenBSD < 200411)
-# define ACE_USES_ASM_SYMBOL_IN_DLSYM
+#  define ACE_USES_ASM_SYMBOL_IN_DLSYM
 #endif
 
 // ucontext_t is in OpenBSD 3.5 and later.
 #if (OpenBSD >= 200405)
-# define ACE_HAS_UCONTEXT_T
+#  define ACE_HAS_UCONTEXT_T
 #endif /* OpenBSD >= 200405 */
 
 // Lacks perfect filtering, must bind group address.
 #if !defined ACE_LACKS_PERFECT_MULTICAST_FILTERING
-# define ACE_LACKS_PERFECT_MULTICAST_FILTERING
+#  define ACE_LACKS_PERFECT_MULTICAST_FILTERING
 #endif /* ACE_LACKS_PERFECT_MULTICAST_FILTERING */
 
 // OpenBSD's dlsym call segfaults when passed an invalid handle.
 // It seems as if most other OSs detect this and just report an error.
 #define ACE_HAS_DLSYM_SEGFAULT_ON_INVALID_HANDLE
+
+#define ACE_SSIZE_T_FORMAT_SPECIFIER_ASCII "%ld"
+#define ACE_SIZE_T_FORMAT_SPECIFIER_ASCII "%lu"
 
 #include /**/ "ace/post.h"
 

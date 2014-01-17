@@ -1,6 +1,6 @@
-DELETE FROM `spell_proc_event` WHERE `entry` IN 
+DELETE FROM `spell_proc_event` WHERE `entry` IN
 (27521, 55381, 62459, 60176, 60529, 60717, 62147, 57907, 51528, 51529, 51530, 51531, 51532);
-INSERT INTO `spell_proc_event` 
+INSERT INTO `spell_proc_event`
 (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`)
 VALUES
 -- malestorm weapon

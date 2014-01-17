@@ -1,5 +1,6 @@
-// $Id: Message_Queue_Vx.cpp 91626 2010-09-07 10:59:20Z johnnyw $
+// $Id: Message_Queue_Vx.cpp 95534 2012-02-17 23:19:33Z mitza $
 
+#include "ace/Message_Queue.h"
 #include "ace/Message_Queue_Vx.h"
 #include "ace/Log_Msg.h"
 

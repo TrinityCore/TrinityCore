@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,11 +23,7 @@
 #include "DBCFileLoader.h"
 #include "Errors.h"
 
-DBCFileLoader::DBCFileLoader()
-{
-    data = NULL;
-    fieldsOffset = NULL;
-}
+DBCFileLoader::DBCFileLoader() : recordSize(0), recordCount(0), fieldCount(0), stringSize(0), fieldsOffset(NULL), data(NULL), stringTable(NULL) { }
 
 bool DBCFileLoader::Load(const char* filename, const char* fmt)
 {

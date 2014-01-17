@@ -20,6 +20,7 @@
 #include "G3D/debug.h"
 #include "G3D/Array.h"
 #include "G3D/Plane.h"
+#include "G3D/Sphere.h"
 
 namespace G3D {
 
@@ -259,6 +260,8 @@ public:
     void getBounds(AABox& out) const {
         out = *this;
     }
+
+    void getBounds(Sphere& out) const;
 };
 
 }

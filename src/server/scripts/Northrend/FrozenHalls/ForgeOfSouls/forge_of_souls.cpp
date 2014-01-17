@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "forge_of_souls.h"
+#include "Player.h"
 
 enum Events
 {
@@ -39,24 +42,24 @@ enum Events
 
 enum Yells
 {
-    SAY_JAINA_INTRO_1                           = -1632040,
-    SAY_JAINA_INTRO_2                           = -1632041,
-    SAY_JAINA_INTRO_3                           = -1632042,
-    SAY_JAINA_INTRO_4                           = -1632043,
-    SAY_JAINA_INTRO_5                           = -1632044,
-    SAY_JAINA_INTRO_6                           = -1632045,
-    SAY_JAINA_INTRO_7                           = -1632046,
-    SAY_JAINA_INTRO_8                           = -1632047,
+    SAY_JAINA_INTRO_1                           = 0,
+    SAY_JAINA_INTRO_2                           = 1,
+    SAY_JAINA_INTRO_3                           = 2,
+    SAY_JAINA_INTRO_4                           = 3,
+    SAY_JAINA_INTRO_5                           = 4,
+    SAY_JAINA_INTRO_6                           = 5,
+    SAY_JAINA_INTRO_7                           = 6,
+    SAY_JAINA_INTRO_8                           = 7,
 
-    SAY_SYLVANAS_INTRO_1                        = -1632050,
-    SAY_SYLVANAS_INTRO_2                        = -1632051,
-    SAY_SYLVANAS_INTRO_3                        = -1632052,
-    SAY_SYLVANAS_INTRO_4                        = -1632053,
-    SAY_SYLVANAS_INTRO_5                        = -1632054,
-    SAY_SYLVANAS_INTRO_6                        = -1632055,
+    SAY_SYLVANAS_INTRO_1                        = 0,
+    SAY_SYLVANAS_INTRO_2                        = 1,
+    SAY_SYLVANAS_INTRO_3                        = 2,
+    SAY_SYLVANAS_INTRO_4                        = 3,
+    SAY_SYLVANAS_INTRO_5                        = 4,
+    SAY_SYLVANAS_INTRO_6                        = 5,
 };
 
-enum eSylvanas
+enum Misc
 {
     GOSSIP_SPEECHINTRO                           = 13525,
     ACTION_INTRO,
@@ -86,13 +89,13 @@ public:
         EventMap events;
         Phase phase;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             events.Reset();
             phase = PHASE_NORMAL;
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId) OVERRIDE
         {
             switch (actionId)
             {
@@ -106,43 +109,40 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (phase == PHASE_INTRO)
             {
-                if (!instance)
-                    return;
-
                 events.Update(diff);
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_INTRO_1:
-                        DoScriptText(SAY_SYLVANAS_INTRO_1, me);
+                        Talk(SAY_SYLVANAS_INTRO_1);
                         events.ScheduleEvent(EVENT_INTRO_2, 11500);
                         break;
 
                     case EVENT_INTRO_2:
-                        DoScriptText(SAY_SYLVANAS_INTRO_2, me);
+                        Talk(SAY_SYLVANAS_INTRO_2);
                         events.ScheduleEvent(EVENT_INTRO_3, 10500);
                         break;
 
                     case EVENT_INTRO_3:
-                        DoScriptText(SAY_SYLVANAS_INTRO_3, me);
+                        Talk(SAY_SYLVANAS_INTRO_3);
                         events.ScheduleEvent(EVENT_INTRO_4, 9500);
                         break;
 
                     case EVENT_INTRO_4:
-                        DoScriptText(SAY_SYLVANAS_INTRO_4, me);
+                        Talk(SAY_SYLVANAS_INTRO_4);
                         events.ScheduleEvent(EVENT_INTRO_5, 10500);
                         break;
 
                     case EVENT_INTRO_5:
-                        DoScriptText(SAY_SYLVANAS_INTRO_5, me);
+                        Talk(SAY_SYLVANAS_INTRO_5);
                         events.ScheduleEvent(EVENT_INTRO_6, 9500);
                         break;
 
                     case EVENT_INTRO_6:
-                        DoScriptText(SAY_SYLVANAS_INTRO_6, me);
+                        Talk(SAY_SYLVANAS_INTRO_6);
                         // End of Intro
                         phase = PHASE_NORMAL;
                         break;
@@ -158,9 +158,9 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (creature->GetEntry() == NPC_JAINA_PART1)
@@ -172,7 +172,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -188,9 +188,9 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_sylvanas_fosAI(creature);
+        return GetInstanceAI<npc_sylvanas_fosAI>(creature);
     }
 };
 
@@ -212,13 +212,13 @@ public:
         EventMap events;
         Phase phase;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             events.Reset();
             phase = PHASE_NORMAL;
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId) OVERRIDE
         {
             switch (actionId)
             {
@@ -232,53 +232,50 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (phase == PHASE_INTRO)
             {
-                if (!instance)
-                    return;
-
                 events.Update(diff);
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_INTRO_1:
-                        DoScriptText(SAY_JAINA_INTRO_1, me);
+                        Talk(SAY_JAINA_INTRO_1);
                         events.ScheduleEvent(EVENT_INTRO_2, 8000);
                         break;
 
                     case EVENT_INTRO_2:
-                        DoScriptText(SAY_JAINA_INTRO_2, me);
+                        Talk(SAY_JAINA_INTRO_2);
                         events.ScheduleEvent(EVENT_INTRO_3, 8500);
                         break;
 
                     case EVENT_INTRO_3:
-                        DoScriptText(SAY_JAINA_INTRO_3, me);
+                        Talk(SAY_JAINA_INTRO_3);
                         events.ScheduleEvent(EVENT_INTRO_4, 8000);
                         break;
 
                     case EVENT_INTRO_4:
-                        DoScriptText(SAY_JAINA_INTRO_4, me);
+                        Talk(SAY_JAINA_INTRO_4);
                         events.ScheduleEvent(EVENT_INTRO_5, 10000);
                         break;
 
                     case EVENT_INTRO_5:
-                        DoScriptText(SAY_JAINA_INTRO_5, me);
+                        Talk(SAY_JAINA_INTRO_5);
                         events.ScheduleEvent(EVENT_INTRO_6, 8000);
                         break;
 
                     case EVENT_INTRO_6:
-                        DoScriptText(SAY_JAINA_INTRO_6, me);
+                        Talk(SAY_JAINA_INTRO_6);
                         events.ScheduleEvent(EVENT_INTRO_7, 12000);
                         break;
 
                     case EVENT_INTRO_7:
-                        DoScriptText(SAY_JAINA_INTRO_7, me);
+                        Talk(SAY_JAINA_INTRO_7);
                         events.ScheduleEvent(EVENT_INTRO_8, 8000);
                         break;
 
                     case EVENT_INTRO_8:
-                        DoScriptText(SAY_JAINA_INTRO_8, me);
+                        Talk(SAY_JAINA_INTRO_8);
                         // End of Intro
                         phase = PHASE_NORMAL;
                         break;
@@ -295,9 +292,9 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (creature->GetEntry() == NPC_JAINA_PART1)
@@ -309,7 +306,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -325,9 +322,9 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_jaina_fosAI(creature);
+        return GetInstanceAI<npc_jaina_fosAI>(creature);
     }
 };
 

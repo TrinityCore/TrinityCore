@@ -1,11 +1,9 @@
-// $Id: IOStream.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: IOStream.cpp 93359 2011-02-11 11:33:12Z mcorino $
 
 #ifndef ACE_IOSTREAM_CPP
 #define ACE_IOSTREAM_CPP
 
 #include "ace/IOStream.h"
-
-
 
 #if !defined (ACE_LACKS_ACE_IOSTREAM)
 

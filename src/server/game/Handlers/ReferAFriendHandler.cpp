@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,12 +21,12 @@
 #include "Opcodes.h"
 #include "Log.h"
 
-void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
+void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GRANT_LEVEL");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_GRANT_LEVEL");
 
     uint64 guid;
-    recv_data.readPackGUID(guid);
+    recvData.readPackGUID(guid);
 
     Player* target = ObjectAccessor::GetObjectInWorld(guid, _player);
 
@@ -63,12 +63,12 @@ void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
     target->GetSession()->SendPacket(&data2);
 }
 
-void WorldSession::HandleAcceptGrantLevel(WorldPacket& recv_data)
+void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
 
     uint64 guid;
-    recv_data.readPackGUID(guid);
+    recvData.readPackGUID(guid);
 
     Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
     if (!(other && other->GetSession()))

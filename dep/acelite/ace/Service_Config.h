@@ -4,7 +4,7 @@
 /**
  *  @file    Service_Config.h
  *
- *  $Id: Service_Config.h 89501 2010-03-17 08:59:56Z vzykov $
+ *  $Id: Service_Config.h 94385 2011-08-10 12:19:36Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -159,8 +159,8 @@ template<>
 class ACE_Export ACE_Threading_Helper<ACE_Thread_Mutex>
 {
 public:
-  ACE_Threading_Helper ();
-  ~ACE_Threading_Helper ();
+  ACE_Threading_Helper (void);
+  ~ACE_Threading_Helper (void);
 
   void set (void*);
   void* get (void);
@@ -178,8 +178,8 @@ template<>
 class ACE_Export ACE_Threading_Helper<ACE_Null_Mutex>
 {
 public:
-  ACE_Threading_Helper ();
-  ~ACE_Threading_Helper ();
+  ACE_Threading_Helper (void);
+  ~ACE_Threading_Helper (void);
 
   void set (void*);
   void* get (void);

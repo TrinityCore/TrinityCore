@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "ScriptMgr.h"
+#include "Opcodes.h"
 
 /// Create the Weather object
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)
@@ -37,7 +38,7 @@ Weather::Weather(uint32 zone, WeatherData const* weatherChances)
     m_type = WEATHER_TYPE_FINE;
     m_grade = 0;
 
-    sLog->outDetail("WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
+    TC_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
@@ -92,12 +93,13 @@ bool Weather::ReGenerate()
     //78 days between January 1st and March 20nd; 365/4=91 days by season
     // season source http://aa.usno.navy.mil/data/docs/EarthSeasons.html
     time_t gtime = sWorld->GetGameTime();
-    struct tm * ltime = localtime(&gtime);
-    uint32 season = ((ltime->tm_yday - 78 + 365)/91)%4;
+    struct tm ltime;
+    ACE_OS::localtime_r(&gtime, &ltime);
+    uint32 season = ((ltime.tm_yday - 78 + 365)/91)%4;
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
-    sLog->outDetail("Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
+    TC_LOG_INFO("misc", "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
 
     if ((u < 60) && (m_grade < 0.33333334f))                // Get fair
     {
@@ -220,6 +222,9 @@ bool Weather::UpdateWeather()
     char const* wthstr;
     switch (state)
     {
+        case WEATHER_STATE_FOG:
+            wthstr = "fog";
+            break;
         case WEATHER_STATE_LIGHT_RAIN:
             wthstr = "light rain";
             break;
@@ -258,7 +263,7 @@ bool Weather::UpdateWeather()
             wthstr = "fine";
             break;
     }
-    sLog->outDetail("Change the weather of zone %u to %s.", m_zone, wthstr);
+    TC_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
 
     sScriptMgr->OnWeatherChange(this, state, m_grade);
     return true;

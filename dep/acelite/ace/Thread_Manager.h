@@ -4,7 +4,7 @@
 /**
  *  @file    Thread_Manager.h
  *
- *  $Id: Thread_Manager.h 83956 2008-12-03 07:57:38Z johnnyw $
+ *  $Id: Thread_Manager.h 96061 2012-08-16 09:36:07Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -174,7 +174,7 @@ class ACE_Export ACE_Thread_Descriptor_Base : public ACE_OS_Thread_Descriptor
   friend class ACE_Double_Linked_List_Iterator<ACE_Thread_Descriptor>;
 public:
   ACE_Thread_Descriptor_Base (void);
-  ~ACE_Thread_Descriptor_Base (void);
+  virtual ~ACE_Thread_Descriptor_Base (void);
 
   // = We need the following operators to make Borland happy.
 
@@ -434,6 +434,11 @@ public:
    * @sa ACE_Free_List
    */
   ACE_Thread_Manager (size_t preaolloc = ACE_DEFAULT_THREAD_MANAGER_PREALLOC,
+                      size_t lwm = ACE_DEFAULT_THREAD_MANAGER_LWM,
+                      size_t inc = ACE_DEFAULT_THREAD_MANAGER_INC,
+                      size_t hwm = ACE_DEFAULT_THREAD_MANAGER_HWM);
+  ACE_Thread_Manager (const ACE_Condition_Attributes &attributes,
+                      size_t preaolloc = ACE_DEFAULT_THREAD_MANAGER_PREALLOC,
                       size_t lwm = ACE_DEFAULT_THREAD_MANAGER_LWM,
                       size_t inc = ACE_DEFAULT_THREAD_MANAGER_INC,
                       size_t hwm = ACE_DEFAULT_THREAD_MANAGER_HWM);

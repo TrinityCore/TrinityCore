@@ -1,4 +1,4 @@
-// $Id: ARGV.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: ARGV.cpp 95630 2012-03-22 13:04:47Z johnnyw $
 
 #ifndef ACE_ARGV_CPP
 #define ACE_ARGV_CPP
@@ -167,6 +167,7 @@ ACE_ARGV_T<CHAR_TYPE>::ACE_ARGV_T (CHAR_TYPE *first_argv[],
 
   CHAR_TYPE *first_buf = 0;
   CHAR_TYPE *second_buf = 0;
+  size_t buf_len = 1;
 
   // convert the first argv to a string
   if (first_argv != 0 && first_argv[0] != 0)
@@ -175,6 +176,7 @@ ACE_ARGV_T<CHAR_TYPE>::ACE_ARGV_T (CHAR_TYPE *first_argv[],
                                            first_buf,
                                            substitute_env_args,
                                            quote_args);
+      buf_len += ACE_OS::strlen (first_buf);
     }
 
   // convert the second argv to a string
@@ -184,13 +186,11 @@ ACE_ARGV_T<CHAR_TYPE>::ACE_ARGV_T (CHAR_TYPE *first_argv[],
                                             second_buf,
                                             substitute_env_args,
                                             quote_args);
+      buf_len += ACE_OS::strlen (second_buf);
     }
 
   // Add the number of arguments in both the argvs.
   this->argc_ = first_argc + second_argc;
-
-  size_t buf_len =
-    ACE_OS::strlen (first_buf) + ACE_OS::strlen (second_buf) + 1;
 
   // Allocate memory to the lenght of the combined argv string.
   ACE_NEW (this->buf_,

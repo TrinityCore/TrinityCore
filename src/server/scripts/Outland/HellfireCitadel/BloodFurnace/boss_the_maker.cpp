@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,98 +23,74 @@ SDComment: Mind control no support
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "blood_furnace.h"
 
-enum eEnums
+enum Yells
 {
-    SAY_AGGRO_1                 = -1542009,
-    SAY_AGGRO_2                 = -1542010,
-    SAY_AGGRO_3                 = -1542011,
-    SAY_KILL_1                  = -1542012,
-    SAY_KILL_2                  = -1542013,
-    SAY_DIE                     = -1542014,
+    SAY_AGGRO                   = 0,
+    SAY_KILL                    = 1,
+    SAY_DIE                     = 2
+};
 
-    SPELL_ACID_SPRAY            = 38153,                    // heroic 38973 ??? 38153
+enum Spells
+{
+    SPELL_ACID_SPRAY            = 38153,
     SPELL_EXPLODING_BREAKER     = 30925,
     SPELL_KNOCKDOWN             = 20276,
-    SPELL_DOMINATION            = 25772                     // ???
+    SPELL_DOMINATION            = 25772
 };
 
 class boss_the_maker : public CreatureScript
 {
     public:
+        boss_the_maker() : CreatureScript("boss_the_maker") { }
 
-        boss_the_maker()
-            : CreatureScript("boss_the_maker")
+        struct boss_the_makerAI : public BossAI
         {
-        }
-
-        struct boss_the_makerAI : public ScriptedAI
-        {
-            boss_the_makerAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
+            boss_the_makerAI(Creature* creature) : BossAI(creature, DATA_THE_MAKER) { }
 
             uint32 AcidSpray_Timer;
             uint32 ExplodingBreaker_Timer;
             uint32 Domination_Timer;
             uint32 Knockdown_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
+                _Reset();
                 AcidSpray_Timer = 15000;
                 ExplodingBreaker_Timer = 6000;
                 Domination_Timer = 120000;
                 Knockdown_Timer = 10000;
-
-                if (!instance)
-                    return;
-
-                instance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
-
-                if (!instance)
-                    return;
-
-                instance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), false);
+                _EnterCombat();
+                Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                DoScriptText(SAY_DIE, me);
+                _JustDied();
+                Talk(SAY_DIE);
+            }
 
-                if (!instance)
-                    return;
-
-                instance->SetData(TYPE_THE_MAKER_EVENT, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR3), true);
-
-             }
-
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
 
                 if (AcidSpray_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ACID_SPRAY);
+                    DoCastVictim(SPELL_ACID_SPRAY);
                     AcidSpray_Timer = 15000+rand()%8000;
                 }
                 else
@@ -143,7 +119,7 @@ class boss_the_maker : public CreatureScript
 
                 if (Knockdown_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                    DoCastVictim(SPELL_KNOCKDOWN);
                     Knockdown_Timer = 4000+rand()%8000;
                 }
                 else
@@ -153,9 +129,9 @@ class boss_the_maker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_the_makerAI(creature);
+            return GetBloodFurnaceAI<boss_the_makerAI>(creature);
         }
 };
 

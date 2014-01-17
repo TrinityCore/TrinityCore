@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,44 +24,45 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 /* ContentData
-mob_crystalcore_devastator
+npc_crystalcore_devastator
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "the_eye.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_COUNTERCHARGE    = 35035,
     SPELL_KNOCKAWAY        = 22893,
 };
 
-class mob_crystalcore_devastator : public CreatureScript
+class npc_crystalcore_devastator : public CreatureScript
 {
     public:
 
-        mob_crystalcore_devastator()
-            : CreatureScript("mob_crystalcore_devastator")
+        npc_crystalcore_devastator()
+            : CreatureScript("npc_crystalcore_devastator")
         {
         }
-        struct mob_crystalcore_devastatorAI : public ScriptedAI
+        struct npc_crystalcore_devastatorAI : public ScriptedAI
         {
-            mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Knockaway_Timer;
             uint32 Countercharge_Timer;
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 Countercharge_Timer = 9000;
                 Knockaway_Timer = 25000;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -70,12 +71,12 @@ class mob_crystalcore_devastator : public CreatureScript
                 //Knockaway_Timer
                 if (Knockaway_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
+                    DoCastVictim(SPELL_KNOCKAWAY, true);
 
                     // current aggro target is knocked away pick new target
                     Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
 
-                    if (!target || target == me->getVictim())
+                    if (!target || target == me->GetVictim())
                         target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target)
@@ -99,13 +100,13 @@ class mob_crystalcore_devastator : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new mob_crystalcore_devastatorAI(creature);
+            return new npc_crystalcore_devastatorAI(creature);
         }
 };
 void AddSC_the_eye()
 {
-    new mob_crystalcore_devastator();
+    new npc_crystalcore_devastator();
 }
 

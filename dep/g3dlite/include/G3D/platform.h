@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2003-06-09
- @edited  2010-01-11
+ @edited  2010-08-11
  */
 
 #ifndef G3D_platform_h
@@ -16,7 +16,7 @@
  The version number of G3D in the form: MmmBB -> 
  version M.mm [beta BB]
  */
-#define G3D_VER 80000
+#define G3D_VER 80100
 
 // fatal error for unsupported architectures
 #if defined(__powerpc__)
@@ -51,13 +51,20 @@
 
 #ifdef _MSC_VER 
     #define G3D_WIN32
+#elif defined(__MINGW32__)
+    #define G3D_WIN32
+    #undef __MSVCRT_VERSION__
+    #define __MSVCRT_VERSION__ 0x0601
+    #include <windows.h>
 #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
     #define G3D_FREEBSD
     #define G3D_LINUX
 #elif defined(__linux__)
     #define G3D_LINUX
+#elif defined(__CYGWIN__)
+    #define G3D_LINUX
 #elif defined(__APPLE__)
-    #define G3D_OSX
+    #define G3D_LINUX
 
    // Prevent OS X fp.h header from being included; it defines
    // pi as a constant, which creates a conflict with G3D

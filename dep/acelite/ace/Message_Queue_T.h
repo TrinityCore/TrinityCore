@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue_T.h
  *
- *  $Id: Message_Queue_T.h 91626 2010-09-07 10:59:20Z johnnyw $
+ *  $Id: Message_Queue_T.h 96070 2012-08-17 09:07:16Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -19,6 +19,11 @@
 #include "ace/Dynamic_Message_Strategy.h"
 #include "ace/Synch_Traits.h"
 #include "ace/Guard_T.h"
+#include "ace/Time_Policy.h"
+#include "ace/Time_Value_T.h"
+#if defined (ACE_HAS_THREADS)
+# include "ace/Condition_Attributes.h"
+#endif
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -47,11 +52,11 @@ namespace ACE
 /**
  * @class ACE_Message_Queue
  *
- * @brief A message queueing facility with parameterized synchronization
+ * @brief A message queuing facility with parameterized synchronization
  * capability. ACE_Message_Queue is modeled after the queueing facilities
  * in System V STREAMs.
  *
- * ACE_Message_Queue is the primary queueing facility for
+ * ACE_Message_Queue is the primary queuing facility for
  * messages in the ACE framework.  It's one template argument parameterizes
  * the queue's synchronization. The argument specifies a synchronization
  * strategy. The two main strategies available for ACE_SYNCH_DECL are:
@@ -61,17 +66,17 @@ namespace ACE
  * All data passing through ACE_Message_Queue is in the form of
  * ACE_Message_Block objects. @sa ACE_Message_Block.
  */
-template <ACE_SYNCH_DECL>
+template <ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Message_Queue : public ACE_Message_Queue_Base
 {
 public:
-  friend class ACE_Message_Queue_Iterator<ACE_SYNCH_USE>;
-  friend class ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE>;
+  friend class ACE_Message_Queue_Iterator<ACE_SYNCH_USE, TIME_POLICY>;
+  friend class ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE, TIME_POLICY>;
 
   // = Traits
-  typedef ACE_Message_Queue_Iterator<ACE_SYNCH_USE>
+  typedef ACE_Message_Queue_Iterator<ACE_SYNCH_USE, TIME_POLICY>
           ITERATOR;
-  typedef ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE>
+  typedef ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE, TIME_POLICY>
           REVERSE_ITERATOR;
 
   /**
@@ -482,6 +487,14 @@ public:
   /// Returns a reference to the lock used by the ACE_Message_Queue.
   virtual ACE_SYNCH_MUTEX_T &lock (void);
 
+  /// Get the current time of day according to the queue's TIME_POLICY.
+  /// Allows users to initialize timeout values using correct time policy.
+  ACE_Time_Value_T<TIME_POLICY> gettimeofday (void) const;
+
+  /// Allows applications to control how the timer queue gets the time
+  /// of day.
+  void set_time_policy (TIME_POLICY const & time_policy);
+
   /// Dump the state of an object.
   virtual void dump (void) const;
 
@@ -596,11 +609,22 @@ protected:
   /// Protect queue from concurrent access.
   ACE_SYNCH_MUTEX_T lock_;
 
+#if defined (ACE_HAS_THREADS)
+  /// Attributes to initialize conditions with.
+  /* We only need this because some crappy compilers can't
+     properly handle initializing the conditions with
+     temporary objects. */
+  ACE_Condition_Attributes_T<TIME_POLICY> cond_attr_;
+#endif
+
   /// Used to make threads sleep until the queue is no longer empty.
   ACE_SYNCH_CONDITION_T not_empty_cond_;
 
   /// Used to make threads sleep until the queue is no longer full.
   ACE_SYNCH_CONDITION_T not_full_cond_;
+
+  /// The policy to return the current time of day
+  TIME_POLICY time_policy_;
 
   /// Sends the size of the queue whenever it changes.
 #if defined (ACE_HAS_MONITOR_POINTS) && (ACE_HAS_MONITOR_POINTS == 1)
@@ -623,12 +647,12 @@ typedef ACE_Message_Queue<ACE_SYNCH> ACE_DEFAULT_MESSAGE_QUEUE_TYPE;
  *
  * @brief Iterator for the ACE_Message_Queue.
  */
-template <ACE_SYNCH_DECL>
+template <ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Message_Queue_Iterator
 {
 public:
   // = Initialization method.
-  ACE_Message_Queue_Iterator (ACE_Message_Queue <ACE_SYNCH_USE> &queue);
+  ACE_Message_Queue_Iterator (ACE_Message_Queue <ACE_SYNCH_USE, TIME_POLICY> &queue);
 
   // = Iteration methods.
   /// Pass back the @a entry that hasn't been seen in the queue.
@@ -650,7 +674,7 @@ public:
 
 private:
   /// Message_Queue we are iterating over.
-  ACE_Message_Queue <ACE_SYNCH_USE> &queue_;
+  ACE_Message_Queue <ACE_SYNCH_USE, TIME_POLICY> &queue_;
 
   /// Keeps track of how far we've advanced...
   ACE_Message_Block *curr_;
@@ -661,12 +685,12 @@ private:
  *
  * @brief Reverse Iterator for the ACE_Message_Queue.
  */
-template <ACE_SYNCH_DECL>
+template <ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Message_Queue_Reverse_Iterator
 {
 public:
   // = Initialization method.
-  ACE_Message_Queue_Reverse_Iterator (ACE_Message_Queue <ACE_SYNCH_USE> &queue);
+  ACE_Message_Queue_Reverse_Iterator (ACE_Message_Queue <ACE_SYNCH_USE, TIME_POLICY> &queue);
 
   // = Iteration methods.
   /// Pass back the @a entry that hasn't been seen in the queue.
@@ -688,7 +712,7 @@ public:
 
 private:
   /// Message_Queue we are iterating over.
-  ACE_Message_Queue <ACE_SYNCH_USE> &queue_;
+  ACE_Message_Queue <ACE_SYNCH_USE, TIME_POLICY> &queue_;
 
   /// Keeps track of how far we've advanced...
   ACE_Message_Block *curr_;
@@ -761,8 +785,8 @@ private:
  * ensure the correct semantics, but that is not a
  * very stable or portable approach (discouraged).
  */
-template <ACE_SYNCH_DECL>
-class ACE_Dynamic_Message_Queue : public ACE_Message_Queue<ACE_SYNCH_USE>
+template <ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
+class ACE_Dynamic_Message_Queue : public ACE_Message_Queue<ACE_SYNCH_USE, TIME_POLICY>
 {
 public:
   // = Initialization and termination methods.
@@ -883,8 +907,8 @@ protected:
 private:
   // = Disallow public access to these operations.
 
-  ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Dynamic_Message_Queue<ACE_SYNCH_USE> &))
-  ACE_UNIMPLEMENTED_FUNC (ACE_Dynamic_Message_Queue (const ACE_Dynamic_Message_Queue<ACE_SYNCH_USE> &))
+  ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Dynamic_Message_Queue<ACE_SYNCH_USE, TIME_POLICY> &))
+  ACE_UNIMPLEMENTED_FUNC (ACE_Dynamic_Message_Queue (const ACE_Dynamic_Message_Queue<ACE_SYNCH_USE, TIME_POLICY> &))
 
   // provide definitions for these (just call base class method),
   // but make them private so they're not accessible outside the class
@@ -909,18 +933,18 @@ private:
  * any of these factory methods is only responsible for
  * ensuring destruction of the message queue itself.
  */
-template <ACE_SYNCH_DECL>
+template <ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Message_Queue_Factory
 {
 public:
   /// Factory method for a statically prioritized ACE_Message_Queue
-  static ACE_Message_Queue<ACE_SYNCH_USE> *
+  static ACE_Message_Queue<ACE_SYNCH_USE, TIME_POLICY> *
     create_static_message_queue (size_t hwm = ACE_Message_Queue_Base::DEFAULT_HWM,
                                  size_t lwm = ACE_Message_Queue_Base::DEFAULT_LWM,
                                  ACE_Notification_Strategy * = 0);
 
   /// Factory method for a dynamically prioritized (by time to deadline) ACE_Dynamic_Message_Queue
-  static ACE_Dynamic_Message_Queue<ACE_SYNCH_USE> *
+  static ACE_Dynamic_Message_Queue<ACE_SYNCH_USE, TIME_POLICY> *
     create_deadline_message_queue (size_t hwm = ACE_Message_Queue_Base::DEFAULT_HWM,
                                    size_t lwm = ACE_Message_Queue_Base::DEFAULT_LWM,
                                    ACE_Notification_Strategy * = 0,
@@ -930,7 +954,7 @@ public:
                                    u_long dynamic_priority_offset =  0x200000UL); // 2^(22-1)
 
   /// Factory method for a dynamically prioritized (by laxity) ACE_Dynamic_Message_Queue
-  static ACE_Dynamic_Message_Queue<ACE_SYNCH_USE> *
+  static ACE_Dynamic_Message_Queue<ACE_SYNCH_USE, TIME_POLICY> *
     create_laxity_message_queue (size_t hwm = ACE_Message_Queue_Base::DEFAULT_HWM,
                                  size_t lwm = ACE_Message_Queue_Base::DEFAULT_LWM,
                                  ACE_Notification_Strategy * = 0,
@@ -959,8 +983,8 @@ public:
 };
 
 // Forward decls.
-template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL> class ACE_Message_Queue_Ex_Iterator;
-template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL> class ACE_Message_Queue_Ex_Reverse_Iterator;
+template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL, class TIME_POLICY> class ACE_Message_Queue_Ex_Iterator;
+template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL, class TIME_POLICY> class ACE_Message_Queue_Ex_Reverse_Iterator;
 
 /**
  * @class ACE_Message_Queue_Ex
@@ -979,7 +1003,7 @@ template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL> class ACE_Message_Queue_Ex_Rev
  *   -# ACE_MT_SYNCH: all operations are thread-safe
  *   -# ACE_NULL_SYNCH: no synchronization and no locking overhead
  */
-template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL>
+template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Message_Queue_Ex
 {
 public:
@@ -990,13 +1014,13 @@ public:
     DEFAULT_PRIORITY = 0
   };
 
-  friend class ACE_Message_Queue_Ex_Iterator <ACE_MESSAGE_TYPE, ACE_SYNCH_USE>;
-  friend class ACE_Message_Queue_Ex_Reverse_Iterator<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>;
+  friend class ACE_Message_Queue_Ex_Iterator <ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY>;
+  friend class ACE_Message_Queue_Ex_Reverse_Iterator<ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY>;
 
   // = Traits
-  typedef ACE_Message_Queue_Ex_Iterator<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>
+  typedef ACE_Message_Queue_Ex_Iterator<ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY>
           ITERATOR;
-  typedef ACE_Message_Queue_Ex_Reverse_Iterator<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>
+  typedef ACE_Message_Queue_Ex_Reverse_Iterator<ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY>
           REVERSE_ITERATOR;
 
   /**
@@ -1365,6 +1389,14 @@ public:
   /// Returns a reference to the lock used by the ACE_Message_Queue_Ex.
   virtual ACE_SYNCH_MUTEX_T &lock (void);
 
+  /// Get the current time of day according to the queue's TIME_POLICY.
+  /// Allows users to initialize timeout
+  ACE_Time_Value_T<TIME_POLICY> gettimeofday ();
+
+  /// Allows applications to control how the timer queue gets the time
+  /// of day.
+  void set_time_policy (TIME_POLICY const & time_policy);
+
   /// Dump the state of an object.
   virtual void dump (void) const;
 
@@ -1373,7 +1405,7 @@ public:
 
 protected:
   /// Implement this via an ACE_Message_Queue.
-  ACE_Message_Queue<ACE_SYNCH_USE> queue_;
+  ACE_Message_Queue<ACE_SYNCH_USE, TIME_POLICY> queue_;
 };
 
 /**
@@ -1381,12 +1413,12 @@ protected:
  *
  * @brief Iterator for the ACE_Message_Queue_Ex.
  */
-template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL>
+template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Message_Queue_Ex_Iterator
 {
 public:
   // = Initialization method.
-  ACE_Message_Queue_Ex_Iterator (ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE> & queue);
+  ACE_Message_Queue_Ex_Iterator (ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY> & queue);
 
   // = Iteration methods.
   /// Pass back the @a entry that hasn't been seen in the queue.
@@ -1408,7 +1440,7 @@ public:
 
 private:
   /// Implement this via the ACE_Message_Queue_Iterator
-  ACE_Message_Queue_Iterator<ACE_SYNCH_USE> iter_;
+  ACE_Message_Queue_Iterator<ACE_SYNCH_USE, TIME_POLICY> iter_;
 };
 
 /**
@@ -1416,12 +1448,12 @@ private:
  *
  * @brief Reverse iterator for the ACE_Message_Queue_Ex.
  */
-template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL>
+template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Message_Queue_Ex_Reverse_Iterator
 {
 public:
   // = Initialization method.
-  ACE_Message_Queue_Ex_Reverse_Iterator (ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE> & queue);
+  ACE_Message_Queue_Ex_Reverse_Iterator (ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY> & queue);
 
   // = Iteration methods.
   /// Pass back the @a entry that hasn't been seen in the queue.
@@ -1443,7 +1475,7 @@ public:
 
 private:
   /// Implement this via the ACE_Message_Queue_Reverse_Iterator
-  ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE> iter_;
+  ACE_Message_Queue_Reverse_Iterator<ACE_SYNCH_USE, TIME_POLICY> iter_;
 };
 
 /**
@@ -1464,8 +1496,8 @@ private:
  * ACE_Message_Queue_Ex_N uses this method to run through
  * all the incoming messages and enqueue them in one call.
  */
-template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL>
-class ACE_Message_Queue_Ex_N : public ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>
+template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
+class ACE_Message_Queue_Ex_N : public ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE, TIME_POLICY>
 {
 public:
   // = Initialization and termination methods.

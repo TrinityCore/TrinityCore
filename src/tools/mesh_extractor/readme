@@ -1,0 +1,6 @@
+Experimental mesh extractor.
+Original work in C# by stschake
+Thanks to:
+Subv
+~
+For helping in the porting to C++

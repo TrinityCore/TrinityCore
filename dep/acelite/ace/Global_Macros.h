@@ -4,7 +4,7 @@
 /**
  *  @file   Global_Macros.h
  *
- *  $Id: Global_Macros.h 91685 2010-09-09 09:35:14Z johnnyw $
+ *  $Id: Global_Macros.h 96084 2012-08-20 18:07:57Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -166,7 +166,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 /* Using ACE_UNEXPECTED_RETURNS is ill-advised because, in many cases,
  *   it fails to inform callers of the error condition.
- * It exists mainly to provide back-compatibility with old, dangerous,
+ * It exists mainly to provide back-compatibility with old, dangegrous,
  *   incorrect behavior.
  * Code that previously used ACE_GUARD() or ACE_GUARD_RETURN() to return
  *   upon failure to acquire a lock can now use:
@@ -905,7 +905,7 @@ ACE_MAKE_SVC_CONFIG_FACTORY_NAME(ACE_VERSIONED_NAMESPACE_NAME,SERVICE_CLASS) (AC
    } while (0)
 #endif /* defined ACE_LACKS_ARRAY_PLACEMENT_NEW */
 
-// This is being placed here temporarily to help stablelize the builds, but will
+// This is being placed here temporarily to help stabilize the builds, but will
 // be moved out along with the above macros as part of the subsetting.  dhinton
 #if !defined (ACE_LACKS_NEW_H)
 #  if defined (ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB)

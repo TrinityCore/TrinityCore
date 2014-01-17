@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
@@ -9,6 +27,7 @@
 #include "direct.h"
 #else
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include "dbcfile.h"
@@ -88,11 +107,23 @@ static const char* const langs[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koK
 
 void CreateDir( const std::string& Path )
 {
+    if(chdir(Path.c_str()) == 0)
+    {
+            chdir("../");
+            return;
+    }
+
+    int ret;
     #ifdef _WIN32
-    _mkdir( Path.c_str());
+    ret = _mkdir( Path.c_str());
     #else
-    mkdir( Path.c_str(), 0777 );
+    ret = mkdir( Path.c_str(), 0777 );
     #endif
+    if (ret != 0)
+    {
+        printf("Fatal Error: Could not create directory %s check your permissions", Path.c_str());
+        exit(1);
+    }
 }
 
 bool FileExists( const char* FileName )
@@ -179,7 +210,7 @@ uint32 ReadBuild(int locale)
         exit(1);
     }
 
-    std::string text = m.getPointer();
+    std::string text = std::string(m.getPointer(), m.getSize());
     m.close();
 
     size_t pos = text.find("version=\"");
@@ -221,7 +252,7 @@ uint32 ReadMapDBC()
         map_ids[x].id = dbc.getRecord(x).getUInt(0);
         strcpy(map_ids[x].name, dbc.getRecord(x).getString(1));
     }
-    printf("Done! (%zu maps loaded)\n", map_count);
+    printf("Done! (%u maps loaded)\n", (uint32)map_count);
     return map_count;
 }
 
@@ -246,7 +277,7 @@ void ReadAreaTableDBC()
 
     maxAreaId = dbc.getMaxId();
 
-    printf("Done! (%zu areas loaded)\n", area_count);
+    printf("Done! (%u areas loaded)\n", (uint32)area_count);
 }
 
 void ReadLiquidTypeTableDBC()
@@ -267,7 +298,7 @@ void ReadLiquidTypeTableDBC()
     for(uint32 x = 0; x < liqTypeCount; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    printf("Done! (%zu LiqTypes loaded)\n", liqTypeCount);
+    printf("Done! (%u LiqTypes loaded)\n", (uint32)liqTypeCount);
 }
 
 //
@@ -276,7 +307,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.2";
+static char const* MAP_VERSION_MAGIC = "v1.3";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -292,6 +323,8 @@ struct map_fileheader
     uint32 heightMapSize;
     uint32 liquidMapOffset;
     uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 #define MAP_AREA_NO_AREA      0x0001
@@ -826,9 +859,38 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             map.liquidMapSize += sizeof(float)*liquidHeader.width*liquidHeader.height;
     }
 
+    // map hole info
+    uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+
+    if (map.liquidMapOffset)
+        map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
+    else
+        map.holesOffset = map.heightMapOffset + map.heightMapSize;
+
+    memset(holes, 0, sizeof(holes));
+    bool hasHoles = false;
+
+    for (int i = 0; i < ADT_CELLS_PER_GRID; ++i)
+    {
+        for (int j = 0; j < ADT_CELLS_PER_GRID; ++j)
+        {
+            adt_MCNK * cell = cells->getMCNK(i,j);
+            if (!cell)
+                continue;
+            holes[i][j] = cell->holes;
+            if (!hasHoles && cell->holes != 0)
+                hasHoles = true;
+        }
+    }
+
+    if (hasHoles)
+        map.holesSize = sizeof(holes);
+    else
+        map.holesSize = 0;
+
     // Ok all data prepared - store it
-    FILE *output=fopen(filename2, "wb");
-    if(!output)
+    FILE* output = fopen(filename2, "wb");
+    if (!output)
     {
         printf("Can't create the output file '%s'\n", filename2);
         return false;
@@ -875,6 +937,11 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                 fwrite(&liquid_height[y+liquidHeader.offsetY][liquidHeader.offsetX], sizeof(float), liquidHeader.width, output);
         }
     }
+
+    // store hole data
+    if (hasHoles)
+        fwrite(holes, map.holesSize, 1, output);
+
     fclose(output);
 
     return true;
@@ -900,7 +967,7 @@ void ExtractMapsFromMpq(uint32 build)
     printf("Convert map files\n");
     for(uint32 z = 0; z < map_count; ++z)
     {
-        printf("Extract %s (%d/%d)                  \n", map_ids[z].name, z+1, map_count);
+        printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
         sprintf(mpq_map_name, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         WDT_file wdt;
@@ -980,13 +1047,16 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     }
 
     // extract DBCs
-    int count = 0;
+    uint32 count = 0;
     for (set<string>::iterator iter = dbcfiles.begin(); iter != dbcfiles.end(); ++iter)
     {
         string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
+        
+        if(FileExists(filename.c_str()))
+            continue;
 
-        if(ExtractFile(iter->c_str(), filename))
+        if (ExtractFile(iter->c_str(), filename))
             ++count;
     }
     printf("Extracted %u DBC files\n\n", count);

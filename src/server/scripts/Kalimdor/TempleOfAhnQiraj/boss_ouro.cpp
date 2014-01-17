@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,29 +23,32 @@ SDComment: No model for submerging. Currently just invisible.
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 
-#define SPELL_SWEEP             26103
-#define SPELL_SANDBLAST         26102
-#define SPELL_GROUND_RUPTURE    26100
-#define SPELL_BIRTH             26262                       //The Birth Animation
-
-#define SPELL_DIRTMOUND_PASSIVE 26092
+enum Spells
+{
+    SPELL_SWEEP                 = 26103,
+    SPELL_SANDBLAST             = 26102,
+    SPELL_GROUND_RUPTURE        = 26100,
+    SPELL_BIRTH                 = 26262, // The Birth Animation
+    SPELL_DIRTMOUND_PASSIVE     = 26092
+};
 
 class boss_ouro : public CreatureScript
 {
 public:
     boss_ouro() : CreatureScript("boss_ouro") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ouroAI (creature);
+        return new boss_ouroAI(creature);
     }
 
     struct boss_ouroAI : public ScriptedAI
     {
-        boss_ouroAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_ouroAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Sweep_Timer;
         uint32 SandBlast_Timer;
@@ -57,7 +60,7 @@ public:
         bool Enrage;
         bool Submerged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Sweep_Timer = urand(5000, 10000);
             SandBlast_Timer = urand(20000, 35000);
@@ -70,12 +73,12 @@ public:
             Submerged = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoCast(me->getVictim(), SPELL_BIRTH);
+            DoCastVictim(SPELL_BIRTH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -84,14 +87,14 @@ public:
             //Sweep_Timer
             if (!Submerged && Sweep_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SWEEP);
+                DoCastVictim(SPELL_SWEEP);
                 Sweep_Timer = urand(15000, 30000);
             } else Sweep_Timer -= diff;
 
             //SandBlast_Timer
             if (!Submerged && SandBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SANDBLAST);
+                DoCastVictim(SPELL_SANDBLAST);
                 SandBlast_Timer = urand(20000, 35000);
             } else SandBlast_Timer -= diff;
 
@@ -126,7 +129,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->setFaction(14);
 
-                DoCast(me->getVictim(), SPELL_GROUND_RUPTURE);
+                DoCastVictim(SPELL_GROUND_RUPTURE);
 
                 Submerged = false;
                 Submerge_Timer = urand(60000, 120000);

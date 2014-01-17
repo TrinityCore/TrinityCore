@@ -4,7 +4,7 @@
 /**
  *  @file    Profile_Timer.h
  *
- *  $Id: Profile_Timer.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Profile_Timer.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -101,14 +101,14 @@ private:
   ACE_Profile_Timer::Rusage last_usage_;
 
 #if defined (ACE_HAS_PRUSAGE_T)
-  /// Substract two timestructs and store their difference.
+  /// Subtract two timestructs and store their difference.
   void subtract (timespec_t &tdiff, timespec_t &t0, timespec_t &t1);
 
   /// I/O handle for /proc file system.
   ACE_HANDLE proc_handle_;
 
 #elif defined (ACE_HAS_GETRUSAGE)
-  /// Substract two timestructs and store their difference.
+  /// Subtract two timestructs and store their difference.
   void subtract (timeval &tdiff,
                  timeval &t0,
                  timeval &t1);

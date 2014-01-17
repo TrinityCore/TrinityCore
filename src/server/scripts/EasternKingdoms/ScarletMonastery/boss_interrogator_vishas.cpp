@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,16 +23,17 @@ SDComment:
 SDCategory: Scarlet Monastery
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "scarlet_monastery.h"
 
 enum Says
 {
-    SAY_AGGRO               = -1189011,
-    SAY_HEALTH1             = -1189012,
-    SAY_HEALTH2             = -1189013,
-    SAY_KILL                = -1189014,
-    SAY_TRIGGER_VORREL      = -1189015
+    SAY_AGGRO               = 0,
+    SAY_HEALTH1             = 1,
+    SAY_HEALTH2             = 2,
+    SAY_KILL                = 3,
+    SAY_TRIGGER_VORREL      = 0
 };
 
 enum Spells
@@ -45,9 +46,9 @@ class boss_interrogator_vishas : public CreatureScript
 public:
     boss_interrogator_vishas() : CreatureScript("boss_interrogator_vishas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_interrogator_vishasAI (creature);
+        return GetInstanceAI<boss_interrogator_vishasAI>(creature);
     }
 
     struct boss_interrogator_vishasAI : public ScriptedAI
@@ -63,32 +64,31 @@ public:
         bool Yell60;
         uint32 ShadowWordPain_Timer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             ShadowWordPain_Timer = 5000;
+            Yell60 = false;
+            Yell30 = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*Victim*/)
+        void KilledUnit(Unit* /*Victim*/) OVERRIDE
         {
-            DoScriptText(SAY_KILL, me);
+            Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (!instance)
-                return;
-
             //Any other Actions to do with vorrel? setStandState?
-            if (Unit* vorrel = Unit::GetUnit(*me, instance->GetData64(DATA_VORREL)))
-                DoScriptText(SAY_TRIGGER_VORREL, vorrel);
+            if (Creature* vorrel = Creature::GetCreature(*me, instance->GetData64(DATA_VORREL)))
+                vorrel->AI()->Talk(SAY_TRIGGER_VORREL);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -96,20 +96,20 @@ public:
             //If we are low on hp Do sayings
             if (!Yell60 && !HealthAbovePct(60))
             {
-                DoScriptText(SAY_HEALTH1, me);
+                Talk(SAY_HEALTH1);
                 Yell60 = true;
             }
 
             if (!Yell30 && !HealthAbovePct(30))
             {
-                DoScriptText(SAY_HEALTH2, me);
+                Talk(SAY_HEALTH2);
                 Yell30 = true;
             }
 
             //ShadowWordPain_Timer
             if (ShadowWordPain_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
+                DoCastVictim(SPELL_SHADOWWORDPAIN);
                 ShadowWordPain_Timer = urand(5000, 15000);
             }
             else ShadowWordPain_Timer -= diff;

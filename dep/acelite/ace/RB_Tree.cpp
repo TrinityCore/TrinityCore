@@ -1,4 +1,4 @@
-// $Id: RB_Tree.cpp 91813 2010-09-17 07:52:52Z johnnyw $
+// $Id: RB_Tree.cpp 94171 2011-06-09 01:49:08Z schmidt $
 
 #ifndef ACE_RB_TREE_CPP
 #define ACE_RB_TREE_CPP
@@ -49,8 +49,7 @@ ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::ACE_RB_Tree (ACE_Allocator 
   : root_ (0),
     current_size_ (0)
 {
-  ACE_TRACE ("ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::"
-             "ACE_RB_Tree (ACE_Allocator *alloc)");
+  ACE_TRACE ("ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::ACE_RB_Tree (ACE_Allocator *alloc)");
   allocator_ = alloc;
   if (this->open (alloc) == -1)
     ACE_ERROR ((LM_ERROR,
@@ -64,8 +63,7 @@ ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::ACE_RB_Tree (const ACE_RB_T
   : root_ (0),
     current_size_ (0)
 {
-  ACE_TRACE ("ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::"
-             "ACE_RB_Tree (const ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &rbt)");
+  ACE_TRACE ("ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::ACE_RB_Tree (const ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &rbt)");
   ACE_WRITE_GUARD (ACE_LOCK, ace_mon, this->lock_);
   allocator_ = rbt.allocator_;
 
@@ -85,6 +83,8 @@ ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::ACE_RB_Tree (
     ACE_Allocator *alloc
 )
 {
+  ACE_TRACE ("ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::ACE_RB_Tree (void *, ACE_Allocator *)");
+
   if (location != this)
     {
       this->root_ = 0;
@@ -728,8 +728,7 @@ ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::insert_i (const EXT_ID &k,
                                                                const INT_ID &t,
                                                                ACE_RB_Tree_Node<EXT_ID, INT_ID> *&entry)
 {
-  ACE_TRACE ("ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::insert_i (const EXT_ID &k, const INT_ID &t, "
-             "ACE_RB_Tree_Node<EXT_ID, INT_ID> *&entry)");
+  ACE_TRACE ("ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::insert_i");
 
   // Find the closest matching node, if there is one.
   RB_SearchResult result = LEFT;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -33,16 +34,13 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608000,
-    SAY_SLAY_1                                  = -1608001,
-    SAY_SLAY_2                                  = -1608002,
-    SAY_SLAY_3                                  = -1608003,
-    SAY_DEATH                                   = -1608004,
-    SAY_SPAWN                                   = -1608005,
-    SAY_DISRUPTION                              = -1608006,
-    SAY_BREATH_ATTACK                           = -1608007,
-    SAY_SPECIAL_ATTACK_1                        = -1608008,
-    SAY_SPECIAL_ATTACK_2                        = -1608009
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_DISRUPTION                              = 4,
+    SAY_BREATH_ATTACK                           = 5,
+    SAY_SPECIAL_ATTACK                          = 6
 };
 
 class boss_cyanigosa : public CreatureScript
@@ -50,9 +48,9 @@ class boss_cyanigosa : public CreatureScript
 public:
     boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_cyanigosaAI (creature);
+        return GetInstanceAI<boss_cyanigosaAI>(creature);
     }
 
     struct boss_cyanigosaAI : public ScriptedAI
@@ -70,28 +68,27 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             uiArcaneVacuumTimer = 10000;
             uiBlizzardTimer = 15000;
             uiManaDestructionTimer = 30000;
             uiTailSweepTimer = 20000;
             uiUncontrollableEnergyTimer = 25000;
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+            instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(const uint32 diff)
+
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
             {
@@ -141,19 +138,19 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
+            instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+
+            Talk(SAY_SLAY);
         }
     };
 
@@ -166,7 +163,7 @@ class achievement_defenseless : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
         {
             if (!target)
                 return false;

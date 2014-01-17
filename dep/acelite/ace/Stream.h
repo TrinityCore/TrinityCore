@@ -4,7 +4,7 @@
 /**
  *  @file    Stream.h
  *
- *  $Id: Stream.h 91058 2010-07-12 08:20:09Z johnnyw $
+ *  $Id: Stream.h 96070 2012-08-17 09:07:16Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -24,11 +24,14 @@
 #include "ace/IO_Cntl_Msg.h"
 #include "ace/Message_Block.h"
 #include "ace/Module.h"
+#if defined (ACE_HAS_THREADS)
+# include "ace/Condition_Attributes.h"
+#endif
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // Forward decls.
-template<ACE_SYNCH_DECL> class ACE_Stream_Iterator;
+template<ACE_SYNCH_DECL, class TIME_POLICY> class ACE_Stream_Iterator;
 class ACE_Time_Value;
 
 /**
@@ -45,11 +48,11 @@ class ACE_Time_Value;
  * won't be overridden properly unless you call it in a subclass
  * destructor.
  */
-template <ACE_SYNCH_DECL>
+template <ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Stream
 {
 public:
-  friend class ACE_Stream_Iterator<ACE_SYNCH_USE>;
+  friend class ACE_Stream_Iterator<ACE_SYNCH_USE, TIME_POLICY>;
 
   enum
   {
@@ -66,8 +69,8 @@ public:
    * @a arg is the value past in to the <open> methods of the tasks.
    */
   ACE_Stream (void *arg = 0,
-              ACE_Module<ACE_SYNCH_USE> *head = 0,
-              ACE_Module<ACE_SYNCH_USE> *tail = 0);
+              ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *head = 0,
+              ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *tail = 0);
 
   /**
    * Create a Stream consisting of @a head and @a tail as the Stream
@@ -76,8 +79,8 @@ public:
    * @a arg is the value past in to the @c open() methods of the tasks.
    */
   virtual int open (void *arg,
-                    ACE_Module<ACE_SYNCH_USE> *head = 0,
-                    ACE_Module<ACE_SYNCH_USE> *tail = 0);
+                    ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *head = 0,
+                    ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *tail = 0);
 
   /// Close down the stream and release all the resources.
   virtual int close (int flags = M_DELETE);
@@ -90,7 +93,7 @@ public:
   /// Add a new module @a mod right below the Stream head.  The
   /// @c open() hook methods of the @c ACE_Tasks in this ACE_Module
   /// are invoked to initialize the tasks.
-  virtual int push (ACE_Module<ACE_SYNCH_USE> *mod);
+  virtual int push (ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *mod);
 
   /// Remove the @a mod right below the Stream head and close it down.
   //  The <close()> hook methods of the <ACE_Tasks> in this ACE_Module
@@ -99,15 +102,15 @@ public:
 
   /// Return the top module on the stream (right below the stream
   /// head).
-  virtual int top (ACE_Module<ACE_SYNCH_USE> *&mod);
+  virtual int top (ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *&mod);
 
   /// Insert a new module @a mod below the named module @a prev_name.
   virtual int insert (const ACE_TCHAR *prev_name,
-                      ACE_Module<ACE_SYNCH_USE> *mod);
+                      ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *mod);
 
   /// Replace the named module @a replace_name with a new module @a mod.
   virtual int replace (const ACE_TCHAR *replace_name,
-                       ACE_Module<ACE_SYNCH_USE> *mod,
+                       ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *mod,
                        int flags = M_DELETE);
 
   /// Remove the named module @a mod from the stream.  This bypasses the
@@ -116,16 +119,16 @@ public:
                       int flags = M_DELETE);
 
   /// Return current stream head.
-  virtual ACE_Module<ACE_SYNCH_USE> *head (void);
+  virtual ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *head (void);
 
   /// Return current stream tail.
-  virtual ACE_Module<ACE_SYNCH_USE> *tail (void);
+  virtual ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *tail (void);
 
   /// Find a particular ACE_Module.
-  virtual ACE_Module<ACE_SYNCH_USE> *find (const ACE_TCHAR *mod);
+  virtual ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *find (const ACE_TCHAR *mod);
 
   /// Create a pipe between two Streams.
-  virtual int link (ACE_Stream<ACE_SYNCH_USE> &);
+  virtual int link (ACE_Stream<ACE_SYNCH_USE, TIME_POLICY> &);
 
   /// Remove a pipe formed between two Streams.
   virtual int unlink (void);
@@ -168,25 +171,33 @@ private:
 
   /// Actually perform the linking of two Streams (must be called with
   /// locks held).
-  int link_i (ACE_Stream<ACE_SYNCH_USE> &);
+  int link_i (ACE_Stream<ACE_SYNCH_USE, TIME_POLICY> &);
 
   /// Must a new module onto the Stream.
-  int push_module (ACE_Module<ACE_SYNCH_USE> *,
-                   ACE_Module<ACE_SYNCH_USE> * = 0,
-                   ACE_Module<ACE_SYNCH_USE> * = 0);
+  int push_module (ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *,
+                   ACE_Module<ACE_SYNCH_USE, TIME_POLICY> * = 0,
+                   ACE_Module<ACE_SYNCH_USE, TIME_POLICY> * = 0);
 
   /// Pointer to the head of the stream.
-  ACE_Module<ACE_SYNCH_USE> *stream_head_;
+  ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *stream_head_;
 
   /// Pointer to the tail of the stream.
-  ACE_Module<ACE_SYNCH_USE> *stream_tail_;
+  ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *stream_tail_;
 
   /// Pointer to an adjoining linked stream.
-  ACE_Stream<ACE_SYNCH_USE> *linked_us_;
+  ACE_Stream<ACE_SYNCH_USE, TIME_POLICY> *linked_us_;
 
   // = Synchronization objects used for thread-safe streams.
   /// Protect the stream against race conditions.
   ACE_SYNCH_MUTEX_T lock_;
+
+#if defined (ACE_HAS_THREADS)
+  /// Attributes to initialize condition with.
+  /* We only need this because some crappy compilers can't
+     properly handle initializing the conditions with
+     temporary objects. */
+  ACE_Condition_Attributes_T<TIME_POLICY> cond_attr_;
+#endif
 
   /// Use to tell all threads waiting on the close that we are done.
   ACE_SYNCH_CONDITION_T final_close_;
@@ -197,18 +208,18 @@ private:
  *
  * @brief Iterate through an ACE_Stream.
  */
-template <ACE_SYNCH_DECL>
+template <ACE_SYNCH_DECL, class TIME_POLICY = ACE_System_Time_Policy>
 class ACE_Stream_Iterator
 {
 public:
   // = Initialization method.
-  ACE_Stream_Iterator (const ACE_Stream<ACE_SYNCH_USE> &sr);
+  ACE_Stream_Iterator (const ACE_Stream<ACE_SYNCH_USE, TIME_POLICY> &sr);
 
   // = Iteration methods.
 
   /// Pass back the @a next_item that hasn't been seen in the set.
   /// Returns 0 when all items have been seen, else 1.
-  int next (const ACE_Module<ACE_SYNCH_USE> *&next_item);
+  int next (const ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *&next_item);
 
   /// Returns 1 when all items have been seen, else 0.
   int done (void) const;
@@ -219,7 +230,7 @@ public:
 
 private:
   /// Next ACE_Module that we haven't yet seen.
-  ACE_Module<ACE_SYNCH_USE> *next_;
+  ACE_Module<ACE_SYNCH_USE, TIME_POLICY> *next_;
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL

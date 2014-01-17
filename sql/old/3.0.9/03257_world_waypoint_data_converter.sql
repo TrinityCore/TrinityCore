@@ -1,6 +1,6 @@
 ALTER TABLE creature_addon ADD INDEX ( `path_id` );
 ALTER TABLE waypoint_data ADD INDEX ( `id` );
- 
+
 ALTER TABLE waypoint_data ADD COLUMN id_old int(10) unsigned NOT NULL default '0' COMMENT 'Creature GUID' AFTER wpguid;
 
 UPDATE waypoint_data SET id_old=id;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,14 +19,14 @@
 #ifndef TRINITYCORE_GROUP_H
 #define TRINITYCORE_GROUP_H
 
-#include "Battleground.h"
 #include "DBCEnums.h"
 #include "GroupRefManager.h"
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
-#include "Player.h"
 
+class Battlefield;
+class Battleground;
 class Creature;
 class GroupReference;
 class InstanceSave;
@@ -64,20 +64,20 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_PVP_FFA   = 0x0010,                       // Lua_UnitIsPVPFreeForAll
     MEMBER_STATUS_UNK3      = 0x0020,                       // used in calls from Lua_GetPlayerMapPosition/Lua_GetBattlefieldFlagPosition
     MEMBER_STATUS_AFK       = 0x0040,                       // Lua_UnitIsAFK
-    MEMBER_STATUS_DND       = 0x0080,                       // Lua_UnitIsDND
+    MEMBER_STATUS_DND       = 0x0080                        // Lua_UnitIsDND
 };
 
 enum GroupMemberFlags
 {
     MEMBER_FLAG_ASSISTANT   = 0x01,
     MEMBER_FLAG_MAINTANK    = 0x02,
-    MEMBER_FLAG_MAINASSIST  = 0x04,
+    MEMBER_FLAG_MAINASSIST  = 0x04
 };
 
 enum GroupMemberAssignment
 {
     GROUP_ASSIGN_MAINTANK   = 0,
-    GROUP_ASSIGN_MAINASSIST = 1,
+    GROUP_ASSIGN_MAINASSIST = 1
 };
 
 enum GroupType
@@ -87,7 +87,7 @@ enum GroupType
     GROUPTYPE_RAID   = 0x02,
     GROUPTYPE_BGRAID = GROUPTYPE_BG | GROUPTYPE_RAID,       // mask
     GROUPTYPE_UNK1   = 0x04,
-    GROUPTYPE_LFG    = 0x08,
+    GROUPTYPE_LFG    = 0x08
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
@@ -115,7 +115,7 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FLAG_PET_AURAS         = 0x00040000,       // uint64 mask, for each bit set uint32 spellid + uint8 unk, pet auras...
     GROUP_UPDATE_FLAG_VEHICLE_SEAT      = 0x00080000,       // uint32 vehicle_seat_id (index from VehicleSeat.dbc)
     GROUP_UPDATE_PET                    = 0x0007FC00,       // all pet flags
-    GROUP_UPDATE_FULL                   = 0x0007FFFF,       // all known flags
+    GROUP_UPDATE_FULL                   = 0x0007FFFF        // all known flags
 };
 
 #define GROUP_UPDATE_FLAGS_COUNT          20
@@ -152,11 +152,11 @@ struct InstanceGroupBind
     bool perm;
     /* permanent InstanceGroupBinds exist if the leader has a permanent
        PlayerInstanceBind for the same instance. */
-    InstanceGroupBind() : save(NULL), perm(false) {}
+    InstanceGroupBind() : save(NULL), perm(false) { }
 };
 
 /** request member stats checken **/
-/** todo: uninvite people that not accepted invite **/
+/// @todo uninvite people that not accepted invite
 class Group
 {
     public:
@@ -205,6 +205,7 @@ class Group
         bool isLFGGroup()  const;
         bool isRaidGroup() const;
         bool isBGGroup()   const;
+        bool isBFGroup()   const;
         bool IsCreated()   const;
         uint64 GetLeaderGUID() const;
         uint64 GetGUID() const;
@@ -241,6 +242,7 @@ class Group
         void ConvertToRaid();
 
         void SetBattlegroundGroup(Battleground* bg);
+        void SetBattlefieldGroup(Battlefield* bf);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(uint64 guid, uint8 group);
@@ -265,7 +267,7 @@ class Group
         void SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot = NULL);
         void UpdatePlayerOutOfRange(Player* player);
                                                             // ignore: GUID of player that will be ignored
-        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group=-1, uint64 ignore=0);
+        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, uint64 ignore = 0);
         void BroadcastReadyCheck(WorldPacket* packet);
         void OfflineReadyCheck();
 
@@ -299,6 +301,7 @@ class Group
         InstanceGroupBind* GetBoundInstance(Player* player);
         InstanceGroupBind* GetBoundInstance(Map* aMap);
         InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
+        InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty);
 
         // FG: evil hacks
@@ -324,6 +327,7 @@ class Group
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Battleground*       m_bgGroup;
+        Battlefield*        m_bfGroup;
         uint64              m_targetIcons[TARGETICONCOUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;

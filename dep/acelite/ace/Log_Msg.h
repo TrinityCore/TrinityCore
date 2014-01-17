@@ -4,7 +4,7 @@
 /**
  *  @file    Log_Msg.h
  *
- *  $Id: Log_Msg.h 92298 2010-10-21 11:15:17Z johnnyw $
+ *  $Id: Log_Msg.h 95128 2011-11-27 21:22:15Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -556,16 +556,16 @@ public:
                    size_t size,
                    const ACE_TCHAR *text = 0);
 
-  static void init_hook (ACE_OS_Log_Msg_Attributes &attributes
-# if defined (ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS)
-                         , ACE_SEH_EXCEPT_HANDLER selector = 0
-                         , ACE_SEH_EXCEPT_HANDLER handler = 0
-# endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
   /**
    * Init hook, create a Log_Msg_Attribute object, initialize its
    * attributes from the TSS Log_Msg and save the object in the
    * @a attributes argument
    */
+  static void init_hook (ACE_OS_Log_Msg_Attributes &attributes
+# if defined (ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS)
+                         , ACE_SEH_EXCEPT_HANDLER selector = 0
+                         , ACE_SEH_EXCEPT_HANDLER handler = 0
+# endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
                          );
 
   /**
@@ -633,7 +633,7 @@ private:
   /**
    * If we're running in the context of an ACE_Thread_Manager this
    * will point to the thread descriptor adapter which holds the
-   * thread descriptor of the thread.  This can be used to repidly
+   * thread descriptor of the thread.  This can be used to rapidly
    * access all thread data kept in ACE_Thread_Descriptor.
    */
   ACE_Thread_Descriptor *thr_desc_;

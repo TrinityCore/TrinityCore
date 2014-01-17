@@ -1,4 +1,4 @@
-// $Id: Name_Request_Reply.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Name_Request_Reply.cpp 96017 2012-08-08 22:18:09Z mitza $
 
 #include "ace/Name_Request_Reply.h"
 #include "ace/Basic_Types.h"
@@ -48,7 +48,8 @@ ACE_Name_Request::ACE_Name_Request (
       this->block_forever (0);
       // Keep track of how long client is willing to wait.
       this->transfer_.sec_timeout_ = timeout->sec ();
-      this->transfer_.usec_timeout_ = timeout->usec ();
+      this->transfer_.usec_timeout_ =
+        static_cast<ACE_UINT32> (timeout->usec ());
     }
 
   // Set up pointers and copy name value and type into request.
@@ -195,7 +196,7 @@ ACE_Name_Request::timeout (const ACE_Time_Value timeout)
 {
   ACE_TRACE ("ACE_Name_Request::timeout");
   this->transfer_.sec_timeout_ = timeout.sec ();
-  this->transfer_.usec_timeout_ = timeout.usec ();
+  this->transfer_.usec_timeout_ = static_cast<ACE_UINT32> (timeout.usec ());
 }
 
 // = Set/get the name
@@ -270,7 +271,7 @@ ACE_Name_Request::encode (void *&buf)
 
   for (size_t i = 0; i < nv_data_len; i++)
     this->transfer_.data_[i] =
-      ACE_HTONS (this->transfer_.data_[i]);
+      static_cast<ACE_WCHAR_T> (ACE_HTONS (this->transfer_.data_[i]));
 
   buf = (void *) &this->transfer_;
   this->transfer_.block_forever_ = ACE_HTONL (this->transfer_.block_forever_);
@@ -314,7 +315,7 @@ ACE_Name_Request::decode (void)
 
   for (size_t i = 0; i < nv_data_len; i++)
     this->transfer_.data_[i] =
-      ACE_NTOHS (this->transfer_.data_[i]);
+      static_cast<ACE_WCHAR_T> (ACE_NTOHS (this->transfer_.data_[i]));
 
   this->name_ = this->transfer_.data_;
   this->value_ = &this->name_[this->transfer_.name_len_ / sizeof (ACE_WCHAR_T)];

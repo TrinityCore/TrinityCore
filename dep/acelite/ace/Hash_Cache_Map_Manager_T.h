@@ -4,7 +4,7 @@
 /**
  *  @file    Hash_Cache_Map_Manager_T.h
  *
- *  $Id: Hash_Cache_Map_Manager_T.h 92097 2010-09-30 05:41:49Z msmit $
+ *  $Id: Hash_Cache_Map_Manager_T.h 93366 2011-02-11 19:30:35Z johnnyw $
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -39,9 +39,6 @@ class ACE_Allocator;
                               CACHING_STRATEGY, \
                               ATTRIBUTES>
 
-// For linkers that cant grok long names.
-#define ACE_Hash_Cache_Map_Manager AHCMM
-
  /**
   * @class ACE_Hash_Cache_Map_Manager
   *
@@ -58,7 +55,7 @@ class ACE_Allocator;
   * Hash_Cache_Map_Manager provides extra functionality on top
   * of the Cache_Map_Manager.
   * No locking mechanism provided since locking at this level
-  * isnt efficient.  Locking has to be provided by the
+  * isn't efficient.  Locking has to be provided by the
   * application.
   */
 template <class KEY, class VALUE, class HASH_KEY, class COMPARE_KEYS, class CACHING_STRATEGY, class ATTRIBUTES>
@@ -189,7 +186,6 @@ class ACE_Hash_Cache_Map_Manager : public ACE_CACHE_MAP_MANAGER
   int unbind (CACHE_ENTRY *entry);
 
 protected:
-
   /// Base class.
   typedef ACE_CACHE_MAP_MANAGER ACE_HCMM_BASE;
 };

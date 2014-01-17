@@ -1,4 +1,4 @@
-// $Id: OS_NS_stdlib.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: OS_NS_stdlib.cpp 96017 2012-08-08 22:18:09Z mitza $
 
 #include "ace/OS_NS_stdlib.h"
 
@@ -259,13 +259,13 @@ ACE_OS::itow_emulation (int value, wchar_t *string, int radix)
   // Now reverse the string to get the correct result
 
   while (e > b)
-  {
-    wchar_t temp = *e;
-    *e = *b;
-    *b = temp;
-    ++b;
-    --e;
-  }
+    {
+      wchar_t temp = *e;
+      *e = *b;
+      *b = temp;
+      ++b;
+      --e;
+    }
 
   return string;
 }
@@ -842,7 +842,7 @@ ACE_OS::strtoll_emulation (const char *nptr,
       break;
     if (c >= base)
       break;
-    if (any < 0 || acc > cutoff || acc == cutoff && c > cutlim)
+    if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
       any = -1;
     else {
       any = 1;
@@ -910,7 +910,7 @@ ACE_OS::wcstoll_emulation (const wchar_t *nptr,
       break;
     if (c >= base)
       break;
-    if (any < 0 || acc > cutoff || acc == cutoff && c > cutlim)
+    if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
       any = -1;
     else {
       any = 1;
@@ -978,7 +978,7 @@ ACE_OS::strtoull_emulation (const char *nptr,
         break;
       if (c >= base)
         break;
-      if (any < 0 || acc > cutoff || acc == cutoff && c > cutlim)
+      if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
         any = -1;
       else
         {
@@ -1048,7 +1048,7 @@ ACE_OS::wcstoull_emulation (const wchar_t *nptr,
         break;
       if (c >= base)
         break;
-      if (any < 0 || acc > cutoff || acc == cutoff && c > cutlim)
+      if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
         any = -1;
       else
         {
@@ -1108,7 +1108,7 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
   // ACE_thread_t may be a char* (returned by ACE_OS::thr_self()) so
   // we need to use a C-style cast as a catch-all in order to use a
   // static_cast<> to an integral type.
-  ACE_RANDR_TYPE seed = static_cast<ACE_RANDR_TYPE> (msec);
+  unsigned int seed = static_cast<unsigned int> (msec);
 
   // We only care about UTF-8 / ASCII characters in generated
   // filenames.  A UTF-16 or UTF-32 character could potentially cause
@@ -1148,7 +1148,7 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
           // selection to work for EBCDIC, as well.
           do
             {
-              r = static_cast<ACE_TCHAR> (coefficient * ACE_OS::rand_r (seed));
+              r = static_cast<ACE_TCHAR> (coefficient * ACE_OS::rand_r (&seed));
             }
           while (!ACE_OS::ace_isalnum (r));
 

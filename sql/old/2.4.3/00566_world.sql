@@ -1,4 +1,4 @@
-INSERT INTO spell_script_target VALUES 
+INSERT INTO spell_script_target VALUES
 (8913,1,1200),
 (9095,1,6492),
 (33655,0,183351),

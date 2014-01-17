@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,38 +23,48 @@ SDComment: Heroic and Normal support. Needs further testing.
 SDCategory: Magister's Terrace
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "magisters_terrace.h"
 
-enum eEnums
+enum Yells
 {
-    SAY_AGGRO                       = -1585007,
-    SAY_ENERGY                      = -1585008,
-    SAY_OVERLOAD                    = -1585009,
-    SAY_KILL                        = -1585010,
-    EMOTE_DISCHARGE_ENERGY          = -1585011,
+    SAY_AGGRO                       = 0,
+    SAY_ENERGY                      = 1,
+    SAY_OVERLOAD                    = 2,
+    SAY_KILL                        = 3,
+    EMOTE_DISCHARGE_ENERGY          = 4
 
     //is this text for real?
     //#define SAY_DEATH             "What...happen...ed."
+};
 
-    //Pure energy spell info
+enum Spells
+{
+    // Pure energy spell info
     SPELL_ENERGY_BOLT               = 46156,
     SPELL_ENERGY_FEEDBACK           = 44335,
 
-    //Vexallus spell info
+    // Vexallus spell info
     SPELL_CHAIN_LIGHTNING           = 44318,
-    SPELL_H_CHAIN_LIGHTNING         = 46380,                //heroic spell
+    SPELL_H_CHAIN_LIGHTNING         = 46380, // heroic spell
     SPELL_OVERLOAD                  = 44353,
     SPELL_ARCANE_SHOCK              = 44319,
-    SPELL_H_ARCANE_SHOCK            = 46381,                //heroic spell
+    SPELL_H_ARCANE_SHOCK            = 46381, // heroic spell
 
-    SPELL_SUMMON_PURE_ENERGY        = 44322,                //mod scale -10
-    H_SPELL_SUMMON_PURE_ENERGY1     = 46154,                //mod scale -5
-    H_SPELL_SUMMON_PURE_ENERGY2     = 46159,                //mod scale -5
+    SPELL_SUMMON_PURE_ENERGY        = 44322, // mod scale -10
+    H_SPELL_SUMMON_PURE_ENERGY1     = 46154, // mod scale -5
+    H_SPELL_SUMMON_PURE_ENERGY2     = 46159  // mod scale -5
 
-    //Creatures
+};
+
+enum Creatures
+{
     NPC_PURE_ENERGY                 = 24745,
+};
 
+enum Misc
+{
     INTERVAL_MODIFIER               = 15,
     INTERVAL_SWITCH                 = 6
 };
@@ -64,14 +74,14 @@ class boss_vexallus : public CreatureScript
 public:
     boss_vexallus() : CreatureScript("boss_vexallus") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_vexallusAI (creature);
+        return GetInstanceAI<boss_vexallusAI>(creature);
     };
 
-    struct boss_vexallusAI : public ScriptedAI
+    struct boss_vexallusAI : public BossAI
     {
-        boss_vexallusAI(Creature* creature) : ScriptedAI(creature)
+        boss_vexallusAI(Creature* creature) : BossAI(creature, DATA_VEXALLUS_EVENT)
         {
             instance = creature->GetInstanceScript();
         }
@@ -84,38 +94,37 @@ public:
         uint32 IntervalHealthAmount;
         bool Enraged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
+            summons.DespawnAll();
             ChainLightningTimer = 8000;
             ArcaneShockTimer = 5000;
             OverloadTimer = 1200;
             IntervalHealthAmount = 1;
             Enraged = false;
 
-            if (instance)
-                instance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
+            instance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
-            DoScriptText(SAY_KILL, me);
+            Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_VEXALLUS_EVENT, DONE);
+            summons.DespawnAll();
+            instance->SetData(DATA_VEXALLUS_EVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->GetMotionMaster()->MoveFollow(temp, 0, 0);
@@ -124,7 +133,7 @@ public:
             summoned->CastSpell(summoned, SPELL_ENERGY_BOLT, false, 0, 0, me->GetGUID());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -143,8 +152,8 @@ public:
                     else
                         ++IntervalHealthAmount;
 
-                    DoScriptText(SAY_ENERGY, me);
-                    DoScriptText(EMOTE_DISCHARGE_ENERGY, me);
+                    Talk(SAY_ENERGY);
+                    Talk(EMOTE_DISCHARGE_ENERGY);
 
                     if (IsHeroic())
                     {
@@ -182,7 +191,7 @@ public:
             {
                 if (OverloadTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_OVERLOAD);
+                    DoCastVictim(SPELL_OVERLOAD);
 
                     OverloadTimer = 2000;
                 } else OverloadTimer -= diff;
@@ -191,43 +200,45 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
-class mob_pure_energy : public CreatureScript
+class npc_pure_energy : public CreatureScript
 {
 public:
-    mob_pure_energy() : CreatureScript("mob_pure_energy") { }
+    npc_pure_energy() : CreatureScript("npc_pure_energy") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new mob_pure_energyAI (creature);
+        return new npc_pure_energyAI(creature);
     };
 
-    struct mob_pure_energyAI : public ScriptedAI
+    struct npc_pure_energyAI : public ScriptedAI
     {
-        mob_pure_energyAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_pure_energyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        }
 
-        void Reset() {}
+        void Reset() OVERRIDE { }
 
-        void JustDied(Unit* slayer)
+        void JustDied(Unit* slayer) OVERRIDE
         {
             if (Unit* temp = me->GetOwner())
             {
-                if (temp && temp->isAlive())
+                if (temp && temp->IsAlive())
                     slayer->CastSpell(slayer, SPELL_ENERGY_FEEDBACK, true, 0, 0, temp->GetGUID());
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-    };
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+    };
 };
 
 void AddSC_boss_vexallus()
 {
     new boss_vexallus();
-    new mob_pure_energy();
+    new npc_pure_energy();
 }

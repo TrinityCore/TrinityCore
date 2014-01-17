@@ -4,7 +4,7 @@
 /**
  *  @file    Lock_Adapter_T.h
  *
- *  $Id: Lock_Adapter_T.h 84481 2009-02-17 10:58:31Z johnnyw $
+ *  $Id: Lock_Adapter_T.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *   Moved from Synch.h.
  *
@@ -28,7 +28,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * @class ACE_Lock_Adapter
  *
  * @brief This is an adapter that allows applications to transparently
- * combine the <ACE_Lock> abstract base class (which contains
+ * combine the ACE_Lock abstract base class (which contains
  * pure virtual methods) with any of the other concrete ACE
  * synchronization classes (e.g., ACE_Mutex, ACE_Semaphore,
  * ACE_RW_Mutex, etc.).
@@ -50,7 +50,7 @@ public:
   /// created internally.
   ACE_Lock_Adapter (void);
 
-  /// Destructor. If <lock_> was not passed in by the user, it will be
+  /// Destructor. If @c lock_ was not passed in by the user, it will be
   /// deleted.
   virtual ~ACE_Lock_Adapter (void);
 
@@ -67,29 +67,29 @@ public:
   /**
    * Block until the thread acquires a read lock.  If the locking
    * mechanism doesn't support read locks then this just calls
-   * <acquire>.
+   * acquire().
    */
   virtual int acquire_read (void);
 
   /**
    * Block until the thread acquires a write lock.  If the locking
    * mechanism doesn't support read locks then this just calls
-   * <acquire>.
+   * acquire().
    */
   virtual int acquire_write (void);
 
   /// Conditionally acquire a read lock.  If the locking mechanism
-  /// doesn't support read locks then this just calls <acquire>.
+  /// doesn't support read locks then this just calls acquire().
   virtual int tryacquire_read (void);
 
   /// Conditionally acquire a write lock.  If the locking mechanism
-  /// doesn't support read locks then this just calls <acquire>.
+  /// doesn't support read locks then this just calls acquire().
   virtual int tryacquire_write (void);
 
   /**
    * Conditionally try to upgrade a lock held for read to a write lock.
    * If the locking mechanism doesn't support read locks then this just
-   * calls <acquire>. Returns 0 on success, -1 on failure.
+   * calls acquire(). Returns 0 on success, -1 on failure.
    */
   virtual int tryacquire_write_upgrade (void);
 

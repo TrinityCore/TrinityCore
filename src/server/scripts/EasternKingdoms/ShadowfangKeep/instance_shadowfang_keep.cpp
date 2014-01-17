@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,26 +23,38 @@ SDComment:
 SDCategory: Shadowfang Keep
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "shadowfang_keep.h"
+#include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER              4
 
-enum eEnums
+enum Yells
 {
-    SAY_BOSS_DIE_AD         = -1033007,
-    SAY_BOSS_DIE_AS         = -1033008,
-    SAY_ARCHMAGE            = -1033009,
+    SAY_BOSS_DIE_AD         = 4,
+    SAY_BOSS_DIE_AS         = 3,
+    SAY_ARCHMAGE            = 0
+};
 
+enum Creatures
+{
     NPC_ASH                 = 3850,
     NPC_ADA                 = 3849,
     NPC_ARCHMAGE_ARUGAL     = 4275,
-    NPC_ARUGAL_VOIDWALKER   = 4627,
+    NPC_ARUGAL_VOIDWALKER   = 4627
+};
 
-    GO_COURTYARD_DOOR       = 18895,                        //door to open when talking to NPC's
-    GO_SORCERER_DOOR        = 18972,                        //door to open when Fenrus the Devourer
-    GO_ARUGAL_DOOR          = 18971,                        //door to open when Wolf Master Nandos
+enum GameObjects
+{
+    GO_COURTYARD_DOOR       = 18895, //door to open when talking to NPC's
+    GO_SORCERER_DOOR        = 18972, //door to open when Fenrus the Devourer
+    GO_ARUGAL_DOOR          = 18971  //door to open when Wolf Master Nandos
+};
 
+enum Spells
+{
     SPELL_ASHCROMBE_TELEPORT    = 15742
 };
 
@@ -59,14 +71,14 @@ class instance_shadowfang_keep : public InstanceMapScript
 public:
     instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep", 33) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_shadowfang_keep_InstanceMapScript(map);
     }
 
     struct instance_shadowfang_keep_InstanceMapScript : public InstanceScript
     {
-        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -82,7 +94,7 @@ public:
         uint8 uiPhase;
         uint16 uiTimer;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -98,7 +110,7 @@ public:
             uiTimer = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -108,7 +120,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -135,14 +147,14 @@ public:
             Creature* pAda = instance->GetCreature(uiAdaGUID);
             Creature* pAsh = instance->GetCreature(uiAshGUID);
 
-            if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
+            if (pAda && pAda->IsAlive() && pAsh && pAsh->IsAlive())
             {
-                DoScriptText(SAY_BOSS_DIE_AD, pAda);
-                DoScriptText(SAY_BOSS_DIE_AS, pAsh);
+                pAda->AI()->Talk(SAY_BOSS_DIE_AD);
+                pAsh->AI()->Talk(SAY_BOSS_DIE_AS);
             }
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             switch (type)
             {
@@ -190,7 +202,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -206,12 +218,12 @@ public:
             return 0;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             return str_data;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {
@@ -239,9 +251,8 @@ public:
                 return;
 
             Creature* pArchmage = instance->GetCreature(uiArchmageArugalGUID);
-            Creature* summon = NULL;
 
-            if (!pArchmage || !pArchmage->isAlive())
+            if (!pArchmage || !pArchmage->IsAlive())
                 return;
 
             if (uiPhase)
@@ -251,21 +262,25 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
+                        {
+                            Creature* summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             summon->SetReactState(REACT_DEFENSIVE);
                             summon->CastSpell(summon, SPELL_ASHCROMBE_TELEPORT, true);
-                            DoScriptText(SAY_ARCHMAGE, summon);
+                            summon->AI()->Talk(SAY_ARCHMAGE);
                             uiTimer = 2000;
                             uiPhase = 2;
                             break;
+                        }
                         case 2:
+                        {
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             uiPhase = 0;
                             break;
+                        }
 
                     }
                 } else uiTimer -= uiDiff;

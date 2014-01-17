@@ -564,7 +564,7 @@ void System::getStandardProcessorExtensions() {
 #endif
 }
 
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
     #pragma message("Port System::memcpy SIMD to all platforms")
 /** Michael Herf's fast memcpy */
 void memcpyMMX(void* dst, const void* src, int nbytes) {
@@ -615,7 +615,7 @@ void memcpyMMX(void* dst, const void* src, int nbytes) {
 #endif
 
 void System::memcpy(void* dst, const void* src, size_t numBytes) {
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
     memcpyMMX(dst, src, numBytes);
 #else
     ::memcpy(dst, src, numBytes);
@@ -625,7 +625,7 @@ void System::memcpy(void* dst, const void* src, size_t numBytes) {
 
 /** Michael Herf's fastest memset. n32 must be filled with the same
     character repeated. */
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
     #pragma message("Port System::memfill SIMD to all platforms")
 
 // On x86 processors, use MMX
@@ -664,7 +664,7 @@ void memfill(void *dst, int n32, unsigned long i) {
 
 
 void System::memset(void* dst, uint8 value, size_t numBytes) {
-#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+#if defined(G3D_WIN32) && !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit Windows platforms or using MinGW */
     uint32 v = value;
     v = v + (v << 8) + (v << 16) + (v << 24); 
     G3D::memfill(dst, v, numBytes);
@@ -888,7 +888,11 @@ void System::initTime() {
         
         if (localTimeVals) {
             // tm_gmtoff is already corrected for daylight savings.
+            #ifdef __CYGWIN__
+            local = local + _timezone;
+            #else
             local = local + localTimeVals->tm_gmtoff;
+            #endif
         }
         
         m_realWorldGetTickTime0 = local;
@@ -920,9 +924,12 @@ RealTime System::time() {
 
 ////////////////////////////////////////////////////////////////
 
-#define REALPTR_TO_USERPTR(x)   ((uint8*)(x) + sizeof (void *))
-#define USERPTR_TO_REALPTR(x)   ((uint8*)(x) - sizeof (void *))
-#define REALBLOCK_SIZE(x)       ((x) + sizeof (void *))
+
+#define REALPTR_TO_USERPTR(x)   ((uint8*)(x) + sizeof(uint32))
+#define USERPTR_TO_REALPTR(x)   ((uint8*)(x) - sizeof(uint32))
+#define USERSIZE_TO_REALSIZE(x)       ((x) + sizeof(uint32))
+#define REALSIZE_FROM_USERPTR(u) (*(uint32*)USERPTR_TO_REALPTR(ptr) + sizeof(uint32))
+#define USERSIZE_FROM_USERPTR(u) (*(uint32*)USERPTR_TO_REALPTR(ptr))
 
 class BufferPool {
 public:
@@ -947,13 +954,19 @@ public:
 
 private:
 
+    /** Pointer given to the program.  Unless in the tiny heap, the user size of the block is stored right in front of the pointer as a uint32.*/
+    typedef void* UserPtr;
+
+    /** Actual block allocated on the heap */
+    typedef void* RealPtr;
+
     class MemBlock {
     public:
-        void*           ptr;
-        size_t          bytes;
+        UserPtr     ptr;
+        size_t      bytes;
 
         inline MemBlock() : ptr(NULL), bytes(0) {}
-        inline MemBlock(void* p, size_t b) : ptr(p), bytes(b) {}
+        inline MemBlock(UserPtr p, size_t b) : ptr(p), bytes(b) {}
     };
 
     MemBlock smallPool[maxSmallBuffers];
@@ -1010,13 +1023,13 @@ private:
     /** 
      Malloc out of the tiny heap. Returns NULL if allocation failed.
      */
-    inline void* tinyMalloc(size_t bytes) {
+    inline UserPtr tinyMalloc(size_t bytes) {
         // Note that we ignore the actual byte size
         // and create a constant size block.
         (void)bytes;
         assert(tinyBufferSize >= bytes);
 
-        void* ptr = NULL;
+        UserPtr ptr = NULL;
 
         if (tinyPoolSize > 0) {
             --tinyPoolSize;
@@ -1040,20 +1053,20 @@ private:
     }
 
     /** Returns true if this is a pointer into the tiny heap. */
-    bool inTinyHeap(void* ptr) {
+    bool inTinyHeap(UserPtr ptr) {
         return 
             (ptr >= tinyHeap) && 
             (ptr < (uint8*)tinyHeap + maxTinyBuffers * tinyBufferSize);
     }
 
-    void tinyFree(void* ptr) {
+    void tinyFree(UserPtr ptr) {
         assert(ptr);
         assert(tinyPoolSize < maxTinyBuffers);
  //           "Tried to free a tiny pool buffer when the tiny pool freelist is full.");
 
 #       ifdef G3D_DEBUG
             if (tinyPoolSize > 0) {
-                void* prevOnHeap = tinyPool[tinyPoolSize - 1];
+                UserPtr prevOnHeap = tinyPool[tinyPoolSize - 1];
                 assert(prevOnHeap != ptr); 
 //                    "System::malloc heap corruption detected: "
 //                    "the last two pointers on the freelist are identical (during tinyFree).");
@@ -1070,7 +1083,8 @@ private:
 
     void flushPool(MemBlock* pool, int& poolSize) {
         for (int i = 0; i < poolSize; ++i) {
-            ::free(pool[i].ptr);
+            bytesAllocated -= USERSIZE_TO_REALSIZE(pool[i].bytes);
+            ::free(USERPTR_TO_REALPTR(pool[i].ptr));
             pool[i].ptr = NULL;
             pool[i].bytes = 0;
         }
@@ -1078,24 +1092,23 @@ private:
     }
 
 
-    /**  Allocate out of a specific pool->  Return NULL if no suitable 
-         memory was found. 
-    
-         */
-    void* malloc(MemBlock* pool, int& poolSize, size_t bytes) {
+    /** Allocate out of a specific pool.  Return NULL if no suitable 
+        memory was found. */
+    UserPtr malloc(MemBlock* pool, int& poolSize, size_t bytes) {
 
         // OPT: find the smallest block that satisfies the request.
 
-        // See if there's something we can use in the buffer pool->
+        // See if there's something we can use in the buffer pool.
         // Search backwards since usually we'll re-use the last one.
         for (int i = (int)poolSize - 1; i >= 0; --i) {
             if (pool[i].bytes >= bytes) {
-                // We found a suitable entry in the pool->
+                // We found a suitable entry in the pool.
 
                 // No need to offset the pointer; it is already offset
-                void* ptr = pool[i].ptr;
+                UserPtr ptr = pool[i].ptr;
 
-                // Remove this element from the pool
+                // Remove this element from the pool, replacing it with
+                // the one from the end (same as Array::fastRemove)
                 --poolSize;
                 pool[i] = pool[poolSize];
 
@@ -1159,6 +1172,8 @@ public:
 
     ~BufferPool() {
         ::free(tinyHeap);
+        flushPool(smallPool, smallPoolSize);
+        flushPool(medPool, medPoolSize);
 #if 0 //-------------------------------- old mutex
 #       ifdef G3D_WIN32
             DeleteCriticalSection(&mutex);
@@ -1169,7 +1184,7 @@ public:
     }
 
     
-    void* realloc(void* ptr, size_t bytes) {
+    UserPtr realloc(UserPtr ptr, size_t bytes) {
         if (ptr == NULL) {
             return malloc(bytes);
         }
@@ -1181,7 +1196,7 @@ public:
             } else {
                 // Free the old pointer and malloc
                 
-                void* newPtr = malloc(bytes);
+                UserPtr newPtr = malloc(bytes);
                 System::memcpy(newPtr, ptr, tinyBufferSize);
                 tinyFree(ptr);
                 return newPtr;
@@ -1191,28 +1206,28 @@ public:
             // In one of our heaps.
 
             // See how big the block really was
-            size_t realSize = *(uint32*)USERPTR_TO_REALPTR(ptr);
-            if (bytes <= realSize) {
+            size_t userSize = USERSIZE_FROM_USERPTR(ptr);
+            if (bytes <= userSize) {
                 // The old block was big enough.
                 return ptr;
             }
 
-            // Need to reallocate
-            void* newPtr = malloc(bytes);
-            System::memcpy(newPtr, ptr, realSize);
+            // Need to reallocate and move
+            UserPtr newPtr = malloc(bytes);
+            System::memcpy(newPtr, ptr, userSize);
             free(ptr);
             return newPtr;
         }
     }
 
 
-    void* malloc(size_t bytes) {
+    UserPtr malloc(size_t bytes) {
         lock();
         ++totalMallocs;
 
         if (bytes <= tinyBufferSize) {
 
-            void* ptr = tinyMalloc(bytes);
+            UserPtr ptr = tinyMalloc(bytes);
 
             if (ptr) {
                 ++mallocsFromTinyPool;
@@ -1226,7 +1241,7 @@ public:
         // through to a small buffer
         if (bytes <= smallBufferSize) {
             
-            void* ptr = malloc(smallPool, smallPoolSize, bytes);
+            UserPtr ptr = malloc(smallPool, smallPoolSize, bytes);
 
             if (ptr) {
                 ++mallocsFromSmallPool;
@@ -1239,7 +1254,7 @@ public:
             // through into a medium allocation because that would
             // waste the medium buffer's resources.
 
-            void* ptr = malloc(medPool, medPoolSize, bytes);
+            UserPtr ptr = malloc(medPool, medPoolSize, bytes);
 
             if (ptr) {
                 ++mallocsFromMedPool;
@@ -1249,37 +1264,37 @@ public:
             }
         }
 
-        bytesAllocated += REALBLOCK_SIZE(bytes);
+        bytesAllocated += USERSIZE_TO_REALSIZE(bytes);
         unlock();
 
         // Heap allocate
 
         // Allocate 4 extra bytes for our size header (unfortunate,
         // since malloc already added its own header).
-        void* ptr = ::malloc(REALBLOCK_SIZE(bytes));
+        RealPtr ptr = ::malloc(USERSIZE_TO_REALSIZE(bytes));
 
         if (ptr == NULL) {
             // Flush memory pools to try and recover space
             flushPool(smallPool, smallPoolSize);
             flushPool(medPool, medPoolSize);
-            ptr = ::malloc(REALBLOCK_SIZE(bytes));
+            ptr = ::malloc(USERSIZE_TO_REALSIZE(bytes));
         }
 
         if (ptr == NULL) {
             if ((System::outOfMemoryCallback() != NULL) &&
-                (System::outOfMemoryCallback()(REALBLOCK_SIZE(bytes), true) == true)) {
+                (System::outOfMemoryCallback()(USERSIZE_TO_REALSIZE(bytes), true) == true)) {
                 // Re-attempt the malloc
-                ptr = ::malloc(REALBLOCK_SIZE(bytes));
+                ptr = ::malloc(USERSIZE_TO_REALSIZE(bytes));
             }
         }
 
         if (ptr == NULL) {
             if (System::outOfMemoryCallback() != NULL) {
                 // Notify the application
-                System::outOfMemoryCallback()(REALBLOCK_SIZE(bytes), false);
+                System::outOfMemoryCallback()(USERSIZE_TO_REALSIZE(bytes), false);
             }
 #           ifdef G3D_DEBUG
-            debugPrintf("::malloc(%d) returned NULL\n", (int)REALBLOCK_SIZE(bytes));
+            debugPrintf("::malloc(%d) returned NULL\n", (int)USERSIZE_TO_REALSIZE(bytes));
 #           endif
             debugAssertM(ptr != NULL, 
                          "::malloc returned NULL. Either the "
@@ -1294,7 +1309,7 @@ public:
     }
 
 
-    void free(void* ptr) {
+    void free(UserPtr ptr) {
         if (ptr == NULL) {
             // Free does nothing on null pointers
             return;
@@ -1309,7 +1324,7 @@ public:
             return;
         }
 
-        uint32 bytes = *(uint32*)USERPTR_TO_REALPTR(ptr);
+        uint32 bytes = USERSIZE_FROM_USERPTR(ptr);
 
         lock();
         if (bytes <= smallBufferSize) {
@@ -1327,7 +1342,7 @@ public:
                 return;
             }
         }
-        bytesAllocated -= REALBLOCK_SIZE(bytes);
+        bytesAllocated -= USERSIZE_TO_REALSIZE(bytes);
         unlock();
 
         // Free; the buffer pools are full or this is too big to store.
@@ -1681,7 +1696,7 @@ std::string System::currentDateString() {
 
 // VC on Intel
 void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
-#if !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit platform */
+#if !defined(G3D_64BIT) && !defined(__MINGW32__) /* G3DFIX: Don't check if on 64-bit platforms or using MinGW */
     // Can't copy from assembler direct to a function argument (which is on the stack) in VC.
     uint32 a,b,c,d;
 

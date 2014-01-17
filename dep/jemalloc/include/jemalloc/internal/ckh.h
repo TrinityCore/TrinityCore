@@ -5,7 +5,7 @@ typedef struct ckh_s ckh_t;
 typedef struct ckhc_s ckhc_t;
 
 /* Typedefs to allow easy function pointer passing. */
-typedef void ckh_hash_t (const void *, unsigned, size_t *, size_t *);
+typedef void ckh_hash_t (const void *, size_t[2]);
 typedef bool ckh_keycomp_t (const void *, const void *);
 
 /* Maintain counters used to get an idea of performance. */
@@ -30,11 +30,6 @@ struct ckhc_s {
 };
 
 struct ckh_s {
-#ifdef JEMALLOC_DEBUG
-#define	CKH_MAGIG	0x3af2489d
-	uint32_t	magic;
-#endif
-
 #ifdef CKH_COUNT
 	/* Counters used to get an idea of performance. */
 	uint64_t	ngrows;
@@ -47,7 +42,7 @@ struct ckh_s {
 	/* Used for pseudo-random number generation. */
 #define	CKH_A		1103515241
 #define	CKH_C		12347
-	uint32_t	prn_state;
+	uint32_t	prng_state;
 
 	/* Total number of items. */
 	size_t		count;
@@ -80,11 +75,9 @@ bool	ckh_insert(ckh_t *ckh, const void *key, const void *data);
 bool	ckh_remove(ckh_t *ckh, const void *searchkey, void **key,
     void **data);
 bool	ckh_search(ckh_t *ckh, const void *seachkey, void **key, void **data);
-void	ckh_string_hash(const void *key, unsigned minbits, size_t *hash1,
-    size_t *hash2);
+void	ckh_string_hash(const void *key, size_t r_hash[2]);
 bool	ckh_string_keycomp(const void *k1, const void *k2);
-void	ckh_pointer_hash(const void *key, unsigned minbits, size_t *hash1,
-    size_t *hash2);
+void	ckh_pointer_hash(const void *key, size_t r_hash[2]);
 bool	ckh_pointer_keycomp(const void *k1, const void *k2);
 
 #endif /* JEMALLOC_H_EXTERNS */

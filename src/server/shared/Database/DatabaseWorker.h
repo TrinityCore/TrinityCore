@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ class DatabaseWorker : protected ACE_Task_Base
         int wait() { return ACE_Task_Base::wait(); }
 
     private:
-        DatabaseWorker() : ACE_Task_Base() {}
+        DatabaseWorker() : ACE_Task_Base() { }
         ACE_Activation_Queue* m_queue;
         MySQLConnection* m_conn;
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -205,7 +205,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         bool Update(uint32 diff);
 
-        void ChangeState() {}
+        void ChangeState() { }
 
         void FillInitialWorldStates(WorldPacket & data);
 
@@ -267,5 +267,5 @@ class OutdoorPvPZM : public OutdoorPvP
         uint32 m_HordeTowersControlled;
 };
 
-// todo: flag carrier death/leave/mount/activitychange should give back the gossip options
+/// @todo flag carrier death/leave/mount/activitychange should give back the gossip options
 #endif

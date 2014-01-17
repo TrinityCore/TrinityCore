@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -317,11 +317,11 @@ namespace Trinity
                 // Wards
                 if ((spellProtoA->SpellFamilyName == SPELLFAMILY_MAGE) ||
                     (spellProtoA->SpellFamilyName == SPELLFAMILY_WARLOCK))
-                    if (spellProtoA->Category == 56)
+                    if (spellProtoA->GetCategory() == 56)
                         return true;
                 if ((spellProtoB->SpellFamilyName == SPELLFAMILY_MAGE) ||
                     (spellProtoB->SpellFamilyName == SPELLFAMILY_WARLOCK))
-                    if (spellProtoB->Category == 56)
+                    if (spellProtoB->GetCategory() == 56)
                         return false;
 
                 // Sacred Shield
@@ -343,9 +343,9 @@ namespace Trinity
                     return false;
 
                 // Ice Barrier
-                if (spellProtoA->Category == 471)
+                if (spellProtoA->GetCategory() == 471)
                     return true;
-                if (spellProtoB->Category == 471)
+                if (spellProtoB->GetCategory() == 471)
                     return false;
 
                 // Sacrifice

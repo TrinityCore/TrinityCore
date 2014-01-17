@@ -4,7 +4,7 @@
 /**
  *  @file   CDR_Stream.h
  *
- *  $Id: CDR_Stream.h 84527 2009-02-19 14:01:42Z johnnyw $
+ *  $Id: CDR_Stream.h 95896 2012-06-18 20:42:07Z hillj $
  *
  * ACE Common Data Representation (CDR) marshaling and demarshaling
  * classes.
@@ -318,6 +318,12 @@ public:
    */
   char* write_long_placeholder (void);
   char* write_short_placeholder (void);
+  char* write_boolean_placeholder (void);
+  char* write_char_placeholder (void);
+  char* write_longlong_placeholder (void);
+  char* write_octet_placeholder (void);
+  char* write_float_placeholder (void);
+  char* write_double_placeholder (void);
 
   /**
    * Writes a new value into a specific location. This is commonly
@@ -336,7 +342,16 @@ public:
    * @sa write_long_placeholder(), write_short_placeholder ()
    */
   ACE_CDR::Boolean replace (ACE_CDR::Long x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::ULong x, char* loc);
   ACE_CDR::Boolean replace (ACE_CDR::Short x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::UShort x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::Boolean x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::Char x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::LongLong x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::ULongLong x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::Octet x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::Float x, char* loc);
+  ACE_CDR::Boolean replace (ACE_CDR::Double x, char* loc);
   //@}
 
   /**
@@ -1224,7 +1239,7 @@ protected:
                             const ACE_CDR::ULong *x);
 
   /// Efficiently read @a length elements of size @a size each from
-  /// <input> into <x>; the data must be aligned to <align>.
+  /// @a input into @a x; the data must be aligned to @a align.
   ACE_CDR::Boolean read_array (ACE_InputCDR& input,
                                void* x,
                                size_t size,
@@ -1232,9 +1247,9 @@ protected:
                                ACE_CDR::ULong length);
 
   /**
-   * Efficiently write @a length elements of size @a size from <x> into
-   * <output>. Before inserting the elements enough padding is added
-   * to ensure that the elements will be aligned to <align> in the
+   * Efficiently write @a length elements of size @a size from @a x into
+   * @a output. Before inserting the elements enough padding is added
+   * to ensure that the elements will be aligned to @a align in the
    * stream.
    */
   ACE_CDR::Boolean write_array (ACE_OutputCDR& output,
@@ -1244,10 +1259,10 @@ protected:
                                 ACE_CDR::ULong length);
 
   /**
-   * Exposes the stream implementation of <adjust>, this is useful in
+   * Exposes the stream implementation of @a adjust, this is useful in
    * many cases to minimize memory allocations during marshaling.
    * On success @a buf will contain a contiguous area in the CDR stream
-   * that can hold @a size bytes aligned to <align>.
+   * that can hold @a size bytes aligned to @a align.
    * Results
    */
   int adjust (ACE_OutputCDR& out,

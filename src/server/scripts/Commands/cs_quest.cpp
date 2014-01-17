@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,28 +22,31 @@ Comment: All quest related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
 
 class quest_commandscript : public CommandScript
 {
 public:
     quest_commandscript() : CommandScript("quest_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand questCommandTable[] =
         {
-            { "add",            SEC_ADMINISTRATOR,  false, &HandleQuestAdd,                    "", NULL },
-            { "complete",       SEC_ADMINISTRATOR,  false, &HandleQuestComplete,               "", NULL },
-            { "remove",         SEC_ADMINISTRATOR,  false, &HandleQuestRemove,                 "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "add",      rbac::RBAC_PERM_COMMAND_QUEST_ADD,      false, &HandleQuestAdd,      "", NULL },
+            { "complete", rbac::RBAC_PERM_COMMAND_QUEST_COMPLETE, false, &HandleQuestComplete, "", NULL },
+            { "remove",   rbac::RBAC_PERM_COMMAND_QUEST_REMOVE,   false, &HandleQuestRemove,   "", NULL },
+            { "reward",   rbac::RBAC_PERM_COMMAND_QUEST_REWARD,   false, &HandleQuestReward,   "", NULL },
+            { NULL,       0,                                false, NULL,                 "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "quest",          SEC_ADMINISTRATOR,  false, NULL,                  "", questCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "quest", rbac::RBAC_PERM_COMMAND_QUEST,  false, NULL, "", questCommandTable },
+            { NULL,    0,                        false, NULL,              "", NULL }
         };
         return commandTable;
     }
@@ -89,7 +92,7 @@ public:
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
         {
-            player->AddQuest(quest, NULL);
+            player->AddQuestAndCheckCompletion(quest, NULL);
 
             if (player->CanCompleteQuest(entry))
                 player->CompleteQuest(entry);
@@ -135,6 +138,12 @@ public:
 
                 // we ignore unequippable quest items in this case, its' still be equipped
                 player->TakeQuestSourceItem(logQuest, false);
+
+                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+                {
+                    player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+                    player->UpdatePvPState();
+                }
             }
         }
 
@@ -192,28 +201,21 @@ public:
             }
         }
 
-        // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
+        // All creature/GO slain/cast (not required, but otherwise it will display "Creature slain 0/10")
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         {
             int32 creature = quest->RequiredNpcOrGo[i];
-            uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
+            uint32 creatureCount = quest->RequiredNpcOrGoCount[i];
 
-            if (uint32 spell_id = quest->RequiredSpellCast[i])
+            if (creature > 0)
             {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, spell_id);
-            }
-            else if (creature > 0)
-            {
-                if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
-                    for (uint16 z = 0; z < creaturecount; ++z)
-                        player->KilledMonster(cInfo, 0);
+                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature))
+                    for (uint16 z = 0; z < creatureCount; ++z)
+                        player->KilledMonster(creatureInfo, 0);
             }
             else if (creature < 0)
-            {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, 0);
-            }
+                for (uint16 z = 0; z < creatureCount; ++z)
+                    player->KillCreditGO(creature, 0);
         }
 
         // If the quest requires reputation to complete
@@ -242,6 +244,38 @@ public:
             player->ModifyMoney(-ReqOrRewMoney);
 
         player->CompleteQuest(entry);
+        return true;
+    }
+
+    static bool HandleQuestReward(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->getSelectedPlayer();
+        if (!player)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // .quest reward #entry
+        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
+        char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
+        if (!cId)
+            return false;
+
+        uint32 entry = atol(cId);
+
+        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
+
+        // If player doesn't have the quest
+        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        player->RewardQuest(quest, 0, player);
         return true;
     }
 };

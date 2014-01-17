@@ -1,4 +1,4 @@
-// $Id: String_Base.cpp 88793 2010-02-01 17:50:34Z cleeland $
+// $Id: String_Base.cpp 93238 2011-02-01 14:30:38Z shuston $
 
 #ifndef ACE_STRING_BASE_CPP
 #define ACE_STRING_BASE_CPP
@@ -655,7 +655,9 @@ ACE_String_Base<ACE_CHAR_T>::operator+= (const ACE_CHAR_T c)
 {
   ACE_TRACE ("ACE_String_Base<ACE_CHAR_T>::operator+=(const ACE_CHAR_T)");
   const size_type slen = 1;
-  return this->append (&c, slen);
+  // This temp is silly but it quiets an optimizer warning in IBM XL C++ 10.
+  ACE_String_Base<ACE_CHAR_T>& r = this->append (&c, slen);
+  return r;
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

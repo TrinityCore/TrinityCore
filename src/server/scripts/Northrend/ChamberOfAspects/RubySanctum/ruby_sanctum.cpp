@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ruby_sanctum.h"
+#include "Player.h"
 
 enum Texts
 {
@@ -57,13 +60,13 @@ class npc_xerestrasza : public CreatureScript
                 _introDone = false;
             }
 
-            void Reset()
+            void Reset() OVERRIDE
             {
                 _events.Reset();
                 me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action) OVERRIDE
             {
                 if (action == ACTION_BALTHARUS_DEATH)
                 {
@@ -89,7 +92,7 @@ class npc_xerestrasza : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (_isIntro)
                     return;
@@ -135,7 +138,7 @@ class npc_xerestrasza : public CreatureScript
             bool _introDone;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return GetRubySanctumAI<npc_xerestraszaAI>(creature);
         }
@@ -146,7 +149,7 @@ class at_baltharus_plateau : public AreaTriggerScript
     public:
         at_baltharus_plateau() : AreaTriggerScript("at_baltharus_plateau") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) OVERRIDE
         {
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())

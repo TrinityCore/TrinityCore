@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ACE.inl 91813 2010-09-17 07:52:52Z johnnyw $
+// $Id: ACE.inl 95761 2012-05-15 18:23:04Z johnnyw $
 
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_Thread.h"
@@ -230,7 +230,7 @@ ACE::send_i (ACE_HANDLE handle, const void *buf, size_t len)
 ACE_INLINE ssize_t
 ACE::recv_i (ACE_HANDLE handle, void *buf, size_t len)
 {
-#if defined (ACE_WIN32) || defined (ACE_OPENVMS) || defined (ACE_TANDEM_T1248_PTHREADS)
+#if defined (ACE_WIN32) || defined (ACE_OPENVMS)
   return ACE_OS::recv (handle, (char *) buf, len);
 #else
   return ACE_OS::read (handle, (char *) buf, len);

@@ -4,7 +4,7 @@
 /**
  *  @file    CE_Screen_Output.h
  *
- *  $Id: CE_Screen_Output.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: CE_Screen_Output.h 94271 2011-06-23 14:52:31Z johnnyw $
  *
  *  @author Si Mong Park  <spark@ociweb.com>
  */
@@ -39,7 +39,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  *
  * This class allows standard text output to be displayed on
  * text window for Windows CE.  Generally, all ACE output will
- * go through under CE if and only if user uses WindozeCE
+ * go through under CE if and only if user uses Windows CE
  * implementation by using main_ce instead of main.
  * Also, for the easier debugging purpose, object pointer of
  * this class can be gotten from ACE_Log_Msg::msg_callback()

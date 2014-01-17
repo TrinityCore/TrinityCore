@@ -1,0 +1,73 @@
+diff --git a/dep/g3dlite/include/G3D/System.h b/dep/g3dlite/include/G3D/System.h
+index 1c0cf99..f160774 100644
+--- a/dep/g3dlite/include/G3D/System.h
++++ b/dep/g3dlite/include/G3D/System.h
+@@ -19,6 +19,9 @@
+ #include "G3D/G3DGameUnits.h"
+ #include "G3D/BinaryFormat.h"
+ #include <string>
++#ifdef G3D_LINUX
++#   include <sys/socket.h>
++#endif
+ 
+ #ifdef G3D_OSX
+ #   include <CoreServices/CoreServices.h>
+diff --git a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+index 11093f4..614c0ed 100644
+--- a/dep/g3dlite/include/G3D/platform.h
++++ b/dep/g3dlite/include/G3D/platform.h
+@@ -56,6 +56,8 @@
+     #define G3D_LINUX
+ #elif defined(__linux__)
+     #define G3D_LINUX
++#elif defined(__CYGWIN__)
++    #define G3D_LINUX
+ #elif defined(__APPLE__)
+     #define G3D_LINUX
+ 
+diff --git a/dep/g3dlite/source/BinaryOutput.cpp b/dep/g3dlite/source/BinaryOutput.cpp
+index 054211d..81fa982 100644
+--- a/dep/g3dlite/source/BinaryOutput.cpp
++++ b/dep/g3dlite/source/BinaryOutput.cpp
+@@ -22,6 +22,10 @@
+ #    include <errno.h>
+ #endif
+ 
++#ifdef __CYGWIN__
++#    include <errno.h>
++#endif
++
+ // Largest memory buffer that the system will use for writing to
+ // disk.  After this (or if the system runs out of memory)
+ // chunks of the file will be dumped to disk.
+diff --git a/dep/g3dlite/source/FileSystem.cpp b/dep/g3dlite/source/FileSystem.cpp
+index 2cf890a..76a3611 100644
+--- a/dep/g3dlite/source/FileSystem.cpp
++++ b/dep/g3dlite/source/FileSystem.cpp
+@@ -35,6 +35,10 @@
+ #   define _stat stat
+ #endif
+ 
++#ifdef __CYGWIN__
++#define stat64 stat
++#endif
++
+ namespace G3D {
+ 
+ static FileSystem* common = NULL;
+diff --git a/dep/g3dlite/source/System.cpp b/dep/g3dlite/source/System.cpp
+index 809f05c..f6b0e03 100644
+--- a/dep/g3dlite/source/System.cpp
++++ b/dep/g3dlite/source/System.cpp
+@@ -888,7 +888,11 @@ void System::initTime() {
+         
+         if (localTimeVals) {
+             // tm_gmtoff is already corrected for daylight savings.
++            #ifdef __CYGWIN__
++            local = local + _timezone;
++            #else
+             local = local + localTimeVals->tm_gmtoff;
++            #endif
+         }
+         
+         m_realWorldGetTickTime0 = local;

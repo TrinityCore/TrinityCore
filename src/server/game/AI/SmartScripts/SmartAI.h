@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "ConditionMgr.h"
 #include "Spell.h"
 
 #include "SmartScript.h"
@@ -40,13 +39,13 @@ enum SmartEscortState
 enum SmartEscortVars
 {
     SMART_ESCORT_MAX_PLAYER_DIST        = 50,
-    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2,
+    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
 };
 
 class SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){};
+        ~SmartAI(){ }
         explicit SmartAI(Creature* c);
 
         // Start moving to the desired MovePoint
@@ -57,13 +56,14 @@ class SmartAI : public CreatureAI
         void EndPath(bool fail = false);
         void ResumePath();
         WayPoint* GetNextWayPoint();
-        bool HasEscortState(uint32 uiEscortState) { return (mEscortState & uiEscortState); }
+        bool HasEscortState(uint32 uiEscortState) const { return (mEscortState & uiEscortState) != 0; }
         void AddEscortState(uint32 uiEscortState) { mEscortState |= uiEscortState; }
         void RemoveEscortState(uint32 uiEscortState) { mEscortState &= ~uiEscortState; }
         void SetAutoAttack(bool on) { mCanAutoAttack = on; }
         void SetCombatMove(bool on);
         bool CanCombatMove() { return mCanCombatMove; }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
+        void StopFollow();
 
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
@@ -72,10 +72,7 @@ class SmartAI : public CreatureAI
         // Called when creature is spawned or respawned
         void JustRespawned();
 
-        // Called after InitializeAI(), EnterEvadeMode() for resetting variables
-        void Reset();
-
-        // Called at reaching home after evade
+        // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
         void JustReachedHome();
 
         // Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
@@ -112,7 +109,7 @@ class SmartAI : public CreatureAI
         void HealReceived(Unit* doneBy, uint32& addhealth);
 
         // Called at World update tick
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         // Called at text emote receive from player
         void ReceiveEmote(Player* player, uint32 textEmote);
@@ -148,10 +145,10 @@ class SmartAI : public CreatureAI
         bool CanAIAttack(const Unit* who) const;
 
         // Used in scripts to share variables
-        void DoAction(const int32 param = 0);
+        void DoAction(int32 param = 0);
 
         // Used in scripts to share variables
-        uint32 GetData(uint32 id = 0);
+        uint32 GetData(uint32 id = 0) const;
 
         // Used in scripts to share variables
         void SetData(uint32 id, uint32 value);
@@ -160,7 +157,7 @@ class SmartAI : public CreatureAI
         void SetGUID(uint64 guid, int32 id = 0);
 
         // Used in scripts to share variables
-        uint64 GetGUID(int32 id = 0);
+        uint64 GetGUID(int32 id = 0) const;
 
         //core related
         static int Permissible(const Creature*);
@@ -198,7 +195,7 @@ class SmartAI : public CreatureAI
 
         void RemoveAuras();
 
-        void OnSpellClick(Unit* clicker);
+        void OnSpellClick(Unit* clicker, bool& result);
 
     private:
         uint32 mFollowCreditType;
@@ -233,13 +230,14 @@ class SmartAI : public CreatureAI
         uint32 mDespawnState;
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;
+        bool mJustReset;
 };
 
 class SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) {}
-        ~SmartGameObjectAI() {}
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g) { }
+        ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff);
         void InitializeAI();
@@ -252,7 +250,6 @@ class SmartGameObjectAI : public GameObjectAI
         bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/);
         bool QuestAccept(Player* player, Quest const* quest);
         bool QuestReward(Player* player, Quest const* quest, uint32 opt);
-        uint32 GetDialogStatus(Player* /*player*/);
         void Destroyed(Player* player, uint32 eventId);
         void SetData(uint32 id, uint32 value);
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
@@ -260,8 +257,7 @@ class SmartGameObjectAI : public GameObjectAI
         void OnStateChanged(uint32 state, Unit* unit);
         void EventInform(uint32 eventId);
 
-    protected:
-        GameObject* const go;
+    private:
         SmartScript mScript;
 };
 #endif

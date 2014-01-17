@@ -4,7 +4,7 @@
 /**
  *  @file    Dev_Poll_Reactor.h
  *
- *  $Id: Dev_Poll_Reactor.h 91462 2010-08-25 20:29:17Z shuston $
+ *  $Id: Dev_Poll_Reactor.h 94549 2011-10-03 06:31:27Z johnnyw $
  *
  *  @c /dev/poll (or Linux @c sys_epoll) based Reactor implementation.
  *
@@ -563,7 +563,7 @@ public:
                                 ACE_Event_Handler *event_handler,
                                 ACE_Reactor_Mask mask);
 
-  /// Register @a event_handler> with all the @a handles> in the @c
+  /// Register @a event_handler with all the @a handles in the @c
   /// Handle_Set.
   virtual int register_handler (const ACE_Handle_Set &handles,
                                 ACE_Event_Handler *event_handler,
@@ -815,7 +815,7 @@ public:
   /// Wake up all threads waiting in the event loop.
   virtual void wakeup_all_threads (void);
 
-  /// Transfers ownership of Reactor_Impl to the new_owner.
+  /// Transfers ownership of Reactor_Impl to the @a new_owner.
   /**
    * @note There is no need to set the owner of the event loop for the
    *       ACE_Dev_Poll_Reactor.  Multiple threads may invoke the
@@ -828,7 +828,7 @@ public:
   /**
    * @note There is no need to set the owner of the event loop for the
    *       ACE_Dev_Poll_Reactor.  Multiple threads may invoke the
-   *       event loop simulataneously.  As such, this method is a
+   *       event loop simultaneously.  As such, this method is a
    *       no-op.
    */
   virtual int owner (ACE_thread_t *owner);
@@ -1123,7 +1123,7 @@ protected:
     /// 2) wait quietly for the token, not waking another thread. This
     /// is appropriate for cases where a thread wants to wait for and
     /// dispatch an event, not causing an existing waiter to relinquish the
-    /// token, and also queueing up behind other threads waiting to modify
+    /// token, and also queuing up behind other threads waiting to modify
     /// event records.
     int acquire_quietly (ACE_Time_Value *max_wait = 0);
 

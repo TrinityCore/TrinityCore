@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 #ifndef OUTDOOR_PVP_H_
 #define OUTDOOR_PVP_H_
 
-#include "Utilities/Util.h"
+#include "Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 
@@ -31,7 +31,7 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_TF = 3,
     OUTDOOR_PVP_ZM = 4,
     OUTDOOR_PVP_SI = 5,
-    OUTDOOR_PVP_EP = 6,
+    OUTDOOR_PVP_EP = 6
 };
 
 #define MAX_OUTDOORPVP_TYPES 7
@@ -44,7 +44,7 @@ enum ObjectiveStates
     OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE,
     OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE,
     OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE,
-    OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE,
+    OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE
 };
 
 #define OTHER_TEAM(a) (a == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE)
@@ -85,7 +85,7 @@ class Unit;
 struct GossipMenuItems;
 class OutdoorPvP;
 
-typedef std::set<Player*> PlayerSet;
+typedef std::set<uint64> PlayerSet;
 
 class OPvPCapturePoint
 {
@@ -93,9 +93,9 @@ class OPvPCapturePoint
 
         OPvPCapturePoint(OutdoorPvP* pvp);
 
-        virtual ~OPvPCapturePoint() {}
+        virtual ~OPvPCapturePoint() { }
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -119,7 +119,7 @@ class OPvPCapturePoint
 
         virtual void ChangeState() = 0;
 
-        virtual void ChangeTeam(TeamId /*oldTeam*/) {}
+        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
 
         virtual void SendChangePhase();
 
@@ -205,7 +205,7 @@ class OutdoorPvP : public ZoneScript
 
         typedef std::map<uint32/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* player, uint32 trigger);
@@ -221,7 +221,7 @@ class OutdoorPvP : public ZoneScript
 
         void OnGameObjectCreate(GameObject* go);
         void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature*) {}
+        void OnCreatureCreate(Creature*) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -231,13 +231,13 @@ class OutdoorPvP : public ZoneScript
 
         // handle npc/player kill
         virtual void HandleKill(Player* killer, Unit* killed);
-        virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
+        virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) { }
 
         // checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
 
         // awards rewards for player kill
-        virtual void AwardKillBonus(Player* /*player*/) {}
+        virtual void AwardKillBonus(Player* /*player*/) { }
 
         uint32 GetTypeId() {return m_TypeId;}
 
@@ -261,7 +261,7 @@ class OutdoorPvP : public ZoneScript
         bool m_sendUpdate;
 
         // world state stuff
-        virtual void SendRemoveWorldStates(Player* /*player*/) {}
+        virtual void SendRemoveWorldStates(Player* /*player*/) { }
 
         void BroadcastPacket(WorldPacket & data) const;
 
@@ -285,7 +285,7 @@ class OutdoorPvP : public ZoneScript
 
         void RegisterZone(uint32 zoneid);
 
-        bool HasPlayer(Player* player) const;
+        bool HasPlayer(Player const* player) const;
 
         void TeamCastSpell(TeamId team, int32 spellId);
 };

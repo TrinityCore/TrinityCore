@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
-class Battleground;
+#include "Battleground.h"
 
 enum BattlegroundDSObjectTypes
 {
@@ -52,14 +52,14 @@ enum BattlegroundDSCreatureTypes
 
 enum BattlegroundDSCreatures
 {
-    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567,
+    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567
 };
 
 enum BattlegroundDSSpells
 {
     BG_DS_SPELL_FLUSH             = 57405, // Visual and target selector for the starting knockback from the pipe
-    BG_DS_SPELL_FLUSH_KNOCKBACK   = 61698, // Knockback effect for previous spell (triggered, not need to be casted)
-    BG_DS_SPELL_WATER_SPOUT       = 58873, // Knockback effect of the central waterfall
+    BG_DS_SPELL_FLUSH_KNOCKBACK   = 61698, // Knockback effect for previous spell (triggered, not needed to be cast)
+    BG_DS_SPELL_WATER_SPOUT       = 58873  // Knockback effect of the central waterfall
 };
 
 enum BattlegroundDSData
@@ -76,15 +76,7 @@ enum BattlegroundDSData
 
     BG_DS_WATERFALL_STATUS_WARNING               = 1, // Water starting to fall, but no LoS Blocking nor movement blocking
     BG_DS_WATERFALL_STATUS_ON                    = 2, // LoS and Movement blocking active
-    BG_DS_WATERFALL_STATUS_OFF                   = 3,
-};
-
-class BattlegroundDSScore : public BattlegroundScore
-{
-    public:
-        BattlegroundDSScore() {};
-        virtual ~BattlegroundDSScore() {};
-        //TODO fix me
+    BG_DS_WATERFALL_STATUS_OFF                   = 3
 };
 
 class BattlegroundDS : public Battleground
@@ -94,17 +86,16 @@ class BattlegroundDS : public Battleground
         ~BattlegroundDS();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void AddPlayer(Player* player);
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
+        void Reset();
+        void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;
@@ -112,17 +103,17 @@ class BattlegroundDS : public Battleground
         uint32 _pipeKnockBackTimer;
         uint8 _pipeKnockBackCount;
 
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff);
     protected:
-        uint32 getWaterFallStatus() { return _waterfallStatus; };
-        void setWaterFallStatus(uint8 status) { _waterfallStatus = status; };
-        uint32 getWaterFallTimer() { return _waterfallTimer; };
-        void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; };
-        uint32 getWaterFallKnockbackTimer() { return _waterfallKnockbackTimer; };
-        void setWaterFallKnockbackTimer(uint32 timer) { _waterfallKnockbackTimer = timer; };
-        uint8 getPipeKnockBackCount() { return _pipeKnockBackCount; };
-        void setPipeKnockBackCount(uint8 count) { _pipeKnockBackCount = count; };
-        uint32 getPipeKnockBackTimer() { return _pipeKnockBackTimer; };
-        void setPipeKnockBackTimer(uint32 timer) { _pipeKnockBackTimer = timer; };
+        uint32 getWaterFallStatus() { return _waterfallStatus; }
+        void setWaterFallStatus(uint8 status) { _waterfallStatus = status; }
+        uint32 getWaterFallTimer() { return _waterfallTimer; }
+        void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; }
+        uint32 getWaterFallKnockbackTimer() { return _waterfallKnockbackTimer; }
+        void setWaterFallKnockbackTimer(uint32 timer) { _waterfallKnockbackTimer = timer; }
+        uint8 getPipeKnockBackCount() { return _pipeKnockBackCount; }
+        void setPipeKnockBackCount(uint8 count) { _pipeKnockBackCount = count; }
+        uint32 getPipeKnockBackTimer() { return _pipeKnockBackTimer; }
+        void setPipeKnockBackTimer(uint32 timer) { _pipeKnockBackTimer = timer; }
 };
 #endif

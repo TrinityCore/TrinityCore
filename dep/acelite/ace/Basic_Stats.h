@@ -3,12 +3,11 @@
 /**
  *  @file    Basic_Stats.h
  *
- *  $Id: Basic_Stats.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Basic_Stats.h 95743 2012-05-13 12:29:28Z johnnyw $
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
 //=============================================================================
-
 
 #ifndef ACE_BASIC_STATS_H
 #define ACE_BASIC_STATS_H
@@ -32,6 +31,12 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_Basic_Stats
 {
 public:
+#if !defined (ACE_WIN32)
+   typedef ACE_UINT32 scale_factor_type;
+#else
+   typedef ACE_UINT64 scale_factor_type;
+#endif
+
   /// Constructor
   /**
    * The number of samples is pre-allocated, and cannot changes once
@@ -56,7 +61,7 @@ public:
    * presented in microseconds.
    */
   void dump_results (const ACE_TCHAR *msg,
-                     ACE_UINT32 scale_factor) const;
+                     scale_factor_type scale_factor) const;
 
   /// The number of samples
   ACE_UINT32 samples_count_;

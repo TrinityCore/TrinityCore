@@ -1,12 +1,10 @@
-//$Id: Hashable.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+//$Id: Hashable.cpp 93736 2011-04-05 12:38:35Z johnnyw $
 
 #include "ace/Hashable.h"
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Hashable.inl"
 #endif /* __ACE_INLINE __ */
-
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

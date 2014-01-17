@@ -4,7 +4,7 @@
 /**
  *  @file    String_Base.h
  *
- *  $Id: String_Base.h 92057 2010-09-27 14:52:00Z johnnyw $
+ *  $Id: String_Base.h 95709 2012-04-24 01:19:24Z schmidt $
  *
  *  @author Douglas C. Schmidt (schmidt@cs.wustl.edu)
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>

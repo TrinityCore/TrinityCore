@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,32 +23,31 @@ SDComment: Not known how void blast is done (amount of rapid cast seems to be re
 SDCategory: Auchindoun, Mana Tombs
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
-#define SAY_AGGRO_1                     -1557008
-#define SAY_AGGRO_2                     -1557009
-#define SAY_AGGRO_3                     -1557010
+enum Pandemonius
+{
+    SAY_AGGRO                       = 0,
+    SAY_KILL                        = 1,
+    SAY_DEATH                       = 2,
+    EMOTE_DARK_SHELL                = 3,
 
-#define SAY_KILL_1                      -1557011
-#define SAY_KILL_2                      -1557012
+    SPELL_VOID_BLAST                = 32325,
+    H_SPELL_VOID_BLAST              = 38760,
+    SPELL_DARK_SHELL                = 32358,
+    H_SPELL_DARK_SHELL              = 38759
+};
 
-#define SAY_DEATH                       -1557013
-
-#define EMOTE_DARK_SHELL                -1557014
-
-#define SPELL_VOID_BLAST                32325
-#define H_SPELL_VOID_BLAST              38760
-#define SPELL_DARK_SHELL                32358
-#define H_SPELL_DARK_SHELL              38759
 
 class boss_pandemonius : public CreatureScript
 {
 public:
     boss_pandemonius() : CreatureScript("boss_pandemonius") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_pandemoniusAI (creature);
+        return new boss_pandemoniusAI(creature);
     }
 
     struct boss_pandemoniusAI : public ScriptedAI
@@ -61,29 +60,29 @@ public:
         uint32 DarkShell_Timer;
         uint32 VoidBlast_Counter;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             VoidBlast_Timer = 8000+rand()%15000;
             DarkShell_Timer = 20000;
             VoidBlast_Counter = 0;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
-            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+            Talk(SAY_KILL);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -108,10 +107,10 @@ public:
             {
                 if (DarkShell_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(true);
 
-                    DoScriptText(EMOTE_DARK_SHELL, me);
+                    Talk(EMOTE_DARK_SHELL);
 
                     DoCast(me, SPELL_DARK_SHELL);
                     DarkShell_Timer = 20000;

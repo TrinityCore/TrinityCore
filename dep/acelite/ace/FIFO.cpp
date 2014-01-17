@@ -1,4 +1,4 @@
-// $Id: FIFO.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: FIFO.cpp 94034 2011-05-09 19:11:03Z johnnyw $
 
 #include "ace/FIFO.h"
 
@@ -11,8 +11,6 @@
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_sys_stat.h"
 #include "ace/OS_NS_fcntl.h"
-
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

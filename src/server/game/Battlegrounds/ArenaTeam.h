@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,8 +119,9 @@ class ArenaTeam
         ArenaTeam();
         ~ArenaTeam();
 
-        bool Create(uint64 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
+        bool Create(uint64 captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
         void Disband(WorldSession* session);
+        void Disband();
 
         typedef std::list<ArenaTeamMember> MemberList;
 
@@ -129,13 +130,14 @@ class ArenaTeam
         uint8  GetSlot() const            { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
         uint64 GetCaptain() const  { return CaptainGuid; }
-        std::string GetName() const       { return TeamName; }
+        std::string const& GetName() const       { return TeamName; }
         const ArenaTeamStats& GetStats() const { return Stats; }
 
         uint32 GetRating() const          { return Stats.Rating; }
         uint32 GetAverageMMR(Group* group) const;
 
         void SetCaptain(uint64 guid);
+        bool SetName(std::string const& name);
         bool AddMember(uint64 PlayerGuid);
 
         // Shouldn't be uint64 ed, because than can reference guid from members on Disband
@@ -149,7 +151,7 @@ class ArenaTeam
         bool IsMember(uint64 guid) const;
 
         ArenaTeamMember* GetMember(uint64 guid);
-        ArenaTeamMember* GetMember(const std::string& name);
+        ArenaTeamMember* GetMember(std::string const& name);
 
         bool IsFighting() const;
 
@@ -159,8 +161,10 @@ class ArenaTeam
         void SaveToDB();
 
         void BroadcastPacket(WorldPacket* packet);
-        void BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string str1, std::string str2, std::string str3);
+        void BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3);
         void NotifyStatsChanged();
+
+        void MassInviteToEvent(WorldSession* session);
 
         void Roster(WorldSession* session);
         void Query(WorldSession* session);

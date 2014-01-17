@@ -4,7 +4,7 @@
 /**
  *  @file    Functor_String.h
  *
- *  $Id: Functor_String.h 86698 2009-09-13 15:58:17Z johnnyw $
+ *  $Id: Functor_String.h 93411 2011-02-18 22:21:16Z hillj $
  *
  *   Class template specializations for ACE_*String types implementing
  *   function objects that are used in  various places in ATC. They
@@ -25,6 +25,7 @@
 
 #include /**/ "ace/ACE_export.h"
 #include "ace/SStringfwd.h"
+#include <string>
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -75,6 +76,44 @@ public:
   /// Simply calls ACE_OS::strcmp
   int operator () (const ACE_CString &lhs,
                    const ACE_CString &rhs) const;
+};
+
+/**
+ * @brief Function object for determining whether two std::strings are
+ * equal.
+ */
+template<>
+class ACE_Export ACE_Equal_To<std::string>
+{
+public:
+  int operator () (const std::string &lhs,
+                   const std::string &rhs) const;
+};
+
+
+/**
+ * @brief Function object for hashing a std::string
+ */
+template<>
+class ACE_Export ACE_Hash<std::string>
+{
+public:
+  /// Calls ACE::hash_pjw
+  unsigned long operator () (const std::string &lhs) const;
+};
+
+
+/**
+ * @brief Function object for determining whether the first const string
+ * is less than the second const string.
+ */
+template<>
+class ACE_Export ACE_Less_Than<std::string>
+{
+public:
+  /// Simply calls std::string::compare
+  int operator () (const std::string &lhs,
+                   const std::string &rhs) const;
 };
 
 

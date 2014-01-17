@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,35 +23,36 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
-#define SAY_AGGRO               -1532018
-#define SAY_SLAY1               -1532019
-#define SAY_SLAY2               -1532020
-#define SAY_SLAY3               -1532021
-#define SAY_REPENTANCE1         -1532022
-#define SAY_REPENTANCE2         -1532023
-#define SAY_DEATH               -1532024
+enum MaidenOfVirtue
+{
+    SAY_AGGRO               = 0,
+    SAY_SLAY                = 1,
+    SAY_REPENTANCE          = 2,
+    SAY_DEATH               = 3,
 
-#define SPELL_REPENTANCE        29511
-#define SPELL_HOLYFIRE          29522
-#define SPELL_HOLYWRATH         32445
-#define SPELL_HOLYGROUND        29512
-#define SPELL_BERSERK           26662
+    SPELL_REPENTANCE        = 29511,
+    SPELL_HOLYFIRE          = 29522,
+    SPELL_HOLYWRATH         = 32445,
+    SPELL_HOLYGROUND        = 29512,
+    SPELL_BERSERK           = 26662,
+};
 
 class boss_maiden_of_virtue : public CreatureScript
 {
 public:
     boss_maiden_of_virtue() : CreatureScript("boss_maiden_of_virtue") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_maiden_of_virtueAI (creature);
+        return new boss_maiden_of_virtueAI(creature);
     }
 
     struct boss_maiden_of_virtueAI : public ScriptedAI
     {
-        boss_maiden_of_virtueAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_maiden_of_virtueAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Repentance_Timer;
         uint32 Holyfire_Timer;
@@ -61,7 +62,7 @@ public:
 
         bool Enraged;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Repentance_Timer    = 25000+(rand()%15000);
             Holyfire_Timer      = 8000+(rand()%17000);
@@ -72,23 +73,23 @@ public:
             Enraged = false;
         }
 
-        void KilledUnit(Unit* /*Victim*/)
+        void KilledUnit(Unit* /*Victim*/) OVERRIDE
         {
             if (urand(0, 1) == 0)
-                DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
+                Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -107,8 +108,8 @@ public:
 
             if (Repentance_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_REPENTANCE);
-                DoScriptText(RAND(SAY_REPENTANCE1, SAY_REPENTANCE2), me);
+                DoCastVictim(SPELL_REPENTANCE);
+                Talk(SAY_REPENTANCE);
 
                 Repentance_Timer = urand(25000, 35000);        //A little randomness on that spell
             } else Repentance_Timer -= diff;
@@ -131,9 +132,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
     };
-
 };
 
 void AddSC_boss_maiden_of_virtue()

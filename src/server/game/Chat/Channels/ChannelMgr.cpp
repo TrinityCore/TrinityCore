@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,50 +17,55 @@
  */
 
 #include "ChannelMgr.h"
-
+#include "Player.h"
 #include "World.h"
 
-ChannelMgr* channelMgr(uint32 team)
+ChannelMgr::~ChannelMgr()
+{
+    for (ChannelMap::iterator itr = channels.begin(); itr != channels.end(); ++itr)
+        delete itr->second;
+}
+
+ChannelMgr* ChannelMgr::forTeam(uint32 team)
 {
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();        // cross-faction
 
     if (team == ALLIANCE)
         return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();
+
     if (team == HORDE)
         return ACE_Singleton<HordeChannelMgr, ACE_Null_Mutex>::instance();
 
     return NULL;
 }
 
-ChannelMgr::~ChannelMgr()
-{
-    for (ChannelMap::iterator itr = channels.begin(); itr != channels.end(); ++itr)
-        delete itr->second;
-
-    channels.clear();
-}
-
-Channel* ChannelMgr::GetJoinChannel(std::string name, uint32 channel_id)
+Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
 {
     std::wstring wname;
-    Utf8toWStr(name, wname);
+    if (!Utf8toWStr(name, wname))
+        return NULL;
+
     wstrToLower(wname);
 
-    if (channels.find(wname) == channels.end())
+    ChannelMap::const_iterator i = channels.find(wname);
+
+    if (i == channels.end())
     {
-        Channel* nchan = new Channel(name, channel_id, team);
+        Channel* nchan = new Channel(name, channelId, team);
         channels[wname] = nchan;
         return nchan;
     }
 
-    return channels[wname];
+    return i->second;
 }
 
-Channel* ChannelMgr::GetChannel(std::string name, Player* p, bool pkt)
+Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pkt)
 {
     std::wstring wname;
-    Utf8toWStr(name, wname);
+    if (!Utf8toWStr(name, wname))
+        return NULL;
+
     wstrToLower(wname);
 
     ChannelMap::const_iterator i = channels.find(wname);
@@ -71,19 +76,21 @@ Channel* ChannelMgr::GetChannel(std::string name, Player* p, bool pkt)
         {
             WorldPacket data;
             MakeNotOnPacket(&data, name);
-            p->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(&data);
         }
 
         return NULL;
     }
-    else
-        return i->second;
+
+    return i->second;
 }
 
-void ChannelMgr::LeftChannel(std::string name)
+void ChannelMgr::LeftChannel(std::string const& name)
 {
     std::wstring wname;
-    Utf8toWStr(name, wname);
+    if (!Utf8toWStr(name, wname))
+        return;
+
     wstrToLower(wname);
 
     ChannelMap::const_iterator i = channels.find(wname);
@@ -93,15 +100,15 @@ void ChannelMgr::LeftChannel(std::string name)
 
     Channel* channel = i->second;
 
-    if (channel->GetNumPlayers() == 0 && !channel->IsConstant())
+    if (!channel->GetNumPlayers() && !channel->IsConstant())
     {
         channels.erase(wname);
         delete channel;
     }
 }
 
-void ChannelMgr::MakeNotOnPacket(WorldPacket* data, std::string name)
+void ChannelMgr::MakeNotOnPacket(WorldPacket* data, std::string const& name)
 {
-    data->Initialize(SMSG_CHANNEL_NOTIFY, (1+10));  // we guess size
-    (*data) << (uint8)0x05 << name;
+    data->Initialize(SMSG_CHANNEL_NOTIFY, 1 + name.size());
+    (*data) << uint8(5) << name;
 }

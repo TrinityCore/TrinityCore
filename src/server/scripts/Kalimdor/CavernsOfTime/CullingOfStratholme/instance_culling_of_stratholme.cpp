@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,9 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "CreatureTextMgr.h"
 #include "culling_of_stratholme.h"
+#include "Player.h"
+#include "TemporarySummon.h"
+#include "SpellInfo.h"
 
 #define MAX_ENCOUNTER 5
 
@@ -41,7 +45,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
     public:
         instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_culling_of_stratholme_InstanceMapScript(map);
         }
@@ -66,7 +70,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _crateCount = 0;
             }
 
-            bool IsEncounterInProgress() const
+            bool IsEncounterInProgress() const OVERRIDE
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (_encounterState[i] == IN_PROGRESS)
@@ -75,7 +79,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return false;
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldPacket& data) OVERRIDE
             {
                 data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1);
                 data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
@@ -84,7 +88,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch (creature->GetEntry())
                 {
@@ -112,7 +116,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -139,7 +143,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
@@ -183,8 +187,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                             // Summon Chromie and global whisper
                             if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos))
                                 if (!instance->GetPlayers().isEmpty())
-                                    if (Player* player = instance->GetPlayers().getFirst()->getSource())
-                                        sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                    sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                         }
                         DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
@@ -194,7 +197,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -214,7 +217,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetData64(uint32 identifier) const OVERRIDE
             {
                 switch (identifier)
                 {
@@ -244,7 +247,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -256,7 +259,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in)
+            void Load(const char* in) OVERRIDE
             {
                 if (!in)
                 {

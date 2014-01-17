@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SPIPE_Stream.inl 88707 2010-01-25 18:49:25Z johnnyw $
+// $Id: SPIPE_Stream.inl 93061 2011-01-12 21:06:07Z wotte $
 
 #include "ace/OS_NS_sys_uio.h"
 #include "ace/OS_NS_errno.h"
@@ -139,7 +139,7 @@ ACE_SPIPE_Stream::send_handle (ACE_HANDLE handle) const
   }
   return 0;
 #else
-  handle = handle;
+  ACE_UNUSED_ARG (handle);
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_STREAM_PIPES */
 }
@@ -195,7 +195,7 @@ ACE_SPIPE_Stream::recv_handle (ACE_HANDLE &handle) const
   }
   return 0;
 #else
-  handle = handle;
+  ACE_UNUSED_ARG (handle);
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_STREAM_PIPES */
 }

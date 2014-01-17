@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,24 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SAY_GREET           RAND(-1533000, -1533004, -1533005, -1533006, -1533007)
-#define SAY_AGGRO           RAND(-1533001, -1533002, -1533003)
-#define SAY_SLAY            -1533008
+enum Says
+{
+    SAY_AGGRO           = 0,
+    SAY_GREET           = 1,
+    SAY_SLAY            = 2
+};
 
-#define MOB_CRYPT_GUARD     16573
-
-const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
+Position const GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
 
 enum Events
 {
-    EVENT_NONE,
-    EVENT_IMPALE,
+    EVENT_IMPALE                    = 1,
     EVENT_LOCUST,
     EVENT_SPAWN_GUARDIAN_NORMAL,
-    EVENT_BERSERK,
+    EVENT_BERSERK
 };
 
 enum Spells
@@ -43,12 +44,12 @@ enum Spells
     SPELL_LOCUST_SWARM_25           = 54021,
     SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
     SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards
-    SPELL_BERSERK                   = 27680,
+    SPELL_BERSERK                   = 27680
 };
 
-enum
+enum Misc
 {
-    ACHIEV_TIMED_START_EVENT                      = 9891,
+    ACHIEV_TIMED_START_EVENT                      = 9891
 };
 
 class boss_anubrekhan : public CreatureScript
@@ -56,18 +57,18 @@ class boss_anubrekhan : public CreatureScript
 public:
     boss_anubrekhan() : CreatureScript("boss_anubrekhan") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_anubrekhanAI (creature);
+        return GetInstanceAI<boss_anubrekhanAI>(creature);
     }
 
     struct boss_anubrekhanAI : public BossAI
     {
-        boss_anubrekhanAI(Creature* creature) : BossAI(creature, BOSS_ANUBREKHAN) {}
+        boss_anubrekhanAI(Creature* creature) : BossAI(creature, BOSS_ANUBREKHAN) { }
 
         bool hasTaunted;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _Reset();
 
@@ -81,36 +82,35 @@ public:
                 // otherwise, after a wipe, they respawn where boss was at wipe moment.
                 pos = me->GetHomePosition();
                 pos.m_positionY -= 10.0f;
-                me->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
 
                 pos = me->GetHomePosition();
                 pos.m_positionY += 10.0f;
-                me->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
-            //Force the player to spawn corpse scarabs via spell, TODO: Check percent chance for scarabs, 20% at the moment
+            /// Force the player to spawn corpse scarabs via spell, @todo Check percent chance for scarabs, 20% at the moment
             if (!(rand()%5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
 
-            DoScriptText(SAY_SLAY, me);
+            Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             _JustDied();
 
             // start achievement timer (kill Maexna within 20 min)
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
             events.ScheduleEvent(EVENT_LOCUST, 90000);
             events.ScheduleEvent(EVENT_BERSERK, 600000);
@@ -119,28 +119,29 @@ public:
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
+
         {
             if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {
-                DoScriptText(SAY_GREET, me);
+                Talk(SAY_GREET);
                 hasTaunted = true;
             }
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) OVERRIDE
         {
             BossAI::SummonedCreatureDespawn(summon);
 
             // check if it is an actual killed guard
-            if (!me->isAlive() || summon->isAlive() || summon->GetEntry() != MOB_CRYPT_GUARD)
+            if (!me->IsAlive() || summon->IsAlive() || summon->GetEntry() != NPC_CRYPT_GUARD)
                 return;
 
             summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, NULL, NULL, me->GetGUID());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -160,14 +161,14 @@ public:
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;
                     case EVENT_LOCUST:
-                        // TODO : Add Text
+                        /// @todo Add Text
                         DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25));
-                        DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         break;
                     case EVENT_SPAWN_GUARDIAN_NORMAL:
-                        // TODO : Add Text
-                        DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                        /// @todo Add Text
+                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);

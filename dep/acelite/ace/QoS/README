@@ -1,4 +1,4 @@
-$Id: README 80826 2008-03-04 14:51:23Z wotte $
+$Id: README 94641 2011-10-06 15:06:16Z johnnyw $
 
 ACE QoS API (AQoSA)
 ===================
@@ -13,7 +13,7 @@ AQoSA makes use of the GQOS API under Windows 2000.  The minimum
 requirements are:
 
 1. June98 Platform SDK or later.
-2. Link with ws2_32.lib 
+2. Link with ws2_32.lib
 
 More information about GQOS is available from the MSDN website:
 http://msdn.microsoft.com/msdn-files/026/002/258/Search.asp
@@ -35,9 +35,9 @@ PLATFORM_RAPI_CPPFLAGS += -I[path to RAPI header files]
 PLATFORM_RAPI_LIBS += -lrsvp
 PLATFORM_RAPI_LDFLAGS += -L[path to RAPI library files]
 
-1. Compile AQoSA with 
-       
-   make rapi=1 
+1. Compile AQoSA with
+
+   make rapi=1
 
 More information about RAPI can be found at:
 

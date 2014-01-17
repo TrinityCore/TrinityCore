@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,12 +33,6 @@
 
 #define CHARTER_DISPLAY_ID 16161
 
-/*enum PetitionType // dbc data
-{
-    PETITION_TYPE_GUILD      = 1,
-    PETITION_TYPE_ARENA_TEAM = 3
-};*/
-
 // Charters ID in item_template
 enum CharterItemIDs
 {
@@ -56,44 +50,44 @@ enum CharterCosts
     ARENA_TEAM_CHARTER_5v5_COST                   = 2000000
 };
 
-void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_BUY");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_BUY");
 
     uint64 guidNPC;
     uint32 clientIndex;                                     // 1 for guild and arenaslot+1 for arenas in client
     std::string name;
 
-    recv_data >> guidNPC;                                   // NPC GUID
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint64>();                          // 0
-    recv_data >> name;                                      // name
-    recv_data.read_skip<std::string>();                     // some string
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint16>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
-    recv_data.read_skip<uint32>();                          // 0
+    recvData >> guidNPC;                                   // NPC GUID
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint64>();                          // 0
+    recvData >> name;                                      // name
+    recvData.read_skip<std::string>();                     // some string
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint16>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
+    recvData.read_skip<uint32>();                          // 0
 
     for (int i = 0; i < 10; ++i)
-        recv_data.read_skip<std::string>();
+        recvData.read_skip<std::string>();
 
-    recv_data >> clientIndex;                               // index
-    recv_data.read_skip<uint32>();                          // 0
+    recvData >> clientIndex;                               // index
+    recvData.read_skip<uint32>();                          // 0
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
+    TC_LOG_DEBUG("network", "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
 
     // prevent cheating
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guidNPC));
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guidNPC));
         return;
     }
 
@@ -104,7 +98,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     uint32 charterid = 0;
     uint32 cost = 0;
     uint32 type = 0;
-    if (creature->isTabardDesigner())
+    if (creature->IsTabardDesigner())
     {
         // if tabard designer, then trying to buy a guild charter.
         // do not let if already in guild.
@@ -117,7 +111,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     }
     else
     {
-        // TODO: find correct opcode
+        /// @todo find correct opcode
         if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             SendNotification(LANG_ARENA_ONE_TOOLOW, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
@@ -142,7 +136,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
                 type = ARENA_TEAM_CHARTER_5v5_TYPE;
                 break;
             default:
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "unknown selection at buy arena petition: %u", clientIndex);
+                TC_LOG_DEBUG("network", "unknown selection at buy arena petition: %u", clientIndex);
                 return;
         }
 
@@ -157,12 +151,13 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     {
         if (sGuildMgr->GetGuildByName(name))
         {
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
             return;
         }
+
         if (sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
         {
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_INVALID, name);
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_INVALID, name);
             return;
         }
     }
@@ -234,7 +229,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     // delete petitions with the same guid as this one
     ssInvalidPetitionGUIDs << '\'' << charter->GetGUIDLow() << '\'';
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
+    TC_LOG_DEBUG("network", "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(name);
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM petition WHERE petitionguid IN (%s)",  ssInvalidPetitionGUIDs.str().c_str());
@@ -250,13 +245,13 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recv_data)
+void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
 
     uint8 signs = 0;
     uint64 petitionguid;
-    recv_data >> petitionguid;                              // petition guid
+    recvData >> petitionguid;                              // petition guid
 
     // solve (possible) some strange compile problems with explicit use GUID_LOPART(petitionguid) at some GCC versions (wrong code optimization in compiler?)
     uint32 petitionGuidLow = GUID_LOPART(petitionguid);
@@ -269,7 +264,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recv_data)
 
     if (!result)
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
+        TC_LOG_DEBUG("entities.player.items", "Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
         return;
     }
     Field* fields = result->Fetch();
@@ -289,7 +284,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recv_data)
     if (result)
         signs = uint8(result->GetRowCount());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuidLow);
+    TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuidLow);
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+1+signs*12));
     data << uint64(petitionguid);                           // petition guid
@@ -310,15 +305,15 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_QUERY");   // ok
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_QUERY");   // ok
 
     uint32 guildguid;
     uint64 petitionguid;
-    recv_data >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
-    recv_data >> petitionguid;                              // petition guid
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionguid), guildguid);
+    recvData >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
+    recvData >> petitionguid;                              // petition guid
+    TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionguid), guildguid);
 
     SendPetitionQueryOpcode(petitionguid);
 }
@@ -344,7 +339,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionguid));
+        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionguid));
         return;
     }
 
@@ -355,8 +350,9 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     data << uint8(0);                                       // some string
     if (type == GUILD_CHARTER_TYPE)
     {
-        data << uint32(9);
-        data << uint32(9);
+        uint32 needed = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
+        data << uint32(needed);
+        data << uint32(needed);
         data << uint32(0);                                  // bypass client - side limitation, a different value is needed here for each petition
     }
     else
@@ -379,24 +375,21 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
 
     data << uint32(0);                                      // 14
 
-    if (type == GUILD_CHARTER_TYPE)
-        data << uint32(0);                                  // 15 0 - guild, 1 - arena team
-    else
-        data << uint32(1);
+    data << uint32(type != GUILD_CHARTER_TYPE);             // 15 0 - guild, 1 - arena team
 
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_RENAME");   // ok
+    TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_RENAME");   // ok
 
     uint64 petitionGuid;
     uint32 type;
     std::string newName;
 
-    recv_data >> petitionGuid;                              // guid
-    recv_data >> newName;                                   // new name
+    recvData >> petitionGuid;                              // guid
+    recvData >> newName;                                   // new name
 
     Item* item = _player->GetItemByGuid(petitionGuid);
     if (!item)
@@ -415,7 +408,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionGuid));
+        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionGuid));
         return;
     }
 
@@ -423,12 +416,12 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
     {
         if (sGuildMgr->GetGuildByName(newName))
         {
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, newName);
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, newName);
             return;
         }
         if (sObjectMgr->IsReservedName(newName) || !ObjectMgr::IsValidCharterName(newName))
         {
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_INVALID, newName);
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_INVALID, newName);
             return;
         }
     }
@@ -453,22 +446,22 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 
     CharacterDatabase.Execute(stmt);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition (GUID: %u) renamed to '%s'", GUID_LOPART(petitionGuid), newName.c_str());
+    TC_LOG_DEBUG("network", "Petition (GUID: %u) renamed to '%s'", GUID_LOPART(petitionGuid), newName.c_str());
     WorldPacket data(MSG_PETITION_RENAME, (8+newName.size()+1));
     data << uint64(petitionGuid);
     data << newName;
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SIGN");    // ok
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SIGN");    // ok
 
     Field* fields;
     uint64 petitionGuid;
     uint8 unk;
-    recv_data >> petitionGuid;                              // petition guid
-    recv_data >> unk;
+    recvData >> petitionGuid;                              // petition guid
+    recvData >> unk;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
 
@@ -479,7 +472,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 
     if (!result)
     {
-        sLog->outError("Petition %u is not found for player %u %s", GUID_LOPART(petitionGuid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
+        TC_LOG_ERROR("network", "Petition %u is not found for player %u %s", GUID_LOPART(petitionGuid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -498,7 +491,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         if (type != GUILD_CHARTER_TYPE)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
         else
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NOT_ALLIED);
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
         return;
     }
 
@@ -506,7 +499,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     {
         if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName().c_str(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -516,13 +509,13 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 
         if (_player->GetArenaTeamId(slot))
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_IN_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_IN_ARENA_TEAM_S);
             return;
         }
 
         if (_player->GetArenaTeamIdInvited())
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
             return;
         }
     }
@@ -530,12 +523,12 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     {
         if (_player->GetGuildId())
         {
-            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, _player->GetName());
+            Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_IN_GUILD_S, _player->GetName());
             return;
         }
         if (_player->GetGuildIdInvited())
         {
-            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
+            Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
             return;
         }
     }
@@ -577,7 +570,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 
     CharacterDatabase.Execute(stmt);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionGuid), _player->GetName(), playerGuid, GetAccountId());
+    TC_LOG_DEBUG("network", "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionGuid), _player->GetName().c_str(), playerGuid, GetAccountId());
 
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
     data << uint64(petitionGuid);
@@ -597,14 +590,14 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         owner->GetSession()->SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_DECLINE");  // ok
+    TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_DECLINE");  // ok
 
     uint64 petitionguid;
     uint64 ownerguid;
-    recv_data >> petitionguid;                              // petition guid
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u declined by %u", GUID_LOPART(petitionguid), _player->GetGUIDLow());
+    recvData >> petitionguid;                              // petition guid
+    TC_LOG_DEBUG("network", "Petition %u declined by %u", GUID_LOPART(petitionguid), _player->GetGUIDLow());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
 
@@ -627,17 +620,17 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
+void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_OFFER_PETITION");   // ok
+    TC_LOG_DEBUG("network", "Received opcode CMSG_OFFER_PETITION");   // ok
 
     uint8 signs = 0;
     uint64 petitionguid, plguid;
     uint32 type, junk;
     Player* player;
-    recv_data >> junk;                                      // this is not petition type!
-    recv_data >> petitionguid;                              // petition guid
-    recv_data >> plguid;                                    // player guid
+    recvData >> junk;                                      // this is not petition type!
+    recvData >> petitionguid;                              // petition guid
+    recvData >> plguid;                                    // player guid
 
     player = ObjectAccessor::FindPlayer(plguid);
     if (!player)
@@ -655,14 +648,14 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     Field* fields = result->Fetch();
     type = fields[0].GetUInt8();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, GUID_LOPART(petitionguid), GUID_LOPART(plguid));
+    TC_LOG_DEBUG("network", "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, GUID_LOPART(petitionguid), GUID_LOPART(plguid));
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != player->GetTeam())
     {
         if (type != GUILD_CHARTER_TYPE)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
         else
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NOT_ALLIED);
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
         return;
     }
 
@@ -671,7 +664,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
         if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             // player is too low level to join an arena team
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -682,13 +675,13 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
         if (player->GetArenaTeamId(slot))
         {
             // player is already in an arena team
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ALREADY_IN_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ALREADY_IN_ARENA_TEAM_S);
             return;
         }
 
         if (player->GetArenaTeamIdInvited())
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
             return;
         }
     }
@@ -696,13 +689,13 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     {
         if (player->GetGuildId())
         {
-            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, _player->GetName());
+            Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_IN_GUILD_S, _player->GetName());
             return;
         }
 
         if (player->GetGuildIdInvited())
         {
-            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
+            Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
             return;
         }
     }
@@ -736,22 +729,22 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     player->GetSession()->SendPacket(&data);
 }
 
-void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
+void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_TURN_IN_PETITION");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_TURN_IN_PETITION");
 
     // Get petition guid from packet
     WorldPacket data;
     uint64 petitionGuid;
 
-    recv_data >> petitionGuid;
+    recvData >> petitionGuid;
 
     // Check if player really has the required petition charter
     Item* item = _player->GetItemByGuid(petitionGuid);
     if (!item)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u turned in by %u", GUID_LOPART(petitionGuid), _player->GetGUIDLow());
+    TC_LOG_DEBUG("network", "Petition %u turned in by %u", GUID_LOPART(petitionGuid), _player->GetGUIDLow());
 
     // Get petition data from db
     uint32 ownerguidlo;
@@ -771,7 +764,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     }
     else
     {
-        sLog->outError("Player %s (guid: %u) tried to turn in petition (guid: %u) that is not present in the database", _player->GetName(), _player->GetGUIDLow(), GUID_LOPART(petitionGuid));
+        TC_LOG_ERROR("network", "Player %s (guid: %u) tried to turn in petition (guid: %u) that is not present in the database", _player->GetName().c_str(), _player->GetGUIDLow(), GUID_LOPART(petitionGuid));
         return;
     }
 
@@ -794,7 +787,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         // Check if guild name is already taken
         if (sGuildMgr->GetGuildByName(name))
         {
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
             return;
         }
     }
@@ -866,6 +859,8 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         // Register guild and add guild master
         sGuildMgr->AddGuild(guild);
 
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_COMMAND_SUCCESS, name);
+
         // Add members from signatures
         for (uint8 i = 0; i < signatures; ++i)
         {
@@ -878,7 +873,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     {
         // Receive the rest of the packet in arena team creation case
         uint32 background, icon, iconcolor, border, bordercolor;
-        recv_data >> background >> icon >> iconcolor >> border >> bordercolor;
+        recvData >> background >> icon >> iconcolor >> border >> bordercolor;
 
         // Create arena team
         ArenaTeam* arenaTeam = new ArenaTeam();
@@ -891,14 +886,14 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
 
         // Register arena team
         sArenaTeamMgr->AddArenaTeam(arenaTeam);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "PetitonsHandler: Arena team (guid: %u) added to ObjectMgr", arenaTeam->GetId());
+        TC_LOG_DEBUG("network", "PetitonsHandler: Arena team (guid: %u) added to ObjectMgr", arenaTeam->GetId());
 
         // Add members
         for (uint8 i = 0; i < signatures; ++i)
         {
             Field* fields = result->Fetch();
             uint32 memberGUID = fields[0].GetUInt32();
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "PetitionsHandler: Adding arena team (guid: %u) member %u", arenaTeam->GetId(), memberGUID);
+            TC_LOG_DEBUG("network", "PetitionsHandler: Adding arena team (guid: %u) member %u", arenaTeam->GetId(), memberGUID);
             arenaTeam->AddMember(MAKE_NEW_GUID(memberGUID, 0, HIGHGUID_PLAYER));
             result->NextRow();
         }
@@ -917,19 +912,19 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     CharacterDatabase.CommitTransaction(trans);
 
     // created
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "TURN IN PETITION GUID %u", GUID_LOPART(petitionGuid));
+    TC_LOG_DEBUG("network", "TURN IN PETITION GUID %u", GUID_LOPART(petitionGuid));
 
     data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
     data << (uint32)PETITION_TURN_OK;
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePetitionShowListOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOWLIST");
+    TC_LOG_DEBUG("network", "Received CMSG_PETITION_SHOWLIST");
 
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     SendPetitionShowList(guid);
 }
@@ -939,14 +934,14 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
     WorldPacket data(SMSG_PETITION_SHOWLIST, 8+1+4*6);
     data << guid;                                           // npc guid
 
-    if (creature->isTabardDesigner())
+    if (creature->IsTabardDesigner())
     {
         data << uint8(1);                                   // count
         data << uint32(1);                                  // index
@@ -954,7 +949,7 @@ void WorldSession::SendPetitionShowList(uint64 guid)
         data << uint32(CHARTER_DISPLAY_ID);                 // charter display id
         data << uint32(GUILD_CHARTER_COST);                 // charter cost
         data << uint32(0);                                  // unknown
-        data << uint32(9);                                  // required signs?
+        data << uint32(sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS)); // required signs
     }
     else
     {
@@ -983,5 +978,5 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     }
 
     SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOWLIST");
+    TC_LOG_DEBUG("network", "Sent SMSG_PETITION_SHOWLIST");
 }

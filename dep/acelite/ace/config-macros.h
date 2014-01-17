@@ -4,7 +4,7 @@
 /**
  *  @file   config-macros.h
  *
- *  $Id: config-macros.h 91685 2010-09-09 09:35:14Z johnnyw $
+ *  $Id: config-macros.h 94386 2011-08-10 12:42:53Z johnnyw $
  *
  *  @author (Originally in OS.h)Doug Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -69,9 +69,6 @@
 
 # if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 #   define ACE_MT(X) X
-#   if !defined (_REENTRANT)
-#     define _REENTRANT
-#   endif /* _REENTRANT */
 # else
 #   define ACE_MT(X)
 # endif /* ACE_MT_SAFE */
@@ -82,6 +79,7 @@
 
 # if defined (ACE_HAS_VALGRIND)
 #   define ACE_INITIALIZE_MEMORY_BEFORE_USE
+#   define ACE_LACKS_DLCLOSE
 # endif /* ACE_HAS_VALGRIND */
 
 // =========================================================================
@@ -499,8 +497,16 @@ extern "C" u_long CLS##_Export _get_dll_unload_policy (void) \
 #define ACE_HAS_TEMPLATE_TYPEDEFS
 #endif
 
+#ifndef ACE_GCC_FORMAT_ATTRIBUTE
+# define ACE_GCC_FORMAT_ATTRIBUTE(TYPE, STR_INDEX, FIRST_INDEX)
+#endif
+
 #ifndef ACE_DEPRECATED
 # define ACE_DEPRECATED
+#endif
+
+#ifndef ACE_HAS_REACTOR_NOTIFICATION_QUEUE
+# define ACE_HAS_REACTOR_NOTIFICATION_QUEUE
 #endif
 
 #endif /* ACE_CONFIG_MACROS_H */

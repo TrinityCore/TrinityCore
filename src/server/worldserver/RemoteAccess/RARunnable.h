@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ class RARunnable : public ACE_Based::Runnable
 public:
     RARunnable();
     virtual ~RARunnable();
-    void run();
+    void run() OVERRIDE;
 
 private:
     ACE_Reactor* m_Reactor;
@@ -39,4 +39,5 @@ private:
 };
 
 #endif /* _TRINITY_RARUNNABLE_H_ */
+
 /// @}

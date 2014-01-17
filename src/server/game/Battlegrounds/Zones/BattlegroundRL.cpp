@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundRL.h"
 #include "Language.h"
 #include "Object.h"
@@ -62,11 +61,7 @@ void BattlegroundRL::StartingEventOpenDoors()
 void BattlegroundRL::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundRLScore* sc = new BattlegroundRLScore;
-
-    PlayerScores[player->GetGUID()] = sc;
-
+    PlayerScores[player->GetGUID()] = new BattlegroundScore;
     UpdateArenaWorldState();
 }
 
@@ -86,7 +81,7 @@ void BattlegroundRL::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        sLog->outError("Killer player not found");
+        TC_LOG_ERROR("bg.battleground", "Killer player not found");
         return;
     }
 
@@ -96,33 +91,20 @@ void BattlegroundRL::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
+void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
 {
-    player->TeleportTo(GetMapId(), 1285.810547f, 1667.896851f, 39.957642f, player->GetOrientation(), false);
-    return true;
-}
-
-void BattlegroundRL::HandleAreaTrigger(Player* Source, uint32 Trigger)
-{
-    // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
-    switch (Trigger)
+    switch (trigger)
     {
         case 4696:                                          // buff trigger?
         case 4697:                                          // buff trigger?
             break;
         default:
-            sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, Source);
 }
 
 void BattlegroundRL::FillInitialWorldStates(WorldPacket &data)
@@ -146,19 +128,9 @@ bool BattlegroundRL::SetupBattleground()
         || !AddObject(BG_RL_OBJECT_BUFF_1, BG_RL_OBJECT_TYPE_BUFF_1, 1328.719971f, 1632.719971f, 36.730400f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
         || !AddObject(BG_RL_OBJECT_BUFF_2, BG_RL_OBJECT_TYPE_BUFF_2, 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
     {
-        sLog->outErrorDb("BatteGroundRL: Failed to spawn some object!");
+        TC_LOG_ERROR("sql.sql", "BatteGroundRL: Failed to spawn some object!");
         return false;
     }
 
     return true;
 }
-
-/*
-Packet S->C, id 600, SMSG_INIT_WORLD_STATES (706), len 86
-0000: 3C 02 00 00 80 0F 00 00 00 00 00 00 09 00 BA 0B | <...............
-0010: 00 00 01 00 00 00 B9 0B 00 00 02 00 00 00 B8 0B | ................
-0020: 00 00 00 00 00 00 D8 08 00 00 00 00 00 00 D7 08 | ................
-0030: 00 00 00 00 00 00 D6 08 00 00 00 00 00 00 D5 08 | ................
-0040: 00 00 00 00 00 00 D3 08 00 00 00 00 00 00 D4 08 | ................
-0050: 00 00 00 00 00 00                               | ......
-*/

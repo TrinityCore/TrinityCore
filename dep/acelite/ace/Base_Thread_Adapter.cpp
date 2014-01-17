@@ -1,4 +1,4 @@
-// $Id: Base_Thread_Adapter.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Base_Thread_Adapter.cpp 95595 2012-03-07 13:33:25Z johnnyw $
 
 #include "ace/Base_Thread_Adapter.h"
 
@@ -29,12 +29,14 @@ ACE_Base_Thread_Adapter::ACE_Base_Thread_Adapter (
      , ACE_SEH_EXCEPT_HANDLER selector
      , ACE_SEH_EXCEPT_HANDLER handler
 #endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
+     , long cancel_flags
    )
   : user_func_ (user_func)
   , arg_ (arg)
   , entry_point_ (entry_point)
   , thr_desc_ (td)
   , ctx_ (ACE_Service_Config::current())
+  , flags_ (cancel_flags)
 {
   ACE_OS_TRACE ("ACE_Base_Thread_Adapter::ACE_Base_Thread_Adapter");
 
@@ -81,6 +83,10 @@ ACE_Base_Thread_Adapter::sync_log_msg (const ACE_TCHAR *prg)
 {
   if (ACE_Base_Thread_Adapter::sync_log_msg_hook_ != 0)
     (*ACE_Base_Thread_Adapter::sync_log_msg_hook_) (prg);
+}
+
+ACE_OS_Thread_Descriptor::~ACE_OS_Thread_Descriptor (void)
+{
 }
 
 ACE_OS_Thread_Descriptor *
