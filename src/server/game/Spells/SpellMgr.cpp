@@ -2954,6 +2954,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+            case 63026: // Force Cast (HACK: Target shouldn't be changed)
+                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                break;
             case 53096: // Quetz'lun's Judgment
             case 70743: // AoD Special
             case 70614: // AoD Special - Vegard
