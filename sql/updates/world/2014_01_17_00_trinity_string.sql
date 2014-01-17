@@ -1,4 +1,3 @@
-
 DELETE FROM trinity_string where entry in (11002, 11003, 11004, 11005, 11006, 11007);
 INSERT INTO `trinity_string` VALUES
 ('11002', 'Server: %s has kicked %s, reason: %s', '', '', '', '', '', '', '', ''),
