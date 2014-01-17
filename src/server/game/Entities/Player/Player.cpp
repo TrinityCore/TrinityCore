@@ -759,7 +759,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_ArmorProficiency = 0;
     m_canParry = false;
     m_canBlock = false;
-    m_canDualWield = false;
     m_canTitanGrip = false;
     m_ammoDPS = 0.0f;
 
@@ -23769,14 +23768,18 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
-void Player::SetClientControl(Unit* target, uint8 allowMove)
+void Player::SetClientControl(Unit* target, bool allowMove)
 {
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
     data.append(target->GetPackGUID());
-    data << uint8(allowMove);
+    data << uint8(allowMove ? 1 : 0);
     GetSession()->SendPacket(&data);
-    if (target == this)
-        SetMover(this);
+
+    if (this != target)
+        SetViewpoint(target, allowMove);
+
+    if (allowMove)
+        SetMover(target);
 }
 
 void Player::SetMover(Unit* target)
