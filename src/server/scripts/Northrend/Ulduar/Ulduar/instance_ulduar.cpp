@@ -116,7 +116,13 @@ class instance_ulduar : public InstanceMapScript
             uint64 RuneGiantGUID;
             uint64 SifGUID;
             uint64 ThorimLightningFieldGUID;
+            uint64 LeviathanMKIIGUID;
+            uint64 VX001GUID;
+            uint64 AerialUnitGUID;
+            uint64 MimironElevatorGUID;
+            uint64 MimironTrainGUID;
 
+            std::list<uint64> MimironDoorGUIDList;
             std::set<uint64> mRubbleSpawns;
 
             void Initialize() OVERRIDE
@@ -171,6 +177,11 @@ class instance_ulduar : public InstanceMapScript
                 RuneGiantGUID                    = 0;
                 SifGUID                          = 0;
                 ThorimLightningFieldGUID         = 0;
+                LeviathanMKIIGUID                = 0;
+                VX001GUID                        = 0;
+                AerialUnitGUID                   = 0;
+                MimironTrainGUID                 = 0;
+                MimironElevatorGUID              = 0;
 
                 memset(AlgalonSigilDoorGUID, 0, sizeof(AlgalonSigilDoorGUID));
                 memset(AlgalonFloorGUID, 0, sizeof(AlgalonFloorGUID));
@@ -429,6 +440,7 @@ class instance_ulduar : public InstanceMapScript
                             algalon->AI()->JustSummoned(creature);
                         break;
 
+                    // TW - Thorim
                     case NPC_RUNIC_COLOSSUS:
                         RunicColossusGUID = creature->GetGUID();
                         break;
@@ -437,6 +449,17 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_SIF:
                         SifGUID = creature->GetGUID();
+                        break;
+
+                        // TW - Mimiron
+                    case NPC_LEVIATHAN_MKII:
+                        LeviathanMKIIGUID = creature->GetGUID();
+                        break;
+                    case NPC_VX_001:
+                        VX001GUID = creature->GetGUID();
+                        break;
+                    case NPC_AERIAL_COMMAND_UNIT:
+                        AerialUnitGUID = creature->GetGUID();
                         break;
                 }
             }
@@ -572,6 +595,8 @@ class instance_ulduar : public InstanceMapScript
                     case GO_GIFT_OF_THE_OBSERVER_25:
                         GiftOfTheObserverGUID = gameObject->GetGUID();
                         break;
+
+                    // TW
                     case GO_THORIM_RUNIC_DOOR:
                         RunicDoorGUID = gameObject->GetGUID();
                         break;
@@ -580,6 +605,20 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_THORIM_LIGHTNING_FIELD:
                         ThorimLightningFieldGUID = gameObject->GetGUID();
+                        break;
+                    case GO_MIMIRON_TRAIN:
+                        gameObject->setActive(true);
+                        MimironTrainGUID = gameObject->GetGUID();
+                        break;
+                    case GO_MIMIRON_ELEVATOR:
+                        gameObject->setActive(true);
+                        MimironElevatorGUID = gameObject->GetGUID();
+                        break;
+                    case GO_MIMIRON_DOOR_1:
+                    case GO_MIMIRON_DOOR_2:
+                    case GO_MIMIRON_DOOR_3:
+                        gameObject->setActive(true);
+                        MimironDoorGUIDList.push_back(gameObject->GetGUID());
                         break;
                     default:
                         break;
@@ -826,12 +865,22 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_ALGALON_SUMMON_STATE:
                         _algalonSummoned = true;
                         break;
+
+                    // TW
                     case DATA_RUNIC_DOOR:
                         if (GameObject* go = instance->GetGameObject(RunicDoorGUID))
                             go->SetGoState(GOState(data));
                         break;
                     case DATA_STONE_DOOR:
                         if (GameObject* go = instance->GetGameObject(StoneDoorGUID))
+                            go->SetGoState(GOState(data));
+                        break;
+                    case DATA_CALL_TRAM:
+                        if (GameObject* go = instance->GetGameObject(MimironTrainGUID))
+                            go->UseDoorOrButton();
+                        break;
+                    case DATA_MIMIRON_ELEVATOR:
+                        if (GameObject* go = instance->GetGameObject(MimironElevatorGUID))
                             go->SetGoState(GOState(data));
                         break;
                     default:
@@ -953,11 +1002,19 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_BRANN_BRONZEBEARD_ALG:
                         return BrannBronzebeardAlgGUID;
 
-                    // TW
+                    // Thorim - TW
                     case DATA_RUNIC_COLOSSUS:
                         return RunicColossusGUID;
                     case DATA_RUNE_GIANT:
                         return RuneGiantGUID;
+                        
+                    // Mimiron - TW
+                    case DATA_LEVIATHAN_MK_II:      
+                        return LeviathanMKIIGUID;
+                    case DATA_VX_001:               
+                        return VX001GUID;
+                    case DATA_AERIAL_UNIT:          
+                        return AerialUnitGUID;
                 }
 
                 return 0;

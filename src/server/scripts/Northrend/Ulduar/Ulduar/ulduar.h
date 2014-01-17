@@ -245,6 +245,14 @@ enum UlduarGameObjects
     GO_THORIM_LIGHTNING_FIELD               = 194559,
     GO_THORIM_STONE_DOOR                    = 194558,
     GO_THORIM_RUNIC_DOOR                    = 194557,
+
+    // Mimiron - TW
+    GO_MIMIRON_TRAIN            = 194675,
+    GO_MIMIRON_ELEVATOR         = 194749,
+    GO_MIMIRON_DOOR_1           = 194776,
+    GO_MIMIRON_DOOR_2           = 194774,
+    GO_MIMIRON_DOOR_3           = 194775,
+    GO_BIG_RED_BUTTON           = 194739,
 };
 
 enum EventIds
@@ -340,6 +348,13 @@ enum UlduarData
     DATA_STONE_DOOR,
     DATA_RUNIC_COLOSSUS,
     DATA_RUNE_GIANT,
+
+    DATA_CALL_TRAM,
+    // Mimiron - TW
+    DATA_LEVIATHAN_MK_II,
+    DATA_VX_001,
+    DATA_AERIAL_UNIT,
+    DATA_MIMIRON_ELEVATOR,
 };
 
 enum UlduarWorldStates
