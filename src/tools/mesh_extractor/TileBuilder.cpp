@@ -234,8 +234,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     CalculateTileBounds(bmin, bmax, navMeshParams);
     _Geometry->CalculateMinMaxHeight(bmin[1], bmax[1]);
 
-    // This is commented out to reduce the size of the resulting files (and the time it takes to generate them), we shouldn't need to load 4 more ADTs each time.
-    /*// again, we load everything - wasteful but who cares
+    // again, we load everything - wasteful but who cares
     for (int ty = Y - 1; ty <= Y + 1; ty++)
     {
         for (int tx = X - 1; tx <= X + 1; tx++)
@@ -255,7 +254,7 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
             _Geometry->AddAdt(_adt);
             delete _adt;
         }
-    }*/
+    }
 
     OutputDebugVertices();
     
@@ -352,7 +351,6 @@ uint8* TileBuilder::BuildTiled(dtNavMeshParams& navMeshParams)
     rcFreeHeightField(hf);
     rcFreeCompactHeightfield(chf);
     rcFreeContourSet(contours);
-
     delete vertices;
     delete triangles;
     delete areas;
