@@ -20,32 +20,39 @@ extern "C"
 typedef std::set<std::string> LoadedScripts;
 
 template<class T>
+class SafeObj
+{
+public:
+    SafeObj(WorldObject const* obj)
+    {
+        if (!obj)
+            guid = 0;
+        else
+            guid = obj->GetGUID();
+    }
+    
+    T* GetObj() const
+    {
+        if (!guid)
+            return NULL;
+        return ObjectAccessor::GetObjectInWorld(guid, (T*)NULL);
+    }
+
+private:
+    uint64 guid;
+};
+
+template<class T>
 struct ElunaRegister
 {
     const char* name;
     int(*mfunc)(lua_State*, T*);
 };
-
-namespace
+template<class T>
+struct ElunaRegister< SafeObj<T> >
 {
-    // If assertion fails, should check if obj really has gc on or off
-    template<typename T> T const* GetTPointer(T const* obj, bool gc) { ASSERT(!gc); return obj; }
-    template<typename T> T const* GetNewTPointer(T const* obj, bool gc) { ASSERT(gc); return new T(*obj); }
-    // If gc / memory management is true, should have specialized function:
-    WorldPacket const* GetTPointer(WorldPacket const* obj, bool gc) { return GetNewTPointer(obj, gc); }
-    QueryResult const* GetTPointer(QueryResult const* obj, bool gc) { return GetNewTPointer(obj, gc); }
-
-    template<typename T>
-    int gcT(lua_State* L)
-    {
-        if (!ElunaTemplate<T>::manageMemory)
-            return 0;
-        T* obj = ElunaTemplate<T>::check(L, 1);
-        delete obj; // Deleting NULL should be safe
-        return 1;
-    }
-    // fix compile error about deleting
-    template<> int gcT<Vehicle>(lua_State* L) { return 0; }
+    const char* name;
+    int(*mfunc)(lua_State*, T*);
 };
 
 template<typename T>
@@ -60,6 +67,43 @@ class ElunaTemplate
             lua_pushstring(L, tname);
             return 1;
         }
+
+        // If assertion fails, should check if obj really has gc on or off
+        template<typename T> static T const* GetTPointer(T const& obj, bool gc) { ASSERT(!gc); return &obj; }
+        template<typename T> static T const* GetNewTPointer(T const& obj, bool gc) { ASSERT(gc); return new T(obj); }
+        // If gc / memory management is true, should have specialized function:
+        static WorldPacket const* GetTPointer(WorldPacket const& obj, bool gc) { return GetNewTPointer(obj, gc); }
+        static QueryResult const* GetTPointer(QueryResult const& obj, bool gc) { return GetNewTPointer(obj, gc); }
+        template<typename T> static SafeObj<T> const* GetTPointer(SafeObj<T> const& obj, bool gc) { return GetNewTPointer(obj, gc); }
+
+        template<typename T> static int CallTMethod(lua_State* L, T* obj)
+        {
+            ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
+            if (!obj)
+                return 0;
+            return l->mfunc(L, obj);
+        }
+        template<typename T> static int CallTMethod(lua_State* L, SafeObj<T>* safeObj)
+        {
+            ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
+            if (!safeObj)
+                return 0;
+            if (T* obj = safeObj->GetObj())
+                return l->mfunc(L, obj);
+            return 0;
+        }
+
+        template<typename T>
+        static int gcT(lua_State* L)
+        {
+            if (!manageMemory)
+                return 0;
+            T* obj = check(L, 1);
+            delete obj; // Deleting NULL should be safe
+            return 1;
+        }
+        // fix compile error about accessing vehicle destructor
+        template<> static int gcT<Vehicle>(lua_State* L) { return 0; }
 
         // name will be used as type name
         // If gc is true, lua will handle the memory management for object pushed
@@ -100,6 +144,25 @@ class ElunaTemplate
             lua_setmetatable(L, methods);
         }
 
+        template<typename C>
+        static void SetMethods(lua_State* L, ElunaRegister<C>* methodTable)
+        {
+            if (!methodTable)
+                return;
+            if (!lua_istable(L, 1))
+                return;
+            lua_pushstring(L, "GetObjectType");
+            lua_pushcclosure(L, type, 0);
+            lua_settable(L, 1);
+            for (; methodTable->name; ++methodTable)
+            {
+                lua_pushstring(L, methodTable->name);
+                lua_pushlightuserdata(L, (void*)methodTable);
+                lua_pushcclosure(L, thunk, 1);
+                lua_settable(L, 1);
+            }
+        }
+
         static int push(lua_State* L, T const* obj)
         {
             if (!obj)
@@ -113,7 +176,7 @@ class ElunaTemplate
             T const** ptrHold = (T const**)lua_newuserdata(L, sizeof(T**));
             if (ptrHold)
             {
-                *ptrHold = GetTPointer(obj, manageMemory);
+                *ptrHold = GetTPointer(*obj, manageMemory);
                 lua_pushvalue(L, -2);
                 lua_setmetatable(L, -2);
             }
@@ -133,10 +196,7 @@ class ElunaTemplate
         {
             T* obj = check(L, 1); // get self
             lua_remove(L, 1); // remove self
-            ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
-            if (!obj)
-                return 0;
-            return l->mfunc(L, obj);
+            return CallTMethod(L, obj);
         }
 
         static int tostringT(lua_State* L)
@@ -190,25 +250,6 @@ class ElunaTemplate
             return 1;
         }
 };
-
-template<typename T>
-void SetMethods(lua_State* L, ElunaRegister<T>* methodTable)
-{
-    if (!methodTable)
-        return;
-    if (!lua_istable(L, 1))
-        return;
-    lua_pushstring(L, "GetObjectType");
-    lua_pushcclosure(L, ElunaTemplate<T>::type, 0);
-    lua_settable(L, 1);
-    for (; methodTable->name; ++methodTable)
-    {
-        lua_pushstring(L, methodTable->name);
-        lua_pushlightuserdata(L, (void*)methodTable);
-        lua_pushcclosure(L, ElunaTemplate<T>::thunk, 1);
-        lua_settable(L, 1);
-    }
-}
 
 struct EventMgr
 {
@@ -414,6 +455,33 @@ class Eluna
         template<typename T> void Push(lua_State* L, T const* ptr)
         {
             ElunaTemplate<T>::push(L, ptr);
+        }
+
+        template<typename T> SafeObj<T>* GetSafe(T const* ptr)
+        {
+            if (!ptr)
+                return NULL;
+            return new SafeObj<T>(ptr);
+        }
+
+        void Push(lua_State* L, Player const* ptr)
+        {
+            Push(L, GetSafe(ptr));
+        }
+
+        void Push(lua_State* L, Creature const* ptr)
+        {
+            Push(L, GetSafe(ptr));
+        }
+
+        void Push(lua_State* L, GameObject const* ptr)
+        {
+            Push(L, GetSafe(ptr));
+        }
+
+        void Push(lua_State* L, Corpse const* ptr)
+        {
+            Push(L, GetSafe(ptr));
         }
 
         void Push(lua_State* L, Pet const* pet)
