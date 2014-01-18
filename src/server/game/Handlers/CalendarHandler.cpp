@@ -235,18 +235,18 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(unkPackedTime);
     recvData >> flags;
 
-    CalendarEvent* calendarEvent = new CalendarEvent(sCalendarMgr->GetFreeEventId(), guid, 0, CalendarEventType(type), dungeonId,
+    CalendarEvent calendarEvent(sCalendarMgr->GetFreeEventId(), guid, 0, CalendarEventType(type), dungeonId,
         time_t(eventPackedTime), flags, time_t(unkPackedTime), title, description);
 
-    if (calendarEvent->IsGuildEvent() || calendarEvent->IsGuildAnnouncement())
+    if (calendarEvent.IsGuildEvent() || calendarEvent.IsGuildAnnouncement())
         if (Player* creator = ObjectAccessor::FindPlayer(guid))
-            calendarEvent->SetGuildId(creator->GetGuildId());
+            calendarEvent.SetGuildId(creator->GetGuildId());
 
-    if (calendarEvent->IsGuildAnnouncement())
+    if (calendarEvent.IsGuildAnnouncement())
     {
         // 946684800 is 01/01/2000 00:00:00 - default response time
-        CalendarInvite* invite = new CalendarInvite(0, calendarEvent->GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
-        sCalendarMgr->AddInvite(calendarEvent, invite);
+        CalendarInvite* invite = new CalendarInvite(0, calendarEvent.GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
+        sCalendarMgr->AddInvite(&calendarEvent, invite);
     }
     else
     {
@@ -262,12 +262,12 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
             recvData >> status >> rank;
 
             // 946684800 is 01/01/2000 00:00:00 - default response time
-            CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), invitee, guid, 946684800, CalendarInviteStatus(status), CalendarModerationRank(rank), "");
-            sCalendarMgr->AddInvite(calendarEvent, invite);
+            CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent.GetEventId(), invitee, guid, 946684800, CalendarInviteStatus(status), CalendarModerationRank(rank), "");
+            sCalendarMgr->AddInvite(&calendarEvent, invite);
         }
     }
 
-    sCalendarMgr->AddEvent(calendarEvent, CALENDAR_SENDTYPE_ADD);
+    sCalendarMgr->AddEvent(new CalendarEvent(calendarEvent, calendarEvent.GetEventId()), CALENDAR_SENDTYPE_ADD);
 }
 
 void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
