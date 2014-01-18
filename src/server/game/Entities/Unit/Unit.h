@@ -2260,7 +2260,8 @@ class Unit : public WorldObject
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
 
-        bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
+        uint32 _oldFactionId;           ///< faction before charm
+        bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
 
         time_t _lastDamagedTime; // Part of Evade mechanics
 };
@@ -2271,31 +2272,31 @@ namespace Trinity
     class PowerPctOrderPred
     {
         public:
-            PowerPctOrderPred(Powers power, bool ascending = true) : m_power(power), m_ascending(ascending) { }
-            bool operator() (const Unit* a, const Unit* b) const
+            PowerPctOrderPred(Powers power, bool ascending = true) : _power(power), _ascending(ascending) { }
+            bool operator() (Unit const* a, Unit const* b) const
             {
-                float rA = a->GetMaxPower(m_power) ? float(a->GetPower(m_power)) / float(a->GetMaxPower(m_power)) : 0.0f;
-                float rB = b->GetMaxPower(m_power) ? float(b->GetPower(m_power)) / float(b->GetMaxPower(m_power)) : 0.0f;
-                return m_ascending ? rA < rB : rA > rB;
+                float rA = a->GetMaxPower(_power) ? float(a->GetPower(_power)) / float(a->GetMaxPower(_power)) : 0.0f;
+                float rB = b->GetMaxPower(_power) ? float(b->GetPower(_power)) / float(b->GetMaxPower(_power)) : 0.0f;
+                return _ascending ? rA < rB : rA > rB;
             }
         private:
-            const Powers m_power;
-            const bool m_ascending;
+            Powers const _power;
+            bool const _ascending;
     };
 
     // Binary predicate for sorting Units based on percent value of health
     class HealthPctOrderPred
     {
         public:
-            HealthPctOrderPred(bool ascending = true) : m_ascending(ascending) { }
-            bool operator() (const Unit* a, const Unit* b) const
+            HealthPctOrderPred(bool ascending = true) : _ascending(ascending) { }
+            bool operator() (Unit const* a, Unit const* b) const
             {
                 float rA = a->GetMaxHealth() ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
                 float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
-                return m_ascending ? rA < rB : rA > rB;
+                return _ascending ? rA < rB : rA > rB;
             }
         private:
-            const bool m_ascending;
+            bool const _ascending;
     };
 }
 #endif

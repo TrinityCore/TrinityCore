@@ -257,6 +257,8 @@ Unit::Unit(bool isWorldObject) :
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
 
     _lastLiquid = NULL;
+
+    _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
 }
 
@@ -4601,7 +4603,7 @@ GameObject* Unit::GetGameObject(uint32 spellId) const
 
 void Unit::AddGameObject(GameObject* gameObj)
 {
-    if (!gameObj || !gameObj->GetOwnerGUID() == 0)
+    if (!gameObj || gameObj->GetOwnerGUID() != 0)
         return;
 
     m_gameObj.push_back(gameObj);
@@ -7755,17 +7757,17 @@ void Unit::SetOwnerGUID(uint64 owner)
 
 Unit* Unit::GetOwner() const
 {
-    if (uint64 ownerid = GetOwnerGUID())
-    {
-        return ObjectAccessor::GetUnit(*this, ownerid);
-    }
+    if (uint64 ownerGUID = GetOwnerGUID())
+        return ObjectAccessor::GetUnit(*this, ownerGUID);
+
     return NULL;
 }
 
 Unit* Unit::GetCharmer() const
 {
-    if (uint64 charmerid = GetCharmerGUID())
-        return ObjectAccessor::GetUnit(*this, charmerid);
+    if (uint64 charmerGUID = GetCharmerGUID())
+        return ObjectAccessor::GetUnit(*this, charmerGUID);
+
     return NULL;
 }
 
@@ -8095,8 +8097,8 @@ void Unit::SetCharm(Unit* charm, bool apply)
             charm->SetWalk(_isWalkingBeforeCharm);
 
         if (charm->GetTypeId() == TYPEID_PLAYER
-                || !charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_MINION)
-                || charm->GetOwnerGUID() != GetGUID())
+            || !charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_MINION)
+            || charm->GetOwnerGUID() != GetGUID())
         {
             m_Controlled.erase(charm);
         }
@@ -11858,9 +11860,8 @@ CharmInfo::~CharmInfo() { }
 
 void CharmInfo::RestoreState()
 {
-    if (_unit->GetTypeId() == TYPEID_UNIT)
-        if (Creature* creature = _unit->ToCreature())
-            creature->SetReactState(_oldReactState);
+    if (Creature* creature = _unit->ToCreature())
+        creature->SetReactState(_oldReactState);
 }
 
 void CharmInfo::InitPetActionBar()
@@ -13897,8 +13898,8 @@ void Unit::SetFeared(bool apply)
         }
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SetClientControl(this, !apply);
+    if (Player* player = ToPlayer())
+        player->SetClientControl(this, !apply);
 }
 
 void Unit::SetConfused(bool apply)
@@ -13919,8 +13920,8 @@ void Unit::SetConfused(bool apply)
         }
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SetClientControl(this, !apply);
+    if (Player* player = ToPlayer())
+        player->SetClientControl(this, !apply);
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)
@@ -13966,11 +13967,13 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
     DeleteThreatList();
 
+    Player* playerCharmer = charmer->ToPlayer();
+
     // Charmer stop charming
-    if (charmer->GetTypeId() == TYPEID_PLAYER)
+    if (playerCharmer)
     {
-        charmer->ToPlayer()->StopCastingCharm();
-        charmer->ToPlayer()->StopCastingBindSight();
+        playerCharmer->StopCastingCharm();
+        playerCharmer->StopCastingBindSight();
     }
 
     // Charmed stop charming
@@ -13992,11 +13995,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (aurApp && aurApp->GetRemoveMode())
         return false;
 
-    // Set charmed
-    Map* map = GetMap();
-    if (!IsVehicle() || (IsVehicle() && map && !map->IsBattleground()))
-        setFaction(charmer->getFaction());
+    _oldFactionId = getFaction();
+    setFaction(charmer->getFaction());
 
+    // Set charmed
     charmer->SetCharm(this, true);
 
     if (GetTypeId() == TYPEID_UNIT)
@@ -14009,7 +14011,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         Player* player = ToPlayer();
         if (player->isAFK())
             player->ToggleAFK();
-        player->SetClientControl(this, 0);
+        player->SetClientControl(this, false);
     }
 
     // charm is set by aura, and aura effect remove handler was called during apply handler execution
@@ -14027,25 +14029,21 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
             GetCharmInfo()->InitCharmCreateSpells();
     }
 
-    if (charmer->GetTypeId() == TYPEID_PLAYER)
+    if (playerCharmer)
     {
         switch (type)
         {
             case CHARM_TYPE_VEHICLE:
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-                charmer->ToPlayer()->SetClientControl(this, 1);
-                charmer->ToPlayer()->SetMover(this);
-                charmer->ToPlayer()->SetViewpoint(this, true);
-                charmer->ToPlayer()->VehicleSpellInitialize();
+                playerCharmer->SetClientControl(this, true);
+                playerCharmer->VehicleSpellInitialize();
                 break;
             case CHARM_TYPE_POSSESS:
                 AddUnitState(UNIT_STATE_POSSESSED);
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                charmer->ToPlayer()->SetClientControl(this, 1);
-                charmer->ToPlayer()->SetMover(this);
-                charmer->ToPlayer()->SetViewpoint(this, true);
-                charmer->ToPlayer()->PossessSpellInitialize();
+                playerCharmer->SetClientControl(this, true);
+                playerCharmer->PossessSpellInitialize();
                 break;
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
@@ -14064,7 +14062,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                         SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
                     }
                 }
-                charmer->ToPlayer()->CharmSpellInitialize();
+                playerCharmer->CharmSpellInitialize();
                 break;
             default:
             case CHARM_TYPE_CONVERT:
@@ -14101,16 +14099,16 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
     getHostileRefManager().deleteReferences();
     DeleteThreatList();
-    Map* map = GetMap();
-    if (!IsVehicle() || (IsVehicle() && map && !map->IsBattleground()))
-        RestoreFaction();
-    GetMotionMaster()->InitDefault();
 
-    if (type == CHARM_TYPE_POSSESS)
+    if (_oldFactionId)
     {
-        ClearUnitState(UNIT_STATE_POSSESSED);
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+        setFaction(_oldFactionId);
+        _oldFactionId = 0;
     }
+    else
+        RestoreFaction();
+
+    GetMotionMaster()->InitDefault();
 
     if (Creature* creature = ToCreature())
     {
@@ -14122,8 +14120,6 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         if (type != CHARM_TYPE_VEHICLE)
             LastCharmerGUID = charmer->GetGUID();
     }
-    else
-        ToPlayer()->SetClientControl(this, 1);
 
     // If charmer still exists
     if (!charmer)
@@ -14134,24 +14130,23 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     charmer->SetCharm(this, false);
 
-    if (charmer->GetTypeId() == TYPEID_PLAYER)
+    Player* playerCharmer = charmer->ToPlayer();
+
+    if (playerCharmer)
     {
         switch (type)
         {
             case CHARM_TYPE_VEHICLE:
-                charmer->ToPlayer()->SetClientControl(charmer, 1);
-                charmer->ToPlayer()->SetViewpoint(this, false);
-                charmer->ToPlayer()->SetClientControl(this, 0);
-                if (GetTypeId() == TYPEID_PLAYER)
-                    ToPlayer()->SetMover(this);
+                playerCharmer->SetClientControl(this, false);
+                playerCharmer->SetClientControl(charmer, true);
+                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 break;
             case CHARM_TYPE_POSSESS:
-                charmer->ToPlayer()->SetClientControl(charmer, 1);
-                charmer->ToPlayer()->SetViewpoint(this, false);
-                charmer->ToPlayer()->SetClientControl(this, 0);
+                playerCharmer->SetClientControl(this, false);
+                playerCharmer->SetClientControl(charmer, true);
                 charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                if (GetTypeId() == TYPEID_PLAYER)
-                    ToPlayer()->SetMover(this);
+                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                ClearUnitState(UNIT_STATE_POSSESSED);
                 break;
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
@@ -14172,9 +14167,12 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         }
     }
 
+    if (Player* player = ToPlayer())
+        player->SetClientControl(this, true);
+
     // a guardian should always have charminfo
-    if (charmer->GetTypeId() == TYPEID_PLAYER && this != charmer->GetFirstControlled())
-        charmer->ToPlayer()->SendRemoveControlBar();
+    if (playerCharmer && this != charmer->GetFirstControlled())
+        playerCharmer->SendRemoveControlBar();
     else if (GetTypeId() == TYPEID_PLAYER || (GetTypeId() == TYPEID_UNIT && !ToCreature()->IsGuardian()))
         DeleteCharmInfo();
 }
@@ -14231,8 +14229,7 @@ void Unit::RemoveVehicleKit()
 
     m_updateFlag &= ~UPDATEFLAG_VEHICLE;
     m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
-    RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+    RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK | UNIT_NPC_FLAG_PLAYER_VEHICLE);
 }
 
 bool Unit::IsOnVehicle(const Unit* vehicle) const
